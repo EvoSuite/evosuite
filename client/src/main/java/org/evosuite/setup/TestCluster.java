@@ -26,6 +26,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -116,6 +117,151 @@ public class TestCluster {
 		instance = null;
 	}
 
+	/**
+	 * A generator for X might be a non-static method M of Y, but what if Y itself has no generator?
+	 * In that case, M should not be a generator for X, as impossible to instantiate Y
+	 */
+	public void removeUnusableGenerators(){
+
+		generatorCache.clear();
+		Set<GenericClass> removed = new LinkedHashSet<>();
+
+
+		for(Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>> entry : generators.entrySet()){
+			if(entry.getValue().isEmpty()){
+				recursiveRemoveGenerators(entry.getKey());
+			}
+
+
+			Set<GenericClass> toRemove = new LinkedHashSet<>();
+
+			for(GenericAccessibleObject<?> gao : entry.getValue()){
+				GenericClass owner = gao.getOwnerClass();
+				if(removed.contains(owner)){
+					continue;
+				}
+				try {
+					cacheGenerators(owner);
+				} catch (ConstructionFailedException e) {
+					continue;
+				}
+				if(generatorCache.get(owner).isEmpty()){
+					toRemove.add(owner);
+				}
+			}
+
+			for(GenericClass tr : toRemove) {
+				recursiveRemoveGenerators(tr);
+				removed.add(tr);
+			}
+		}
+
+		removeOnlySelfGenerator();
+
+		removeDirectCycle();
+		
+		generatorCache.clear();
+	}
+
+
+	/**
+			if a class X has a generator non-static method for Y, but, among its own generators for X it has one
+			that uses Y as input, then do not use any non-static method of X as generator for Y.
+			This is to avoid nasty cycles.
+			For example, consider the case of:
+
+	 		<p>
+			X(Y y){...} <br>
+			Y getY(){...}
+
+	 		<p>
+			If we need Y, we could end up using x.getY(), which for instantiating x would need a Y, which might
+			end up in an infinite recursion...
+		 */
+	private void removeDirectCycle() {
+
+		//check each generator Y
+		for(Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>> entry : generators.entrySet()){
+
+			if(entry.getValue().isEmpty()){
+				continue;
+			}
+
+			//for a given type Y, check all its generators X, like "Y x.getY()"
+			Iterator<GenericAccessibleObject<?>> iter = entry.getValue().iterator();
+			while(iter.hasNext()){
+				GenericAccessibleObject<?> gao = iter.next();
+
+				GenericClass owner = gao.getOwnerClass(); // eg X
+				try {
+					cacheGenerators(owner);
+				} catch (ConstructionFailedException e) {
+					continue;
+				}
+
+				for(GenericAccessibleObject<?> genOwner : generatorCache.get(owner)){
+					if(genOwner.isStatic()){
+						continue; //as there is no need to instantiate X, it is not an issue
+					}
+
+					//is any generator for X using as input an instance of Y?
+					if(Arrays.asList(genOwner.getGenericParameterTypes())
+							.stream().anyMatch(
+									t -> t.equals(entry.getKey().getType()))
+							){
+						iter.remove();
+						break;
+					}
+				}
+			}
+
+			if(entry.getValue().isEmpty()){
+				recursiveRemoveGenerators(entry.getKey());
+			}
+		}
+	}
+
+	private void removeOnlySelfGenerator() {
+
+		for(Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>> entry : generators.entrySet()){
+
+			boolean toRemove = true;
+
+			for(GenericAccessibleObject gao : entry.getValue()){
+				if(! (!gao.isStatic() && gao.isMethod() &&  gao.getOwnerClass().equals(entry.getKey()))){
+					toRemove = false; //at least one good generator
+					break;
+				}
+			}
+
+			if(toRemove){
+				entry.getValue().clear();
+			}
+		}
+	}
+
+	private void recursiveRemoveGenerators(GenericClass toRemove) {
+
+		for(Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>> entry : generators.entrySet()){
+
+			boolean recursion = false;
+
+			Iterator<GenericAccessibleObject<?>> iter = entry.getValue().iterator();
+			while(iter.hasNext()){
+				GenericAccessibleObject<?> gao = iter.next();
+				if(gao.isMethod() && !gao.isStatic() && gao.getOwnerClass().equals(toRemove)){
+					iter.remove();
+					recursion = true;
+				}
+			}
+
+			if(recursion && entry.getValue().isEmpty()){
+				recursiveRemoveGenerators(entry.getKey());
+			}
+		}
+
+	}
+
 	public void invalidateGeneratorCache(GenericClass klass){
 		Iterator<Map.Entry<GenericClass,Set<GenericAccessibleObject<?>>>> iter = generatorCache.entrySet().iterator();
 		while(iter.hasNext()){
@@ -196,7 +342,7 @@ public class TestCluster {
 	 */
 	public void addModifier(GenericClass target, GenericAccessibleObject<?> call) {
 		if (!modifiers.containsKey(target))
-			modifiers.put(target, new LinkedHashSet<GenericAccessibleObject<?>>());
+			modifiers.put(target, new LinkedHashSet<>());
 
 		modifiers.get(target).add(call);
 	}
@@ -245,7 +391,7 @@ public class TestCluster {
 			return;
 		logger.debug("1. Caching generators for " + clazz);
 
-		Set<GenericAccessibleObject<?>> targetGenerators = new LinkedHashSet<GenericAccessibleObject<?>>();
+		Set<GenericAccessibleObject<?>> targetGenerators = new LinkedHashSet<>();
 		if (clazz.isObject()) {
 			logger.debug("2. Target class is object: " + clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
@@ -256,8 +402,7 @@ public class TestCluster {
 		} else {
 			logger.debug("2. Target class is not object: " + clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
-				logger.debug("3. Considering original generator: " + generatorClazz
-				        + " for " + clazz);
+				logger.debug("3. Considering original generator: " + generatorClazz + " for " + clazz);
 
 				if (generatorClazz.canBeInstantiatedTo(clazz)) {
 					logger.debug("4. generator " + generatorClazz + " can be instantiated to " + clazz);
@@ -879,7 +1024,8 @@ public class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	public GenericAccessibleObject<?> getRandomGenerator(GenericClass clazz,
-	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position, VariableReference generatorRefToExclude) throws ConstructionFailedException {
+	        Set<GenericAccessibleObject<?>> excluded, TestCase test, int position,
+			VariableReference generatorRefToExclude, int recursionDepth) throws ConstructionFailedException {
 
 		logger.debug("Getting random generator for " + clazz);
 
@@ -888,9 +1034,8 @@ public class TestCluster {
 			logger.debug("Target class is generic: " + clazz);
 			GenericClass concreteClass = clazz.getGenericInstantiation();
 			if (!concreteClass.equals(clazz)) {
-				logger.debug("Target class is generic: " + clazz
-				        + ", getting instantiation " + concreteClass);
-				return getRandomGenerator(concreteClass, excluded, test, position, generatorRefToExclude);
+				logger.debug("Target class is generic: " + clazz + ", getting instantiation " + concreteClass);
+				return getRandomGenerator(concreteClass, excluded, test, position, generatorRefToExclude, recursionDepth);
 			}
 		}
 
@@ -901,14 +1046,12 @@ public class TestCluster {
 			generator = Randomness.choice(getGeneratorsForSpecialCase(clazz));
 			if (generator == null) {
 				logger.warn("No generator for special case class: " + clazz);
-				throw new ConstructionFailedException(
-				        "Have no generators for special case: " + clazz);
+				throw new ConstructionFailedException("Have no generators for special case: " + clazz);
 			}
 		} else {
 			cacheGenerators(clazz);
 
 			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<>(generatorCache.get(clazz));
-			int before = candidates.size();
 			candidates.removeAll(excluded);
 
 			if(Properties.JEE) {
@@ -917,7 +1060,8 @@ public class TestCluster {
 					GenericAccessibleObject<?> gao = iter.next();
 					if (gao instanceof GenericConstructor) {
 						Class<?> klass = gao.getDeclaringClass();
-						if(InstanceOnlyOnce.canInstantiateOnlyOnce(klass) && ConstraintHelper.countNumberOfNewInstances(test, klass) != 0){
+						if(InstanceOnlyOnce.canInstantiateOnlyOnce(klass) &&
+								ConstraintHelper.countNumberOfNewInstances(test, klass) != 0){
 							iter.remove();
 						}
 					}
@@ -944,6 +1088,20 @@ public class TestCluster {
 
 			if (candidates.isEmpty()) {
 				return null;
+			}
+
+			if(recursionDepth >= Properties.MAX_RECURSION / 2){
+				/*
+					if going long into the recursion, then do prefer direct constructors or static methods,
+					as non-static methods would require to get a caller which, if it is missing, would need
+					to be created, and that could lead to further calls if its generators need input parameters
+				 */
+				Set<GenericAccessibleObject<?>> set = candidates.stream()
+						.filter(p -> p.isStatic() || p.isConstructor())
+						.collect(Collectors.toSet());
+				if(! set.isEmpty()){
+					candidates = set;
+				}
 			}
 
 			generator = Randomness.choice(candidates);

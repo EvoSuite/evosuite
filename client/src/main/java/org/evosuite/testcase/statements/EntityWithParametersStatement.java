@@ -141,6 +141,13 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         references.add(retval);
         references.addAll(parameters);
         for (VariableReference param : parameters) {
+            if(param == null){
+                /*
+                    This could happen while building a functional mock, and creation
+                    of its input values lead to a forward check of properties
+                 */
+                continue;
+            }
             if (param.getAdditionalVariableReference() != null)
                 references.add(param.getAdditionalVariableReference());
         }

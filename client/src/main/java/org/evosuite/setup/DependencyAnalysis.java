@@ -89,8 +89,7 @@ public class DependencyAnalysis {
 		callGraphs.put(className, callGraph);
 		loadCallTreeClasses(callGraph);
 
-		// include all the project classes in the inheritance tree and in the
-		// callgraph.
+		// include all the project classes in the inheritance tree and in the callgraph.
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
 				|| Properties.INSTRUMENT_CONTEXT) { 
  

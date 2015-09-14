@@ -96,7 +96,7 @@ public class LoggingUtils {
 	public LoggingUtils() {
 	}
 
-	public static synchronized void logWarnAtMostOnce(Logger logger, String message){
+	private static synchronized void logAtMostOnce(Logger logger, String message, boolean error){
 		Inputs.checkNull(logger,message);
 
 		Set<String> previous = atMostOnceLogs.get(logger);
@@ -107,8 +107,21 @@ public class LoggingUtils {
 
 		if(!previous.contains(message)){
 			previous.add(message);
-			logger.warn(message);
+
+			if(error){
+				logger.error(message);
+			} else {
+				logger.warn(message);
+			}
 		}
+	}
+
+	public static void logWarnAtMostOnce(Logger logger, String message){
+		logAtMostOnce(logger,message,false);
+	}
+
+	public static void logErrorAtMostOnce(Logger logger, String message){
+		logAtMostOnce(logger,message, true);
 	}
 
 	/**

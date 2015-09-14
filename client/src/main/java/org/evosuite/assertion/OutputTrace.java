@@ -22,6 +22,7 @@ package org.evosuite.assertion;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
@@ -188,6 +189,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 				for (Assertion assertion : trace.get(statement).get(var).getAssertions()) {
 					assert (assertion.isValid()) : "Invalid assertion: "
 					        + assertion.getCode() + ", " + assertion.value;
+					if (test.sizeWithAssertions() >= Properties.MAX_LENGTH_TEST_CASE) {
+						return num;
+					}
 					test.getStatement(statement).addAssertion(assertion);
 					num++;
 				}

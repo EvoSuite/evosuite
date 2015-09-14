@@ -27,7 +27,7 @@ import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.javaee.javax.enterprise.event.EvoEvent;
 import org.evosuite.runtime.javaee.javax.transaction.EvoUserTransaction;
 import org.evosuite.runtime.util.Inputs;
-import org.junit.internal.AssumptionViolatedException;
+import org.junit.AssumptionViolatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +46,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * Class used to inject fields into tagged JavaEE objects
