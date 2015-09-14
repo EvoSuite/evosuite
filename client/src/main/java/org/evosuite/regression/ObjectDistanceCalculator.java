@@ -408,6 +408,13 @@ public class ObjectDistanceCalculator {
 			return normalize(getObjectMapDistance((Map<String, Object>) p,
 					(Map<String, Object>) q));
 		}
+		
+		// TODO: enums.
+		if (p instanceof Enum) {
+			return 0;
+			/*return getElementaryDistance(((Enum) p).ordinal(),
+					((Enum) q).ordinal());*/
+		}
 
 		throw new Error("Distance of unknown type!");
 	}
@@ -439,13 +446,13 @@ public class ObjectDistanceCalculator {
 					|| Double.valueOf(tmpDistance).isInfinite()) {
 				different_variables++;
 				tmpDistance = 0;
-				System.out
+				/*System.out
 						.println("!!!!!!!!!!!!!!!! OBJECT DISTANCE ALERT! NaN/Infinite received as distance: "
 								+ "field: "
 								+ fieldName
 								+ ", d: "
 								+ distance
-								+ " <");
+								+ " <");*/
 			}
 
 			distance += tmpDistance;

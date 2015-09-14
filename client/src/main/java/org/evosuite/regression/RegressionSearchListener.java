@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Sina
  * 
+ * This class is mainly here for generating regression statistics for
+ * the http://evosuiter.sina.sh platform.
+ * 
  */
 public class RegressionSearchListener implements SearchListener {
 

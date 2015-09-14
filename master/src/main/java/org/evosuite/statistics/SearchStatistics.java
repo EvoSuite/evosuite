@@ -168,13 +168,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return;
 
 		logger.debug("Received individual");
-		/*if (individual instanceof RegressionTestSuiteChromosome) {
-			TestSuiteChromosome tmpTestSuite = new TestSuiteChromosome();
-			List<TestCase> allRegressionTests = ((RegressionTestSuiteChromosome) individual).getTests();
-			for (TestCase t : allRegressionTests)
-				tmpTestSuite.addTest(t);
-			individual = tmpTestSuite;
-		}*/
+
 		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
         for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
             setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
