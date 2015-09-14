@@ -20,8 +20,10 @@
 package org.evosuite.idNaming;
 
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.testcase.TestCase;
@@ -53,6 +55,7 @@ public class TestNameGenerator extends DistinguishNames {
     private Map<TestCase,String> testNames = new HashMap<TestCase, String>();
     private Map<TestCase,String> testOutputs = new HashMap<TestCase, String>();
 	private Map<TestCase,String> testBranches = new HashMap<TestCase, String>();
+	private Map<TestCase,String> testInputs = new HashMap<TestCase, String>();
 	private Map<TestCase,String> testComparisons= new HashMap<TestCase, String>();
 
     /**
@@ -149,6 +152,7 @@ public class TestNameGenerator extends DistinguishNames {
     	Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();
 		String methodName="test";
 		String outputName="";
+		String inputName="";
 		String branchName="";
 		String comparisonName="";
 	
@@ -169,9 +173,28 @@ public class TestNameGenerator extends DistinguishNames {
 			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch"+ translateBranch(branch[3]);
 					}			  			
 				} else {
-					if (goal instanceof OutputCoverageTestFitness ) {						
-						outputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Returning"+
-								WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));						
+					if (goal instanceof OutputCoverageTestFitness ) {	
+						if(StringUtils.countMatches(goalName, "(")==2){
+							String[] outputN=goalName.split(":");
+							outputName+="_"+outputN[0].substring(outputN[0].lastIndexOf(".")+1,outputN[0].indexOf("("))+"With"+
+									WordUtils.capitalize(outputN[3].substring(0,outputN[3].indexOf("(")))+
+									WordUtils.capitalize(outputN[4]);
+						}else{
+							outputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Returning"+
+								WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));	
+						}
+					}else{
+						if (goal instanceof InputCoverageTestFitness ) {	
+							if(StringUtils.countMatches(goalName, "(")==2){
+								String[] inputN=goalName.split(":");
+								inputName+="_"+inputN[0].substring(inputN[0].lastIndexOf(".")+1,inputN[0].indexOf("("))+"With"+
+										WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
+										WordUtils.capitalize(inputN[4]);
+							} else{
+								inputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Inputting"+
+									WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));	
+							}
+						}
 					}
 				}
 		  	}
@@ -180,24 +203,24 @@ public class TestNameGenerator extends DistinguishNames {
 		methodName = methodName.replace("<","").replace(">","").replace("(","").replace(")","");
 		outputName = outputName.replace("<","").replace(">","").replace("(","").replace(")","");
 		branchName = branchName.replace("<","").replace(">","").replace("(","").replace(")","");
+		inputName = inputName.replace("<","").replace(">","").replace("(","").replace(")","");
 		testNames.put(tc, methodName); 
 		testOutputs.put(tc, outputName);
 		testBranches.put(tc, branchName);
+		testInputs.put(tc, inputName);
 		testComparisons.put(tc,comparisonName);
 		if(methodName.equals("test")){			
 		//	methodName = checkAssertions(tc, methodName);
 			if(!outputName.equals("")){
 				methodName ="test"+ outputName;
 			}else {
-				methodName ="test"+ branchName;
+				if(!inputName.equals("")){
+					methodName ="test"+ inputName;
+				}else{
+					methodName ="test"+ branchName;
+				}
 			}
 		}
-		
-		/*else {
-			if(NAMING_TYPE.equals("method_assertions")){
-				methodName = checkAssertions(tc, methodName);
-			} 
-		}*/
 		System.out.println(methodName);
 		return methodName;
     }
@@ -218,6 +241,15 @@ public class TestNameGenerator extends DistinguishNames {
     			if(testMethodName1.equals(testMethodName2)){
     				testMethodNameOptimized1 = testMethodName1 + testOutputs.get(testCases.get(i));
     				testMethodNameOptimized2 = testMethodName2 + testOutputs.get(testCases.get(j));
+    				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
+    					testMethodNameOptimized1 = testMethodNameOptimized1 + testInputs.get(testCases.get(i));
+        				testMethodNameOptimized2 = testMethodNameOptimized2 + testInputs.get(testCases.get(j));
+        				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
+        					testMethodNameOptimized1 = testMethodNameOptimized1 + testBranches.get(testCases.get(i));
+            				testMethodNameOptimized2 = testMethodNameOptimized2 + testBranches.get(testCases.get(j));  				
+        				}
+
+    				}
     				System.out.println(testMethodNameOptimized1+"-"+testMethodNameOptimized2);
     				setNameGeneratedFor(testCases.get(i), testMethodNameOptimized1);
     				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);
@@ -225,7 +257,8 @@ public class TestNameGenerator extends DistinguishNames {
     			}
     		}
     	}
-    	if(compareAgain.equals("YES")){
+    	
+    	/*if(compareAgain.equals("YES")){
 	    	for(int i=0; i<testCases.size(); i++){
 	    		for(int j=i+1; j<testCases.size(); j++){
 	    			testMethodName1 = testCaseNames.get(testCases.get(i));
@@ -239,7 +272,7 @@ public class TestNameGenerator extends DistinguishNames {
 	    			}
 	    		}
 	    	}
-    	}
+    	}*/
     	String[] testName = new String[testCases.size()];
     	TestCase[] testCs = new TestCase[testCases.size()];
     	int count=0;
@@ -253,28 +286,9 @@ public class TestNameGenerator extends DistinguishNames {
     	int optimizeAgain = -1;
         for (int i=0; i<testName.length; i++) {        	           
             String testMethodNameOptimized = testName[i]; // TODO
-            // to set the new, optimized test name:
-            setNameGeneratedFor(testCs[i], testMethodNameOptimized);
-         //   if(!testMethodNameOptimized.split("_")[0].equals("test")){
-          //  	testMethodNameOptimized = "test"+testComparisons.get(testCs[i]);
-           // 	optimizeAgain = 1;
-           // 	setNameGeneratedFor(testCs[i], testMethodNameOptimized);
-           // }           
-        }
-    /*    if(optimizeAgain == 1){
-        	count=0;
-	    	for (TestCase tc : testCaseNames.keySet()) {
-	    		testName[count] = testCaseNames.get(tc);
-	    		testCs[count] = tc;
-	    		count++;
-	    	} 
-	        testName = optimize.optimizeNames(Arrays.asList(testName));  
-	        for (int i=0; i<testName.length; i++) {        	           
-	            String testMethodNameOptimized = testName[i]; // TODO
-	            // to set the new, optimized test name:
-	            setNameGeneratedFor(testCs[i], testMethodNameOptimized);
-	        }
-        }*/
+            setNameGeneratedFor(testCs[i], testMethodNameOptimized);         
+            methodNames.add(testMethodNameOptimized);
+        }     
 
     }
   
@@ -290,7 +304,7 @@ public class TestNameGenerator extends DistinguishNames {
         // TODO
         return "test";
     }
-
+    int count=0;
     public String checkExeptionInTest(String tc, String testName) {
         String methodName = testName;
         String typeOfException = "";
@@ -302,8 +316,15 @@ public class TestNameGenerator extends DistinguishNames {
             if (hasExceptions.get_exceptions() > 0) {
                 typeOfException = tc.substring(tc.lastIndexOf("fail(\"Expecting exception: "));
                 typeOfException = typeOfException.substring(typeOfException.lastIndexOf(": ") + 2, typeOfException.indexOf("\");"));
-                //methodName=tokens[0]+"_"+tokens[1]+"_"+typeOfException;
-                methodName = testName + "_" + typeOfException;
+                methodName=tokens[0]+"_"+tokens[1]+"_"+typeOfException;
+            //    methodName = testName + "_" + typeOfException;
+            }
+            
+            for(int i=0; i<testCase.size(); i++){        		
+    			if(methodName.equals(methodNames.get(i))){
+    				 methodName=tokens[0]+count+"_"+tokens[1]+"_"+typeOfException;
+    				 count++;
+    			}        		
             }
             return methodName;
         }
