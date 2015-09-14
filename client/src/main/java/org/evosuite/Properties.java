@@ -1355,7 +1355,7 @@ public class Properties {
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
 	
 	/** Cache target regression class */
-	private static Class<?> TARGET_REGERSSION_CLASS_INSTANCE = null;
+	private static Class<?> TARGET_REGRESSION_CLASS_INSTANCE = null;
 
 	/** Constant <code>CP=""</code> */
 	@Parameter(key = "CP", group = "Runtime", description = "The classpath of the target classes")
@@ -2226,9 +2226,9 @@ public class Properties {
 		if (isOriginal && TARGET_CLASS_INSTANCE != null
 		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
-		else if(!isOriginal && TARGET_REGERSSION_CLASS_INSTANCE != null
-		        && TARGET_REGERSSION_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
-			return TARGET_REGERSSION_CLASS_INSTANCE;
+		else if(!isOriginal && TARGET_REGRESSION_CLASS_INSTANCE != null
+		        && TARGET_REGRESSION_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
+			return TARGET_REGRESSION_CLASS_INSTANCE;
 		
 		if(isOriginal)
 		 toReturnRegression = true;
@@ -2276,7 +2276,7 @@ public class Properties {
 			
 
 			if (STRATEGY == Strategy.REGRESSION || STRATEGY == Strategy.REGRESSIONTESTS) {
-				TARGET_REGERSSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
+				TARGET_REGRESSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
                         TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 			}
 
@@ -2287,7 +2287,7 @@ public class Properties {
 					"* Could not find class under test " + Properties.TARGET_CLASS + ": " + e);
 		}
 
-		return (Properties.toReturnRegression)?TARGET_REGERSSION_CLASS_INSTANCE: TARGET_CLASS_INSTANCE;
+		return (Properties.toReturnRegression) ? TARGET_REGRESSION_CLASS_INSTANCE : TARGET_CLASS_INSTANCE;
 	}
 
 	/**

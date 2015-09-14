@@ -46,81 +46,67 @@ public class RegressionAssertionCounter {
 			} else {
 				RegressionTestSuiteChromosome ind = (RegressionTestSuiteChromosome) individual;
 				testCases.addAll(ind.getTests());
-				/*
-				 * for (RegressionTestChromosome regressionTest :
-				 * ind.getTestChromosomes()) {
-				 * 
-				 * clone.addTest(regressionTest); }
-				 */
 			}
 			logger.warn("tests are copied");
 			// List<TestCase> testCases = clone.getTests();
 			numAssertions = 0;
-			//logger.warn("checking if compilable ...");
 
-			// boolean compilable =
-			// JUnitAnalyzer.verifyCompilationAndExecution(testCases);
-			if (true) {
-				
-				//logger.warn("yep, it was");
-				JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
-				logger.warn("... removeTestsThatDoNotCompile()");
-				
-				int numUnstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases);				
-				logger.warn("... handleTestsThatAreUnstable() = {}", numUnstable);
-				
-				if (testCases.size() > 0) {
-					logger.warn("{} out of {} tests remaining!", testCases.size(), ((RegressionTestSuiteChromosome)individual).getTests().size());
-					clone = new RegressionTestSuiteChromosome();
+			JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+			logger.warn("... removeTestsThatDoNotCompile()");
+			
+			int numUnstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases);				
+			logger.warn("... handleTestsThatAreUnstable() = {}", numUnstable);
+			
+			if (testCases.size() > 0) {
+				logger.warn("{} out of {} tests remaining!", testCases.size(), ((RegressionTestSuiteChromosome)individual).getTests().size());
+				clone = new RegressionTestSuiteChromosome();
 
-					for (TestCase t : testCases) {
-						// logger.warn("adding cloned test ...");
-						if(t.isUnstable()){
-							logger.warn("skipping unstable test...");
-							continue;
-						}
-						RegressionTestChromosome rtc = new RegressionTestChromosome();
-						TestChromosome tc = new TestChromosome();
-						tc.setTestCase(t);
-						rtc.setTest(tc);
-						clone.addTest(rtc);
+				for (TestCase t : testCases) {
+					// logger.warn("adding cloned test ...");
+					if(t.isUnstable()){
+						logger.warn("skipping unstable test...");
+						continue;
 					}
+					RegressionTestChromosome rtc = new RegressionTestChromosome();
+					TestChromosome tc = new TestChromosome();
+					tc.setTestCase(t);
+					rtc.setTest(tc);
+					clone.addTest(rtc);
+				}
 
-					logger.warn("getting new num assertions ...");
-					List<List<String>> oldAssertionComments = new ArrayList<List<String>>(assertionComments);
-					assertionComments.clear();
-					numAssertions = getNumAssertions(clone, false);
-					if(oldAssertionComments.size()!=assertionComments.size()){
-						numAssertions=0;
-						logger.error("Assertion test size mismatch: {} VS {}", oldAssertionComments.size(), assertionComments.size());
-					}else
-						for(int i=0; i<oldAssertionComments.size();i++){
-							List<String> testAssertionCommentsOld = oldAssertionComments.get(i);
-							List<String> testAssertionCommentsNew = assertionComments.get(i);
-							
-							if(testAssertionCommentsNew.size()!= testAssertionCommentsOld.size()){
+				logger.warn("getting new num assertions ...");
+				List<List<String>> oldAssertionComments = new ArrayList<List<String>>(assertionComments);
+				assertionComments.clear();
+				numAssertions = getNumAssertions(clone, false);
+				if(oldAssertionComments.size()!=assertionComments.size()){
+					numAssertions=0;
+					logger.error("Assertion test size mismatch: {} VS {}", oldAssertionComments.size(), assertionComments.size());
+				}else
+					for(int i=0; i<oldAssertionComments.size();i++){
+						List<String> testAssertionCommentsOld = oldAssertionComments.get(i);
+						List<String> testAssertionCommentsNew = assertionComments.get(i);
+						
+						if(testAssertionCommentsNew.size()!= testAssertionCommentsOld.size()){
+							numAssertions=0;
+							logger.error("Assertion comment size mismatch: {} VS {}", testAssertionCommentsNew.size(), testAssertionCommentsOld.size());
+							break;
+						}
+						
+						for(int j=0; j<testAssertionCommentsOld.size(); j++){
+							if(!testAssertionCommentsOld.get(j).equals(testAssertionCommentsNew.get(j))){
 								numAssertions=0;
-								logger.error("Assertion comment size mismatch: {} VS {}", testAssertionCommentsNew.size(), testAssertionCommentsOld.size());
+								logger.error("Assertion comment mismatch: [{}] VS [{}]", testAssertionCommentsOld.get(j), testAssertionCommentsNew.get(j));
 								break;
 							}
-							
-							for(int j=0; j<testAssertionCommentsOld.size(); j++){
-								if(!testAssertionCommentsOld.get(j).equals(testAssertionCommentsNew.get(j))){
-									numAssertions=0;
-									logger.error("Assertion comment mismatch: [{}] VS [{}]", testAssertionCommentsOld.get(j), testAssertionCommentsNew.get(j));
-									break;
-								}
-							}
 						}
-					
-					logger.warn("Keeping {} assertions.", numAssertions);
+					}
+				
+				logger.warn("Keeping {} assertions.", numAssertions);
 
-				} else {
-					logger.warn("ignored assertions. tests were removed.");
-				}
 			} else {
-				logger.warn("ignored assertions. not compilable.");
+				logger.warn("ignored assertions. tests were removed.");
 			}
+			
 		}
 
 		return numAssertions;
@@ -227,10 +213,10 @@ public class RegressionAssertionCounter {
 				RegressionSearchListener.exceptionDiff += exDiff;
 
 				// add exception diff comments
-				if (false && !removeAssertions)
-					addExceptionAssertionComments(regressionTest,
-							result1.getCopyOfExceptionMapping(), 
-							result2.getCopyOfExceptionMapping());
+				//  if (!removeAssertions)
+				//	  addExceptionAssertionComments(regressionTest,
+				//	 		 result1.getCopyOfExceptionMapping(), 
+				//	   		 result2.getCopyOfExceptionMapping());
 
 				// if(result1.hasTestException() || result2.hasTestException()
 				// || result1.hasUndeclaredException() ||
@@ -365,7 +351,9 @@ public class RegressionAssertionCounter {
 		return exDiff;
 	}
 
-
+	/*
+	 * Add regression-diff comments for exception messages 
+	 */
 	public static void addExceptionAssertionComments(
 			RegressionTestChromosome regressionTest,
 			Map<Integer, Throwable> originalExceptionMapping,

@@ -47,7 +47,7 @@ public class RegressionSuiteMinimizer {
 		RegressionTestSuiteChromosome regressionSuite = new RegressionTestSuiteChromosome();
 		regressionSuite.addTests(suite.getTestChromosomes());
 
-		// seems to be broken.
+		// Seems to be broken:
 		// removeUnusedVariables(regressionSuite);
 
 		executeSuite(regressionSuite);

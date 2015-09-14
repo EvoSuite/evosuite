@@ -18,47 +18,57 @@ public class RegressionExecutionObserver extends ExecutionObserver {
 	private static final Logger logger = LoggerFactory
 			.getLogger(RegressionExecutionObserver.class);
 
-	
 	boolean isRegression = false;
-	
+
 	public boolean off = true;
 
 	public void regressionFlag(boolean isRegression) {
 		this.isRegression = isRegression;
 	}
 
+	/*
+	 * Explanation of the "magic" code below:
+	 * 
+	 * These are object values, given a scope.
+	 * List - ([optional] the following data can be obtained after executing each statement), of
+	 * List - Scope contains a number of statements, of
+	 * Map - Integer: variable reference position, of
+	 * Map - String: class of the variable reference, of
+	 * Map - String: class of the object, of primitive object value.
+	 */
 	
-	public List<List<Map<Integer,Map<String, Map<String, Object>>>>> objectMapPool = new ArrayList<List<Map<Integer,Map<String, Map<String, Object>>>>>();
-	public List<List<Map<Integer,Map<String, Map<String, Object>>>>> regressionObjectMapPool = new ArrayList<List<Map<Integer,Map<String, Map<String, Object>>>>>();
-	
-	public List<Map<Integer,Map<String, Map<String, Object>>>> currentObjectMapPool = new ArrayList<Map<Integer,Map<String, Map<String, Object>>>>();
-	public List<Map<Integer,Map<String, Map<String, Object>>>> currentRegressionObjectMapPool = new ArrayList<Map<Integer,Map<String, Map<String, Object>>>>();
-	
-	
+	public List<List<Map<Integer, Map<String, Map<String, Object>>>>> objectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
+	public List<List<Map<Integer, Map<String, Map<String, Object>>>>> regressionObjectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
+
+	public List<Map<Integer, Map<String, Map<String, Object>>>> currentObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
+	public List<Map<Integer, Map<String, Map<String, Object>>>> currentRegressionObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
+
 	@Override
 	public void afterStatement(Statement statement, Scope scope,
 			Throwable exception) {
-		
+
 	}
 
 	public void requestNewPools() {
-		currentObjectMapPool = new ArrayList<Map<Integer,Map<String, Map<String, Object>>>>();
-		currentRegressionObjectMapPool = new ArrayList<Map<Integer,Map<String, Map<String, Object>>>>();
+		currentObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
+		currentRegressionObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
 	}
 
-	public void addToPools(){
+	public void addToPools() {
 		objectMapPool.add(currentObjectMapPool);
 		regressionObjectMapPool.add(currentRegressionObjectMapPool);
 	}
-	
-	public void addToPools(List<Map<Integer,Map<String, Map<String, Object>>>> currentObjectMapPool,List<Map<Integer,Map<String, Map<String, Object>>>> currentRegressionObjectMapPool){
+
+	public void addToPools(
+			List<Map<Integer, Map<String, Map<String, Object>>>> currentObjectMapPool,
+			List<Map<Integer, Map<String, Map<String, Object>>>> currentRegressionObjectMapPool) {
 		objectMapPool.add(currentObjectMapPool);
 		regressionObjectMapPool.add(currentRegressionObjectMapPool);
 	}
 
 	public void clearPools() {
-		objectMapPool = new ArrayList<List<Map<Integer,Map<String, Map<String, Object>>>>>();
-		regressionObjectMapPool = new ArrayList<List<Map<Integer,Map<String, Map<String, Object>>>>>();
+		objectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
+		regressionObjectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
 	}
 
 	@Override

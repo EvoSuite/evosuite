@@ -71,7 +71,7 @@ public class TestGenerationContext {
 	private InstrumentingClassLoader classLoader;
 	
 	/**
-	 * The regerssion class loader
+	 * The regression class loader
 	 */
 	private InstrumentingClassLoader regressionClassLoader;
 

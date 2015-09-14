@@ -69,7 +69,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 	public int max_branch_fitness_valueR = 0;
 
 	transient RegressionExecutionObserver observer;
-	//RegressionMethodExecutionObserver methodObserver;
+
 
 	BranchCoverageSuiteFitness bcFitness;
 	BranchCoverageSuiteFitness bcFitnessRegression;
@@ -88,22 +88,12 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 	
 	public RegressionSuiteFitness() {
 		super();
-logger.warn("initialising regression Suite Fitness... #################################################");
+		logger.warn("initialising regression Suite Fitness... #################################################");
 		if(Properties.REGRESSION_ANALYZE){
 			Properties.REGRESSION_USE_FITNESS = 1;
 			Properties.REGRESSION_DIFFERENT_BRANCHES = true;
 		}
 		
-
-		String className = Properties.TARGET_CLASS;
-
-		if (Properties.REGRESSION_DIFFERENT_BRANCHES) {
-			//DependencyAnalysis.doJdiff(className);
-			//branchIdMap = DependencyAnalysis.branchIdMap;
-		}
-		// System.exit(0);
-		// //////////////////////////////////////////////////////////////////////
-
 		// populate a temp branch distance map with initial data for all
 		// branches(if they are not covered, 4 will be considered).
 		tempBranchDistanceMap = new HashMap<Integer, Double>();
@@ -128,7 +118,6 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		max_branch_fitness_valueR = bcFitnessRegression.getMaxValue();
 
 		observer = new RegressionExecutionObserver();
-		//methodObserver = new RegressionMethodExecutionObserver();
 
 		ExecutionTracer.enableTraceCalls();
 
@@ -151,8 +140,6 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 			TestChromosome testChromosome = c.getTheTest();
 			TestChromosome otherChromosome = c.getTheSameTestForTheOtherClassLoader();
-			ClassLoader a = testChromosome.getClass().getClassLoader();
-			ClassLoader b = otherChromosome.getClass().getClassLoader();
 
 			// Only execute test if it hasn't been changed
 			if (testChromosome.isChanged()
@@ -163,8 +150,6 @@ logger.warn("initialising regression Suite Fitness... ##########################
 					Statement x = testChromosome.getTestCase().getStatement(i);
 					if(x instanceof MethodStatement){
 						MethodStatement methodCall = (MethodStatement) x;
-						if(methodCall==null)
-							continue;
 						VariableReference callee = methodCall.getCallee();
 						if(callee==null)
 							continue;
@@ -294,26 +279,11 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		double distance = 0.0;
 		double fitness = 0.0;
 
-		// double branchDistance = 0.0;
-
 		// populate branches with a value of 2 (branch not covered yet)
 		// branchDistanceMap = new HashMap<Integer, Double>();
 		branchDistanceMap = (Map<Integer, Double>) tempBranchDistanceMap
 				.clone();
 
-		/*
-		 * for (Branch b : BranchPool.getInstance(
-		 * TestGenerationContext.getClassLoader()).getAllBranches()) {
-		 * logger.warn("branch id " + b.getActualBranchId());
-		 * branchDistanceMap.put(b.getActualBranchId(), 2.0); }
-		 */
-
-		/*
-		 * branchDistanceMap.put(1, 1000.0); branchDistanceMap.put(2, 1000.0);
-		 * branchDistanceMap.put(3, 1000.0); branchDistanceMap.put(4, 1000.0);
-		 * branchDistanceMap.put(5, 1000.0);
-		 */
-		// branchDistanceMap.put(6, 1000.0);
 		numDifferentExceptions = 0;
 		totalExceptions = 0;
 		diffTime = 0;
@@ -341,8 +311,6 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			int numExceptionOrig = result1.getNumberOfThrownExceptions();
 			int numExceptionReg = result2.getNumberOfThrownExceptions();
 			
-			long timeExecOrig = result1.getExecutionTime();
-			long timeExecReg = result2.getExecutionTime();
 			
 			double execTimeDiff = Math
 					.abs((double) (numExceptionOrig - numExceptionReg));
@@ -365,51 +333,12 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			RegressionSearchListener.branchDistanceTime += System.nanoTime()
 					- startTime;
 
-			/*
-			 * switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) { case 3:
-			 * methodObserver
-			 * .addToPools(regressionTest.getOriginalObjectPool(),regressionTest
-			 * .getRegressionObjectPool()); break; case 0: default:
-			 */
-			//if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
-				//observer.addToPools(result1.objectPool, result2.objectPool);
 			objectDistances.add(result1.regressionObjectDistance);
-			//}
-			/*
-			 * break;
-			 * 
-			 * }
-			 */
+
 		}
 		firstF = true;
 
 
-		/*startTime = System.nanoTime();
-		double objectDfitness = 0;
-		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
-			switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
-			case 3:
-				//distance = getTestObjectsDistancePerMethod();
-				break;
-			case 2:
-				//distance = getTestObjectsDistancePerStatement();
-				break;
-			case 1:
-				//distance = getTestObjectsDistancePerSuite();
-				break;
-			case 0:
-			default:
-				// logger.warn("" + individual.getTestSuite());
-				distance = getTestObjectsDistancePerTestcase();
-				break;
-
-			}
-			objectDfitness = (1.0 / (1.0 + distance))
-					* (max_branch_fitness_valueO + max_branch_fitness_valueR);
-
-		}
-		RegressionSearchListener.ObjectDistanceTime += System.nanoTime()
-				- startTime;*/
 		
 		double objectDfitness = 0;
 		if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
@@ -428,10 +357,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			testRegressionSuiteChromosome = suite
 					.getTestSuiteForTheOtherClassLoader();
 		}
-		/*
-		 * fitness += bcFitness.getFitness(testSuiteChromosome); fitness +=
-		 * bcFitnessRegression .getFitness(testRegressionSuiteChromosome);
-		 */
+
+
 		double coverage_old = 0, coverage_new = 0;
 		if (useMeasure(RegressionMeasure.COVERAGE_OLD)) {
 			coverage_old = bcFitness.getFitness(testSuiteChromosome);
@@ -443,22 +370,20 @@ logger.warn("initialising regression Suite Fitness... ##########################
 		double coverage = coverage_old + coverage_new;
 
 		RegressionSearchListener.coverageTime += System.nanoTime() - startTime;
-		// coverage = normalize(coverage);
 
-		// fitness += coverage;
+
 		double branchDfitness = 0;
 
 		double totalBranchDistanceFitness = 0.0;
 		if (useMeasure(RegressionMeasure.BRANCH_DISTANCE)) {
 			for (Map.Entry<Integer, Double> br : branchDistanceMap.entrySet()) {
-				// logger.warn("branch " + br.getKey() +" value " +
-				// br.getValue());
+
 				totalBranchDistanceFitness += br.getValue();
 			}
 
 			branchDfitness = totalBranchDistanceFitness;
 		}
-		// fitness += (1.0 / (1.0 + branchDistance));
+
 
 		switch (Properties.REGRESSION_USE_FITNESS) {
 		case 6:
@@ -501,25 +426,8 @@ logger.warn("initialising regression Suite Fitness... ##########################
 			double diversityFitness = (1.0 / (1.0 + uniqueCalls));
 			fitness += diversityFitness;
 		}
-		//fitness += (1.0 / (1.0 + diffTime));
 
-		// double totalExDistance = normalize(totalExceptions) *
-		// (max_branch_fitness_valueO + max_branch_fitness_valueR);
-		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-		// fitness = normalize(fitness);
-
-		// fitness += 1.0/(1.0+distance);
-
-		// double
-		// thebranchcoverageofthefirsttestsuiteandpleasechangethisnamebecauseIonlyusesuchnamestoillustratethingswhenItalktoyou
-		// = f.getFitness(testSuiteChromosome);
-
-		// BranchCoverageFactory y = new BranchCoverageFactory();
-
-		// List<BranchCoverageTestFitness> z = y.getCoverageGoals("");
-
-		// fitness = x.getFitness(individual);
 		String covered_old = String
 				.format("%.2f", bcFitness.totalCovered * 100);
 		String covered_new = String.format("%.2f",
@@ -606,12 +514,13 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 	/**
 	 * Calculate diversity among objects
+	 * 
 	 */
 	private void calculateDiversity() {
 		long divStartTime = System.nanoTime();
 		
-		LRS lrs = new LRS();
-		// Calculate fitness
+		//LRS lrs = new LRS();
+
 		uniqueCalls = 0;
 		for(Entry<String, Map<Integer, String>> dEntry:diversityMap.entrySet()){
 			Map<Integer, String> calleeObjects = diversityMap.get(dEntry.getKey());
@@ -638,9 +547,26 @@ logger.warn("initialising regression Suite Fitness... ##########################
 				- divStartTime;
 	}
 	
+	/*
+	 *  Get the distance of two branches given two method calls
+	 *  
+	 *  @deprecated This function isn't in use anymore...
+	 */
 	public void getBranchDistance(List<MethodCall> methodCallsOrig,
 			List<MethodCall> methodCallsReg) {
-
+		/*
+		 * Here's how this method works:
+		 * 
+		 * It takes two pointers i and j, and two lists of method calls
+		 * 
+		 * Then for each of the equal methods:
+		 * - it takes two sets of branch traces and two pointers k and l
+		 * - it then compares the branch distances
+		 * 
+		 * The pointers skip forward if one side is not equal to the other
+		 * (possibly to skip new code that was added)
+		 */
+		
 		for (int i = 0, j = 0; i < methodCallsOrig.size()
 				&& j < methodCallsReg.size();) {
 			MethodCall mO = methodCallsOrig.get(i);
@@ -724,167 +650,6 @@ logger.warn("initialising regression Suite Fitness... ##########################
 
 	}
 	
-	private double getTestObjectsDistancePerTestcase() {
-
-		// logger.warn("original Objects: " + observer.objectMapPool);
-		// logger.warn("regression Objects: " +
-		// observer.regressionObjectMapPool);
-
-		ObjectDistanceCalculator.different_variables = 0;
-		
-		double distance = 0.0;
-		for (int i = 0; i < observer.objectMapPool.size(); i++) {
-			List<Map<Integer, Map<String, Map<String, Object>>>> topmap1 = observer.objectMapPool
-					.get(i);
-			List<Map<Integer, Map<String, Map<String, Object>>>> topmap2 = observer.regressionObjectMapPool
-					.get(i);
-
-			// logger.warn("" + topmap1 + topmap2);
-
-			Map<String, Double> maxClassDistance = new HashMap<String, Double>();
-
-			for (int j = 0; j < topmap1.size(); j++) {
-				Map<Integer, Map<String, Map<String, Object>>> map1 = topmap1
-						.get(j);
-
-				if (topmap2.size() <= j)
-					continue;
-				Map<Integer, Map<String, Map<String, Object>>> map2 = topmap2
-						.get(j);
-
-				for (Map.Entry<Integer, Map<String, Map<String, Object>>> map1_entry : map1
-						.entrySet()) {
-					// Map.Entry<Integer, Map<String, Object>> map2_entry =
-					// (Entry<Integer, Map<String, Object>>) map2.get(
-					// map1_entry.getKey());
-
-					// logger.warn("key: " + map1_entry.getKey());
-
-					Map<String, Map<String, Object>> map1_values = map1_entry
-							.getValue();
-					Map<String, Map<String, Object>> map2_values = map2
-							.get(map1_entry.getKey());
-					// logger.warn("" + map1_values + map2_values);
-					if (map1_values == null || map2_values == null)
-						continue;
-					for (Map.Entry<String, Map<String, Object>> internal_map1_entries : map1_values
-							.entrySet()) {
-
-						Map<String, Object> map1_value = internal_map1_entries
-								.getValue();
-						Map<String, Object> map2_value = map2_values
-								.get(internal_map1_entries.getKey());
-						if (map1_value == null || map2_value == null)
-							continue;
-						
-						double objectDistance = ObjectDistanceCalculator
-								.getObjectMapDistance(map1_value, map2_value);
-						/* logger.warn("oDistance: " + objectDistance);
-						 logger.warn("var1: " +map1_value + " | var2: " +
-						 map2_value);*/
-						/*if(map1_value.containsKey("fake_var_java_lang_Double") && (Double)map1_value.get("fake_var_java_lang_Double")==0.5){
-						logger.warn("Map1: {} | Map2: {} " , map1_value,map2_value);
-						
-						}*/
-						if (!maxClassDistance.containsKey(internal_map1_entries
-								.getKey())
-								|| (maxClassDistance.get(internal_map1_entries
-										.getKey()) < objectDistance))
-
-							maxClassDistance.put(
-									internal_map1_entries.getKey(),
-									Double.valueOf(objectDistance));
-						/* logger.warn(internal_map1_entries.getKey() + ": " +
-						 map1_value + " --VS-- "+ map2_value);*/
-						/*
-						 * 
-						 * for (Map.Entry<String, Object> internal_map1_entry :
-						 * map1_value .entrySet()) { // Map.Entry<String,
-						 * Object> internal_map2_entry = // (Entry<String,
-						 * Object>) //
-						 * map2_entry.getValue().get(internal_map1_entry
-						 * .getKey());
-						 * 
-						 * Object internal_map1_value = internal_map1_entry
-						 * .getValue(); Object itnernal_map2_value = map2_value
-						 * .get(internal_map1_entry.getKey());
-						 * 
-						 * 
-						 * logger.warn("Key: " + internal_map1_entry.getKey() +
-						 * "= Normal: " + internal_map1_entry.getValue() +
-						 * ", Regression: " + itnernal_map2_value + ", type:" +
-						 * itnernal_map2_value.getClass());
-						 * 
-						 * 
-						 * double temp_dist = ObjectDistanceCalculator
-						 * .getObjectDistance(internal_map1_value,
-						 * itnernal_map2_value);
-						 * 
-						 * if (!maxClassDistance
-						 * .containsKey(internal_map1_entries .getKey()) ||
-						 * (maxClassDistance .get(internal_map1_entries
-						 * .getKey()) < temp_dist))
-						 * 
-						 * maxClassDistance.put( internal_map1_entries
-						 * .getKey(), Double.valueOf(temp_dist)); // temp_dist =
-						 * temp_dist; normalize(temp_dist); // fitness +=
-						 * temp_dist; // distance += temp_dist;
-						 * 
-						 * 
-						 * if(temp_dist>0) logger.warn("Key: " +
-						 * internal_map1_entry.getKey() + "= Normal: " +
-						 * internal_map1_entry.getValue() + ", Regression: " +
-						 * itnernal_map2_value + ", type:" +
-						 * itnernal_map2_value.getClass() + ", distance:" +
-						 * temp_dist);
-						 * 
-						 * 
-						 * }
-						 */
-					}
-				}
-
-				// logger.warn("maxClassDistance size:" +
-				// maxClassDistance.size() + " > " + entries);
-
-			}
-			//String entries = "";
-			double temp_dis = 0.0;
-			for (Map.Entry<String, Double> maxEntry : maxClassDistance
-					.entrySet()) {
-				temp_dis += maxEntry.getValue();
-				
-				/*  entries += maxEntry.getKey().toString() + " : " +
-				  maxEntry.getValue().toString() + " | ";
-				 */
-			}
-
-			if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 4) {
-				temp_dis = Collections.max(maxClassDistance.values());
-			}
-
-			if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 5) {
-				if (maxClassDistance.size() > 0)
-					temp_dis = temp_dis / (maxClassDistance.size());
-			}
-
-			if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 6) {
-				temp_dis = Collections.min(maxClassDistance.values());
-			}
-
-			distance += temp_dis;
-			// logger.warn(entries + " < " + observer.objectMapPool.size());
-		}
-		// logger.warn("dis is " + distance);
-		// return 0;
-		distance += ObjectDistanceCalculator.different_variables;
-		/*if(distance>0)
-			logger.warn("distance was {}",distance);*/
-		return distance
-				/ ((observer.objectMapPool.size() == 0) ? 1
-						: observer.objectMapPool.size());
-
-	}
 
 	
 	private double getTestObjectDistance(

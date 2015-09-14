@@ -106,9 +106,11 @@ public class SameTraceEntry implements OutputTraceEntry {
 					continue;
 
 				if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)).equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
-					double distance = ObjectDistanceCalculator.getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)), otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
-					if(distance==0)
-						return assertions;
+					if(Properties.isRegression()){
+						double distance = ObjectDistanceCalculator.getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)), otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
+						if(distance==0)
+							return assertions;
+					}
 					SameAssertion assertion = new SameAssertion();
 					assertion.source = var;
 					assertion.dest = equalityMapIntVar.get(otherVar);

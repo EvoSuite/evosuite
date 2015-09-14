@@ -30,13 +30,15 @@ import org.evosuite.testcase.factories.RandomLengthTestFactory;
  * 
  */
 public class RegressionTestChromosomeFactory implements
-        ChromosomeFactory<RegressionTestChromosome> {
+		ChromosomeFactory<RegressionTestChromosome> {
 
 	private static final long serialVersionUID = -6620991065129236086L;
 
 	private final RandomLengthTestFactory testFactory = new RandomLengthTestFactory();
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
 	@Override

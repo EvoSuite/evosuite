@@ -56,7 +56,6 @@ public class RegressionTestChromosome extends TestChromosome {
 	
 	public int diffExceptions = 0;
 	
-	// TODO: This doesn't really belong here
 	private transient ClassLoader theClassLoader = null;
 
 	public Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer,String>>();
