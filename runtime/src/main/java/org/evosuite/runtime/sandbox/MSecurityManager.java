@@ -1009,8 +1009,12 @@ public class MSecurityManager extends SecurityManager {
 		}
 
 		// never allow it!!! far too dangerous, as it would break the sandbox
-		if (name.equals("setSecurityManager") || name.equals("createSecurityManager")) {
+		if (name.equals("setSecurityManager")) {
 			return false;
+		}
+
+		if(name.equals("createSecurityManager")){
+			return true; //just creating should not be a problem
 		}
 
 		// AWT needs to be treated specially
