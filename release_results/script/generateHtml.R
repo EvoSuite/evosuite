@@ -1,6 +1,6 @@
 source("util.R")
 
-VERSION = "1_0_0"
+VERSION = "1_0_1"
 
 GENERATED_FILES = paste("../generated_files","/",VERSION,sep="")
 SELECTION_FILE = paste("../generated_files","/","selection.txt",sep="")
@@ -57,6 +57,8 @@ makeSelection <- function(){
 }
 
 html <- function(zipFile){
+
+	dir.create(GENERATED_FILES)
 
 	dt <- read.table(gzfile(zipFile),header=T)
 	figures(dt)
