@@ -292,6 +292,8 @@ public enum RuntimeVariable {
 	Covered_fcmpg,
 	Covered_dcmpl,
 	Covered_dcmpg,
+	/** For sanity-checking purposes */
+	RSM_OverMinimized,
 	/* -------------------------------------------------------------------- */
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
 	/** (FIXME: need to be implemented) The number of serialized objects that EvoSuite is going to use for seeding strategies */
