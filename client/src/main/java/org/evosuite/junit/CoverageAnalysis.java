@@ -594,7 +594,6 @@ public class CoverageAnalysis {
 	private static List<JUnitResult> executeTests(Class<?>... testClasses) {
 
 		ExecutionTracer.enable();
-		ExecutionTracer.enableTraceCalls();
 		ExecutionTracer.setCheckCallerThread(false);
 
 		List<JUnitResult> results = new ArrayList<JUnitResult>();

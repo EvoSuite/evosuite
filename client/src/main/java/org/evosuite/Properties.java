@@ -887,7 +887,7 @@ public class Properties {
 	public static boolean MINIMIZE = true;
 
 	/** Constant <code>MINIMIZE_SECOND_PASS=true</code> */
-	@Parameter(key = "minimize_second_pass", group = "Output", description = "Minimize test suite after generation")
+	@Parameter(key = "minimize_second_pass", group = "Output", description = "Perform a second minimization pass as the first one may retain subsumed tests")
 	public static boolean MINIMIZE_SECOND_PASS = true;
 
     /** Constant <code>MINIMIZE_SORT=true</code> */
@@ -909,7 +909,7 @@ public class Properties {
 	public static boolean MINIMIZE_VALUES = false;
 
 	/** Constant <code>COVERAGE=true</code> */
-	@Parameter(key = "coverage", group = "Output", description = "Minimize test suite after generation")
+	@Parameter(key = "coverage", group = "Output", description = "Calculate coverage after test suite generation")
 	public static boolean COVERAGE = true;
 
 	/** Constant <code>INLINE=false</code> */
@@ -1291,7 +1291,7 @@ public class Properties {
 	@IntValue(min = 1024, max = 65535)
 	public static int PORT = 1044;
 
-	@Parameter(key = "jmc", group = "Debugging", description = "Experimental: activate Flight Recorder in spawn client process for Java Mission Controll")
+	@Parameter(key = "jmc", group = "Debugging", description = "Experimental: activate Flight Recorder in spawn client process for Java Mission Control")
 	public static boolean JMC = false;
 
 
