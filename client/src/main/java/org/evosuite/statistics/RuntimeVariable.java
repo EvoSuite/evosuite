@@ -84,7 +84,8 @@ public enum RuntimeVariable {
 	/** Number of mutants */
 	Mutants,            
 	/** Total number of statements executed */
-	Statements_Executed, 
+	Statements_Executed,
+	Statements_ExecutedTimeline,
 	/** The total number of tests executed during the search */
 	Tests_Executed, 
 	/** The total number of fitness evaluations during the search */
@@ -122,6 +123,7 @@ public enum RuntimeVariable {
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
+	BranchCoverageTimeline,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	BranchCoverageBitString,
 	/** Only the covered branches ratio. */
@@ -175,6 +177,7 @@ public enum RuntimeVariable {
     ExceptionCoverageBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
+	WeakMutationCoverageTimeline,
 	WeakMutationCoverageBitString,
     /** Only mutation = only infection distance */
 	OnlyMutationScore,
