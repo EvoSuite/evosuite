@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.testcase;
 
 import java.lang.reflect.Field;
@@ -367,7 +364,7 @@ public class TestFactory {
 	 * Add method at given position if max recursion depth has not been reached
 	 *
 	 * @param test
-	 * @param method
+	 * @param field
 	 * @param position
 	 * @param recursionDepth
 	 * @return
@@ -575,7 +572,7 @@ public class TestFactory {
 	 * Called from TestChromosome when doing crossover
 	 *
 	 * @param test
-	 * @param s
+	 * @param statement
 	 */
 	public void appendStatement(TestCase test, Statement statement)
 	        throws ConstructionFailedException {
