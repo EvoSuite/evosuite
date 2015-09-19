@@ -37,7 +37,7 @@ public class LoopCounter {
 
     private static final LoopCounter singleton = new LoopCounter();
 
-    private boolean activated = false;
+    private boolean activated = true;
     
     /**
      * Number of iterations so far
