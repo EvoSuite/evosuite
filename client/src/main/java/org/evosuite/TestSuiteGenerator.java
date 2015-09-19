@@ -104,6 +104,9 @@ public class TestSuiteGenerator {
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
+		// Deactivate loop counter to make sure classes initizlie properly
+		LoopCounter.getInstance().setActive(false);
+
 		TestCaseExecutor.initExecutor();
 		Sandbox.goingToExecuteSUTCode();
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
