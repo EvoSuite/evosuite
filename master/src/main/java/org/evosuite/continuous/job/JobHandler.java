@@ -23,9 +23,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
@@ -120,7 +125,12 @@ public class JobHandler extends Thread {
 				builder.directory(dir);
 				builder.redirectErrorStream(true);
 
-				LoggingUtils.getEvoLogger().info("Going to start job for: " + job.cut);
+				LocalDateTime endBy = LocalDateTime.now().plus(job.seconds , ChronoUnit.SECONDS);
+
+				LoggingUtils.getEvoLogger().info("Going to start job for: " + job.cut +
+						". Expected to end in "+job.seconds +" seconds, by "+endBy.toString());
+
+
 				logger.debug("Base directory: " + baseDir);
 				logger.debug("Commands: " + Arrays.asList(parsedCommand));
 
