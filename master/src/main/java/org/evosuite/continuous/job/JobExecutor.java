@@ -99,7 +99,7 @@ public class JobExecutor {
 
 		this.storage = storage;
 		if (!storage.isStorageOk()) {
-			throw new IllegalArgumentException("Storage is not initalized");
+			throw new IllegalArgumentException("Storage is not initialized");
 		}
 		
 		this.configuration = conf;
@@ -199,10 +199,10 @@ public class JobExecutor {
 		long longestJob = -1l;
 		
 		//TODO handle memory
-		Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>();
+		Queue<JobDefinition> toExecute = new LinkedList<>();
 		toExecute.addAll(jobs);
 		
-		List<JobDefinition> postponed = new LinkedList<JobDefinition>();
+		List<JobDefinition> postponed = new LinkedList<>();
 		
 		mainLoop: while(!toExecute.isEmpty() || !postponed.isEmpty()){
 
