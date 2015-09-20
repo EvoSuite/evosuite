@@ -39,6 +39,8 @@ import org.evosuite.utils.generic.GenericClass;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -93,6 +95,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
 	private static final long serialVersionUID = -8177814473724093381L;
 
+    private static final Logger logger = LoggerFactory.getLogger(FunctionalMockStatement.class);
+
 	/**
      * This list needs to be kept sorted
      */
@@ -139,7 +143,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     public void changeClassLoader(ClassLoader loader) {
 
         try {
-            targetClass = loader.loadClass(targetClass.getCanonicalName());
+            targetClass = loader.loadClass(targetClass.getName());
         } catch (ClassNotFoundException e) {
             logger.error("Failed to update target class from new classloader: "+e.getMessage());
         }
