@@ -85,7 +85,6 @@ public enum RuntimeVariable {
 	Mutants,            
 	/** Total number of statements executed */
 	Statements_Executed,
-	Statements_ExecutedTimeline,
 	/** The total number of tests executed during the search */
 	Tests_Executed, 
 	/** The total number of fitness evaluations during the search */
