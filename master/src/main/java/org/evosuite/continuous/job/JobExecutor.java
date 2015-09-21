@@ -19,6 +19,8 @@
  */
 package org.evosuite.continuous.job;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -99,7 +101,7 @@ public class JobExecutor {
 
 		this.storage = storage;
 		if (!storage.isStorageOk()) {
-			throw new IllegalArgumentException("Storage is not initalized");
+			throw new IllegalArgumentException("Storage is not initialized");
 		}
 		
 		this.configuration = conf;
@@ -143,6 +145,11 @@ public class JobExecutor {
 				
 				try{
 					LoggingUtils.getEvoLogger().info("Going to execute "+jobs.size()+" jobs");
+
+					long minutes = configuration.timeInMinutes;
+					LocalDateTime endBy = LocalDateTime.now().plus(minutes, ChronoUnit.MINUTES);
+					LoggingUtils.getEvoLogger().info("Estimated completion time: "+minutes+" minutes, by "+endBy);
+
 					longestJob = execute(jobs);
 				} catch(Exception e){
 					logger.error("Error while trying to execute the "+jobs.size()+" jobs: "+e.getMessage(),e);
@@ -190,8 +197,8 @@ public class JobExecutor {
 		 * this helps the scheduler, as we can wait longer before making the decision
 		 * of what job to schedule next
 		 */
-		jobQueue = new ArrayBlockingQueue<JobDefinition>(1);
-		finishedJobs = new ConcurrentHashMap<String,JobDefinition>();
+		jobQueue = new ArrayBlockingQueue<>(1);
+		finishedJobs = new ConcurrentHashMap<>();
 	}
 
 	protected long execute(List<JobDefinition> jobs){
@@ -199,10 +206,10 @@ public class JobExecutor {
 		long longestJob = -1l;
 		
 		//TODO handle memory
-		Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>();
+		Queue<JobDefinition> toExecute = new LinkedList<>();
 		toExecute.addAll(jobs);
 		
-		List<JobDefinition> postponed = new LinkedList<JobDefinition>();
+		List<JobDefinition> postponed = new LinkedList<>();
 		
 		mainLoop: while(!toExecute.isEmpty() || !postponed.isEmpty()){
 
@@ -291,7 +298,8 @@ public class JobExecutor {
 	
 	public void doneWithJob(JobDefinition job){
 		finishedJobs.put(job.cut, job);
-		latch.countDown();		
+		latch.countDown();
+		LoggingUtils.getEvoLogger().info("Completed job. Left: "+latch.getCount());
 	}
 	
 	public void waitForJobs() {
