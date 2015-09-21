@@ -43,6 +43,7 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
@@ -103,6 +104,9 @@ public class TestSuiteGenerator {
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
+		// Deactivate loop counter to make sure classes initizlie properly
+		LoopCounter.getInstance().setActive(false);
+
 		TestCaseExecutor.initExecutor();
 		Sandbox.goingToExecuteSUTCode();
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
@@ -112,6 +116,7 @@ public class TestSuiteGenerator {
 			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 			                           Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
+
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
@@ -125,12 +130,15 @@ public class TestSuiteGenerator {
             TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 		
-
         /*
          * Initialises the object pool with objects carved from SELECTED_JUNIT classes
          */
 		// TODO: Do parts of this need to be wrapped into sandbox statements?
 		ObjectPoolManager.getInstance();
+
+		// Once class loading is complete we can start checking loops
+		// without risking to interfere with class initialisation
+		LoopCounter.getInstance().setActive(true);
 
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "

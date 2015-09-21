@@ -23,9 +23,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
@@ -103,11 +108,12 @@ public class JobHandler extends Thread {
 				break;
 			}
 
-			List<String> commands = getCommandString(job);
-
 			Process process = null;
 
 			try {
+
+				List<String> commands = getCommandString(job);
+
 				String baseDir = System.getProperty("user.dir");
 				File dir = new File(baseDir);
 
@@ -119,7 +125,12 @@ public class JobHandler extends Thread {
 				builder.directory(dir);
 				builder.redirectErrorStream(true);
 
-				LoggingUtils.getEvoLogger().info("Going to start job for: " + job.cut);
+				LocalDateTime endBy = LocalDateTime.now().plus(job.seconds , ChronoUnit.SECONDS);
+
+				LoggingUtils.getEvoLogger().info("Going to start job for: " + job.cut +
+						". Expected to end in "+job.seconds +" seconds, by "+endBy.toString());
+
+
 				logger.debug("Base directory: " + baseDir);
 				logger.debug("Commands: " + Arrays.asList(parsedCommand));
 
@@ -132,14 +143,14 @@ public class JobHandler extends Thread {
 					handleProcessError(job, process);
 				}
 
-			} catch (IOException e) {
-				logger.error("Failed to start new job: " + e.getMessage(), e);
 			} catch (InterruptedException e) {
 				this.interrupt();
 				if (process != null) {
 					process.destroy();
 				}
-			} finally {
+			} catch (Exception e) {
+				logger.error("Failed to start new job: " + e.getMessage(), e);
+			}  finally {
 				/*
 				 * if there were problems with this job, still
 				 * be sure to decrease the job counter
@@ -422,6 +433,26 @@ public class JobHandler extends Thread {
 		 */
 		commands.add("-Dctg_schedule=" + Properties.CTG_SCHEDULE);
 		commands.add("-Dctg_min_time_per_job=" + Properties.CTG_MIN_TIME_PER_JOB);
+
+		if(Properties.CTG_EXTRA_ARGS != null && !Properties.CTG_EXTRA_ARGS.isEmpty()){
+
+			String extraArgs = Properties.CTG_EXTRA_ARGS;
+			if(extraArgs.startsWith("\"") && extraArgs.endsWith("\"")){
+				extraArgs = extraArgs.substring(1 , extraArgs.length()-1);
+			}
+
+			String[] tokens = extraArgs.split(" ");
+			for(String token : tokens){
+				token = token.trim();
+				if(token.isEmpty() || token.equals("\"")){
+					continue;
+				}
+				if(!token.startsWith("-D")){
+					throw new IllegalStateException("Invalid extra parameter \""+token+"\" as it does not start with '-D'");
+				}
+				commands.add(token);
+			}
+		}
 
 		return commands;
 	}
