@@ -81,7 +81,8 @@ public class TestClusterGenerator {
 	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
 	private static final List<String> classExceptions = Collections.unmodifiableList(Arrays.asList(new String[] {
-	        "com.apple", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt." }));
+	        "com.apple.", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt.","java.","javax."
+	}));
 
 	/**
 	 * Check if we can use the given class
