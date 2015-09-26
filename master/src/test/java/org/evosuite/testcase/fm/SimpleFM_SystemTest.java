@@ -22,12 +22,32 @@ package org.evosuite.testcase.fm;
 import com.examples.with.different.packagename.fm.*;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Created by Andrea Arcuri on 09/08/15.
  */
 public class SimpleFM_SystemTest extends SystemTest{
+
+
+    @Test
+    public void testSimpleReturnString(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5;
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_returnString.class);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        String code = best.toString();
+        Assert.assertTrue(code, code.contains("when"));
+        Assert.assertTrue(code, code.contains("thenReturn"));
+        Assert.assertTrue(code, code.contains("true"));
+        Assert.assertTrue(code, code.contains("false"));
+    }
 
     @Test
     public void testSimpleGenerics(){

@@ -259,6 +259,7 @@ public class TestGeneration {
 			cmdLine.add("-Djava.awt.headless=true");
 		}
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
+		cmdLine.add("-Dlog4j.configuration=SUT.log4j.properties");
 		
 		/*
 		 * FIXME: following 3 should be refactored, as not particularly clean.

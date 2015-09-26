@@ -116,7 +116,7 @@ public class SystemTest {
 		MockFramework.enable();
 	}
 
-	protected void do100percentLineTest(Class<?> target){
+	protected GeneticAlgorithm<?>  do100percentLineTest(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = target.getCanonicalName();
@@ -132,6 +132,8 @@ public class SystemTest {
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+
+		return ga;
 	}
 
 

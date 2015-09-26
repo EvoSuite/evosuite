@@ -34,11 +34,14 @@ import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -93,6 +96,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
 	private static final long serialVersionUID = -8177814473724093381L;
 
+    private static final Logger logger = LoggerFactory.getLogger(FunctionalMockStatement.class);
+
 	/**
      * This list needs to be kept sorted
      */
@@ -139,7 +144,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     public void changeClassLoader(ClassLoader loader) {
 
         try {
-            targetClass = loader.loadClass(targetClass.getCanonicalName());
+            targetClass = loader.loadClass(targetClass.getName());
         } catch (ClassNotFoundException e) {
             logger.error("Failed to update target class from new classloader: "+e.getMessage());
         }
@@ -455,7 +460,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                     listener = new EvoInvocationListener();
 
                     //then create the mock
-                    Object ret = mock(targetClass, withSettings().invocationListeners(listener));
+                    Object ret;
+                    try {
+                        ret = mock(targetClass, withSettings().invocationListeners(listener));
+                    } catch(Throwable t){
+                        LoggingUtils.logErrorAtMostOnce(logger, "Failed to use Mockito on "+targetClass+": "+t.getMessage());
+                        throw new EvosuiteError(t);
+                    }
 
 
                     //execute all "when" statements

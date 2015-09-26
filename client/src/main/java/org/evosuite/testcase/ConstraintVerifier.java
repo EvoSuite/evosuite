@@ -247,7 +247,7 @@ public class ConstraintVerifier {
         //TODO
         //bounded
 
-        int minPos = getMinPosForAfter(obj,tc,lastValid);
+        int minPos = getMinPosForAfter(obj, tc, lastValid);
 
         if(minPos < 0){
             return -1;
@@ -356,6 +356,10 @@ public class ConstraintVerifier {
 
             if (! canStatementHaveConstraints(st)){
                 continue;
+            }
+
+            if(! checkFunctionalMockUsage(st, tc)){
+                return false;
             }
 
             //data we need for calculations
@@ -480,6 +484,36 @@ public class ConstraintVerifier {
         }
 
         return true; //everything was OK
+    }
+
+    /**
+     * No method should be called on the return value of a mock creation.
+     * This is because a functional mock object should only be used as an input value.
+     * Calling any method on it would make no sense
+     *
+     * @param st
+     */
+    private static boolean checkFunctionalMockUsage(Statement st, TestCase tc) {
+
+        if(! (st instanceof MethodStatement)){
+            return true;
+        }
+
+        MethodStatement ms = (MethodStatement) st;
+        VariableReference callee = ms.getCallee();
+        if(callee==null){
+            //ie, static method
+            return true;
+        }
+
+        Statement source = tc.getStatement(callee.getStPosition());
+        if(source instanceof FunctionalMockStatement){
+            logger.error("Mock object created at position "+source.getPosition()+" has a method called in position "+
+                st.getPosition());
+            return false;
+        }
+
+        return true;
     }
 
     private static Annotation[][] getParameterAnnotations(Statement st){

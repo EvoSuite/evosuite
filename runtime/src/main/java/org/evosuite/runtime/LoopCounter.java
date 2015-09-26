@@ -37,6 +37,8 @@ public class LoopCounter {
 
     private static final LoopCounter singleton = new LoopCounter();
 
+    private boolean activated = true;
+    
     /**
      * Number of iterations so far
      */
@@ -53,6 +55,10 @@ public class LoopCounter {
 
     public void reset(){
         counters.clear();
+    }
+    
+    public void setActive(boolean active) {
+    	this.activated = active;
     }
 
     /**
@@ -79,11 +85,14 @@ public class LoopCounter {
         if(index < 0){
             throw new IllegalArgumentException("Loop index cannot be negative");
         }
+        
+        if(!activated)
+        	return;
 
         if(RuntimeSettings.maxNumberOfIterationsPerLoop < 0){
             return; //do nothing, no check
         }
-
+        
         //first check initialization
         int size = counters.size();
         if(index >= size){

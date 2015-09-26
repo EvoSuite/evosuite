@@ -80,6 +80,9 @@ public class GenerateMojo extends AbstractMojo {
 	@Parameter( property = "criterion", defaultValue = "LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH" )
 	private String criterion;
 
+	@Parameter( property = "extraArgs" , defaultValue = "")
+	private String extraArgs;
+
 	/**
 	 * Schedule used to run CTG (SIMPLE, BUDGET, SEEDING, BUDGET_AND_SEEDING, HISTORY)
 	 */
@@ -207,6 +210,27 @@ public class GenerateMojo extends AbstractMojo {
 		if(cuts!=null){
 			params.add("-Dctg_selected_cuts="+cuts);
 		}
+		if(extraArgs!=null && !extraArgs.isEmpty()){
+
+			String args = "";
+
+			//note this does not for properly for parameters with strings using spaces
+			String[] tokens = extraArgs.split(" ");
+			for(String token : tokens){
+				token = token.trim();
+				if(token.isEmpty()){
+					continue;
+				}
+				if(!token.startsWith("-D")){
+					getLog().error("Invalid extra argument \""+token+"\". It should start with a -D");
+				} else {
+					args += " " +token;
+				}
+			}
+
+			params.add("-Dctg_extra_args=\""+args+"\"");
+		}
+
 		params.add("-DCP="+cp);
 		
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);

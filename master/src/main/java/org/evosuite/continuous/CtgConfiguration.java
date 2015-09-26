@@ -70,7 +70,13 @@ public class CtgConfiguration {
 	 * The type of job scheduler CTG will use
 	 */
 	public final AvailableSchedule schedule;
-	
+
+	/**
+	 * Extra parameters for the test data generation jobs.
+	 * Should only be used for experiments/debugging
+	 */
+	public final String extraArgs;
+
 	/**
 	 * Main constructor
 	 * 
@@ -91,8 +97,22 @@ public class CtgConfiguration {
 		this.minMinutesPerJob = minMinutesPerJob;
 		this.callHome = callHome;
 		this.schedule = schedule;
+		this.extraArgs = "";
 	}
-    
+
+	public CtgConfiguration(int totalMemoryInMB, int numberOfCores,
+							int timeInMinutes, int minMinutesPerJob, boolean callHome,
+							AvailableSchedule schedule, String extraArgs) {
+		super();
+		this.totalMemoryInMB = totalMemoryInMB;
+		this.numberOfCores = numberOfCores;
+		this.timeInMinutes = timeInMinutes;
+		this.minMinutesPerJob = minMinutesPerJob;
+		this.callHome = callHome;
+		this.schedule = schedule;
+		this.extraArgs = extraArgs;
+	}
+
 	/**
 	 * Get instance based on values in {@link Properties}
 	 * @return
@@ -105,7 +125,8 @@ public class CtgConfiguration {
 				Properties.CTG_TIME, 
 				Properties.CTG_MIN_TIME_PER_JOB,
 				false, /* TODO: just for now, as not implemented yet */
-				Properties.CTG_SCHEDULE
+				Properties.CTG_SCHEDULE,
+				Properties.CTG_EXTRA_ARGS
 				);
 	}
 
@@ -136,7 +157,8 @@ public class CtgConfiguration {
 				time, 
 				this.minMinutesPerJob,
 				this.callHome, 
-				this.schedule
+				this.schedule,
+				this.extraArgs
 				);
 	}
 	
