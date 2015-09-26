@@ -54,8 +54,6 @@ public abstract class ExecutableChromosome extends Chromosome {
 
 	protected transient ExecutionResult lastExecutionResult = null;
 
-	protected transient ExecutionResult lastRegressionExecutionResult = null;
-
 	protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<Mutation, MutationExecutionResult>();
 
 	/**
@@ -84,24 +82,6 @@ public abstract class ExecutableChromosome extends Chromosome {
 	}
 	
 	/**
-	 * <p>Setter for the field <code>lastRegressionExecutionResult</code>.</p>
-	 *
-	 * @param lastExecutionResult a {@link org.evosuite.testcase.ExecutionResult} object.
-	 */
-	public void setLastRegressionExecutionResult(ExecutionResult lastRegressionExecutionResult) {
-		this.lastRegressionExecutionResult = lastRegressionExecutionResult;
-	}
-
-	/**
-	 * <p>Getter for the field <code>lastRegressionExecutionResult</code>.</p>
-	 *
-	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
-	 */
-	public ExecutionResult getLastRegressionExecutionResult() {
-		return lastRegressionExecutionResult;
-	}
-
-	/**
 	 * <p>Setter for the field <code>lastExecutionResult</code>.</p>
 	 *
 	 * @param lastExecutionResult a {@link org.evosuite.coverage.mutation.MutationExecutionResult} object.
@@ -128,7 +108,6 @@ public abstract class ExecutableChromosome extends Chromosome {
 	 */
 	public void clearCachedResults() {
 		this.lastExecutionResult = null;
-		this.lastRegressionExecutionResult = null;
 		lastMutationResult.clear();
 	}
 
@@ -159,7 +138,6 @@ public abstract class ExecutableChromosome extends Chromosome {
     IOException {
 		ois.defaultReadObject();
 		lastExecutionResult = null;
-		lastRegressionExecutionResult = null;
 		lastMutationResult = new HashMap<Mutation, MutationExecutionResult>();
 	}
 }
