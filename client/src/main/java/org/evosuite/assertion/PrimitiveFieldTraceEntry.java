@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
 
 
@@ -99,10 +101,15 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 					continue;
 				
 				if (!otherEntry.fieldMap.get(field).equals(fieldMap.get(field))) {
+					double distance = ObjectDistanceCalculator.getObjectDistance(fieldMap.get(field), otherEntry.fieldMap.get(field));
+					if(distance==0)
+						continue;
 					PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
 					assertion.value = fieldMap.get(field);
 					assertion.field = field;
 					assertion.source = var;
+					if(Properties.isRegression())
+						assertion.setcomment("// (PField) Original Value: " + fieldMap.get(field) +" | Regression Value: " + otherEntry.fieldMap.get(field));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 
@@ -139,7 +146,8 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof PrimitiveFieldAssertion) {
 			PrimitiveFieldAssertion ass = (PrimitiveFieldAssertion) assertion;
-			if (ass.source.equals(var) && fieldMap.containsKey(ass.field))
+			//TODO: removed ` && fieldMap.containsKey(ass.field)` for regression testing.
+			if (ass.source.equals(var) && (Properties.isRegression() ||  fieldMap.containsKey(ass.field)))
 				return !fieldMap.get(ass.field).equals(ass.value);
 		}
 		return false;

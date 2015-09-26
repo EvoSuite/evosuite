@@ -38,7 +38,7 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 	private static final long serialVersionUID = -3769862881038106087L;
 
 	/** Factory to manipulate and generate method sequences */
-	private ChromosomeFactory<TestChromosome> testChromosomeFactory;
+	protected ChromosomeFactory<TestChromosome> testChromosomeFactory;
 
 	/**
 	 * <p>Constructor for TestSuiteChromosomeFactory.</p>

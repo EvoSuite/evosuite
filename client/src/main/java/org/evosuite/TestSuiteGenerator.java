@@ -39,6 +39,8 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
+import org.evosuite.regression.RegressionSearchListener;
+import org.evosuite.regression.RegressionSuiteMinimizer;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -52,18 +54,9 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
-import org.evosuite.strategy.EntBugTestStrategy;
-import org.evosuite.strategy.FixedNumRandomTestStrategy;
-import org.evosuite.strategy.IndividualTestStrategy;
-import org.evosuite.strategy.RandomTestStrategy;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.strategy.WholeTestSuiteStrategy;
+import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
-import org.evosuite.testcase.ConstantInliner;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.ValueMinimizer;
+import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -208,15 +201,15 @@ public class TestSuiteGenerator {
 		if (Properties.MINIMIZE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
-			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
-			//if (Properties.CRITERION.length == 1) {
+			if(Properties.isRegression()){
+				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
+				minimizer.minimize(testSuite);
+			} else {
+				TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
+	
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(testSuite, true);
-			//}
-//			else {
-//				LoggingUtils.getEvoLogger().info("* Minimizing test suites");
-//				minimizer.minimize(testSuite, false);
-//			}
+			}
 		} else {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
@@ -286,7 +279,7 @@ public class TestSuiteGenerator {
 		    }
 		}
 		
-		if (Properties.ASSERTIONS) {
+		if (Properties.ASSERTIONS && !Properties.isRegression()) {
 			LoggingUtils.getEvoLogger().info("* Generating assertions");
 			// progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
@@ -457,6 +450,8 @@ public class TestSuiteGenerator {
 			return new FixedNumRandomTestStrategy();
 		case ONEBRANCH:
 			return new IndividualTestStrategy();
+		case REGRESSION:
+			return new RegressionSuiteStrategy();
 		case ENTBUG:
 			return new EntBugTestStrategy();
 		default:
@@ -497,6 +492,21 @@ public class TestSuiteGenerator {
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suite.writeTestSuite(name + suffix, testDir);
+			
+			// If in regression mode, create a separate copy of the tests 
+			if (!RegressionSearchListener.statsID.equals("")) {
+				File evosuiterTestDir = new File("evosuiter-stats");
+
+				if (!evosuiterTestDir.exists() || !evosuiterTestDir.isDirectory()) {
+					evosuiterTestDir.mkdirs();
+				}
+
+				String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
+				
+				LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
+
+				suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+			}
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}
@@ -548,7 +558,7 @@ public class TestSuiteGenerator {
 		if(Properties.BRANCH_COMPARISON_TYPES){
 			int cmp_intzero=0, cmp_intint=0, cmp_refref=0, cmp_refnull=0;
 			int bc_lcmp=0, bc_fcmpl=0, bc_fcmpg=0, bc_dcmpl=0, bc_dcmpg=0;
-			for(Branch b:BranchPool.getAllBranches()){
+			for(Branch b:BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllBranches()){
 				int branchOpCode = b.getInstruction().getASMNode().getOpcode();
 				int previousOpcode = -2;
 				if(b.getInstruction().getASMNode().getPrevious() != null)

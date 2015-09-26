@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -54,19 +55,19 @@ public class OnlyBranchCoverageFactory extends
 		List<OnlyBranchCoverageTestFitness> goals = new ArrayList<OnlyBranchCoverageTestFitness>();
 
 		// logger.info("Getting branches");
-		for (String className : BranchPool.knownClasses()) {
+		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
 			if(!Properties.TARGET_CLASS.equals("")&&!className.equals(Properties.TARGET_CLASS)) continue;
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 
 			// Branches
-			for (String methodName : BranchPool.knownMethods(className)) {
+			for (String methodName : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
 				if (!matcher.methodMatches(methodName)) {
 					logger.info("Method " + methodName
 							+ " does not match criteria. ");
 					continue;
 				}
 
-				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
+				for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
 						methodName)) {
 					if (!(b.getInstruction().isForcedBranch())) {
 						goals.add(createOnlyBranchCoverageTestFitness(b, true));

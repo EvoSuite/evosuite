@@ -31,6 +31,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
@@ -68,7 +69,7 @@ public class MeasureCoverage {
 
 	private static void measureCoverageClass(String targetClass, List<String> args) {
 
-		if (!ResourceList.hasClass(targetClass)) {
+		if (!ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(targetClass)) {
 			LoggingUtils.getEvoLogger().error("* Unknown class: " + targetClass
 							+ ". Be sure its full qualifying name is correct and the classpath is properly set with '-projectCP'");
 		}
@@ -85,7 +86,7 @@ public class MeasureCoverage {
 
 	private static void measureCoverageTarget(String target, List<String> args) {
 
-		Set<String> classes = ResourceList.getAllClasses(target, false);
+		Set<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		LoggingUtils.getEvoLogger().info("* Found " + classes.size() + " matching classes in target " + target);
 
 		measureCoverage(target, args);

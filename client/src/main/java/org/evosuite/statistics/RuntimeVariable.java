@@ -245,6 +245,20 @@ public enum RuntimeVariable {
 	AudioPermission,
 	OtherPermission,
 	/* -------------------------------------------------------------------- */
+	/** Regression-related Variables */
+	Generated_Assertions,
+	Coverage_Old,
+	Coverage_New,
+	Exception_Difference,
+	State_Distance,
+	Testsuite_Diversity,
+	Regression_ID,
+	/** Timings */
+	Time_Assertion,
+	Time_Coverage,
+	Time_StateDistance,
+	Time_Diversity,
+	/* -------------------------------------------------------------------- */
 	/** Count of branch comparison types in bytecode (static) */
 	Cmp_IntZero,
 	Cmp_IntInt,
@@ -278,6 +292,8 @@ public enum RuntimeVariable {
 	Covered_fcmpg,
 	Covered_dcmpl,
 	Covered_dcmpg,
+	/** For sanity-checking purposes */
+	RSM_OverMinimized,
 	/* -------------------------------------------------------------------- */
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
 	/** (FIXME: need to be implemented) The number of serialized objects that EvoSuite is going to use for seeding strategies */

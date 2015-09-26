@@ -79,7 +79,7 @@ public class PrimitiveFieldTraceObserver extends
 	}
 
 	@Override
-	public void testExecutionFinished(ExecutionResult r) {
+	public void testExecutionFinished(ExecutionResult r, Scope s) {
 		// do nothing
 	}
 }

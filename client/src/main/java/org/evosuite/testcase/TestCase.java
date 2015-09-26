@@ -335,6 +335,15 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 * @return Statement at position
 	 */
 	public Statement getStatement(int position);
+	
+	/**
+	 * Check if there is a statement at the given position.
+	 *
+	 * @param position
+	 *            Index of statement
+	 * @return Whether or not there is a statement at the given position.
+	 */
+	public boolean hasStatement(int position);
 
 	/**
 	 * Check if there are any assertions

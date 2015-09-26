@@ -81,6 +81,7 @@ public class SameAssertion extends Assertion {
 		s.source = source.copy(newTestCase, offset);
 		s.dest = dest.copy(newTestCase, offset);
 		s.value = value;
+		s.comment = comment;
 		s.killedMutants.addAll(killedMutants);
 		return s;
 	}

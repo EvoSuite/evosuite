@@ -160,8 +160,8 @@ public class ClassStatisticsPrinter {
 		LoggingUtils.getEvoLogger().info("* Subclasses: "+(TestCluster.getInheritanceTree().getSubclasses(Properties.TARGET_CLASS).size() - 1));
 		LoggingUtils.getEvoLogger().info("* Superclasses/interfaces: "+(TestCluster.getInheritanceTree().getSuperclasses(Properties.TARGET_CLASS).size() - 1));
 		LoggingUtils.getEvoLogger().info("* Lines of code: "+LinePool.getNumLines());
-		LoggingUtils.getEvoLogger().info("* Methods without branches: "+BranchPool.getNumBranchlessMethods());
-		LoggingUtils.getEvoLogger().info("* Total branch predicates: "+BranchPool.getBranchCounter());
+		LoggingUtils.getEvoLogger().info("* Methods without branches: "+BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumBranchlessMethods());
+		LoggingUtils.getEvoLogger().info("* Total branch predicates: "+BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter());
 		
 		
 		double complexity = 0.0;
@@ -173,7 +173,7 @@ public class ClassStatisticsPrinter {
 			complexity += c;
 			// LoggingUtils.getEvoLogger().info("* Complexity of method "+entry.getKey()+": "+entry.getValue().getCyclomaticComplexity());
 		}
-		LoggingUtils.getEvoLogger().info("* Average cyclomatic complexity: "+(complexity/CFGMethodAdapter.getNumMethods()));
+		LoggingUtils.getEvoLogger().info("* Average cyclomatic complexity: "+(complexity/CFGMethodAdapter.getNumMethods(TestGenerationContext.getInstance().getClassLoaderForSUT())));
 		LoggingUtils.getEvoLogger().info("* Maximum cyclomatic complexity: "+maxComplexity);
 
 		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);

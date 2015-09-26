@@ -130,6 +130,15 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 * @return a {@link GenericClass} object.
 	 */
 	public GenericClass getGenericClass();
+	
+	/**
+	 * <p>
+	 * getTestCase
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
+	public TestCase getTestCase();
 
 	/**
 	 * Return true if variable is an enumeration

@@ -27,7 +27,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,8 +42,12 @@ import org.evosuite.testcase.variable.VariableReference;
 public class InspectorTraceEntry implements OutputTraceEntry {
 
 	private final Map<Inspector, Object> inspectorMap = new HashMap<Inspector, Object>();
+	
+	private final Map<String,Inspector> methodInspectorMap = new HashMap<String, Inspector>();
 
 	private final VariableReference var;
+	
+	private final static Logger logger = LoggerFactory.getLogger(InspectorTraceEntry.class);
 
 	/**
 	 * <p>Constructor for InspectorTraceEntry.</p>
@@ -58,6 +66,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	 */
 	public void addValue(Inspector inspector, Object value) {
 		inspectorMap.put(inspector, value);
+		methodInspectorMap.put(inspector.getClassName() + " " + inspector.getMethodCall(), inspector);
 	}
 
 	/**
@@ -81,13 +90,18 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 
 			InspectorTraceEntry otherEntry = (InspectorTraceEntry) other;
 			for (Inspector inspector : inspectorMap.keySet()) {
+				logger.debug("Current inspector: " + inspector);
 				if (!otherEntry.inspectorMap.containsKey(inspector)
 				        || otherEntry.inspectorMap.get(inspector) == null
-				        || inspectorMap.get(inspector) == null)
+				        || inspectorMap.get(inspector) == null){
+					logger.debug("Other trace does not have " + inspector);
 					continue;
+				}
 
 				if (!otherEntry.inspectorMap.get(inspector).equals(inspectorMap.get(inspector)))
 					return true;
+				else
+					logger.debug("Value is equal: " + inspector);
 			}
 
 		}
@@ -104,17 +118,24 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 
 		if (other instanceof InspectorTraceEntry) {
 			InspectorTraceEntry otherEntry = (InspectorTraceEntry) other;
-			for (Inspector inspector : inspectorMap.keySet()) {
-				if (!otherEntry.inspectorMap.containsKey(inspector)
-				        || otherEntry.inspectorMap.get(inspector) == null
-				        || inspectorMap.get(inspector) == null)
+			for (String inspector : methodInspectorMap.keySet()) {
+				if (!otherEntry.inspectorMap.containsKey(otherEntry.methodInspectorMap.get(inspector))
+				        || otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)) == null
+				        || inspectorMap.get(methodInspectorMap.get(inspector)) == null)
 					continue;
-
-				if (!otherEntry.inspectorMap.get(inspector).equals(inspectorMap.get(inspector))) {
+				
+				if (!otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)).equals(inspectorMap.get(methodInspectorMap.get(inspector)))) {
+					double distance = ObjectDistanceCalculator.getObjectDistance(inspectorMap.get(methodInspectorMap.get(inspector)), otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
+					if(distance==0)
+						continue;
 					InspectorAssertion assertion = new InspectorAssertion();
-					assertion.value = inspectorMap.get(inspector);
-					assertion.inspector = inspector;
+					assertion.value = inspectorMap.get(methodInspectorMap.get(inspector));
+					assertion.inspector = methodInspectorMap.get(inspector);
 					assertion.source = var;
+					if(Properties.isRegression())
+						assertion.setcomment("// (Inspector) Original Value: "
+					        + inspectorMap.get(methodInspectorMap.get(inspector)) + " | Regression Value: "
+					        + otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 
@@ -151,7 +172,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof InspectorAssertion) {
 			InspectorAssertion ass = (InspectorAssertion) assertion;
-			if (ass.source.equals(var) && inspectorMap.containsKey(ass.inspector)
+			if (ass.source.same(var) && inspectorMap.containsKey(ass.inspector)
 			        && inspectorMap.get(ass.inspector) != null && ass.value != null)
 				return !inspectorMap.get(ass.inspector).equals(ass.value);
 		}
@@ -166,6 +187,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	public OutputTraceEntry cloneEntry() {
 		InspectorTraceEntry copy = new InspectorTraceEntry(var);
 		copy.inspectorMap.putAll(inspectorMap);
+		copy.methodInspectorMap.putAll(methodInspectorMap);
 		return copy;
 	}
 

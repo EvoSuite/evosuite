@@ -78,7 +78,7 @@ public class OutputObserver extends ExecutionObserver {
      * @see org.evosuite.testcase.ExecutionObserver#testExecutionFinished(org.evosuite.testcase.ExecutionResult)
      */
     @Override
-    public void testExecutionFinished(ExecutionResult r) {
+    public void testExecutionFinished(ExecutionResult r, Scope s) {
         logger.info("Adding returnValues map to ExecutionResult");
         r.setReturnValues(returnValues);
     }

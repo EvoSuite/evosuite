@@ -490,7 +490,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 			return dependencies;
 
 		Set<Statement> dependentStatements = new LinkedHashSet<Statement>();
-		dependentStatements.add(statements.get(var.getStPosition()));
+		if(statements.size() > var.getStPosition())
+			dependentStatements.add(statements.get(var.getStPosition()));
 
 		for (int i = var.getStPosition(); i >= 0; i--) {
 			Set<Statement> newStatements = new LinkedHashSet<Statement>();
@@ -778,6 +779,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 					+position+", where total number of statements is "+statements.size());
 		}
 		return statements.get(position);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#hasStatement(int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public boolean hasStatement(int position) {
+		return (statements.size() > position || position < 0);
 	}
 
 	/* (non-Javadoc)

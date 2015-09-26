@@ -184,6 +184,7 @@ public class CoverageAnalysis {
 		case IBRANCH:
 			return RuntimeVariable.IBranchCoverage;
 		case REGRESSION:
+			return RuntimeVariable.BranchCoverage;
 		default:
 			throw new RuntimeException("Criterion not supported: " + criterion);
 
@@ -315,6 +316,9 @@ public class CoverageAnalysis {
         	case LINE:
         	case ONLYLINE:
         		return RuntimeVariable.LineCoverageBitString;
+        	case REGRESSION:
+        	case REGRESSIONTESTS:
+        		return null;
             default:
             	logger.debug("Criterion not supported: " + criterion);
             	return null;
