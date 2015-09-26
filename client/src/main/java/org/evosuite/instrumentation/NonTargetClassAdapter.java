@@ -64,4 +64,10 @@ public class NonTargetClassAdapter extends ClassVisitor {
 			mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
 		return mv; //new ArrayAllocationLimitMethodAdapter(mv, className, name, access, desc);
 	}
+	
+	@Override
+	public void visitInnerClass(String name, String outerName, String innerName, int access) {
+		// We are removing final access to allow mocking
+		super.visitInnerClass(name, outerName, innerName, access & ~Opcodes.ACC_FINAL);
+	}
 }
