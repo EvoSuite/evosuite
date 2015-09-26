@@ -10,42 +10,35 @@ There are different ways to use EvoSuite:
 
 EvoSuite comes as an executable jar file which you can be called as follows:
 
-```java -jar evosuite.jar <options>
-```
+```java -jar evosuite.jar <options>```
 
 To generate a test suite using use the following command:
 
-```java -jar evosuite.jar <target> [options]
-```
+```java -jar evosuite.jar <target> [options]```
 
 The target can be a class:
 
-```-class <ClassName>
-```
+```-class <ClassName>```
 
 or a package prefix, in which case EvoSuite tries to generate a test
 suite for each class in the classpath that match the prefix:
 
-```-prefix <PrefixName>
-```
+```-prefix <PrefixName>```
 
 or a classpath entry, in which case EvoSuite tries to generate a test
 suite for each class in the given classpath entry:
 
-```-target <jar file or directory>
-```
+```-target <jar file or directory>```
 
 The most important option is to set the classpath, using standard Java
 classpath syntax:
 
-```-projectCP <classpath>
-```
+```-projectCP <classpath>```
 
 For more options, see the
 [Documentation](http://www.evosuite.org/documentation/commandline/)
 
-```java -jar evosuite.jar -help
-```
+```java -jar evosuite.jar -help```
 
 ### EvoSuite plugin for Eclipse
 
@@ -75,8 +68,7 @@ The current release of EvoSuite (main EvoSuite jar file and plugins) is availabl
 
 To access the source code, use the github repository:
 
-```git clone https://github.com/EvoSuite/evosuite.git
-```
+```git clone https://github.com/EvoSuite/evosuite.git```
 
 
 # Building EvoSuite
@@ -85,14 +77,12 @@ EvoSuite uses [Maven](https://maven.apache.org/).
 
 To build EvoSuite on the command line, install maven and then call
 
-```mvn compile
-```
+```mvn compile```
 
 To create a binary distribution that includes all dependencies you can
 use Maven as well:
 
-```mvn package
-```
+```mvn package```
 
 To build EvoSuite in Eclipse, make sure you have the [M2Eclipse](http://www.eclipse.org/m2e/) plugin installed, and import EvoSuite as Maven project. This will ensure that Eclipse uses Maven to build the project.
 
