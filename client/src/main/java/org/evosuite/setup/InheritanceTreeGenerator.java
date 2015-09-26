@@ -42,6 +42,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -101,9 +102,9 @@ public class InheritanceTreeGenerator {
 
 			logger.debug("Analyzing classpath entry " + classPathEntry);
 			LoggingUtils.getEvoLogger().info("  - " + classPathEntry);
-	        for(String className : ResourceList.getAllClasses(classPathEntry, "", true, false)) {
+	        for(String className : ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(classPathEntry, "", true, false)) {
 	        	// handle individual class
-				analyzeClassStream(inheritanceTree, ResourceList.getClassAsStream(className), false);
+				analyzeClassStream(inheritanceTree, ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className), false);
 	        }
 
 			// analyze(inheritanceTree, classPathEntry);
@@ -237,7 +238,7 @@ public class InheritanceTreeGenerator {
 
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
-		InputStream stream = ResourceList.getClassAsStream(className);
+		InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		if(stream==null){
 			throw new IllegalArgumentException("Failed to locate/load class: "+className);
 		}
@@ -431,7 +432,7 @@ public class InheritanceTreeGenerator {
 			}
 
             //InputStream stream = TestGenerationContext.getInstance().getClassLoaderForSUT().getResourceAsStream(name);
-            InputStream stream = ResourceList.getClassAsStream(name);
+            InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(name);
 
             if(stream == null){
                 logger.warn("Cannot open/find "+name);
@@ -507,7 +508,7 @@ public class InheritanceTreeGenerator {
 			if (element.contains("evosuite"))
 				continue;
 			try {
-				retval.addAll(ResourceList.getAllClasses(element, "",true,true));
+				retval.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, "",true,true));
 			} catch (IllegalArgumentException e) {
 				System.err.println("Does not exist: " + element);
 			}

@@ -80,7 +80,7 @@ public abstract class ExecutableChromosome extends Chromosome {
 	public ExecutionResult getLastExecutionResult() {
 		return lastExecutionResult;
 	}
-
+	
 	/**
 	 * <p>Setter for the field <code>lastExecutionResult</code>.</p>
 	 *

@@ -24,6 +24,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.runtime.instrumentation.JSRInlinerClassVisitor;
@@ -129,7 +130,7 @@ public class CarvingClassLoader extends ClassLoader {
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 
-			InputStream is = ResourceList.getClassAsStream(className);
+			InputStream is = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 			if(is == null){
 				throw new ClassNotFoundException("Class '" + className + ".class"
 						+ "' should be in target project, but could not be found!");

@@ -27,7 +27,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>SameTraceEntry class.</p>
@@ -39,6 +43,10 @@ public class SameTraceEntry implements OutputTraceEntry {
 	private final VariableReference var;
 
 	private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
+	
+	private final Map<Integer,VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
+	
+	private final static Logger logger = LoggerFactory.getLogger(SameTraceEntry.class);
 
 	/**
 	 * <p>Constructor for SameTraceEntry.</p>
@@ -57,6 +65,7 @@ public class SameTraceEntry implements OutputTraceEntry {
 	 */
 	public void addEntry(VariableReference other, boolean value) {
 		equalityMap.put(other, value);
+		equalityMapIntVar.put(other.getStPosition(),other);
 	}
 
 	/* (non-Javadoc)
@@ -92,18 +101,22 @@ public class SameTraceEntry implements OutputTraceEntry {
 
 		if (other instanceof SameTraceEntry) {
 			SameTraceEntry otherEntry = (SameTraceEntry) other;
-			for (VariableReference otherVar : equalityMap.keySet()) {
-				if (!otherEntry.equalityMap.containsKey(otherVar))
+			for (Integer otherVar : equalityMapIntVar.keySet()) {
+				if (!otherEntry.equalityMapIntVar.containsKey(otherVar))
 					continue;
 
-				if (otherVar == null)
-					continue;
-
-				if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar))) {
+				if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)).equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
+					if(Properties.isRegression()){
+						double distance = ObjectDistanceCalculator.getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)), otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
+						if(distance==0)
+							return assertions;
+					}
 					SameAssertion assertion = new SameAssertion();
 					assertion.source = var;
-					assertion.dest = otherVar;
-					assertion.value = equalityMap.get(otherVar);
+					assertion.dest = equalityMapIntVar.get(otherVar);
+					assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
+					if(Properties.isRegression())
+						assertion.setcomment("// (Same) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar)) +" | Regression Value: " + otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 				}
@@ -156,6 +169,7 @@ public class SameTraceEntry implements OutputTraceEntry {
 	public OutputTraceEntry cloneEntry() {
 		SameTraceEntry copy = new SameTraceEntry(var);
 		copy.equalityMap.putAll(equalityMap);
+		copy.equalityMapIntVar.putAll(equalityMapIntVar);
 		return copy;
 	}
 

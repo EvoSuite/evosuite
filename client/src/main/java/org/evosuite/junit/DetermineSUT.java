@@ -34,6 +34,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
@@ -91,7 +92,7 @@ public class DetermineSUT {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Set<String> targetClasses = ResourceList.getAllClasses(targetClassPath,false);
+		Set<String> targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(targetClassPath,false);
 		Set<String> candidateClasses = new HashSet<String>();
 		boolean hasJUnit = false;
 		try {
@@ -268,7 +269,7 @@ public class DetermineSUT {
 	}
 
 	private ClassNode loadClassNode(String className) throws IOException {
-		ClassReader reader = new ClassReader(ResourceList.getClassAsStream(className));
+		ClassReader reader = new ClassReader(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className));
 
 		ClassNode cn = new ClassNode();
 		reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG);	

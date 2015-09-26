@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.execution;
 
+import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.TestCase;
@@ -67,6 +68,11 @@ public class ExecutionResult implements Cloneable {
 	 * Keep track of whether any System property was written
 	 */
 	protected boolean wasAnyPropertyWritten;
+	
+	/*
+	 * Regression Object Distance
+	 */
+	public double regressionObjectDistance = 0;
 	
 	/**
 	 * @return the executedStatements
@@ -409,6 +415,7 @@ public class ExecutionResult implements Cloneable {
 		copy.trace = trace.lazyClone();
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
+		copy.regressionObjectDistance = regressionObjectDistance;
 		if(returnValues != null)
 			copy.returnValues = new HashMap<MethodStatement, Object>(returnValues);
 		if(argumentsValues != null)

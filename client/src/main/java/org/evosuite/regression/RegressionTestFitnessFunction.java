@@ -36,16 +36,18 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 public class RegressionTestFitnessFunction extends
         FitnessFunction<RegressionTestChromosome> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1230123206788990137L;
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public double getFitness(RegressionTestChromosome regressionTest) {
-		ExecutionResult firstResult = runTest(regressionTest.getTheTest());
-		ExecutionResult secondResult = runTest(regressionTest.getTheSameTestForTheOtherClassLoader());
-
 		// Measure something based on the two results!
-
+		assert false : "Should not be reaching here...";
 		return 0;
 	}
 

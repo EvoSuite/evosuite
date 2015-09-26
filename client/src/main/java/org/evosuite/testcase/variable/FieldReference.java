@@ -92,7 +92,12 @@ public class FieldReference extends VariableReferenceImpl {
 		assert (source != null || field.isStatic()) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
 		this.field = field;
 		this.source = source;
-		assert (source == null || field.getField().getDeclaringClass().isAssignableFrom(source.getVariableClass()));
+		assert (source == null || field.getField().getDeclaringClass().isAssignableFrom(source.getVariableClass()))
+		: "Assertion! Declaring class: " + field.getField().getDeclaringClass()
+		+ " # classloader: " + field.getField().getDeclaringClass().getClassLoader()
+		+ " | Variable Class: " + source.getVariableClass()
+		+ " # classloader: " + source.getVariableClass().getClassLoader()
+		+ " | Field name: " + field.getField();
 		//		logger.info("Creating new field assignment for field " + field + " of object "
 		//		        + source);
 

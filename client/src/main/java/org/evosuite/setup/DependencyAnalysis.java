@@ -140,7 +140,7 @@ public class DependencyAnalysis {
 
 		initInheritanceTree(classPath);
 
-		targetClasses = ResourceList.getAllClasses(target, false);
+		targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		for (String className : targetClasses) {
 			Properties.TARGET_CLASS = className;
 			analyze(className, classPath);
@@ -337,7 +337,7 @@ public class DependencyAnalysis {
 
 	private static ClassNode loadClassNode(String className) throws IOException {
 		
-		InputStream classStream = ResourceList.getClassAsStream(className);
+		InputStream classStream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		if(classStream == null) {
 			// This used to throw an IOException that leads to null being
 			// returned, so for now we're just returning null directly
@@ -360,22 +360,22 @@ public class DependencyAnalysis {
 
 	private static void gatherStatistics() {
 		ClientServices.getInstance().getClientNode()
-				.trackOutputVariable(RuntimeVariable.Predicates, BranchPool.getBranchCounter());
+				.trackOutputVariable(RuntimeVariable.Predicates, BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter());
 		ClientServices
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Branches,
-						(BranchPool.getBranchCounter()) * 2);
+						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter()) * 2);
 		ClientServices
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Branchless_Methods,
-						BranchPool.getBranchlessMethods().size());
+						BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods().size());
 		ClientServices
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Methods,
-						CFGMethodAdapter.getNumMethods());
+						CFGMethodAdapter.getNumMethods(TestGenerationContext.getInstance().getClassLoaderForSUT()));
 
 		ClientServices.getInstance().getClientNode()
 				.trackOutputVariable(RuntimeVariable.Lines, LinePool.getNumLines());

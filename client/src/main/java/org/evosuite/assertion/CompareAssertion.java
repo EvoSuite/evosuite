@@ -72,6 +72,7 @@ public class CompareAssertion extends Assertion {
 		s.source = newTestCase.getStatement(source.getStPosition() + offset).getReturnValue();
 		s.dest = newTestCase.getStatement(dest.getStPosition() + offset).getReturnValue();
 		s.value = value;
+		s.comment = comment;
 		s.killedMutants.addAll(killedMutants);
 		return s;
 	}

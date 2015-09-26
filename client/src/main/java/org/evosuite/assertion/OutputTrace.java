@@ -39,7 +39,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	private static Logger logger = LoggerFactory.getLogger(OutputTrace.class);
 
 	/** One entry per statement and per variable */
-	protected Map<Integer, Map<VariableReference, T>> trace = new HashMap<Integer, Map<VariableReference, T>>();
+	protected Map<Integer, Map<Integer, T>> trace = new HashMap<Integer, Map<Integer, T>>();
 
 	/**
 	 * Insert a new entry into the trace
@@ -55,9 +55,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 */
 	public synchronized void addEntry(int position, VariableReference var, T entry) {
 		if (!trace.containsKey(position))
-			trace.put(position, new HashMap<VariableReference, T>());
+			trace.put(position, new HashMap<Integer, T>());
 
-		trace.get(position).put(var, entry);
+		trace.get(position).put(var.getStPosition(), entry);
 	}
 
 	/**
@@ -71,14 +71,14 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 */
 	public synchronized T getEntry(int position, VariableReference var) {
 		if (!trace.containsKey(position)) {
-			trace.put(position, new HashMap<VariableReference, T>());
+			trace.put(position, new HashMap<Integer, T>());
 			return null;
 		}
 
-		if (!trace.get(position).containsKey(var))
+		if (!trace.get(position).containsKey(var.getStPosition()))
 			return null;
 
-		return trace.get(position).get(var);
+		return trace.get(position).get(var.getStPosition());
 	}
 
 	/**
@@ -92,11 +92,11 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	 */
 	public boolean containsEntry(int position, VariableReference var) {
 		if (!trace.containsKey(position)) {
-			trace.put(position, new HashMap<VariableReference, T>());
+			trace.put(position, new HashMap<Integer, T>());
 			return false;
 		}
 
-		if (!trace.get(position).containsKey(var))
+		if (!trace.get(position).containsKey(var.getStPosition()))
 			return false;
 
 		return true;
@@ -112,7 +112,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	public boolean differs(OutputTrace<?> other) {
 		for (Integer statement : trace.keySet()) {
 			if (other.trace.containsKey(statement)) {
-				for (VariableReference var : trace.get(statement).keySet()) {
+				for (Integer var : trace.get(statement).keySet()) {
 					if (trace.get(statement).get(var).differs(other.trace.get(statement).get(var)))
 						return true;
 				}
@@ -134,7 +134,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 		for (Integer statement : trace.keySet()) {
 			if (other.trace.containsKey(statement)) {
-				for (VariableReference var : trace.get(statement).keySet()) {
+				for (Integer var : trace.get(statement).keySet()) {
 					if (trace.get(statement).get(var).differs(other.trace.get(statement).get(var)))
 						num++;
 				}
@@ -158,7 +158,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 		for (Integer statement : trace.keySet()) {
 			if (other.trace.containsKey(statement)) {
-				for (VariableReference var : trace.get(statement).keySet()) {
+				logger.debug("Other trace contains " + statement);
+				for (Integer var : trace.get(statement).keySet()) {
+					logger.debug("Variable " + var);
 					for (Assertion assertion : trace.get(statement).get(var).getAssertions(other.trace.get(statement).get(var))) {
 						assert (assertion.isValid()) : "Invalid assertion: "
 						        + assertion.getCode() + ", " + assertion.value;
@@ -183,7 +185,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 		int num = 0;
 
 		for (Integer statement : trace.keySet()) {
-			for (VariableReference var : trace.get(statement).keySet()) {
+			for (Integer var : trace.get(statement).keySet()) {
 				for (Assertion assertion : trace.get(statement).get(var).getAssertions()) {
 					assert (assertion.isValid()) : "Invalid assertion: "
 					        + assertion.getCode() + ", " + assertion.value;
@@ -212,7 +214,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 		if (!trace.containsKey(statement))
 			return 0;
 
-		for (VariableReference var : trace.get(statement).keySet()) {
+		for (Integer var : trace.get(statement).keySet()) {
 			for (Assertion assertion : trace.get(statement).get(var).getAssertions()) {
 				assert (assertion.isValid()) : "Invalid assertion: "
 				        + assertion.getCode() + ", " + assertion.value;
@@ -235,7 +237,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 		assert (assertion.isValid());
 
 		for (Integer statement : trace.keySet()) {
-			for (VariableReference var : trace.get(statement).keySet()) {
+			for (Integer var : trace.get(statement).keySet()) {
 				if (trace.get(statement).get(var).isDetectedBy(assertion))
 					return true;
 			}
@@ -257,12 +259,17 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 	public synchronized OutputTrace<T> clone() {
 		OutputTrace<T> copy = new OutputTrace<T>();
 		for (Integer position : trace.keySet()) {
-			copy.trace.put(position, new HashMap<VariableReference, T>());
-			for (VariableReference var : trace.get(position).keySet()) {
+			copy.trace.put(position, new HashMap<Integer, T>());
+			for (Integer var : trace.get(position).keySet()) {
 				copy.trace.get(position).put(var,
 				                             (T) trace.get(position).get(var).cloneEntry());
 			}
 		}
 		return copy;
+	}
+	
+	@Override
+	public String toString() {
+		return "Output trace of size " + trace.size();
 	}
 }

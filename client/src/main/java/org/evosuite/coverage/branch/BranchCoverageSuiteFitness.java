@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -57,6 +58,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public final int numBranchlessMethods;
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
+	
 	private final Set<Integer> branchesId;
 	
 	// Some stuff for debug output
@@ -77,7 +79,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<Integer> removedBranchesF = new HashSet<>();
 	private final Set<String> removedRootBranches = new HashSet<>();	
 	
-	
+	// Total coverage value, used by Regression
+	public double totalCovered = 0.0;	
 	
 	/**
 	 * <p>
@@ -86,23 +89,27 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public BranchCoverageSuiteFitness() {
 
+		this(TestGenerationContext.getInstance().getClassLoaderForSUT());
+	}
+	
+	/**
+	 * <p>
+	 * Constructor for BranchCoverageSuiteFitness.
+	 * </p>
+	 */
+	public BranchCoverageSuiteFitness(ClassLoader classLoader) {
+		
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
-		if (prefix.isEmpty()) {
+		if (prefix.isEmpty())
 			prefix = Properties.TARGET_CLASS;
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
 
-		} else {
-			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
-			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
-			methods = CFGMethodAdapter.getMethodsPrefix(prefix);
-		}
+		totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
+		totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
+		numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
+		branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
+		methods = CFGMethodAdapter.getMethodsPrefix(classLoader, prefix);
+		
 		branchesId = new HashSet<>();
 
 		totalGoals = 2 * totalBranches + numBranchlessMethods;
@@ -160,7 +167,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if(exceptionPosition >= result.test.size())
 				continue;
 			
-			Statement statement = result.test.getStatement(exceptionPosition);
+			
+			Statement statement = null;
+			if(result.test.hasStatement(exceptionPosition))
+				statement = result.test.getStatement(exceptionPosition);
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();
@@ -420,8 +430,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
  		
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
-        else
+		else 
             suite.setCoverage(this, 1);
+		
+		totalCovered = suite.getCoverage(this);
 
 		suite.setNumOfCoveredGoals(this, coverage);
 		suite.setNumOfNotCoveredGoals(this, totalGoals-coverage);
@@ -443,6 +455,15 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
 		        + suite.getCoverage(this); 
 		return fitness;
+	}
+	
+
+	
+	/*
+	 * Max branch coverage value
+	 */
+	public int getMaxValue() {
+		return  totalBranches * 2 + totalMethods;
 	}
 
 	/**
