@@ -25,6 +25,8 @@ package org.evosuite.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.regex.Pattern;
+
 import org.evosuite.utils.RegexDistanceUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -275,5 +277,17 @@ public class TestRegexDistance {
 		                                       "((mon)|(tue)|(wed)|(thur)|(fri)|(sat)|(sun))"),
 		             0.0);
 
+	}
+	
+	@Test
+	public void testWordBoundaries() {
+		String regex = ".*\\bhallo\\b.*";
+		String str   = "hallo test";
+        Pattern p = Pattern.compile(regex);
+        if (p.matcher(str).matches()) {
+        	assertEquals(0, RegexDistanceUtils.getStandardDistance(str, regex));
+        } else {
+        	assertTrue(0 < RegexDistanceUtils.getStandardDistance(str, regex));
+        }
 	}
 }
