@@ -249,7 +249,6 @@ public class RegressionTestChromosome extends TestChromosome {
 		return theTest.getLastExecutionResult();
 	}
 	
-	@Override
 	public ExecutionResult getLastRegressionExecutionResult() {
 		return theSameTestForTheOtherClassLoader.getLastExecutionResult();
 	}
