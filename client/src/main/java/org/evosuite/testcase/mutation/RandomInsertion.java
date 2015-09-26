@@ -145,7 +145,7 @@ public class RandomInsertion implements InsertionStrategy {
 			return null;
 
 		List<VariableReference> allVariables = test.getObjects(position);
-		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> candidateVariables = new LinkedHashSet<>();
 
 		for(VariableReference var : allVariables) {
 
