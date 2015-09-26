@@ -773,6 +773,12 @@ public class Properties {
 	@Parameter(key = "ctg_schedule", group = "Continuous Test Generation", description = "Schedule used to run jobs")
 	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.BUDGET;
 
+
+	@Parameter(key = "ctg_extra_args", group = "Continuous Test Generation", description = "Extra '-D' arguments to pass to EvoSuite test generation processes")
+	public static String CTG_EXTRA_ARGS = null;
+
+
+
 	// ---------------------------------------------------------------
 	// Single branch mode
 	/** Constant <code>RANDOM_TESTS=0</code> */

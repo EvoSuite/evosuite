@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.AccessedEnvironment;
@@ -661,12 +662,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public VariableReference getRandomNonNullObject(Type type, int position)
 	        throws ConstructionFailedException {
-		assert (type != null);
+		Inputs.checkNull(type);
+
 		List<VariableReference> variables = getObjects(type, position);
 		Iterator<VariableReference> iterator = variables.iterator();
 		while (iterator.hasNext()) {
-			if (iterator.next() instanceof NullReference)
+			VariableReference ref = iterator.next();
+			if (ref instanceof NullReference ||
+					(this.getStatement(ref.getStPosition()) instanceof FunctionalMockStatement) ) {
 				iterator.remove();
+			}
 		}
 		if (variables.isEmpty())
 			throw new ConstructionFailedException("Found no variables of type " + type
