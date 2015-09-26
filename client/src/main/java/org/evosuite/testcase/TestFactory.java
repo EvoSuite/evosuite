@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite.testcase;
 
 import java.lang.reflect.Field;
@@ -367,7 +364,7 @@ public class TestFactory {
 	 * Add method at given position if max recursion depth has not been reached
 	 *
 	 * @param test
-	 * @param method
+	 * @param field
 	 * @param position
 	 * @param recursionDepth
 	 * @return
@@ -575,7 +572,7 @@ public class TestFactory {
 	 * Called from TestChromosome when doing crossover
 	 *
 	 * @param test
-	 * @param s
+	 * @param statement
 	 */
 	public void appendStatement(TestCase test, Statement statement)
 	        throws ConstructionFailedException {
@@ -1070,23 +1067,29 @@ public class TestFactory {
 		return ret;
 	}
 
-	/**
-	 * Create a new non-null, non-primitive object and return reference
-	 *
-	 * @param test
-	 * @param type
-	 * @param position
-	 * @param recursionDepth
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
+
 	public VariableReference createObject(TestCase test, Type type, int position,
-	        int recursionDepth, VariableReference generatorRefToExclude) throws ConstructionFailedException {
+										  int recursionDepth, VariableReference generatorRefToExclude) throws ConstructionFailedException {
+		return createObject(test,type,position,recursionDepth,generatorRefToExclude,true);
+	}
+
+		/**
+         * Create a new non-null, non-primitive object and return reference
+         *
+         * @param test
+         * @param type
+         * @param position
+         * @param recursionDepth
+         * @return
+         * @throws ConstructionFailedException
+         */
+	public VariableReference createObject(TestCase test, Type type, int position,
+	        int recursionDepth, VariableReference generatorRefToExclude, boolean canUseFunctionalMocks) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
 		VariableReference ret;
 
-		if( TimeController.getInstance().getPhasePercentage() >= Properties.FUNCTIONAL_MOCKING_PERCENT &&
+		if( canUseFunctionalMocks && TimeController.getInstance().getPhasePercentage() >= Properties.FUNCTIONAL_MOCKING_PERCENT &&
 				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING &&
 				FunctionalMockStatement.canBeFunctionalMocked(type)) {
 
@@ -1121,7 +1124,7 @@ public class TestFactory {
 					}
 				}
 
-				if (Properties.P_FUNCTIONAL_MOCKING > 0 && FunctionalMockStatement.canBeFunctionalMocked(type)) {
+				if (canUseFunctionalMocks && Properties.P_FUNCTIONAL_MOCKING > 0 && FunctionalMockStatement.canBeFunctionalMocked(type)) {
 				/*
 					Even if mocking is not active yet in this phase, if we have
 					no generator for a type, we use mocking directly
@@ -1150,7 +1153,7 @@ public class TestFactory {
 
 				ret = addConstructor(test, (GenericConstructor) o, type, position, recursionDepth + 1);
 			} else {
-				logger.debug("No generators found for type " + type);
+				logger.debug("No generators found for type {}", type);
 				throw new ConstructionFailedException("No generator found for type " + type);
 			}
 		}
@@ -1873,16 +1876,16 @@ public class TestFactory {
 				}
 
 				GenericConstructor c = (GenericConstructor) o;
-				logger.debug("Adding constructor call " + c.getName());
+				logger.debug("Adding constructor call {}", c.getName());
 				name = c.getName();
 				addConstructor(test, c, position, 0);
 			} else if (o.isMethod()) {
 				GenericMethod m = (GenericMethod) o;
-				logger.debug("Adding method call " + m.getName());
+				logger.debug("Adding method call {}", m.getName());
 				name = m.getName();
+
 				if (!m.isStatic()) {
-					logger.debug("Getting callee of type "
-					        + m.getOwnerClass().getTypeName());
+					logger.debug("Getting callee of type {}",m.getOwnerClass().getTypeName());
 					VariableReference callee = null;
 					Type target = m.getOwnerType();
 					// Class<?> target = Properties.getTargetClass();
@@ -1893,7 +1896,7 @@ public class TestFactory {
 					//}
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0, null);
+						callee = createObject(test, target, position, 0, null, false); //no FM for SUT
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {
@@ -1903,7 +1906,7 @@ public class TestFactory {
 						//	callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
 						//}
 					}
-					logger.debug("Got callee of type " + callee.getGenericClass().getTypeName());
+					logger.debug("Got callee of type {}",callee.getGenericClass().getTypeName());
 					if (!TestUsageChecker.canUse(m.getMethod(), callee.getVariableClass())) {
 						logger.debug("Cannot call method " + m + " with callee of type " + callee.getClassName());
 						throw new ConstructionFailedException("Cannot apply method to this callee");
@@ -1917,7 +1920,7 @@ public class TestFactory {
 			} else if (o.isField()) {
 				GenericField f = (GenericField) o;
 				name = f.getName();
-				logger.debug("Adding field " + f.getName());
+				logger.debug("Adding field {}",f.getName());
 				if (Randomness.nextBoolean()) {
 					//logger.info("Adding field assignment " + f.getName());
 					addFieldAssignment(test, f, position, 0);
