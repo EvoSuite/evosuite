@@ -34,6 +34,7 @@ import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.Mockito;
@@ -459,7 +460,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                     listener = new EvoInvocationListener();
 
                     //then create the mock
-                    Object ret = mock(targetClass, withSettings().invocationListeners(listener));
+                    Object ret;
+                    try {
+                        ret = mock(targetClass, withSettings().invocationListeners(listener));
+                    } catch(Throwable t){
+                        LoggingUtils.logErrorAtMostOnce(logger, "Failed to use Mockito on "+targetClass+": "+t.getMessage());
+                        throw new EvosuiteError(t);
+                    }
 
 
                     //execute all "when" statements
