@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
@@ -45,6 +46,7 @@ import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.junit.rules.Timeout;
 
 /**
  * Class used to generate all the scaffolding code that ends up in methods like @After/@Before
@@ -228,7 +230,8 @@ public class Scaffolding {
         bd.append("@org.junit.Rule \n");
         bd.append(METHOD_SPACE);
         int timeout = Properties.TIMEOUT + 1000;
-        bd.append("public org.junit.rules.Timeout globalTimeout = new org.junit.rules.Timeout(" + timeout + "); \n");
+        bd.append("public "+Timeout.class.getName()+" globalTimeout = new "+Timeout.class.getName()+
+                "(" + timeout + ", "+ TimeUnit.class.getName()+".MILLISECONDS); \n");
         bd.append("\n");
     }
 
