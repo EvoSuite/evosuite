@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
@@ -132,6 +133,7 @@ public class RegexDistanceUtils {
 
 		// \W	A non-word character: [^\w]
 		newRegex = newRegex.replaceAll("\\\\W", "[^a-zA-Z_0-9]");
+
 		if(newRegex.startsWith("^"))
 			newRegex = newRegex.substring(1);
 		
@@ -248,10 +250,37 @@ public class RegexDistanceUtils {
 	 * can be done (ie all sequences are valid). 
 	 * </p>
 	 */
-	public static int getStandardDistance(String arg, String regex){
-		RegexGraph graph = new RegexGraph(arg,regex);		
+	public static int getStandardDistance(String arg, String regex) {
+		if(!isSupportedRegex(regex)) {
+			return getDefaultDistance(arg, regex);
+		}
+
+		RegexGraph graph = new RegexGraph(arg, regex);		
 		CostMatrix matrix = new CostMatrix();
 		return matrix.calculateStandardCost(graph);		
+	}
+	
+	private static int getDefaultDistance(String arg, String regex) {
+        Pattern p = Pattern.compile(regex);
+        if (p.matcher(arg).matches())
+        	return 0;
+        else
+        	return 1;
+
+	}
+	
+	/**
+	 * Determine whether the regex requires features that are 
+	 * not supported by the regex automaton library
+	 *  
+	 * @param regex
+	 * @return
+	 */
+	private static boolean isSupportedRegex(String regex) {
+		if(regex.contains("\\b"))
+			return false;
+		
+		return true;
 	}
 
 	/**
@@ -267,7 +296,7 @@ public class RegexDistanceUtils {
 	 * @return
 	 */
 	public static double getDistanceTailoredForStringAVM(String arg, String regex) {
-		RegexGraph graph = new RegexGraph(arg,regex);		
+		RegexGraph graph = new RegexGraph(arg, regex);		
 		CostMatrix matrix = new CostMatrix();
 		return matrix.calculateCostForStringAVM(graph);		
 	}
