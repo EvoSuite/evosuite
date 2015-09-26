@@ -183,6 +183,8 @@ public class RuntimeInstrumentation {
 
 		cv = new KillSwitchClassAdapter(cv);
 
+		cv = new RemoveFinalClassAdapter(cv);
+
 		if(RuntimeSettings.maxNumberOfIterationsPerLoop >= 0){
 			cv = new LoopCounterClassAdapter(cv);
 		}

@@ -197,6 +197,8 @@ public class BytecodeInstrumentation {
                 cv = new AccessibleClassAdapter(cv, className);
             }
 
+            cv = new RemoveFinalClassAdapter(cv);
+
             cv = new ExecutionPathClassAdapter(cv, className);
 
             cv = new CFGClassAdapter(classLoader, cv, className);
