@@ -58,7 +58,7 @@ public class NonTargetClassAdapter extends ClassVisitor {
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, final String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+		MethodVisitor mv = super.visitMethod(access & ~Opcodes.ACC_FINAL, name, desc, signature, exceptions);
 		mv = new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
 		if(!"<clinit>".equals(name))
 			mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
