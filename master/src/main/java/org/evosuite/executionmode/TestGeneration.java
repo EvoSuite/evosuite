@@ -87,7 +87,9 @@ public class TestGeneration {
 		} else if (EvoSuite.hasLegacyTargets()){
 			results.addAll(generateTestsLegacy(strategy, javaOpts));
 		} else {
-			LoggingUtils.getEvoLogger().error("Please specify either target class ('-target' option), prefix ('-prefix' option), or classpath entry ('-class' option)");
+			LoggingUtils.getEvoLogger().error(
+					"Please specify either target class ('-class' option), prefix ('-prefix' option), or " +
+							"classpath entry ('-target' option)");
 			Help.execute(options);
 		}
 		return results;
