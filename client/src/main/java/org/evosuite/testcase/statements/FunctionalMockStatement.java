@@ -22,6 +22,7 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
+import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -162,12 +164,30 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     }
 
     public static boolean canBeFunctionalMocked(Type type){
+
+        Class<?> rawClass = new GenericClass(type).getRawClass();
+
         if(type.equals(Properties.getTargetClass()) ||
-                EvoSuiteMock.class.isAssignableFrom(new GenericClass(type).getRawClass())){
+                EvoSuiteMock.class.isAssignableFrom(rawClass) ||
+                rawClass.isArray() || rawClass.isPrimitive() || rawClass.isAnonymousClass() ||
+                rawClass.isEnum()) {
             return false;
         }
+
+        if(! InstrumentedClass.class.isAssignableFrom(rawClass) &&
+                Modifier.isFinal(rawClass.getModifiers())){
+            /*
+                if a class has not been instrumented (eg because belonging to javax.*),
+                then if it is final we cannot mock it :(
+                recall that instrumentation does remove the final modifiers
+             */
+            return false;
+        }
+
         return true;
     }
+
+
 
     public Class<?> getTargetClass() {
         return targetClass;
