@@ -349,10 +349,6 @@ public class TestSuiteWriter implements Opcodes {
         visitor.clearExceptions();
 
         if(doesUseMocks(results)){
-            /*
-                TODO: this can lead to problems if SUT defines its own static methods
-                with same name as those static imports. 
-             */
             String mockito = Mockito.class.getCanonicalName();
             builder.append("import static "+mockito+".*;"+NEWLINE);
         }
