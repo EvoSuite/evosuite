@@ -22,7 +22,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-
         <!-- Third-party modules -->
 
         <dependency>
@@ -112,11 +111,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>core</artifactId>
-            <version>3.2.0.658</version>
-        </dependency>
-        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <scope>compile</scope>
@@ -127,16 +121,16 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <!-- ERMIRA -->
         <dependency>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>org.eclipse.jdt.core</artifactId>
-            <version>3.9.1.v20130905-0837</version>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>core</artifactId>
+            <version>3.2.0.658</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.core</groupId>
@@ -144,9 +138,9 @@
             <version>3.9.100-v20131218-1515</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.birt.runtime</groupId>
-            <artifactId>org.eclipse.core.resources</artifactId>
-            <version>3.8.101.v20130717-0806</version>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
         </dependency>
         <!-- END ERMIRA -->
     </dependencies>
