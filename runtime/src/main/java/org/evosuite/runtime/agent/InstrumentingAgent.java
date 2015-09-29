@@ -21,6 +21,7 @@ package org.evosuite.runtime.agent;
 
 import java.lang.instrument.Instrumentation;
 
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.mock.MockFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +119,7 @@ public class  InstrumentingAgent {
 		checkTransformerState();
 		MockFramework.enable();
 		transformer.activate();
+		LoopCounter.getInstance().setActive(true);
 	}
 	
 	/**
@@ -127,6 +129,7 @@ public class  InstrumentingAgent {
 		checkTransformerState();
 		MockFramework.disable();
 		transformer.deactivate();
+		LoopCounter.getInstance().setActive(false);
 	}
 	
 	/**

@@ -49,7 +49,9 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,7 +235,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		for (int count = 1; Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && size() < Properties.MAX_SIZE; count++) {
 			T test = testChromosomeFactory.getChromosome();
-			tests.add(test);
+			addTest(test);
 			logger.debug("Adding new test case");
 			changed = true;
 		}

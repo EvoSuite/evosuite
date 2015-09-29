@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -79,10 +80,9 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-
+			totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
 		} else {
-			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
+			totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
 		}
 		branchesId = new HashSet<>();
 

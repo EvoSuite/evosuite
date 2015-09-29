@@ -192,6 +192,15 @@ public class Scope {
 	public Collection<Object> getObjects() {
 		return pool.values();
 	}
+	
+	/**
+	 * Get all variableReferences in scope
+	 * 
+	 * @return Collection of all variableReferences
+	 */
+	public Collection<VariableReference> getVariables() {
+		return pool.keySet();
+	}
 
 	/**
 	 * Get all objects of a given type in scope

@@ -51,11 +51,26 @@ public abstract class Assertion implements Serializable {
 
 	/** Statement to which the assertion is added */
 	protected Statement statement;
+	
+	/** Assertion Comment */
+	protected String comment;
 
 	protected transient Set<Mutation> killedMutants = new LinkedHashSet<Mutation>();
 
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(Assertion.class);
+	
+	public boolean hasComment(){
+		return (this.comment != null);
+	}
+	
+	public void setcomment(String comment){
+		this.comment = comment;
+	}
+	
+	public String getComment(){
+		return " " + comment.replace('\n', ' ').replace('\r', ' ');
+	}
 
 	/** {@inheritDoc} */
 	@Override

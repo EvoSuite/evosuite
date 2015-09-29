@@ -23,6 +23,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
@@ -252,7 +253,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 			// TODO also, question: is branchMap.size() really intended here?
 			// I think BranchPool.getBranchCount() was intended
 			Properties.SEARCH_BUDGET = Properties.SEARCH_BUDGET
-			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
+			        * (BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForClass(Properties.TARGET_CLASS) * 2);
 			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
 		}

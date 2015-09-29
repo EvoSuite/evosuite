@@ -69,11 +69,17 @@ public class TestGenerationContext {
 	 * used by all test code
 	 */
 	private InstrumentingClassLoader classLoader;
+	
+	/**
+	 * The regression class loader
+	 */
+	private InstrumentingClassLoader regressionClassLoader;
 
 	/**
 	 * The classloader used to load this class
 	 */
 	private ClassLoader originalClassLoader;
+	
 
 	/**
 	 * Private singleton constructor
@@ -81,7 +87,8 @@ public class TestGenerationContext {
 	private TestGenerationContext() {
 		originalClassLoader = this.getClass().getClassLoader();
 		classLoader = new InstrumentingClassLoader();
-
+		regressionClassLoader = new InstrumentingClassLoader(true);
+		
 		DBManager.getInstance().setSutClassLoader(classLoader);
 	}
 
@@ -115,6 +122,10 @@ public class TestGenerationContext {
 		return classLoader;
 	}	
 	
+	public InstrumentingClassLoader getRegressionClassLoaderForSUT() {
+		return regressionClassLoader;
+	}	
+	
 	/**
 	 * @deprecated use {@code getInstance().getClassLoaderForSUT()}
 	 * 
@@ -139,7 +150,7 @@ public class TestGenerationContext {
 		ExecutionTracer.getExecutionTracer().clear();
 
 		// TODO: BranchPool should not be static
-		BranchPool.reset();
+		BranchPool.getInstance(classLoader).reset();
 		LinePool.reset();
 		MutationPool.clear();
 
@@ -148,7 +159,8 @@ public class TestGenerationContext {
 		DefUsePool.clear();
 
 		// TODO: This is not nice
-		CFGMethodAdapter.methods.clear();
+		for(ClassLoader cl:CFGMethodAdapter.methods.keySet())
+			CFGMethodAdapter.methods.get(cl).clear();
 
 		// TODO: Clear only pool of current classloader?
 		BytecodeInstructionPool.clearAll();

@@ -25,6 +25,7 @@ package org.evosuite.coverage.path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -114,7 +115,7 @@ public class PrimePath {
 			BytecodeInstruction node = nodes.get(position);
 			if (node.isBranch() && position < (nodes.size() - 1)) {
 				PathEntry entry = new PathEntry();
-				entry.branch = BranchPool.getBranchForInstruction(node);
+				entry.branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchForInstruction(node);
 				if (nodes.get(position + 1).getInstructionId() == (node.getInstructionId() + 1)) {
 					logger.info("FALSE: Next ID is "
 					        + nodes.get(position + 1).getInstructionId() + " / "

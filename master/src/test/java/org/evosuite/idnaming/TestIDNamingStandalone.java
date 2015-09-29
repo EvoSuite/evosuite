@@ -1,5 +1,6 @@
 package org.evosuite.idnaming;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -40,7 +41,7 @@ public class TestIDNamingStandalone {
         // Branch instruction in method isPositive(I)Z
         JumpInsnNode inst1 = new JumpInsnNode(155,null);
         BytecodeInstruction bcInst1 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","isPositive(I)Z",3,1,inst1,9,null);
-        BranchPool.registerAsBranch(bcInst1);
+        BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst1);
         Branch br1 = new Branch(bcInst1, 1);
 
         // Branch goals for method isPositive(I)Z
@@ -50,7 +51,7 @@ public class TestIDNamingStandalone {
         // Branch instruction in method foo(I)Z
         JumpInsnNode inst2 = new JumpInsnNode(153,null);
         BytecodeInstruction bcInst2 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","foo(I)Z",5,5,inst2,16,null);
-        BranchPool.registerAsBranch(bcInst2);
+        BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst2);
         Branch br2 = new Branch(bcInst2, 2);
 
         // Branch goals for method foo(I)V

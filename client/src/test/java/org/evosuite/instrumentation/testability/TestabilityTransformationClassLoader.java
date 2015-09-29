@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.objectweb.asm.ClassReader;
@@ -153,7 +154,7 @@ public class TestabilityTransformationClassLoader extends ClassLoader {
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
 
-			InputStream is =  ResourceList.getClassAsStream(className);
+			InputStream is =  ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 			if(is == null){
 				throw new ClassNotFoundException("Class '" + className + ".class"
 						+ "' should be in target project, but could not be found!");

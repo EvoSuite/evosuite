@@ -24,6 +24,7 @@ import org.evosuite.ShutdownTestWriter;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
@@ -41,6 +42,8 @@ import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
 import org.evosuite.ga.metaheuristics.StandardGA;
 import org.evosuite.ga.metaheuristics.MonotonicGA;
+import org.evosuite.regression.RegressionTestChromosomeFactory;
+import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
@@ -112,13 +115,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
 			}
+		case REGRESSION:
+			return new RegressionTestSuiteChromosomeFactory();
 		default:
 			throw new RuntimeException("Unsupported test factory: "
 					+ Properties.TEST_FACTORY);
 		}
 	}
 	
-	private GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
+	protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
@@ -184,7 +189,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		}
 	}
 	
-	private SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
+	protected SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
 			return new FitnessProportionateSelection<>();
@@ -197,7 +202,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		}
 	}
 	
-	private CrossOverFunction getCrossoverFunction() {
+	protected CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
 			return new SinglePointFixedCrossOver();
@@ -226,7 +231,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.search.ga.SecondaryObjective} object.
 	 */
-	private SecondaryObjective<TestSuiteChromosome> getSecondarySuiteObjective(String name) {
+	protected SecondaryObjective<TestSuiteChromosome> getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective<>();
 		else if (name.equalsIgnoreCase("ibranch"))
@@ -246,7 +251,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			        + name + "\"");
 	}
 
-	private void getSecondaryObjectives(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
+	protected void getSecondaryObjectives(GeneticAlgorithm<TestSuiteChromosome> algorithm) {
 		String objectives = Properties.SECONDARY_OBJECTIVE;
 
 		// check if there are no secondary objectives to optimize
@@ -330,7 +335,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			// TODO also, question: is branchMap.size() really intended here?
 			// I think BranchPool.getBranchCount() was intended
 			Properties.SEARCH_BUDGET = Properties.SEARCH_BUDGET
-			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
+			        * (BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForClass(Properties.TARGET_CLASS) * 2);
 			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
 		}

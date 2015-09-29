@@ -58,10 +58,16 @@ public class NonTargetClassAdapter extends ClassVisitor {
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, final String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+		MethodVisitor mv = super.visitMethod(access & ~Opcodes.ACC_FINAL, name, desc, signature, exceptions);
 		mv = new JSRInlinerAdapter(mv, access, name, desc, signature, exceptions);
 		if(!"<clinit>".equals(name))
 			mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
 		return mv; //new ArrayAllocationLimitMethodAdapter(mv, className, name, access, desc);
+	}
+	
+	@Override
+	public void visitInnerClass(String name, String outerName, String innerName, int access) {
+		// We are removing final access to allow mocking
+		super.visitInnerClass(name, outerName, innerName, access & ~Opcodes.ACC_FINAL);
 	}
 }

@@ -22,6 +22,7 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
+import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
@@ -34,15 +35,19 @@ import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -93,6 +98,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
 
 	private static final long serialVersionUID = -8177814473724093381L;
 
+    private static final Logger logger = LoggerFactory.getLogger(FunctionalMockStatement.class);
+
 	/**
      * This list needs to be kept sorted
      */
@@ -139,7 +146,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     public void changeClassLoader(ClassLoader loader) {
 
         try {
-            targetClass = loader.loadClass(targetClass.getCanonicalName());
+            targetClass = loader.loadClass(targetClass.getName());
         } catch (ClassNotFoundException e) {
             logger.error("Failed to update target class from new classloader: "+e.getMessage());
         }
@@ -157,12 +164,30 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
     }
 
     public static boolean canBeFunctionalMocked(Type type){
+
+        Class<?> rawClass = new GenericClass(type).getRawClass();
+
         if(type.equals(Properties.getTargetClass()) ||
-                EvoSuiteMock.class.isAssignableFrom(new GenericClass(type).getRawClass())){
+                EvoSuiteMock.class.isAssignableFrom(rawClass) ||
+                rawClass.isArray() || rawClass.isPrimitive() || rawClass.isAnonymousClass() ||
+                rawClass.isEnum()) {
             return false;
         }
+
+        if(! InstrumentedClass.class.isAssignableFrom(rawClass) &&
+                Modifier.isFinal(rawClass.getModifiers())){
+            /*
+                if a class has not been instrumented (eg because belonging to javax.*),
+                then if it is final we cannot mock it :(
+                recall that instrumentation does remove the final modifiers
+             */
+            return false;
+        }
+
         return true;
     }
+
+
 
     public Class<?> getTargetClass() {
         return targetClass;
@@ -455,7 +480,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement{
                     listener = new EvoInvocationListener();
 
                     //then create the mock
-                    Object ret = mock(targetClass, withSettings().invocationListeners(listener));
+                    Object ret;
+                    try {
+                        ret = mock(targetClass, withSettings().invocationListeners(listener));
+                    } catch(Throwable t){
+                        LoggingUtils.logErrorAtMostOnce(logger, "Failed to use Mockito on "+targetClass+": "+t.getMessage());
+                        throw new EvosuiteError(t);
+                    }
 
 
                     //execute all "when" statements

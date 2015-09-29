@@ -372,7 +372,7 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 
 		int branchId = ois.readInt();
 		if (branchId >= 0)
-			this.branch = BranchPool.getBranch(branchId);
+			this.branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId);
 		else
 			this.branch = null;
 	}

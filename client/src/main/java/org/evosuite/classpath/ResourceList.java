@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,12 +35,15 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * <p>
@@ -125,18 +129,39 @@ public class ResourceList {
 			}
 		}
 	}
+	
 
 	/**
 	 * Current cache. Do not access directly, but rather use getCache(), as it can be null
 	 */
-	private static Cache cache;
+	private Cache cache = null;
+	
+	
+	/*
+	 * ResourceList for each ClassLoader
+	 */
+	private static Map<ClassLoader, ResourceList> instanceMap = new HashMap<ClassLoader, ResourceList>();
+
+	private final ClassLoader classLoader;
+
+	/** Private constructor */
+	private ResourceList(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+
+	public static ResourceList getInstance(ClassLoader classLoader) {
+		if (!instanceMap.containsKey(classLoader)) {
+			instanceMap.put(classLoader, new ResourceList(classLoader));
+		}
+		return instanceMap.get(classLoader);
+	}
 
 
 	// -------------------------------------------
 	// --------- public methods  ----------------- 
 	// -------------------------------------------
 
-	public static void resetCache(){
+	public void resetCache(){
 		if(cache!=null){
 			cache.close();
 		}
@@ -151,7 +176,7 @@ public class ResourceList {
 	 *            a fully qualified class name
 	 * @return
 	 */
-	public static boolean hasClass(String className) {
+	public boolean hasClass(String className) {
 		return getCache().mapClassToCP.containsKey(className);
 	}
 
@@ -160,14 +185,14 @@ public class ResourceList {
 	 * @param name  a fully qualifying name, e.g. org.some.Foo
 	 * @return
 	 */
-	public static InputStream getClassAsStream(String name) {
+	public InputStream getClassAsStream(String name) {
 
 		String path = name.replace('.', '/') + ".class";
 		String windowsPath = name.replace(".", "\\") + ".class";
 
 		String cpEntry = getCache().mapClassToCP.get(name);
 		if(cpEntry==null){
-
+			
 			/*
 				the cache is initialized based on what is on the project classpath.
 				but that does not include the Java API, although it is accessed by
@@ -240,7 +265,7 @@ public class ResourceList {
 	 * @param includeInternalClasses   should internal classes (ie static and anonymous having $ in their name) be included?
 	 * @return
 	 */
-	public static Set<String> getAllClasses(String classPathEntry, boolean includeInternalClasses){
+	public Set<String> getAllClasses(String classPathEntry, boolean includeInternalClasses){
 		return getAllClasses(classPathEntry,"",includeInternalClasses);
 	}
 
@@ -254,7 +279,7 @@ public class ResourceList {
      * @param includeInternalClasses should internal classes (ie static and anonymous having $ in their name) be included?
      * @return
      */
-    public static Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses){
+    public Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses){
         return getAllClasses(classPathEntry,prefix,includeInternalClasses,true);
     }
 
@@ -269,7 +294,7 @@ public class ResourceList {
      * @param excludeAnonymous  if including internal classes, should though still exclude the anonymous? (ie keep only the static ones)
 	 * @return
 	 */
-	public static Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses, boolean excludeAnonymous){
+	public Set<String> getAllClasses(String classPathEntry, String prefix, boolean includeInternalClasses, boolean excludeAnonymous){
 
 		if(classPathEntry.contains(File.pathSeparator)){
 			Set<String> retval = new LinkedHashSet<String>();
@@ -314,17 +339,17 @@ public class ResourceList {
 		return isClassAnInterface(input);
 	}
 
-	public static boolean isClassAnInterface(String className) throws IOException {
+	public boolean isClassAnInterface(String className) throws IOException {
 		InputStream input = getClassAsStream(className);		
 		return isClassAnInterface(input);
 	}
 
-	public static boolean isClassDeprecated(String className) throws IOException {
+	public boolean isClassDeprecated(String className) throws IOException {
 		InputStream input = getClassAsStream(className);		
 		return isClassDeprecated(input);
 	}
 	
-	public static boolean isClassTestable(String className) throws IOException {
+	public boolean isClassTestable(String className) throws IOException {
 		InputStream input = getClassAsStream(className);		
 		return isClassTestable(input);
 	}
@@ -466,7 +491,7 @@ public class ResourceList {
 	 * Init the cache if null
 	 * @return
 	 */
-	private static Cache getCache(){
+	private Cache getCache(){
 		if(cache == null){
 			initCache();
 		}
@@ -475,16 +500,22 @@ public class ResourceList {
 	}
 
 	
-	private static void initCache() {
+	private void initCache() {
 		cache = new Cache();
 
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+
+		// If running in regression mode and current ClassLoader is the regression ClassLoader
+		if(Properties.isRegression() && 
+				classLoader==TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
+			 cp = org.evosuite.Properties.REGRESSIONCP;
+
 		for(String entry : cp.split(File.pathSeparator)){
 			addEntry(entry);
 		}		
 	}
 
-	private static void addEntry(String classPathElement) throws IllegalArgumentException{
+	private void addEntry(String classPathElement) throws IllegalArgumentException{
 		final File file = new File(classPathElement);
 
 		classPathElement = file.getAbsolutePath();
@@ -511,7 +542,7 @@ public class ResourceList {
 		}		
 	}
 
-	private static void scanDirectory(final File directory,
+	private void scanDirectory(final File directory,
 			final String classPathFolder) {
 
 		if (!directory.exists()) {
@@ -566,7 +597,7 @@ public class ResourceList {
 		}
 	}
 
-	private static void scanJar(String jarEntry) {
+	private void scanJar(String jarEntry) {
 		JarFile zf = getCache().getJar(jarEntry);
 
 		Enumeration<?> e = zf.entries();

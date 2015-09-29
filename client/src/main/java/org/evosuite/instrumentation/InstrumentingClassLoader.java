@@ -54,7 +54,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final BytecodeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<>();
-
+	private boolean isRegression = false;
+	
 	/**
 	 * <p>
 	 * Constructor for InstrumentingClassLoader.
@@ -63,6 +64,19 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
+		logger.debug("STANDARD classloader running now");
+	}
+	
+	/**
+	 * <p>
+	 * Constructor for InstrumentingClassLoader.
+	 * </p>
+	 */
+	public InstrumentingClassLoader(boolean isRegression) {
+		this(new BytecodeInstrumentation());
+		setClassAssertionStatus(Properties.TARGET_CLASS, true);
+		this.isRegression  = isRegression;
+		logger.debug("REGRESSION classloader running now");
 	}
 
 	/**
@@ -163,7 +177,10 @@ public class InstrumentingClassLoader extends ClassLoader {
 		String className = fullyQualifiedTargetClass.replace('.', '/');
 		InputStream is = null;
 		try {
-			is = ResourceList.getClassAsStream(fullyQualifiedTargetClass);
+			is = isRegression ?
+					ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
+					:
+					ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
 			
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"

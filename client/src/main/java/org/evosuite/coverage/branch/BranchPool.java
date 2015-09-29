@@ -19,14 +19,6 @@
  */
 package org.evosuite.coverage.branch;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.Opcodes;
@@ -35,6 +27,8 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 // TODO: root branches should not be special cases
 // every root branch should be a branch just
@@ -63,28 +57,37 @@ public class BranchPool {
 
 	// maps className -> method inside that class -> list of branches inside
 	// that method
-	private static Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
+	private Map<String, Map<String, List<Branch>>> branchMap = new HashMap<String, Map<String, List<Branch>>>();
 
 	// set of all known methods without a Branch
-	private static Map<String, Map<String, Integer>> branchlessMethods = new HashMap<String, Map<String, Integer>>();
+	private Map<String, Map<String, Integer>> branchlessMethods = new HashMap<String, Map<String, Integer>>();
 
 	// maps the branchIDs assigned by this pool to their respective Branches
-	private static Map<Integer, Branch> branchIdMap = new HashMap<Integer, Branch>();
+	private Map<Integer, Branch> branchIdMap = new HashMap<Integer, Branch>();
 
 	// maps all known branch instructions to their branchId
-	private static Map<BytecodeInstruction, Integer> registeredNormalBranches = new HashMap<BytecodeInstruction, Integer>();
+	private Map<BytecodeInstruction, Integer> registeredNormalBranches = new HashMap<BytecodeInstruction, Integer>();
 
 	// maps all known switch instructions to a list containing all of their
 	// associated Branch objects
-	private static Map<BytecodeInstruction, List<Branch>> registeredSwitches = new HashMap<BytecodeInstruction, List<Branch>>();
+	private Map<BytecodeInstruction, List<Branch>> registeredSwitches = new HashMap<BytecodeInstruction, List<Branch>>();
 
-	private static Map<BytecodeInstruction, Branch> registeredDefaultCases = new HashMap<BytecodeInstruction, Branch>();
+	private Map<BytecodeInstruction, Branch> registeredDefaultCases = new HashMap<BytecodeInstruction, Branch>();
 
-	private static Map<LabelNode, List<Branch>> switchLabels = new HashMap<LabelNode, List<Branch>>();
+	private Map<LabelNode, List<Branch>> switchLabels = new HashMap<LabelNode, List<Branch>>();
 
 	// number of known Branches - used for actualBranchIds
-	private static int branchCounter = 0;
+	private int branchCounter = 0;
 
+	private static Map<ClassLoader, BranchPool> instanceMap = new HashMap<ClassLoader, BranchPool>();
+
+	public static BranchPool getInstance(ClassLoader classLoader) {
+		if (!instanceMap.containsKey(classLoader)) {
+			instanceMap.put(classLoader, new BranchPool());
+		}
+
+		return instanceMap.get(classLoader);
+	}
 	// fill the pool
 
 	/**
@@ -97,7 +100,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static void addBranchlessMethod(String className, String methodName,
+	public void addBranchlessMethod(String className, String methodName,
 	        int lineNumber) {
 		if (!branchlessMethods.containsKey(className))
 			branchlessMethods.put(className, new HashMap<String, Integer>());
@@ -112,7 +115,7 @@ public class BranchPool {
 	 * @param instruction
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
-	public static void registerAsBranch(BytecodeInstruction instruction) {
+	public void registerAsBranch(BytecodeInstruction instruction) {
 		if (!(instruction.isActualBranch()))
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
 		if (isKnownAsBranch(instruction))
@@ -126,7 +129,7 @@ public class BranchPool {
 
 	}
 
-	private static void registerInstruction(BytecodeInstruction v) {
+	private void registerInstruction(BytecodeInstruction v) {
 		if (isKnownAsBranch(v))
 			throw new IllegalStateException(
 			        "expect registerInstruction() to be called at most once for each instruction");
@@ -140,7 +143,7 @@ public class BranchPool {
 			        "expect given instruction to be an actual branch");
 	}
 
-	private static void registerNormalBranchInstruction(BytecodeInstruction v) {
+	private void registerNormalBranchInstruction(BytecodeInstruction v) {
 		if (!v.isBranch())
 			throw new IllegalArgumentException("normal branch instruction expceted");
 
@@ -158,7 +161,7 @@ public class BranchPool {
 		logger.info("Branch " + branchCounter + " at line " + v.getLineNumber());
 	}
 
-	private static void registerSwitchInstruction(BytecodeInstruction v) {
+	private void registerSwitchInstruction(BytecodeInstruction v) {
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("expect a switch instruction");
 
@@ -184,7 +187,7 @@ public class BranchPool {
 		registerDefaultCase(v, defaultLabel);
 	}
 
-	private static void registerDefaultCase(BytecodeInstruction v, LabelNode defaultLabel) {
+	private void registerDefaultCase(BytecodeInstruction v, LabelNode defaultLabel) {
 
 		if (defaultLabel == null)
 			throw new IllegalStateException("expect variable to bet set");
@@ -195,7 +198,7 @@ public class BranchPool {
 			        "expect created branch to be a default case branch of a switch");
 	}
 
-	private static void registerTableSwitchCases(BytecodeInstruction v,
+	private void registerTableSwitchCases(BytecodeInstruction v,
 	        TableSwitchInsnNode tableSwitchNode) {
 
 		int num = 0;
@@ -210,7 +213,7 @@ public class BranchPool {
 		}
 	}
 
-	private static void registerLookupSwitchCases(BytecodeInstruction v,
+	private void registerLookupSwitchCases(BytecodeInstruction v,
 	        LookupSwitchInsnNode lookupSwitchNode) {
 
 		for (int i = 0; i < lookupSwitchNode.keys.size(); i++) {
@@ -224,7 +227,7 @@ public class BranchPool {
 		}
 	}
 
-	private static Branch createSwitchCaseBranch(BytecodeInstruction v,
+	private Branch createSwitchCaseBranch(BytecodeInstruction v,
 	        Integer caseValue, LabelNode targetLabel) {
 
 		branchCounter++;
@@ -250,7 +253,7 @@ public class BranchPool {
 		return switchBranch;
 	}
 
-	private static void registerSwitchLabel(Branch b, LabelNode targetLabel) {
+	private void registerSwitchLabel(Branch b, LabelNode targetLabel) {
 
 		if (switchLabels.get(targetLabel) == null)
 			switchLabels.put(targetLabel, new ArrayList<Branch>());
@@ -274,7 +277,7 @@ public class BranchPool {
 		switchLabels.put(targetLabel, oldList);
 	}
 
-	private static void registerSwitchBranch(BytecodeInstruction v, Branch switchBranch) {
+	private void registerSwitchBranch(BytecodeInstruction v, Branch switchBranch) {
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 
@@ -292,7 +295,7 @@ public class BranchPool {
 		registeredSwitches.put(v, oldList);
 	}
 
-	private static void addBranchToMap(Branch b) {
+	private void addBranchToMap(Branch b) {
 
 		logger.info("Adding to map the branch {}", b);
 
@@ -319,7 +322,7 @@ public class BranchPool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
-	public static boolean isKnownAsBranch(BytecodeInstruction instruction) {
+	public boolean isKnownAsBranch(BytecodeInstruction instruction) {
 		return isKnownAsNormalBranchInstruction(instruction)
 		        || isKnownAsSwitchBranchInstruction(instruction);
 	}
@@ -333,7 +336,7 @@ public class BranchPool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
-	public static boolean isKnownAsNormalBranchInstruction(BytecodeInstruction ins) {
+	public boolean isKnownAsNormalBranchInstruction(BytecodeInstruction ins) {
 
 		return registeredNormalBranches.containsKey(ins);
 	}
@@ -347,7 +350,7 @@ public class BranchPool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
-	public static boolean isKnownAsSwitchBranchInstruction(BytecodeInstruction instruction) {
+	public boolean isKnownAsSwitchBranchInstruction(BytecodeInstruction instruction) {
 
 		return registeredSwitches.containsKey(instruction);
 	}
@@ -361,7 +364,7 @@ public class BranchPool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a int.
 	 */
-	public static int getActualBranchIdForNormalBranchInstruction(BytecodeInstruction ins) {
+	public int getActualBranchIdForNormalBranchInstruction(BytecodeInstruction ins) {
 		if (!isKnownAsNormalBranchInstruction(ins))
 			throw new IllegalArgumentException(
 			        "instruction not registered as a normal branch");
@@ -382,7 +385,7 @@ public class BranchPool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<Branch> getCaseBranchesForSwitch(BytecodeInstruction instruction) {
+	public List<Branch> getCaseBranchesForSwitch(BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
 		if (!instruction.isSwitch())
@@ -402,7 +405,7 @@ public class BranchPool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
 	 */
-	public static Branch getBranchForInstruction(BytecodeInstruction instruction) {
+	public Branch getBranchForInstruction(BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
 		if (!isKnownAsNormalBranchInstruction(instruction))
@@ -421,7 +424,7 @@ public class BranchPool {
 	 *            a {@link org.objectweb.asm.tree.LabelNode} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<Branch> getBranchForLabel(LabelNode label) {
+	public List<Branch> getBranchForLabel(LabelNode label) {
 
 		// TODO see registerSwitchLabel()!
 
@@ -438,7 +441,7 @@ public class BranchPool {
 	 * @param methodName
 	 *            a {@link java.lang.String} object.
 	 */
-	public static int getBranchCountForMethod(String className, String methodName) {
+	public int getBranchCountForMethod(String className, String methodName) {
 		if (branchMap.get(className) == null)
 			return 0;
 		if (branchMap.get(className).get(methodName) == null)
@@ -447,7 +450,7 @@ public class BranchPool {
 		return branchMap.get(className).get(methodName).size();
 	}
 
-	public static int getNonArtificialBranchCountForMethod(String className,
+	public int getNonArtificialBranchCountForMethod(String className,
 	        String methodName) {
 		if (branchMap.get(className) == null)
 			return 0;
@@ -470,7 +473,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static int getBranchCountForClass(String className) {
+	public int getBranchCountForClass(String className) {
 		if (branchMap.get(className) == null)
 			return 0;
 		int total = 0;
@@ -487,7 +490,7 @@ public class BranchPool {
 	 * @param prefix
 	 *            a {@link java.lang.String} object.
 	 */
-	public static int getBranchCountForPrefix(String prefix) {
+	public int getBranchCountForPrefix(String prefix) {
 		int num = 0;
 		for (String className : branchMap.keySet()) {
 			if (className.startsWith(prefix)) {
@@ -508,7 +511,7 @@ public class BranchPool {
 	 * @param prefix
 	 *            a {@link java.lang.String} object.
 	 */
-	public static Set<Integer> getBranchIdsForPrefix(String prefix) {
+	public Set<Integer> getBranchIdsForPrefix(String prefix) {
 		Set<Integer> ids = new HashSet<>();
 		Set<Branch> sutBranches = new HashSet<>();
 		for (String className : branchMap.keySet()) {
@@ -537,7 +540,7 @@ public class BranchPool {
 	 * @param prefix
 	 *            a {@link java.lang.String} object.
 	 */
-	public static int getBranchCountForMemberClasses(String prefix) {
+	public int getBranchCountForMemberClasses(String prefix) {
 		int num = 0;
 		for (String className : branchMap.keySet()) {
 			if (className.equals(prefix) || className.startsWith(prefix + "$")) {
@@ -556,11 +559,11 @@ public class BranchPool {
 	 * 
 	 * @return The number of currently known Branches
 	 */
-	public static int getBranchCounter() {
+	public int getBranchCounter() {
 		return branchCounter;
 	}
 
-	public static int getNumArtificialBranches() {
+	public int getNumArtificialBranches() {
 		int num = 0;
 		for (Branch b : branchIdMap.values()) {
 			if (b.isInstrumented())
@@ -577,12 +580,12 @@ public class BranchPool {
 	 *            The ID of a branch
 	 * @return The branch, or null if it does not exist
 	 */
-	public static Branch getBranch(int branchId) {
+	public Branch getBranch(int branchId) {
 
 		return branchIdMap.get(branchId);
 	}
 	
-	public static Collection<Branch> getAllBranches() {
+	public Collection<Branch> getAllBranches() {
 		return branchIdMap.values();
 	}
 
@@ -593,7 +596,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static Set<String> getBranchlessMethods(String className) {
+	public Set<String> getBranchlessMethods(String className) {
 		if (!branchlessMethods.containsKey(className))
 			return new HashSet<String>();
 
@@ -607,7 +610,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static Set<String> getBranchlessMethodsPrefix(String className) {
+	public Set<String> getBranchlessMethodsPrefix(String className) {
 		Set<String> methods = new HashSet<String>();
 
 		for (String name : branchlessMethods.keySet()) {
@@ -626,7 +629,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static Set<String> getBranchlessMethodsMemberClasses(String className) {
+	public Set<String> getBranchlessMethodsMemberClasses(String className) {
 		Set<String> methods = new HashSet<String>();
 
 		for (String name : branchlessMethods.keySet()) {
@@ -638,7 +641,7 @@ public class BranchPool {
 		return methods;
 	}
 
-	public static int getBranchlessMethodLineNumber(String className, String methodName) {
+	public int getBranchlessMethodLineNumber(String className, String methodName) {
 		// check if the given method is branchless
 		if (branchlessMethods.get(className) != null
 		        && branchlessMethods.get(className).get(className + "." + methodName) != null) {
@@ -654,7 +657,7 @@ public class BranchPool {
 	 * 
 	 * @return A set with all unique methodNames of methods without Branches.
 	 */
-	public static Set<String> getBranchlessMethods() {
+	public Set<String> getBranchlessMethods() {
 		Set<String> methods = new HashSet<String>();
 
 		for (String name : branchlessMethods.keySet()) {
@@ -664,7 +667,7 @@ public class BranchPool {
 		return methods;
 	}
 	
-	public static boolean isBranchlessMethod(String className, String methodName) {
+	public boolean isBranchlessMethod(String className, String methodName) {
 		Map<String, Integer> methodMap = branchlessMethods.get(className);
 		if(methodMap != null) {
 			return methodMap.containsKey(methodName);
@@ -679,7 +682,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static int getNumBranchlessMethods(String className) {
+	public int getNumBranchlessMethods(String className) {
 		if (!branchlessMethods.containsKey(className))
 			return 0;
 		return branchlessMethods.get(className).size();
@@ -692,7 +695,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static int getNumBranchlessMethodsPrefix(String className) {
+	public int getNumBranchlessMethodsPrefix(String className) {
 		int num = 0;
 		for (String name : branchlessMethods.keySet()) {
 			if (name.startsWith(className))
@@ -708,7 +711,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static int getNumBranchlessMethodsMemberClasses(String className) {
+	public int getNumBranchlessMethodsMemberClasses(String className) {
 		int num = 0;
 		for (String name : branchlessMethods.keySet()) {
 			if (name.equals(className) || name.startsWith(className + "$"))
@@ -723,7 +726,7 @@ public class BranchPool {
 	 * 
 	 * @return
 	 */
-	public static int getNumBranchlessMethods() {
+	public int getNumBranchlessMethods() {
 		int num = 0;
 		for (String name : branchlessMethods.keySet()) {
 			num += branchlessMethods.get(name).size();
@@ -737,7 +740,7 @@ public class BranchPool {
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
-	public static Set<String> knownClasses() {
+	public Set<String> knownClasses() {
 		Set<String> r = new HashSet<String>();
 		r.addAll(branchMap.keySet());
 		r.addAll(branchlessMethods.keySet());
@@ -757,7 +760,7 @@ public class BranchPool {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.Set} object.
 	 */
-	public static Set<String> knownMethods(String className) {
+	public Set<String> knownMethods(String className) {
 		Set<String> r = new HashSet<String>();
 		Map<String, List<Branch>> methods = branchMap.get(className);
 		if (methods != null)
@@ -777,7 +780,7 @@ public class BranchPool {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<Branch> retrieveBranchesInMethod(String className,
+	public List<Branch> retrieveBranchesInMethod(String className,
 	        String methodName) {
 		List<Branch> r = new ArrayList<Branch>();
 		if (branchMap.get(className) == null)
@@ -797,7 +800,7 @@ public class BranchPool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
 	 */
-	public static Branch getDefaultBranchForSwitch(BytecodeInstruction v) {
+	public Branch getDefaultBranchForSwitch(BytecodeInstruction v) {
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
 		if (!isKnownAsSwitchBranchInstruction(v))
@@ -819,7 +822,7 @@ public class BranchPool {
 	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
-	public static int getRealBranches(String className) {
+	public int getRealBranches(String className) {
 		int real = 0;
 		for (String methodName : branchMap.get(className).keySet())
 			for (Branch b : (branchMap.get(className).get(methodName))) {
@@ -834,7 +837,7 @@ public class BranchPool {
 	 * Reset all the data structures used to keep track of the branch
 	 * information
 	 */
-	public static void reset() {
+	public void reset() {
 		branchCounter = 0;
 		branchMap.clear();
 		branchlessMethods.clear();
@@ -852,7 +855,7 @@ public class BranchPool {
 	 * 
 	 * TODO: One of these two methods should go
 	 */
-	public static void clear() {
+	public void clear() {
 		branchCounter = 0;
 		branchMap.clear();
 		branchIdMap.clear();
@@ -871,7 +874,7 @@ public class BranchPool {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public static void clear(String className) {
+	public void clear(String className) {
 		branchMap.remove(className);
 		branchlessMethods.remove(className);
 	}
@@ -886,7 +889,7 @@ public class BranchPool {
 	 * @param methodName
 	 *            a {@link java.lang.String} object.
 	 */
-	public static void clear(String className, String methodName) {
+	public void clear(String className, String methodName) {
 		int numBranches = 0;
 
 		if (branchMap.containsKey(className)) {

@@ -203,7 +203,7 @@ public class CoverageAnalysis {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for(String prefix : Properties.JUNIT.split(":")) {
 			
-			Set<String> suts = ResourceList.getAllClasses(
+			Set<String> suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 					ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 			
 			LoggingUtils.getEvoLogger().info("* Found " + suts.size() + " classes with prefix '" + prefix + "'");
@@ -594,7 +594,6 @@ public class CoverageAnalysis {
 	private static List<JUnitResult> executeTests(Class<?>... testClasses) {
 
 		ExecutionTracer.enable();
-		ExecutionTracer.enableTraceCalls();
 		ExecutionTracer.setCheckCallerThread(false);
 
 		List<JUnitResult> results = new ArrayList<JUnitResult>();

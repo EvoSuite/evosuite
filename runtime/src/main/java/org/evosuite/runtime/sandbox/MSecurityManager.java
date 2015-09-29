@@ -428,16 +428,21 @@ public class MSecurityManager extends SecurityManager {
 	public void checkPermission(Permission perm) throws SecurityException {
 		// check access
 		if (!allowPermission(perm)) {
+			String stack = "\n";
+			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+				if (e.toString().contains(
+						"org.evosuite.regression.ObjectFields")) {
+					statistics.permissionAllowed(perm);
+					return;
+				}
+				stack += e + "\n";
+			}
 			if (executingTestCase) {
 				/*
 				 * report statistics only during test case execution, although still log them. The reason is to avoid EvoSuite threads which might not
 				 * privileged to mess up with the statistics on the SUT
 				 */
 				statistics.permissionDenied(perm);
-			}
-			String stack = "\n";
-			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
-				stack += e + "\n";
 			}
 			logger.debug("Security manager blocks permission " + perm + stack);
 
@@ -1009,8 +1014,12 @@ public class MSecurityManager extends SecurityManager {
 		}
 
 		// never allow it!!! far too dangerous, as it would break the sandbox
-		if (name.equals("setSecurityManager") || name.equals("createSecurityManager")) {
+		if (name.equals("setSecurityManager")) {
 			return false;
+		}
+
+		if(name.equals("createSecurityManager")){
+			return true; //just creating should not be a problem
 		}
 
 		// AWT needs to be treated specially

@@ -96,5 +96,5 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 		}
 	}
 	
-	public abstract GeneticAlgorithm<T> getSearchAlgorithm();
+	public abstract GeneticAlgorithm<?> getSearchAlgorithm();
 }

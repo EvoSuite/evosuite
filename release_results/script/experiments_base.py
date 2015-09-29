@@ -119,7 +119,7 @@ def getEvoSuiteCall(seed, configId, config, project, clazz, id, strategy, coreIn
   result += " -Dconfiguration_id="+configId+ " -Dgroup_id="+project
   result += " "+config+" "+FIXED
   result += " -Dreport_dir="+reportfile
-  result += " -Dtest_dir=" +TESTDIR + "/" + project +"/evosuite-tests" + "/s" + str(seed)
+  result += " -Dtest_dir=" +TESTDIR + "/s" + str(seed) + "/" + project +"/evosuite-tests"
   result += " 2>&1 | tee -a "+logfile
 
   if CORES != 1 :

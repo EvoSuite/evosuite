@@ -773,6 +773,12 @@ public class Properties {
 	@Parameter(key = "ctg_schedule", group = "Continuous Test Generation", description = "Schedule used to run jobs")
 	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.BUDGET;
 
+
+	@Parameter(key = "ctg_extra_args", group = "Continuous Test Generation", description = "Extra '-D' arguments to pass to EvoSuite test generation processes")
+	public static String CTG_EXTRA_ARGS = null;
+
+
+
 	// ---------------------------------------------------------------
 	// Single branch mode
 	/** Constant <code>RANDOM_TESTS=0</code> */
@@ -887,7 +893,7 @@ public class Properties {
 	public static boolean MINIMIZE = true;
 
 	/** Constant <code>MINIMIZE_SECOND_PASS=true</code> */
-	@Parameter(key = "minimize_second_pass", group = "Output", description = "Minimize test suite after generation")
+	@Parameter(key = "minimize_second_pass", group = "Output", description = "Perform a second minimization pass as the first one may retain subsumed tests")
 	public static boolean MINIMIZE_SECOND_PASS = true;
 
     /** Constant <code>MINIMIZE_SORT=true</code> */
@@ -909,7 +915,7 @@ public class Properties {
 	public static boolean MINIMIZE_VALUES = false;
 
 	/** Constant <code>COVERAGE=true</code> */
-	@Parameter(key = "coverage", group = "Output", description = "Minimize test suite after generation")
+	@Parameter(key = "coverage", group = "Output", description = "Calculate coverage after test suite generation")
 	public static boolean COVERAGE = true;
 
 	/** Constant <code>INLINE=false</code> */
@@ -1291,7 +1297,7 @@ public class Properties {
 	@IntValue(min = 1024, max = 65535)
 	public static int PORT = 1044;
 
-	@Parameter(key = "jmc", group = "Debugging", description = "Experimental: activate Flight Recorder in spawn client process for Java Mission Controll")
+	@Parameter(key = "jmc", group = "Debugging", description = "Experimental: activate Flight Recorder in spawn client process for Java Mission Control")
 	public static boolean JMC = false;
 
 
@@ -1339,8 +1345,9 @@ public class Properties {
 
 	public enum Criterion {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
-        MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, REGRESSION, READABILITY,
-        ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT
+		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
+        ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
+        REGRESSION,	REGRESSIONTESTS
 	}
 
     /** Constant <code>CRITERION</code> */
@@ -1354,6 +1361,9 @@ public class Properties {
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
+	
+	/** Cache target regression class */
+	private static Class<?> TARGET_REGRESSION_CLASS_INSTANCE = null;
 
 	/** Constant <code>CP=""</code> */
 	@Parameter(key = "CP", group = "Runtime", description = "The classpath of the target classes")
@@ -1407,8 +1417,48 @@ public class Properties {
 
 
 	public enum Strategy {
-		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, REGRESSION, ENTBUG
+		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, REGRESSIONTESTS
 	}
+	
+	/** Constant <code>REGRESSIONCP</code> */
+	@Parameter(key = "regressioncp", group = "Runtime", description = "Regression testing classpath")
+	public static String REGRESSIONCP = ".";
+	
+	/** Constant <code>REGRESSION_ANALYSIS_COMBINATIONS</code> */
+	@Parameter(key = "regression_analysis_combinations", group = "Runtime", description = "What regression fitness combination stragetegy is used")
+	public static int REGRESSION_ANALYSIS_COMBINATIONS = 0;
+	
+	/** Constant <code>REGRESSION_ANALYSIS_BRANCHDISTANCE</code> */
+	@Parameter(key = "regression_analysis_branchdistance", group = "Runtime", description = "What regression branch distance fitness strategy is used")
+	public static int REGRESSION_ANALYSIS_BRANCHDISTANCE = 0;
+	
+	/** Constant <code>REGRESSION_ANALYSIS_OBJECTDISTANCE</code> */
+	@Parameter(key = "regression_analysis_objectdistance", group = "Runtime", description = "What regression object distance fitness strategy will be used")
+	public static int REGRESSION_ANALYSIS_OBJECTDISTANCE = 0;
+	
+	/** Constant <code>REGRESSION_DIFFERENT_BRANCHES</code> */
+	@Parameter(key = "regression_different_branches", group = "Runtime", description = "Classes under test have different branch orders")
+	public static boolean REGRESSION_DIFFERENT_BRANCHES = false;
+	
+	/** Constant <code>REGRESSION_USE_FITNESS</code> */
+	@Parameter(key = "regression_use_fitness", group = "Runtime", description = "Which fitness values will be used")
+	public static int REGRESSION_USE_FITNESS = 4;
+	
+	/** Constant <code>REGRESSION_ANALYZE</code> */
+	@Parameter(key = "regression_analyze", group = "Runtime", description = "Analyze the classes under test, to ensure the effectiveness of evosuite")
+	public static boolean REGRESSION_ANALYZE = false;
+	
+	/** Constant <code>REGRESSION_RANDOM_STRATEGY</code> */
+	@Parameter(key = "regression_random_strategy", group = "Runtime", description = "What strategy to take after the first fault is found")
+	public static int REGRESSION_RANDOM_STRATEGY = 3;
+
+	/** Constant <code>REGRESSION_DISABLE_SPECIAL_ASSERTIONS</code> */
+	@Parameter(key = "regression_disable_special_assertions", group = "Runtime", description = "disable undesirable assertions")
+	public static boolean REGRESSION_DISABLE_SPECIAL_ASSERTIONS = false;
+	
+	/** Constant <code>REGRESSION_DIVERSITY</code> */
+	@Parameter(key = "regression_diversity", group = "Runtime", description = "Include diversity fitness measurement")
+	public static boolean REGRESSION_DIVERSITY = false;
 
 	/** Constant <code>STRATEGY</code> */
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
@@ -2172,6 +2222,30 @@ public class Properties {
 			}
 		}
 	}
+	
+	private static boolean toReturnRegression = false;
+	
+	/*
+	 * Get target class
+	 * 
+	 * @param isOriginal whether or not you want the original or the regression class.
+	 */
+	public static Class<?> getTargetClassRegression(boolean isOriginal){
+		if (isOriginal && TARGET_CLASS_INSTANCE != null
+		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
+			return TARGET_CLASS_INSTANCE;
+		else if(!isOriginal && TARGET_REGRESSION_CLASS_INSTANCE != null
+		        && TARGET_REGRESSION_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
+			return TARGET_REGRESSION_CLASS_INSTANCE;
+		
+		if(isOriginal)
+		 toReturnRegression = true;
+		
+		 Class<?> targetClass = getTargetClass();
+		 
+		 toReturnRegression = false;
+		 return targetClass;
+	}
 
 	public static Class<?> getTargetClass() {
 		return getTargetClass(true);
@@ -2207,6 +2281,13 @@ public class Properties {
 
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
+			
+
+			if (STRATEGY == Strategy.REGRESSION || STRATEGY == Strategy.REGRESSIONTESTS) {
+				TARGET_REGRESSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
+                        TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
+			}
+
 			setClassPrefix();
 
 		} catch (ClassNotFoundException e) {
@@ -2214,7 +2295,7 @@ public class Properties {
 					"* Could not find class under test " + Properties.TARGET_CLASS + ": " + e);
 		}
 
-		return TARGET_CLASS_INSTANCE;
+		return (Properties.toReturnRegression) ? TARGET_REGRESSION_CLASS_INSTANCE : TARGET_CLASS_INSTANCE;
 	}
 
 	/**
@@ -2311,6 +2392,15 @@ public class Properties {
 				}
 			}
 		}
+	}
+	
+	
+	/*
+	 * whether or not the regression mode is running
+	 */
+	public static boolean isRegression(){
+		boolean isRegression = (STRATEGY == Strategy.REGRESSION || STRATEGY == Strategy.REGRESSIONTESTS);
+		return isRegression;
 	}
 
 }

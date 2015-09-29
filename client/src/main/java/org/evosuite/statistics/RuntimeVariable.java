@@ -84,7 +84,7 @@ public enum RuntimeVariable {
 	/** Number of mutants */
 	Mutants,            
 	/** Total number of statements executed */
-	Statements_Executed, 
+	Statements_Executed,
 	/** The total number of tests executed during the search */
 	Tests_Executed, 
 	/** The total number of fitness evaluations during the search */
@@ -122,6 +122,7 @@ public enum RuntimeVariable {
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
+	BranchCoverageTimeline,
 	/** A bit string (0/1) representing whether branches (in order) are covered */
 	BranchCoverageBitString,
 	/** Only the covered branches ratio. */
@@ -175,6 +176,7 @@ public enum RuntimeVariable {
     ExceptionCoverageBitString,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
+	WeakMutationCoverageTimeline,
 	WeakMutationCoverageBitString,
     /** Only mutation = only infection distance */
 	OnlyMutationScore,
@@ -212,8 +214,6 @@ public enum RuntimeVariable {
 	NumUnstableTests, 
 	/** Number of regression test cases */
 	NumRegressionTestCases,
-	/** Number of regression test cases failing */
-	NumRegressionTestCasesFailing,
 	/** An estimate (ie not precise) of the maximum number of threads running at the same time in the CUT */
 	Threads,
 	/** Number of top-level methods throwing an undeclared exception explicitly with a 'throw new' */
@@ -244,6 +244,20 @@ public enum RuntimeVariable {
 	AuthPermission,
 	AudioPermission,
 	OtherPermission,
+	/* -------------------------------------------------------------------- */
+	/** Regression-related Variables */
+	Generated_Assertions,
+	Coverage_Old,
+	Coverage_New,
+	Exception_Difference,
+	State_Distance,
+	Testsuite_Diversity,
+	Regression_ID,
+	/** Timings */
+	Time_Assertion,
+	Time_Coverage,
+	Time_StateDistance,
+	Time_Diversity,
 	/* -------------------------------------------------------------------- */
 	/** Count of branch comparison types in bytecode (static) */
 	Cmp_IntZero,
@@ -278,6 +292,8 @@ public enum RuntimeVariable {
 	Covered_fcmpg,
 	Covered_dcmpl,
 	Covered_dcmpg,
+	/** For sanity-checking purposes */
+	RSM_OverMinimized,
 	/* -------------------------------------------------------------------- */
 	/* TODO following needs to be implemented/updated. Currently they are not (necessarily) supported */
 	/** (FIXME: need to be implemented) The number of serialized objects that EvoSuite is going to use for seeding strategies */

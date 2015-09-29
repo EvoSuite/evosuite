@@ -117,7 +117,7 @@ public class RandomInsertion implements InsertionStrategy {
 
 			if (!success && TestCluster.getInstance().getNumTestCalls() > 0) {
 				logger.debug("Adding new call on UUT because var was null");
-				//Why was it different fron UUT insertion? ie, in random position instead of last
+				//Why was it different from UUT insertion? ie, in random position instead of last
 				//position = Randomness.nextInt(max);
 				position = test.size();
 				success = TestFactory.getInstance().insertRandomCall(test, position);
@@ -145,7 +145,7 @@ public class RandomInsertion implements InsertionStrategy {
 			return null;
 
 		List<VariableReference> allVariables = test.getObjects(position);
-		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
+		Set<VariableReference> candidateVariables = new LinkedHashSet<>();
 
 		for(VariableReference var : allVariables) {
 

@@ -26,7 +26,17 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.assertion.*;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.assertion.ArrayEqualsAssertion;
+import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.CompareAssertion;
+import org.evosuite.assertion.EqualsAssertion;
+import org.evosuite.assertion.Inspector;
+import org.evosuite.assertion.InspectorAssertion;
+import org.evosuite.assertion.NullAssertion;
+import org.evosuite.assertion.PrimitiveAssertion;
+import org.evosuite.assertion.PrimitiveFieldAssertion;
+import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.idNaming.VariableNamesGenerator;
 import org.evosuite.parameterize.InputVariable;
@@ -272,7 +282,7 @@ public class TestCodeVisitor extends TestVisitor {
 			String fullName = Properties.CLASS_PREFIX +"."+name;
 			if(!fullName.equals(clazz.getCanonicalName())) {
 				try {
-					if(ResourceList.hasClass(fullName)) {
+					if(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(fullName)) {
 						name = clazz.getCanonicalName();
 					}
 				} catch(IllegalArgumentException e) {
@@ -776,6 +786,8 @@ public class TestCodeVisitor extends TestVisitor {
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
+        if (assertion.hasComment())
+            testCode += assertion.getComment();
 	}
 
 	private void addAssertions(Statement statement) {
@@ -1252,6 +1264,13 @@ public class TestCodeVisitor extends TestVisitor {
 				//from class EvoAssertions
 				result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
 		}
+		
+		// Add assertion on the message (feel free to remove the isRegression() Condition)
+		if (Properties.isRegression() && exception.getMessage() != null) {
+			result += "   assertTrue(e.getMessage().equals(\"" + StringEscapeUtils.escapeJava(exceptionMessage) + "\"));";
+			result += "   \n";
+		}
+
 		result += "}" + NEWLINE;// closing the catch block
 		return result;
 	}

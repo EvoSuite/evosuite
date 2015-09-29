@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.junit.Assert;
@@ -46,7 +47,7 @@ public class ResourceListTest {
 		
 	@Before
 	public void resetCache(){
-		ResourceList.resetCache();
+		ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).resetCache();
 	}
 	
 	//-------------------------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ public class ResourceListTest {
 		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(localFolder.getAbsolutePath());
 		
 		String className = "foo.ExternalClass";
-		InputStream stream = ResourceList.getClassAsStream(className);
+		InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		Assert.assertNotNull(stream);
 		stream.close();
 	}
@@ -79,7 +80,7 @@ public class ResourceListTest {
 		ClassPathHandler.getInstance().addElementToTargetProjectClassPath(localJar.getAbsolutePath());
 		
 		String className = "simulator.DAWN";
-		InputStream stream = ResourceList.getClassAsStream(className);
+		InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		Assert.assertNotNull(stream);
 		stream.close();
 	}
@@ -94,9 +95,9 @@ public class ResourceListTest {
 		String prefix = "simulator";
 		String target = prefix + ".DAWN"; 
 		
-		Assert.assertTrue("Missing: "+target,ResourceList.hasClass(target));
+		Assert.assertTrue("Missing: "+target,ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(target));
 		
-		Collection<String> classes = ResourceList.getAllClasses(
+		Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		Assert.assertTrue(classes.contains(target));
 	}
@@ -112,28 +113,28 @@ public class ResourceListTest {
 		String target = org.objectweb.asm.util.ASMifier.class.getName();
 		String prefix = org.objectweb.asm.util.ASMifier.class.getPackage().getName();
 		
-		Assert.assertTrue("Missing: "+target,ResourceList.hasClass(target));
+		Assert.assertTrue("Missing: "+target,ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(target));
 		
-		Collection<String> classes = ResourceList.getAllClasses(
+		Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		Assert.assertTrue(classes.contains(target));
 	}
 	
 	@Test
 	public void testHasClass(){
-		Assert.assertTrue(ResourceList.hasClass(Foo.class.getName()));
-		Assert.assertTrue(ResourceList.hasClass(SubPackageFoo.class.getName()));		
+		Assert.assertTrue(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(Foo.class.getName()));
+		Assert.assertTrue(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(SubPackageFoo.class.getName()));		
 	}
 	
 	
 	@Test
 	public void testSubPackage(){
-		Collection<String> classes = ResourceList.getAllClasses(
+		Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, false);
 		Assert.assertTrue(classes.contains(Foo.class.getName()));
 		Assert.assertTrue(classes.contains(SubPackageFoo.class.getName()));
 
-		classes = ResourceList.getAllClasses(
+		classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix+".subp", false);
 		Assert.assertTrue(! classes.contains(Foo.class.getName()));
 		Assert.assertTrue(classes.contains(SubPackageFoo.class.getName()));
@@ -141,7 +142,7 @@ public class ResourceListTest {
 	
 	@Test
 	public void testGatherClassNoInternal(){
-		Collection<String> classes = ResourceList.getAllClasses(
+		Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
 				ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, false);
 		Assert.assertTrue(classes.contains(Foo.class.getName()));
 		Assert.assertTrue( ! classes.contains(Foo.InternalFooClass.class.getName()));
@@ -150,7 +151,7 @@ public class ResourceListTest {
 
     @Test
     public void testGatherClassWithInternalButNoAnonymous(){
-        Collection<String> classes = ResourceList.getAllClasses(
+        Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
                 ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, true);
         Assert.assertTrue(classes.contains(Foo.class.getName()));
         Assert.assertTrue(""+Arrays.toString(classes.toArray()),classes.contains(Foo.InternalFooClass.class.getName()));
@@ -159,7 +160,7 @@ public class ResourceListTest {
 
     @Test
     public void testGatherClassWithInternalIncludingAnonymous(){
-        Collection<String> classes = ResourceList.getAllClasses(
+        Collection<String> classes = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(
                 ClassPathHandler.getInstance().getTargetProjectClasspath(), basePrefix, true, false);
         Assert.assertTrue(classes.contains(Foo.class.getName()));
         Assert.assertTrue(""+Arrays.toString(classes.toArray()),classes.contains(Foo.InternalFooClass.class.getName()));
@@ -171,7 +172,7 @@ public class ResourceListTest {
     @Test
 	public void testLoadOfEvoSuiteTestClassesAsStream() throws IOException {
 		String className = ResourceListFoo.class.getName();
-		InputStream res = ResourceList.getClassAsStream(className);
+		InputStream res = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		Assert.assertNotNull(res);
 		res.close();
 	}

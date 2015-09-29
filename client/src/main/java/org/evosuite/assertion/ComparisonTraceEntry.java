@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.variable.VariableReference;
 
 /**
@@ -39,6 +40,8 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	private final VariableReference var;
 
 	private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
+	
+	private final Map<Integer,VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
 
 	/**
 	 * <p>Constructor for ComparisonTraceEntry.</p>
@@ -57,6 +60,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	 */
 	public void addEntry(VariableReference other, boolean value) {
 		equalityMap.put(other, value);
+		equalityMapIntVar.put(other.getStPosition(),other);
 	}
 
 	/* (non-Javadoc)
@@ -92,18 +96,20 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 
 		if (other instanceof ComparisonTraceEntry) {
 			ComparisonTraceEntry otherEntry = (ComparisonTraceEntry) other;
-			for (VariableReference otherVar : equalityMap.keySet()) {
-				if (!otherEntry.equalityMap.containsKey(otherVar))
+			for (Integer otherVar : equalityMapIntVar.keySet()) {
+				if (!otherEntry.equalityMapIntVar.containsKey(otherVar))
 					continue;
 
 				if (otherVar == null)
 					continue;
 
-				if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar))) {
+				if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)).equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
 					EqualsAssertion assertion = new EqualsAssertion();
 					assertion.source = var;
-					assertion.dest = otherVar;
-					assertion.value = equalityMap.get(otherVar);
+					assertion.dest = equalityMapIntVar.get(otherVar);
+					assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
+					if(Properties.isRegression())
+						assertion.setcomment("// (Comp) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar)) +" | Regression Value: " + otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 				}
@@ -156,6 +162,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	public OutputTraceEntry cloneEntry() {
 		ComparisonTraceEntry copy = new ComparisonTraceEntry(var);
 		copy.equalityMap.putAll(equalityMap);
+		copy.equalityMapIntVar.putAll(equalityMapIntVar);
 		return copy;
 	}
 

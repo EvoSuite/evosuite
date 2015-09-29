@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.AvailableSchedule;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
@@ -137,18 +138,18 @@ public class ProjectAnalyzer {
 
 		if(target!=null){
 			if(!target.contains(File.pathSeparator)){
-				suts = ResourceList.getAllClasses(target, prefix, false);
+				suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, prefix, false);
 			} else {
 				suts = new LinkedHashSet<>();
 				for(String element : target.split(File.pathSeparator)){
-					suts.addAll(ResourceList.getAllClasses(element, prefix, false));
+					suts.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, prefix, false));
 				}
 			}
 		} else {
 			/*
 			 * if no target specified, just grab everything on SUT classpath
 			 */
-			suts = ResourceList.getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
+			suts = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(ClassPathHandler.getInstance().getTargetProjectClasspath(), prefix, false);
 		}
 
 		List<String> cuts = new LinkedList<String>();
@@ -204,7 +205,7 @@ public class ProjectAnalyzer {
 			Properties.TARGET_CLASS = className;
 			InstrumentingClassLoader instrumenting = new InstrumentingClassLoader();
 
-			BranchPool.reset();
+			BranchPool.getInstance(instrumenting).reset();
 
 			try{
 				/*
@@ -216,8 +217,8 @@ public class ProjectAnalyzer {
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 				instrumenting.loadClass(className);
 
-				numberOfBranches = BranchPool.getBranchCounter();
-				hasCode = (numberOfBranches > 0) || (BranchPool.getBranchlessMethods().size() > 0);
+				numberOfBranches = BranchPool.getInstance(instrumenting).getBranchCounter();
+				hasCode = (numberOfBranches > 0) || (BranchPool.getInstance(instrumenting).getBranchlessMethods().size() > 0);
 
 				/*
 				 * just to avoid possible issues with instrumenting classloader
@@ -235,7 +236,7 @@ public class ProjectAnalyzer {
 			}
 			finally {
 				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-				BranchPool.reset();
+				BranchPool.getInstance(instrumenting).reset();
 				Properties.TARGET_CLASS = "";
 			}
 

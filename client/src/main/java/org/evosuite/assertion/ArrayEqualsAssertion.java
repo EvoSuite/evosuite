@@ -43,6 +43,7 @@ public class ArrayEqualsAssertion extends Assertion {
 		ArrayEqualsAssertion s = new ArrayEqualsAssertion();
 		s.source = source.copy(newTestCase, offset);
 		s.value = value;
+		s.comment = comment;
 		return s;
 	}
 
