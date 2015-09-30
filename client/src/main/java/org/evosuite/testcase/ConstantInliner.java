@@ -67,7 +67,6 @@ public class ConstantInliner extends ExecutionObserver {
 		executor.removeObserver(this);
 		removeUnusedVariables(test);
 		assert (test.isValid());
-
 	}
 
 	/**
@@ -103,8 +102,8 @@ public class ConstantInliner extends ExecutionObserver {
 	 * @return True if something was deleted
 	 */
 	public boolean removeUnusedVariables(TestCase t) {
-		List<Integer> to_delete = new ArrayList<Integer>();
-		boolean has_deleted = false;
+		List<Integer> toDelete = new ArrayList<Integer>();
+		boolean hasDeleted = false;
 
 		int num = 0;
 		for (Statement s : t) {
@@ -112,18 +111,18 @@ public class ConstantInliner extends ExecutionObserver {
 
 				VariableReference var = s.getReturnValue();
 				if (!t.hasReferences(var)) {
-					to_delete.add(num);
-					has_deleted = true;
+					toDelete.add(num);
+					hasDeleted = true;
 				}
 			}
 			num++;
 		}
-		Collections.sort(to_delete, Collections.reverseOrder());
-		for (Integer position : to_delete) {
+		Collections.sort(toDelete, Collections.reverseOrder());
+		for (Integer position : toDelete) {
 			t.remove(position);
 		}
 
-		return has_deleted;
+		return hasDeleted;
 	}
 
 	/* (non-Javadoc)
@@ -172,24 +171,20 @@ public class ConstantInliner extends ExecutionObserver {
 					// then replace the array index with that object
 					for(VariableReference otherVar : scope.getElements(var.getType())) {
 						Object otherObject = scope.getObject(otherVar);
-						if(otherObject == object && !otherVar.isArrayIndex()) {
+						if(otherObject == object && !otherVar.isArrayIndex() && otherVar.getStPosition() < statement.getPosition()) {
 							statement.replace(var, otherVar);
 							break;
 						}
 					}
 				} else {
 					// TODO: Ignoring exceptions during getObject, but keeping the assertion for now
-					try {
-						if (object == null) {
-							ConstantValue value = new ConstantValue(test,
-							        var.getGenericClass());
-							value.setValue(var.getObject(scope));
-							// logger.info("Statement before inlining: " + statement.getCode());
-							statement.replace(var, value);
-							// logger.info("Statement after inlining: " + statement.getCode());
-						}
-					} catch (CodeUnderTestException e) {
-						// ignore
+					if (object == null) {
+						ConstantValue value = new ConstantValue(test,
+								var.getGenericClass());
+						value.setValue(null);
+						// logger.info("Statement before inlining: " + statement.getCode());
+						statement.replace(var, value);
+						// logger.info("Statement after inlining: " + statement.getCode());
 					}
 				}
 			}

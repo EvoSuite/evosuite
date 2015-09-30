@@ -380,6 +380,10 @@ public class MethodCallReplacementCache {
                 "getInterfaces", "()[Ljava/lang/Class;", Opcodes.INVOKEVIRTUAL,
                 "org/evosuite/runtime/Reflection", "getInterfaces",
                 "(Ljava/lang/Class;)[Ljava/lang/Class;", false, false));
+        addReplacementCall(new MethodCallReplacement("java/lang/Class",
+                "getModifiers", "()I", Opcodes.INVOKEVIRTUAL,
+                "org/evosuite/runtime/Reflection", "getModifiers",
+                "(Ljava/lang/Class;)I", false, false));
 
         /*
 
