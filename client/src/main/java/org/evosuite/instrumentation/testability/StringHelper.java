@@ -318,6 +318,11 @@ public class StringHelper {
         if (second == null) {
             return -BooleanHelper.K;
         }
+        // We may miss locale specific cases of equivalence, so
+        // first we check for equivalence using java.lang.String
+        if(first.equalsIgnoreCase(second)) {
+        	return BooleanHelper.K;
+        }
         return StringEquals(first.toLowerCase(), second.toLowerCase());
     }
 
@@ -397,6 +402,7 @@ public class StringHelper {
      */
     public static int StringRegionMatches(String value, boolean ignoreCase,
                                           int thisStart, String string, int start, int length) {
+    	
         if (value == null || string == null)
             throw new NullPointerException();
 
@@ -409,6 +415,11 @@ public class StringHelper {
         }
         if (length <= 0) {
             return BooleanHelper.K;
+        }
+        // We may miss locale specific cases of equivalence, so
+        // first we check for equivalence using java.lang.String
+        if(ignoreCase && value.regionMatches(ignoreCase, thisStart, string, start, length)) {
+        	return BooleanHelper.K;
         }
 
         String s1 = value;

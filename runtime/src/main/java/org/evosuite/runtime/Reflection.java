@@ -29,6 +29,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
+import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
+import org.mockito.asm.Opcodes;
 
 /**
  * The content of arrays in reflection methods may differ between classloaders, therefore
@@ -94,6 +96,14 @@ public class Reflection {
 
 	public static Constructor<?>[] getDeclaredConstructors(Class<?> clazz) throws SecurityException {
 		return sortArrayInPlace(clazz.getDeclaredConstructors());
+	}
+	
+	public static int getModifiers(Class<?> clazz) {
+		int modifier = clazz.getModifiers();
+		if(RemoveFinalClassAdapter.finalClasses.contains(clazz.getCanonicalName())) {
+			modifier = modifier | Opcodes.ACC_FINAL;
+		}
+		return modifier;
 	}
 
 }

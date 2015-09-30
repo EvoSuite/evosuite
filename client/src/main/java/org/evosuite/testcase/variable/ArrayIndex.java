@@ -436,6 +436,11 @@ public class ArrayIndex extends VariableReferenceImpl {
 		//must be set as we only use this to clone whole testcases
 		return new ArrayIndex(newTestCase, otherArray, indices);
 	}
+	
+	@Override
+	public VariableReference clone(TestCase newTestCase) {
+		return new ArrayIndex(newTestCase, (ArrayReference)array.clone(newTestCase), indices);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getAdditionalVariableReference()

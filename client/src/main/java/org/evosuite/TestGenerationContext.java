@@ -38,6 +38,7 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
+import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.SystemInUtil;
@@ -151,6 +152,7 @@ public class TestGenerationContext {
 
 		// TODO: BranchPool should not be static
 		BranchPool.getInstance(classLoader).reset();
+		RemoveFinalClassAdapter.reset();
 		LinePool.reset();
 		MutationPool.clear();
 

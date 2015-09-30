@@ -194,6 +194,24 @@ public class StringHelperTest {
 		assertTrue(str.regionMatches(4, match, 0, 3));
 		assertTrue(result > 0);
 	}
+	
+	/*
+	 * i, true, 0, I, 0, 1
+	 * I, true, 0, i, 0, 1
+	 * ς, true, 0, σ, 0, 1
+	 */
+	@Test
+	public void testRegionMatches2() {
+		checkRegionMatches("i", true, 0, "I", 0, 1);
+		checkRegionMatches("I", true, 0, "i", 0, 1);
+		checkRegionMatches("ς", true, 0, "σ", 0, 1);
+	}
+
+	private void checkRegionMatches(String str, boolean ignoreCase, int thisStart, String match, int otherStart, int len) {
+		int result = StringHelper.StringRegionMatches(str, ignoreCase, thisStart, match, otherStart, len);
+		boolean expectedResult = str.regionMatches(ignoreCase, thisStart, match, otherStart, len);
+		assertEquals(expectedResult, result > 0);		
+	}
 
 	@Test
 	public void testNotRegionMatchesStart1() {
