@@ -191,8 +191,8 @@ public class TestNameGenerator extends DistinguishNames {
 										WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
 										WordUtils.capitalize(inputN[4]);
 							} else{
-								inputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"Inputting"+
-									WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));	
+								inputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"With"+
+									WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";	
 							}
 						}
 					}
