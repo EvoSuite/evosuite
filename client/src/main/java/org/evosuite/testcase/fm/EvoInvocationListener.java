@@ -54,6 +54,15 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
         active = true;
     }
 
+
+    public void changeClassLoader(ClassLoader loader) {
+        for(MethodDescriptor descriptor : map.values()){
+            if(descriptor != null){
+                descriptor.changeClassLoader(loader);
+            }
+        }
+    }
+
     /**
      *
      * @return a sorted list
