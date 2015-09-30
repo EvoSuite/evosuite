@@ -10,6 +10,7 @@ public class FinalClassTest  {
 
     @Test
     public void testClass() {
-        assertTrue(Modifier.isFinal(FinalClass.class.getModifiers()));
+        FinalClass f = new FinalClass();
+        assertTrue(Modifier.isFinal(f.getClass().getModifiers()));
     }
 }
