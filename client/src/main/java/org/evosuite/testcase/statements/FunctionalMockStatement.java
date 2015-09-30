@@ -423,7 +423,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     } else if(expected.equals(Float.TYPE)) {
                         value = 0f;
                     } else if(expected.equals(Double.TYPE)) {
-                        value = 0f;
+                        value = 0d;
                     } else if(expected.equals(Long.TYPE)) {
                         value = 0L;
                     } else if(expected.equals(Boolean.TYPE)) {
