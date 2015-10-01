@@ -21,6 +21,8 @@ package org.evosuite.junit.writer;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -230,8 +232,28 @@ public class Scaffolding {
         bd.append("@org.junit.Rule \n");
         bd.append(METHOD_SPACE);
         int timeout = Properties.TIMEOUT + 1000;
-        bd.append("public "+Timeout.class.getName()+" globalTimeout = new "+Timeout.class.getName()+
-                "(" + timeout + ", "+ TimeUnit.class.getName()+".MILLISECONDS); \n");
+        bd.append("public "+Timeout.class.getName()+" globalTimeout = new "+Timeout.class.getName()+ "(" + timeout);
+
+        boolean useNew = false;
+        try {
+            /*
+                FIXME: this check does not seem to work properly :(
+             */
+            Class<?> timeoutOfSUTJunit = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Timeout.class.getName());
+            Constructor c = timeoutOfSUTJunit.getDeclaredConstructor(Long.TYPE, TimeUnit.class);
+            useNew = true;
+        } catch (ClassNotFoundException e) {
+            logger.error("Failed to load Timeout rule from SUT classloader: {}", e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            logger.warn("SUT is using an old version of JUnit");
+            useNew = false;
+        }
+
+        if(useNew) {
+            //TODO: put back once above check works
+            //bd.append(", " + TimeUnit.class.getName() + ".MILLISECONDS");
+        }
+        bd.append("); \n");
         bd.append("\n");
     }
 

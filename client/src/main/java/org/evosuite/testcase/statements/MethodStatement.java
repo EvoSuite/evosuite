@@ -606,7 +606,8 @@ public class MethodStatement extends EntityWithParametersStatement {
 		assert (super.isValid());
 		for (VariableReference v : parameters) {
 			int pos = v.getStPosition();
-			assert (pos <= retval.getStPosition());
+			assert (pos <= retval.getStPosition()) :
+					"Parameter's variable has pos "+pos+" which is after method's return variable in pos "+ retval.getStPosition();
 		}
 		if (!isStatic()) {
 			int pos = callee.getStPosition();

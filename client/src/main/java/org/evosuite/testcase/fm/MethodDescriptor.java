@@ -125,10 +125,16 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             return false;
         }
 
-        boolean samePackage = method.getDeclaringClass().getPackage().getName()
-                .equals(Properties.getTargetClass().getPackage().getName());
-        if(!Modifier.isPublic(modifiers) && !samePackage){
-            return false;
+        if(Properties.getTargetClass() != null) {
+            //null can happen in some unit tests
+
+            boolean samePackage = method.getDeclaringClass().getPackage().getName()
+                    .equals(Properties.getTargetClass().getPackage().getName());
+            if (!Modifier.isPublic(modifiers) && !samePackage) {
+                return false;
+            }
+        } else {
+            logger.warn("Could not load the SUT");
         }
 
         return true;
