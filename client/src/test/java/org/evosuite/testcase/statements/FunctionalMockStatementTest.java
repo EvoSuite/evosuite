@@ -23,6 +23,8 @@ package org.evosuite.testcase.statements;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.NonInstrumentingClassLoader;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -40,6 +42,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import sun.misc.ClassLoaderUtil;
 
+import java.io.File;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -117,16 +120,34 @@ public class FunctionalMockStatementTest {
 
     //----------------------------------------------------------------------------------
 
+    @Test
+    public void testAvoidMockingEnvironment(){
+        final boolean defaultValue = RuntimeSettings.useVFS;
+        RuntimeSettings.useVFS = true;
+
+        try {
+            Assert.assertFalse(FunctionalMockStatement.canBeFunctionalMocked(File.class));
+        } catch(Throwable t){
+            RuntimeSettings.useVFS = defaultValue;
+        }
+    }
+
 
     @Test
     public void testPackageLevel_local()  throws Exception{
         TestCase tc = new DefaultTestCase();
 
         VariableReference ref = new VariableReferenceImpl(tc, PackageLevel.class);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, PackageLevel.class);
-        tc.addStatement(mockStmt);
 
-        execute(tc);
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, PackageLevel.class);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
     }
 
 
@@ -137,10 +158,16 @@ public class FunctionalMockStatementTest {
         Class<?> example = Class.forName("com.examples.with.different.packagename.fm.ExamplePackageLevel");
 
         VariableReference ref = new VariableReferenceImpl(tc, example);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
-        tc.addStatement(mockStmt);
 
-        execute(tc);
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
     }
 
     @Test
@@ -152,10 +179,37 @@ public class FunctionalMockStatementTest {
         Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePackageLevel");
 
         VariableReference ref = new VariableReferenceImpl(tc, example);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
-        tc.addStatement(mockStmt);
 
-        execute(tc);
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
+    }
+
+    @Test
+    public void testPackageLevel_differentPackage_nonInstrumentation_package()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
+        Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePackageLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
     }
 
     @Test
@@ -168,8 +222,8 @@ public class FunctionalMockStatementTest {
 
         VariableReference ref = new VariableReferenceImpl(tc, example);
         FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
-        tc.addStatement(mockStmt);
 
+        tc.addStatement(mockStmt);
         execute(tc);
     }
 

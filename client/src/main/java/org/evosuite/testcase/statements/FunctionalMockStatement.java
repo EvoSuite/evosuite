@@ -24,6 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.runtime.mock.MockList;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -174,9 +175,12 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
         if (type.equals(Properties.getTargetClass()) ||
                 EvoSuiteMock.class.isAssignableFrom(rawClass) ||
+                MockList.isAMockClass(rawClass.getName()) ||
                 rawClass.equals(Class.class) ||
                 rawClass.isArray() || rawClass.isPrimitive() || rawClass.isAnonymousClass() ||
-                rawClass.isEnum()) {
+                rawClass.isEnum() ||
+                //note: Mockito can handle package-level classes, but we get all kinds of weird exceptions with instrumentation :(
+                ! Modifier.isPublic(rawClass.getModifiers())) {
             return false;
         }
 
