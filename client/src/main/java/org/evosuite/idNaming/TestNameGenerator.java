@@ -241,18 +241,30 @@ public class TestNameGenerator extends DistinguishNames {
     			if(testMethodName1.equals(testMethodName2)){
     			//	testMethodNameOptimized1 = testMethodName1 + testOutputs.get(testCases.get(i));
     			//	testMethodNameOptimized2 = testMethodName2 + testOutputs.get(testCases.get(j));
-    				testMethodNameOptimized1 = "test_"+testOutputs.get(testCases.get(i));
-        			testMethodNameOptimized2 = "test_"+testOutputs.get(testCases.get(j));
+    				if(!testOutputs.get(testCases.get(i)).equals("")){
+    					testMethodNameOptimized1 = "test"+testOutputs.get(testCases.get(i));
+    				}
+    				if(!testOutputs.get(testCases.get(j)).equals("")){
+    					testMethodNameOptimized2 = "test"+testOutputs.get(testCases.get(j));
+    				}
     				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
     				//	testMethodNameOptimized1 = testMethodNameOptimized1 + testInputs.get(testCases.get(i));
         			//	testMethodNameOptimized2 = testMethodNameOptimized2 + testInputs.get(testCases.get(j));
-    					testMethodNameOptimized1 = "test_"+testInputs.get(testCases.get(i));
-            			testMethodNameOptimized2 = "test_"+testInputs.get(testCases.get(j));
+    					if(!testInputs.get(testCases.get(i)).equals("")){
+    						testMethodNameOptimized1 = "test"+testInputs.get(testCases.get(i));
+    					}
+    					if(!testInputs.get(testCases.get(j)).equals("")){
+        					testMethodNameOptimized2 = "test"+testInputs.get(testCases.get(j));
+    					}
         				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
         			//		testMethodNameOptimized1 = testMethodNameOptimized1 + testBranches.get(testCases.get(i));
             		//		testMethodNameOptimized2 = testMethodNameOptimized2 + testBranches.get(testCases.get(j));  	
-        					testMethodNameOptimized1 = "test_"+testBranches.get(testCases.get(i));
-                    		testMethodNameOptimized2 = "test_"+testBranches.get(testCases.get(j));
+        					if(!testBranches.get(testCases.get(i)).equals("")){
+        						testMethodNameOptimized1 = "test_"+testBranches.get(testCases.get(i));
+        					}
+        					if(!testBranches.get(testCases.get(j)).equals("")){
+        						testMethodNameOptimized2 = "test_"+testBranches.get(testCases.get(j));
+        					}
         				}
 
     				}
