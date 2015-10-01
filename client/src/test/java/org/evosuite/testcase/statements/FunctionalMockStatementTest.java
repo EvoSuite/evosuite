@@ -21,6 +21,8 @@ package org.evosuite.testcase.statements;
 
 
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -36,6 +38,7 @@ import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import sun.misc.ClassLoaderUtil;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
@@ -108,7 +111,67 @@ public class FunctionalMockStatementTest {
         return scope;
     }
 
+    static class PackageLevel{
+        PackageLevel(){}
+    }
+
     //----------------------------------------------------------------------------------
+
+
+    @Test
+    public void testPackageLevel_local()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        VariableReference ref = new VariableReferenceImpl(tc, PackageLevel.class);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, PackageLevel.class);
+        tc.addStatement(mockStmt);
+
+        execute(tc);
+    }
+
+
+    @Test
+    public void testPackageLevel_differentPackage()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        Class<?> example = Class.forName("com.examples.with.different.packagename.fm.ExamplePackageLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+        tc.addStatement(mockStmt);
+
+        execute(tc);
+    }
+
+    @Test
+    public void testPackageLevel_differentPackage_instrumentation_package()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        InstrumentingClassLoader loader = new InstrumentingClassLoader();
+        Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePackageLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+        tc.addStatement(mockStmt);
+
+        execute(tc);
+    }
+
+    @Test
+    public void testPackageLevel_differentPackage_instrumentation_public()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        InstrumentingClassLoader loader = new InstrumentingClassLoader();
+        Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePublicLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+        tc.addStatement(mockStmt);
+
+        execute(tc);
+    }
 
     @Test
     public void testLimit() throws Exception{
