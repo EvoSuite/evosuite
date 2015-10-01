@@ -133,13 +133,12 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		if(value == null)
+		if(value == null) {
 			return "null";
-		//else if(value instanceof String && ((String)value).endsWith(".class")){
-        //    return value.toString();
-        //} 
-		else if(value instanceof Class<?>){
-            return ((Class<?>)value).getName()+".class";
+		} else if(value instanceof Class<?>){
+			Class<?> cl = (Class<?>)value;
+			String name = cl.getSimpleName();
+            return name + ".class";
         } 
 		return NumberFormatter.getNumberString(value);
 	}
