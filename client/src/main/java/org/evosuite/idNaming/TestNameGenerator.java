@@ -239,14 +239,20 @@ public class TestNameGenerator extends DistinguishNames {
     			 testMethodName1 = testCaseNames.get(testCases.get(i));
     			 testMethodName2 = testCaseNames.get(testCases.get(j));
     			if(testMethodName1.equals(testMethodName2)){
-    				testMethodNameOptimized1 = testMethodName1 + testOutputs.get(testCases.get(i));
-    				testMethodNameOptimized2 = testMethodName2 + testOutputs.get(testCases.get(j));
+    			//	testMethodNameOptimized1 = testMethodName1 + testOutputs.get(testCases.get(i));
+    			//	testMethodNameOptimized2 = testMethodName2 + testOutputs.get(testCases.get(j));
+    				testMethodNameOptimized1 = "test_"+testOutputs.get(testCases.get(i));
+        			testMethodNameOptimized2 = "test_"+testOutputs.get(testCases.get(j));
     				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-    					testMethodNameOptimized1 = testMethodNameOptimized1 + testInputs.get(testCases.get(i));
-        				testMethodNameOptimized2 = testMethodNameOptimized2 + testInputs.get(testCases.get(j));
+    				//	testMethodNameOptimized1 = testMethodNameOptimized1 + testInputs.get(testCases.get(i));
+        			//	testMethodNameOptimized2 = testMethodNameOptimized2 + testInputs.get(testCases.get(j));
+    					testMethodNameOptimized1 = "test_"+testInputs.get(testCases.get(i));
+            			testMethodNameOptimized2 = "test_"+testInputs.get(testCases.get(j));
         				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-        					testMethodNameOptimized1 = testMethodNameOptimized1 + testBranches.get(testCases.get(i));
-            				testMethodNameOptimized2 = testMethodNameOptimized2 + testBranches.get(testCases.get(j));  				
+        			//		testMethodNameOptimized1 = testMethodNameOptimized1 + testBranches.get(testCases.get(i));
+            		//		testMethodNameOptimized2 = testMethodNameOptimized2 + testBranches.get(testCases.get(j));  	
+        					testMethodNameOptimized1 = "test_"+testBranches.get(testCases.get(i));
+                    		testMethodNameOptimized2 = "test_"+testBranches.get(testCases.get(j));
         				}
 
     				}
@@ -281,8 +287,11 @@ public class TestNameGenerator extends DistinguishNames {
     		testCs[count] = tc;
     		count++;
     	} 	
-    	SimplifyMethodNames optimize = new SimplifyMethodNames();
-    	testName = optimize.optimizeNames(Arrays.asList(testName));  
+    //	SimplifyMethodNames optimize = new SimplifyMethodNames();
+    //	testName = optimize.optimizeNames(Arrays.asList(testName));
+    	SimplifyMethodNames simple= new SimplifyMethodNames();
+    	testName = simple.minimizeNames(testName);
+    	testName = simple.countSameNames(testName);
     	int optimizeAgain = -1;
         for (int i=0; i<testName.length; i++) {        	           
             String testMethodNameOptimized = testName[i]; // TODO
