@@ -221,6 +221,14 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 		return goals;
 	}
+	
+	public void removeCoveredGoal(TestFitnessFunction f) {
+		for (TestChromosome test : tests) {
+			if(test.getTestCase().getCoveredGoals().remove(f)) {
+				
+			}
+		}
+	}
 
 	/**
 	 * <p>
