@@ -366,13 +366,11 @@ public class FieldReference extends VariableReferenceImpl {
 	/** {@inheritDoc} */
 	@Override
 	public int getStPosition() {
-		// TODO: Counting field assignment as position may lead to the position being reported
-		// after a particular statement under consideration
-//		for (int i = 0; i < testCase.size(); i++) {
-//			if (testCase.getStatement(i).getReturnValue().equals(this)) {
-//				return i;
-//			}
-//		}
+		for (int i = 0; i < testCase.size(); i++) {
+			if (testCase.getStatement(i).getReturnValue().equals(this)) {
+				return i;
+			}
+		}
 		if (source != null)
 			return source.getStPosition();
 		else {
