@@ -67,7 +67,19 @@ public class RegressionTestSuiteChromosome extends TestSuiteChromosome {
 			tests.add(test);
 		} else {
 			RegressionTestChromosome rtc = new RegressionTestChromosome();
-			rtc.setTest(test);
+			try {
+				rtc.setTest(test);
+			} catch (NoClassDefFoundError e) {
+				String classname = e.getMessage();
+				if (classname != null) {
+					// TODO: blacklist class
+				}
+				return;
+			} catch (Error e) {
+				return;
+			} catch (Throwable e) {
+				return;
+			}
 			tests.add(rtc);
 		}
 		this.setChanged(true);
