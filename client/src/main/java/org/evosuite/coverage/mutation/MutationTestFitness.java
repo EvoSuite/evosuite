@@ -205,6 +205,40 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		}
 		return 0;
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((controlDependencies == null) ? 0 : controlDependencies.hashCode());
+		result = prime * result + diameter;
+		result = prime * result + mutation.getId();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MutationTestFitness other = (MutationTestFitness) obj;
+		if (controlDependencies == null) {
+			if (other.controlDependencies != null)
+				return false;
+		} else if (!controlDependencies.equals(other.controlDependencies))
+			return false;
+		if (diameter != other.diameter)
+			return false;
+		if (mutation.getId() != other.getMutation().getId()) {
+			return false;
+		}
+		return true;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
