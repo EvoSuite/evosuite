@@ -52,6 +52,8 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 596930765039928708L;
 
 	protected transient Mutation mutation;
+	
+	protected int mutantId;
 
 	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
 
@@ -67,6 +69,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 */
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
+		this.mutantId = mutation.getId();
 		controlDependencies.addAll(mutation.getControlDependencies());
 		ActualControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(mutation.getClassName(),
 		                                                                                                        mutation.getMethodName());
@@ -214,7 +217,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		int result = 1;
 		result = prime * result + ((controlDependencies == null) ? 0 : controlDependencies.hashCode());
 		result = prime * result + diameter;
-		result = prime * result + mutation.getId();
+		result = prime * result + mutantId;
 		return result;
 	}
 
@@ -234,7 +237,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 			return false;
 		if (diameter != other.diameter)
 			return false;
-		if (mutation.getId() != other.getMutation().getId()) {
+		if (mutantId != other.mutantId) {
 			return false;
 		}
 		return true;
@@ -265,7 +268,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	        IOException {
 		ois.defaultReadObject();
 
-		int mutationId = ois.readInt();
-		this.mutation = MutationPool.getMutant(mutationId);
+		mutantId = ois.readInt();
+		this.mutation = MutationPool.getMutant(mutantId);
 	}
 }
