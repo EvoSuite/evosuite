@@ -27,6 +27,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 
@@ -40,6 +41,10 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 	        Throwable exception) {
 		// By default, no assertions are created for statements that threw exceptions
 		if(exception != null)
+			return;
+
+		// No assertions are created for mock statements
+		if(statement instanceof FunctionalMockStatement)
 			return;
 
 		visitReturnValue(statement, scope);
