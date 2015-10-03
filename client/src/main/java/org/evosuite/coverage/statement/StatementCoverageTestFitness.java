@@ -156,6 +156,31 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		}
 		return 0;
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + goalInstruction.getInstructionId();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		StatementCoverageTestFitness other = (StatementCoverageTestFitness) obj;
+		if (goalInstruction.getInstructionId() != other.goalInstruction.getInstructionId()) {
+				return false;
+		}
+		return true;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()

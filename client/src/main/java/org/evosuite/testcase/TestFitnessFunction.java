@@ -75,6 +75,12 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 */
 	@Override
 	public abstract int compareTo(TestFitnessFunction other);
+	
+	@Override
+	public abstract int hashCode();
+	
+	@Override
+	public abstract boolean equals(Object other);
 
 	/** {@inheritDoc} */
 	public ExecutionResult runTest(TestCase test) {
