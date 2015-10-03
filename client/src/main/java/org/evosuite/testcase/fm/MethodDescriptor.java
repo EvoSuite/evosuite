@@ -23,6 +23,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.utils.LoggingUtils;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,10 +129,26 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         if(Properties.getTargetClass() != null) {
             //null can happen in some unit tests
 
-            boolean samePackage = method.getDeclaringClass().getPackage().getName()
-                    .equals(Properties.getTargetClass().getPackage().getName());
-            if (!Modifier.isPublic(modifiers) && !samePackage) {
-                return false;
+            if(!Modifier.isPublic(modifiers)) {
+                assert !Modifier.isPrivate(modifiers); //previous checks
+
+                String sutName = Properties.getTargetClass().getName();
+
+                int lastIndexMethod = className.lastIndexOf('.');
+                int lastIndexSUT = sutName.lastIndexOf('.');
+
+                boolean samePackage;
+                if (lastIndexMethod != lastIndexSUT) {
+                    samePackage = false;
+                } else if (lastIndexMethod < 0) {
+                    samePackage = true; //default package
+                } else {
+                    samePackage = className.substring(0, lastIndexMethod).equals(sutName.substring(0, lastIndexSUT));
+                }
+
+                if (!samePackage) {
+                    return false;
+                }
             }
         } else {
             logger.warn("Could not load the SUT");

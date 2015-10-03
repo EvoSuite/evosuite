@@ -533,10 +533,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 targetInputs[i] = md.executeMatcher(i);
                             }
 
-                            logger.debug("Mockito: going to invoke method {} with {} matchers",method.getName(), targetInputs.length);
+                            logger.debug("Mockito: going to invoke method {} with {} matchers",
+                                    method.getName(), targetInputs.length);
 
                             if(! method.getDeclaringClass().isAssignableFrom(ret.getClass())){
-                                String msg = "Mismatch between callee's class "+ret.getClass()+" and method's class "+method.getDeclaringClass();
+
+                                String msg = "Mismatch between callee's class "+ret.getClass()+" and method's class "+
+                                        method.getDeclaringClass();
                                 msg += "\nTarget class classloader "+targetClass.getClassLoader() +
                                         " vs method's classloader " + method.getDeclaringClass().getClassLoader();
                                 throw new EvosuiteError(msg);
@@ -556,9 +559,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                             //thenReturn(...)
                             Object[] thenReturnInputs = new Object[Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT)];
-                            for (int i = index; i < thenReturnInputs.length; i++) {
+                            for (int i = 0; i < thenReturnInputs.length; i++) {
 
-                                VariableReference parameterVar = parameters.get(i);
+                                VariableReference parameterVar = parameters.get(i + index);
                                 thenReturnInputs[i] = parameterVar.getObject(scope);
 
                                 if (thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
