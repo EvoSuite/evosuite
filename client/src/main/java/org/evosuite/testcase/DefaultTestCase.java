@@ -574,6 +574,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
+		boolean isPrimitive = false;
+		if(type instanceof Class<?>) {
+			if(((Class<?>)type).isPrimitive())
+				isPrimitive = true;
+		}
 		for (int i = 0; i < position && i < size(); i++) {
 			Statement statement = statements.get(i);
 			if(statement instanceof MethodStatement) {
@@ -619,7 +624,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				}
 			} else if (value instanceof ArrayIndex) {
 				// Don't need to add this because array indices are created for array statement
-			} else if (value.isAssignableTo(type)) {
+			} else if (value.isAssignableTo(type) && value.isPrimitive() == isPrimitive) {
 				variables.add(value);
 			} else {
 				addFields(variables, value, type);
