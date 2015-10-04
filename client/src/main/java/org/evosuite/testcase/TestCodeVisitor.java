@@ -339,6 +339,10 @@ public class TestCodeVisitor extends TestVisitor {
 	 */
 	public String getVariableName(VariableReference var) {
 		if (var instanceof ConstantValue) {
+			ConstantValue cval = (ConstantValue)var;
+			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
+				getClassName((Class<?>)cval.getValue());
+			}
 			return var.getName();
 		} else if (var instanceof InputVariable) {
 			return var.getName();

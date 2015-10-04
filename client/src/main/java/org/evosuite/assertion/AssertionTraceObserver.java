@@ -87,6 +87,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 		}
 		
 		for (VariableReference var : dependencies) {
+			if(var.isVoid())
+				continue;
+			// No assertions on mocked objects
+			if(statement.getTestCase().getStatement(var.getStPosition()) instanceof FunctionalMockStatement)
+				continue;
 			if (!var.isVoid()) {
 				try {
 					visit(statement, scope, var);
