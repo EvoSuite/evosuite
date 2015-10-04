@@ -652,6 +652,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 				iterator.remove();
 			else if (var.isPrimitive() || var.isWrapperType())
 				iterator.remove();
+			else if(this.getStatement(var.getStPosition()) instanceof FunctionalMockStatement)
+				iterator.remove();
 		}
 		if (variables.isEmpty())
 			throw new ConstructionFailedException("Found no variables of type " + type
@@ -956,7 +958,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void remove(int position) {
-		logger.debug("Removing statement " + position);
+		logger.debug("Removing statement {}", position);
 		if (position >= size()) {
 			return;
 		}
