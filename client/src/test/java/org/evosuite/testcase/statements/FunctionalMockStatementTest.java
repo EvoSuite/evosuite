@@ -20,6 +20,7 @@
 package org.evosuite.testcase.statements;
 
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
@@ -38,6 +39,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
+import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Test;
 import sun.misc.ClassLoaderUtil;
@@ -119,6 +121,72 @@ public class FunctionalMockStatementTest {
     }
 
     //----------------------------------------------------------------------------------
+
+
+    @Test
+    public void testConfirmCast(){
+
+        //note: TypeUtils can give different results because it takes autoboxing into account
+
+        assertTrue(TypeUtils.isAssignable(Integer.class, Integer.TYPE));
+        assertTrue(TypeUtils.isAssignable(Integer.TYPE, Integer.class));
+        assertFalse(Integer.TYPE.isAssignableFrom(Integer.class));
+        assertFalse(Integer.class.isAssignableFrom(Integer.TYPE));
+
+
+        assertFalse(Integer.TYPE.isAssignableFrom(Character.TYPE));
+        assertFalse(TypeUtils.isAssignable(Integer.TYPE, Character.TYPE));
+
+        assertFalse(Character.TYPE.isAssignableFrom(Integer.TYPE));
+        assertTrue(TypeUtils.isAssignable(Character.TYPE, Integer.TYPE)); //DIFFERENT
+
+        assertFalse(Character.class.isAssignableFrom(Integer.TYPE));
+        assertTrue(TypeUtils.isAssignable(Character.class, Integer.TYPE)); //DIFFERENT
+
+        assertFalse(Character.class.isAssignableFrom(Integer.class));
+        assertFalse(TypeUtils.isAssignable(Character.class, Integer.class));
+
+        assertTrue(Integer.TYPE.isPrimitive());
+        assertFalse(Integer.class.isPrimitive());
+
+
+        char c = 'c'; //99
+        int i = c;
+
+        assertEquals(99, i);
+
+        Object aInt = i;
+        Object aInteger = Integer.valueOf(7);
+
+        Assert.assertTrue(aInt.getClass().equals(Integer.class));
+        Assert.assertTrue(aInt.getClass().equals(aInteger.getClass()));
+
+        Object aChar = c;
+        Assert.assertTrue(aChar.getClass().equals(Character.class));
+
+        //just recall the two diverge
+        assertTrue(TypeUtils.isAssignable(aChar.getClass(), Integer.TYPE));
+        assertFalse(Integer.TYPE.isAssignableFrom(aChar.getClass()));
+
+        Object casted = null;
+        try {
+            casted = Integer.TYPE.cast(aChar);
+            fail();
+        } catch (Exception e){
+            //expected: cannot do direct cast from "Character" to "int"
+        }
+
+        try {
+            casted = Integer.TYPE.cast(((Character) aChar).charValue());
+            fail();
+        } catch (Exception e){
+            //expected: "cast" takes an Object as input, so it does autoboxing :(
+        }
+
+        casted = (int) ((Character) aChar).charValue();
+
+        assertTrue(casted.getClass().equals(Integer.class));
+    }
 
     @Test
     public void testAvoidMockingEnvironment(){
