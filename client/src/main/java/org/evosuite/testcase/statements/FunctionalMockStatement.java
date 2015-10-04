@@ -608,6 +608,15 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     }
                 }
 
+                /**
+                 * a "char" can be used for a "int". But problem is that Mockito takes as input
+                 * Object, and so those get boxed. However, a Character cannot be used for a "int",
+                 * so we need to be sure to convert it here
+                 *
+                 * @param value
+                 * @param expectedType
+                 * @return
+                 */
                 private Object fixBoxing(Object value, Class<?> expectedType) {
 
                     if(!expectedType.isPrimitive()){
