@@ -631,6 +631,22 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     if(expectedType.equals(Integer.TYPE)){
                         if(valuesClass.equals(Character.class)){
                             value = (int) ((Character)value).charValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (int) ((Byte)value).intValue();
+                        }
+                    }
+
+                    if(expectedType.equals(Double.TYPE)) {
+                        if(valuesClass.equals(Integer.class)){
+                            value = (double) ((Integer)value).intValue();
+                        } else if(valuesClass.equals(Float.class)){
+                            value = (double) ((Float)value).floatValue();
+                        }
+                    }
+
+                    if(expectedType.equals(Long.TYPE)) {
+                        if(valuesClass.equals(Integer.class)){
+                            value = (long) ((Integer)value).intValue();
                         }
                     }
 
