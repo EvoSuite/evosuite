@@ -428,6 +428,10 @@ public class TestChromosome extends ExecutableChromosome {
 			// Each statement is deleted with probability 1/l
 			if (Randomness.nextDouble() <= pl) {
 				changed |= deleteStatement(testFactory, num);
+
+				if(changed){
+					assert ConstraintVerifier.verifyTest(test);
+				}
 			}
 		}
 
@@ -473,8 +477,7 @@ public class TestChromosome extends ExecutableChromosome {
 			try {
 				changed = mutationConcolic();
 			} catch (Exception exc) {
-				logger.info("Encountered exception when trying to use concolic mutation.",
-				            exc.getMessage());
+				logger.warn("Encountered exception when trying to use concolic mutation: {}", exc.getMessage());
 				logger.debug("Detailed exception trace: ", exc);
 			}
 		}
@@ -497,6 +500,7 @@ public class TestChromosome extends ExecutableChromosome {
 						mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 						        TestMutationHistoryEntry.TestMutation.CHANGE, statement));
 						assert (test.isValid());
+						assert ConstraintVerifier.verifyTest(test);
 
 					} else if (!statement.isAssignmentStatement() &&
 							ConstraintVerifier.canDelete(test,position)) {
@@ -508,6 +512,7 @@ public class TestChromosome extends ExecutableChromosome {
 							mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
 							        TestMutationHistoryEntry.TestMutation.CHANGE,
 							        test.getStatement(pos)));
+							assert ConstraintVerifier.verifyTest(test);
 						}
 						assert (test.isValid());
 					}

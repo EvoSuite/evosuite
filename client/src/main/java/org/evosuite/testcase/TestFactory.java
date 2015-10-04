@@ -849,55 +849,51 @@ public class TestFactory {
 	        GenericAccessibleObject<?> call) throws ConstructionFailedException {
 		int position = statement.getReturnValue().getStPosition();
 
-		logger.debug("Changing call " + test.getStatement(position) + " with " + call);
+		logger.debug("Changing call {} with {}",test.getStatement(position), call);
 
 		if (call.isMethod()) {
 			GenericMethod method = (GenericMethod) call;
 			if (method.hasTypeParameters())
-				throw new ConstructionFailedException(
-				        "Cannot handle generic methods properly");
+				throw new ConstructionFailedException("Cannot handle generic methods properly");
 
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
-			if (!method.isStatic())
-				callee = test.getRandomNonNullNonPrimitiveObject(method.getOwnerType(),
-				                                                 position);
-			List<VariableReference> parameters = new ArrayList<VariableReference>();
+			if (!method.isStatic()) {
+				callee = test.getRandomNonNullNonPrimitiveObject(method.getOwnerType(), position);
+			}
+
+			List<VariableReference> parameters = new ArrayList<>();
 			for (Type type : method.getParameterTypes()) {
 				parameters.add(test.getRandomObject(type, position));
 			}
-			MethodStatement m = new MethodStatement(test, method, callee, parameters,
-			        retval);
+			MethodStatement m = new MethodStatement(test, method, callee, parameters, retval);
 			test.setStatement(m, position);
-			logger.debug("Using method " + m.getCode());
+			logger.debug("Using method {}", m.getCode());
 
 		} else if (call.isConstructor()) {
 
 			GenericConstructor constructor = (GenericConstructor) call;
 			VariableReference retval = statement.getReturnValue();
-			List<VariableReference> parameters = new ArrayList<VariableReference>();
+			List<VariableReference> parameters = new ArrayList<>();
 			for (Type type : constructor.getParameterTypes()) {
 				parameters.add(test.getRandomObject(type, position));
 			}
-			ConstructorStatement c = new ConstructorStatement(test, constructor, retval,
-			        parameters);
+			ConstructorStatement c = new ConstructorStatement(test, constructor, retval, parameters);
 
 			test.setStatement(c, position);
-			logger.debug("Using constructor " + c.getCode());
+			logger.debug("Using constructor {}", c.getCode());
 
 		} else if (call.isField()) {
 			GenericField field = (GenericField) call;
 			VariableReference retval = statement.getReturnValue();
 			VariableReference source = null;
 			if (!field.isStatic())
-				source = test.getRandomNonNullNonPrimitiveObject(field.getOwnerType(),
-				                                                 position);
+				source = test.getRandomNonNullNonPrimitiveObject(field.getOwnerType(), position);
 
 			try {
 				FieldStatement f = new FieldStatement(test, field, source, retval);
-
 				test.setStatement(f, position);
-				logger.debug("Using field " + f.getCode());
+				logger.debug("Using field {}", f.getCode());
 			} catch (Throwable e) {
 				logger.error("Error: " + e + " , Field: " + field + " , Test: " + test);
 				throw new Error(e);
@@ -911,6 +907,16 @@ public class TestFactory {
 
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
+
+		Iterator<VariableReference> iter = objects.iterator();
+		while(iter.hasNext()){
+			VariableReference ref = iter.next();
+			//do not use FM as possible callees
+			if(test.getStatement(ref.getStPosition()) instanceof FunctionalMockStatement){
+				iter.remove();
+			}
+		}
+
 		// TODO: replacing void calls with other void calls might not be the best idea
 		List<GenericAccessibleObject<?>> calls = getPossibleCalls(statement.getReturnType(), objects);
 
@@ -919,7 +925,8 @@ public class TestFactory {
 			calls.remove(ao);
 		}
 
-		logger.debug("Got " + calls.size() + " possible calls for " + objects.size() + " objects");
+		logger.debug("Got {} possible calls for {} objects",calls.size(),objects.size());
+
 		//calls.clear();
 		if (calls.isEmpty()) {
 			logger.debug("No replacement calls");
@@ -1378,7 +1385,7 @@ public class TestFactory {
 			return false;
 		}
 
-		logger.debug("Deleting target statement - " + position);
+		logger.debug("Deleting target statement - {}", position);
 
 		Set<Integer> toDelete = new LinkedHashSet<>();
 		recursiveDeleteInclusion(test,toDelete,position);
@@ -1387,7 +1394,7 @@ public class TestFactory {
 		Collections.sort(pos, Collections.reverseOrder());
 
 		for (Integer i : pos) {
-			logger.debug("Deleting statement: " + i);
+			logger.debug("Deleting statement: {}", i);
 			test.remove(i);
 		}
 
@@ -1519,7 +1526,10 @@ public class TestFactory {
 		Iterator<VariableReference> replacement = alternatives.iterator();
 		while (replacement.hasNext()) {
 			VariableReference r = replacement.next();
-			if (var.equals(r.getAdditionalVariableReference()))
+			if(test.getStatement(r.getStPosition()) instanceof FunctionalMockStatement){
+				// we should ensure that a FM should never be a callee
+				replacement.remove();
+			} else if (var.equals(r.getAdditionalVariableReference()))
 				replacement.remove();
 			else if (r instanceof ArrayReference) {
 				if (maxIndex >= ((ArrayReference) r).getArrayLength())
