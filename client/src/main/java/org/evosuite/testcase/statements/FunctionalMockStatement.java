@@ -573,6 +573,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                             new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName()
                                                     + " to " + method.getReturnType()));
                                 }
+
+                                thenReturnInputs[i] = fixBoxing(thenReturnInputs[i], method.getReturnType());
                             }
 
                             //final call when(...).thenReturn(...)
@@ -605,6 +607,25 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         throw new EvosuiteError(e);
                     }
                 }
+
+                private Object fixBoxing(Object value, Class<?> expectedType) {
+
+                    if(!expectedType.isPrimitive()){
+                        return value;
+                    }
+
+                    Class<?> valuesClass = value.getClass();
+                    assert ! valuesClass.isPrimitive();
+
+                    if(expectedType.equals(Integer.TYPE)){
+                        if(valuesClass.equals(Character.class)){
+                            value = (int) ((Character)value).charValue();
+                        }
+                    }
+
+                    return value;
+                }
+
 
                 @Override
                 public Set<Class<? extends Throwable>> throwableExceptions() {
