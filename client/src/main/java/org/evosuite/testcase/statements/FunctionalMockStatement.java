@@ -557,8 +557,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             logger.debug("Mockito: call 'when'");
                             OngoingStubbing<Object> retForThen = Mockito.when(targetMethodResult);
 
+                            int size = Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT);
+
                             //thenReturn(...)
-                            Object[] thenReturnInputs = new Object[Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT)];
+                            Object[] thenReturnInputs = new Object[size];
                             for (int i = 0; i < thenReturnInputs.length; i++) {
 
                                 VariableReference parameterVar = parameters.get(i + index);
@@ -586,7 +588,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 retForThen.thenReturn(thenReturnInputs[0], values);
                             }
 
-                            index += md.getCounter();
+                            index += size;
                         }
 
                     } catch (CodeUnderTestException e){
