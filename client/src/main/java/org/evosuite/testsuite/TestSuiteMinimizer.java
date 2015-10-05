@@ -166,20 +166,7 @@ public class TestSuiteMinimizer {
 
         int currentGoal = 0;
         int numGoals = goals.size();
-        /*
-         * Remove covered goals that are not part of the minimization targets, as they
-         * might screw up coverage analysis when a minimization timeout occurs.
-         * This may happen e.g. when MutationSuiteFitness calls BranchCoverageSuiteFitness
-         * which adds branch goals.
-         */
-        // TODO: This creates an inconsistency between suite.getCoveredGoals().size() and suite.getNumCoveredGoals()
-        //       but it is not clear how to update numcoveredgoals
-        for(TestFitnessFunction f : suite.getCoveredGoals()) {
-        	if(!goals.contains(f)) {
-        		suite.removeCoveredGoal(f);
-        	}
-        }
-        
+
         if (Properties.MINIMIZE_SORT)
             Collections.sort(goals);
 
@@ -233,15 +220,15 @@ public class TestSuiteMinimizer {
                 continue;
             }
 
-            List<TestChromosome> coveredTests = new ArrayList<TestChromosome>();
+            List<TestChromosome> coveringTests = new ArrayList<TestChromosome>();
             for (TestChromosome test : suite.getTestChromosomes()) {
                 if (goal.isCovered(test)) {
-                    coveredTests.add(test);
+                    coveringTests.add(test);
                 }
             }
-            Collections.sort(coveredTests);
-            if (!coveredTests.isEmpty()) {
-                TestChromosome test = coveredTests.get(0);
+            Collections.sort(coveringTests);
+            if (!coveringTests.isEmpty()) {
+                TestChromosome test = coveringTests.get(0);
                 org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
                         goal);
                 TestChromosome copy = (TestChromosome) test.clone();
@@ -258,12 +245,18 @@ public class TestSuiteMinimizer {
                 copy.getTestCase().clearCoveredGoals();
                 if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
                     ((StructuredTestCase) copy.getTestCase()).addPrimaryGoal(goal);
-                } else {
-                    copy.getTestCase().addCoveredGoal(goal);
                 }
+
+                // Add ALL goals covered by the minimized test
+                for (TestFitnessFunction g : goals) {
+                    if (g.isCovered(copy)) { // isCovered(copy) adds the goal
+                        covered.add(g);
+                        logger.info("Goal covered by minimized test: " + g);
+                    }
+                }
+
                 minimizedTests.add(copy);
                 minimizedSuite.insertTest(copy.getTestCase());
-                covered.add(goal);
 
                 logger.info("After new test the suite covers " + covered.size() + "/"
                         + goals.size() + " goals");
