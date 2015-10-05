@@ -113,7 +113,7 @@ public class RuntimeInstrumentation {
 				"org.netbeans.lib.profiler.", // VisualVM profiler
 				// Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
 				"apple.", "com.apple.", "com.sun.",
-				"org.junit.", "junit.framework.","org.mockito.", // do not instrument test code which will be part of final JUnit
+				"org.junit.", "junit.framework.", // do not instrument test code which will be part of final JUnit
 				"org.apache.xerces.dom3.", "de.unisl.cs.st.bugex.",  "org.mozilla.javascript.gen.c.",
 				"corina.cross.Single",  // I really don't know what is wrong with this class, but we need to exclude it
 				"org.slf4j.",
@@ -148,7 +148,9 @@ public class RuntimeInstrumentation {
 					 */
 					"org.hibernate.","org.hsqldb.","org.jboss.",
 					"org.springframework.", "org.apache.commons.logging.", "javassist.","antlr.","org.dom4j.",
-					"org.aopalliance."
+					"org.aopalliance.",
+					"javax.servlet.",//note, Servlet is special. see comments in pom file
+					"org.mockito."
 					}));
 		}
 
