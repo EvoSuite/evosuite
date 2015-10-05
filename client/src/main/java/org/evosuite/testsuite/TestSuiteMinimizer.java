@@ -166,7 +166,20 @@ public class TestSuiteMinimizer {
 
         int currentGoal = 0;
         int numGoals = goals.size();
-
+        /*
+         * Remove covered goals that are not part of the minimization targets, as they
+         * might screw up coverage analysis when a minimization timeout occurs.
+         * This may happen e.g. when MutationSuiteFitness calls BranchCoverageSuiteFitness
+         * which adds branch goals.
+         */
+        // TODO: This creates an inconsistency between suite.getCoveredGoals().size() and suite.getNumCoveredGoals()
+        //       but it is not clear how to update numcoveredgoals
+        for(TestFitnessFunction f : suite.getCoveredGoals()) {
+        	if(!goals.contains(f)) {
+        		suite.removeCoveredGoal(f);
+        	}
+        }
+        
         if (Properties.MINIMIZE_SORT)
             Collections.sort(goals);
 
