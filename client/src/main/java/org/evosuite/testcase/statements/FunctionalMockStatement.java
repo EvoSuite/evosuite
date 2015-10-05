@@ -173,7 +173,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
         Class<?> rawClass = new GenericClass(type).getRawClass();
 
-        if (type.equals(Properties.getTargetClass()) ||
+        if (rawClass.equals(Properties.getTargetClass()) ||
                 EvoSuiteMock.class.isAssignableFrom(rawClass) ||
                 MockList.isAMockClass(rawClass.getName()) ||
                 rawClass.equals(Class.class) ||
@@ -526,7 +526,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                             Method method = md.getMethod(); //target method, eg foo.aMethod(...)
                             // this is needed if method is protected: it couldn't be called here, although fine in
-                            // the generate JUnit tests
+                            // the generated JUnit tests
                             method.setAccessible(true);
 
                             //target inputs
