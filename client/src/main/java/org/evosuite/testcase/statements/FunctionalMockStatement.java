@@ -525,6 +525,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             }
 
                             Method method = md.getMethod(); //target method, eg foo.aMethod(...)
+                            // this is needed if method is protected: it couldn't be called here, although fine in
+                            // the generate JUnit tests
+                            method.setAccessible(true);
 
                             //target inputs
                             Object[] targetInputs = new Object[md.getNumberOfInputParameters()];
