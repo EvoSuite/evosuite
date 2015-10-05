@@ -20,7 +20,7 @@
 package org.evosuite.runtime;
 
 import org.junit.*;
-import org.junit.AssumptionViolatedException;
+
 
 import java.io.Serializable;
 
@@ -77,7 +77,7 @@ public class PrivateAccessTest {
         try {
             PrivateAccess.setVariable(FooFields.class, null, "a non-existing field", 42);
             Assert.fail();
-        } catch (AssumptionViolatedException e){
+        } catch (FalsePositiveException e){
             Assert.fail();
         } catch (RuntimeException e){
             //Ok, expected
@@ -106,7 +106,7 @@ public class PrivateAccessTest {
         try {
             PrivateAccess.callMethod(FooMethods.class, null, "a non-existing method", new Object[0], new Class<?>[0]);
             Assert.fail();
-        } catch (AssumptionViolatedException e){
+        } catch (FalsePositiveException e){
             Assert.fail();
         } catch (Throwable e){
             //Ok, expected

@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.javaee.injection;
 
+import org.evosuite.runtime.FalsePositiveException;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
@@ -27,7 +28,6 @@ import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.javaee.javax.enterprise.event.EvoEvent;
 import org.evosuite.runtime.javaee.javax.transaction.EvoUserTransaction;
 import org.evosuite.runtime.util.Inputs;
-import org.junit.AssumptionViolatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +98,7 @@ public class Injector {
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public  static <T> void inject(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance,
                                    Class<?> klass, String fieldName, Object value)
-            throws IllegalArgumentException, AssumptionViolatedException {
+            throws IllegalArgumentException, FalsePositiveException {
 
         PrivateAccess.setVariable(klass, instance, fieldName, value, InjectionList.getList());
     }
