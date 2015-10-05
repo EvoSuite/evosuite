@@ -454,6 +454,8 @@ public class TestSuiteGenerator {
 			return new RegressionSuiteStrategy();
 		case ENTBUG:
 			return new EntBugTestStrategy();
+		case MOSUITE:
+			return new MOSuiteStrategy();
 		default:
 			throw new RuntimeException("Unsupported strategy: "+Properties.STRATEGY);
 		}

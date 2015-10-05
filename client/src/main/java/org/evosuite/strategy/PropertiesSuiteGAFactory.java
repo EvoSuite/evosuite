@@ -39,6 +39,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.RandomSearch;
 import org.evosuite.ga.metaheuristics.SteadyStateGA;
 import org.evosuite.ga.metaheuristics.NSGAII;
+import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
 import org.evosuite.ga.metaheuristics.StandardGA;
 import org.evosuite.ga.metaheuristics.MonotonicGA;
@@ -117,6 +118,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			}
 		case REGRESSION:
 			return new RegressionTestSuiteChromosomeFactory();
+		case MOSUITE:
+			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
 		default:
 			throw new RuntimeException("Unsupported test factory: "
 					+ Properties.TEST_FACTORY);
@@ -178,6 +181,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
             return new NSGAII<TestSuiteChromosome>(factory);
+        case MOSA:
+        	logger.info("Chosen search algorithm: MOSA");
+            return new MOSA<TestSuiteChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
