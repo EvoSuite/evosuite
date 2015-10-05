@@ -19,8 +19,11 @@
  */
 package org.evosuite.testcase.fm;
 
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.utils.LoggingUtils;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 
@@ -89,15 +93,67 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         inputParameterMatchers = matchers;
     }
 
+    public void changeClassLoader(ClassLoader loader) {
+        try {
+            Class<?> klass = loader.loadClass(method.getDeclaringClass().getName());
+            Class<?>[] params = method.getParameterTypes();
+            for(int i=0; i<params.length; i++){
+                if(!params[i].isPrimitive()){
+                    params[i] = loader.loadClass(params[i].getName());
+                }
+            }
+            method = klass.getDeclaredMethod(method.getName(), params);
+        } catch (Exception e) {
+            //should not really happen
+            logger.error("Failed to reload {} with a new classloader: {}", method, e.getMessage());
+        }
+    }
+
     /**
      * For example, do not mock methods with no return value
      *
      * @return
      */
     public boolean shouldBeMocked(){
-        if(method.getReturnType().equals(Void.TYPE)){
+
+        int modifiers = method.getModifiers();
+
+        if(method.getReturnType().equals(Void.TYPE) ||
+                method.getName().equals("equals") ||
+                method.getName().equals("hashCode") ||
+                Modifier.isPrivate(modifiers) ) {
+
             return false;
         }
+
+        if(Properties.getTargetClass() != null) {
+            //null can happen in some unit tests
+
+            if(!Modifier.isPublic(modifiers)) {
+                assert !Modifier.isPrivate(modifiers); //previous checks
+
+                String sutName = Properties.getTargetClass().getName();
+
+                int lastIndexMethod = className.lastIndexOf('.');
+                int lastIndexSUT = sutName.lastIndexOf('.');
+
+                boolean samePackage;
+                if (lastIndexMethod != lastIndexSUT) {
+                    samePackage = false;
+                } else if (lastIndexMethod < 0) {
+                    samePackage = true; //default package
+                } else {
+                    samePackage = className.substring(0, lastIndexMethod).equals(sutName.substring(0, lastIndexSUT));
+                }
+
+                if (!samePackage) {
+                    return false;
+                }
+            }
+        } else {
+            logger.warn("Could not load the SUT");
+        }
+
         return true;
     }
 
@@ -119,20 +175,25 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         Type[] types = method.getParameterTypes();
         Type type = types[i];
 
-        if(type.equals(Integer.TYPE) || type.equals(Integer.class)){
-            return  Mockito.anyInt();
-        } else if(type.equals(Long.TYPE) || type.equals(Long.class)){
-            return Mockito.anyLong();
-        }else if(type.equals(Double.TYPE) || type.equals(Double.class)){
-            return Mockito.anyDouble();
-        }else if(type.equals(Float.TYPE) || type.equals(Float.class)){
-            return Mockito.anyFloat();
-        }else if(type.equals(Short.TYPE) || type.equals(Short.class)){
-            return Mockito.anyShort();
-        }else if(type.equals(String.class)){
-            return Mockito.anyString();
-        }else{
-            return Mockito.any(type.getClass());
+        try {
+            if (type.equals(Integer.TYPE) || type.equals(Integer.class)) {
+                return Mockito.anyInt();
+            } else if (type.equals(Long.TYPE) || type.equals(Long.class)) {
+                return Mockito.anyLong();
+            } else if (type.equals(Double.TYPE) || type.equals(Double.class)) {
+                return Mockito.anyDouble();
+            } else if (type.equals(Float.TYPE) || type.equals(Float.class)) {
+                return Mockito.anyFloat();
+            } else if (type.equals(Short.TYPE) || type.equals(Short.class)) {
+                return Mockito.anyShort();
+            } else if (type.equals(String.class)) {
+                return Mockito.anyString();
+            } else {
+                return Mockito.any(type.getClass());
+            }
+        } catch (Exception e){
+            logger.error("Failed to executed Mockito matcher n{} of type {} in {}.{}: {}",i,type,className,methodName,e.getMessage());
+            throw new EvosuiteError(e);
         }
     }
 

@@ -32,9 +32,8 @@ import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.Scope;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Strategy;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +87,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 		}
 		
 		for (VariableReference var : dependencies) {
+			if(var.isVoid())
+				continue;
+			// No assertions on mocked objects
+			if(statement.getTestCase().getStatement(var.getStPosition()) instanceof FunctionalMockStatement)
+				continue;
 			if (!var.isVoid()) {
 				try {
 					visit(statement, scope, var);
@@ -187,6 +191,10 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	        Throwable exception) {
 		//if(checkThread())
 		//	return;
+		
+		// No assertions are created for mock statements
+		if(statement instanceof FunctionalMockStatement)
+			return;
 		
 		// By default, no assertions are created for statements that threw exceptions
 		if(exception != null)

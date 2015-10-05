@@ -127,7 +127,7 @@ public class ExceptionCoverageHelper {
         }
 
         // This is to cover cases not handled by CodeUnderTestException, or if bug in EvoSuite itself
-        if (t.getStackTrace().length > 0
+        if (t.getStackTrace() != null && t.getStackTrace().length > 0 
                 && t.getStackTrace()[0].getClassName().startsWith("org.evosuite.testcase")) {
             return true;
         }

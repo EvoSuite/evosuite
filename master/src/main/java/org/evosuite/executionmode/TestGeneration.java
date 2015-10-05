@@ -120,7 +120,8 @@ public class TestGeneration {
 				new Option("generateRandom", "use random test generation"),
 				new Option("generateNumRandom",true, "generate fixed number of random tests"),	
 				new Option("regressionSuite", "generate a regression test suite"),
-				new Option("regressionTests", "generate a regression test suite of individual tests")
+				new Option("regressionTests", "generate a regression test suite of individual tests"),
+				new Option("generateMOSuite", "use many objective test generation (MOSA). ")
 		};
 	}
 
@@ -143,6 +144,8 @@ public class TestGeneration {
 			strategy = Strategy.RANDOM_FIXED;
 			javaOpts.add("-Dnum_random_tests="
 					+ line.getOptionValue("generateNumRandom"));
+		} else if (line.hasOption("generateMOSuite")){
+			strategy = Strategy.MOSUITE;
 		}
 		return strategy;
 	}
@@ -333,6 +336,9 @@ public class TestGeneration {
 			break;	
 		case ENTBUG:
 			cmdLine.add("-Dstrategy=EntBug");
+			break;
+		case MOSUITE:
+			cmdLine.add("-Dstrategy=MOSuite");
 			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);

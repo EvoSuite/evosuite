@@ -52,6 +52,8 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 596930765039928708L;
 
 	protected transient Mutation mutation;
+	
+	protected int mutantId;
 
 	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
 
@@ -67,6 +69,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 */
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
+		this.mutantId = mutation.getId();
 		controlDependencies.addAll(mutation.getControlDependencies());
 		ActualControlFlowGraph cfg = GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(mutation.getClassName(),
 		                                                                                                        mutation.getMethodName());
@@ -205,6 +208,40 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		}
 		return 0;
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((controlDependencies == null) ? 0 : controlDependencies.hashCode());
+		result = prime * result + diameter;
+		result = prime * result + mutantId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MutationTestFitness other = (MutationTestFitness) obj;
+		if (controlDependencies == null) {
+			if (other.controlDependencies != null)
+				return false;
+		} else if (!controlDependencies.equals(other.controlDependencies))
+			return false;
+		if (diameter != other.diameter)
+			return false;
+		if (mutantId != other.mutantId) {
+			return false;
+		}
+		return true;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
@@ -231,7 +268,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	        IOException {
 		ois.defaultReadObject();
 
-		int mutationId = ois.readInt();
-		this.mutation = MutationPool.getMutant(mutationId);
+		mutantId = ois.readInt();
+		this.mutation = MutationPool.getMutant(mutantId);
 	}
 }

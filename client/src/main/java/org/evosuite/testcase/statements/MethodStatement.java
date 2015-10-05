@@ -313,19 +313,19 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Statement copy(TestCase newTestCase, int offset) {
-		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
+		ArrayList<VariableReference> newParams = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
-			new_params.add(r.copy(newTestCase, offset));
+			newParams.add(r.copy(newTestCase, offset));
 		}
 
 		MethodStatement m;
 		if (isStatic()) {
 			// FIXXME: If callee is an array index, this will return an invalid
 			// copy of the cloned variable!
-			m = new MethodStatement(newTestCase, method.copy(), null, new_params);
+			m = new MethodStatement(newTestCase, method.copy(), null, newParams);
 		} else {
 			VariableReference newCallee = callee.copy(newTestCase, offset);
-			m = new MethodStatement(newTestCase, method.copy(), newCallee, new_params);
+			m = new MethodStatement(newTestCase, method.copy(), newCallee, newParams);
 
 		}
 		if (retval instanceof ArrayReference

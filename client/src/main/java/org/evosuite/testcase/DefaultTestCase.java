@@ -578,6 +578,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
+		boolean isPrimitive = false;
+		if(type instanceof Class<?>) {
+			if(((Class<?>)type).isPrimitive())
+				isPrimitive = true;
+		}
 		for (int i = 0; i < position && i < size(); i++) {
 			Statement statement = statements.get(i);
 			if(statement instanceof MethodStatement) {
@@ -623,7 +628,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				}
 			} else if (value instanceof ArrayIndex) {
 				// Don't need to add this because array indices are created for array statement
-			} else if (value.isAssignableTo(type)) {
+			} else if (value.isAssignableTo(type) && value.isPrimitive() == isPrimitive) {
 				variables.add(value);
 			} else {
 				addFields(variables, value, type);
@@ -650,6 +655,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 			else if (getStatement(var.getStPosition()) instanceof PrimitiveStatement)
 				iterator.remove();
 			else if (var.isPrimitive() || var.isWrapperType())
+				iterator.remove();
+			else if(this.getStatement(var.getStPosition()) instanceof FunctionalMockStatement)
 				iterator.remove();
 		}
 		if (variables.isEmpty())
@@ -955,7 +962,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void remove(int position) {
-		logger.debug("Removing statement " + position);
+		logger.debug("Removing statement {}", position);
 		if (position >= size()) {
 			return;
 		}

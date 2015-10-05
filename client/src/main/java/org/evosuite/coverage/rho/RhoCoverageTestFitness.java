@@ -104,6 +104,40 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 		return 0;
 	}
 
+	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((coverage_matrix_generated_so_far == null) ? 0 : coverage_matrix_generated_so_far.hashCode());
+		result = prime * result + previous_number_of_ones;
+		result = prime * result + previous_number_of_test_cases;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RhoCoverageTestFitness other = (RhoCoverageTestFitness) obj;
+		if (coverage_matrix_generated_so_far == null) {
+			if (other.coverage_matrix_generated_so_far != null)
+				return false;
+		} else if (!coverage_matrix_generated_so_far.equals(other.coverage_matrix_generated_so_far))
+			return false;
+		if (previous_number_of_ones != other.previous_number_of_ones)
+			return false;
+		if (previous_number_of_test_cases != other.previous_number_of_test_cases)
+			return false;
+		return true;
+	}
+
 	@Override
 	public String getTargetClass() {
 		// TODO Auto-generated method stub

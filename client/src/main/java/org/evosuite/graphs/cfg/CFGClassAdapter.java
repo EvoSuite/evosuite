@@ -20,6 +20,7 @@
 package org.evosuite.graphs.cfg;
 
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -65,7 +66,12 @@ public class CFGClassAdapter extends ClassVisitor {
 	@Override
 	public void visit(int version, int access, String name, String signature,
 	        String superName, String[] interfaces) {
+		if((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL) {
+			RemoveFinalClassAdapter.finalClasses.add(name.replace('/', '.'));
+		}
+
 		// We are removing final access to allow mocking
+		// TODO: Is this redundant wrt RemoveFinalClassAdapter?
 		super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
 		if (superName.equals("java/lang/Enum"))
 			isEnum = true;

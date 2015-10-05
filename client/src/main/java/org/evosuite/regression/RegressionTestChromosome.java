@@ -34,6 +34,7 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -163,7 +164,24 @@ public class RegressionTestChromosome extends TestChromosome {
 	public void mutate() {
 		theTest.mutate();
 		if (theTest.isChanged())
+		{
+			try{
 			updateClassloader();
+			} catch (NoClassDefFoundError e) {
+				String classname = e.getMessage();
+				if (classname != null) {
+					// TODO: blacklist class
+				}
+				TestCase t = new DefaultTestCase(); 
+				theTest.setTestCase(t);
+				updateClassloader();
+				return;
+			} catch (Error e) {
+				return;
+			} catch (Throwable e) {
+				return;
+			}
+		}
 	}
 
 	/* (non-Javadoc)

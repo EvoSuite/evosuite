@@ -334,6 +334,10 @@ public class TestCodeVisitor extends TestVisitor {
         }
 
 		if (var instanceof ConstantValue) {
+			ConstantValue cval = (ConstantValue)var;
+			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
+				getClassName((Class<?>)cval.getValue());
+			}
 			return var.getName();
 		} else if (var instanceof InputVariable) {
 			return var.getName();
@@ -1104,18 +1108,105 @@ public class TestCodeVisitor extends TestVisitor {
 
 			List<VariableReference> params = st.getParameters(md.getID());
 
-			Type[] types = new Type[params.size()];
-			for(int i=0; i<types.length; i++){
-				types[i] = md.getMethod().getReturnType();
-			}
+			Class<?> returnType = md.getMethod().getReturnType();
 
-			String parameter_string = getParameterString(types,params, false, false, 0);//TODO unsure of these parameters
+			String parameter_string;
+
+			if(! returnType.isPrimitive()) {
+				Type[] types = new Type[params.size()];
+				for (int i = 0; i < types.length; i++) {
+					types[i] = md.getMethod().getReturnType();
+				}
+
+				parameter_string = getParameterString(types, params, false, false, 0);//TODO unsure of these parameters
+			} else {
+
+				//if return type is a primitive, then things can get complicated due to autoboxing :(
+
+				parameter_string = getParameterStringForFMthatReturnPrimitive(returnType, params);
+			}
 
 			result += parameter_string + " );"+NEWLINE;
 		}
 
 		testCode += result;
 	}
+
+	private String getParameterStringForFMthatReturnPrimitive(Class<?> returnType, List<VariableReference> parameters) {
+
+		assert returnType.isPrimitive();
+		String parameterString = "";
+
+		for (int i = 0; i < parameters.size(); i++) {
+			if (i > 0) {
+				parameterString += ", ";
+			}
+			String name = getVariableName(parameters.get(i));
+			Class<?> parameterType = parameters.get(i).getVariableClass();
+
+			if(returnType.equals(parameterType)){
+				parameterString += name;
+				continue;
+			}
+
+			GenericClass parameterClass = new GenericClass(parameterType);
+			if (parameterClass.isWrapperType()){
+
+				boolean isRightWrapper = false;
+
+				if(Integer.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Integer.TYPE);
+				} else if(Character.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Character.TYPE);
+				} else if(Boolean.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Boolean.TYPE);
+				} else if(Float.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Float.TYPE);
+				} else if(Double.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Double.TYPE);
+				} else if(Long.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Long.TYPE);
+				} else if(Short.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Short.TYPE);
+				} else if(Byte.class.equals(parameterClass)) {
+					isRightWrapper = returnType.equals(Byte.TYPE);
+				}
+
+				if(isRightWrapper){
+					parameterString += name;
+					continue;
+				}
+			}
+
+			//if we arrive here, it means types are different and not a right wrapper (eg Integer for int)
+			parameterString += "(" + returnType.getName() +")" + name;
+
+			if (parameterClass.isWrapperType()){
+				if(Integer.class.equals(parameterClass)) {
+					parameterString += ".intValue()";
+				} else if(Character.class.equals(parameterClass)) {
+					parameterString += ".charValue()";
+				} else if(Boolean.class.equals(parameterClass)) {
+					parameterString += ".booleanValue()";
+				} else if(Float.class.equals(parameterClass)) {
+					parameterString += ".floatValue()";
+				} else if(Double.class.equals(parameterClass)) {
+					parameterString += ".doubleValue()";
+				} else if(Long.class.equals(parameterClass)) {
+					parameterString += ".longValue()";
+				} else if(Short.class.equals(parameterClass)) {
+					parameterString += ".shortValue()";
+				} else if(Byte.class.equals(parameterClass)) {
+					parameterString += ".byteValue()";
+				}
+			}
+		}
+
+
+		return parameterString; 
+	}
+
+
 
 	/*
 	 * (non-Javadoc)

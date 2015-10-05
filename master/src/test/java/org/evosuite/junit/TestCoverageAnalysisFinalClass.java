@@ -54,8 +54,8 @@ public class TestCoverageAnalysisFinalClass extends SystemTest {
         Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
 
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
-        assertEquals(0, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
-        assertEquals(0.0, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
+        assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
+        assertEquals(1, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
 
         // check coverage matrix

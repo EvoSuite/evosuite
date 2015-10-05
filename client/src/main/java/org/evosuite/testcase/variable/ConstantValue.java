@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.NumberFormatter;
 
@@ -75,6 +76,17 @@ public class ConstantValue extends VariableReferenceImpl {
 		ret.setValue(value);
 		return ret;
 	}
+	
+	@Override
+	public VariableReference clone(TestCase newTestCase) {		
+		Statement st = newTestCase.getStatement(getStPosition());
+		for(VariableReference var : st.getVariableReferences()) {
+			if(same(var)) {
+				return var;
+			}
+		}
+		throw new IllegalArgumentException("Constant value not defined in new test");
+	}
 
 	private Object value;
 
@@ -121,13 +133,12 @@ public class ConstantValue extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		if(value == null)
+		if(value == null) {
 			return "null";
-		//else if(value instanceof String && ((String)value).endsWith(".class")){
-        //    return value.toString();
-        //} 
-		else if(value instanceof Class<?>){
-            return ((Class<?>)value).getName()+".class";
+		} else if(value instanceof Class<?>){
+			Class<?> cl = (Class<?>)value;
+			String name = cl.getSimpleName();
+            return name + ".class";
         } 
 		return NumberFormatter.getNumberString(value);
 	}

@@ -20,7 +20,12 @@
 package org.evosuite.testcase.statements;
 
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.NonInstrumentingClassLoader;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -34,9 +39,12 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
+import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Test;
+import sun.misc.ClassLoaderUtil;
 
+import java.io.File;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -108,7 +116,184 @@ public class FunctionalMockStatementTest {
         return scope;
     }
 
+    static class PackageLevel{
+        PackageLevel(){}
+    }
+
     //----------------------------------------------------------------------------------
+
+
+    @Test
+    public void testConfirmCast(){
+
+        //note: TypeUtils can give different results because it takes autoboxing into account
+
+        assertTrue(TypeUtils.isAssignable(Integer.class, Integer.TYPE));
+        assertTrue(TypeUtils.isAssignable(Integer.TYPE, Integer.class));
+        assertFalse(Integer.TYPE.isAssignableFrom(Integer.class));
+        assertFalse(Integer.class.isAssignableFrom(Integer.TYPE));
+
+
+        assertFalse(Integer.TYPE.isAssignableFrom(Character.TYPE));
+        assertFalse(TypeUtils.isAssignable(Integer.TYPE, Character.TYPE));
+
+        assertFalse(Character.TYPE.isAssignableFrom(Integer.TYPE));
+        assertTrue(TypeUtils.isAssignable(Character.TYPE, Integer.TYPE)); //DIFFERENT
+
+        assertFalse(Character.class.isAssignableFrom(Integer.TYPE));
+        assertTrue(TypeUtils.isAssignable(Character.class, Integer.TYPE)); //DIFFERENT
+
+        assertFalse(Character.class.isAssignableFrom(Integer.class));
+        assertFalse(TypeUtils.isAssignable(Character.class, Integer.class));
+
+        assertTrue(Integer.TYPE.isPrimitive());
+        assertFalse(Integer.class.isPrimitive());
+
+
+        char c = 'c'; //99
+        int i = c;
+
+        assertEquals(99, i);
+
+        Object aInt = i;
+        Object aInteger = Integer.valueOf(7);
+
+        Assert.assertTrue(aInt.getClass().equals(Integer.class));
+        Assert.assertTrue(aInt.getClass().equals(aInteger.getClass()));
+
+        Object aChar = c;
+        Assert.assertTrue(aChar.getClass().equals(Character.class));
+
+        //just recall the two diverge
+        assertTrue(TypeUtils.isAssignable(aChar.getClass(), Integer.TYPE));
+        assertFalse(Integer.TYPE.isAssignableFrom(aChar.getClass()));
+
+        Object casted = null;
+        try {
+            casted = Integer.TYPE.cast(aChar);
+            fail();
+        } catch (Exception e){
+            //expected: cannot do direct cast from "Character" to "int"
+        }
+
+        try {
+            casted = Integer.TYPE.cast(((Character) aChar).charValue());
+            fail();
+        } catch (Exception e){
+            //expected: "cast" takes an Object as input, so it does autoboxing :(
+        }
+
+        casted = (int) ((Character) aChar).charValue();
+
+        assertTrue(casted.getClass().equals(Integer.class));
+    }
+
+    @Test
+    public void testAvoidMockingEnvironment(){
+        final boolean defaultValue = RuntimeSettings.useVFS;
+        RuntimeSettings.useVFS = true;
+
+        try {
+            Assert.assertFalse(FunctionalMockStatement.canBeFunctionalMocked(File.class));
+        } catch(Throwable t){
+            RuntimeSettings.useVFS = defaultValue;
+        }
+    }
+
+
+    @Test
+    public void testPackageLevel_local()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        VariableReference ref = new VariableReferenceImpl(tc, PackageLevel.class);
+
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, PackageLevel.class);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
+    }
+
+
+    @Test
+    public void testPackageLevel_differentPackage()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        Class<?> example = Class.forName("com.examples.with.different.packagename.fm.ExamplePackageLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
+    }
+
+    @Test
+    public void testPackageLevel_differentPackage_instrumentation_package()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        InstrumentingClassLoader loader = new InstrumentingClassLoader();
+        Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePackageLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
+    }
+
+    @Test
+    public void testPackageLevel_differentPackage_nonInstrumentation_package()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
+        Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePackageLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+
+        try {
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            fail();
+        } catch (java.lang.IllegalArgumentException e){
+            //expected
+        }
+
+        //tc.addStatement(mockStmt);
+        //execute(tc);
+    }
+
+    @Test
+    public void testPackageLevel_differentPackage_instrumentation_public()  throws Exception{
+        TestCase tc = new DefaultTestCase();
+
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        InstrumentingClassLoader loader = new InstrumentingClassLoader();
+        Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePublicLevel");
+
+        VariableReference ref = new VariableReferenceImpl(tc, example);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+
+        tc.addStatement(mockStmt);
+        execute(tc);
+    }
 
     @Test
     public void testLimit() throws Exception{
