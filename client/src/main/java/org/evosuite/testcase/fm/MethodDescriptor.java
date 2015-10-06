@@ -23,7 +23,8 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.execution.EvosuiteError;
-import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericMethod;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,6 +205,10 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         this.methodName = methodName;
         this.inputParameterMatchers = inputParameterMatchers;
         counter = 0;
+    }
+    
+    public GenericMethod getGenericMethodFor(GenericClass clazz) {
+    	return new GenericMethod(method, clazz);
     }
 
     public Method getMethod(){
