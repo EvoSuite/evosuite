@@ -499,15 +499,17 @@ public class TestSuiteGenerator {
 			if (!RegressionSearchListener.statsID.equals("")) {
 				File evosuiterTestDir = new File("evosuiter-stats");
 
+				boolean madeDir = false;
 				if (!evosuiterTestDir.exists() || !evosuiterTestDir.isDirectory()) {
-					evosuiterTestDir.mkdirs();
+					madeDir = evosuiterTestDir.mkdirs();
 				}
-
-				String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
-				
-				LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
-
-				suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+				if(madeDir){
+					String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
+					
+					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
+	
+					suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+				}
 			}
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
