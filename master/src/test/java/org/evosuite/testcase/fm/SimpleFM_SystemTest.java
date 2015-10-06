@@ -66,6 +66,24 @@ public class SimpleFM_SystemTest extends SystemTest{
 
         do100percentLineTest(SimpleFM_GenericReturn.class);
     }
+    
+    @Test
+    public void testSimplePLM(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        do100percentLineTest(SimpleFM_PackageMethod.class);
+    }
+
+    @Test
+    public void testSimplePLMwithReturn(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        do100percentLineTest(SimpleFM_PackageMethodWithReturn.class);
+    }
 
     @Test
     public void testSimpleNonFinal(){

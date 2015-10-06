@@ -38,6 +38,7 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
+import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -115,6 +116,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
     private volatile EvoInvocationListener listener;
 
+    private transient Method mockCreator;
+
 
     public FunctionalMockStatement(TestCase tc, VariableReference retval, Class<?> targetClass) throws IllegalArgumentException {
         super(tc, retval);
@@ -124,7 +127,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
         methodParameters = new LinkedHashMap<>();
         checkTarget();
         assert parameters.isEmpty();
+        //setUpMockCreator();
     }
+
 
     public FunctionalMockStatement(TestCase tc, Type retvalType, Class<?> targetClass) throws IllegalArgumentException {
         super(tc, retvalType);
@@ -140,6 +145,19 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
         methodParameters = new LinkedHashMap<>();
         checkTarget();
         assert parameters.isEmpty();
+        //setUpMockCreator();
+    }
+
+    private void setUpMockCreator(){
+        ClassLoader loader = targetClass.getClassLoader();
+        try {
+            Class<?> mockito = loader.loadClass(Mockito.class.getName());
+            mockCreator = mockito.getDeclaredMethod("mock",
+                    loader.loadClass(Class.class.getName()), loader.loadClass(MockSettings.class.getName()));
+
+        } catch (Exception e) {
+            logger.error("Failed to setup mock creator: "+e.getMessage());
+        }
     }
 
     @Override
@@ -508,7 +526,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     Object ret;
                     try {
                         logger.debug("Mockito: create mock for {}",targetClass);
+
                         ret = mock(targetClass, withSettings().invocationListeners(listener));
+                        //ret = mockCreator.invoke(null,targetClass,withSettings().invocationListeners(listener));
 
                         //execute all "when" statements
                         int index = 0;
@@ -523,6 +543,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             }
 
                             Method method = md.getMethod(); //target method, eg foo.aMethod(...)
+
                             // this is needed if method is protected: it couldn't be called here, although fine in
                             // the generated JUnit tests
                             method.setAccessible(true);
@@ -548,10 +569,17 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                             //actual call foo.aMethod(...)
                             Object targetMethodResult;
-                            if(targetInputs.length==0){
-                                targetMethodResult = method.invoke(ret);
-                            } else {
-                                targetMethodResult = method.invoke(ret, targetInputs);
+
+                            try {
+                                if (targetInputs.length == 0) {
+                                    targetMethodResult = method.invoke(ret);
+                                } else {
+                                    targetMethodResult = method.invoke(ret, targetInputs);
+                                }
+                            } catch (InvocationTargetException e){
+                                logger.error("Invocation of mocked {}.{}() threw an exception. " +
+                                        "This means the method was not mocked",targetClass.getName(), method.getName());
+                                throw e;
                             }
 
                             //when(...)
@@ -594,7 +622,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                     } catch (CodeUnderTestException e){
                         throw e;
-                    }catch (Throwable t) {
+                    } catch (Throwable t) {
                         LoggingUtils.logErrorAtMostOnce(logger, "Failed to use Mockito on " + targetClass + ": " + t.getMessage());
                         throw new EvosuiteError(t);
                     }
