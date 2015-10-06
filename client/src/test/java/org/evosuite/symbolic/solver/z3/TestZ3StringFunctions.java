@@ -86,6 +86,20 @@ public class TestZ3StringFunctions {
 	}
 
 	@Test
+	public void testStringEqualsIgnoreCase() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+
+		if (Properties.Z3_PATH == null) {
+			System.out
+					.println("Warning: z3_path should be configured to execute this test case");
+			return;
+		}
+
+		Z3Solver solver = new Z3Solver();
+		TestSolverStringFunctions.testStringEqualsIgnoreCase(solver);
+	}
+
+	@Test
 	public void testStringAppendString() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
 
