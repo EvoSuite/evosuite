@@ -24,7 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class ShorterNames {
-	protected String[] minimizePair(String name1, String name2, List<String> nameList){		
+	protected String[] minimizePair(String name1, String name2, List<String> nameList){	
+		//System.out.println(name1+"-"+name2);
 		List<String> list1 = new ArrayList(Arrays.asList(name1.split("_")));
 		List<String> list2 = new ArrayList(Arrays.asList(name2.split("_")));
 		List<String> union = new ArrayList<String>(list1);
@@ -72,6 +73,8 @@ public abstract class ShorterNames {
 			}
 		}
 		String [] result= {nameFirst, nameSecond};
+		System.out.println(nameFirst);
+		System.out.println(nameSecond);
 		return result;    			
 	}
 }

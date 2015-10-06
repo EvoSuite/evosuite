@@ -122,13 +122,14 @@ public class SimplifyMethodNames extends ShorterNames{
 			for (int j=i+1; j<nameList.length; j++){
 				if(nameList[i].equals(nameList[j])){
 					String[] tokens= nameList[j].split("_");
-					nameList[j]=nameList[j].replace(tokens[0], tokens[0]+temp);
+					//nameList[j]=nameList[j].replace(tokens[0], tokens[0]+temp);
+					nameList[j]=nameList[j]+temp;
 					temp++;
 				}
 			}
 			if(temp>1){
 				String[] tokens= nameList[i].split("_");
-				nameList[i]=nameList[i].replace(tokens[0], tokens[0]+"0");
+				nameList[i]=nameList[i]+"0";
 			}
 		}
 		return nameList;
