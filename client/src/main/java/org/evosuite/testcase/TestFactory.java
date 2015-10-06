@@ -157,7 +157,7 @@ public class TestFactory {
 		}
 
 		//TODO this needs to be fixed once we handle Generics in mocks
-		FunctionalMockStatement fms = new FunctionalMockStatement(test,type,new GenericClass(type).getRawClass());
+		FunctionalMockStatement fms = new FunctionalMockStatement(test, type, new GenericClass(type).getRawClass());
 		VariableReference ref = test.addStatement(fms, position);
 
 		//note: when we add a new mock, by default it will have no parameter at the beginning
