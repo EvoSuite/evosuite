@@ -54,11 +54,12 @@ public class TestIDNaming extends SystemTest {
         analysisCriteria.append(Properties.Criterion.BRANCH);
         Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
         
-        Properties.CRITERION = new Properties.Criterion[4];
+        Properties.CRITERION = new Properties.Criterion[5];
         Properties.CRITERION[0] = Properties.Criterion.METHOD;
         Properties.CRITERION[1] = Properties.Criterion.OUTPUT;
         Properties.CRITERION[2] = Properties.Criterion.INPUT;
         Properties.CRITERION[3] = Properties.Criterion.BRANCH;
+        Properties.CRITERION[4] = Properties.Criterion.EXCEPTION;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
