@@ -132,6 +132,14 @@ public class FunctionalMockStatementTest {
 
     //----------------------------------------------------------------------------------
 
+
+    @Test
+    public void testAClassWithPLMethod(){
+
+        //FIXME once we support it
+        assertFalse(FunctionalMockStatement.canBeFunctionalMocked(AClassWithPLMethod.class));
+    }
+
     @Test
     public void testConfirmPackageLevel() throws Exception{
 

@@ -211,6 +211,15 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
+        //FIXME: tmp fix to avoid mocking any class with private access methods
+        for(Method m : rawClass.getDeclaredMethods()){
+            if(! Modifier.isPublic(m.getModifiers()) && ! Modifier.isProtected(m.getModifiers()) &&
+                    ! Modifier.isPrivate(m.getModifiers()) ){
+                //package level
+                return false;
+            }
+        }
+
         return true;
     }
 
