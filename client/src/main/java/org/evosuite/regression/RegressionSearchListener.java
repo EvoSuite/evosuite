@@ -221,6 +221,9 @@ public class RegressionSearchListener implements SearchListener {
 			char runState, RegressionTestSuiteChromosome ind,
 			int curAssertions, double curOD) throws IOException {
 		
+		if(skipWritingStats)
+			return;
+		
 		lastLine = "\r\n"
 				+ (ind).fitnessData
 				+ ","
@@ -241,7 +244,7 @@ public class RegressionSearchListener implements SearchListener {
 						/ 1000000 + "," + (odCollectionTime + 1) / 1000000)
 						: ",,,,,,");
 		
-		if(!skipWritingStats && (!Properties.MINIMIZE || !isLastRun)){
+		if(!Properties.MINIMIZE || !isLastRun){
 			statsFileWriter.write(lastLine);
 			lastLine = "";
 		}
