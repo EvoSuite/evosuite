@@ -28,8 +28,6 @@ import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
@@ -42,15 +40,11 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Assert;
 import org.junit.Test;
-import sun.misc.ClassLoaderUtil;
 
 import java.io.File;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by Andrea Arcuri on 06/08/15.
