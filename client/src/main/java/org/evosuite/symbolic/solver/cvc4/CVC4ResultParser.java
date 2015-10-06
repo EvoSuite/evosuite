@@ -27,7 +27,6 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,12 +176,23 @@ final class CVC4ResultParser {
 					token = tokenizer.nextToken();
 					StringBuffer value = new StringBuffer();
 
-					String stringToken;
-					do {
-						stringToken = tokenizer.nextToken();
-						value.append(stringToken);
-					} while (!stringToken.endsWith("\""));
+					while (!token.startsWith("\"")) { // move until \" is found
+						token = tokenizer.nextToken();
 
+					}
+
+					value.append(token);
+					if (!token.substring(1).endsWith("\"")) {
+						String stringToken;
+						do {
+							if (!tokenizer.hasMoreTokens()) {
+								System.out.println("Error!");
+							}
+							stringToken = tokenizer.nextToken();
+							value.append(stringToken);
+						} while (!stringToken.endsWith("\"")); // append until
+																// \" is found
+					}
 					String stringWithQuotes = value.toString();
 					String stringWithoutQuotes = stringWithQuotes.substring(1, stringWithQuotes.length() - 1);
 					solution.put(fun_name, stringWithoutQuotes);
