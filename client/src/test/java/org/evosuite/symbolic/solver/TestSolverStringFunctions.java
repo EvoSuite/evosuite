@@ -44,6 +44,7 @@ import com.examples.with.different.packagename.solver.TestCaseStringConcat;
 import com.examples.with.different.packagename.solver.TestCaseStringContains;
 import com.examples.with.different.packagename.solver.TestCaseStringEndsWith;
 import com.examples.with.different.packagename.solver.TestCaseStringEquals;
+import com.examples.with.different.packagename.solver.TestCaseStringEqualsIgnoreCase;
 import com.examples.with.different.packagename.solver.TestCaseStringIndexOfChar;
 import com.examples.with.different.packagename.solver.TestCaseStringIndexOfCharInt;
 import com.examples.with.different.packagename.solver.TestCaseStringIndexOfString;
@@ -115,7 +116,17 @@ public class TestSolverStringFunctions {
 		tc.appendMethod(null, method, string0);
 		return tc.getDefaultTestCase();
 	}
+	
+	private static DefaultTestCase buildTestEqualsIgnoreCase() throws SecurityException,
+	NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("Hello World");
 
+		Method method = TestCaseStringEqualsIgnoreCase.class.getMethod("test",
+				String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
 
 	private static DefaultTestCase buildTestNotEquals()
 			throws SecurityException, NoSuchMethodException {
@@ -233,6 +244,18 @@ public class TestSolverStringFunctions {
 			SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestEquals();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solve(solver,constraints);
+
+		return solution;
+	}
+	
+	public static Map<String, Object> testStringEqualsIgnoreCase(Solver solver)
+			throws SecurityException, NoSuchMethodException,
+			SolverTimeoutException {
+
+		DefaultTestCase tc = buildTestEqualsIgnoreCase();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
 				.execute(tc);
 		Map<String, Object> solution = solve(solver,constraints);
