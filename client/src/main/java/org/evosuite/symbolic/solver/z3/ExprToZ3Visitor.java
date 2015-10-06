@@ -490,15 +490,12 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		Operator op = e.getOperator();
 
 		switch (op) {
-		case EQUALSIGNORECASE: {
-			throw new UnsupportedOperationException(
-					"Must implement equalsIgnoreCase()!");
-		}
 		case STARTSWITH: {
 			throw new IllegalArgumentException(
 					"Illegal StringBinaryComparison operator " + op);
 		}
 		case ENDSWITH:
+		case EQUALSIGNORECASE: 
 		case EQUALS:
 		case CONTAINS:
 		case REGIONMATCHES:
