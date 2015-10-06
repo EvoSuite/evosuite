@@ -59,6 +59,7 @@ import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
@@ -943,6 +944,18 @@ public class TestClusterGenerator {
 
 			logger.debug("Adding dependency " + parameterClass.getClassName());
 			addDependency(parameterClass, recursionLevel);
+			
+		}
+
+		// If mocking is enabled, also return values are dependencies
+		// as we might attempt to mock the method
+		//
+		// Only look at the return values of direct dependencies as the
+		// number of dependencies otherwise might explode
+		if(Properties.P_FUNCTIONAL_MOCKING > 0 && recursionLevel == 1) {
+			GenericClass returnClass = method.getGeneratedClass();			
+			if (!returnClass.isPrimitive() && !returnClass.isString())
+				addDependency(returnClass, recursionLevel);
 		}
 
 	}
