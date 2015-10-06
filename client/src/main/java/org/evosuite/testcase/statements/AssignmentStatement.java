@@ -139,6 +139,10 @@ public class AssignmentStatement extends AbstractStatement {
 				try {
 					final Object value = parameter.getObject(scope);
 
+					if (checkNullDereference(scope)) {
+						throw new CodeUnderTestException(new NullPointerException());
+					}
+					
 					retval.setObject(scope, value);
 					//} catch (CodeUnderTestException e) {
 					//	throw CodeUnderTestException.throwException(e.getCause());
@@ -158,6 +162,31 @@ public class AssignmentStatement extends AbstractStatement {
 				} catch (Throwable e) {
 					throw new EvosuiteError(e);
 				}
+			}
+
+			/**
+			 * Returns true of the retval of the assignment is a field reference (i.e. expr.f) 
+			 * such that expr==null
+			 * 
+			 * @param scope
+			 * @return
+			 * @throws CodeUnderTestException (cause is NullPointerException)
+			 */
+			private boolean checkNullDereference(final Scope scope) throws CodeUnderTestException {
+				if (retval instanceof FieldReference) {
+					FieldReference fieldRef = (FieldReference)retval;
+					
+					if (fieldRef.getField().isStatic()) {
+						return false;
+					}
+					
+					VariableReference source = fieldRef.getSource();
+					Object sourceValue = source.getObject(scope);
+					if (sourceValue==null) {
+						return true;
+					}
+				}
+				return false;
 			}
 
 			@Override

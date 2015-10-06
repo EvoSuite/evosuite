@@ -65,6 +65,8 @@ public class RegressionSearchListener implements SearchListener {
 	public static int lastAssertions = -1;
 	public static boolean lastIterationSuccessful = false;
 	
+	public static boolean skipWritingStats = false;
+	
 	public double lastFitnessObserved = Double.MAX_VALUE;
 
 	/*
@@ -107,7 +109,11 @@ public class RegressionSearchListener implements SearchListener {
 			statsFileWriter.write(data);
 			statsFileWriter.flush();
 		} catch (IOException e) {
+			skipWritingStats = true;
 			e.printStackTrace();
+		} catch(Throwable t){
+			// something happened, we don't care :-)
+			t.printStackTrace();
 		}
 		startTime = System.currentTimeMillis();
 	}
@@ -194,6 +200,9 @@ public class RegressionSearchListener implements SearchListener {
 		if (lastLine == "")
 			return;
 		
+		if(skipWritingStats)
+			return;
+		
 		lastLine = lastLine.replace("ASSERTIONS", "" + assertions);
 		lastLine = lastLine.replaceFirst("^\r\n([\\d\\.]*),\\d*,\\d*", "\r\n$1," + testCount + "," + testSize);
 		try {
@@ -202,6 +211,9 @@ public class RegressionSearchListener implements SearchListener {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch(Throwable t){
+			// something happened, we don't care :-)
+			t.printStackTrace();
 		}
 	}
 
@@ -229,7 +241,7 @@ public class RegressionSearchListener implements SearchListener {
 						/ 1000000 + "," + (odCollectionTime + 1) / 1000000)
 						: ",,,,,,");
 		
-		if(!Properties.MINIMIZE || !isLastRun){
+		if(!skipWritingStats && (!Properties.MINIMIZE || !isLastRun)){
 			statsFileWriter.write(lastLine);
 			lastLine = "";
 		}
@@ -358,7 +370,7 @@ public class RegressionSearchListener implements SearchListener {
 		}
 		
 		try {
-			if(!Properties.MINIMIZE)
+			if(!Properties.MINIMIZE && !skipWritingStats)
 				statsFileWriter.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

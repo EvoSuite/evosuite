@@ -737,10 +737,6 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 					oneConstant, zeroConstant);
 			return ifThenElseFormula;
 		}
-		case EQUALSIGNORECASE: {
-			throw new UnsupportedOperationException(
-					"Must implement equalsIgnoreCase()!");
-		}
 		case ENDSWITH: {
 			SmtExpr endsWithExpr = SmtExprBuilder.mkStrSuffixOf(right, left);
 			SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(endsWithExpr,
@@ -776,6 +772,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 				return iteExpr;
 			}
 		}
+		case EQUALSIGNORECASE:
 		case REGIONMATCHES:
 		case APACHE_ORO_PATTERN_MATCHES: {
 			long longValue = e.getConcreteValue();
