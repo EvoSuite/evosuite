@@ -35,7 +35,6 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
@@ -347,7 +346,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
             //check if rather more calls
             if (existingParameters < md.getCounter()) {
-                Class<?> returnType = md.getMethod().getReturnType();
+                Type returnType = md.getGenericMethodFor(retval.getGenericClass()).getGeneratedType();                
                 assert !returnType.equals(Void.TYPE);
 
                 for (int i = existingParameters; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
@@ -468,8 +467,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
 
         FunctionalMockStatement copy = new FunctionalMockStatement(
-                //TODO: handle generics in the type of VarRef
-                newTestCase, new VariableReferenceImpl(newTestCase, targetClass), targetClass);
+                newTestCase, retval.getType(), targetClass);
 
         for (VariableReference r : this.parameters) {
             copy.parameters.add(r.copy(newTestCase, offset));
@@ -723,5 +721,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
         }
 
         return true;
+    }
+    
+    @Override
+    public String toString() {
+    	return "mock(" + retval.getType() +")";
     }
 }

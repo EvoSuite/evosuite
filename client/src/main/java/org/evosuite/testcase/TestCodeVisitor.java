@@ -1072,11 +1072,12 @@ public class TestCodeVisitor extends TestVisitor {
 
 		VariableReference retval = st.getReturnValue();
 
-		boolean unused = test!=null && !test.hasReferences(retval);
-		if(unused){
-			//no point whatsoever in creating a mock that is never used
-			return;
-		}
+		// If it is not used, then minimizer will delete the statement anyway
+//		boolean unused = test!=null && !test.hasReferences(retval);
+//		if(unused){
+//			//no point whatsoever in creating a mock that is never used
+//			return;
+//		}
 
 		String result = "";
 
