@@ -509,7 +509,7 @@ public class TestSuiteGenerator {
 					
 					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
 	
-					suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+					suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), false);
 				}
 			}
 		}
