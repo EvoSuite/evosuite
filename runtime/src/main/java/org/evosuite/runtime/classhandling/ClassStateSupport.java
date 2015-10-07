@@ -27,6 +27,7 @@ import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +134,7 @@ public class ClassStateSupport {
 				classes.add(aClass);
 
 			} catch (Exception | Error ex) {
-				logger.error("Could not initialize " + classNameToLoad+": "+ex.getMessage());
+				AtMostOnceLogger.error(logger,"Could not initialize " + classNameToLoad + ": " + ex.getMessage());
 			} finally {
 				if(!safe){
 					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
