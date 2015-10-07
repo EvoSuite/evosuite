@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,11 +83,6 @@ public class LoggingUtils {
 	private final ExecutorService logConnections = Executors.newSingleThreadExecutor();
 	private final ExecutorService logHandler = Executors.newCachedThreadPool();
 
-	/**
-	 * Keep tracks of messages that should be log only once.
-	 *	Note: yes, this is a static field, but has no impact on test generation, so not a big deal
-	 */
-	private static final Map<Logger, Set<String>> atMostOnceLogs = new ConcurrentHashMap();
 
 	/**
 	 * <p>
@@ -96,32 +92,26 @@ public class LoggingUtils {
 	public LoggingUtils() {
 	}
 
-	private static synchronized void logAtMostOnce(Logger logger, String message, boolean error){
-		Inputs.checkNull(logger,message);
-
-		Set<String> previous = atMostOnceLogs.get(logger);
-		if(previous == null){
-			previous = new LinkedHashSet<>();
-			atMostOnceLogs.put(logger, previous);
-		}
-
-		if(!previous.contains(message)){
-			previous.add(message);
-
-			if(error){
-				logger.error(message);
-			} else {
-				logger.warn(message);
-			}
-		}
-	}
-
+	/**
+	 * Rather use AtMostOnceLogger directly
+	 *
+	 * @param logger
+	 * @param message
+	 */
+	@Deprecated
 	public static void logWarnAtMostOnce(Logger logger, String message){
-		logAtMostOnce(logger,message,false);
+		AtMostOnceLogger.warn(logger,message);
 	}
 
+	/**
+	 * Rather use AtMostOnceLogger directly
+	 *
+	 * @param logger
+	 * @param message
+	 */
+	@Deprecated
 	public static void logErrorAtMostOnce(Logger logger, String message){
-		logAtMostOnce(logger,message, true);
+		AtMostOnceLogger.error(logger, message);
 	}
 
 	/**
