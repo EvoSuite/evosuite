@@ -21,6 +21,7 @@ package org.evosuite.coverage;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.examples.with.different.packagename.Calculator;
+import com.examples.with.different.packagename.PureEnum;
 import com.examples.with.different.packagename.mutation.MutationPropagation;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
@@ -168,5 +169,80 @@ public class TestCoveredGoalsCount extends SystemTest {
         assertEquals("1.0", rows.get(1)[2]); // Coverage
         assertEquals("24", rows.get(1)[3]); // Covered_Goals
         assertEquals("24", rows.get(1)[4]); // Total_Goals
+    }
+    
+    @Test
+    public void testCoveredGoalsCountCSV_SingleCriterionBranch_Enums() throws IOException {
+
+    	EvoSuite evosuite = new EvoSuite();
+
+    	String targetClass = PureEnum.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        Properties.CRITERION = new Properties.Criterion[] {
+        	Properties.Criterion.BRANCH
+        };
+        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals,BranchCoverage";
+        Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
+
+        String[] command = new String[] {
+    		"-class", targetClass,
+    		"-generateSuite"
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
+
+        String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
+        System.out.println("Statistics file " + statistics_file);
+
+        CSVReader reader = new CSVReader(new FileReader(statistics_file));
+        List<String[]> rows = reader.readAll();
+        assertTrue(rows.size() == 2);
+        reader.close();
+
+        assertEquals(targetClass, rows.get(1)[0]); // TARGET_CLASS
+        assertEquals("BRANCH", rows.get(1)[1]); // criterion
+        assertEquals("1.0", rows.get(1)[2]); // Coverage
+        assertEquals("0", rows.get(1)[3]); // Covered_Goals
+        assertEquals("0", rows.get(1)[4]); // Total_Goals
+        assertEquals("1.0", rows.get(1)[5]); // BranchCoverage
+    }
+    
+    @Test
+    public void testCoveredGoalsCountCSV_SingleCriterionBranch_Random_Enums() throws IOException {
+
+    	EvoSuite evosuite = new EvoSuite();
+
+    	String targetClass = PureEnum.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        Properties.CRITERION = new Properties.Criterion[] {
+        	Properties.Criterion.BRANCH
+        };
+        Properties.OUTPUT_VARIABLES="TARGET_CLASS,criterion,Coverage,Covered_Goals,Total_Goals";
+        Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
+
+        String[] command = new String[] {
+    		"-class", targetClass,
+    		"-generateRandom"
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
+
+        String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
+        System.out.println("Statistics file " + statistics_file);
+
+        CSVReader reader = new CSVReader(new FileReader(statistics_file));
+        List<String[]> rows = reader.readAll();
+        assertTrue(rows.size() == 2);
+        reader.close();
+
+        assertEquals(targetClass, rows.get(1)[0]); // TARGET_CLASS
+        assertEquals("BRANCH", rows.get(1)[1]); // criterion
+        assertEquals("1.0", rows.get(1)[2]); // Coverage
+        assertEquals("0", rows.get(1)[3]); // Covered_Goals
+        assertEquals("0", rows.get(1)[4]); // Total_Goals
     }
 }

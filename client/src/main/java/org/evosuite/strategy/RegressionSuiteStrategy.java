@@ -334,6 +334,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 					startTime = System.currentTimeMillis();
 					simulatedAge++;
+					if(!RegressionSearchListener.skipWritingStats){
 					RegressionSearchListener
 							.statsFileWriter.write(
 									"\r\n"
@@ -350,11 +351,16 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 											+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
 											+ "," + numAssertions + ","
 											+ (firstTry ? "F" : "P") + ",,,,,,");
-					firstTry = false;
+					
 					RegressionSearchListener
 					.statsFileWriter.flush();
+					}
+					firstTry = false;
 				} catch (Exception e) {
 					e.printStackTrace();
+				} catch(Throwable t){
+					// something happened, we don't care :-)
+					t.printStackTrace();
 				}
 			}
 		}
