@@ -37,13 +37,13 @@ import java.util.TimerTask;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -58,7 +58,6 @@ import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
-import org.evosuite.testcase.execution.EvosuiteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +103,7 @@ public final class CVC4Solver extends Solver {
 
 	@Override
 	public SolverResult solve(Collection<Constraint<?>> constraints)
-			throws SolverTimeoutException, SolverEmptyQueryException, SolverErrorException, SolverParseException {
+			throws SolverTimeoutException, SolverEmptyQueryException, SolverErrorException, SolverParseException, IOException {
 
 		if (Properties.CVC4_PATH == null) {
 			String errMsg = "Property CVC4_PATH should be setted in order to use the CVC4 Solver!";
@@ -192,7 +191,7 @@ public final class CVC4Solver extends Solver {
 			} else {
 				logger.error("IO Exception during launching of CVC4 command");
 			}
-			return null;
+			throw e;
 
 		}
 
