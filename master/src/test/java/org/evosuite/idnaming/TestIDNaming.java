@@ -52,6 +52,7 @@ public class TestIDNaming extends SystemTest {
         analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.INPUT); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.BRANCH);
+        analysisCriteria.append(Properties.Criterion.EXCEPTION);
         Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
         
         Properties.CRITERION = new Properties.Criterion[5];

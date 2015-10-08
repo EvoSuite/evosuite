@@ -23,6 +23,7 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
@@ -57,7 +58,7 @@ public class TestNameGenerator extends DistinguishNames {
 	private Map<TestCase,String> testBranches = new HashMap<TestCase, String>();
 	private Map<TestCase,String> testInputs = new HashMap<TestCase, String>();
 	private Map<TestCase,String> testComparisons= new HashMap<TestCase, String>();
-
+	private Map<TestCase,String> testExceptions = new HashMap<TestCase, String>();
     /**
      * Mapping from test case to test case name
      */
@@ -155,6 +156,7 @@ public class TestNameGenerator extends DistinguishNames {
 		String inputName="";
 		String branchName="";
 		String comparisonName="";
+		String exceptionName="";
 	
 		for (TestFitnessFunction goal : goals) {
   		  	String goalName = goal.toString();
@@ -194,13 +196,20 @@ public class TestNameGenerator extends DistinguishNames {
 								inputName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("))+"With"+
 									WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";	
 							}
+						}else {
+							if (goal instanceof ExceptionCoverageTestFitness) {
+								//exceptionName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("));
+								exceptionName+="_"+goalName.substring(0,goalName.indexOf("("))+
+										"Throwing"+goalName.substring(goalName.lastIndexOf(".")+1, goalName.lastIndexOf("_"));
+						  	}
 						}
 					}
 				}
 		  	}
 		}	
 		
-		methodName = methodName.replace("<","").replace(">","").replace("(","").replace(")","");
+		methodName = methodName.replace("<","").replace(">","").replace("(","").replace(")","");//+
+		exceptionName =	exceptionName.replace("<","").replace(">","").replace("(","").replace(")","");
 		outputName = outputName.replace("<","").replace(">","").replace("(","").replace(")","");
 		branchName = branchName.replace("<","").replace(">","").replace("(","").replace(")","");
 		inputName = inputName.replace("<","").replace(">","").replace("(","").replace(")","");
@@ -209,6 +218,7 @@ public class TestNameGenerator extends DistinguishNames {
 		testBranches.put(tc, branchName);
 		testInputs.put(tc, inputName);
 		testComparisons.put(tc,comparisonName);
+		testExceptions.put(tc, exceptionName);
 		if(methodName.equals("test")){			
 		//	methodName = checkAssertions(tc, methodName);
 			if(!outputName.equals("")){
@@ -221,7 +231,7 @@ public class TestNameGenerator extends DistinguishNames {
 				}
 			}
 		}
-	//	System.out.println(methodName);
+		System.out.println(methodName+"-"+exceptionName);
 		return methodName;
     }
 
@@ -290,7 +300,13 @@ public class TestNameGenerator extends DistinguishNames {
     		count++;
     	} 	*/
     	SimplifyMethodNames optimize = new SimplifyMethodNames();
-    	testName = optimize.optimizeNames(Arrays.asList(testName));  
+    	testName = optimize.optimizeNames(Arrays.asList(testName));
+    	for (int i=0; i<testName.length; i++) {        	           
+           testName[i] = testName[i] + testExceptions.get(testCs[i]); // TODO
+          
+        }    
+    	testName = optimize.minimizeNames(testName);
+    	testName = optimize.countSameNames(testName); 
     	int optimizeAgain = -1;
         for (int i=0; i<testName.length; i++) {        	           
             String testMethodNameOptimized = testName[i]; // TODO
@@ -318,7 +334,7 @@ public class TestNameGenerator extends DistinguishNames {
     int count=0;
     public String checkExeptionInTest(String tc, String testName) {
         String methodName = testName;
-        String typeOfException = "";
+      /*  String typeOfException = "";
         String[] tokens = testName.split("_");
         if (tokens.length == 1) {
             return testName;
@@ -336,9 +352,9 @@ public class TestNameGenerator extends DistinguishNames {
     				 methodName=tokens[0]+count+"_"+tokens[1]+"_"+typeOfException;
     				 count++;
     			}        		
-            }
+            }*/
             return methodName;
         }
-    }
+    
   
 }
