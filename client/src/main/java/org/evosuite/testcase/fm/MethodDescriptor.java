@@ -181,6 +181,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 return Mockito.anyInt();
             } else if (type.equals(Long.TYPE) || type.equals(Long.class)) {
                 return Mockito.anyLong();
+            } else if (type.equals(Boolean.TYPE) || type.equals(Boolean.class)) {
+                return Mockito.anyBoolean();
             } else if (type.equals(Double.TYPE) || type.equals(Double.class)) {
                 return Mockito.anyDouble();
             } else if (type.equals(Float.TYPE) || type.equals(Float.class)) {

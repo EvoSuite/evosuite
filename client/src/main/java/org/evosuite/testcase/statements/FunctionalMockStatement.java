@@ -595,6 +595,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 logger.error("Invocation of mocked {}.{}() threw an exception. " +
                                         "This means the method was not mocked",targetClass.getName(), method.getName());
                                 throw e;
+                            } catch (IllegalArgumentException e){
+                                logger.error("IAE on <"+method+"> when called with "+Arrays.toString(targetInputs));
+                                throw e;
                             }
 
                             //when(...)
@@ -685,12 +688,24 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (double) ((Integer)value).intValue();
                         } else if(valuesClass.equals(Float.class)){
                             value = (double) ((Float)value).floatValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (double) ((Byte)value).intValue();
+                        }
+                    }
+
+                    if(expectedType.equals(Float.TYPE)) {
+                        if(valuesClass.equals(Integer.class)){
+                            value = (float) ((Integer)value).intValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (float) ((Byte)value).intValue();
                         }
                     }
 
                     if(expectedType.equals(Long.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
                             value = (long) ((Integer)value).intValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (long) ((Byte)value).intValue();
                         }
                     }
 
