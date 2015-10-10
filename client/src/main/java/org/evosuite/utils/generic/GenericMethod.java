@@ -143,8 +143,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	public Type getReturnType() {
 		Type returnType = getExactReturnType(method, owner.getType());
 		if (returnType == null) {
-			LoggingUtils.getEvoLogger().info("Exact return type is null for " + method
-			                                         + " with owner " + owner);
+			LoggingUtils.getEvoLogger().info("Exact return type is null for {} with owner {}",method, owner);
 			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
 				LoggingUtils.getEvoLogger().info(elem.toString());
 			}
