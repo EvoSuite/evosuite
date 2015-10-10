@@ -694,6 +694,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (double) ((Float)value).floatValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (double) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Long.class)){
+                            value = (double) ((Long)value).longValue();
                         }
                     }
 
@@ -702,6 +704,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (float) ((Integer)value).intValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (float) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Long.class)){
+                            value = (float) ((Long)value).longValue();
                         }
                     }
 
