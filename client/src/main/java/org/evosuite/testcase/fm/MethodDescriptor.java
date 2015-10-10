@@ -103,30 +103,9 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
 
 
     public void changeClassLoader(ClassLoader loader) {
-        try {
-            Class<?> klass = loader.loadClass(method.getDeclaringClass().getName());
-            Class<?>[] params = method.getParameterTypes();
-            for(int i=0; i<params.length; i++){
-                Class<?> pi = params[i];
-
-                Class<?> base = pi;
-                while(base.isArray()){
-                    base = base.getComponentType();
-                }
-                if(base.isPrimitive()){
-                    continue;
-                }
-
-                String name = pi.getName();
-
-                //params[i] = Class.forName(""+name+";",true,loader);
-                params[i] = loader.loadClass(name);
-            }
-            method = klass.getDeclaredMethod(method.getName(), params);
-        } catch (Exception e) {
-            //should not really happen
-            logger.error("Failed to reload {} with a new classloader: {}", method, e.getMessage());
-        }
+    	GenericMethod gm = new GenericMethod(method, method.getDeclaringClass());
+    	gm.changeClassLoader(loader);
+    	method = gm.getMethod();
     }
 
     /**
