@@ -65,6 +65,11 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         this.method = method;
         methodName = method.getName();
         className = method.getDeclaringClass().getName();
+        inputParameterMatchers = initMatchers(method);
+    }
+
+
+    private String initMatchers(Method method) {
 
         String matchers = "";
         Type[] types = method.getParameterTypes();
@@ -76,14 +81,16 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             Type type = types[i];
             if(type.equals(Integer.TYPE) || type.equals(Integer.class)){
                 matchers += "anyInt()";
-            } else if(type.equals(Long.TYPE) || type.equals(Long.class)){
+            }else if(type.equals(Long.TYPE) || type.equals(Long.class)){
                 matchers += "anyLong()";
+            }else if(type.equals(Boolean.TYPE) || type.equals(Boolean.class)){
+                matchers += "anyBoolean()";
             }else if(type.equals(Double.TYPE) || type.equals(Double.class)){
                 matchers += "anyDouble()";
             }else if(type.equals(Float.TYPE) || type.equals(Float.class)){
                 matchers += "anyFloat()";
             }else if(type.equals(Short.TYPE) || type.equals(Short.class)){
-                matchers += "anyString()";
+                matchers += "anyShort()";
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
             }else{
@@ -91,17 +98,29 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             }
         }
 
-        inputParameterMatchers = matchers;
+        return matchers;
     }
+
 
     public void changeClassLoader(ClassLoader loader) {
         try {
             Class<?> klass = loader.loadClass(method.getDeclaringClass().getName());
             Class<?>[] params = method.getParameterTypes();
             for(int i=0; i<params.length; i++){
-                if(!params[i].isPrimitive()){
-                    params[i] = loader.loadClass(params[i].getName());
+                Class<?> pi = params[i];
+
+                Class<?> base = pi;
+                while(base.isArray()){
+                    base = base.getComponentType();
                 }
+                if(base.isPrimitive()){
+                    continue;
+                }
+
+                String name = pi.getName();
+
+                //params[i] = Class.forName(""+name+";",true,loader);
+                params[i] = loader.loadClass(name);
             }
             method = klass.getDeclaredMethod(method.getName(), params);
         } catch (Exception e) {

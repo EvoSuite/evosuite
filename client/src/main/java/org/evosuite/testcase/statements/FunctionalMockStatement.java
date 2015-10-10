@@ -25,6 +25,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -640,8 +641,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                     } catch (CodeUnderTestException e){
                         throw e;
+                    } catch(java.lang.NoClassDefFoundError e) {
+                        AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to failed class initialization: "+e.getMessage());
+                        return; //or should throw an exception?
                     } catch (Throwable t) {
-                        LoggingUtils.logErrorAtMostOnce(logger, "Failed to use Mockito on " + targetClass + ": " + t.getMessage());
+                        AtMostOnceLogger.error(logger, "Failed to use Mockito on " + targetClass + ": " + t.getMessage());
                         throw new EvosuiteError(t);
                     }
 
