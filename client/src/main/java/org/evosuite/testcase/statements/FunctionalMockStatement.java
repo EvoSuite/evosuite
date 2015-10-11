@@ -223,7 +223,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             }
         } catch (NoClassDefFoundError | Exception e){
             //this could happen if we failed to load the class
-            LoggingUtils.logWarnAtMostOnce(logger,"Failed to check if can mock class "+rawClass.getName()+": "+e.getMessage());
+            AtMostOnceLogger.warn(logger, "Failed to check if can mock class " + rawClass.getName() + ": " + e.getMessage());
             return false;
         }
 
