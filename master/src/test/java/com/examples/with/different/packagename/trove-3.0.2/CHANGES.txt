@@ -1,0 +1,546 @@
+--- 3.0.2 ---
+Bug Fixed:
+  - [3429703] TIntObjectHashMap losing entry
+  - [3431135] ArrayIndexOutOfBoundsException at TIntIntHashMap.keys
+
+--- 3.0.1 ---
+Bugs Fixed:
+  - fix for ClassCastException in equals(T,T) when comparing with REMOVED
+  - [3408129] Benchmarks don't run correctly
+  - [3394094] Args to gnu.trove.generator.Generator not basedir-relative
+  - Re-introduce TLinkableAdapter class
+New Features:
+  - [3412967] Need TMap interface
+  - .zip and .tgz files now expand into a sub-directory
+  - Documentation for generator patterns and replicated blocks
+  - Maven artifact generation now a bit more automatic
+
+--- 3.0.0 ---
+  - !!! Major restructuring of classes and packages !!!
+    Interfaces have been broken out to allow for alternate implementations.
+    The package changes will require code migration, although it should mainly
+    consist of simply updating import statements. However, because everything is
+    in new packages, both Trove 2.x and Trove 3.x can co-exist in a classpath
+    (to hopefully ease the migration burden).
+  - Broke out classes that allow custom hashing for performance reasons.
+    New collections are:
+       - TCustomHashMap
+       - TCustomHashSet
+       - TObject*CustomHashMap (ex: TObjectIntCustomHashMap)
+    IdentityHashingStrategy is available for identity-based hash maps.
+  - [ 3152276 ] Add sum() method to T*List
+  - [ 3159432 ] THashMap.entrySet().remove() throws on non-Entries
+  - [ 3153005 ] fix for null keys in Object maps
+  - Benchmarks for comparing different libraries. Currently java.util, Colt,
+    Trove 2 and Trove 3.
+  - Fixes to serialVersionUID's and where Serializable is marked. For example,
+    Serializable has been removed from the interfaces for various collections
+    (to better match how it's done in java.util).
+  - Many bug fixes, particularly to TLinkedList.
+
+--- 2.1.0 ---
+No substantial changes.
+
+--- 2.1.0 a3 ---
+Bugs fixed:
+  - [ 2685774 ] THashMap serialization bug in 2.0.4
+
+--- 2.1.0 a2 ---
+Bugs fixed:
+  - [ 2166456 ] clone() for TObject<XXX>HashMap is inefficient
+  - [ 2166768 ] add toString() method to maps. Thanks to Ozgur Aydinli.
+  - [ 2688770 ] TxxxArrayList serializes full capacity instead of full size
+  - [ 2687519 ] Primitive Lists hashCode is calculated w/o regard for order
+  - Fixed issues related to removing items multiple times from TLinkedList
+    and using removeFirst/Last when no items are in the list.
+
+New Features
+  - [ 2126522 ] add putAll() to the HashMaps. Thanks to Ozgur Aydinli.
+
+--- 2.1.0 a1 ---
+Bugs fixed:
+  - [ 2143564 ] THashSet serialization
+  - [ 1960418 ] Decorators serialization
+  - [ 2127841 ] Use <Type>.valueOf on wrap/unwrap in T#K##V#HashMapDecorator
+
+New Features:
+  - Added "Dectorators" class for easier creation of decorator classes.
+  - [ 2152149 ] Improve performance by avoiding Math/StrictMath (thanks to Mark Beevers)
+
+--- 2.0.5 a1 ---
+Bugs fixed:
+  - [ 2037709 ] bug in .keys(<T>[]) method
+
+New Features:
+  - added keys(e[]) method to P2O maps (TIntObjectHashMap, etc.)
+
+--- 2.0.4 ---
+Bugs fixed:
+  - [ 1959853 ] @return for put and putIfAbsent is incorrect
+
+--- 2.0.4 rc1 ---
+Bugs Fixed:
+  - [ 1952509 ] Replace StringBuffer with StringBuilder
+  - [ 1952508 ] pufIfAbsent for maps
+  - [ 1955103 ] Hashing Strategy Not Retained After Serialization
+
+--- 2.0.4 a2 ---
+Bugs fixed:
+  - Correct an error in TLinkedList that caused nodes to not be properly linked
+    when using addAfter(T,T).
+
+--- 2.0.4 a1 ---
+Bugs fixed:
+  - [ 1946240 ] THash.ensureCapacity(...) bug 
+
+--- 2.0.3 ---
+Bugs Fixed:
+  - [ 1932929 ] add toString() methods to THashSet and THashMap
+  - Switched to Arrays.fill (which seems to be slightly faster) for clearing 
+
+--- 2.0.2 ---
+Bugs Fixed:
+  - [ 1821911 ] get(0) doesn't throw exception when TLinkedList is empty
+  - [ 1800288 ] Trivial typo fixes
+
+
+--- 2.0.1 ---
+Bugs Fixed:
+  - Fixed implementation of PArrayList.min() and .max().
+  
+
+--- 2.0.1 rc1 ---
+New Features:
+[ 1778999 ] Publish a source-JAR with future releases
+
+Misc:
+  - Switched version from 2.1 to 2.0.1.
+
+
+--- 2.0.1 ALPHA 3 (previously: 2.1 ALPHA 3) ---
+Bugs Fixed:
+[ 1764177 ] bug in binary search
+
+
+--- 2.0.1 ALPHA 2 (previously: 2.1 ALPHA 2) ---
+New Features:
+[ 1748566 ] add <T> T[] getValues(T[] a)
+
+Bugs Fixed:
+- Corrected hashcode computation for longs. Should result in better
+  lookup performance.
+  
+
+--- 2.0.1 ALPHA 1 (previously: 2.1 ALPHA 1) ---
+
+New Features:
+[ 1741864 ] add TLinkedList addAfter method
+
+Bugs Fixed:
+[ 1738760 ] T*HashMap.retainEntries should suspend automatic compaction.
+- Corrected hashcode computation for longs. Should result in better
+  lookup performance.
+
+Misc:
+  - Added an assertion in HashFunctions to throw an assertion if a
+    value of NaN is used in a lookup/insert/delete from a map.
+  - Added TLinkedList.getNext() and getPrevious() methods.
+
+
+--- 2.0 ---
+Unchanged from 2.0rc1
+
+
+--- 2.0rc1 ---
+
+New Features:
+[ 1606090 ] adjustOrPutValue
+[ 1604073 ] Generate primitive stacks
+[ 1632250 ] Do maps implement Iterable
+[ 1670933 ] Provide access to stack native arrays
+[ 1690743 ] Add subList(begin, end) to ArrayLists
+Added forEach(TObjectProcedure) method to TLinkedList
+
+Bugs Fixed:
+[ 1640353 ] Generator fails on multiple file systems
+[ 1676866 ] Not handling REMOVED flag correctly in TObjectHash.index(T)
+[ 1642768 ] Exception removing from iterator when auto-compact occurs
+
+
+
+--- 2.0a2 ---
+
+New Features:
+[ 779039 ] expose decorator's set/map
+
+Bugs Fixed:
+[ 1428614 ] THashMap.values().remove() can remove multiple mappings
+[ 1506751 ] TxxxArrayList.toNativeArray(offset, len) is broken
+[ 1606095 ] Critical Iterator Error
+
+
+--- 2.0a1 ---
+
+This release adds support for generics, which were introduced in JSE 1.5.
+Starting with this release, JSE 1.5 or greater is required in order to run Trove.
+Special thanks to JetBrains for their initial work providing generics support.
+
+Also added in this release is automatic compaction, such that manually calling
+compact() is no longer necessary (although it may still provide performance
+benefits in certain situations). Compactions are by default
+performed automatically when a certain number of removes are performed based on
+the size of the set or map. The compaction factor can be specified via
+THash.setAutoCompactionFactor(float) (the default compaction factor is set to
+match the load factor). So, for example, if a map is created with an initial
+capacity of 10 and a load factory of 0.5, a compaction will be performed after
+5 removes. If a size is later grown to 1000, then a compaction will occur after
+500 removes. When a set/map is rehashed, the time to next compaction is reset.
+   NOTE: auto-compaction can be disabled by setting the autoCompactionFactory
+      (via THash.setAutoCompactionFactor) to zero. Manually compacting a
+      collection will also reset the auto-compaction counter, so that manually
+      compacting more often than auto-compaction wants to occur effectively also
+      disables auto-compaction. 
+   NOTE: while manually calling compact() is no longer strictly necessary,
+      results should always be verified in your application to ensure that
+      the auto-compaction scheme and the compaction factors work well for your
+      individual scenario.
+      
+Support for more primitve types has been introduced.
+
+Object serialization has been changed to use Externalization. Unfortunately this
+means that objects serialized with earlier versions cannot be read by this
+release. The up-side is that this gives enough flexibility to ensure that we
+won't need to break serialization again. The other benefit is that the output
+is more efficient/compact and readable...  especially when used with XML
+serialization mechanisms such as XStream.
+
+
+New Features:
+[ 918059 ] should rehash when below low water mark upon remove
+[ 1153656 ] generics?
+
+Bugs Fixed:
+[ 1518795 ] NullPointerException in TLinkedList's removeFirst()/Last()
+[ 1277703 ] make T**HashMap serializable
+[ 1417563 ] TLinkedList.add(int,Object) bug
+[ 1518823 ] another TLinkedList.add(int,Object) bug
+[ 1461458 ] THashMap.equals(..) method is not consistent
+[ 1571435 ] Error in cloning of TObjectXXXHashMap instances
+
+
+--- 1.1b5 ---
+
+Bugs fixed:
+[ 1391359 ] Duplicate iteration in THashSet.toArray(Object[])
+    removed the duplication
+[ 1382196 ] THashMap.entrySet().retainAll()
+    implemented missing methods on elements of entrySet, refactored retainAll
+    to use retainEntries, which saves a bunch of allocations
+[ 1378868 ] CVS has junit.jar checked in as ASCII
+    flipped on '-kb' for this file
+[ 1193416 ] TByteArrayList throws ArrayIndexOutOfBoundsException wrongly
+    fixed off by one error
+
+
+--- 1.1b4 ---
+
+Accepted patch for feature request 926921 - adds support for short,
+byte collections.  Also adds support for null object keys.  THIS
+WILL BREAK SERIALIZATION.
+
+A big thanks to Steven Lunt for putting this patch together.
+
+Added testSerializablePrimitives unit test to validate that behavior
+reported in 1113420 does work as it's supposed to.
+
+Fixed doc problem reported in 939016
+
+Fixed 995597, missing serial version IDs.  NOTE: THashMap, THashSet
+and TLinkedList have IDs generated by serialver and are believed
+to be b/w compatible.  The generated collections, however, are NOT
+reverse compatible versions and so will break archived collections
+created with earlier versions of trove.
+
+Fixed 937977 -- primitive array lists were not doing a true deep clone
+of the underlying array.  This is fixed
+
+
+--- 1.1b3 ---
+
+Fixed 918045 -- bug in *Decorator classes made it impossible to subclass
+the decorators and make those subclasses cloneable.  Thanks to Steve
+Lunt for the bug report.
+
+
+--- 1.1b2 ---
+
+Fixed 901135 -- bug in T*Hash.insertionIndex() methods that prevented
+us from reclaiming the very first REMOVED slot if that's what the
+first hash landed upon.  In applications that do lots of adds/removes,
+this would have led to unnecessary rehashing.  With this fix, you
+can add(1), remove(1), and then re add(1) and the same slot will be
+used.  Thanks to matlun for reporting the problem.
+
+
+--- 1.1b1 ---
+
+fixed a bug in decorator equals methods (845890)
+
+fixed a memory leak for certain usage patterns (843772)
+
+corrected some javadoc defects (846286)
+
+minor tuning of T*ArrayList toString()
+
+added clone() methods to decorator classes.  Thanks to Steve Lunt
+for the bug report.
+
+implemented equals()/hashCode() on THashMap.KeyView and (by extension) subclasses.
+This allows the test in THashMapTests.testKeySetEqualsEquivalentSet to pass.
+
+fix 787515 -- bug in T*ArrayList.set(int, *[], int, int)
+
+
+--- 1.0.2 ---
+
+revamped versioning scheme
+
+added hashCode implementation to collections so that they can appear
+in collections too.
+
+added check+exception to detect violations of the equals() <->
+hashCode() contract specified in java.lang.Object's api.
+
+
+--- 0.1.8 ---
+
+Added gnu.trove.decorator package, with Decorator classes that wrap
+trove's primitive maps and sets for conformance with the
+java.util.{Map,Set} APIs.
+
+
+--- 0.1.7 ---
+
+Added iterators to the primitive maps and sets.  Note that semantics
+differ from those of java.util.Iterator, so RTFM.
+
+Added hashing strategy interfaces to allow users to implement custom
+hashing schemes for optimal distribution for specific data sets.
+
+Fixed bug 602376 -- ClassCastException n THashMap.putAll
+
+Made all collections implement Cloneable.  primitive collections
+clone deeply; Object collections produce shallow clones.
+
+
+--- 0.1.6 ---
+
+Minor bug fix release.
+
+Two bugs in TIntArrayList have been fixed.  Thanks to Jessica P.
+Hekman for reporting them.
+
+One of these prevented toNativeArray from working correctly in
+certain circumstances; the other problem was with the depth of
+cloning operations.
+
+One enhancement to TintArrayList has been made -- serialized
+instances are now compact -- previous versions relied on serialization
+behavior of the backing array, which included empty slots and so
+wasted space.
+
+Serialization of sets/maps has been modified as follows: previously
+all of the writeObject methods used a local implementation of the
+TXXXProcedure for writing out the data in a particular collection.
+These have been replaced by a single class (SerializationProcedure)
+which implements all of the appropriate interfaces. This reduces
+the number of .class files in the trove jar
+
+
+--- 0.1.5 ---
+
+added retainEntries methods to all Map classes.  These methods accept
+procedure objects of the appropriate sort and use the return value of
+those procedures to determine whether or not a particular entry in the
+map should be retained.
+
+This is useful for applying a cutoff in a map without copying data:
+
+TIntIntHashMap map = new TIntIntHashMap();
+// load up map
+map.retainEntries(new TIntIntProcedure() {
+  public boolean execute(int key, int val) {
+    return val > 3; // retain only those mappings with val > 3
+  }
+});
+
+It can also be used if you want to reduce one map to the intersection
+between it and another map:
+
+THashMap map1 = new THashMap();
+THashMap map2 = new THashMap();
+// load up both maps
+map1.retainEntries(new TObjectObjectProcedure() {
+  public boolean execute(Object key, Object val) {
+    return map2.containsKey(key); // retain the intersection with map2
+  }
+});
+
+
+--- 0.1.4 ---
+
+added increment() and adjustValue() methods to maps with primitive values.
+These are useful in the all-too-common case where you need a map for the
+purposes of counting the number of times a key is seen.  These methods
+are handy because you don't have to do a "containsKey" test prior to
+every increment() call.  Instead, you can check the return status (true
+if an existing mapping was modified) and if it is false, then insert the
+mapping with the initial value:
+
+TIntIntHashMap map = TIntIntHashMap();
+int key, val;
+key = keyFromSomeWhere();
+val = valFromSomeWhere();
+if (! map.increment(key)) map.put(key, 0);
+
+increment is implemented in terms of adjustValue, which allows you
+to specify the amount by which the primitive value associated with a
+particular key should be adjusted.
+
+Thanks to Jason Baldridge for the idea.
+
+
+--- 0.1.3 ---
+
+bug fix in TLinkedList ListIterator implementation:  fixed remove()
+behavior so that it correctly removes the last element returned by
+either next() or previous().  Added several tests to suite to verify
+that list iterator does what it's supposed to do in accordance with the
+collections API docs.
+
+
+--- 0.1.2 ---
+
+bug fix in primitive hash sets: toArray now produces a correct return
+value of size set.size().  Previously it generated an 
+ArrayIndexOutOfBoundsException.  Thanks to Tobias Henle for finding this.
+
+revised class hierarchy so that all primitive hashing collections are
+derived from TPrimitiveHash, which extends THash.  Object hashing collections
+are derived from TObjectHash.  As part of this change, the byte[] flags
+were pushed down to TPrimitiveHash, and TObjectHash was revised so that
+it no longer needs a byte[] array to track the state of the table.  This
+has an appreciable impact on the total size of Object hashing collections:
+a set of 1,000 Integers used to take 69% of the memory needed for a JDK
+set; it now takes only 62%.
+
+removed slots can now be re-used in all hashing collections.  If the
+search for an insertion index does not find that the key is already
+present in the map, insertionIndex implementations will now return the
+index of the first REMOVED or FREE slot.  This means that tables which
+undergo a pattern of insertions/deletions without radical changes in
+size will not trigger as many rehashes as before.
+
+revised hashing algorithm so that the second hash function is only executed
+when necessary and so that FREE or FULL w/identical content slots can be
+found with a minimum of effort.
+
+
+--- 0.1.1 ---
+
+made the initial capacity of lists used for return values in grep/inverseGrep
+be the default capacity rather than the size of the list-being-grepped.
+This saves space when a small list is grepped from a larger list.
+
+added reset and resetQuick methods to *ArrayList implementations so that
+lists can be cleared while retaining their current capacity.
+
+changed *ArrayList toNativeArray() method behavior so that a List of 0 length
+can return a native array of 0 length (previously this would have thrown
+an exception)
+
+revamped *ArrayList insert/remove implementations so that edits are done
+in place instead of with a temporary array.
+
+minor performance tweak in THashIterator
+
+
+--- 0.1.0 ---
+
+Added primitive ArrayList implementations.
+
+
+--- 0.0.9 ---
+
+Made all collections implement java.io.Serializable
+
+Made all collections implement equals() so that they compare their contents
+instead of doing collection object identity.
+
+Made TLinkable extend java.io.Serializable
+
+Changed secondary hash function to reflect Knuth's observation about the
+desirability of using an odd value.
+
+Added trimToSize() and ensureCapacity() methods
+
+(finally) implemented loadFactor, with default of 0.5, per Knuth.
+
+Note that load/capacity/size are handled differently than in the Javasoft
+implementations.  Specifically, if you ask for a collection of capacity
+X, Trove will give you one that can hold X elements without rehashing;
+Javasoft's implementation does not do this.
+
+
+--- 0.0.8 ---
+
+Fixes for several user-reported bugs.  Unit tests have been added to
+demonstrate that each of these is actually fixed.
+
+485440 Null in keys() from TObjectDoubleHashMap
+size/free were being updated even when a map.put() was really a replaement
+for an existing mapping.
+
+485829 null values not handled correctly
+485831 null values cause exceptions
+485834 null values cause NullPointerException
+made Maps that hold Object values behave correctly (no NPE) when doing
+comparisons with null objects, since null values are legal.
+
+485837 entrySet comparison semantics are wrong
+made entrySet check both key and value when doing comparisons.
+
+
+--- 0.0.7 ---
+
+new package: gnu.trove.benchmark
+replaced gnu.trove.Benchmark with benchmark package.  This now produces
+formatted reports that include OS/JVM specs.
+
+Changed benchmarking approach so that timestamps are only taken at the
+beginning/end of the full repetition count for an operation.  This 
+reduces the variability caused by calling System.currentTimeMillis()
+more than once in the same second.
+
+Added memory profiler which produces a report with the memory requirements
+for trove/javasoft collections of the same objects.
+
+build.xml
+modified jar task so that the benchmark package is not included in the
+jar file or the javadoc set.  Only the framework classes get jarred up;
+developers can run the benchmarks by using the output/classes directory
+instead.
+
+TObjectHash
+Based on profiling results, replaced calls to HashFunctions.hash(obj) with
+direct invocation of obj.hashCode() to save a method call.  This is
+probably inlined by hotspot compilers, but my profiler doesn't work with
+those.
+
+TObjectHash.HashIterator
+Based on bytecode examination, replaced a putfield/getfield combo with a
+putfield/dup_x.  This saves three opcodes in a method which gets called
+a lot (moveToNextIndex()).
+
+PrimeFinder/HashFunctions
+finalized both classes and all methods.

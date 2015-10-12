@@ -1,0 +1,420 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2008, Robert D. Eden All Rights Reserved.
+// Copyright (c) 2009, Jeff Randall All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+///////////////////////////////////////////////////////////////////////////////
+
+package gnu.trove;
+
+
+//////////////////////////////////////////////////
+// THIS IS A GENERATED CLASS. DO NOT HAND EDIT! //
+//////////////////////////////////////////////////
+
+
+import gnu.trove.set.*;
+import gnu.trove.list.*;
+import gnu.trove.map.*;
+import gnu.trove.impl.unmodifiable.*;
+import gnu.trove.impl.sync.*;
+
+import java.util.RandomAccess;
+
+
+/**
+ * Trove equivalent of the {@link java.util.Collections} class.
+ */
+@SuppressWarnings({"UnusedDeclaration"})
+public class TCollections {
+
+    // Disallow creation of instances of this class
+    private TCollections() { }
+
+
+///////////////////////////
+// TUnmodifiableCollections
+
+#REPLICATED1#
+
+
+#REPLICATED2#
+
+
+#REPLICATED3#
+
+
+#REPLICATED4#
+
+
+#REPLICATED5#
+
+
+#REPLICATED6#
+
+
+
+///////////////////////////
+// TSynchronizedCollections
+
+#REPLICATED7#
+
+
+#REPLICATED8#
+
+
+#REPLICATED9#
+
+
+#REPLICATED10#
+
+
+#REPLICATED11#
+
+
+#REPLICATED12#
+}
+====START_REPLICATED_CONTENT #1====
+    /**
+     * Returns an unmodifiable view of the specified Trove primitive collection.  This method
+     * allows modules to provide users with "read-only" access to internal
+     * collections.  Query operations on the returned collection "read through"
+     * to the specified collection, and attempts to modify the returned
+     * collection, whether direct or via its iterator, result in an
+     * <tt>UnsupportedOperationException</tt>.<p>
+     *
+     * The returned collection does <i>not</i> pass the hashCode and equals
+     * operations through to the backing collection, but relies on
+     * <tt>Object</tt>'s <tt>equals</tt> and <tt>hashCode</tt> methods.  This
+     * is necessary to preserve the contracts of these operations in the case
+     * that the backing collection is a set or a list.<p>
+     *
+     * The returned collection will be serializable if the specified collection
+     * is serializable.
+     *
+     * @param  c the collection for which an unmodifiable view is to be
+     *	       returned.
+     * @return an unmodifiable view of the specified Trove primitive collection.
+     */
+    public static T#E#Collection unmodifiableCollection( T#E#Collection c ) {
+	    return new TUnmodifiable#E#Collection( c );
+    }
+
+=====END_REPLICATED_CONTENT #1=====
+====START_REPLICATED_CONTENT #2====
+    /**
+     * Returns an unmodifiable view of the specified Trove primitive set.  This method allows
+     * modules to provide users with "read-only" access to internal sets.
+     * Query operations on the returned set "read through" to the specified
+     * set, and attempts to modify the returned set, whether direct or via its
+     * iterator, result in an <tt>UnsupportedOperationException</tt>.<p>
+     *
+     * The returned set will be serializable if the specified set
+     * is serializable.
+     *
+     * @param  s the set for which an unmodifiable view is to be returned.
+     * @return an unmodifiable view of the specified Trove primitive set.
+     */
+    public static T#E#Set unmodifiableSet( T#E#Set s ) {
+	    return new TUnmodifiable#E#Set( s );
+    }
+=====END_REPLICATED_CONTENT #2=====
+====START_REPLICATED_CONTENT #3====
+    /**
+     * Returns an unmodifiable view of the specified Trove primitive list.  This method allows
+     * modules to provide users with "read-only" access to internal
+     * lists.  Query operations on the returned list "read through" to the
+     * specified list, and attempts to modify the returned list, whether
+     * direct or via its iterator, result in an
+     * <tt>UnsupportedOperationException</tt>.<p>
+     *
+     * The returned list will be serializable if the specified list
+     * is serializable. Similarly, the returned list will implement
+     * {@link RandomAccess} if the specified list does.
+     *
+     * @param  list the list for which an unmodifiable view is to be returned.
+     * @return an unmodifiable view of the specified Trove primitive list.
+     */
+    public static T#E#List unmodifiableList( T#E#List list) {
+	return ( list instanceof RandomAccess ?
+                new TUnmodifiableRandomAccess#E#List( list ) :
+                new TUnmodifiable#E#List( list ) );
+    }
+=====END_REPLICATED_CONTENT #3=====
+====START_REPLICATED_CONTENT #4====
+    /**
+     * Returns an unmodifiable view of the specified Trove primitive/primitive map.  This method
+     * allows modules to provide users with "read-only" access to internal
+     * maps.  Query operations on the returned map "read through"
+     * to the specified map, and attempts to modify the returned
+     * map, whether direct or via its collection views, result in an
+     * <tt>UnsupportedOperationException</tt>.<p>
+     *
+     * The returned map will be serializable if the specified map
+     * is serializable.
+     *
+     * @param  m the map for which an unmodifiable view is to be returned.
+     * @return an unmodifiable view of the specified Trove primitive/primitive map.
+     */
+    public static T#K##V#Map unmodifiableMap( T#K##V#Map m ) {
+	    return new TUnmodifiable#K##V#Map( m );
+    }
+=====END_REPLICATED_CONTENT #4=====
+====START_REPLICATED_CONTENT #5====
+    /**
+     * Returns an unmodifiable view of the specified Trove primitive/Object map.  This method
+     * allows modules to provide users with "read-only" access to internal
+     * maps.  Query operations on the returned map "read through"
+     * to the specified map, and attempts to modify the returned
+     * map, whether direct or via its collection views, result in an
+     * <tt>UnsupportedOperationException</tt>.<p>
+     *
+     * The returned map will be serializable if the specified map
+     * is serializable.
+     *
+     * @param  m the map for which an unmodifiable view is to be returned.
+     * @return an unmodifiable view of the specified Trove primitive/primitive map.
+     */
+    public static <V> T#E#ObjectMap<V> unmodifiableMap( T#E#ObjectMap<V> m ) {
+	    return new TUnmodifiable#E#ObjectMap<V>( m );
+    }
+=====END_REPLICATED_CONTENT #5=====
+====START_REPLICATED_CONTENT #6====
+    /**
+     * Returns an unmodifiable view of the specified Trove Object/primitive map.  This method
+     * allows modules to provide users with "read-only" access to internal
+     * maps.  Query operations on the returned map "read through"
+     * to the specified map, and attempts to modify the returned
+     * map, whether direct or via its collection views, result in an
+     * <tt>UnsupportedOperationException</tt>.<p>
+     *
+     * The returned map will be serializable if the specified map
+     * is serializable.
+     *
+     * @param  m the map for which an unmodifiable view is to be returned.
+     * @return an unmodifiable view of the specified Trove primitive/primitive map.
+     */
+    public static <K> TObject#E#Map<K> unmodifiableMap( TObject#E#Map<K> m ) {
+	    return new TUnmodifiableObject#E#Map<K>( m );
+    }
+=====END_REPLICATED_CONTENT #6=====
+====START_REPLICATED_CONTENT #7====
+    /**
+     * Returns a synchronized (thread-safe) Trove collection backed by the specified
+     * Trove collection.  In order to guarantee serial access, it is critical that
+     * <strong>all</strong> access to the backing collection is accomplished
+     * through the returned collection.<p>
+     *
+     * It is imperative that the user manually synchronize on the returned
+     * collection when iterating over it:
+     * <pre>
+     *  T#E#Collection c = TCollections.synchronizedCollection( myCollection );
+     *     ...
+     *  synchronized( c ) {
+     *      T#E#Iterator i = c.iterator(); // Must be in the synchronized block
+     *      while ( i.hasNext() )
+     *         foo( i.next() );
+     *  }
+     * </pre>
+     * Failure to follow this advice may result in non-deterministic behavior.
+     *
+     * <p>The returned collection does <i>not</i> pass the <tt>hashCode</tt>
+     * and <tt>equals</tt> operations through to the backing collection, but
+     * relies on <tt>Object</tt>'s equals and hashCode methods.  This is
+     * necessary to preserve the contracts of these operations in the case
+     * that the backing collection is a set or a list.<p>
+     *
+     * The returned collection will be serializable if the specified collection
+     * is serializable.
+     *
+     * @param  c the collection to be "wrapped" in a synchronized collection.
+     * @return a synchronized view of the specified collection.
+     */
+    public static T#E#Collection synchronizedCollection( T#E#Collection c ) {
+	    return new TSynchronized#E#Collection(c);
+    }
+
+    static T#E#Collection synchronizedCollection( T#E#Collection c, Object mutex ) {
+	    return new TSynchronized#E#Collection( c, mutex );
+    }
+=====END_REPLICATED_CONTENT #7=====
+====START_REPLICATED_CONTENT #8====
+    /**
+     * Returns a synchronized (thread-safe) Trove set backed by the specified
+     * set.  In order to guarantee serial access, it is critical that
+     * <strong>all</strong> access to the backing set is accomplished
+     * through the returned set.<p>
+     *
+     * It is imperative that the user manually synchronize on the returned
+     * set when iterating over it:
+     * <pre>
+     *  T#E#Set s = TCollections.synchronizedSet( new T#E#HashSet() );
+     *      ...
+     *  synchronized(s) {
+     *      T#E#Iterator i = s.iterator(); // Must be in the synchronized block
+     *      while ( i.hasNext() )
+     *          foo( i.next() );
+     *  }
+     * </pre>
+     * Failure to follow this advice may result in non-deterministic behavior.
+     *
+     * <p>The returned set will be serializable if the specified set is
+     * serializable.
+     *
+     * @param  s the set to be "wrapped" in a synchronized set.
+     * @return a synchronized view of the specified set.
+     */
+    public static T#E#Set synchronizedSet( T#E#Set s ) {
+	    return new TSynchronized#E#Set( s );
+    }
+
+    static T#E#Set synchronizedSet( T#E#Set s, Object mutex ) {
+	    return new TSynchronized#E#Set( s, mutex );
+    }
+=====END_REPLICATED_CONTENT #8=====
+====START_REPLICATED_CONTENT #9====
+    /**
+     * Returns a synchronized (thread-safe) Trove list backed by the specified
+     * list.  In order to guarantee serial access, it is critical that
+     * <strong>all</strong> access to the backing list is accomplished
+     * through the returned list.<p>
+     *
+     * It is imperative that the user manually synchronize on the returned
+     * list when iterating over it:
+     * <pre>
+     *  T#E#List list = TCollections.synchronizedList( new T#E#ArrayList() );
+     *      ...
+     *  synchronized( list ) {
+     *      T#E#Iterator i = list.iterator(); // Must be in synchronized block
+     *      while ( i.hasNext() )
+     *          foo( i.next() );
+     *  }
+     * </pre>
+     * Failure to follow this advice may result in non-deterministic behavior.
+     *
+     * <p>The returned list will be serializable if the specified list is
+     * serializable.
+     *
+     * @param  list the list to be "wrapped" in a synchronized list.
+     * @return a synchronized view of the specified list.
+     */
+    public static T#E#List synchronizedList( T#E#List list ) {
+	    return ( list instanceof RandomAccess ?
+                new TSynchronizedRandomAccess#E#List( list ) :
+                new TSynchronized#E#List( list ) );
+    }
+
+    static T#E#List synchronizedList( T#E#List list, Object mutex ) {
+	    return ( list instanceof RandomAccess ?
+                new TSynchronizedRandomAccess#E#List( list, mutex ) :
+                new TSynchronized#E#List( list, mutex ) );
+    }
+=====END_REPLICATED_CONTENT #9=====
+====START_REPLICATED_CONTENT #10====
+    /**
+     * Returns a synchronized (thread-safe) Trove map backed by the specified
+     * map.  In order to guarantee serial access, it is critical that
+     * <strong>all</strong> access to the backing map is accomplished
+     * through the returned map.<p>
+     *
+     * It is imperative that the user manually synchronize on the returned
+     * map when iterating over any of its collection views:
+     * <pre>
+     *  T#K##V#Map m = TCollections.synchronizedMap( new T#K##V#HashMap() );
+     *      ...
+     *  T#K#Set s = m.keySet();  // Needn't be in synchronized block
+     *      ...
+     *  synchronized( m ) {  // Synchronizing on m, not s!
+     *      T#K#Iterator i = s.iterator(); // Must be in synchronized block
+     *      while ( i.hasNext() )
+     *          foo( i.next() );
+     *  }
+     * </pre>
+     * Failure to follow this advice may result in non-deterministic behavior.
+     *
+     * <p>The returned map will be serializable if the specified map is
+     * serializable.
+     *
+     * @param  m the map to be "wrapped" in a synchronized map.
+     * @return a synchronized view of the specified map.
+     */
+    public static T#K##V#Map synchronizedMap( T#K##V#Map m ) {
+	    return new TSynchronized#K##V#Map( m );
+    }
+=====END_REPLICATED_CONTENT #10=====
+====START_REPLICATED_CONTENT #11====
+    /**
+     * Returns a synchronized (thread-safe) Trove map backed by the specified
+     * map.  In order to guarantee serial access, it is critical that
+     * <strong>all</strong> access to the backing map is accomplished
+     * through the returned map.<p>
+     *
+     * It is imperative that the user manually synchronize on the returned
+     * map when iterating over any of its collection views:
+     * <pre>
+     *  T#E#ObjectMap m = TCollections.synchronizedMap( new T#E#ObjectHashMap() );
+     *      ...
+     *  T#E#Set s = m.keySet();  // Needn't be in synchronized block
+     *      ...
+     *  synchronized( m ) {  // Synchronizing on m, not s!
+     *      T#E#Iterator i = s.iterator(); // Must be in synchronized block
+     *      while ( i.hasNext() )
+     *          foo( i.next() );
+     *  }
+     * </pre>
+     * Failure to follow this advice may result in non-deterministic behavior.
+     *
+     * <p>The returned map will be serializable if the specified map is
+     * serializable.
+     *
+     * @param  m the map to be "wrapped" in a synchronized map.
+     * @return a synchronized view of the specified map.
+     */
+    public static <V> T#E#ObjectMap<V> synchronizedMap( T#E#ObjectMap<V> m ) {
+	    return new TSynchronized#E#ObjectMap<V>( m );
+    }
+=====END_REPLICATED_CONTENT #11=====
+====START_REPLICATED_CONTENT #12====
+    /**
+     * Returns a synchronized (thread-safe) Trove map backed by the specified
+     * map.  In order to guarantee serial access, it is critical that
+     * <strong>all</strong> access to the backing map is accomplished
+     * through the returned map.<p>
+     *
+     * It is imperative that the user manually synchronize on the returned
+     * map when iterating over any of its collection views:
+     * <pre>
+     *  TObject#E#Map m = TCollections.synchronizedMap( new TObject#E#HashMap() );
+     *      ...
+     *  Set s = m.keySet();  // Needn't be in synchronized block
+     *      ...
+     *  synchronized( m ) {  // Synchronizing on m, not s!
+     *      Iterator i = s.iterator(); // Must be in synchronized block
+     *      while ( i.hasNext() )
+     *          foo( i.next() );
+     *  }
+     * </pre>
+     * Failure to follow this advice may result in non-deterministic behavior.
+     *
+     * <p>The returned map will be serializable if the specified map is
+     * serializable.
+     *
+     * @param  m the map to be "wrapped" in a synchronized map.
+     * @return a synchronized view of the specified map.
+     */
+    public static <K> TObject#E#Map<K> synchronizedMap( TObject#E#Map<K> m ) {
+	    return new TSynchronizedObject#E#Map<K>( m );
+    }
+=====END_REPLICATED_CONTENT #12=====

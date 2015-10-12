@@ -79,23 +79,10 @@ public class SimplifyMethodNames extends ShorterNames{
 	}
 	
   public static void main(String[] args){
-	  String[] name={"test_add", 
-			  "test_init_addByParameters_addByParametersThrowingIllegalArgumentException", 
-			  "test_size", 
-			  "test_init_addByParametersAndExpected_addByParametersAndExpectedThrowingIllegalArgumentException", 
-			  "test_getParameterCountReturningZero", 
-			  "test_init_initThrowingIllegalArgumentException", 
-			  "test_size", 
-			  "test_getParameterCountReturningPositive", 
-			  "test_addByParameters", 
-			  "test_addWithGetParameterCountPositive_addWithHashCodePositive_addWithSizePositive", 
-			  "test_init_get_getThrowingIndexOutOfBoundsException", 
-			  "test_add_addThrowingIllegalArgumentException", 
-			  "test_get_toArray", 
-			  "test_addByParametersAndExpectedWithGetParameterCountPositive", 
-			  "test_init_addByParametersAndExpectedWithGetParameterCountZero", 
-			  "test_addByParameters"};
-	  minimizeNames(name);
+	  String[] name={"test_removeWithPositiveInput_removeThrowingArrayIndexOutOfBoundsException",
+			  "test_removeThrowingArrayIndexOutOfBoundsException",
+			  "test_removeWithPositiveInput"};
+	  minimizeFurther(name);
   }
 	
     public static String[] minimizeNames (String[] names){		
@@ -124,8 +111,13 @@ public class SimplifyMethodNames extends ShorterNames{
 							break;
 						}
 					}
-					//newName=newName2.substring(0,newName2.lastIndexOf("_"+tokens[k]));
-					newName = newName2.replace("_"+tokens[k]+"_", "_");
+				//	newName=newName2.substring(newName2.indexOf("_"+tokens[i]),newName2.lastIndexOf("_"+tokens[k]));
+					if(k==tokens.length-1){
+						newName = newName2.replace("_"+tokens[k], "");
+					} else{
+						newName = newName2.replaceFirst("_"+tokens[k]+"_", "_");
+					}
+					
 					for (int j=0; j<names.length; j++){
 						if(i==j){							
 						}else{
@@ -145,6 +137,7 @@ public class SimplifyMethodNames extends ShorterNames{
 					}
 				}
 			}
+			
 		}
 		for(int i=0; i<names.length; i++){
 			String newName=names[i];
@@ -172,9 +165,50 @@ public class SimplifyMethodNames extends ShorterNames{
 				}
 			}
 		}
-		System.out.println(Arrays.toString(names));
+		minimizeFurther(names);
+	//	System.out.println(Arrays.toString(names));
 		return names;
 	}
+    public static void minimizeFurther(String[] names){
+    	String firstName="";
+    	String nameInException="";
+    	int found=-1;
+    	int crash =-1;
+    	String newName="";
+    	for(int i=0; i<names.length; i++){
+    		if(names[i].split("_").length>2){
+    		found=-1;
+    		crash =-1;
+    		firstName="";
+    		nameInException="";
+    		newName= names[i];
+    		System.out.println(names[i]);
+			if(names[i].contains("Exception") && names[i].contains("Throwing")){
+				nameInException = names[i].substring(names[i].lastIndexOf("_")+1, names[i].lastIndexOf("Throwing"));
+				String[] tokens = names[i].split("_");
+				for(int j = 1; j< tokens.length-1; j++ ){
+					firstName = tokens[j].split("(?=\\p{Upper})")[0];
+					if(firstName.equals(nameInException)){
+						found=100;
+						firstName=tokens[j];
+						newName= names[i].replaceFirst("_"+nameInException+"Throwing", "Throwing"); 
+						for(int k=0; k<names.length; k++){
+							if (newName.equals(names[k])){
+								crash = 100;
+								break;
+							}
+						}
+						if(crash !=100){
+							names[i]=newName;
+						}
+						crash=-1;
+					}
+				}
+			}
+    		}
+    	}
+    	
+    }
 	
     public String[] countSameNames(String[] nameList){
 		int temp=0;

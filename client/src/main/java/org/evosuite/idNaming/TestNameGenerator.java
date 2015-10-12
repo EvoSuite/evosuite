@@ -213,6 +213,13 @@ public class TestNameGenerator extends DistinguishNames {
 		outputName = outputName.replace("<","").replace(">","").replace("(","").replace(")","");
 		branchName = branchName.replace("<","").replace(">","").replace("(","").replace(")","");
 		inputName = inputName.replace("<","").replace(">","").replace("(","").replace(")","");
+		
+		methodName=methodName.replace("_init", "_constructor");
+		exceptionName =	exceptionName.replace("_init", "_constructor");
+		outputName = outputName.replace("_init", "_constructor");
+		branchName = branchName.replace("_init", "_constructor");
+		inputName = inputName.replace("_init", "_constructor");
+		
 		testNames.put(tc, methodName); 
 		testOutputs.put(tc, outputName);
 		testBranches.put(tc, branchName);
@@ -231,6 +238,7 @@ public class TestNameGenerator extends DistinguishNames {
 				}
 			}
 		}
+	
 		System.out.println(methodName+"-"+exceptionName);
 		return methodName;
     }
@@ -268,22 +276,6 @@ public class TestNameGenerator extends DistinguishNames {
     		}
     	}
     	
-    	/*if(compareAgain.equals("YES")){
-	    	for(int i=0; i<testCases.size(); i++){
-	    		for(int j=i+1; j<testCases.size(); j++){
-	    			testMethodName1 = testCaseNames.get(testCases.get(i));
-	    			 testMethodName2 = testCaseNames.get(testCases.get(j));
-	    			if(testMethodName1.equals(testMethodName2)){
-	    				testMethodNameOptimized1 = testMethodName1 + testBranches.get(testCases.get(i));
-	    				testMethodNameOptimized2 = testMethodName2 + testBranches.get(testCases.get(j));
-	    				System.out.println(testMethodNameOptimized1+"-"+testMethodNameOptimized2);
-	    				setNameGeneratedFor(testCases.get(i), testMethodNameOptimized1);
-	    				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);
-	    			}
-	    		}
-	    	}
-    	}*/
-    	
     	
     	String[] testName = new String[testCases.size()];
     	TestCase[] testCs = new TestCase[testCases.size()];
@@ -302,8 +294,8 @@ public class TestNameGenerator extends DistinguishNames {
     	SimplifyMethodNames optimize = new SimplifyMethodNames();
     	testName = optimize.optimizeNames(Arrays.asList(testName));
     	for (int i=0; i<testName.length; i++) {        	           
-           testName[i] = testName[i] + testExceptions.get(testCs[i]); // TODO
-          
+          testName[i] = testName[i] + testExceptions.get(testCs[i]); // TODO
+          System.out.println(testName[i]);
         }    
     	testName = optimize.minimizeNames(testName);
     	testName = optimize.countSameNames(testName); 
