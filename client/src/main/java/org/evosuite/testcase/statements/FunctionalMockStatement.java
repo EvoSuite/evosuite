@@ -227,6 +227,30 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
+        //avoid cases of infinite recursions
+        boolean onlySelfReturns = true;
+        for (Method m : rawClass.getDeclaredMethods()) {
+            if(! rawClass.equals(m.getReturnType())){
+                onlySelfReturns = false;
+                break;
+            }
+        }
+
+        if(onlySelfReturns && rawClass.getDeclaredMethods().length > 0){
+            //avoid weird cases like java.lang.Appendable
+            return false;
+        }
+
+        //ad-hoc list of classes we should not really mock
+        List<Class<?>> avoid = Arrays.asList(
+            //add here if needed
+        );
+
+        if(avoid.contains(rawClass)){
+            return false;
+        }
+
+
         return true;
     }
 
@@ -467,6 +491,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         value = false;
                     } else if(expected.equals(Short.TYPE)) {
                         value = Short.valueOf("0");
+                    } else if(expected.equals(Character.TYPE)){
+                        value = 'a';
                     }
                 }
                 parameters.set(i, new ConstantValue(tc, new GenericClass(expected), value));
