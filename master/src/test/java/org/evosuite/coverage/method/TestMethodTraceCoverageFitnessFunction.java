@@ -39,7 +39,7 @@ import com.examples.with.different.packagename.SingleMethod;
  * @author Jose Miguel Rojas
  *
  */
-public class TestMethodTraceCoverageFitnessFunction_ extends SystemTest {
+public class TestMethodTraceCoverageFitnessFunction extends SystemTest {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
     
