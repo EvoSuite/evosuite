@@ -470,6 +470,8 @@
 	      <exclude>**/readme.txt</exclude>
 	      <exclude>**/how_to.txt</exclude>
 	      <exclude>client/src/main/resources/report/**</exclude>
+	      <exclude>**/.hgignore</exclude>
+	      <exclude>README.md</exclude>
 	    </excludes>
 	  </configuration>
 	</plugin>
@@ -667,6 +669,18 @@
 									<relocation>
 										<pattern>org.aopalliance</pattern>
 										<shadedPattern>org.evosuite.shaded.org.aopalliance</shadedPattern>
+									</relocation>
+									<relocation>
+										<pattern>org.mockito</pattern>
+										<shadedPattern>org.evosuite.shaded.org.mockito</shadedPattern>
+									</relocation>
+									<relocation>
+										<!-- This is special. Originally we wanted to handle it directly, but
+										 did not turn out to be a good idea. However, too early to remove
+										 that code, so we just shade this package to avoid backward
+										 compatibility issues -->
+										<pattern>javax.servlet</pattern>
+										<shadedPattern>org.evosuite.shaded.javax.servlet</shadedPattern>
 									</relocation>
 								</relocations>
 								<!-- ERMIRA -->

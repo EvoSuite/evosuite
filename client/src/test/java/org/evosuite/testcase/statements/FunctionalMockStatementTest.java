@@ -46,11 +46,14 @@ import sun.misc.ClassLoaderUtil;
 
 import java.io.File;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by Andrea Arcuri on 06/08/15.
@@ -120,7 +123,51 @@ public class FunctionalMockStatementTest {
         PackageLevel(){}
     }
 
+    public static class AClassWithPLMethod{
+
+        String foo(){
+            return "Value returned by package-level access method";
+        }
+    }
+
     //----------------------------------------------------------------------------------
+
+
+    @Test
+    public void testAClassWithPLMethod(){
+
+        //FIXME once we support it
+        assertFalse(FunctionalMockStatement.canBeFunctionalMocked(AClassWithPLMethod.class));
+    }
+
+    @Test
+    public void testConfirmPackageLevel() throws Exception{
+
+        Method m = AClassWithPLMethod.class.getDeclaredMethod("foo");
+        assertFalse(Modifier.isPrivate(m.getModifiers()));
+        assertFalse(Modifier.isPublic(m.getModifiers()));
+        assertFalse(Modifier.isProtected(m.getModifiers()));
+    }
+
+    @Test
+    public void testConfirmMockitoBehaviorOnPackageLevelAccess() throws Exception {
+
+        //direct calls
+
+        AClassWithPLMethod original = new AClassWithPLMethod();
+        assertNotNull(original.foo());
+
+        AClassWithPLMethod mocked = mock(AClassWithPLMethod.class);
+        assertNull(mocked.foo());
+
+
+        //reflection
+        Method m = AClassWithPLMethod.class.getDeclaredMethod("foo");
+        m.setAccessible(true);
+
+        assertNotNull(m.invoke(original));
+        assertNull(m.invoke(mocked));
+    }
 
 
     @Test

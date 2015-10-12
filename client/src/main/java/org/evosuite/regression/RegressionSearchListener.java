@@ -1,4 +1,23 @@
 /**
+ * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser Public License as published by the
+ * Free Software Foundation, either version 3.0 of the License, or (at your
+ * option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along
+ * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
  * 
  */
 package org.evosuite.regression;
@@ -65,6 +84,8 @@ public class RegressionSearchListener implements SearchListener {
 	public static int lastAssertions = -1;
 	public static boolean lastIterationSuccessful = false;
 	
+	public static boolean skipWritingStats = false;
+	
 	public double lastFitnessObserved = Double.MAX_VALUE;
 
 	/*
@@ -107,7 +128,11 @@ public class RegressionSearchListener implements SearchListener {
 			statsFileWriter.write(data);
 			statsFileWriter.flush();
 		} catch (IOException e) {
+			skipWritingStats = true;
 			e.printStackTrace();
+		} catch(Throwable t){
+			// something happened, we don't care :-)
+			t.printStackTrace();
 		}
 		startTime = System.currentTimeMillis();
 	}
@@ -194,6 +219,9 @@ public class RegressionSearchListener implements SearchListener {
 		if (lastLine == "")
 			return;
 		
+		if(skipWritingStats)
+			return;
+		
 		lastLine = lastLine.replace("ASSERTIONS", "" + assertions);
 		lastLine = lastLine.replaceFirst("^\r\n([\\d\\.]*),\\d*,\\d*", "\r\n$1," + testCount + "," + testSize);
 		try {
@@ -202,12 +230,18 @@ public class RegressionSearchListener implements SearchListener {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch(Throwable t){
+			// something happened, we don't care :-)
+			t.printStackTrace();
 		}
 	}
 
 	private void writeIterationLog(GeneticAlgorithm<?> algorithm,
 			char runState, RegressionTestSuiteChromosome ind,
 			int curAssertions, double curOD) throws IOException {
+		
+		if(skipWritingStats)
+			return;
 		
 		lastLine = "\r\n"
 				+ (ind).fitnessData
@@ -358,7 +392,7 @@ public class RegressionSearchListener implements SearchListener {
 		}
 		
 		try {
-			if(!Properties.MINIMIZE)
+			if(!Properties.MINIMIZE && !skipWritingStats)
 				statsFileWriter.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

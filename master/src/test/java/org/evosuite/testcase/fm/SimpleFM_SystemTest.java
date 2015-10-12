@@ -26,6 +26,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -56,6 +57,35 @@ public class SimpleFM_SystemTest extends SystemTest{
         Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
 
         do100percentLineTest(SimpleFM_Generics.class);
+    }
+
+    @Test
+    public void testSimpleGenericReturn(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        do100percentLineTest(SimpleFM_GenericReturn.class);
+    }
+
+    @Ignore //FIXME once we handle package-level methods
+    @Test
+    public void testSimplePLM(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        do100percentLineTest(SimpleFM_PackageMethod.class);
+    }
+
+    @Ignore //FIXME once we handle package-level methods
+    @Test
+    public void testSimplePLMwithReturn(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        do100percentLineTest(SimpleFM_PackageMethodWithReturn.class);
     }
 
     @Test

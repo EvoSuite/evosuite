@@ -17,14 +17,12 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.regression;
+package com.examples.with.different.packagename;
 
-public class RegressionNode {
-
-	public int bytecodeOffset;
-	public int basicBlock;
-
-	public RegressionNode(int offset) {
-		this.bytecodeOffset = offset;
-	}
+public enum PureEnum {
+	alpha,
+	beta,
+	gamma,
+	delta,
+	epsilon
 }

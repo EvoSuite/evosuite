@@ -34,9 +34,10 @@ public class Inputs {
         if(inputs == null){
             throw new IllegalArgumentException("No inputs to check");
         }
-        for(Object obj : inputs){
+        for(int i=0; i<inputs.length; i++){
+            Object obj = inputs[i];
             if(obj==null){
-                throw new IllegalArgumentException("Null input");
+                throw new IllegalArgumentException("Null input in position "+i);
             }
         }
     }

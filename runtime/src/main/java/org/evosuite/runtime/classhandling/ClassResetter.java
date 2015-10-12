@@ -31,6 +31,7 @@ import java.util.Set;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,15 +60,8 @@ public class ClassResetter {
 	
 	private final Map<ClassLoader, Map<String, Method>> resetMethodCache;
 
-	/**
-	 * Keep track of all classes for which we have already issued a warning
-	 * if problems.
-	 */
-	private final Set<String> alreadyLoggedErrors;
-
 	private ClassResetter(){
 		resetMethodCache = new HashMap<>();
-		alreadyLoggedErrors = new HashSet<>();
 	}
 
 	/**
@@ -92,11 +86,7 @@ public class ClassResetter {
 	 * @param msg
 	 */
 	public synchronized void logWarn(String className, String msg){
-		if(alreadyLoggedErrors.contains(className)){
-			return; // do not log a second time
-		}
-		alreadyLoggedErrors.add(className);
-		logger.warn(msg);
+		AtMostOnceLogger.warn(logger,msg);
 	}
 
 	private void cacheResetMethod(String classNameWithDots) {
@@ -168,11 +158,11 @@ public class ClassResetter {
 		} catch (IllegalAccessException | IllegalArgumentException e) {
             logger.error(""+e,e);
         } catch (NoClassDefFoundError e){
-            logger.error(e.toString()); //no point in getting stack trace here, as it gives no info
+			AtMostOnceLogger.error(logger,e.toString());
         } catch(InvocationTargetException e){
 
 			Throwable cause = e.getCause();
-			if(cause instanceof TooManyResourcesException){
+			if(cause instanceof TooManyResourcesException || cause instanceof NoClassDefFoundError){
 				logWarn(classNameWithDots, e.toString() + ", caused by: "+cause.toString());
 			} else {
 				StringWriter errors = new StringWriter();

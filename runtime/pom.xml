@@ -29,12 +29,7 @@
             -->
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <!-- same comments as JUnit -->
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <scope>provided</scope>
-        </dependency>
+
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -43,24 +38,22 @@
             <!-- shouldn't end up in final jar-->
         </dependency>
 
-        <!-- Java EE dependencies. Most should be "provided" -->
+
+        <!-- Note: those have to be part of the distribution. -->
+
+        <dependency>
+            <!-- same comments as JUnit -->
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
-
-        <!--
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        -->
-
-        <!-- Note: those have to be part of the distribution.
-               TODO check if it should be shaded, and possible side effects -->
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>

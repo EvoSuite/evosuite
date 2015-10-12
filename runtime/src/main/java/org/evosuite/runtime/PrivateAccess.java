@@ -20,7 +20,8 @@
 package org.evosuite.runtime;
 
 import org.evosuite.runtime.javaee.injection.InjectionList;
-import org.junit.AssumptionViolatedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -37,6 +38,8 @@ import java.util.List;
  * Created by Andrea on 20/02/15.
  */
 public class PrivateAccess {
+
+    private static final Logger logger = LoggerFactory.getLogger(PrivateAccess.class);
 
     /**
      * flag to specify to throw AssumptionViolatedException when fields/methods do not
@@ -58,10 +61,10 @@ public class PrivateAccess {
      * @param value
      * @param <T>  the class type
      * @throws IllegalArgumentException if klass or fieldName are null
-     * @throws AssumptionViolatedException  if the the field does not exist anymore (eg due to refactoring)
+     * @throws FalsePositiveException  if the the field does not exist anymore (eg due to refactoring)
      */
     public  static <T> void setVariable(Class<T> klass, T instance, String fieldName, Object value)
-            throws IllegalArgumentException, AssumptionViolatedException {
+            throws IllegalArgumentException, FalsePositiveException {
         setVariable(klass,instance,fieldName,value,null);
     }
 
@@ -75,11 +78,11 @@ public class PrivateAccess {
      * @param <T>  the class type
      * @param tagsToCheck if not null, then the field has to have at least one the tags in such list
      * @throws IllegalArgumentException if klass or fieldName are null
-     * @throws AssumptionViolatedException  if the the field does not exist anymore (eg due to refactoring)
+     * @throws FalsePositiveException  if the the field does not exist anymore (eg due to refactoring)
      */
     public  static <T> void setVariable(Class<?> klass, T instance, String fieldName, Object value,
                                         List<Class<? extends Annotation>> tagsToCheck)
-            throws IllegalArgumentException, AssumptionViolatedException {
+            throws IllegalArgumentException, FalsePositiveException {
 
         if(klass == null){
             throw new IllegalArgumentException("No specified class");
@@ -100,7 +103,7 @@ public class PrivateAccess {
 
             if(shouldNotFailTest) {
                 // force the throwing of a JUnit AssumptionViolatedException
-                throw new AssumptionViolatedException(message);
+                throw new FalsePositiveException(message);
                 //it is equivalent to calling
                 //org.junit.Assume.assumeTrue(message,false);
             } else {
@@ -130,7 +133,7 @@ public class PrivateAccess {
             field.set(instance,value);
         } catch (IllegalAccessException e) {
             //should never happen, due to setAccessible(true);
-            throw new AssumptionViolatedException("Failed to set field "+fieldName+": "+e.toString());
+            throw new FalsePositiveException("Failed to set field "+fieldName+": "+e.toString());
         }
     }
 
@@ -146,11 +149,11 @@ public class PrivateAccess {
      * @param <T>
      * @return the result of calling the method
      * @throws IllegalArgumentException if either klass or methodName are null
-     * @throws AssumptionViolatedException  if method does not exist any more (eg, refactoring)
+     * @throws FalsePositiveException  if method does not exist any more (eg, refactoring)
      * @throws Throwable the method might throw an internal exception
      */
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName, Object[] inputs, Class<?>[] types)
-            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+            throws  Throwable {
 
         if(klass == null){
             throw new IllegalArgumentException("No specified class");
@@ -170,7 +173,7 @@ public class PrivateAccess {
         } catch (NoSuchMethodException e) {
             String message = "Method "+methodName+" does not exist anymore";
             if(shouldNotFailTest){
-                throw new AssumptionViolatedException(message);
+                throw new FalsePositiveException(message);
             } else {
                 throw new IllegalArgumentException(message);
             }
@@ -184,7 +187,7 @@ public class PrivateAccess {
             result = method.invoke(instance,inputs);
         } catch (IllegalAccessException e) {
            //shouldn't really happen
-            throw new AssumptionViolatedException("Failed to call "+methodName+": "+e.toString());
+            throw new FalsePositiveException("Failed to call "+methodName+": "+e.toString());
         } catch (InvocationTargetException e) {
             //we need to propagate the real cause to the test
             throw e.getTargetException();
@@ -198,42 +201,80 @@ public class PrivateAccess {
      */
 
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName)
-            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+            throws Throwable {
         return callMethod(klass,instance,methodName,new Object[0], new Class<?>[0]);
     }
 
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName, Object input, Class<?> type)
-            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+            throws Throwable {
         return callMethod(klass,instance,methodName,new Object[]{input}, new Class<?>[]{type});
     }
 
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName
             , Object i0, Class<?> t0, Object i1, Class<?> t1)
-            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+            throws  Throwable {
         return callMethod(klass,instance,methodName,new Object[]{i0,i1}, new Class<?>[]{t0,t1});
     }
 
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName
             , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2)
-            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+            throws  Throwable {
         return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2}, new Class<?>[]{t0,t1,t2});
     }
 
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName
             , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3)
-            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+            throws  Throwable {
         return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3}, new Class<?>[]{t0,t1,t2,t3});
     }
 
     public static <T> Object callMethod(Class<T> klass, T instance, String methodName
             , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4)
-            throws IllegalArgumentException, AssumptionViolatedException, Throwable {
+            throws  Throwable {
         return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4}, new Class<?>[]{t0,t1,t2,t3,t4});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5}, new Class<?>[]{t0,t1,t2,t3,t4,t5});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6}, new Class<?>[]{t0,t1,t2,t3,t4,t5,t6});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6,Object i7, Class<?> t7)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7}, new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6,Object i7, Class<?> t7,Object i8, Class<?> t8)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8}, new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6,Object i7, Class<?> t7,Object i8, Class<?> t8,Object i9, Class<?> t9)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9});
     }
 
 
     public static Method getCallMethod(int nParameters){
-        if(nParameters<0 || nParameters>5){ //TODO might consider have more
+        int max = 10; //TODO might consider have more
+        if(nParameters<0 || nParameters>max){
+            logger.error("Cannot handle reflection on methods with more than {} parameters: asked for {}", max, nParameters);
             return null;
         }
 
@@ -250,6 +291,7 @@ public class PrivateAccess {
         try {
             return PrivateAccess.class.getDeclaredMethod("callMethod",types.toArray(new Class[0]));
         } catch (NoSuchMethodException e) {
+            logger.error(""+e.getMessage());
             return null;
         }
     }

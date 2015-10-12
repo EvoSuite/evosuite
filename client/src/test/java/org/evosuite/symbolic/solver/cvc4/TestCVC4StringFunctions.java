@@ -30,6 +30,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
+import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -480,5 +481,19 @@ public class TestCVC4StringFunctions {
 
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringCompareTo(solver);
+	}
+	
+	@Test
+	public void testStringEqualsIgnoreCase() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+
+		if (Properties.CVC4_PATH == null) {
+			System.out
+					.println("Warning: cvc4_path should be configured to execute this test case");
+			return;
+		}
+
+		CVC4Solver solver = new CVC4Solver();
+		TestSolverStringFunctions.testStringEqualsIgnoreCase(solver);
 	}
 }

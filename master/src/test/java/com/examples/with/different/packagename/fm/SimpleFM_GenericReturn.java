@@ -17,12 +17,21 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename.setup;
+package com.examples.with.different.packagename.fm;
 
-/**
- * Created by Andrea Arcuri on 13/09/15.
- */
-public class X {
+import java.util.List;
 
-    private X(){}
+public class SimpleFM_GenericReturn {
+
+	public static interface Foo<T> {
+	
+		public List<T> foo();
+	}
+	
+    public boolean bar(Foo<String> bar, String x){
+        if(bar.foo().isEmpty())
+        	return true;
+        else
+        	return false;
+    }
 }

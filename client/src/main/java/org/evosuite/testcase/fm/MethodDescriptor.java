@@ -23,7 +23,8 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.execution.EvosuiteError;
-import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericMethod;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,11 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         this.method = method;
         methodName = method.getName();
         className = method.getDeclaringClass().getName();
+        inputParameterMatchers = initMatchers(method);
+    }
+
+
+    private String initMatchers(Method method) {
 
         String matchers = "";
         Type[] types = method.getParameterTypes();
@@ -75,14 +81,16 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             Type type = types[i];
             if(type.equals(Integer.TYPE) || type.equals(Integer.class)){
                 matchers += "anyInt()";
-            } else if(type.equals(Long.TYPE) || type.equals(Long.class)){
+            }else if(type.equals(Long.TYPE) || type.equals(Long.class)){
                 matchers += "anyLong()";
+            }else if(type.equals(Boolean.TYPE) || type.equals(Boolean.class)){
+                matchers += "anyBoolean()";
             }else if(type.equals(Double.TYPE) || type.equals(Double.class)){
                 matchers += "anyDouble()";
             }else if(type.equals(Float.TYPE) || type.equals(Float.class)){
                 matchers += "anyFloat()";
             }else if(type.equals(Short.TYPE) || type.equals(Short.class)){
-                matchers += "anyString()";
+                matchers += "anyShort()";
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
             }else{
@@ -90,23 +98,14 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             }
         }
 
-        inputParameterMatchers = matchers;
+        return matchers;
     }
 
+
     public void changeClassLoader(ClassLoader loader) {
-        try {
-            Class<?> klass = loader.loadClass(method.getDeclaringClass().getName());
-            Class<?>[] params = method.getParameterTypes();
-            for(int i=0; i<params.length; i++){
-                if(!params[i].isPrimitive()){
-                    params[i] = loader.loadClass(params[i].getName());
-                }
-            }
-            method = klass.getDeclaredMethod(method.getName(), params);
-        } catch (Exception e) {
-            //should not really happen
-            logger.error("Failed to reload {} with a new classloader: {}", method, e.getMessage());
-        }
+    	GenericMethod gm = new GenericMethod(method, method.getDeclaringClass());
+    	gm.changeClassLoader(loader);
+    	method = gm.getMethod();
     }
 
     /**
@@ -180,6 +179,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 return Mockito.anyInt();
             } else if (type.equals(Long.TYPE) || type.equals(Long.class)) {
                 return Mockito.anyLong();
+            } else if (type.equals(Boolean.TYPE) || type.equals(Boolean.class)) {
+                return Mockito.anyBoolean();
             } else if (type.equals(Double.TYPE) || type.equals(Double.class)) {
                 return Mockito.anyDouble();
             } else if (type.equals(Float.TYPE) || type.equals(Float.class)) {
@@ -204,6 +205,10 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         this.methodName = methodName;
         this.inputParameterMatchers = inputParameterMatchers;
         counter = 0;
+    }
+    
+    public GenericMethod getGenericMethodFor(GenericClass clazz) {
+    	return new GenericMethod(method, clazz);
     }
 
     public Method getMethod(){

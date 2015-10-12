@@ -17,12 +17,21 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename.setup;
+package com.examples.with.different.packagename.fm;
 
 /**
- * Created by Andrea Arcuri on 13/09/15.
+ * Created by Andrea Arcuri on 06/10/15.
  */
-public class X {
+public class SimpleFM_PackageMethod {
 
-    private X(){}
+    public static class PLM {
+        void foo() {
+            throw new IllegalStateException("");
+        }
+    }
+
+    public void bar(PLM plm){
+        plm.foo(); //throw exception if not mocked
+        System.out.println("To reach this, PLM should had been mocked");
+    }
 }
