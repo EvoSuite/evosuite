@@ -710,18 +710,24 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (int) ((Character)value).charValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (int) ((Byte)value).intValue();
+                        } else if(value.equals(Short.TYPE)){
+                            value = (int) ((Short)value).intValue();
                         }
                     }
 
                     if(expectedType.equals(Double.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
                             value = (double) ((Integer)value).intValue();
-                        } else if(valuesClass.equals(Float.class)){
-                            value = (double) ((Float)value).floatValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (double) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Character.class)){
+                            value = (double) ((Character)value).charValue();
+                        } else if(value.equals(Short.TYPE)){
+                            value = (double) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
                             value = (double) ((Long)value).longValue();
+                        } else if(valuesClass.equals(Float.class)){
+                            value = (double) ((Float)value).floatValue();
                         }
                     }
 
@@ -730,6 +736,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (float) ((Integer)value).intValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (float) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Character.class)){
+                            value = (float) ((Character)value).charValue();
+                        } else if(value.equals(Short.TYPE)){
+                            value = (float) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
                             value = (float) ((Long)value).longValue();
                         }
@@ -740,6 +750,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (long) ((Integer)value).intValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (long) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Character.class)){
+                            value = (long) ((Character)value).charValue();
+                        } else if(value.equals(Short.TYPE)){
+                            value = (long) ((Short)value).intValue();
                         }
                     }
 
