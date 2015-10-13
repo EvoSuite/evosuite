@@ -19,7 +19,6 @@
  */
 package org.evosuite.symbolic;
 
-import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
@@ -31,8 +30,8 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.variable.VariableReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -164,18 +163,13 @@ public class ConcolicExecutionTest {
 
 	private List<BranchCondition> executeTest(DefaultTestCase tc) {
 		Properties.CLIENT_ON_THREAD = true;
-		Properties.PRINT_TO_SYSTEM = true;
+		Properties.PRINT_TO_SYSTEM = false;
 		Properties.TIMEOUT = 5000;
 		Properties.CONCOLIC_TIMEOUT = 5000000;
 
-		System.out.println("TestCase=");
-		System.out.println(tc.toCode());
-
-		// ConcolicExecution concolicExecutor = new ConcolicExecution();
 		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
-		printConstraints(branch_conditions);
 		return branch_conditions;
 	}
 
