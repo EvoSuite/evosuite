@@ -239,7 +239,7 @@ public class TestNameGenerator extends DistinguishNames {
 			}
 		}
 	
-		System.out.println(methodName+"-"+exceptionName);
+		System.out.println(methodName);
 		return methodName;
     }
 
@@ -251,31 +251,45 @@ public class TestNameGenerator extends DistinguishNames {
 		String testMethodName2 = "";
 		String testMethodNameOptimized1 = "";
 		String testMethodNameOptimized2 = "";
-		String compareAgain="NO";
-    	for(int i=0; i<testCases.size(); i++){
-    		for(int j=i+1; j<testCases.size(); j++){
-    			 testMethodName1 = testCaseNames.get(testCases.get(i));
-    			 testMethodName2 = testCaseNames.get(testCases.get(j));
-    			if(testMethodName1.equals(testMethodName2)){
-    				testMethodNameOptimized1 = testMethodName1 + testOutputs.get(testCases.get(i));
-    				testMethodNameOptimized2 = testMethodName2 + testOutputs.get(testCases.get(j));
-    				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-    					testMethodNameOptimized1 = testMethodNameOptimized1 + testInputs.get(testCases.get(i));
-        				testMethodNameOptimized2 = testMethodNameOptimized2 + testInputs.get(testCases.get(j));
-        				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-        					testMethodNameOptimized1 = testMethodNameOptimized1 + testBranches.get(testCases.get(i));
-            				testMethodNameOptimized2 = testMethodNameOptimized2 + testBranches.get(testCases.get(j));  				
-        				}
+		List<Integer> testOptimized = new ArrayList<Integer>();
 
-    				}
-    			//	System.out.println(testMethodNameOptimized1+"-"+testMethodNameOptimized2);
-    				setNameGeneratedFor(testCases.get(i), testMethodNameOptimized1);
-    				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);
-    				compareAgain="YES";
-    			}
+		List<String> output = new ArrayList<String>();
+		List<String> input = new ArrayList<String>();
+		List<String> branch = new ArrayList<String>();
+		String compareAgain="NO";
+		
+    	for(int i=0; i<testCases.size(); i++){
+    		compareAgain="NO";
+    		for(int j=i+1; j<testCases.size(); j++){    			
+	    			 testMethodName1 = testCaseNames.get(testCases.get(i));
+	    			 testMethodName2 = testCaseNames.get(testCases.get(j));
+	    			if(testMethodName1.equals(testMethodName2)){
+	    				compareAgain="YES";
+	    				testMethodNameOptimized1 = //testMethodName1 + 
+	    						"test_"+testOutputs.get(testCases.get(i));
+	    				testMethodNameOptimized2 = //testMethodName2 + 
+	    						"test_"+testOutputs.get(testCases.get(j));
+	    				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
+	    					testMethodNameOptimized1 = //testMethodNameOptimized1 + 
+	    							"test_"+testInputs.get(testCases.get(i));
+	        				testMethodNameOptimized2 = //testMethodNameOptimized2 + 
+	        						"test_"+testInputs.get(testCases.get(j));
+	        				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
+	        					testMethodNameOptimized1 = //testMethodNameOptimized1 + 
+	        							"test_"+testBranches.get(testCases.get(i));
+	            				testMethodNameOptimized2 = //testMethodNameOptimized2 + 
+	            						"test_"+testBranches.get(testCases.get(j));  				
+	        				}
+	
+	    				}
+	    			//	System.out.println(testMethodNameOptimized1+"-"+testMethodNameOptimized2);    				
+	    				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);    				
+	    			}    			
+	    		} 
+    		if(compareAgain=="YES"){
+    	    	setNameGeneratedFor(testCases.get(i), testMethodNameOptimized1);
     		}
     	}
-    	
     	
     	String[] testName = new String[testCases.size()];
     	TestCase[] testCs = new TestCase[testCases.size()];
@@ -283,6 +297,7 @@ public class TestNameGenerator extends DistinguishNames {
     	for(Map.Entry<TestCase,String> entry: testCaseNames.entrySet()){
     		testName[count]= entry.getValue();
     		testCs[count] = entry.getKey();
+    		System.out.println(testName[count]);
     		count++;
     	}
     	
