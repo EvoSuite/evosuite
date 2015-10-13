@@ -1,0 +1,487 @@
+<!--
+  ~ ///////////////////////////////////////////////////////////////////////////////
+  ~ // Copyright (c) 2009-2010, Rob Eden All Rights Reserved.
+  ~ //
+  ~ // This library is free software; you can redistribute it and/or
+  ~ // modify it under the terms of the GNU Lesser General Public
+  ~ // License as published by the Free Software Foundation; either
+  ~ // version 2.1 of the License, or (at your option) any later version.
+  ~ //
+  ~ // This library is distributed in the hope that it will be useful,
+  ~ // but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ // GNU General Public License for more details.
+  ~ //
+  ~ // You should have received a copy of the GNU Lesser General Public
+  ~ // License along with this program; if not, write to the Free Software
+  ~ // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+  ~ ///////////////////////////////////////////////////////////////////////////////
+  -->
+
+<project name="Trove4j" default="jar" basedir=".">
+<!-- ####### Path and compiler options for MAJOR ######## -->
+  <import file="../major.build.xml"/>
+
+  <description>Builds the Trove4j library</description>
+
+  <property name="Name" value="Trove"/>
+  <property name="name" value="trove"/>
+  <property name="year" value="2001-2011"/>
+
+  <property name="debug" value="on"/>
+  <property name="deprecation" value="on"/>
+
+
+  <property name="jar_name" value="trove.jar"/>
+
+  <property name="output.dir" value="output"/>
+  <property name="output.dest" value="${output.dir}/classes"/>
+  <property name="output.tests" value="${output.dir}/test_classes"/>
+  <property name="output.generator_classes" value="${output.dir}/generator_classes"/>
+  <property name="output.generated" value="${output.dir}/gen_src"/>
+  <property name="output.lib" value="${output.dir}/lib"/>
+  <property name="output.tests" value="${output.dir}/tests"/>
+  <property name="output.javadocs" value="${output.dir}/javadocs"/>
+  <property name="output.tmp" value="${output.dir}/tmp"/>
+  <property name="output.benchmarks" value="${output.dir}/benchmark_classes"/>
+
+  <property name="dist.root" value="${output.dir}/dist"/>
+
+  <property name="src" value="src"/>
+  <property name="generator_src" value="generator_src"/>
+  <property name="generator_test" value="generator_test"/>
+  <property name="test_src" value="test"/>
+  <property name="lib" value="lib"/>
+  <property name="idea" value="idea"/>
+  <property name="templates" value="templates"/>
+
+<!-- Major's properties for the classes and test classes directories -->
+  <property name="dir.classes" value="${output.dest}"/>
+  <property name="dir.test.classes" value="${output.tests}"/>
+
+  <!-- =============================================================== -->
+  <!-- The main target for building a release. This will perform a     -->
+  <!-- "clean" followed by a "dist".                                   -->
+  <!-- =============================================================== -->
+  <target name="release" depends="-init"
+      description="Do everything for a release: clean, build everything and test">
+      <antcall target="clean"/>
+      <antcall target="test"/>
+      <antcall target="dist"/>
+
+
+      <!-- .tar.gz file -->
+      <tar tarfile="${name}-${version}.tar" basedir="${dist.root}"/>
+      <gzip src="${name}-${version}.tar"
+          zipfile="${dist.root}/${name}-${version}.tar.gz" />
+      <delete file="${name}-${version}.tar" />
+
+      <!-- .zip file -->
+      <zip destfile="${dist.root}/${name}-${version}.zip" basedir="${dist.root}"
+          excludes="**/*.tar, **/*.tar.gz, **/*.tgz"/>
+
+
+      <antcall target="-maven-files"/>
+
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Clean all output                                                -->
+  <!-- =============================================================== -->
+  <target name="clean" description="Remove all generated/compiled files">
+      <delete dir="${output.dir}"/>
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Generate classes based on templates.                            -->
+  <!-- =============================================================== -->
+  <target name="generate" depends="-build_generator"
+      description="Generate classes from templates">
+      <java classname="gnu.trove.generator.Generator" dir="${basedir}" fork="true">
+          <arg value="${templates}"/>
+          <arg value="${output.generated}"/>
+          <classpath>
+              <pathelement path="${output.generator_classes}"/>
+          </classpath>
+      </java>
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Compile the source directory.                                   -->
+  <!-- =============================================================== -->
+  <target name="compile" depends="generate">
+      <javac destdir="${output.dest}"
+          classpath="${lib}/junit.jar"
+          target="1.5"
+          debug="true"
+          fork="true" 
+          executable="${major.exec}">
+          <compilerarg value="${major.mutator}"/>
+          <compilerarg value="${major.opt}"/>
+
+          <src path="${src}"/>
+          <src path="${output.generated}"/>
+      </javac>
+
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Build the main jar.                                             -->
+  <!-- =============================================================== -->
+  <target name="jar" depends="compile,-init">
+      <jar destfile="${output.lib}/${name}-${version}.jar">
+          <fileset dir="${output.dest}">
+              <exclude name="gnu/trove/benchmark/**"/>
+              <exclude name="gnu/trove/test/**"/>
+              <exclude name="gnu/trove/generate/**"/>
+          </fileset>
+          <manifest>
+              <attribute name="Built-By" value="${user.name}"/>
+              <attribute name="Implementation-Title" value="${Name}"/>
+              <attribute name="Implementation-Version" value="${version}"/>
+              <attribute name="Implementation-URL" value="http://trove4j.sourceforge.net/"/>
+              <attribute name="Sealed" value="false"/>
+          </manifest>
+      </jar>
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Places files to prepare for a release.                          -->
+  <!-- This build javadocs and copies misc. files.                     -->
+  <!-- =============================================================== -->
+  <target name="dist" depends="jar,javadoc"
+      description="Build all files for distribution">
+
+      <mkdir dir="${dist.root}"/>
+      <mkdir dir="${dist.root}/${version}"/>
+
+      <!-- Save build number -->
+      <antcall target="-print_buildNumber"/>
+
+      <!-- Copy source -->
+      <copy todir="${dist.root}/${version}/src">
+          <fileset dir="${src}"/>
+      </copy>
+      <copy todir="${dist.root}/${version}/test">
+          <fileset dir="${test_src}"/>
+      </copy>
+      <copy todir="${dist.root}/${version}/templates">
+          <fileset dir="${templates}"/>
+      </copy>
+      <copy todir="${dist.root}/${version}/generator_src">
+          <fileset dir="${generator_src}"/>
+      </copy>
+      <copy todir="${dist.root}/${version}/generator_test">
+          <fileset dir="${generator_test}"/>
+      </copy>
+      <copy todir="${dist.root}/${version}/idea">
+          <fileset dir="${idea}"/>
+      </copy>
+
+      <!-- Build a source jar -->
+      <jar destfile="${dist.root}/${version}/${name}-${version}-src.jar">
+          <fileset dir="${src}"/>
+          <fileset dir="${output.generated}"/>
+      </jar>
+
+      <!-- Copy javadocs & libs -->
+      <copy todir="${dist.root}/${version}">
+          <fileset dir="${output.dir}" includes="lib/**,javadocs/**" />
+      </copy>
+      <copy todir="${dist.root}/${version}/lib" file="${lib}/junit.jar"/>
+
+      <!-- Misc. Files -->
+      <copy todir="${dist.root}/${version}">
+          <fileset dir="${basedir}" includes="*.txt"/>
+      </copy>
+      <copy todir="${dist.root}/${version}" file="build.xml"/>
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Create the javadocs.                                            -->
+  <!-- =============================================================== -->
+  <target name="javadoc" depends="compile">
+      <mkdir dir="${output.javadocs}"/>
+
+      <javadoc destdir="${output.javadocs}"
+          maxmemory="256m"
+          packagenames="gnu.trove.*"
+          excludepackagenames="gnu.trove.impl.*"
+          author="false"
+          version="false"
+          windowtitle="${Name} ${fullVersion}"
+          doctitle="${Name} ${fullVersion}"
+          header="&lt;a href=&quot;http://trove4j.sourceforge.net/&quot;>GNU Trove&lt;/a>">
+          <sourcepath>
+              <path location="src"/>
+              <path location="${output.generated}"/>
+          </sourcepath>
+      </javadoc>
+  </target>
+
+  <target name="compile.tests" depends="compile,-build_tests"/>
+
+  <property name="test.include" value="THashTest.java"/>
+  <target name="mutation.test">
+      <copy todir="${output.tests}">
+          <fileset dir="${test_src}">
+              <include name="**/*.obj"/>
+          </fileset>
+      </copy>
+      <!-- Set test fileset -->
+      <fileset id="major.tests" 
+          dir="${test.dir}" 
+          includes="**/${test.include}"/>
+
+      <path id="major.classpath">
+          <pathelement location="${output.tests}"/>
+          <pathelement location="${output.dest}"/>
+          <pathelement path="${lib}/junit.jar"/>
+          <fileset dir="${lib}">
+              <include name="*.jar"/>
+          </fileset>
+      </path>
+
+      <!-- Call mutation test target with fileset and classpath -->
+      <antcall target="major.test" inheritRefs="true">
+          <reference refid="major.tests"/>
+          <reference refid="major.classpath"/>
+      </antcall>
+  </target>
+
+  <!-- =============================================================== -->
+  <!-- Compile and run the unit tests.                                 -->
+  <!-- =============================================================== -->
+  <target name="test" depends="compile,-build_tests"
+      description="Compile unit tests and run them using JUnit.">
+
+      <copy todir="${output.tests}">
+          <fileset dir="${test_src}">
+              <include name="**/*.obj"/>
+          </fileset>
+      </copy>
+
+      <!-- Execute JUnit tests -->
+      <junit printsummary="no" showoutput="no"
+          errorProperty="test.failed" failureProperty="test.failed">
+
+          <classpath path="${output.tests}:${output.dest}:${lib}/junit.jar"/>
+
+          <classpath>
+              <pathelement location="${output.tests}"/>
+              <pathelement location="${output.dest}"/>
+              <pathelement path="${lib}\junit.jar"/>
+              <fileset dir="${lib}">
+                  <include name="*.jar"/>
+              </fileset>
+          </classpath>
+          <batchtest fork="no" todir="${output.dir}">
+              <!-- <formatter type="xml"/> -->
+              <fileset dir="${output.tests}/" includes="**/*Test.class"/>
+          </batchtest>
+      </junit>
+      <fail message="Tests failed. Check test output." if="test.failed"/>
+  </target>
+
+
+
+  <!-- =============================================================== -->
+  <!-- Run benchmarks.                                                 -->
+  <!-- =============================================================== -->
+  <target name="benchmark" depends="compile,-build_tests"
+      description="Run benchmark suite.">
+
+      <mkdir dir="${output.benchmarks}"/>
+      <javac destdir="${output.benchmarks}" debug="${debug}" target="1.5">
+          <src path="benchmarks/src"/>
+          <exclude name="gnu/trove/benchmark/colt/**"/>
+          <exclude name="gnu/trove/benchmark/compare/**"/>
+          <exclude name="gnu/trove/benchmark/trove2/**"/>
+
+          <classpath>
+              <pathelement location="${output.dest}"/>
+              <fileset dir="benchmarks/lib">
+                  <include name="*.jar"/>
+              </fileset>
+          </classpath>
+      </javac>
+
+      <java classname="gnu.trove.benchmark.BenchmarkRunner" fork="true"
+          output="${output.dir}/benchmarks.txt" failonerror="true">
+          <classpath>
+              <fileset dir="${lib}">
+                  <include name="*.jar"/>
+              </fileset>
+
+              <pathelement location="${output.dest}"/>
+              <pathelement location="${output./enerator_classes}"/>
+              <pathelement location="${output.tests}"/>
+              <pathelement location="${output.benchmarks}"/>
+          </classpath>
+      </java>
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Build maven files                                               -->
+  <!-- =============================================================== -->
+  <target name="-maven-files" depends="-init">
+      <!-- Maven files -->
+      <mkdir dir="${dist.root}/maven"/>
+
+      <copy file="${dist.root}/${version}/${name}-${version}-src.jar"
+          tofile="${dist.root}/maven/trove4j-${version}-src.jar"/>
+
+      <copy file="${dist.root}/${version}/lib/${name}-${version}.jar"
+          tofile="${dist.root}/maven/trove4j-${version}.jar"/>
+
+      <jar destfile="${dist.root}/maven/trove4j-${version}-javadoc.jar">
+          <fileset dir="${dist.root}/${version}/javadocs" includes="**"/>
+      </jar>
+
+      <copy file="resources/maven-manual-deploy-pom.xml"
+          tofile="${dist.root}/maven/trove4j-${version}.pom"/>
+      <replace file="${dist.root}/maven/trove4j-${version}.pom"
+          token="###VERSION###" value="${version}"/>
+  </target>
+
+
+  <!-- =============================================================== -->
+  <!-- Build generator classes.                                        -->
+  <!-- =============================================================== -->
+  <target name="-build_generator" depends="-init">
+      <javac srcdir="${generator_src}"
+          destdir="${output.generator_classes}"
+          defaultexcludes="yes"
+          debug="${debug}"
+          source="1.5" target="1.5"/>
+  </target>
+
+
+  <!-- =================================================================== -->
+  <!-- Initialization target                                               -->
+  <!-- =================================================================== -->
+  <target name="-init" depends="-findVersion">
+      <echo message="Java version: ${java.version}"/>
+
+      <tstamp/>
+
+      <mkdir dir="${output.dir}"/>
+      <mkdir dir="${output.generator_classes}"/>
+      <mkdir dir="${output.dest}"/>
+      <mkdir dir="${output.tests}"/>
+      <mkdir dir="${output.generated}"/>
+      <mkdir dir="${output.generated}/gnu"/>
+      <mkdir dir="${output.generated}/gnu/trove"/>
+      <mkdir dir="${output.lib}"/>
+      <mkdir dir="${dist.root}"/>
+  </target>
+
+
+  <!-- =================================================================== -->
+  <!-- Targets related to benchmarks.                                      -->
+  <!-- =================================================================== -->
+
+  <property name="test.dir" value="${test_src}"/>
+  <target name="-build_tests" depends="-init">
+      <javac destdir="${output.tests}" debug="${debug}" target="1.5">
+          <src path="${test.dir}"/>
+          <exclude name="gnu/trove/benchmark/colt/**"/>
+          <exclude name="gnu/trove/benchmark/trove2/**"/>
+
+          <classpath>
+              <pathelement location="${lib}/junit.jar"/>
+              <pathelement location="${output.dest}"/>
+          </classpath>
+      </javac>
+
+      <!-- See if third party libraries are available -->
+      <available classname="cern.colt.map.OpenIntObjectHashMap"
+          property="colt.available">
+
+          <classpath>
+              <fileset dir="${lib}">
+                  <include name="*.jar"/>
+              </fileset>
+          </classpath>
+      </available>
+      <antcall target="-build_colt_benchmarks"/>
+
+      <available classname="gnu.trove.TIntObjectHashMap"
+          property="trove2.available">
+
+          <classpath>
+              <fileset dir="${lib}">
+                  <include name="*.jar"/>
+              </fileset>
+          </classpath>
+      </available>
+      <antcall target="-build_trove2_benchmarks"/>
+
+  </target>
+
+
+  <target name="-build_colt_benchmarks" depends="-init" if="colt.available">
+      <javac destdir="${output.tests}" debug="${debug}" target="1.5">
+          <src path="${test_src}"/>
+
+          <include name="gnu/trove/benchmark/colt/**"/>
+
+          <classpath>
+              <fileset dir="${lib}">
+                  <include name="*.jar"/>
+              </fileset>
+              <pathelement location="${output.dest}"/>
+              <pathelement location="${output.tests}"/>
+          </classpath>
+      </javac>
+  </target>
+
+  <target name="-build_trove2_benchmarks" depends="-init" if="colt.available">
+      <javac destdir="${output.tests}" debug="${debug}" target="1.5">
+          <src path="${test_src}"/>
+
+          <include name="gnu/trove/benchmark/trove2/**"/>
+
+          <classpath>
+              <fileset dir="${lib}">
+                  <include name="*.jar"/>
+              </fileset>
+              <pathelement location="${output.dest}"/>
+              <pathelement location="${output.tests}"/>
+          </classpath>
+      </javac>
+  </target>
+
+  <target name="-print_buildNumber" if="build.number">
+      <echo file="${dist.root}\trove.build" append="false">${version}</echo>
+  </target>
+
+
+  <!-- VERSION DISCOVERY -->
+
+  <target name="-findVersion" depends="-version_versionNumber,-version_buildNumber,-version_none"/>
+
+  <target name="-version_versionNumber" if="version.number">
+      <property name="version" value="${version.number}"/>
+      <property name="fullVersion" value="${version.number}"/>
+  </target>
+
+  <target name="-version_buildNumber" if="build.number" unless="version.number">
+      <property name="version" value="${build.number}"/>
+      <property name="fullVersion" value="build ${build.number}"/>
+  </target>
+
+  <target name="-version_none">
+      <tstamp>
+          <format property="version" pattern="yyMMddHHmmss"/>
+          <format property="fullVersion" pattern="'build time' yyMMddHHmmss"/>
+      </tstamp>
+  </target>
+</project>

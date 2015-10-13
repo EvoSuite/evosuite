@@ -73,14 +73,19 @@ public class SimplifyMethodNames extends ShorterNames{
 					methodNames[position] = optNames[1];
 			}
 		}
-		methodNames = simple.minimizeNames(methodNames);
-		methodNames = simple.countSameNames(methodNames); 
+	//methodNames = simple.minimizeNames(methodNames);
+	//	methodNames = simple.countSameNames(methodNames); 
 		return methodNames;
 	}
 	
-  
+  public static void main(String[] args){
+	  String[] name={"test_removeWithPositiveInput_removeThrowingArrayIndexOutOfBoundsException",
+			  "test_removeThrowingArrayIndexOutOfBoundsException",
+			  "test_removeWithPositiveInput"};
+	  minimizeFurther(name);
+  }
 	
-    public String[] minimizeNames (String[] names){		
+    public static String[] minimizeNames (String[] names){		
 		for(int i=0; i<names.length; i++){
 			String [] tokens = names[i].split("_");
 			String newName=names[i];
@@ -90,7 +95,29 @@ public class SimplifyMethodNames extends ShorterNames{
 			//	outerloop:
 				for(int k=tokens.length-1; k>=2; k--){
 					newName=tokens[0];					
-					newName=newName2.substring(0,newName2.lastIndexOf("_"+tokens[k]));
+					if(tokens[k].contains("Exception") && tokens[k].contains("Throwing")){
+						k--;
+					}
+					if(newName2.contains("_init_") ){
+						newName2 = newName2.replace("_init_", "_");
+						tokens = newName2.split("_");
+						k--;
+						
+						newName = newName2.replace("_init_", ""); 
+						if(newName2.split("_").length>2){
+							
+						}else {
+							names[i] = newName;
+							break;
+						}
+					}
+				//	newName=newName2.substring(newName2.indexOf("_"+tokens[i]),newName2.lastIndexOf("_"+tokens[k]));
+					if(k==tokens.length-1){
+						newName = newName2.replace("_"+tokens[k], "");
+					} else{
+						newName = newName2.replaceFirst("_"+tokens[k]+"_", "_");
+					}
+					
 					for (int j=0; j<names.length; j++){
 						if(i==j){							
 						}else{
@@ -109,11 +136,79 @@ public class SimplifyMethodNames extends ShorterNames{
 						newName2= newName;
 					}
 				}
-			}			
+			}
+			
 		}
-		System.out.println(Arrays.toString(names));
+		for(int i=0; i<names.length; i++){
+			String newName=names[i];
+			int nameFound=-1;
+			if(names[i].split("_").length>2){
+				String [] tokensInName = names[i].split("_");
+				for(int l=1; l<tokensInName.length-1; l++){
+					newName = names[i].replace("_"+tokensInName[l]+"_", "_");
+					for (int j=0; j<names.length; j++){
+						if(i==j){							
+						}else{
+							if(newName.equals(names[j])){
+								nameFound=1;
+								break;
+							} else{
+								nameFound=0;
+							}
+						}						
+					}					
+					if(nameFound==1){
+						break;
+					}else{
+						names[i] = newName;
+					}
+				}
+			}
+		}
+		minimizeFurther(names);
+	//	System.out.println(Arrays.toString(names));
 		return names;
 	}
+    public static void minimizeFurther(String[] names){
+    	String firstName="";
+    	String nameInException="";
+    	int found=-1;
+    	int crash =-1;
+    	String newName="";
+    	for(int i=0; i<names.length; i++){
+    		if(names[i].split("_").length>2){
+    		found=-1;
+    		crash =-1;
+    		firstName="";
+    		nameInException="";
+    		newName= names[i];
+    		System.out.println(names[i]);
+			if(names[i].contains("Exception") && names[i].contains("Throwing")){
+				nameInException = names[i].substring(names[i].lastIndexOf("_")+1, names[i].lastIndexOf("Throwing"));
+				String[] tokens = names[i].split("_");
+				for(int j = 1; j< tokens.length-1; j++ ){
+					firstName = tokens[j].split("(?=\\p{Upper})")[0];
+					if(firstName.equals(nameInException)){
+						found=100;
+						firstName=tokens[j];
+						newName= names[i].replaceFirst("_"+nameInException+"Throwing", "Throwing"); 
+						for(int k=0; k<names.length; k++){
+							if (newName.equals(names[k])){
+								crash = 100;
+								break;
+							}
+						}
+						if(crash !=100){
+							names[i]=newName;
+						}
+						crash=-1;
+					}
+				}
+			}
+    		}
+    	}
+    	
+    }
 	
     public String[] countSameNames(String[] nameList){
 		int temp=0;

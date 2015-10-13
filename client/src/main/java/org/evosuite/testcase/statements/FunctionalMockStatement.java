@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * <p>
+ *
  * This file is part of EvoSuite.
- * <p>
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser Public License as published by the
  * Free Software Foundation, either version 3.0 of the License, or (at your
  * option) any later version.
- * <p>
+ *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,6 +25,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -212,12 +213,18 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
         }
 
         //FIXME: tmp fix to avoid mocking any class with private access methods
-        for(Method m : rawClass.getDeclaredMethods()){
-            if(! Modifier.isPublic(m.getModifiers()) && ! Modifier.isProtected(m.getModifiers()) &&
-                    ! Modifier.isPrivate(m.getModifiers()) ){
-                //package level
-                return false;
+        try {
+            for (Method m : rawClass.getDeclaredMethods()) {
+                if (!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) &&
+                        !Modifier.isPrivate(m.getModifiers())) {
+                    //package level
+                    return false;
+                }
             }
+        } catch (NoClassDefFoundError | Exception e){
+            //this could happen if we failed to load the class
+            LoggingUtils.logWarnAtMostOnce(logger,"Failed to check if can mock class "+rawClass.getName()+": "+e.getMessage());
+            return false;
         }
 
         return true;
@@ -589,6 +596,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 logger.error("Invocation of mocked {}.{}() threw an exception. " +
                                         "This means the method was not mocked",targetClass.getName(), method.getName());
                                 throw e;
+                            } catch (IllegalArgumentException e){
+                                logger.error("IAE on <"+method+"> when called with "+Arrays.toString(targetInputs));
+                                throw e;
                             }
 
                             //when(...)
@@ -631,8 +641,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                     } catch (CodeUnderTestException e){
                         throw e;
+                    } catch(java.lang.NoClassDefFoundError e) {
+                        AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to failed class initialization: "+e.getMessage());
+                        return; //or should throw an exception?
                     } catch (Throwable t) {
-                        LoggingUtils.logErrorAtMostOnce(logger, "Failed to use Mockito on " + targetClass + ": " + t.getMessage());
+                        AtMostOnceLogger.error(logger, "Failed to use Mockito on " + targetClass + ": " + t.getMessage());
                         throw new EvosuiteError(t);
                     }
 
@@ -679,12 +692,28 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (double) ((Integer)value).intValue();
                         } else if(valuesClass.equals(Float.class)){
                             value = (double) ((Float)value).floatValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (double) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Long.class)){
+                            value = (double) ((Long)value).longValue();
+                        }
+                    }
+
+                    if(expectedType.equals(Float.TYPE)) {
+                        if(valuesClass.equals(Integer.class)){
+                            value = (float) ((Integer)value).intValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (float) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Long.class)){
+                            value = (float) ((Long)value).longValue();
                         }
                     }
 
                     if(expectedType.equals(Long.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
                             value = (long) ((Integer)value).intValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (long) ((Byte)value).intValue();
                         }
                     }
 

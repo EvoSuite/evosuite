@@ -20,6 +20,8 @@
 package org.evosuite.runtime;
 
 import org.evosuite.runtime.javaee.injection.InjectionList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -36,6 +38,8 @@ import java.util.List;
  * Created by Andrea on 20/02/15.
  */
 public class PrivateAccess {
+
+    private static final Logger logger = LoggerFactory.getLogger(PrivateAccess.class);
 
     /**
      * flag to specify to throw AssumptionViolatedException when fields/methods do not
@@ -230,9 +234,47 @@ public class PrivateAccess {
         return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4}, new Class<?>[]{t0,t1,t2,t3,t4});
     }
 
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5}, new Class<?>[]{t0,t1,t2,t3,t4,t5});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6}, new Class<?>[]{t0,t1,t2,t3,t4,t5,t6});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6,Object i7, Class<?> t7)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7}, new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6,Object i7, Class<?> t7,Object i8, Class<?> t8)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8}, new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0, Class<?> t0, Object i1, Class<?> t1, Object i2, Class<?> t2,Object i3, Class<?> t3,Object i4, Class<?> t4
+            ,Object i5, Class<?> t5,Object i6, Class<?> t6,Object i7, Class<?> t7,Object i8, Class<?> t8,Object i9, Class<?> t9)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9});
+    }
+
 
     public static Method getCallMethod(int nParameters){
-        if(nParameters<0 || nParameters>5){ //TODO might consider have more
+        int max = 10; //TODO might consider have more
+        if(nParameters<0 || nParameters>max){
+            logger.error("Cannot handle reflection on methods with more than {} parameters: asked for {}", max, nParameters);
             return null;
         }
 
@@ -249,6 +291,7 @@ public class PrivateAccess {
         try {
             return PrivateAccess.class.getDeclaredMethod("callMethod",types.toArray(new Class[0]));
         } catch (NoSuchMethodException e) {
+            logger.error(""+e.getMessage());
             return null;
         }
     }

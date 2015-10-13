@@ -470,6 +470,8 @@
 	      <exclude>**/readme.txt</exclude>
 	      <exclude>**/how_to.txt</exclude>
 	      <exclude>client/src/main/resources/report/**</exclude>
+	      <exclude>**/.hgignore</exclude>
+	      <exclude>README.md</exclude>
 	    </excludes>
 	  </configuration>
 	</plugin>

@@ -208,7 +208,7 @@ public class TestSuiteGenerator {
 				TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
 	
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
-			    minimizer.minimize(testSuite, true);
+				minimizer.minimize(testSuite, true);
 			}
 		} else {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
@@ -508,7 +508,7 @@ public class TestSuiteGenerator {
 					String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
 					
 					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
-	
+
 					suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), false);
 				}
 			}

@@ -26,6 +26,8 @@ import com.examples.with.different.packagename.sette.L4_Collections;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
 import com.examples.with.different.packagename.stable.Base64;
 import com.examples.with.different.packagename.staticfield.UnstableAssertion;
+import com.examples.with.different.packagename.strings.Calc;
+import com.examples.with.different.packagename.*;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -42,7 +44,7 @@ public class TestIDNaming extends SystemTest {
 	public void testIDNamingOn() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = SnippetInputContainer.class.getCanonicalName();
+		String targetClass = XMLElement2.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ID_NAMING = true;
@@ -52,6 +54,7 @@ public class TestIDNaming extends SystemTest {
         analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.INPUT); analysisCriteria.append(",");
         analysisCriteria.append(Properties.Criterion.BRANCH);
+        analysisCriteria.append(Properties.Criterion.EXCEPTION);
         Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
         
         Properties.CRITERION = new Properties.Criterion[5];

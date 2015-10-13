@@ -682,7 +682,8 @@ public class TestSuiteWriter implements Opcodes {
             for (int i = 1; i < tokens.length; i++) {
                 if (i == tokens.length - 1) {
                     if (tokens[i].contains("Exception")) {
-                        newMethodName += "Throwing" + WordUtils.capitalize(tokens[i]);
+                        //newMethodName += "Throwing" + WordUtils.capitalize(tokens[i]);
+                    	newMethodName += WordUtils.capitalize(tokens[i]);
                     } else {
                         newMethodName += WordUtils.capitalize(tokens[i]);
                     }
