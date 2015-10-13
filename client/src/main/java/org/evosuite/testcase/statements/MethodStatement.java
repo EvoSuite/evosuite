@@ -338,7 +338,8 @@ public class MethodStatement extends EntityWithParametersStatement {
 			m.setRetval(newRetVal);
 
 		}
-
+		m.getReturnValue().setType(retval.getType()); // Actual type may have changed, e.g. subtype
+		
 		// m.assertions = copyAssertions(newTestCase, offset);
 
 		return m;

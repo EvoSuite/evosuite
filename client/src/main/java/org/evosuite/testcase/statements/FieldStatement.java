@@ -191,11 +191,13 @@ public class FieldStatement extends AbstractStatement {
 	public Statement copy(TestCase newTestCase, int offset) {
 		if (field.isStatic()) {
 			FieldStatement s = new FieldStatement(newTestCase, field.copy(), null);
+			s.getReturnValue().setType(retval.getType()); // Actual type may have changed, e.g. subtype
 			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		} else {
 			VariableReference newSource = source.copy(newTestCase, offset);
 			FieldStatement s = new FieldStatement(newTestCase, field.copy(), newSource);
+			s.getReturnValue().setType(retval.getType()); // Actual type may have changed, e.g. subtype
 			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		}
