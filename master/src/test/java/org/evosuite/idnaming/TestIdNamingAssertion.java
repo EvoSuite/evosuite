@@ -1,18 +1,8 @@
 package org.evosuite.idnaming;
 
+import com.examples.with.different.packagename.idnaming.gnu.trove.decorator.TIntShortMapDecorator;
 
-import com.examples.with.different.packagename.Calculator;
-import com.examples.with.different.packagename.errorbranch.*;
-import com.examples.with.different.packagename.idnaming.SimpleIdNaming;
-import com.examples.with.different.packagename.sette.L4_Collections;
-import com.examples.with.different.packagename.sette.SnippetInputContainer;
-import com.examples.with.different.packagename.stable.Base64;
-import com.examples.with.different.packagename.staticfield.UnstableAssertion;
-import com.examples.with.different.packagename.strings.Calc;
 
-import gnu.trove.decorator.TIntShortMapDecorator;
-
-import com.examples.with.different.packagename.*;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -26,7 +16,7 @@ import org.junit.Test;
 public class TestIdNamingAssertion extends SystemTest {
 
 	@Test
-	public void testIDNamingOn() {
+	public void testMissingAssertions() {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = TIntShortMapDecorator.class.getCanonicalName();
@@ -58,7 +48,7 @@ public class TestIdNamingAssertion extends SystemTest {
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 //	System.out.println(best.getCoverage()+"-"+1d);
-		Assert.assertEquals("Wrong number of goals: ", 8, goals);
+		Assert.assertEquals("Wrong number of goals: ", 19, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.145834);
 	}
 	
