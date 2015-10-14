@@ -16,8 +16,8 @@ import org.junit.Test;
 
 public class TestIdNamingAssertion extends SystemTest {
 
-	@Test
-	public void testsMissingAssertions() {
+/*	@Test
+public void testsMissingAssertions() {
 		// non-deterministic
 		// when calls are generating without saving the return value in an assignment,
 		// the assertion generator ignores them and does not produce any assertion.
@@ -53,7 +53,7 @@ public class TestIdNamingAssertion extends SystemTest {
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals("Wrong number of goals: ", 19, goals);
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.145834);
-	}
+	}*/
 
 	@Test
 	public void testGeneratesDuplicatedNamesWhenExceptionIsThrown() {

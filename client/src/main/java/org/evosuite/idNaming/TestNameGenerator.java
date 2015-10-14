@@ -265,20 +265,26 @@ public class TestNameGenerator extends DistinguishNames {
 	    			 testMethodName2 = testCaseNames.get(testCases.get(j));
 	    			if(testMethodName1.equals(testMethodName2)){
 	    				compareAgain="YES";
-	    				testMethodNameOptimized1 = //testMethodName1 + 
-	    						"test_"+testOutputs.get(testCases.get(i));
-	    				testMethodNameOptimized2 = //testMethodName2 + 
-	    						"test_"+testOutputs.get(testCases.get(j));
+	    				testMethodNameOptimized1 = testMethodName1 + 
+	    						//"test_"+
+	    						testOutputs.get(testCases.get(i));
+	    				testMethodNameOptimized2 = testMethodName2 + 
+	    						//"test_"+
+	    						testOutputs.get(testCases.get(j));
 	    				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-	    					testMethodNameOptimized1 = //testMethodNameOptimized1 + 
-	    							"test_"+testInputs.get(testCases.get(i));
-	        				testMethodNameOptimized2 = //testMethodNameOptimized2 + 
-	        						"test_"+testInputs.get(testCases.get(j));
+	    					testMethodNameOptimized1 = testMethodNameOptimized1 + 
+	    							//"test_"+
+	    							testInputs.get(testCases.get(i));
+	        				testMethodNameOptimized2 = testMethodNameOptimized2 + 
+	        						//"test_"+
+	        						testInputs.get(testCases.get(j));
 	        				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-	        					testMethodNameOptimized1 = //testMethodNameOptimized1 + 
-	        							"test_"+testBranches.get(testCases.get(i));
-	            				testMethodNameOptimized2 = //testMethodNameOptimized2 + 
-	            						"test_"+testBranches.get(testCases.get(j));  				
+	        					testMethodNameOptimized1 = testMethodNameOptimized1 + 
+	        							//"test_"+
+	        							testBranches.get(testCases.get(i));
+	            				testMethodNameOptimized2 = testMethodNameOptimized2 + 
+	            						//"test_"+
+	            						testBranches.get(testCases.get(j));  				
 	        				}
 	
 	    				}
