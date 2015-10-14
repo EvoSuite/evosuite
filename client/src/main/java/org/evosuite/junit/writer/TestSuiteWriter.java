@@ -28,7 +28,12 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
+import org.evosuite.coverage.input.InputCoverageTestFitness;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -51,7 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
@@ -733,7 +737,7 @@ public class TestSuiteWriter implements Opcodes {
             int nr = 1;
             for (TestFitnessFunction goal : coveredGoals) {
                 builder.append(NEWLINE);
-                builder.append("   * Goal " + nr + ". " + goal.toString());
+                builder.append("   * " + "Goal " + nr + ". " + getGoalPrefix(goal) + goal.toString());
                 // TODO only for debugging purposes
                 if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
                         && (goal instanceof DefUseCoverageTestFitness)) {
@@ -756,5 +760,24 @@ public class TestSuiteWriter implements Opcodes {
 
         return builder.toString();
     }
+
+    private String getGoalPrefix(TestFitnessFunction f) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        if (f instanceof MethodCoverageTestFitness)
+            builder.append(Criterion.METHOD.toString());
+        else if (f instanceof BranchCoverageTestFitness)
+            builder.append(Criterion.BRANCH.toString());
+        else if (f instanceof InputCoverageTestFitness)
+            builder.append(Criterion.INPUT.toString());
+        else if (f instanceof OutputCoverageTestFitness)
+            builder.append(Criterion.OUTPUT.toString());
+        else if (f instanceof ExceptionCoverageTestFitness)
+            builder.append(Criterion.EXCEPTION.toString());
+
+        builder.append("] ");
+        return builder.toString();
+    }
+
 
 }
