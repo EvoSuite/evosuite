@@ -79,10 +79,10 @@ public class SimplifyMethodNames extends ShorterNames{
 	}
 	
   public static void main(String[] args){
-	  String[] name={"test_removeWithPositiveInput_removeThrowingArrayIndexOutOfBoundsException",
-			  "test_removeThrowingArrayIndexOutOfBoundsException",
-			  "test_removeWithPositiveInput"};
-	  minimizeFurther(name);
+	  String[] name={"test_PutIfAbsentWithNegativeInput_PutIfAbsentThrowingUnsupportedOperationException",
+			  "test_PutIfAbsentThrowingUnsupportedOperationException",
+			  "test_PutIfAbsent_PutIfAbsentThrowingUnsupportedOperationException"};
+	  minimizeNames(name);
   }
 	
     public static String[] minimizeNames (String[] names){		
@@ -187,7 +187,30 @@ public class SimplifyMethodNames extends ShorterNames{
 				nameInException = names[i].substring(names[i].lastIndexOf("_")+1, names[i].lastIndexOf("Throwing"));
 				String[] tokens = names[i].split("_");
 				for(int j = 1; j< tokens.length-1; j++ ){
-					firstName = tokens[j].split("(?=\\p{Upper})")[0];
+					if(tokens[j].contains("With")&&tokens[j].contains("Input")){
+						firstName=tokens[j].substring(0, tokens[j].lastIndexOf("With"));
+					}else{
+						if(tokens[j].contains("Returning")){
+							firstName=tokens[j].substring(0, tokens[j].indexOf("Returning"));
+						}else{
+							if(tokens[j].contains("Branch")){
+								if(tokens[j].contains("True")){
+									firstName=tokens[j].substring(0, tokens[j].indexOf("True"));
+								} else {
+									if(tokens[j].contains("False")){
+										firstName=tokens[j].substring(0, tokens[j].indexOf("False"));
+									} else{
+										if(tokens[j].contains("Root")){
+											firstName=tokens[j].substring(0, tokens[j].indexOf("Root"));
+										} 
+									}
+								}
+							}else {
+								firstName = tokens[j];
+							}
+						}
+					}
+					//firstName = tokens[j].split("(?=\\p{Upper})")[0];
 					if(firstName.equals(nameInException)){
 						found=100;
 						firstName=tokens[j];
