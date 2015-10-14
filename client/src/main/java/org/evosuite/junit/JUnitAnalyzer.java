@@ -19,6 +19,27 @@
  */
 package org.evosuite.junit;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -33,13 +54,6 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.tools.*;
-import javax.tools.JavaCompiler.CompilationTask;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.*;
 
 /**
  * This class is used to check if a set of test cases are valid for JUnit: ie,

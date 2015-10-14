@@ -19,6 +19,14 @@
  */
 package org.evosuite.testsuite;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.TestGenerationContext;
@@ -31,12 +39,15 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.*;
+import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.StructuredTestCase;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * <p>

@@ -207,12 +207,12 @@
 				<artifactId>gentyref</artifactId>
 				<version>1.2.0</version>
 			</dependency>
-			<dependency> 
+			<dependency>
 				<!-- LGPL -->
 				<groupId>net.sf.jgrapht</groupId>
 				<artifactId>jgrapht</artifactId>
 				<version>0.8.3</version>
-			</dependency> 
+			</dependency>
 <!--			<dependency> -->
 				<!-- LGPL -->
 <!--				<groupId>org.jgrapht</groupId>
@@ -242,7 +242,7 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>3.3.2</version>
-				<!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder 
+				<!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder
 					in 92_jcvi-javacommon -->
 			</dependency>
 			<dependency>
@@ -348,7 +348,7 @@
 			<layout>default</layout>
 		</repository>
 
-		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
+		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>
 			</repository> -->
 	</repositories>
 
@@ -408,16 +408,16 @@
 	  <configuration>
 	    <!-- Set the target configuration directory to be used in the bin scripts -->
 	    <configurationDirectory>conf</configurationDirectory>
-	    <!-- Copy the contents from "/src/main/config" to the target configuration 
+	    <!-- Copy the contents from "/src/main/config" to the target configuration
 		 directory in the assembled application -->
 	    <copyConfigurationDirectory>false</copyConfigurationDirectory>
-	    <!-- Include the target configuration directory in the beginning of 
+	    <!-- Include the target configuration directory in the beginning of
 		 the classpath declaration in the bin scripts -->
 	    <includeConfigurationDirectoryInClasspath>false</includeConfigurationDirectoryInClasspath>
 	    <!-- set alternative assemble directory -->
 	    <assembleDirectory>${project.build.directory}</assembleDirectory>
 	    <!-- Extra JVM arguments that will be included in the bin scripts -->
-	    <extraJvmArguments>-Xms128m -Xmx1024m  </extraJvmArguments>
+	    <extraJvmArguments>-Xms128m -Xmx1024m</extraJvmArguments>
 	    <platforms>
 	      <platform>windows</platform>
 	      <platform>unix</platform>
@@ -427,7 +427,7 @@
 		<mainClass>org.evosuite.EvoSuite</mainClass>
 		<name>EvoSuite</name>
 		<commandLineArguments>
-		  <!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument> 
+		  <!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument>
 		       <commandLineArgument>arg2</commandLineArgument> -->
 		</commandLineArguments>
 	      </program>
@@ -515,12 +515,12 @@
 	    <encoding>${project.build.sourceEncoding}</encoding>
 	  </configuration>
 	</plugin>
-	<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId> 
-	     <version>2.5.1</version> <executions> <execution> <id>copy</id> <phase>compile</phase> 
-	     <goals> <goal>copy</goal> </goals> <configuration> <artifactItems> <artifactItem> 
-	     <groupId>com.googlecode.jmockit</groupId> <artifactId>jmockit</artifactId> 
-	     <version>0.999.16</version> <overWrite>true</overWrite> <outputDirectory>target/</outputDirectory> 
-	     <destFileName>jmockit.jar</destFileName> </artifactItem> </artifactItems> 
+	<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId>
+	     <version>2.5.1</version> <executions> <execution> <id>copy</id> <phase>compile</phase>
+	     <goals> <goal>copy</goal> </goals> <configuration> <artifactItems> <artifactItem>
+	     <groupId>com.googlecode.jmockit</groupId> <artifactId>jmockit</artifactId>
+	     <version>0.999.16</version> <overWrite>true</overWrite> <outputDirectory>target/</outputDirectory>
+	     <destFileName>jmockit.jar</destFileName> </artifactItem> </artifactItems>
 	     </configuration> </execution> </executions> </plugin> -->
 	<plugin>
 	  <groupId>org.apache.maven.plugins</groupId>
@@ -587,18 +587,18 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.6</version>
                 </plugin>
-				<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId> 
-					<version>0.7.1.201405082137</version> <executions> <execution> <id>default-prepare-agent</id> 
-					<goals> <goal>prepare-agent</goal> </goals> </execution> <execution> <id>default-report</id> 
-					<phase>prepare-package</phase> <goals> <goal>report</goal> </goals> </execution> 
-					<execution> <id>default-check</id> <goals> <goal>check</goal> </goals> <configuration> 
+				<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.7.1.201405082137</version> <executions> <execution> <id>default-prepare-agent</id>
+					<goals> <goal>prepare-agent</goal> </goals> </execution> <execution> <id>default-report</id>
+					<phase>prepare-package</phase> <goals> <goal>report</goal> </goals> </execution>
+					<execution> <id>default-check</id> <goals> <goal>check</goal> </goals> <configuration>
 					<rules> </rules> </configuration> </execution> </executions> </plugin> -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
 					<version>3.4</version>
 				</plugin>
-				<!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution 
+				<!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution
 					see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
 
 				<!-- Need to change packages of dependencies to avoid classpath conflicts with previous versions.
@@ -607,7 +607,6 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-
 					<version>2.4.1</version>
 					<executions>
 						<execution>

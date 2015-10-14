@@ -22,18 +22,16 @@
  */
 package org.evosuite.assertion;
 
+import com.examples.with.different.packagename.*;
 import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.examples.with.different.packagename.ExampleFieldClass;
-import com.examples.with.different.packagename.ExampleInheritedClass;
-import com.examples.with.different.packagename.ExampleObserverClass;
-import com.examples.with.different.packagename.ExampleStaticVoidSetterClass;
 
 import org.junit.Ignore;
 
@@ -108,5 +106,34 @@ public class TestMutationAssertion extends SystemTest {
 				Assert.assertTrue("Test has no assertions: " + test.toCode(),
 				                  test.hasAssertions());
 		}
+	}
+
+	@Test
+	public void testsAssertionsAreGeneratedForWrapperTypes() {
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ExampleNullAssertion.class.getCanonicalName();
+
+		String[] command = new String[] {
+				"-generateSuite", "-class", targetClass,
+				"-criterion=OUTPUT",
+				"-Dhtml=false", "-Djunit_tests=false", "-Dshow_progress=false",
+				"-Dassertions=true", "-Dassertion_strategy=mutation" };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertTrue(suite.size() > 0);
+		for (TestCase test : suite.getTests()) {
+			if (test.size() > 1)
+				Assert.assertTrue("Test has no assertions: " + test.toCode(),
+						test.hasAssertions());
+		}
+		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
+		Assert.assertEquals("Wrong number of goals: ", 2, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, suite.getCoverage(), 0.05);
 	}
 }

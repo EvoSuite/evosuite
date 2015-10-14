@@ -1,0 +1,10 @@
+
+
+<!-- During test execution, we do not want to have debug/info that would flood the logging -->
+
+<configuration>
+
+    <contextName>ContextForTests</contextName>
+
+    <root level="WARN" />
+</configuration>
