@@ -34,7 +34,7 @@ public class SimplifyMethodNames extends ShorterNames{
         return instance;
     }
 
-    public  String[] optimizeNames(List<String> nameList){
+    public static String[] optimizeNames(List<String> nameList){
 		SimplifyMethodNames simple= new SimplifyMethodNames();
 		String[] methodNames = nameList.toArray(new String[nameList.size()]) ;
 		for(int i=0; i<nameList.size(); i++){
@@ -81,8 +81,55 @@ public class SimplifyMethodNames extends ShorterNames{
   public static void main(String[] args){
 	  String[] name={"test_constructor_unwrapKey_unwrapKeyReturningZero",
 			  "test_constructor_unwrapKey_unwrapKeyReturningPositive",  
-			  "test_constructor_unwrapKey_unwrapKeyReturningNegative "};
-//	  optimizeNames(Arrays.asList(name));
+			  "test_constructor_unwrapKey_unwrapKeyReturningNegative ", 
+			  "test_constructor_unwrapKey_unwrapKeyWithNullInput  ",
+			  "test_constructor_unwrapKey_unwrapKeyWithNonnullInput",   
+			  "test_constructor_remove_removeWithNullInput",
+			  "test_constructor_remove_removeReturningNull",
+			  "test_constructor_remove_removeReturningNonnull",
+			  "test_constructor_remove_removeReturningNull",
+			  "test_constructor_remove",
+			  "test_constructor_constructor_putAll_putAllWithNonnullInput_iteratorRootBranch_constructorRootBranch_constructorRootBranch_getKeyRootBranch_getValueRootBranch_constructorRootBranch_constructorRootBranch_entrySetRootBranch_wrapValueRootBranch_constructorRootBranch_sizeRootBranch_putFalseBranch_nextFalseBranch_nextTrueBranch_putAllTrueBranch",
+			  "test_constructor_constructor_putAll_putAllWithNonnullInput_iteratorRootBranch_constructorRootBranch_constructorRootBranch_getKeyRootBranch_getValueRootBranch_constructorRootBranch_constructorRootBranch_entrySetRootBranch_constructorRootBranch_wrapKeyRootBranch_unwrapKeyRootBranch_sizeRootBranch_putTrueBranch_putFalseBranch_nextTrueBranch_nextFalseBranch_putAllTrueBranch",
+			  "test_constructor_constructor_putAll_putAllWithNonnullInput_iteratorRootBranch_constructorRootBranch_constructorRootBranch_constructorRootBranch_entrySetRootBranch_constructorRootBranch_sizeRootBranch_putAllTrueBranch",
+			  "test_constructor_isEmpty_isEmptyReturningFalse",
+			  "test_constructor_isEmpty_isEmptyReturningTrue",
+			  "test_constructor_isEmpty",
+			  "test_constructor_putAll_putAllWithNullInput",
+			  "test_constructor_putAll_putAllWithNonnullInput",
+			  "test_constructor_constructorRootBranch_wrapValueRootBranch_unwrapKeyRootBranch_getFalseBranch_getFalseBranch_getTrueBranch",
+			  "test_constructor_iteratorRootBranch_constructorRootBranch_constructorRootBranch_hasNextRootBranch_constructorRootBranch_entrySetRootBranch",
+			  "test_constructor_constructorRootBranch_unwrapKeyRootBranch_getFalseBranch_getFalseBranch_getFalseBranch_containsKeyTrueBranch_containsKeyFalseBranch_containsKeyTrueBranch",
+			  "test_constructor_containsValue",
+			  "test_constructor_containsValue_containsValueReturningFalse_containsValueWithNullInput",
+			  "test_constructor_containsValue_containsValueReturningFalse_containsValueWithNonnullInput",
+			  "test_constructor_remove_removeReturningNull_removeReturningNull_removeWithNonnullInput_constructorRootBranch_removeFalseBranch_removeTrueBranch",
+			  "test_constructor_remove_removeReturningNull_removeReturningNull_removeWithNonnullInput_constructorRootBranch_unwrapKeyRootBranch_removeFalseBranch_removeFalseBranch_removeFalseBranch",
+			  "test_constructor_writeExternal_writeExternalWithNonnullInput",
+			  "test_constructor_writeExternal_writeExternalWithNullInput",
+			  "test_constructor_wrapValue_wrapValueReturningNonnull_wrapValueWithPositiveInput",
+			  "test_constructor_wrapValue_wrapValueReturningNonnull_wrapValueWithNegativeInput",
+			  "test_constructor_wrapValue_wrapValueReturningNonnull_wrapValueWithZeroInput",
+			  "test_constructor_wrapKey_wrapKeyReturningNonnull_wrapKeyWithNegativeInput",
+			  "test_constructor_wrapKey_wrapKeyReturningNonnull_wrapKeyWithPositiveInput",
+			  "test_constructor_wrapKey_wrapKeyReturningNonnull_wrapKeyWithZeroInput",
+			  "test_constructor_unwrapValue_unwrapValueReturningPositive", 
+			  "test_constructor_unwrapValue_unwrapValueReturningNegative ",
+			  "test_constructor_unwrapValue_unwrapValueWithNonnullInput ",
+			  "test_constructor_unwrapValue_unwrapValueWithNullInput ",
+			  "test_constructor_put_putReturningNonnull",
+			  "test_constructor_put_putReturningNull",
+			  "test_constructor_put",
+			  "test_constructor_containsKey_containsKeyReturningFalse",
+			  "test_constructor_containsKey",
+			  "test_constructor_size_sizeReturningPositive",
+			  "test_constructor_size",
+			  "test_constructor_size_sizeReturningZero",
+			  "test_constructor_getMap_getMapReturningNonnull",
+			  "test_constructor_getMap_getMapReturningNull",
+			  "test_constructor_get",
+			  "test_constructor_get_getReturningNull"};
+	  optimizeNames(Arrays.asList(name));
   }
 	
     public static String[] minimizeNames (String[] names){		
