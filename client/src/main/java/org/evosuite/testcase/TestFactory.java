@@ -1336,6 +1336,20 @@ public class TestFactory {
 				iter.remove();
 			}
 		}
+
+		//avoid using characters as values for numeric types arguments
+		iter = objects.iterator();
+		String parCls = parameterType.getTypeName();
+		if (Integer.TYPE.getTypeName().equals(parCls) || Long.TYPE.getTypeName().equals(parCls)
+				|| Float.TYPE.getTypeName().equals(parCls) || Double.TYPE.getTypeName().equals(parCls)) {
+			while(iter.hasNext()) {
+				VariableReference ref = iter.next();
+				String cls = ref.getType().getTypeName();
+				if ((Character.TYPE.getTypeName().equals(cls)))
+					iter.remove();
+			}
+		}
+
 		return objects;
 	}
 
