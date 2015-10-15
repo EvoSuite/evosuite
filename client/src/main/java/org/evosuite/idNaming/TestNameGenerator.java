@@ -33,6 +33,9 @@ import org.evosuite.testcase.execution.ExecutionResult;
 
 import java.util.*;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 //import com.sun.codemodel.internal.util.Surrogate.Generator;
 
 /**
@@ -239,7 +242,7 @@ public class TestNameGenerator extends DistinguishNames {
 			}
 		}
 	
-		System.out.println(methodName);
+	//	System.out.println(methodName);
 		return methodName;
     }
 
@@ -265,35 +268,25 @@ public class TestNameGenerator extends DistinguishNames {
 	    			 testMethodName2 = testCaseNames.get(testCases.get(j));
 	    			if(testMethodName1.equals(testMethodName2)){
 	    				compareAgain="YES";
-	    				testMethodNameOptimized1 = testMethodName1 + 
-	    						//"test_"+
-	    						testOutputs.get(testCases.get(i));
-	    				testMethodNameOptimized2 = testMethodName2 + 
-	    						//"test_"+
-	    						testOutputs.get(testCases.get(j));
+	    				testMethodNameOptimized1 = testMethodName1 + testOutputs.get(testCases.get(i));
+	    				testMethodNameOptimized2 = testMethodName2 + testOutputs.get(testCases.get(j));
 	    				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-	    					testMethodNameOptimized1 = testMethodNameOptimized1 + 
-	    							//"test_"+
-	    							testInputs.get(testCases.get(i));
-	        				testMethodNameOptimized2 = testMethodNameOptimized2 + 
-	        						//"test_"+
-	        						testInputs.get(testCases.get(j));
+	    					testMethodNameOptimized1 = testMethodNameOptimized1 + testInputs.get(testCases.get(i));
+	        				testMethodNameOptimized2 = testMethodNameOptimized2 + testInputs.get(testCases.get(j));
 	        				if(testMethodNameOptimized1.equals(testMethodNameOptimized2)){
-	        					testMethodNameOptimized1 = testMethodNameOptimized1 + 
-	        							//"test_"+
-	        							testBranches.get(testCases.get(i));
-	            				testMethodNameOptimized2 = testMethodNameOptimized2 + 
-	            						//"test_"+
-	            						testBranches.get(testCases.get(j));  				
-	        				}
-	
-	    				}
-	    			//	System.out.println(testMethodNameOptimized1+"-"+testMethodNameOptimized2);    				
-	    				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);    				
+	        					testMethodNameOptimized1 = testMethodNameOptimized1 + testBranches.get(testCases.get(i));
+	            				testMethodNameOptimized2 = testMethodNameOptimized2 + testBranches.get(testCases.get(j));  				
+	        				}	
+	    				} 				
+	    				setNameGeneratedFor(testCases.get(j), testMethodNameOptimized2);  
+	    				System.out.println(testMethodNameOptimized2);
+	    				System.out.println(testCases.get(j));
 	    			}    			
 	    		} 
     		if(compareAgain=="YES"){
     	    	setNameGeneratedFor(testCases.get(i), testMethodNameOptimized1);
+    	    	System.out.println(testMethodNameOptimized1);
+    	    	System.out.println(testCases.get(i));
     		}
     	}
     	
@@ -317,6 +310,11 @@ public class TestNameGenerator extends DistinguishNames {
     	for (int i=0; i<testName.length; i++) {        	           
           testName[i] = testName[i] + testExceptions.get(testCs[i]); // TODO
           System.out.println(testName[i]);
+          if(testName[i].equals("test_")){
+          	JFrame parent = new JFrame();
+          	JOptionPane.showMessageDialog(parent, "Printing complete");
+
+          }
         }    
     	testName = optimize.minimizeNames(testName);
     	testName = optimize.countSameNames(testName); 
@@ -325,6 +323,11 @@ public class TestNameGenerator extends DistinguishNames {
             String testMethodNameOptimized = testName[i]; // TODO
             setNameGeneratedFor(testCs[i], testMethodNameOptimized);         
             methodNames.add(testMethodNameOptimized);
+            if(testMethodNameOptimized.equals("test_")){
+            	JFrame parent = new JFrame();
+            	JOptionPane.showMessageDialog(parent, "Printing complete");
+
+            }
           //  System.out.println(testMethodNameOptimized);
            // System.out.println(testCs[i]);
            
