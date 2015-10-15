@@ -34,7 +34,7 @@ public class SimplifyMethodNames extends ShorterNames{
         return instance;
     }
 
-    public String[] optimizeNames(List<String> nameList){
+    public  String[] optimizeNames(List<String> nameList){
 		SimplifyMethodNames simple= new SimplifyMethodNames();
 		String[] methodNames = nameList.toArray(new String[nameList.size()]) ;
 		for(int i=0; i<nameList.size(); i++){
@@ -59,7 +59,7 @@ public class SimplifyMethodNames extends ShorterNames{
 					intersection = new ArrayList<String>(list1);	
 					intersection.retainAll(list2);
 				}
-				if(prevInter < intersection.size() && intersection.size()>1){
+				if(prevInter < intersection.size() && intersection.size()>2){
 					prevInter=intersection.size();
 					optName = list2;
 					position = j;
@@ -79,10 +79,10 @@ public class SimplifyMethodNames extends ShorterNames{
 	}
 	
   public static void main(String[] args){
-	  String[] name={"test_PutIfAbsentWithNegativeInput_PutIfAbsentThrowingUnsupportedOperationException",
-			  "test_PutIfAbsentThrowingUnsupportedOperationException",
-			  "test_PutIfAbsent_PutIfAbsentThrowingUnsupportedOperationException"};
-	  minimizeNames(name);
+	  String[] name={"test_constructor_unwrapKey_unwrapKeyReturningZero",
+			  "test_constructor_unwrapKey_unwrapKeyReturningPositive",  
+			  "test_constructor_unwrapKey_unwrapKeyReturningNegative "};
+//	  optimizeNames(Arrays.asList(name));
   }
 	
     public static String[] minimizeNames (String[] names){		
