@@ -22,10 +22,7 @@
  */
 package org.evosuite.testcase;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import java.lang.reflect.Type;
 import java.util.List;
 
 import org.evosuite.EvoSuite;
@@ -34,6 +31,10 @@ import org.evosuite.SystemTest;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -44,6 +45,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.FactoryExample;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Gordon Fraser
@@ -89,8 +92,8 @@ public class TestFactoryTest extends SystemTest {
 	        NoSuchMethodException, SecurityException {
 		List<GenericAccessibleObject<?>> testCalls = TestCluster.getInstance().getTestCalls();
 		System.out.println(testCalls.toString());
-		assertEquals("Expected 4 test calls, but got: " + testCalls.size() + ": "
-		        + testCalls, 4, testCalls.size());
+		assertEquals("Expected 5 test calls, but got: " + testCalls.size() + ": "
+		        + testCalls, 5, testCalls.size());
 	}
 
 	@Test
@@ -421,4 +424,25 @@ public class TestFactoryTest extends SystemTest {
 		assertFalse(code.contains("factoryExample2"));
 	}
 
+	@Test
+	public void testGetCandidatesForReuse() throws ClassNotFoundException, NoSuchFieldException, ConstructionFailedException, NoSuchMethodException {
+		TestFactory testFactory = TestFactory.getInstance();
+		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(FactoryExample.class.getCanonicalName());
+
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 1.0;
+		Properties.OBJECT_REUSE_PROBABILITY = 1.0;
+
+		DefaultTestCase test = new DefaultTestCase();
+		GenericConstructor constructor = new GenericConstructor(sut.getConstructor(), sut);
+		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
+		test.addStatement(new CharPrimitiveStatement(test,'-'));
+		GenericMethod method = new GenericMethod(sut.getMethod("testInt", int.class), sut);
+		testFactory.addMethodFor(test, var1, method, 2);
+
+		MethodStatement stmt = (MethodStatement)test.getStatement(test.size()-1);
+		VariableReference var = stmt.getParameterReferences().get(0);
+		assertNotEquals("Char should not be passed as Integer", var.getType(), char.class);
+		assertEquals("Incorrect test size", 4, test.size());
+
+	}
 }
