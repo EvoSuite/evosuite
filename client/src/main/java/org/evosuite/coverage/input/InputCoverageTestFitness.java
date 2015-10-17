@@ -107,6 +107,16 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                             goalSuffix = InputCoverageFactory.NUM_POSITIVE;
                         break;
                     case Type.ARRAY:
+                        if (argValue == null)
+                            goalSuffix = InputCoverageFactory.REF_NULL;
+                        else {
+                            Object[] arrayArgValue = (Object[])argValue;
+                            if (arrayArgValue.length == 0)
+                                goalSuffix = InputCoverageFactory.EMPTY_ARRAY;
+                            else
+                                goalSuffix = InputCoverageFactory.NONEMPTY_ARRAY;
+                        }
+                        break;
                     case Type.OBJECT:
                         if (argValue == null)
                             goalSuffix = InputCoverageFactory.REF_NULL;

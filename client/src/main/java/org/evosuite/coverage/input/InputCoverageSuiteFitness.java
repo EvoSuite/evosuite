@@ -97,8 +97,8 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                HashSet<String> strGoals = InputCoverageTestFitness.listCoveredGoals(result.getArgumentsValues());
-                for (String strGoal : strGoals) {
+                HashSet<String> strCoveredGoals = InputCoverageTestFitness.listCoveredGoals(result.getArgumentsValues());
+                for (String strGoal : strCoveredGoals) {
                     // do nothing if it was already removed
                     if(removedGoals.contains(strGoal)) continue;
                     if (inputCoverageMap.containsKey(strGoal)) {
