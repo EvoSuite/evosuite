@@ -107,6 +107,31 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 	}
 
 	/**
+	 * Accepts line number as parameter. For testing purposes.
+	 * @param branch
+	 * @param value
+	 * @param className
+	 * @param methodName
+	 * @param lineNumber
+	 */
+	public BranchCoverageGoal(Branch branch, boolean value, String className,
+							  String methodName, int lineNumber) {
+		if (className == null || methodName == null)
+			throw new IllegalArgumentException("null given");
+		if (branch == null && !value)
+			throw new IllegalArgumentException(
+					"expect goals for a root branch to always have value set to true");
+
+		this.branch = branch;
+		this.value = value;
+
+		this.className = className;
+		this.methodName = methodName;
+
+		this.lineNumber = lineNumber;
+	}
+
+	/**
 	 * <p>
 	 * Constructor for BranchCoverageGoal.
 	 * </p>

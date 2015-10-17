@@ -22,12 +22,19 @@
  */
 package org.evosuite.junit.writer;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
+import org.evosuite.coverage.input.InputCoverageTestFitness;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.output.OutputCoverageTestFitness;
+import org.evosuite.idNaming.TestNameGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoAssertions;
@@ -184,8 +191,11 @@ public class TestSuiteWriter implements Opcodes {
      *
      * @param name      Name of the class
      * @param directory Output directory
+     * @param optimizeIDNaming Optimize identifier names or not
      */
-    public List<File> writeTestSuite(String name, String directory) throws IllegalArgumentException {
+    public List<File> writeTestSuite(String name, String directory, boolean optimizeIDNaming) throws IllegalArgumentException {
+        // Argument optimizeIDNaming needed to ensure optimized names are only generated
+        // in the last call to this method
 
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Empty test class name");
@@ -208,10 +218,13 @@ public class TestSuiteWriter implements Opcodes {
             ExecutionResult result = runTest(testCases.get(i));
             results.add(result);
         }
+        
+        if (Properties.ID_NAMING && optimizeIDNaming) {
+            TestNameGenerator.getInstance().execute(testCases,results);
+        }
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
-            //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
             Utils.writeFile(content, file);
             generated.add(file);
@@ -219,7 +232,6 @@ public class TestSuiteWriter implements Opcodes {
             for (int i = 0; i < testCases.size(); i++) {
                 String testSuiteName = name.substring(0, name.length() - "Test".length()) + "_" + i + "_Test";
                 File file = new File(dir + "/" + testSuiteName + ".java");
-                //executor.newObservers();
                 String testCode = getOneUnitTestInAFile(name, i, results);
                 Utils.writeFile(testCode, file);
                 content += testCode;
@@ -549,7 +561,10 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(getInformation(id));
             builder.append(NEWLINE);
         }
-        String methodName;
+
+        // Get the test method name generated in TestNameGenerator
+        String methodName = TestNameGenerator.getInstance().getNameGeneratedFor(testCases.get(id));
+
         if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
             StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
             String targetMethod = structuredTest.getTargetMethods().iterator().next();
@@ -564,10 +579,16 @@ public class TestSuiteWriter implements Opcodes {
             } else {
                 testMethodNumber.put(targetMethod, 1);
             }
-            methodName = "test" + targetMethod + num;
+            if (methodName == null) {
+                // if TestNameGenerator did not generate a name, fall back to original naming
+                methodName = "test" + targetMethod + num;
+            }
             builder.append(adapter.getMethodDefinition(methodName));
         } else {
-            methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+            if (methodName == null) {
+                // if TestNameGenerator did not generate a name, fall back to original naming
+                methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+            }
             builder.append(adapter.getMethodDefinition(methodName));
         }
 
@@ -656,6 +677,29 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(NEWLINE);
 
         String testCode = builder.toString();
+        if (Properties.ID_NAMING) {
+            List<String> namesWithExceptions = new ArrayList<String>();
+
+            String newMethodName = TestNameGenerator.getInstance().checkExeptionInTest(testCode, methodName);
+            String[] tokens = newMethodName.split("_");
+
+            newMethodName = tokens[0];
+            for (int i = 1; i < tokens.length; i++) {
+                if (i == tokens.length - 1) {
+                    if (tokens[i].contains("Exception")) {
+                        //newMethodName += "Throwing" + WordUtils.capitalize(tokens[i]);
+                    	newMethodName += WordUtils.capitalize(tokens[i]);
+                    } else {
+                        newMethodName += WordUtils.capitalize(tokens[i]);
+                    }
+                } else {
+                    newMethodName += WordUtils.capitalize(tokens[i]);
+                }
+
+            }
+            builder.replace(builder.indexOf(methodName), builder.indexOf("()  throws Throwable  {"), newMethodName);
+            testCode = builder.toString();
+        }
         TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
                 getInformation(id), result);
         return testCode;
@@ -694,7 +738,7 @@ public class TestSuiteWriter implements Opcodes {
             int nr = 1;
             for (TestFitnessFunction goal : coveredGoals) {
                 builder.append(NEWLINE);
-                builder.append("   * Goal " + nr + ". " + goal.toString());
+                builder.append("   * " + "Goal " + nr + ". " + getGoalPrefix(goal) + goal.toString());
                 // TODO only for debugging purposes
                 if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
                         && (goal instanceof DefUseCoverageTestFitness)) {
@@ -717,5 +761,24 @@ public class TestSuiteWriter implements Opcodes {
 
         return builder.toString();
     }
+
+    private String getGoalPrefix(TestFitnessFunction f) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        if (f instanceof MethodCoverageTestFitness)
+            builder.append(Criterion.METHOD.toString());
+        else if (f instanceof BranchCoverageTestFitness)
+            builder.append(Criterion.BRANCH.toString());
+        else if (f instanceof InputCoverageTestFitness)
+            builder.append(Criterion.INPUT.toString());
+        else if (f instanceof OutputCoverageTestFitness)
+            builder.append(Criterion.OUTPUT.toString());
+        else if (f instanceof ExceptionCoverageTestFitness)
+            builder.append(Criterion.EXCEPTION.toString());
+
+        builder.append("] ");
+        return builder.toString();
+    }
+
 
 }

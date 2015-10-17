@@ -1,0 +1,33 @@
+syntax: glob
+*.log
+*.dot
+*.iml
+*~
+target/*
+evosuite-files
+evosuite-report
+evosuite-tests
+plugins/jenkins/work
+build
+transitionLog.txt
+.DS_Store
+.project
+.settings
+.classpath
+.idea
+bin/
+examples/mine/
+examples/plot/
+examples/indi_plot/
+src/main/resources/log4j.properties
+*.jar
+
+syntax: regexp
+\.orig$
+
+syntax: regexp
+#^src/main/java/de/unisb/cs/st/evosuite/cfg/CFGPrinter\.java$
+^examples/*$
+
+syntax: regexp
+^plugins/intellij/\.idea/workspace\.xml$

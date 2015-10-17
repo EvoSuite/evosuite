@@ -82,9 +82,8 @@ public class InputObserver extends ExecutionObserver {
                 } else if (parRef instanceof ConstantValue) {
                     parObject = ((ConstantValue) parRef).getValue();
                 } else {
-                        parObject = scope.getObject(parRef);
+                    parObject = scope.getObject(parRef);
                 }
-
                 argObjects.add(parObject);
             }
             assert parRefs.size() == argObjects.size();
