@@ -62,7 +62,7 @@ public class ArrayStatement extends AbstractStatement {
 	private static int[] createRandom(int dimensions) {
 		int[] result = new int[dimensions];
 		for (int idx = 0; idx < dimensions; idx++) {
-			result[idx] = Randomness.nextInt(Properties.MAX_ARRAY) + 1;
+			result[idx] = Randomness.nextInt(Properties.MAX_ARRAY);
 		}
 		return result;
 	}
