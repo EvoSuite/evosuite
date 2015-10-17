@@ -24,5 +24,5 @@ package org.evosuite.intellij.util;
  */
 public class EvoVersion {
 
-    public static final int JAVA_VERSION = 7;
+    public static final int JAVA_VERSION = 8;
 }

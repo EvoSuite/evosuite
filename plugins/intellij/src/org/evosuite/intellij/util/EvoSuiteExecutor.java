@@ -37,7 +37,9 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import org.evosuite.intellij.EvoParameters;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -267,9 +269,14 @@ public class EvoSuiteExecutor {
         list.add("-Dctg_time_per_class=" + params.getTime());
         list.add("-Dctg_export_folder=" + params.getFolder());
 
-        String cuts = getCommaList(classes);
-        if(cuts!=null){
-            list.add("-Dctg_selected_cuts="+cuts);
+        if(classes != null && classes.size() >= 0) {
+            if (classes.size() <= 10) {
+                String cuts = getCommaList(classes);
+                list.add("-Dctg_selected_cuts=" + cuts);
+            } else {
+                String filePath = writeClassesToFile(classes);
+                list.add("-Dctg_selected_cuts_file_location="+filePath);
+            }
         }
 
         if(dir==null || !dir.exists()){
@@ -296,6 +303,25 @@ public class EvoSuiteExecutor {
         return list;
     }
 
+    private String writeClassesToFile(Set<String> classes) {
+
+        try {
+            File file = File.createTempFile("EvoSuite_ctg_CUT_file","txt");
+            file.deleteOnExit();
+
+            BufferedWriter out = new BufferedWriter(new FileWriter(file));
+            String line = getCommaList(classes);
+            out.write(line);
+            out.newLine();
+            out.close();
+
+            return file.getAbsolutePath();
+
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to create tmp file for CUTs specification: "+e.getMessage());
+        }
+    }
+
     @NotNull
     private List<String> getMavenCommand(EvoParameters params, Set<String> classes) {
         List<String> list = new ArrayList<String>();
@@ -306,9 +332,14 @@ public class EvoSuiteExecutor {
         list.add("-DmemoryInMB=" + params.getMemory());
         list.add("-DtimeInMinutesPerClass=" + params.getTime());
 
-        String cuts = getCommaList(classes);
-        if(cuts!=null && !cuts.isEmpty()){
-            list.add("-Dcuts=" + cuts);
+        if(classes != null && classes.size() >= 0) {
+            if (classes.size() <= 10) {
+                String cuts = getCommaList(classes);
+                list.add("-Dcuts=" + cuts);
+            } else {
+                String filePath = writeClassesToFile(classes);
+                list.add("-DcutsFile="+filePath);
+            }
         }
 
         list.add("evosuite:export"); //note, here -Dctg_export_folder would do as well

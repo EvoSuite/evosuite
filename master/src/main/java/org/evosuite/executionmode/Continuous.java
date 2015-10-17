@@ -19,10 +19,10 @@
  */
 package org.evosuite.executionmode;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -46,8 +46,7 @@ public class Continuous {
 		return new Option(NAME,true,description);
 	}
 
-	public static Object execute(Options options, List<String> javaOpts,
-			CommandLine line) {
+	public static Object execute(Options options, List<String> javaOpts, CommandLine line) {
 
 		String opt = line.getOptionValue(NAME);
 		if(opt == null){
@@ -92,7 +91,21 @@ public class Continuous {
 		String[] cuts = null;
 		if(Properties.CTG_SELECTED_CUTS != null && !Properties.CTG_SELECTED_CUTS.isEmpty()){
 			cuts  = Properties.CTG_SELECTED_CUTS.trim().split(",");
-		} 
+		} else if(Properties.CTG_SELECTED_CUTS_FILE_LOCATION != null && !Properties.CTG_SELECTED_CUTS_FILE_LOCATION.isEmpty()){
+			File file = new File(Properties.CTG_SELECTED_CUTS_FILE_LOCATION);
+			if(file.exists()){
+				String cutLine = null;
+				try(InputStream in = new BufferedInputStream(new FileInputStream(file))){
+					Scanner scanner = new Scanner(in);
+					cutLine = scanner.nextLine();
+				} catch(Exception e){
+					LoggingUtils.getEvoLogger().error("Error while processing "+file.getAbsolutePath()+" : "+e.getMessage());
+				}
+				if(cutLine != null){
+					cuts = cutLine.trim().split(",");
+				}
+			}
+		}
 
 		ContinuousTestGeneration ctg = new ContinuousTestGeneration(
 				target,

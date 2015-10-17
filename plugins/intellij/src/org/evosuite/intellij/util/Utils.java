@@ -39,6 +39,10 @@ public class Utils {
         return OS.toLowerCase().contains("windows");
     }
 
+    public static String getMvnExecutableName(){
+        return isWindows() ? "mvn.bat" : "mvn";
+    }
+
     public static boolean isMavenProject(Project project){
         File pom = new File(project.getBasePath() , "pom.xml");
         return pom.exists();
