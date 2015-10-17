@@ -25,9 +25,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -110,8 +109,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                         if (argValue == null)
                             goalSuffix = InputCoverageFactory.REF_NULL;
                         else {
-                            Object[] arrayArgValue = (Object[])argValue;
-                            if (arrayArgValue.length == 0)
+                            if (Array.getLength(argValue) == 0)
                                 goalSuffix = InputCoverageFactory.EMPTY_ARRAY;
                             else
                                 goalSuffix = InputCoverageFactory.NONEMPTY_ARRAY;
