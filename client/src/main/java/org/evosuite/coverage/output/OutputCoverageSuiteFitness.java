@@ -98,8 +98,8 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                HashSet<String> strGoals = OutputCoverageTestFitness.listCoveredGoals(result.getReturnValues());
-                for (String strGoal : strGoals) {
+                HashSet<String> strCoveredGoals = OutputCoverageTestFitness.listCoveredGoals(result.getReturnValues());
+                for (String strGoal : strCoveredGoals) {
                     // do nothing if it was already removed
                     if(removedGoals.contains(strGoal)) continue;
                     if (outputCoverageMap.containsKey(strGoal)) {

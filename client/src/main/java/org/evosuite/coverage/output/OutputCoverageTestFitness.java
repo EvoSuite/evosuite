@@ -101,6 +101,16 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_POSITIVE));
                     break;
                 case Type.ARRAY:
+                    if (returnValue == null)
+                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
+                    else {
+                        Object[] arrayReturnValue = (Object[])returnValue;
+                        if (arrayReturnValue.length == 0)
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.EMPTY_ARRAY));
+                        else
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NONEMPTY_ARRAY));
+                    }
+                    break;
                 case Type.OBJECT:
                     if (returnValue == null)
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));

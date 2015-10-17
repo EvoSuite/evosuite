@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.output;
 
+import com.examples.with.different.packagename.coverage.MethodReturnsArray;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -52,7 +53,7 @@ public class TestOutputCoverageFitnessFunction extends SystemTest {
 
 	@Before
 	public void beforeTest() {
-        Properties.CRITERION[0] = Criterion.OUTPUT;
+        Properties.CRITERION = new Properties.Criterion[] { Criterion.OUTPUT };
 		Properties.SEARCH_BUDGET = 10;
 		//Properties.MINIMIZE = false;
 	}
@@ -115,4 +116,19 @@ public class TestOutputCoverageFitnessFunction extends SystemTest {
 		//Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
 	}
 
+	@Test
+	public void testOutputCoverageArray() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = MethodReturnsArray.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+		Assert.assertEquals(3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
 }

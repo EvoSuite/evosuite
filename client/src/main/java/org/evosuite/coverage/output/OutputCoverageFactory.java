@@ -48,9 +48,11 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
     public static final String NUM_POSITIVE = "positive";
     public static final String NUM_ZERO = "zero";
     public static final String NUM_NEGATIVE = "negative";
-    public static final String DEFAULT = "default";
     public static final String REF_NULL = "null";
     public static final String REF_NONNULL = "nonnull";
+    public static final String EMPTY_ARRAY = "empty";
+    public static final String NONEMPTY_ARRAY = "nonempty";
+
     /*
 	 * (non-Javadoc)
 	 * 
@@ -98,6 +100,10 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                         goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NUM_POSITIVE)));
                         break;
                     case Type.ARRAY:
+                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
+                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), EMPTY_ARRAY)));
+                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NONEMPTY_ARRAY)));
+                        break;
                     case Type.OBJECT:
                         goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
                         //goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
