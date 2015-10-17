@@ -48,6 +48,8 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
     public static final String NUM_NEGATIVE = "negative";
     public static final String REF_NULL = "null";
     public static final String REF_NONNULL = "nonnull";
+    public static final String EMPTY_ARRAY = "empty";
+    public static final String NONEMPTY_ARRAY = "nonempty";
     /*
 	 * (non-Javadoc)
 	 * 
@@ -98,6 +100,10 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                             goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NUM_POSITIVE)));
                             break;
                         case Type.ARRAY:
+                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NULL)));
+                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), EMPTY_ARRAY)));
+                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NONEMPTY_ARRAY)));
+                            break;
                         case Type.OBJECT:
                             goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NULL)));
                             goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NONNULL)));
