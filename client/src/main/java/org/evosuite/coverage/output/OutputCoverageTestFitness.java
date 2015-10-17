@@ -27,11 +27,10 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -104,8 +103,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                     if (returnValue == null)
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
                     else {
-                        Object[] arrayReturnValue = (Object[])returnValue;
-                        if (arrayReturnValue.length == 0)
+                        if (Array.getLength(returnValue) == 0)
                             results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.EMPTY_ARRAY));
                         else
                             results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NONEMPTY_ARRAY));

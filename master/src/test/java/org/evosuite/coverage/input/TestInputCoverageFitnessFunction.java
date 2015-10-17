@@ -53,7 +53,7 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 	@Before
 	public void beforeTest() {
 		Properties.SEARCH_BUDGET = 10;
-		Properties.CRITERION[0] = Criterion.INPUT;
+		Properties.CRITERION = new Properties.Criterion[] {Criterion.INPUT};
 	}
 
 	@Test
@@ -62,8 +62,6 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 		
 		String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		Properties.JUNIT_TESTS = true;
-		Properties.PRINT_GOALS = true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
@@ -71,8 +69,7 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
-		Assert.assertEquals(14, goals.size());
-		//Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
+		Assert.assertEquals(11, goals.size());
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 

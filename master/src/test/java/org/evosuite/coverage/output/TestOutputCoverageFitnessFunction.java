@@ -128,7 +128,7 @@ public class TestOutputCoverageFitnessFunction extends SystemTest {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(3, goals);
+		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }
