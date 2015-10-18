@@ -22,11 +22,17 @@ package org.evosuite.coverage.input;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -54,13 +60,24 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
         this.goal = goal;
     }
 
-    public static HashSet<String> listCoveredGoals(Map<MethodStatement, List<Object>> argumentsValues) {
+    public static HashSet<String> listCoveredGoals(Map<EntityWithParametersStatement, List<Object>> argumentsValues) {
         HashSet<String> results = new HashSet<String>();
 
-        for (Entry<MethodStatement, List<Object>> entry : argumentsValues.entrySet()) {
-            String className = entry.getKey().getMethod().getMethod().getDeclaringClass().getName();
-            String methodDesc = Type.getMethodDescriptor(entry.getKey().getMethod().getMethod());
-            String methodName = entry.getKey().getMethod().getName() + methodDesc;
+        for (Entry<EntityWithParametersStatement, List<Object>> entry : argumentsValues.entrySet()) {
+            String className, methodDesc, methodName;
+            if (entry.getKey() instanceof MethodStatement) {
+                GenericMethod m = ((MethodStatement) entry.getKey()).getMethod();
+                className = m.getMethod().getDeclaringClass().getName();
+                methodDesc = Type.getMethodDescriptor(m.getMethod());
+                methodName = m.getName() + methodDesc;
+            } else if (entry.getKey() instanceof ConstructorStatement) {
+                GenericConstructor c = ((ConstructorStatement) entry.getKey()).getConstructor();
+                className = c.getName();
+                methodDesc = Type.getConstructorDescriptor(c.getConstructor());
+                methodName = "<init>" + methodDesc;
+            } else
+                continue; //TODO: Do something for Mocks or Privates?
+
             Type[] argTypes = Type.getArgumentTypes(methodDesc);
 
             for (int i=0;i<argTypes.length;i++) {

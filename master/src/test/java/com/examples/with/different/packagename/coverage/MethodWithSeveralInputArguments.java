@@ -21,6 +21,8 @@ package com.examples.with.different.packagename.coverage;
 
 public class MethodWithSeveralInputArguments {
 
+	public MethodWithSeveralInputArguments(int x) {}
+
 	public void testFoo(int x, char chr, String obj, String[] arr) {
 		// not important
 	}

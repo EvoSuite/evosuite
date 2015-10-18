@@ -23,7 +23,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ConstantValue;
@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class InputObserver extends ExecutionObserver {
 
-    private Map<MethodStatement, List<Object>> argumentsValues = new HashMap<MethodStatement, List<Object>>();
+    private Map<EntityWithParametersStatement, List<Object>> argumentsValues = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(InputObserver.class);
 
@@ -67,9 +67,9 @@ public class InputObserver extends ExecutionObserver {
     @Override
     public void afterStatement(Statement statement, Scope scope,
                                Throwable exception) {
-        if (statement instanceof MethodStatement) {
-            MethodStatement methodStmt = (MethodStatement) statement;
-            List<VariableReference> parRefs = methodStmt.getParameterReferences();
+        if (statement instanceof EntityWithParametersStatement) {
+            List<VariableReference> parRefs = ((EntityWithParametersStatement)statement).getParameterReferences();
+
             List<Object> argObjects = new ArrayList<>(parRefs.size());
             for (VariableReference parRef : parRefs) {
                 Object parObject = null;
@@ -88,7 +88,7 @@ public class InputObserver extends ExecutionObserver {
                 argObjects.add(parObject);
             }
             assert parRefs.size() == argObjects.size();
-            argumentsValues.put(methodStmt, argObjects);
+            argumentsValues.put((EntityWithParametersStatement) statement, argObjects);
         }
     }
 
@@ -107,7 +107,7 @@ public class InputObserver extends ExecutionObserver {
     @Override
     public void clear() {
         logger.info("Clearing InputObserver data");
-        argumentsValues = new HashMap<MethodStatement, List<Object>>();
+        argumentsValues = new HashMap<EntityWithParametersStatement, List<Object>>();
     }
 
 }
