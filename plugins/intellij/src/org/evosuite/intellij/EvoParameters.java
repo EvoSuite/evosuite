@@ -21,6 +21,9 @@ package org.evosuite.intellij;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
+import org.evosuite.intellij.util.Utils;
+
+import java.io.File;
 
 /**
  * Created by arcuri on 9/29/14.
@@ -82,9 +85,47 @@ public class EvoParameters {
         p.setValue(MEMORY_EVOSUITE_PARAM,""+memory);
         p.setValue(TARGET_FOLDER_EVOSUITE_PARAM,folder);
         p.setValue(JAVA_HOME,javaHome);
-        p.setValue(MVN_LOCATION,mvnLocation);
+        p.setValue(MVN_LOCATION,getPossibleLocationForMvn());
         p.setValue(EVOSUITE_JAR_LOCATION,evosuiteJarLocation);
         p.setValue(EXECUTION_MODE,executionMode);
+    }
+
+    private String getPossibleLocationForMvn(){
+
+        String mvnExe = Utils.getMvnExecutableName();
+
+        String mvnHome = System.getenv("MAVEN_HOME");
+        if(mvnHome==null || mvnHome.isEmpty()){
+            mvnHome = System.getenv("M2_HOME");
+        }
+        if(mvnHome==null || mvnHome.isEmpty()){
+            mvnHome = System.getenv("MVN_HOME");
+        }
+
+        if(mvnHome==null || mvnHome.isEmpty()){
+            //check in PATH
+            String path = System.getenv("PATH");
+            String[] tokens = path.split(File.pathSeparator);
+            for(String location : tokens){
+                if(! (location.contains("maven") || location.contains("mvn"))){
+                    continue;
+                }
+                File exe = new File(location, mvnExe);
+                if(exe.exists()){
+                    return exe.getAbsolutePath();
+                }
+            }
+            return "";
+
+        } else {
+            File exe = new File(mvnHome,"bin");
+            exe = new File(exe,mvnExe);
+            if(exe.exists()){
+                return exe.getAbsolutePath();
+            } else {
+                return "";
+            }
+        }
     }
 
     public int getCores() {

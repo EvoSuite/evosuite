@@ -754,6 +754,9 @@ public class Properties {
 	@Parameter(key = "ctg_selected_cuts", group = "Continuous Test Generation", description = "Comma ',' separated list of CUTs to use in CTG. If none specified, then test all classes")
 	public static String CTG_SELECTED_CUTS = null;
 
+	@Parameter(key = "ctg_selected_cuts_file_location", group = "Continuous Test Generation", description = "Absolute path of text file where classes to test are specified. This is needed for operating systems like Windows where there are hard limits on parameters' size")
+	public static String CTG_SELECTED_CUTS_FILE_LOCATION = null;
+
 	@Parameter(key = "ctg_export_folder", group = "Continuous Test Generation", description = "If specified, make a copy of all tests into the target export folder")
 	public static String CTG_EXPORT_FOLDER = null;
 

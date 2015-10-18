@@ -61,6 +61,16 @@ public class GenerateMojo extends AbstractMojo {
 	@Parameter( property = "cuts" )
 	private String cuts;
 
+
+	/**
+	 * Absolute path to a file having the list of CUTs specified. This is needed for operating
+	 * systems like Windows that have constraints on the size of input parameters and so could
+	 * not use "cuts" parameter instead if too many CUTs are specified
+	 */
+	@Parameter( property = "cutsFile")
+	private String cutsFile;
+
+
 	/**
 	 * How many minutes to allocate for each class
 	 */
@@ -210,6 +220,10 @@ public class GenerateMojo extends AbstractMojo {
 		if(cuts!=null){
 			params.add("-Dctg_selected_cuts="+cuts);
 		}
+		if(cutsFile!=null){
+			params.add("-Dctg_selected_cuts_file_location="+cutsFile);
+		}
+
 		if(extraArgs!=null && !extraArgs.isEmpty()){
 
 			String args = "";

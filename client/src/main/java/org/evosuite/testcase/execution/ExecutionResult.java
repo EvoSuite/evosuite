@@ -19,10 +19,10 @@
  */
 package org.evosuite.testcase.execution;
 
-import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +96,7 @@ public class ExecutionResult implements Cloneable {
 	private Map<MethodStatement, Object> returnValues;
 
 	/** Mapping of method statements to actual argument values */
-	private Map<MethodStatement, List<Object>> argumentsValues;
+	private Map<EntityWithParametersStatement, List<Object>> argumentsValues;
 
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
@@ -419,7 +419,7 @@ public class ExecutionResult implements Cloneable {
 		if(returnValues != null)
 			copy.returnValues = new HashMap<MethodStatement, Object>(returnValues);
 		if(argumentsValues != null)
-			copy.argumentsValues = new HashMap<MethodStatement, List<Object>>(argumentsValues);
+			copy.argumentsValues = new HashMap<EntityWithParametersStatement, List<Object>>(argumentsValues);
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
@@ -471,13 +471,13 @@ public class ExecutionResult implements Cloneable {
 		this.test = tc;
 	}
 
-	public Map<MethodStatement, List<Object>> getArgumentsValues() {
+	public Map<EntityWithParametersStatement, List<Object>> getArgumentsValues() {
 		if (this.argumentsValues == null)
-			this.argumentsValues = new HashMap<MethodStatement, List<Object>>();
+			this.argumentsValues = new HashMap<EntityWithParametersStatement, List<Object>>();
 		return this.argumentsValues;
 	}
 
-	public void setArgumentsValues(Map<MethodStatement, List<Object>> argumentsValues) {
+	public void setArgumentsValues(Map<EntityWithParametersStatement, List<Object>> argumentsValues) {
 		this.argumentsValues = argumentsValues;
 	}
 }

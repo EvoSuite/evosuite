@@ -152,6 +152,9 @@ public class EvoStartDialog extends JDialog {
         fc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File file) {
+                if(file.isDirectory()){
+                    return true; // need to be able to navigate through folders
+                }
                 return checkIfValidEvoSuiteJar(file);
             }
 
@@ -188,6 +191,9 @@ public class EvoStartDialog extends JDialog {
         fc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File file) {
+                if(file.isDirectory()){
+                    return true; // need to be able to navigate through folders
+                }
                 return checkIfValidMaven(file);
             }
 
@@ -299,7 +305,7 @@ public class EvoStartDialog extends JDialog {
         if(file == null || !file.exists() || file.isDirectory()){
             return false;
         }
-        String name = Utils.isWindows() ? "mvn.bat" : "mvn";
+        String name = Utils.getMvnExecutableName();
         return file.getName().toLowerCase().equals(name);
     }
 
@@ -309,9 +315,6 @@ public class EvoStartDialog extends JDialog {
 
         dispose();
 
-        //int cores = Integer.parseInt(coreField.getText());
-        //int memory = Integer.parseInt(memoryField.getText());
-        //int time = Integer.parseInt(timeField.getText());
         int cores = ((Number)coreField.getValue()).intValue();
         int memory = ((Number)memoryField.getValue()).intValue();
         int time = ((Number)timeField.getValue()).intValue();
