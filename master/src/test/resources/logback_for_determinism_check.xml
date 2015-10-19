@@ -19,5 +19,9 @@
     <logger name="org.evosuite.graphs.cdg" level="OFF" additivity="false" />
     <logger name="org.evosuite.instrumentation.coverage.MethodInstrumentation" level="OFF" additivity="false" />
 
+    <!-- executed on threads on which we have no/little control -->
+    <logger name="org.evosuite.rmi.service" level="OFF" additivity="false" />
+    <logger name="org.evosuite.statistics.SearchStatistics" level="OFF" additivity="false" />
+
 
 </configuration>

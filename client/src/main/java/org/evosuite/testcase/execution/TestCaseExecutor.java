@@ -240,7 +240,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public void removeObserver(ExecutionObserver observer) {
 		if (observers.contains(observer)) {
-			logger.debug("Removing observer " + observer);
+			logger.debug("Removing observer");
 			observers.remove(observer);
 		}
 	}
@@ -251,7 +251,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * </p>
 	 */
 	public void newObservers() {
-		observers = new LinkedHashSet<ExecutionObserver>();
+		observers = new LinkedHashSet<>();
 	}
 
 	private void resetObservers() {

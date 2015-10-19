@@ -42,9 +42,12 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SimpleMutationAssertionGenerator extends
-		MutationAssertionGenerator {
+public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator {
+
+	private final static Logger logger = LoggerFactory.getLogger(SimpleMutationAssertionGenerator.class);
 
 	@Override
 	public void addAssertions(TestSuiteChromosome suite) {
@@ -166,8 +169,7 @@ public class SimpleMutationAssertionGenerator extends
 			}
 			*/
 
-			logger.debug("Running test " + test.hashCode() + " on mutation "
-			        + m.getMutationName());
+			logger.debug("Running test on mutation {}",  m.getMutationName());
 			ExecutionResult mutantResult = runTest(test, m);
 
 			int numKilled = 0;
