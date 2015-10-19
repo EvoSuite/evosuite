@@ -40,6 +40,9 @@ import org.evosuite.maven.util.EvoSuiteRunner;
 import org.evosuite.maven.util.FileUtils;
 import org.evosuite.maven.util.HistoryChanges;
 
+/**
+ * Generate JUnit tests
+ */
 @Mojo( name = "generate" , requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
 public class GenerateMojo extends AbstractMojo {
 

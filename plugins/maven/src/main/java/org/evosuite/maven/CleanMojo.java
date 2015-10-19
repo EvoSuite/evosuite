@@ -34,6 +34,10 @@ import org.apache.maven.project.ProjectBuilder;
 import org.eclipse.aether.RepositorySystemSession;
 import org.evosuite.maven.util.EvoSuiteRunner;
 
+
+/**
+ * Remove all local files created by EvoSuite so far
+ */
 @Mojo( name = "clean")
 public class CleanMojo extends AbstractMojo{
 
