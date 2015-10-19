@@ -219,7 +219,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public void addObserver(ExecutionObserver observer) {
 		if (!observers.contains(observer)) {
-			logger.debug("Adding observer " + observer);
+			logger.debug("Adding observer");
 			observers.add(observer);
 		}
 		// FIXXME: Find proper solution for this

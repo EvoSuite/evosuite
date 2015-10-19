@@ -1,0 +1,23 @@
+<configuration>
+
+    <contextName>ContextForDeterminismCheck</contextName>
+
+    <root level="TRACE" >
+        <appender  class="ch.qos.logback.core.ConsoleAppender">
+            <target>System.out</target>
+            <encoder>
+                <pattern>%-5level %logger - %msg%n</pattern>
+            </encoder>
+        </appender>
+    </root>
+
+    <!-- these loggers are intrinsically non-deterministic -->
+    <logger name="org.evosuite.TimeController" level="OFF" additivity="false" />
+
+    <!-- these are a problem due to labels being non-deterministic -->
+    <logger name="org.evosuite.graphs.cfg" level="OFF" additivity="false" />
+    <logger name="org.evosuite.graphs.cdg" level="OFF" additivity="false" />
+    <logger name="org.evosuite.instrumentation.coverage.MethodInstrumentation" level="OFF" additivity="false" />
+
+
+</configuration>

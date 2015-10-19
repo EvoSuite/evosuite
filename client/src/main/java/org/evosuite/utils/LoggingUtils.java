@@ -100,7 +100,7 @@ public class LoggingUtils {
 	 */
 	@Deprecated
 	public static void logWarnAtMostOnce(Logger logger, String message){
-		AtMostOnceLogger.warn(logger,message);
+		AtMostOnceLogger.warn(logger, message);
 	}
 
 	/**
@@ -317,40 +317,50 @@ public class LoggingUtils {
 
 		// Only overrule default configurations		
 		if (isDefaultLoggingConfiguration(context)) {
-			try {
-				JoranConfigurator configurator = new JoranConfigurator();
-				configurator.setContext(context);
-				final String xmlFileName = getLogbackFileName();
-				InputStream f = null;
-				if (LoggingUtils.class.getClassLoader() != null) {
-					f = LoggingUtils.class.getClassLoader().getResourceAsStream(xmlFileName);
-				} else {
-					// If the classloader is null, then that means EvoSuite.class was loaded
-					// with the bootstrap classloader, so let's try that as well
-					f = ClassLoader.getSystemClassLoader().getResourceAsStream(xmlFileName);
-				}
-				if (f == null) {
-					String msg = xmlFileName + " not found on classpath";
-					System.err.println(msg);
-					logger.error(msg);
-                    isOK = false;
-				} else {
-                    context.reset();
-                    configurator.doConfigure(f);
-                }
-			} catch (JoranException je) {
-				// StatusPrinter will handle this
-                isOK = false;
-			}
+			isOK = changeLogbackFile(getLogbackFileName());
 			StatusPrinter.printInCaseOfErrorsOrWarnings(context);
 		}
         return isOK;
 	}
 
+	public static boolean changeLogbackFile(String resourceFilePath){
+		Inputs.checkNull(resourceFilePath);
+		if(!resourceFilePath.endsWith(".xml")){
+			throw new IllegalArgumentException("Logback file name does not terminate with '.xml'");
+		}
+
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		try {
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(context);
+			final String xmlFileName = resourceFilePath;
+			InputStream f = null;
+			if (LoggingUtils.class.getClassLoader() != null) {
+				f = LoggingUtils.class.getClassLoader().getResourceAsStream(xmlFileName);
+			} else {
+				// If the classloader is null, then that means EvoSuite.class was loaded
+				// with the bootstrap classloader, so let's try that as well
+				f = ClassLoader.getSystemClassLoader().getResourceAsStream(xmlFileName);
+			}
+			if (f == null) {
+				String msg = xmlFileName + " not found on classpath";
+				System.err.println(msg);
+				logger.error(msg);
+				return false;
+			} else {
+				context.reset();
+				configurator.doConfigure(f);
+			}
+		} catch (JoranException je) {
+			// StatusPrinter will handle this
+			return false;
+		}
+
+		return true;
+	}
+
 	public static String getLogbackFileName() {
-		return System.getProperty(USE_DIFFERENT_LOGGING_XML_PARAMETER,
-                //"src/main/resources/logback-evosuite.xml"); //Why was it working before??? Maybe refactoring changed it?
-                "logback-evosuite.xml");
+		return System.getProperty(USE_DIFFERENT_LOGGING_XML_PARAMETER, "logback-evosuite.xml");
 	}
 
 }
