@@ -12,6 +12,10 @@
     <artifactId>evosuite-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
 
+    <prerequisites>
+        <maven>3.1</maven>
+    </prerequisites>
+
     <name>Maven Plugin for EvoSuite</name>
 
     <properties>

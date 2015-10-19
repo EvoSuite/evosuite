@@ -12,6 +12,25 @@
     <url>http://www.evosuite.org/</url>
     <inceptionYear>2010</inceptionYear>
 
+    <licenses>
+        <license>
+            <name> GNU Lesser General Public License (LGPL), version 3</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.en.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/EvoSuite/evosuite/issues</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <archive>https://groups.google.com/forum/#!forum/evosuite</archive>
+        </mailingList>
+    </mailingLists>
+
     <modules>
         <module>master</module>
         <module>client</module>
