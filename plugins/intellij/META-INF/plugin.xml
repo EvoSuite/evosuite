@@ -26,8 +26,11 @@
   <vendor email="arcuri82@gmail.com" url="http://www.evosuite.org">EvoSuite</vendor>
 
   <description><![CDATA[
-      IntelliJ plugin for the EvoSuite tool, which is used to
-       automatically generate high coverage JUnit tests.
+      IntelliJ plugin for the EvoSuite tool, which is used to automatically generate high coverage JUnit tests.
+      Note: this plugin is just used to call EvoSuite from inside IntelliJ IDEA, and so you still need to
+      configure and install EvoSuite separately.
+      You can do it automatically via its Maven plugin, or add the executable jar directly into your project.
+      For more information, see the documentation on www.evosuite.org
     ]]></description>
 
   <change-notes><![CDATA[
