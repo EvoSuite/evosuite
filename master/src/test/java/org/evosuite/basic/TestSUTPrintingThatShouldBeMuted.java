@@ -26,6 +26,7 @@ import java.io.PrintStream;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.utils.LoggingUtils;
 import org.junit.*;
 
 import com.examples.with.different.packagename.InfiniteLoops;
@@ -40,18 +41,22 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest {
 	public static final boolean defaultPrintToSystem = Properties.PRINT_TO_SYSTEM;
 	
 	public static final PrintStream defaultOut = System.out;
-	
+
+	@Before
+	public void init(){
+		LoggingUtils.changeLogbackFile(LoggingUtils.getLogbackFileName());
+	}
+
 	@After
 	public void resetProperties(){
 		Properties.TIMEOUT = defaultTimeout;
 		Properties.PRINT_TO_SYSTEM = defaultPrintToSystem;
 		
 		System.setOut(defaultOut);
-		Properties.CLIENT_ON_THREAD = true;
+		LoggingUtils.changeLogbackFile("logback.xml");
 	}
-	
-	
-	
+
+
 	public void checkIfMuted(String targetClass, String msgSUT){
 		Properties.CLIENT_ON_THREAD = false;
 		

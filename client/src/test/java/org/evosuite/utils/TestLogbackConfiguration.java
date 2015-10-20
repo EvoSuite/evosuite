@@ -35,6 +35,7 @@ public class TestLogbackConfiguration {
 	public void resetDefaultPrinters() {
 		System.setOut(defaultOut);
 		System.setErr(defaultErr);
+		LoggingUtils.changeLogbackFile("logback.xml");
 	}
 
 	@Test
@@ -45,7 +46,7 @@ public class TestLogbackConfiguration {
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 		System.setErr(new PrintStream(err));
 
-		boolean loaded = LoggingUtils.loadLogbackForEvoSuite();
+		boolean loaded = LoggingUtils.changeLogbackFile(LoggingUtils.getLogbackFileName());
         Assert.assertTrue(loaded);
 		org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestLogbackConfiguration.class);
 
