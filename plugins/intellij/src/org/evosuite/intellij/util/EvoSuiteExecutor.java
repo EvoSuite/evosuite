@@ -264,7 +264,8 @@ public class EvoSuiteExecutor {
             throw new IllegalArgumentException("Need to specify class list");
         }
 
-        list.add("-Dctg_memory="+params.getMemory());
+        //the memory is per core
+        list.add("-Dctg_memory="+ (params.getMemory() * params.getCores()));
         list.add("-Dctg_cores="+params.getCores());
         list.add("-Dctg_time_per_class=" + params.getTime());
         list.add("-Dctg_export_folder=" + params.getFolder());
@@ -329,7 +330,8 @@ public class EvoSuiteExecutor {
         list.add("compile");
         list.add("evosuite:generate");
         list.add("-Dcores=" + params.getCores());
-        list.add("-DmemoryInMB=" + params.getMemory());
+        //the memory is per core
+        list.add("-DmemoryInMB=" + (params.getMemory() * params.getCores()));
         list.add("-DtimeInMinutesPerClass=" + params.getTime());
 
         if(classes != null && classes.size() >= 0) {

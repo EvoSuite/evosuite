@@ -68,7 +68,7 @@ public class EvoParameters {
     public void load(Project project){
         PropertiesComponent p = PropertiesComponent.getInstance(project);
         cores = p.getOrInitInt(CORES_EVOSUITE_PARAM,1);
-        memory = p.getOrInitInt(MEMORY_EVOSUITE_PARAM,500);
+        memory = p.getOrInitInt(MEMORY_EVOSUITE_PARAM,2000);
         time = p.getOrInitInt(TIME_EVOSUITE_PARAM,1);
         folder = p.getOrInit(TARGET_FOLDER_EVOSUITE_PARAM, "src/evo");
 
