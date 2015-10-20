@@ -21,12 +21,15 @@ public class BaseDeterminismSystemTest{
     @BeforeClass
     public static void initClass(){
         LoggingUtils.changeLogbackFile("logback_for_determinism_check.xml");
+        Properties.IS_RUNNING_A_SYTEM_TEST = true;
     }
 
     @AfterClass
     public static void tearDownClass(){
         LoggingUtils.changeLogbackFile("logback.xml");
+        Properties.IS_RUNNING_A_SYTEM_TEST = false;
     }
+
 
     @Test
     public void testBase(){
@@ -35,7 +38,7 @@ public class BaseDeterminismSystemTest{
 
     public static void checkDeterminism(Class<?> target){
 
-        //dry run
+        //dry run, needed to avoid logs of static initializers that are called only once
         run(target);
 
         String first = run(target);
