@@ -17,33 +17,45 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 
-import com.examples.with.different.packagename.MemberClassWithParameter;
+import com.examples.with.different.packagename.SingleMethod;
 
-public class TestMemberClasses extends SystemTest {
+
+/**
+ * @author Andrea Arcuri
+ * 
+ */
+public class TestSUTWithSimpleSingleMethod_v2 extends SystemTest {
+
 	@Test
-	public void testMemberclass() {
+	public void testSingleMethod(){
 		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = MemberClassWithParameter.class.getCanonicalName();
-
+		
+		String targetClass = SingleMethod.class.getCanonicalName();
+		
 		Properties.TARGET_CLASS = targetClass;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
+		
+		String[] command = new String[]{				
+				"-generateSuite",
+				"-class",
+				targetClass
+		};
+		
 		Object result = evosuite.parseCommandLine(command);
+		
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
+		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
+		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
+		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Wrong number of statements: ",2,best.getTestChromosome(0).getTestCase().size());
 	}
 }

@@ -20,13 +20,16 @@
 /**
  *
  */
-package org.evosuite;
+package org.evosuite.basic;
 
 import static org.junit.Assert.assertEquals;
 
 import com.examples.with.different.packagename.Compositional;
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.SystemTest;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;

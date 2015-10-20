@@ -17,61 +17,38 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.DivisionByZero;
+import com.examples.with.different.packagename.NullInteger;
 
-public class TestSUTDivisionByZero extends SystemTest {
-
-	/*
-	 * To avoid side effects on test cases that we will run afterwards,
-	 * if we modify some values in Properties, then we need to re-int them after
-	 * each test case execution
-	 */
-	public static final double defaultPrimitivePool = Properties.PRIMITIVE_POOL;
-	public static final boolean defaultErrorBranches = Properties.ERROR_BRANCHES;
-
-	@After
-	public void resetProperties() {
-		Properties.PRIMITIVE_POOL = defaultPrimitivePool;
-		Properties.ERROR_BRANCHES = defaultErrorBranches;
-	}
+public class TestNullInteger extends SystemTest {
 
 	@Test
-	public void testDivisonByZero() {
+	public void testNullInteger() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = DivisionByZero.class.getCanonicalName();
+		String targetClass = NullInteger.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.PRIMITIVE_POOL = 0.99;
-		Properties.ERROR_BRANCHES = true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		/*
-		 * 1: default constructor
-		 * 1: method testMe
-		 * 2: extra branch for division by 0
-		 * 2: for underflow
-		 */
-		Assert.assertTrue("Wrong number of goals: "+goals, goals>=4 );
-		double coverage = best.getCoverage();
-		//one of the underflow branches is difficult to get without DSE/LS
-		Assert.assertTrue("Not good enough coverage: "+coverage, coverage > 0.83d);
+		Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }

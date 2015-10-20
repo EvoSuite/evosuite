@@ -17,58 +17,36 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.AbstractClassWithStaticFactory;
-import com.examples.with.different.packagename.AbstractSuperClass;
+import com.examples.with.different.packagename.MemberClassWithParameter;
 
-public class TestAbstractSUT extends SystemTest {
-
+public class TestMemberClasses extends SystemTest {
 	@Test
-	public void testAbstractSUT() {
+	public void testMemberclass() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = AbstractSuperClass.class.getCanonicalName();
+		String targetClass = MemberClassWithParameter.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-
-		Assert.assertTrue(result != null);
-
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
-	@Test
-	public void testAbstractSUTWithOnlyStaticFactory() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = AbstractClassWithStaticFactory.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		Assert.assertTrue(result != null);
-
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-
 }

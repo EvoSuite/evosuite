@@ -17,25 +17,17 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+/**
+ * 
+ */
+package org.evosuite.basic;
 
-import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import org.junit.Test;
+@RunWith(Suite.class)
+@SuiteClasses({ TestSUTDivisionByZero.class, TestSUTPrintingThatShouldBeMuted.class })
+public class DivisionByZeroFollowByOther {
 
-public class CheckPropertiesInSystemTest extends SystemTest {
-
-	private static final String PROPERTY = "Some_property_name_used_for_testing_SystemTest";
-	
-	@Test
-	public void setProperty(){
-		Assert.assertNull(System.getProperty(PROPERTY));
-		System.setProperty(PROPERTY, PROPERTY);
-		Assert.assertNotNull(System.getProperty(PROPERTY));		
-	}
-	
-	@Test
-	public void getProperty(){
-		Assert.assertNull(System.getProperty(PROPERTY));
-	}
 }

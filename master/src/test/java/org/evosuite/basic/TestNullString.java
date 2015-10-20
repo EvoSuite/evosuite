@@ -17,26 +17,28 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.ObjectParameter;
+import com.examples.with.different.packagename.NullString;
 
-public class TestObjectParameter extends SystemTest {
+public class TestNullString extends SystemTest {
 
 	@Test
-	public void testObjectParameterSeeding() {
+	public void testNullString() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ObjectParameter.class.getCanonicalName();
+		String targetClass = NullString.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -49,26 +51,4 @@ public class TestObjectParameter extends SystemTest {
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
-	@Test
-	public void testObjectParameterNoSeeding() {
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = ObjectParameter.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.SEED_TYPES = false;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 2d/3d, best.getCoverage(), 0.001);
-	}
-
 }

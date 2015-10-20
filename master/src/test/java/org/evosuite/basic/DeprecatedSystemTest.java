@@ -17,28 +17,33 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
-import com.examples.with.different.packagename.DependencyLibrary;
+import com.examples.with.different.packagename.DeprecatedMethods;
 
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Andrea Arcuri on 21/04/15.
+ * By default, we should be able to test @Deprecated methods
+ *
+ * Created by Andrea Arcuri on 13/03/15.
  */
-public class DependencyLibrary_SystemTest extends SystemTest{
+public class DeprecatedSystemTest extends SystemTest {
 
     @Test
-    public void testSUTThatIsPartOfEvoSuiteDependencies() {
+    public void testDeprecatedMethods() {
         EvoSuite evosuite = new EvoSuite();
 
-        String targetClass = DependencyLibrary.class.getCanonicalName();
+        String targetClass = DeprecatedMethods.class.getCanonicalName();
 
         Properties.TARGET_CLASS = targetClass;
-        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -47,6 +52,8 @@ public class DependencyLibrary_SystemTest extends SystemTest{
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
+        int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+        Assert.assertEquals("Wrong number of goals: ", 2, goals); //default constructor and deprecated method
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }

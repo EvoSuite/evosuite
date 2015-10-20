@@ -17,15 +17,26 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
-import org.evosuite.coverage.exception.TestImplicitExplicitExceptions;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-import org.junit.runners.Suite;
+import org.evosuite.SystemTest;
+import org.junit.Assert;
 
-@RunWith(Suite.class)
-@SuiteClasses({ TestSUTWithSimpleSingleMethod_v2.class, TestImplicitExplicitExceptions.class })
-public class SimpleFollowedByExceptionTest {
+import org.junit.Test;
 
+public class CheckPropertiesInSystemTest extends SystemTest {
+
+	private static final String PROPERTY = "Some_property_name_used_for_testing_SystemTest";
+	
+	@Test
+	public void setProperty(){
+		Assert.assertNull(System.getProperty(PROPERTY));
+		System.setProperty(PROPERTY, PROPERTY);
+		Assert.assertNotNull(System.getProperty(PROPERTY));		
+	}
+	
+	@Test
+	public void getProperty(){
+		Assert.assertNull(System.getProperty(PROPERTY));
+	}
 }

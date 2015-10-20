@@ -17,44 +17,48 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
-import com.examples.with.different.packagename.SingleMethod;
+import com.examples.with.different.packagename.IntExample;
 
+public class TestIntOptimisation extends SystemTest {
 
-/**
- * @author Andrea Arcuri
- * 
- */
-public class TestSUTWithSimpleSingleMethod_v2 extends SystemTest{
-
+	private double seedConstants = Properties.PRIMITIVE_POOL;
+	
+	@After
+	public void resetSeedConstants() {
+		Properties.PRIMITIVE_POOL = seedConstants;
+	}
+	
 	@Test
-	public void testSingleMethod(){
+	public void testIntSUT() {
 		EvoSuite evosuite = new EvoSuite();
-		
-		String targetClass = SingleMethod.class.getCanonicalName();
-		
+
+		String targetClass = IntExample.class.getCanonicalName();
+
 		Properties.TARGET_CLASS = targetClass;
+		Properties.PRIMITIVE_POOL = 0.0;
+		Properties.SEARCH_BUDGET = 50000;
 		
-		String[] command = new String[]{				
-				"-generateSuite",
-				"-class",
-				targetClass
-		};
-		
+		String[] command = new String[] { "-generateSuite", "-class", targetClass};
+
 		Object result = evosuite.parseCommandLine(command);
-		
+
+		Assert.assertTrue(result != null);
+
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
-		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
-		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
-		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
-		Assert.assertEquals("Wrong number of statements: ",2,best.getTestChromosome(0).getTestCase().size());
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }

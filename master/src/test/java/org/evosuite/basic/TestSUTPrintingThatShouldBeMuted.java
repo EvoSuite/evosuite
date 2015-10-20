@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +25,7 @@ import java.io.PrintStream;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.junit.*;
 
 import com.examples.with.different.packagename.InfiniteLoops;
@@ -33,7 +34,7 @@ import com.examples.with.different.packagename.StaticPrinting;
 
 
 
-public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
+public class TestSUTPrintingThatShouldBeMuted extends SystemTest {
 
 	public static final int defaultTimeout = Properties.TIMEOUT;
 	public static final boolean defaultPrintToSystem = Properties.PRINT_TO_SYSTEM;

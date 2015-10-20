@@ -17,75 +17,53 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
 import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 
-import com.examples.with.different.packagename.ArrayLimit;
+import com.examples.with.different.packagename.SingleMethod;
 
 
+/**
+ * @author Andrea Arcuri
+ * 
+ */
+public class TestSUTWithSimpleSingleMethod extends SystemTest {
 
-
-
-public class TestSUTArrayLimit extends SystemTest{
-
-	public static final int defaultArrayLimit = Properties.ARRAY_LIMIT;
-
-	@After
-	public void resetProperties(){
-		Properties.ARRAY_LIMIT = defaultArrayLimit;
-	}
-
-
+	/*
+	 * for now ignore it, as long as we don't fix the issue with serialization
+	 */
+	@Ignore
 	@Test
-	public void testWithinLimits() {
+	public void testSingleMethod(){
 		EvoSuite evosuite = new EvoSuite();
-		String targetClass = ArrayLimit.class.getCanonicalName();
+		int generations = 1;
 		
-		Properties.TARGET_CLASS = targetClass;
+		String targetClass = SingleMethod.class.getCanonicalName();
 		
 		String[] command = new String[]{				
-				"-generateSuite",
+				//EvoSuite.JAVA_CMD,
+				"-generateTests",
 				"-class",
-				targetClass
+				targetClass,
+				"-Dhtml=false",
+				"-Dplot=false",
+				"-Djunit_tests=false",
+				"-Dshow_progress=false",
+				"-Dgenerations="+generations,
+				"-Dserialize_result=true"
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n"+best);
-
+		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
 		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Wrong number of statements: ",2,best.getTestChromosome(0).getTestCase().size());
 	}
-
-	@Test
-	public void testAboveLimits() {
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = ArrayLimit.class.getCanonicalName();
-		
-		Properties.ARRAY_LIMIT = 10;
-		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
-				"-generateSuite",
-				"-class",
-				targetClass
-		};
-		
-		Object result = evosuite.parseCommandLine(command);
-		
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n"+best);
-
-		Assert.assertTrue("Optimal coverage: " + best.getCoverage(), best.getCoverage() < 0.99);
-	}
-
 }

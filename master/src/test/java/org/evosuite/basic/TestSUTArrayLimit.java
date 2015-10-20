@@ -17,38 +17,39 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
-import com.examples.with.different.packagename.HighConstant;
+import com.examples.with.different.packagename.ArrayLimit;
 
 
-/**
- * @author Andrea Arcuri
- * 
- */
-public class TestSUTHighConstant extends SystemTest{
 
-	public static final double defaultPrimitivePool = Properties.PRIMITIVE_POOL;
-	
+
+
+public class TestSUTArrayLimit extends SystemTest {
+
+	public static final int defaultArrayLimit = Properties.ARRAY_LIMIT;
+
 	@After
 	public void resetProperties(){
-		Properties.PRIMITIVE_POOL = defaultPrimitivePool;
+		Properties.ARRAY_LIMIT = defaultArrayLimit;
 	}
-	
+
+
 	@Test
-	public void testNoPrimitivePool(){
+	public void testWithinLimits() {
 		EvoSuite evosuite = new EvoSuite();
-				
-		String targetClass = HighConstant.class.getCanonicalName();
+		String targetClass = ArrayLimit.class.getCanonicalName();
 		
 		Properties.TARGET_CLASS = targetClass;
-		Properties.PRIMITIVE_POOL = 0;
 		
 		String[] command = new String[]{				
 				"-generateSuite",
@@ -57,49 +58,35 @@ public class TestSUTHighConstant extends SystemTest{
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
+		
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
-		System.out.println(best.toString());
-		/*
-		 * there are 2 branches and one method, so 3 targets, of which we cover only 2
-		 */
-		Assert.assertEquals("Non-expected coverage: ",2d/3d, best.getCoverage(), 0.001);
-				
-		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
-		/*
-		 * - Constructor
-		 * - variable init
-		 * - method call
-		 */
-		if(Properties.INLINE)
-			Assert.assertEquals("Wrong number of statements: ",2,best.getTestChromosome(0).getTestCase().size());
-		else
-			Assert.assertEquals("Wrong number of statements: ",3,best.getTestChromosome(0).getTestCase().size());
-	}
-	
-	@Test
-	public void testUsingPrimitivePool(){
-		EvoSuite evosuite = new EvoSuite();
-		
-		String targetClass = HighConstant.class.getCanonicalName();
-		
-		Properties.TARGET_CLASS = targetClass;		
-		Properties.PRIMITIVE_POOL = 0.8;
-		
-		String[] command = new String[]{				
-				"-generateSuite",
-				"-class",
-				targetClass
-		};
-		
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		System.out.println("EvolvedTestSuite:\n"+best);
 
-		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
-		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
-		//Assert.assertEquals("Wrong number of test cases: ",2 , best.size());
 		Assert.assertEquals("Non-optimal coverage: ",1d, best.getCoverage(), 0.001);
-		//Assert.assertEquals("Wrong number of statements: ",3,best.getTestChromosome(0).getTestCase().size());
-		//Assert.assertEquals("Wrong number of statements: ",3,best.getTestChromosome(1).getTestCase().size());
 	}
+
+	@Test
+	public void testAboveLimits() {
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = ArrayLimit.class.getCanonicalName();
+		
+		Properties.ARRAY_LIMIT = 10;
+		Properties.TARGET_CLASS = targetClass;
+		
+		String[] command = new String[]{				
+				"-generateSuite",
+				"-class",
+				targetClass
+		};
+		
+		Object result = evosuite.parseCommandLine(command);
+		
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n"+best);
+
+		Assert.assertTrue("Optimal coverage: " + best.getCoverage(), best.getCoverage() < 0.99);
+	}
+
 }

@@ -17,42 +17,39 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite;
+package org.evosuite.basic;
 
+
+import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
+import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.RegexBranch;
-
-public class TestRegexBranch extends SystemTest {
-	
-	public static final double defaultDynamicPool = Properties.DYNAMIC_POOL;
-
-	@After
-	public void resetProperties() {
-		Properties.DYNAMIC_POOL = defaultDynamicPool;
-	}
-
-	
+public class TestClassInDefaultPackage extends SystemTest {
 	@Test
-	public void testRegexBranch() {
+	public void testClassInDefaultPackage() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = RegexBranch.class.getCanonicalName();
+		String targetClass = "ClassInDefaultPackage";
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass }; // , "-Dprint_to_system=true"
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
+		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
+
 }
