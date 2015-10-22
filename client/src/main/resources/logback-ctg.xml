@@ -88,6 +88,11 @@
 		<appender-ref ref="STDERR" />
 	</logger>
 
+	<logger name="shaded.org.evosuite" level="${log.level:-WARN}">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="STDERR" />
+	</logger>
+
 	<logger name="org.evosuite.shaded" level="OFF" />
 
 	<!-- for a specific logger, enables all the logging. this is useful when 

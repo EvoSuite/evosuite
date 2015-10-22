@@ -16,6 +16,10 @@ public class PackageInfo {
         return getEvoSuitePackage().replace(".","/");
     }
 
+    /**
+     * The package were third-party libraries are shaded into
+     * @return
+     */
     public static String getShadedPackage(){
         return getEvoSuitePackage() + ".shaded";
     }
@@ -23,4 +27,7 @@ public class PackageInfo {
     public static String getNameWithSlash(Class<?> klass){
         return klass.getName().replace(".","/");
     }
+
+    //TODO
+    //public static String get
 }

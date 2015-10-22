@@ -37,6 +37,7 @@
         <module>runtime</module>
         <module>plugins</module>
         <module>standalone_runtime</module>
+        <module>shaded</module>
     </modules>
 
     <prerequisites>
