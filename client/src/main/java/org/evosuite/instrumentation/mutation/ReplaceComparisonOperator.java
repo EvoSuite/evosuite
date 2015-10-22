@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -190,7 +191,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceComparisonOperator",
+					PackageInfo.getNameWithSlash(ReplaceComparisonOperator.class),
 			        "getInfectionDistance", "(IIII)D", false));
 			break;
 
@@ -205,7 +206,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceComparisonOperator",
+					PackageInfo.getNameWithSlash(ReplaceComparisonOperator.class),
 			        "getInfectionDistance", "(III)D", false));
 			break;
 

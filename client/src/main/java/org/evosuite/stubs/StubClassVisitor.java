@@ -19,6 +19,7 @@
  */
 package org.evosuite.stubs;
 
+import org.evosuite.PackageInfo;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -139,7 +140,7 @@ public class StubClassVisitor extends ClassVisitor {
 		mg.push(className);
 		mg.push(m.getName() + m.getDescriptor());
 		mg.loadArgArray();
-		Type owner = Type.getType("org/evosuite/stubs/Stubs");
+		Type owner = Type.getType(PackageInfo.getNameWithSlash(Stubs.class));
 		Method method = new Method(methodName, desc);
 		mg.invokeStatic(owner, method);
 		insertReturnCast(mg, m);

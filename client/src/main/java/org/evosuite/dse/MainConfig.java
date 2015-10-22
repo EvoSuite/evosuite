@@ -25,6 +25,8 @@ package org.evosuite.dse;
     http://ranger.uta.edu/~csallner/dsc/index.html
  */
 
+import org.evosuite.PackageInfo;
+
 /**
  * Constant values
  * 
@@ -96,7 +98,7 @@ public class MainConfig {
 
 	        // "spoon.", //$NON-NLS-1$
 
-	        "org.evosuite.", //$NON-NLS-1$
+			PackageInfo.getEvoSuitePackage()+".", //$NON-NLS-1$
 	        "edu.uta.cse.dbtest.", //$NON-NLS-1$
 	        "edu.uta.cse.tada.", //$NON-NLS-1$
 	        "edu.uta.cse.z3.", //$NON-NLS-1$

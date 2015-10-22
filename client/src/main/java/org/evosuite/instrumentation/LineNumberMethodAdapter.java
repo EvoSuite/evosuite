@@ -19,6 +19,8 @@
  */
 package org.evosuite.instrumentation;
 
+import org.evosuite.PackageInfo;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -81,7 +83,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                   "org/evosuite/testcase/execution/ExecutionTracer",
+				PackageInfo.getNameWithSlash(ExecutionTrace.class),
 		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V", false);
 	}
 

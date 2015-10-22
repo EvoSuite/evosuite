@@ -39,6 +39,7 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.ArrayEqualsAssertion;
@@ -1380,8 +1381,8 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	private boolean isValidSource(String sourceClass){
-		return ! sourceClass.startsWith("org.evosuite.") ||
-				sourceClass.startsWith("org.evosuite.runtime.");
+		return ! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
+				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.");
 	}
 
     private Class<?> getExceptionClassToUse(Throwable exception){

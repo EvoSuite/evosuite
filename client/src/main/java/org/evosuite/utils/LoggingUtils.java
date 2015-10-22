@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
@@ -294,7 +295,7 @@ public class LoggingUtils {
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		if(isDefaultLoggingConfiguration(context)){
 
-			Logger root = LoggerFactory.getLogger("org.evosuite");
+			Logger root = LoggerFactory.getLogger(PackageInfo.getEvoSuitePackage());
 			if(root != null && root instanceof ch.qos.logback.classic.Logger){
 				((ch.qos.logback.classic.Logger) root).setLevel(Level.OFF);
 			}

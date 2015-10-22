@@ -22,7 +22,9 @@
  */
 package org.evosuite.instrumentation;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -93,7 +95,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 			this.visitLdcInsn(className);
 			this.visitLdcInsn(fullMethodName);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                   "org/evosuite/testcase/execution/ExecutionTracer",
+					PackageInfo.getNameWithSlash(ExecutionTrace.class),
 			                   "exceptionThrown",
 			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 		}

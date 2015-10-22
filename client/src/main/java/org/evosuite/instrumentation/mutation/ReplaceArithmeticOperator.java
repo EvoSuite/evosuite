@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -238,7 +239,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
+					PackageInfo.getNameWithSlash(ReplaceArithmeticOperator.class),
 			        "getInfectionDistanceInt", "(IIII)D", false));
 		} else if (opcodesLong.contains(opcodeOrig)) {
 			distance.add(new VarInsnNode(Opcodes.LSTORE, numVariable));
@@ -249,7 +250,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
+					PackageInfo.getNameWithSlash(ReplaceArithmeticOperator.class),
 			        "getInfectionDistanceLong", "(JJII)D", false));
 			numVariable += 2;
 		} else if (opcodesFloat.contains(opcodeOrig)) {
@@ -258,7 +259,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
+					PackageInfo.getNameWithSlash(ReplaceArithmeticOperator.class),
 			        "getInfectionDistanceFloat", "(FFII)D", false));
 		} else if (opcodesDouble.contains(opcodeOrig)) {
 			distance.add(new VarInsnNode(Opcodes.DSTORE, numVariable));
@@ -269,7 +270,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
+					PackageInfo.getNameWithSlash(ReplaceArithmeticOperator.class),
 			        "getInfectionDistanceDouble", "(DDII)D", false));
 			numVariable += 2;
 		}

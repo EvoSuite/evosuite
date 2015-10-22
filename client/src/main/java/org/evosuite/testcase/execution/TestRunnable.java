@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.System.SystemExitException;
@@ -232,7 +233,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				e = e.getCause();
 			}
 			if (e instanceof AssertionError
-			        && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
+			        && e.getStackTrace()[0].getClassName().contains(PackageInfo.getEvoSuitePackage())) {
 				logger.error("Assertion Error in evosuitecode, for statement \n"
 				        + test.getStatement(num.get()).getCode() + " \n which is number: "
 				        + num + " testcase \n" + test.toCode(), e);

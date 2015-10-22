@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.javaee.injection;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.runtime.util.Inputs;
 
 import java.lang.annotation.Annotation;
@@ -55,7 +56,7 @@ public class InjectionList {
         Inputs.checkNull(annotation);
         String name = annotation.getName();
 
-        String shadedPrefix = "org.evosuite.shaded.";
+        String shadedPrefix = PackageInfo.getShadedPackage()+".";
         for(Class<?> c : tagsToCheck){
             String cn = c.getName();
             if(name.equals(cn)){

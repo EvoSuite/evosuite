@@ -22,6 +22,8 @@
  */
 package org.evosuite.setup;
 
+import org.evosuite.PackageInfo;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,13 +73,13 @@ public class CallContext implements Serializable {
 		List<Call> context = new ArrayList<Call>();
 		while (stackTrace[startPos].getClassName().startsWith("java")
 				|| stackTrace[startPos].getClassName().startsWith("sun")
-				|| stackTrace[startPos].getClassName().startsWith("org.evosuite")) {
+				|| stackTrace[startPos].getClassName().startsWith(PackageInfo.getEvoSuitePackage())) {
 			startPos--;
 		}
 		int endPos = 0;
 		while (stackTrace[endPos].getClassName().startsWith("java")
 				|| stackTrace[endPos].getClassName().startsWith("sun")
-				|| stackTrace[endPos].getClassName().startsWith("org.evosuite")) {
+				|| stackTrace[endPos].getClassName().startsWith(PackageInfo.getEvoSuitePackage())) {
 			endPos++;
 		}
 

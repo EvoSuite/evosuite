@@ -42,7 +42,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 		if (Properties.ECLIPSE_PLUGIN) {
 			String res = "";
 			if(Properties.TARGET_CLASS.equals("EvoSuiteTest"))
-				res = "org.evosuite.annotations.EvoSuiteTest";
+				res = org.evosuite.annotations.EvoSuiteTest.class.getName();
 			else
 				res = "EvoSuiteTest";
 			res += " (checked = false)";
@@ -63,7 +63,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	public String getImports() {
 		String imports = "";
 		if ((Properties.ECLIPSE_PLUGIN) && (!Properties.TARGET_CLASS.equals("EvoSuiteTest")))
-			imports += "import org.evosuite.annotations.EvoSuiteTest;\n";
+			imports += "import "+org.evosuite.annotations.EvoSuiteTest.class.getName()+";\n";
 		if(!Properties.TARGET_CLASS.equals("Test"))
 			imports += "import org.junit.Test;\n";
 		imports += "import static org.junit.Assert.*;\n";

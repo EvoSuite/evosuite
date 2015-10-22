@@ -24,6 +24,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.testcarver.instrument.Instrumenter;
@@ -81,7 +82,7 @@ public class CarvingClassLoader extends ClassLoader {
 		//explicitly blocking client projects such as specmate is only a
 		//temporary solution, TODO allow the user to specify 
 		//packages that should not be instrumented
-		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
+		return new String[] { "java.", "javax.", "sun.", PackageInfo.getEvoSuitePackage(), "org.exsyst",
 				"de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
 				"de.unisb.cs.st.specmate", "org.xml", "org.w3c",
 				"testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",

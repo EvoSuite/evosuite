@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.exception;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -128,7 +129,7 @@ public class ExceptionCoverageHelper {
 
         // This is to cover cases not handled by CodeUnderTestException, or if bug in EvoSuite itself
         if (t.getStackTrace() != null && t.getStackTrace().length > 0 
-                && t.getStackTrace()[0].getClassName().startsWith("org.evosuite.testcase")) {
+                && t.getStackTrace()[0].getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase")) {
             return true;
         }
 

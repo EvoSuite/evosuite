@@ -19,6 +19,8 @@
  */
 package org.evosuite.instrumentation;
 
+import org.evosuite.PackageInfo;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
@@ -73,7 +75,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
 		}
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                   "org/evosuite/testcase/execution/ExecutionTracer",
+				PackageInfo.getNameWithSlash(ExecutionTrace.class),
 		                   "enteredMethod",
 		                   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", false);
 
@@ -90,7 +92,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 			mv.visitLdcInsn(className);
 			mv.visitLdcInsn(fullMethodName);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                   "org/evosuite/testcase/execution/ExecutionTracer",
+					PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTrace.class),
 			                   "leftMethod", "(Ljava/lang/String;Ljava/lang/String;)V", false);
 		}
 		super.onMethodExit(opcode);
