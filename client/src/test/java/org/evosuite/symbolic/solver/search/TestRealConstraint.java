@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.LocalSearchBudgetType;
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.RealConstraint;
@@ -38,7 +39,7 @@ import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.junit.Test;
 
-public class TestRealConstraint {
+public class TestRealConstraint extends RandomizedTC {
 
 	private static final double INIT_DOUBLE = 0;
 	private static final double EXPECTED_DOUBLE = Math.PI;

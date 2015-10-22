@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.LocalSearchBudgetType;
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -40,7 +41,7 @@ import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
-public class TestConstraintSolver3 {
+public class TestConstraintSolver3 extends RandomizedTC {
 
 	private static final String INIT_STRING = "125";
 	private static final int EXPECTED_INTEGER = 126;
