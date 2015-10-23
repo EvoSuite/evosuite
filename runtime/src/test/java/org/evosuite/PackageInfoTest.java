@@ -23,7 +23,7 @@ public class PackageInfoTest {
 
     @Test
     public void testGetShadedPackage() throws Exception {
-        assertEquals("org.evosuite.shaded",PackageInfo.getShadedPackage());
+        assertEquals("org.evosuite.shaded",PackageInfo.getShadedPackageForThirdPartyLibraries());
     }
 
     @Test

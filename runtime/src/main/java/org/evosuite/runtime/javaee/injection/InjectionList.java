@@ -56,7 +56,7 @@ public class InjectionList {
         Inputs.checkNull(annotation);
         String name = annotation.getName();
 
-        String shadedPrefix = PackageInfo.getShadedPackage()+".";
+        String shadedPrefix = PackageInfo.getShadedPackageForThirdPartyLibraries()+".";
         for(Class<?> c : tagsToCheck){
             String cn = c.getName();
             if(name.equals(cn)){

@@ -137,7 +137,7 @@ public class ClientProcess {
 
 	private static void handleShadingSpecialCases(){
 
-		String shadePrefix = PackageInfo.getShadedPackage()+".";
+		String shadePrefix = PackageInfo.getShadedPackageForThirdPartyLibraries()+".";
 
 		if(! DocumentFactory.class.getName().startsWith(shadePrefix)){
 			//if not shaded (eg in system tests), then nothing to do
