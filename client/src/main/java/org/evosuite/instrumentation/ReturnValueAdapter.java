@@ -21,6 +21,7 @@ package org.evosuite.instrumentation;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
@@ -118,7 +119,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTrace.class),
+				PackageInfo.getNameWithSlash(ExecutionTracer.class),
 		                     "returnValue", "(ILjava/lang/String;Ljava/lang/String;)V", false);
 	}
 
@@ -131,7 +132,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 		this.visitLdcInsn(className);
 		this.visitLdcInsn(fullMethodName);
 		this.visitMethodInsn(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTrace.class),
+				PackageInfo.getNameWithSlash(ExecutionTracer.class),
 		                     "returnValue",
 		                     "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 	}

@@ -35,6 +35,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -160,7 +161,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ExecutionTrace.class), "passedUse",
+					PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedUse",
 			        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		}
 		if (DefUsePool.isKnownAsDefinition(v)) {
@@ -169,7 +170,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTrace.class), "passedDefinition",
+					PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class), "passedDefinition",
 			        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		}
 
@@ -272,7 +273,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		// using the information available during runtime (the CCFGs)
 		instrumentation.add(new LdcInsnNode(DefUsePool.getDefUseCounter()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTrace.class), "passedFieldMethodCall",
+				PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedFieldMethodCall",
 		        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		
 

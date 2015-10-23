@@ -24,6 +24,7 @@ package org.evosuite.instrumentation;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -76,7 +77,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 			return;
 
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTrace.class),
+				PackageInfo.getNameWithSlash(ExecutionTracer.class),
 		                   "checkTimeout", "()V", false);
 	}
 
@@ -104,7 +105,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 			this.visitLdcInsn(className);
 			this.visitLdcInsn(methodName);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(ExecutionTrace.class),
+					PackageInfo.getNameWithSlash(ExecutionTracer.class),
 			                   "exceptionThrown",
 			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
 		}
