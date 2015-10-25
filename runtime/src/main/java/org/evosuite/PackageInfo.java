@@ -8,7 +8,7 @@ package org.evosuite;
  */
 public class PackageInfo {
 
-    private static final String SHADED = "shaded."; //WARN: do not modify it, as it is used in xml files as well
+    private static final String SHADED = "shaded"; //WARN: do not modify it, as it is used in xml files as well
 
     public static String getEvoSuitePackage(){
         return PackageInfo.class.getPackage().getName();
@@ -23,7 +23,7 @@ public class PackageInfo {
      * @return
      */
     public static String getShadedPackageForThirdPartyLibraries(){
-        return getEvoSuitePackage() + SHADED;
+        return getEvoSuitePackage() + "." +SHADED;
     }
 
     public static String getNameWithSlash(Class<?> klass){
@@ -36,7 +36,7 @@ public class PackageInfo {
      * @return
      */
     public static String getShadedEvoSuitePackage(){
-        String shaded = SHADED;
+        String shaded = SHADED + ".";
         String evo = getEvoSuitePackage();
         if(evo.startsWith(shaded)){
             return evo;
