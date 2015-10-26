@@ -23,7 +23,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -45,7 +47,7 @@ import org.evosuite.maven.util.HistoryChanges;
 /**
  * Generate JUnit tests
  */
-@Mojo( name = "generate" , requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
+@Mojo( name = "generate" , requiresDependencyResolution = ResolutionScope.TEST, requiresDependencyCollection = ResolutionScope.TEST)
 public class GenerateMojo extends AbstractMojo {
 
 	/**
@@ -142,11 +144,13 @@ public class GenerateMojo extends AbstractMojo {
 		String cp = null;
 		
 		try {
+
+			//the targets we want to generate tests for, ie the CUTs
 			for(String element : project.getCompileClasspathElements()){
 				if(element.endsWith(".jar")){  // we only target what has been compiled to a folder
 					continue;
 				}
-				
+
 				File file = new File(element);
 				if(!file.exists()){
 					/*
@@ -154,29 +158,21 @@ public class GenerateMojo extends AbstractMojo {
 					 */
 					continue;
 				}
-				
+
 				if(target == null){
 					target = element;
 				} else {
 					target = target + File.pathSeparator + element;
 				}
 			}
-			for(String element : project.getRuntimeClasspathElements()){
-				
-				File file = new File(element);
-				if(!file.exists()){
-					/*
-					 * don't add to CP an element that does not exist
-					 */
-					continue;
-				}
-				
-				if(cp == null){
-					cp = element;
-				} else {
-					cp = cp + File.pathSeparator + element;
-				}
-			}						
+
+			//build the classpath
+			Set<String> alreadyAdded = new HashSet<>();
+			for(String element : project.getTestClasspathElements()){
+				getLog().debug("TEST ELEMENT: "+element);
+				cp = addPathIfExists(cp, element, alreadyAdded);
+			}
+
 		} catch (DependencyResolutionRequiredException e) {
 			getLog().error("Error: "+e.getMessage(),e);
 			return;
@@ -200,6 +196,29 @@ public class GenerateMojo extends AbstractMojo {
 		}
 
 		runEvoSuiteOnSeparatedProcess(target, cp, basedir.getAbsolutePath()); 
+	}
+
+	private String addPathIfExists(String cp, String element, Set<String> alreadyExist) {
+		File file = new File(element);
+		if(!file.exists()){
+            /*
+             * don't add to CP an element that does not exist
+             */
+			return cp;
+        }
+
+		if(alreadyExist.contains(element)){
+			return cp;
+		}
+
+		alreadyExist.add(element);
+
+		if(cp == null){
+            cp = element;
+        } else {
+            cp = cp + File.pathSeparator + element;
+        }
+		return cp;
 	}
 
 	private void runEvoSuiteOnSeparatedProcess(String target, String cp, String dir) throws MojoFailureException {
