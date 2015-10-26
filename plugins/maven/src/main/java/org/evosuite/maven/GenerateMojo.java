@@ -19,7 +19,9 @@
  */
 package org.evosuite.maven;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -207,8 +209,8 @@ public class GenerateMojo extends AbstractMojo {
 		params.add("execute");
 		params.add("-target");
 		params.add(target);
-		params.add("-Dcriterion="+criterion);
-		params.add("-Dctg_schedule="+schedule);
+		params.add("-Dcriterion=" + criterion);
+		params.add("-Dctg_schedule=" + schedule);
 		if (schedule.toUpperCase().equals(Properties.AvailableSchedule.HISTORY.toString())) {
 			params.add("-Dctg_history_file=" + dir + File.separator + Properties.CTG_DIR + File.separator + "history_file");
 		}
@@ -248,7 +250,9 @@ public class GenerateMojo extends AbstractMojo {
 			params.add("-Dctg_extra_args=\""+args+"\"");
 		}
 
-		params.add("-DCP="+cp);
+		String path = writeClasspathToFile(cp);
+		params.add("-DCP_file_path="+path);
+		//params.add("-DCP=" + cp); //this did not work properly on Windows
 		
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);
 		runner.registerShutDownHook();
@@ -257,5 +261,24 @@ public class GenerateMojo extends AbstractMojo {
 		if(!ok){
 			throw new MojoFailureException("Failed to correctly execute EvoSuite");
 		}
-	}		
+	}
+
+	private String writeClasspathToFile(String classpath) {
+
+		try {
+			File file = File.createTempFile("EvoSuite_classpathFile",".txt");
+			file.deleteOnExit();
+
+			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			String line = classpath;
+			out.write(line);
+			out.newLine();
+			out.close();
+
+			return file.getAbsolutePath();
+
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to create tmp file for classpath specification: "+e.getMessage());
+		}
+	}
 }

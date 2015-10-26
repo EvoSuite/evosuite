@@ -299,19 +299,24 @@ public class EvoSuiteExecutor {
         }
 
         String cp = Utils.getFullClassPath(module);
-        list.add("-DCP=" + cp);
+        String path = writeLineToFile("EvoSuite_ctg_classpath_file", cp);
+        list.add("-DCP_file_path="+path);
+        //list.add("-DCP=" + cp);//this did not work properly on Windows
 
         return list;
     }
 
     private String writeClassesToFile(Set<String> classes) {
+        return writeLineToFile("EvoSuite_ctg_CUT_file", getCommaList(classes));
+    }
+
+    private String writeLineToFile(String fileName, String line) {
 
         try {
-            File file = File.createTempFile("EvoSuite_ctg_CUT_file","txt");
+            File file = File.createTempFile(fileName,".txt");
             file.deleteOnExit();
 
             BufferedWriter out = new BufferedWriter(new FileWriter(file));
-            String line = getCommaList(classes);
             out.write(line);
             out.newLine();
             out.close();
@@ -319,7 +324,7 @@ public class EvoSuiteExecutor {
             return file.getAbsolutePath();
 
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to create tmp file for CUTs specification: "+e.getMessage());
+            throw new IllegalStateException("Failed to create tmp file: "+e.getMessage());
         }
     }
 
