@@ -27,6 +27,7 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,13 +49,11 @@ public class AnonymousClassSystemTest extends SystemTest {
 	@Test
 	public void testZ3() {
 
+		Assume.assumeTrue(System.getenv("z3_path")!=null);
+
 		String targetClass = AnonymousClass.class.getCanonicalName();
 
-		if (System.getenv("z3_path")==null) {
-			System.out.println("z3_path should be configured for running this test case");
-			return;
-		}
-		
+	
 		Properties.Z3_PATH = System.getenv("z3_path");
 		Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
@@ -80,14 +79,10 @@ public class AnonymousClassSystemTest extends SystemTest {
 	
 	@Test
 	public void testZ3Str2() {
+		Assume.assumeTrue(System.getenv("z3_str2_path")!=null);
 
 		String targetClass = AnonymousClass.class.getCanonicalName();
 
-		if (System.getenv("z3_str2_path")==null) {
-			System.out.println("z3_str2_path should be configured for running this test case");
-			return;
-		}
-		
 		Properties.Z3_STR2_PATH = System.getenv("z3_str2_path");
 		Properties.DSE_SOLVER = SolverType.Z3_STR2_SOLVER;
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
@@ -111,16 +106,17 @@ public class AnonymousClassSystemTest extends SystemTest {
 
 	}
 
+	@Before 
+	public void before() {
+	}
+	
 	@Test
 	public void testCVC4() {
 
+		Assume.assumeTrue(System.getenv("cvc4_path")!=null);
+
 		String targetClass = AnonymousClass.class.getCanonicalName();
 
-		if (System.getenv("cvc4_path")==null) {
-			System.out.println("cvc4_path should be configured for running this test case");
-			return;
-		}
-		
 		Properties.CVC4_PATH = System.getenv("cvc4_path");
 		Properties.DSE_SOLVER = SolverType.CVC4_SOLVER;
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;

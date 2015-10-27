@@ -24,40 +24,15 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverSimpleMath;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestCVC4SimpleMath {
-
-	private static final String DEFAULT_CVC4_PATH = Properties.CVC4_PATH;
-
-	@BeforeClass
-	public static void configureCVC4Path() {
-		String cvc4Path = System.getenv("cvc4_path");
-		if (cvc4Path != null) {
-			Properties.CVC4_PATH = cvc4Path;
-		}
-	}
-
-	@AfterClass
-	public static void restoreCVC4Path() {
-		Properties.CVC4_PATH = DEFAULT_CVC4_PATH;
-	}
+public class TestCVC4SimpleMath  extends TestCVC4{
 
 	@Test
 	public void testAdd() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testAdd(solver);
 	}
@@ -65,13 +40,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testSub() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testSub(solver);
 	}
@@ -79,13 +47,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testMul() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testMul(solver);
 	}
@@ -93,13 +54,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testDiv() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverSimpleMath.testDiv(solver);
 		
@@ -114,13 +68,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testEq() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-		
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testEq(solver);
 	}
@@ -128,13 +75,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testNeq() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testNeq(solver);
 	}
@@ -142,13 +82,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testLt() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testLt(solver);
 	}
@@ -156,13 +89,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testGt() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testGt(solver);
 	}
@@ -170,13 +96,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testLte() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testLte(solver);
 	}
@@ -184,13 +103,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testGte() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testGte(solver);
 	}
@@ -198,13 +110,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testMod() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testMod(solver);
 	}
@@ -212,13 +117,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testMul2() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testMul2(solver);
 	}
@@ -226,13 +124,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testCastRealToInt() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testCastRealToInt(solver);
 	}
@@ -240,13 +131,6 @@ public class TestCVC4SimpleMath {
 	@Test
 	public void testCastIntToReal() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverSimpleMath.testCastIntToReal(solver);
 	}
