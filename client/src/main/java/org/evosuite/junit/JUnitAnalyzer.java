@@ -380,6 +380,7 @@ public class JUnitAnalyzer {
 
 			if (!compiled) {
 				logger.error("Compilation failed on compilation units: "+ compilationUnits);
+				logger.error("Classpath: "+classpath);
 
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
 					if (diagnostic.getMessage(null).startsWith("error while writing")) {

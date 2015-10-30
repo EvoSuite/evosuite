@@ -22,12 +22,8 @@ package org.evosuite.coverage.archive;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Archive;
@@ -89,14 +85,16 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 	private final Map<TestFitnessFunction, ExecutionResult> testMap;
 
+
+
 	private TestsArchive() {
-		coveredGoals = new HashMap<>();
-		goalsCountMap = new HashMap<>();
-		coveredGoalsCountMap = new HashMap<>();
-		coverageMap = new HashMap<>();
-		goalMap = new HashMap<>();
-		methodMap = new HashMap<>();
-		testMap = new HashMap<>();
+		coveredGoals = new LinkedHashMap<>();
+		goalsCountMap = new LinkedHashMap<>();
+		coveredGoalsCountMap = new LinkedHashMap<>();
+		coverageMap = new LinkedHashMap<>();
+		goalMap = new LinkedHashMap<>();
+		methodMap = new LinkedHashMap<>();
+		testMap = new LinkedHashMap<>();
 	}
 
 
@@ -117,11 +115,11 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
         String key = getGoalKey(goal);
 
 		if(!methodMap.containsKey(key)) {
-            methodMap.put(key, new HashSet<TestFitnessFunction>());
+            methodMap.put(key, new LinkedHashSet<>());
         }
 
 		if(!goalMap.containsKey(ff)) {
-			goalMap.put(ff, new HashSet<TestFitnessFunction>());
+			goalMap.put(ff, new LinkedHashSet<>());
             goalsCountMap.put(ff, 0);
 		}
 
@@ -140,7 +138,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		}
 
 		if (!coveredGoals.containsKey(ff)) {
-			coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
+			coveredGoals.put(ff,new LinkedHashSet<>());
 		}
 
 		boolean isNewCoveredGoal = !coveredGoals.get(ff).contains(goal);
@@ -249,7 +247,7 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 	private void coveredNewGoal(FitnessFunction<?> ff, TestFitnessFunction goal) {
 		if (!coveredGoals.containsKey(ff)) {
-			coveredGoals.put(ff,new HashSet<TestFitnessFunction>());
+			coveredGoals.put(ff,new LinkedHashSet<>());
 		}
 
 		logger.debug("Adding covered goal to archive: " + goal);
@@ -275,11 +273,11 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		}
 
 
-		Map<FitnessFunction<?>, Set<TestFitnessFunction>> toUpdate = new HashMap<>();
+		Map<FitnessFunction<?>, Set<TestFitnessFunction>> toUpdate = new LinkedHashMap<>();
 
 		//does it cover new targets?
 		for(Entry<FitnessFunction<?>, Set<TestFitnessFunction>> entry : goalMap.entrySet()){
-			Set<TestFitnessFunction> set = new HashSet<>();
+			Set<TestFitnessFunction> set = new LinkedHashSet<>();
 			toUpdate.put(entry.getKey(),set);
 
 			for(TestFitnessFunction goal : entry.getValue()){

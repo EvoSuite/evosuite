@@ -27,6 +27,35 @@ If the logging should be part the actual output for the console user, then rathe
 LoggingUtils.getEvoLogger()
 
 
+---------------------------------------------
+AVOID String concatenation in Loggers
+
+writing something like:
+
+logger.debug("this is not "+ foo + " very " + bar +" efficient");
+
+is not efficient, as most of the time debug logs are deactivated, and concatenating strings is
+expensive. Recall String is immutable, and each "+" create a new String object.
+The above logging can be rewritten into:
+
+logger.debug("this is not {} very {} efficient", foo, bar);
+
+Note: not a big deal for "warn"/"error", as those are/should be rare... but it can become
+quite an overhead for trace/debug/info
+
+
+
+--------------------------------------------
+EvoSuite should be DETERMINISTIC
+
+EvoSuite uses randomized algorithms. However, given the same random seed, the behavior should be
+fully deterministic. This is essential for debugging EvoSuite. Unfortunately, there are few libraries/APIs
+that are non-deterministic, like for example HashMap and HashSet. Rather use equivalent classes that
+are deterministic, ie LinkedHashMap and LinkedHashSet.
+Note: we have system tests to check if EvoSuite remains deterministic, eg see BaseDeterminismSystemTest.
+
+
+
 
 ---------------------------------------------
 DO NOT USE System.exit

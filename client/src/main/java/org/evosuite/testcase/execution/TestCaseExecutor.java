@@ -219,7 +219,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public void addObserver(ExecutionObserver observer) {
 		if (!observers.contains(observer)) {
-			logger.debug("Adding observer " + observer);
+			logger.debug("Adding observer");
 			observers.add(observer);
 		}
 		// FIXXME: Find proper solution for this
@@ -240,7 +240,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public void removeObserver(ExecutionObserver observer) {
 		if (observers.contains(observer)) {
-			logger.debug("Removing observer " + observer);
+			logger.debug("Removing observer");
 			observers.remove(observer);
 		}
 	}
@@ -251,7 +251,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * </p>
 	 */
 	public void newObservers() {
-		observers = new LinkedHashSet<ExecutionObserver>();
+		observers = new LinkedHashSet<>();
 	}
 
 	private void resetObservers() {

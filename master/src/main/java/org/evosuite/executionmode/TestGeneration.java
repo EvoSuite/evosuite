@@ -32,10 +32,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
-import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.TimeController;
+import org.evosuite.*;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
@@ -348,7 +345,7 @@ public class TestGeneration {
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
 		}
 
-		cmdLine.add("org.evosuite.ClientProcess");
+		cmdLine.add(ClientProcess.class.getName());
 
 		/*
 		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
@@ -369,8 +366,8 @@ public class TestGeneration {
 		String definedEAforClient = null;
 		String definedEAforSUT = null;
 
-		final String DISABLE_ASSERTIONS_EVO = "-da:org.evosuite...";
-		final String ENABLE_ASSERTIONS_EVO = "-ea:org.evosuite...";
+		final String DISABLE_ASSERTIONS_EVO = "-da:"+PackageInfo.getEvoSuitePackage()+"...";
+		final String ENABLE_ASSERTIONS_EVO = "-ea:"+PackageInfo.getEvoSuitePackage()+"...";
 		final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
 		final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
 

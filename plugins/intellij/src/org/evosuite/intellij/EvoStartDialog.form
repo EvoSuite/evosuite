@@ -71,8 +71,8 @@
               <forms/>
             </constraints>
             <properties>
-              <text value="Total memory (MB):"/>
-              <toolTipText value="Total amount of max memory used by EvoSuite. We recommend at least 1GB per core, where 2GB per core should be more than enough"/>
+              <text value="Memory per core (MB):"/>
+              <toolTipText value="Max memory per core used by EvoSuite. We recommend at least 1GB per core, where 2GB per core should be more than enough. "/>
             </properties>
           </component>
           <component id="2ed63" class="javax.swing.JFormattedTextField" binding="memoryField" custom-create="true">

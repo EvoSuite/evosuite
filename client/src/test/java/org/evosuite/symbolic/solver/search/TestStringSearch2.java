@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.TestCaseBuilder;
@@ -43,7 +44,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.concolic.StringSearch2;
 
-public class TestStringSearch2 {
+public class TestStringSearch2 extends RandomizedTC {
 
 	@Test
 	public void testValidPathURN() {

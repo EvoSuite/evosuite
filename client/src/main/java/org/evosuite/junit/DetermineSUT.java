@@ -33,8 +33,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.annotations.EvoSuiteTest;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ResourceList;
 import org.objectweb.asm.ClassReader;
@@ -237,7 +239,8 @@ public class DetermineSUT {
 			List<AnnotationNode> annotations = mn.visibleAnnotations;
 			if (annotations != null) {
 				for (AnnotationNode an : annotations) {
-				    if (an.desc.equals("Lorg/junit/Test;") || an.desc.equals("Lorg/evosuite/annotations/EvoSuiteTest;"))
+				    if (an.desc.equals("Lorg/junit/Test;") ||
+							an.desc.equals("L"+PackageInfo.getNameWithSlash(EvoSuiteTest.class)+";"))
 						return true;
 				}
 			}
@@ -247,7 +250,7 @@ public class DetermineSUT {
 	}
 
 	private Set<String> getSuperClasses(ClassNode cn) throws IOException {
-		Set<String> superClasses = new HashSet<String>();
+		Set<String> superClasses = new HashSet<>();
 		String currentSuper = cn.superName;
 		while (!currentSuper.equals("java/lang/Object")) {
 			superClasses.add(ResourceList.getClassNameFromResourcePath(currentSuper));

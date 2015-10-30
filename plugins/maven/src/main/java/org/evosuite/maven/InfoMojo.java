@@ -34,6 +34,9 @@ import org.apache.maven.project.ProjectBuilder;
 import org.eclipse.aether.RepositorySystemSession;
 import org.evosuite.maven.util.EvoSuiteRunner;
 
+/**
+ * Obtain info of generated tests so far
+ */
 @Mojo( name = "info")
 public class InfoMojo extends AbstractMojo{
     

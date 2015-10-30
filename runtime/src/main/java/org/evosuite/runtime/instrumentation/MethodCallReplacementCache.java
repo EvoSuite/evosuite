@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.mock.*;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
@@ -139,7 +140,7 @@ public class MethodCallReplacementCache {
 
             //java.util.UUID.randomUUID()
             addReplacementCall(new MethodCallReplacement("java/util/UUID", "randomUUID",
-                    "()Ljava/util/UUID;", Opcodes.INVOKESTATIC, "org/evosuite/runtime/Random", "randomUUID", "()Ljava/util/UUID;", false, false));
+                    "()Ljava/util/UUID;", Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "randomUUID", "()Ljava/util/UUID;", false, false));
 
 
         }
@@ -313,12 +314,12 @@ public class MethodCallReplacementCache {
 
         //java/lang/System
         addReplacementCall(new MethodCallReplacement("java/lang/System", "exit",
-                "(I)V", Opcodes.INVOKESTATIC, "org/evosuite/runtime/System", "exit", "(I)V", false, false));
+                "(I)V", Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.System.class), "exit", "(I)V", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/System",
-                "currentTimeMillis", "()J", Opcodes.INVOKESTATIC, "org/evosuite/runtime/System",
+                "currentTimeMillis", "()J", Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.System.class),
                 "currentTimeMillis", "()J", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/System",
-                "nanoTime", "()J", Opcodes.INVOKESTATIC, "org/evosuite/runtime/System", "nanoTime", "()J",
+                "nanoTime", "()J", Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.System.class), "nanoTime", "()J",
                 false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/System",
                 "identityHashCode", "(Ljava/lang/Object;)I", Opcodes.INVOKESTATIC,
@@ -327,62 +328,62 @@ public class MethodCallReplacementCache {
 
         //java/lang/Object
         addReplacementCall(new MethodCallReplacement("java/lang/Object",
-                "hashCode", "()I", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/System", "identityHashCode",
+                "hashCode", "()I", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.System.class), "identityHashCode",
                 "(Ljava/lang/Object;)I", false, false));
 
         addReplacementCall(new MethodCallReplacement("java/lang/Math", "random",
-                "()D", Opcodes.INVOKESTATIC, "org/evosuite/runtime/Random", "nextDouble", "()D", false,
+                "()D", Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextDouble", "()D", false,
                 false));
 
 
         //java/lang/Class
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getClasses", "()[Ljava/lang/Class;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getClasses",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getClasses",
                 "(Ljava/lang/Class;)[Ljava/lang/Class;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getAnnotations", "()[Ljava/lang/annotation/Annotation;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getAnnotations",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getAnnotations",
                 "(Ljava/lang/Class;)[Ljava/lang/annotation/Annotation;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getFields", "()[Ljava/lang/reflect/Field;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getFields",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getFields",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Field;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getConstructors", "()[Ljava/lang/reflect/Constructor;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getConstructors",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getConstructors",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Constructor;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getMethods", "()[Ljava/lang/reflect/Method;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getMethods",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getMethods",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Method;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getDeclaredClasses", "()[Ljava/lang/Class;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getDeclaredClasses",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getDeclaredClasses",
                 "(Ljava/lang/Class;)[Ljava/lang/Class;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getDeclaredAnnotations", "()[Ljava/lang/annotation/Annotation;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getDeclaredAnnotations",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getDeclaredAnnotations",
                 "(Ljava/lang/Class;)[Ljava/lang/annotation/Annotation;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getDeclaredFields", "()[Ljava/lang/reflect/Field;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getDeclaredFields",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getDeclaredFields",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Field;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getDeclaredConstructors", "()[Ljava/lang/reflect/Constructor;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getDeclaredConstructors",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getDeclaredConstructors",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Constructor;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getDeclaredMethods", "()[Ljava/lang/reflect/Method;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getDeclaredMethods",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getDeclaredMethods",
                 "(Ljava/lang/Class;)[Ljava/lang/reflect/Method;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getInterfaces", "()[Ljava/lang/Class;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getInterfaces",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getInterfaces",
                 "(Ljava/lang/Class;)[Ljava/lang/Class;", false, false));
         addReplacementCall(new MethodCallReplacement("java/lang/Class",
                 "getModifiers", "()I", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/Reflection", "getModifiers",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.Reflection.class), "getModifiers",
                 "(Ljava/lang/Class;)I", false, false));
 
         /*
@@ -402,7 +403,7 @@ public class MethodCallReplacementCache {
     private void addGUICalls() {
         addReplacementCall(new MethodCallReplacement("javax/swing/JComponent",
                 "getPreferredSize", "()Ljava/awt/Dimension;", Opcodes.INVOKEVIRTUAL,
-                "org/evosuite/runtime/gui/JComponent", "getPreferredSize",
+                PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JComponent.class), "getPreferredSize",
                 "()Ljava/awt/Dimension;", true, false));
     }
 
@@ -410,52 +411,52 @@ public class MethodCallReplacementCache {
     @SuppressWarnings("unused")
     private void addRandomCalls() {
         addReplacementCall(new MethodCallReplacement("java/util/Random", "nextInt",
-                "()I", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextInt", "()I", true, false));
+                "()I", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt", "()I", true, false));
         addReplacementCall(new MethodCallReplacement("java/util/Random", "nextInt",
-                "(I)I", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextInt", "(I)I", true, false));
+                "(I)I", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt", "(I)I", true, false));
         addReplacementCall(new MethodCallReplacement("java/util/Random",
-                "nextDouble", "()D", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextDouble",
+                "nextDouble", "()D", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextDouble",
                 "()D", true, false));
         addReplacementCall(new MethodCallReplacement("java/util/Random",
-                "nextFloat", "()F", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextFloat",
+                "nextFloat", "()F", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextFloat",
                 "()F", true, false));
         addReplacementCall(new MethodCallReplacement("java/util/Random",
-                "nextLong", "()J", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextLong", "()J",
+                "nextLong", "()J", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextLong", "()J",
                 true, false));
         addReplacementCall(new MethodCallReplacement("java/util/Random",
-                "nextGaussian", "()D", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextGaussian",
+                "nextGaussian", "()D", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextGaussian",
                 "()D", true, false));
         addReplacementCall(new MethodCallReplacement("java/util/Random",
-                "nextBoolean", "()Z", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextBoolean",
+                "nextBoolean", "()Z", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBoolean",
                 "()Z", true, false));
         addReplacementCall(new MethodCallReplacement("java/util/Random", "nextBytes",
-                "([B)V", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
+                "([B)V", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBytes", "([B)V", true, false));
     }
 
     private void addSecureRandomCalls() {
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom",
-                "nextInt", "()I", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextInt", "()I",
+                "nextInt", "()I", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt", "()I",
                 true, false));
 
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextInt",
-                "(I)I", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextInt", "(I)I", true, false));
+                "(I)I", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt", "(I)I", true, false));
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom",
-                "nextDouble", "()D", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextDouble",
+                "nextDouble", "()D", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextDouble",
                 "()D", true, false));
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom",
-                "nextFloat", "()F", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextFloat",
+                "nextFloat", "()F", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextFloat",
                 "()F", true, false));
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom",
-                "nextLong", "()J", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextLong", "()J",
+                "nextLong", "()J", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextLong", "()J",
                 true, false));
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom",
-                "nextGaussian", "()D", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextGaussian",
+                "nextGaussian", "()D", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextGaussian",
                 "()D", true, false));
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom",
-                "nextBoolean", "()Z", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextBoolean",
+                "nextBoolean", "()Z", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBoolean",
                 "()Z", true, false));
         addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextBytes",
-                "([B)V", Opcodes.INVOKEVIRTUAL, "org/evosuite/runtime/Random", "nextBytes", "([B)V", true, false));
+                "([B)V", Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBytes", "([B)V", true, false));
     }
 
 

@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -159,7 +160,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
+					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
 			        "getInfectionDistanceInt", "(IIII)D", false));
 		} else if (opcodesIntShift.contains(opcodeOrig)) {
 			distance.add(new InsnNode(Opcodes.DUP2));
@@ -167,7 +168,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
+					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
 			        "getInfectionDistanceInt", "(IIII)D", false));
 		} else if (opcodesLong.contains(opcodeOrig)) {
 
@@ -179,7 +180,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
+					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
 			        "getInfectionDistanceLong", "(JJII)D", false));
 			numVariable += 2;
 
@@ -192,7 +193,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
+					PackageInfo.getNameWithSlash(ReplaceBitwiseOperator.class),
 			        "getInfectionDistanceLong", "(JIII)D", false));
 			numVariable += 1;
 		}

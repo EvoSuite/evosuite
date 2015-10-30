@@ -21,4 +21,4 @@ examples/indi_plot/
 src/main/resources/log4j.properties
 *.jar
 *.orig
-plugins/intellij/.idea/workspace.xml
+

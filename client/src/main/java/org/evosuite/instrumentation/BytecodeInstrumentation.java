@@ -22,6 +22,7 @@ package org.evosuite.instrumentation;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
@@ -71,7 +72,7 @@ public class BytecodeInstrumentation {
 
 
     private static String[] getEvoSuitePackages() {
-        return new String[]{"org.evosuite",
+        return new String[]{PackageInfo.getEvoSuitePackage(),
                 "org.exsyst",
                 "de.unisb.cs.st.testcarver",
                 "de.unisb.cs.st.evosuite",

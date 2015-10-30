@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.project.MavenProject;
+import org.evosuite.PackageInfo;
 
 /**
  * 
@@ -116,7 +117,7 @@ public class ProjectUtils {
 			// FIXME do we really need to check the 'scope'?
 			//.filter(element -> element.getScope().equals(scope))
 			.filter(element -> element.getFile().exists())
-			.filter(element -> !element.getGroupId().equals("org.evosuite"))
+			.filter(element -> !element.getGroupId().equals(PackageInfo.getEvoSuitePackage()))
 			.filter(element -> !element.getGroupId().equals("junit"))
 			.forEach(element -> dependencyArtifacts.add(element.getFile().getAbsolutePath()));
 

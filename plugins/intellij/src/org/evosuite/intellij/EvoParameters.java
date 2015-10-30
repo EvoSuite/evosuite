@@ -24,6 +24,7 @@ import com.intellij.openapi.project.Project;
 import org.evosuite.intellij.util.Utils;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by arcuri on 9/29/14.
@@ -67,7 +68,7 @@ public class EvoParameters {
     public void load(Project project){
         PropertiesComponent p = PropertiesComponent.getInstance(project);
         cores = p.getOrInitInt(CORES_EVOSUITE_PARAM,1);
-        memory = p.getOrInitInt(MEMORY_EVOSUITE_PARAM,500);
+        memory = p.getOrInitInt(MEMORY_EVOSUITE_PARAM,2000);
         time = p.getOrInitInt(TIME_EVOSUITE_PARAM,1);
         folder = p.getOrInit(TARGET_FOLDER_EVOSUITE_PARAM, "src/evo");
 
@@ -92,7 +93,7 @@ public class EvoParameters {
 
     private String getPossibleLocationForMvn(){
 
-        String mvnExe = Utils.getMvnExecutableName();
+        List<String> mvnExeList = Utils.getMvnExecutableNames();
 
         String mvnHome = System.getenv("MAVEN_HOME");
         if(mvnHome==null || mvnHome.isEmpty()){
@@ -110,21 +111,24 @@ public class EvoParameters {
                 if(! (location.contains("maven") || location.contains("mvn"))){
                     continue;
                 }
-                File exe = new File(location, mvnExe);
-                if(exe.exists()){
-                    return exe.getAbsolutePath();
+                for(String mvnExe : mvnExeList) {
+                    File exe = new File(location, mvnExe);
+                    if (exe.exists()) {
+                        return exe.getAbsolutePath();
+                    }
                 }
             }
             return "";
 
         } else {
-            File exe = new File(mvnHome,"bin");
-            exe = new File(exe,mvnExe);
-            if(exe.exists()){
-                return exe.getAbsolutePath();
-            } else {
-                return "";
+            for(String mvnExe : mvnExeList) {
+                File exe = new File(mvnHome, "bin");
+                exe = new File(exe, mvnExe);
+                if (exe.exists()) {
+                    return exe.getAbsolutePath();
+                }
             }
+            return "";
         }
     }
 

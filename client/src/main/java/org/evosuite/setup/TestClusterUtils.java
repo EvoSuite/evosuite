@@ -19,6 +19,7 @@
  */
 package org.evosuite.setup;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.TestGenerationContext;
 import org.junit.Test;
 import org.junit.runners.Suite;
@@ -105,7 +106,7 @@ public class TestClusterUtils {
 	}
 
 	public static boolean isEvoSuiteClass(Class<?> c) {
-        return c.getName().startsWith("org.evosuite");
+        return c.getName().startsWith(PackageInfo.getEvoSuitePackage());
                 //|| c.getName().equals("java.lang.String");    // This is now handled in addDependencyClass
     }
 

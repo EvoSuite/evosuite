@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -332,7 +333,7 @@ public final class CaptureLog implements Cloneable {
 		if (receiver instanceof Class) //this can only happen, if there is a static method call 
 		{
 			final Class<?> c = (Class<?>) receiver;
-			this.oidClassNames.add(c.getName().replace("org.evosuite.testcarver.wrapper.", ""));
+			this.oidClassNames.add(c.getName().replace(PackageInfo.getEvoSuitePackage()+".testcarver.wrapper.", ""));
 			//.replaceFirst("\\$\\d+$", ""));
 			
 		} else if (this.isPlain(receiver)) {
@@ -353,7 +354,7 @@ public final class CaptureLog implements Cloneable {
 				this.oidClassNames.add(interfaces[0].getName());
 			}
 		} else {
-			String name = receiver.getClass().getName().replace("org.evosuite.testcarver.wrapper.", "");
+			String name = receiver.getClass().getName().replace(PackageInfo.getEvoSuitePackage()+".testcarver.wrapper.", "");
 			this.oidClassNames.add(name);//.replaceFirst("\\$\\d+$", ""));
 		}
 	}

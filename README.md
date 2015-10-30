@@ -91,6 +91,8 @@ To build EvoSuite in Eclipse, make sure you have the [M2Eclipse](http://www.ecli
 
 Usage documentation can be found at <http://www.evosuite.org/documentation/>
 
+The developers' mailing list is hosted at <https://groups.google.com/forum/#!forum/evosuite>
+
 EvoSuite has resulted in a number of publications, all of which are available at <http://www.evosuite.org/publications/>
 
 

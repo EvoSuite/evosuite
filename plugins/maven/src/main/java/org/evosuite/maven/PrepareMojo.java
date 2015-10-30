@@ -40,8 +40,7 @@ import org.evosuite.runtime.InitializingListener;
 /**
  * Workaround mojo to overcome bug in Maven.
  * Needed when EvoSuite tests are run together with manual ones
- * 
- * @author arcuri
+ *
  *
  */
 @Mojo( name = "prepare")

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -202,7 +203,7 @@ public class ReplaceVariable implements MutationOperator {
 		distance.add(copy(mutant));
 		distance.add(cast(type, Type.DOUBLE_TYPE));
 		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/instrumentation/mutation/ReplaceVariable",
+				PackageInfo.getNameWithSlash(ReplaceVariable.class),
 		        "getDistance", "(DD)D", false));
 	}
 
@@ -222,7 +223,7 @@ public class ReplaceVariable implements MutationOperator {
 	        InsnList mutant) {
 		distance.add(copy(mutant));
 		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/instrumentation/mutation/ReplaceVariable",
+				PackageInfo.getNameWithSlash(ReplaceVariable.class),
 		        "getDistance", "(Ljava/lang/Object;Ljava/lang/Object;)D", false));
 	}
 

@@ -1372,6 +1372,10 @@ public class Properties {
 	@Parameter(key = "CP", group = "Runtime", description = "The classpath of the target classes")
 	public static String CP = "";
 
+	@Parameter(key = "CP_file_path", group = "Runtime", description = "Location of file where classpath is specified (in its first line). This is needed for operating systems like Windows where cannot have too long input parameters")
+	public static String CP_FILE_PATH = null;
+
+
 	/** Constant <code>PROJECT_PREFIX="null"</code> */
 	@Parameter(key = "PROJECT_PREFIX", group = "Runtime", description = "Package name of target package")
 	public static String PROJECT_PREFIX = "";
@@ -1495,7 +1499,6 @@ public class Properties {
 	public static volatile boolean CLIENT_ON_THREAD = false;
 
 
-	/** Constant <code>CLIENT_ON_THREAD=false</code> */
 	@Parameter(key = "is_running_a_system_test", group = "Runtime", description = "Specify that a system test is running. To be used only for debugging purposes")
 	public static volatile boolean IS_RUNNING_A_SYTEM_TEST = false;
 

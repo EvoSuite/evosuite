@@ -25,6 +25,7 @@ package org.evosuite.contracts;
 import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -80,7 +81,7 @@ public class JCrasherExceptionContract extends Contract {
 						return null;
 					}
 					// If the exception was thrown in the test directly, it is also not interesting
-					if (element.getClassName().startsWith("org.evosuite.testcase")) {
+					if (element.getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase")) {
 						return null;
 					}
 					return new ContractViolation(this, statement, exception);

@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -37,7 +38,7 @@ import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.junit.Test;
 
-public class TestIsInteger {
+public class TestIsInteger extends RandomizedTC {
 
 	@Test
 	public void testIsInteger() throws SolverEmptyQueryException {
