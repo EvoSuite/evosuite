@@ -45,17 +45,15 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
         EvoClassLoader loader = new EvoClassLoader();
         Class<?> clazz = loader.loadClass(InfiniteWhile.class.getCanonicalName());
 
-        Method m = clazz.getMethod("infiniteLoop");
         try {
-            m.invoke(null);
+            clazz.newInstance();
             fail();
-        }catch(InvocationTargetException e){
+        }catch(TooManyResourcesException e){
             //expected
-            Assert.assertTrue(e.getCause() instanceof TooManyResourcesException);
         }
     }
 
-    @Test(timeout = 30_000)
+    @Test//(timeout = 30_000)
     public void systemTest(){
 
         EvoSuite evosuite = new EvoSuite();
@@ -65,6 +63,7 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
         Properties.SEARCH_BUDGET = 10;
         Properties.TIMEOUT = 5000;
         Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+        Properties.JUNIT_TESTS = true;
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
         Object result = evosuite.parseCommandLine(command);
@@ -73,6 +72,8 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
+
+        Assert.assertEquals("Should contain one test: ", 1, best.size());
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }

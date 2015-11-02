@@ -24,7 +24,7 @@ package com.examples.with.different.packagename;
  */
 public class InfiniteWhile {
 
-    public static void infiniteLoop(){
+    public InfiniteWhile(){
         int counter = 0;
         while(true){
             System.out.println("Iteration "+ counter);
