@@ -60,12 +60,7 @@ public class MethodNoExceptionCoverageFactory extends
 		long start = System.currentTimeMillis();
 
         String className = Properties.TARGET_CLASS;
-        Class<?> clazz = null;
-        try {
-            clazz = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            logger.warn("Class could not be loaded: " + className);
-        }
+        Class<?> clazz = Properties.getTargetClass();
         if (clazz != null) {
             Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
             for (Constructor<?> c : allConstructors) {
