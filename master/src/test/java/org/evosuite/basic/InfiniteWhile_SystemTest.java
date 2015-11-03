@@ -44,17 +44,39 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
     public void testLoading() throws Exception{
         EvoClassLoader loader = new EvoClassLoader();
         Class<?> clazz = loader.loadClass(InfiniteWhile.class.getCanonicalName());
-
+        Method m = clazz.getMethod("infiniteLoop");
         try {
-            clazz.newInstance();
+            m.invoke(null);
             fail();
-        }catch(TooManyResourcesException e){
+        }catch(InvocationTargetException e){
             //expected
+            Assert.assertTrue(e.getCause() instanceof TooManyResourcesException);
         }
     }
 
-    @Test//(timeout = 30_000)
+    @Test(timeout = 30_000)
     public void systemTest(){
+
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = InfiniteWhile.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEARCH_BUDGET = 10;
+        Properties.TIMEOUT = 5000;
+        Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+    
+    @Test(timeout = 30_000)
+    public void systemTestJUnit(){
 
         EvoSuite evosuite = new EvoSuite();
 
@@ -72,8 +94,7 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
-
-        Assert.assertEquals("Should contain one test: ", 1, best.size());
+        Assert.assertEquals("Should contain one test: ", 2, best.size());
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }
