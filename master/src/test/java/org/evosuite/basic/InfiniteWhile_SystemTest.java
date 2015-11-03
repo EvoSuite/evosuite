@@ -44,7 +44,6 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
     public void testLoading() throws Exception{
         EvoClassLoader loader = new EvoClassLoader();
         Class<?> clazz = loader.loadClass(InfiniteWhile.class.getCanonicalName());
-
         Method m = clazz.getMethod("infiniteLoop");
         try {
             m.invoke(null);
@@ -73,6 +72,29 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+    
+    @Test(timeout = 30_000)
+    public void systemTestJUnit(){
+
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = InfiniteWhile.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.SEARCH_BUDGET = 10;
+        Properties.TIMEOUT = 5000;
+        Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+        Properties.JUNIT_TESTS = true;
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+        Object result = evosuite.parseCommandLine(command);
+
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+        System.out.println("EvolvedTestSuite:\n" + best);
+        Assert.assertEquals("Should contain one test: ", 2, best.size());
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }
