@@ -19,11 +19,14 @@
  */
 package org.evosuite.testcase;
 
+import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
+import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.Properties.TestFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -81,7 +84,7 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		TestChromosome carved = factory.getChromosome();
 
 		Assert.assertNotNull(carved);
-		Assert.assertEquals("Shouble be: constructor, method, 2 variables, method, 1 variable, method",
+		Assert.assertEquals("Should be: constructor, method, 2 variables, method, 1 variable, method",
 		                    7, carved.test.size());
 	}
 
@@ -799,5 +802,26 @@ public class JUnitTestCarvedChromosomeFactoryTest extends SystemTest {
 		Assert.assertFalse(code.contains("XStream"));
 		Assert.assertTrue(code.contains("concreteSubClassWithFields0"));
 	}
-	
+
+	@Test
+	public void testCarvedTestNames() {
+
+		Properties.TARGET_CLASS = MethodWithSeveralInputArguments.class.getCanonicalName();;
+		Properties.SELECTED_JUNIT = TestMethodWithSeveralInputArguments.class.getCanonicalName();;
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(null);
+
+		Assert.assertEquals("Incorrect number of carved tests", 2, factory.getNumCarvedTestCases());
+		CarvedTestCase tc1 = (CarvedTestCase)factory.getCarvedTestCases().get(0);
+		Assert.assertEquals("Incorrect carved test name", "testWithNull", tc1.getName());
+		System.out.println("Carved Test Case # " + tc1.getID() + ": " + tc1.getName());
+		System.out.println(tc1.toCode());
+		CarvedTestCase tc2 = (CarvedTestCase)factory.getCarvedTestCases().get(1);
+		Assert.assertEquals("Incorrect carved test name", "testWithArray", tc2.getName());
+		System.out.println("Carved Test Case # " + tc2.getID() + ": " + tc2.getName());
+		System.out.println(tc2.toCode());
+	}
 }

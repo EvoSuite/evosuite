@@ -44,7 +44,6 @@ import org.evosuite.testcarver.capture.CaptureUtil;
 import org.evosuite.testcarver.codegen.ICodeGenerator;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
-import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.TestCase;
@@ -671,7 +670,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	@Override
 	public void before(CaptureLog log) {
-		this.testCase = new DefaultTestCase();
+		this.testCase = new CarvedTestCase();
 	}
 
 	@Override

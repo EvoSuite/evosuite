@@ -17,12 +17,21 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename.coverage;
+package org.evosuite.testcarver.testcase;
 
-public class MethodWithSeveralInputArguments {
+import org.evosuite.testcase.DefaultTestCase;
 
-	public void testFoo(int x, char chr, String obj, String[] arr) {
-		// not important
-	}
+/**
+ * Created by jmr on 26/10/2015.
+ */
+public class CarvedTestCase extends DefaultTestCase {
+    private String name = "";
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

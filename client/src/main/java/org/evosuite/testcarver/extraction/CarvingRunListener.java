@@ -37,8 +37,8 @@ import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
+import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcarver.testcase.EvoTestCaseCodeGenerator;
-import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.generic.GenericTypeInference;
 import org.evosuite.utils.LoggingUtils;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 
 public class CarvingRunListener extends RunListener {
 
-	private final Map<Class<?>, List<TestCase>> carvedTests = new LinkedHashMap<Class<?>, List<TestCase>>();
+	private final Map<Class<?>, List<TestCase>> carvedTests = new LinkedHashMap<>();
 
 	private final static Logger logger = LoggerFactory.getLogger(CarvingRunListener.class);
 
@@ -74,7 +74,7 @@ public class CarvingRunListener extends RunListener {
 		final CaptureLog log = Capturer.stopCapture();
 		if (TimeController.getInstance().isThereStillTimeInThisPhase()) {
 			LoggingUtils.getEvoLogger().info(" - Carving tests from {}.{}", description.getClassName(), description.getMethodName());
-			this.processLog(log);
+			this.processLog(description, log);
 		}
 		Capturer.clear();
 	}
@@ -127,10 +127,11 @@ public class CarvingRunListener extends RunListener {
 	/**
 	 * Creates TestCase out of the captured log
 	 *
+	 * @param description
 	 * @param log
 	 *            log captured from test execution
 	 */
-	private void processLog(final CaptureLog log) {
+	private void processLog(Description description, final CaptureLog log) {
 		final CaptureLogAnalyzer analyzer = new CaptureLogAnalyzer();
 		final EvoTestCaseCodeGenerator codeGen = new EvoTestCaseCodeGenerator();
 		logger.debug("Current log: "+log);
@@ -144,7 +145,9 @@ public class CarvingRunListener extends RunListener {
 
 			analyzer.analyze(log, codeGen, targetClasses);
 
-			DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
+			CarvedTestCase test = (CarvedTestCase) codeGen.getCode();
+			test.setName(description.getMethodName());
+
 			if(test == null) {
 				logger.info("Failed to carve test for "+Arrays.asList(targetClasses));
 				codeGen.clear();
