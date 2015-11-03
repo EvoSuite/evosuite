@@ -94,7 +94,7 @@ public class InfiniteWhile_SystemTest  extends SystemTest {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
-        Assert.assertEquals("Should contain one test: ", 2, best.size());
+        Assert.assertEquals("Should contain two tests: ", 2, best.size());
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 }
