@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -51,7 +52,7 @@ import org.junit.Test;
  * @author fraser
  * 
  */
-public class TestIntegerSearch {
+public class TestIntegerSearch extends RandomizedTC {
 
 	@Test
 	public void testEQConstant() throws SolverEmptyQueryException {

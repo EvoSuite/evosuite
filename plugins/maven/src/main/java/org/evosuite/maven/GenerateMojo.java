@@ -19,9 +19,13 @@
  */
 package org.evosuite.maven;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -40,7 +44,10 @@ import org.evosuite.maven.util.EvoSuiteRunner;
 import org.evosuite.maven.util.FileUtils;
 import org.evosuite.maven.util.HistoryChanges;
 
-@Mojo( name = "generate" , requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
+/**
+ * Generate JUnit tests
+ */
+@Mojo( name = "generate" , requiresDependencyResolution = ResolutionScope.TEST, requiresDependencyCollection = ResolutionScope.TEST)
 public class GenerateMojo extends AbstractMojo {
 
 	/**
@@ -137,11 +144,13 @@ public class GenerateMojo extends AbstractMojo {
 		String cp = null;
 		
 		try {
+
+			//the targets we want to generate tests for, ie the CUTs
 			for(String element : project.getCompileClasspathElements()){
 				if(element.endsWith(".jar")){  // we only target what has been compiled to a folder
 					continue;
 				}
-				
+
 				File file = new File(element);
 				if(!file.exists()){
 					/*
@@ -149,29 +158,21 @@ public class GenerateMojo extends AbstractMojo {
 					 */
 					continue;
 				}
-				
+
 				if(target == null){
 					target = element;
 				} else {
 					target = target + File.pathSeparator + element;
 				}
 			}
-			for(String element : project.getRuntimeClasspathElements()){
-				
-				File file = new File(element);
-				if(!file.exists()){
-					/*
-					 * don't add to CP an element that does not exist
-					 */
-					continue;
-				}
-				
-				if(cp == null){
-					cp = element;
-				} else {
-					cp = cp + File.pathSeparator + element;
-				}
-			}						
+
+			//build the classpath
+			Set<String> alreadyAdded = new HashSet<>();
+			for(String element : project.getTestClasspathElements()){
+				getLog().debug("TEST ELEMENT: "+element);
+				cp = addPathIfExists(cp, element, alreadyAdded);
+			}
+
 		} catch (DependencyResolutionRequiredException e) {
 			getLog().error("Error: "+e.getMessage(),e);
 			return;
@@ -197,6 +198,29 @@ public class GenerateMojo extends AbstractMojo {
 		runEvoSuiteOnSeparatedProcess(target, cp, basedir.getAbsolutePath()); 
 	}
 
+	private String addPathIfExists(String cp, String element, Set<String> alreadyExist) {
+		File file = new File(element);
+		if(!file.exists()){
+            /*
+             * don't add to CP an element that does not exist
+             */
+			return cp;
+        }
+
+		if(alreadyExist.contains(element)){
+			return cp;
+		}
+
+		alreadyExist.add(element);
+
+		if(cp == null){
+            cp = element;
+        } else {
+            cp = cp + File.pathSeparator + element;
+        }
+		return cp;
+	}
+
 	private void runEvoSuiteOnSeparatedProcess(String target, String cp, String dir) throws MojoFailureException {
 			
 		List<String> params = new ArrayList<>();
@@ -204,8 +228,8 @@ public class GenerateMojo extends AbstractMojo {
 		params.add("execute");
 		params.add("-target");
 		params.add(target);
-		params.add("-Dcriterion="+criterion);
-		params.add("-Dctg_schedule="+schedule);
+		params.add("-Dcriterion=" + criterion);
+		params.add("-Dctg_schedule=" + schedule);
 		if (schedule.toUpperCase().equals(Properties.AvailableSchedule.HISTORY.toString())) {
 			params.add("-Dctg_history_file=" + dir + File.separator + Properties.CTG_DIR + File.separator + "history_file");
 		}
@@ -245,7 +269,9 @@ public class GenerateMojo extends AbstractMojo {
 			params.add("-Dctg_extra_args=\""+args+"\"");
 		}
 
-		params.add("-DCP="+cp);
+		String path = writeClasspathToFile(cp);
+		params.add("-DCP_file_path="+path);
+		//params.add("-DCP=" + cp); //this did not work properly on Windows
 		
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);
 		runner.registerShutDownHook();
@@ -254,5 +280,24 @@ public class GenerateMojo extends AbstractMojo {
 		if(!ok){
 			throw new MojoFailureException("Failed to correctly execute EvoSuite");
 		}
-	}		
+	}
+
+	private String writeClasspathToFile(String classpath) {
+
+		try {
+			File file = File.createTempFile("EvoSuite_classpathFile",".txt");
+			file.deleteOnExit();
+
+			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			String line = classpath;
+			out.write(line);
+			out.newLine();
+			out.close();
+
+			return file.getAbsolutePath();
+
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to create tmp file for classpath specification: "+e.getMessage());
+		}
+	}
 }

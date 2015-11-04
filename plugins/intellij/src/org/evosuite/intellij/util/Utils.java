@@ -28,6 +28,8 @@ import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Andrea Arcuri on 11/03/15.
@@ -39,8 +41,8 @@ public class Utils {
         return OS.toLowerCase().contains("windows");
     }
 
-    public static String getMvnExecutableName(){
-        return isWindows() ? "mvn.bat" : "mvn";
+    public static List<String> getMvnExecutableNames(){
+        return isWindows() ? Arrays.asList("mvn.bat", "mvn.cmd") : Arrays.asList("mvn");
     }
 
     public static boolean isMavenProject(Project project){

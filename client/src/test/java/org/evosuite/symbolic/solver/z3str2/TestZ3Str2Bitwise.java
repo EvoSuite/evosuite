@@ -19,40 +19,15 @@
  */
 package org.evosuite.symbolic.solver.z3str2;
 
-import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverBitwise;
-import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestZ3Str2Bitwise {
-
-	private static final String DEFAULT_Z3_STR_PATH = Properties.Z3_STR2_PATH;
-
-	@BeforeClass
-	public static void configureZ3StrPath() {
-		String z3StrPath = System.getenv("z3_str2_path");
-		if (z3StrPath != null) {
-			Properties.Z3_STR2_PATH = z3StrPath;
-		}
-	}
-
-	@AfterClass
-	public static void restoreZ3StrPath() {
-		Properties.Z3_STR2_PATH = DEFAULT_Z3_STR_PATH;
-	}
+public class TestZ3Str2Bitwise extends TestZ3Str2 {
 
 	@Test
 	public void testBitAnd() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-		if (Properties.Z3_STR2_PATH == null) {
-			System.out
-					.println("Warning: z3_str2_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Str2Solver solver = new Z3Str2Solver();
 		TestSolverBitwise.testBitAnd(solver);
 	}
@@ -60,12 +35,6 @@ public class TestZ3Str2Bitwise {
 	@Test
 	public void testBitNot() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-		if (Properties.Z3_STR2_PATH == null) {
-			System.out
-					.println("Warning: z3_str2_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Str2Solver solver = new Z3Str2Solver();
 		TestSolverBitwise.testBitNot(solver);
 	}
@@ -73,12 +42,6 @@ public class TestZ3Str2Bitwise {
 	@Test
 	public void testBitOr() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-		if (Properties.Z3_STR2_PATH == null) {
-			System.out
-					.println("Warning: z3_str2_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Str2Solver solver = new Z3Str2Solver();
 		TestSolverBitwise.testBitOr(solver);
 	}
@@ -86,12 +49,6 @@ public class TestZ3Str2Bitwise {
 	@Test
 	public void testBitXor() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-		if (Properties.Z3_STR2_PATH == null) {
-			System.out
-					.println("Warning: z3_str2_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Str2Solver solver = new Z3Str2Solver();
 		TestSolverBitwise.testBitXor(solver);
 	}
@@ -99,12 +56,6 @@ public class TestZ3Str2Bitwise {
 	@Test
 	public void testShiftLeft() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-		if (Properties.Z3_STR2_PATH == null) {
-			System.out
-					.println("Warning: z3_str2_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Str2Solver solver = new Z3Str2Solver();
 		TestSolverBitwise.testShiftLeft(solver);
 	}
@@ -112,12 +63,6 @@ public class TestZ3Str2Bitwise {
 	@Test
 	public void testShiftRight() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-		if (Properties.Z3_STR2_PATH == null) {
-			System.out
-					.println("Warning: z3_str2_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Str2Solver solver = new Z3Str2Solver();
 		TestSolverBitwise.testShiftRight(solver);
 	}
@@ -125,12 +70,6 @@ public class TestZ3Str2Bitwise {
 	@Test
 	public void testShiftRightUnsigned() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-		if (Properties.Z3_STR2_PATH == null) {
-			System.out
-					.println("Warning: z3_str2_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Str2Solver solver = new Z3Str2Solver();
 		TestSolverBitwise.testShiftRightUnsigned(solver);
 	}

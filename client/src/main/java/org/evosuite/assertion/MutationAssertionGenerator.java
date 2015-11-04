@@ -62,9 +62,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class MutationAssertionGenerator extends AssertionGenerator {
 
-	protected final Map<Integer, Mutation> mutants = new HashMap<Integer, Mutation>();
+	private final static Logger logger = LoggerFactory.getLogger(MutationAssertionGenerator.class);
 
-	protected final static Logger logger = LoggerFactory.getLogger(MutationAssertionGenerator.class);
+	protected final Map<Integer, Mutation> mutants = new HashMap<>();
 
 	protected final static PrimitiveTraceObserver primitiveObserver = new PrimitiveTraceObserver();
 	protected final static ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();

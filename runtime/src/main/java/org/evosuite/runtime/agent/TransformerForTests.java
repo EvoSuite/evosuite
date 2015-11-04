@@ -25,6 +25,7 @@ import java.security.ProtectionDomain;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class TransformerForTests implements ClassFileTransformer {
 					throws IllegalClassFormatException {
 		
 		String classWithDots = className.replace("/", ".");
-		if(!active || !RuntimeInstrumentation.checkIfCanInstrument(classWithDots) || classWithDots.startsWith("org.evosuite")){
+		if(!active || !RuntimeInstrumentation.checkIfCanInstrument(classWithDots) || classWithDots.startsWith(PackageInfo.getEvoSuitePackage())){
 			return classfileBuffer;
 		} else {
 			//ClassResetter.getInstance().setClassLoader(loader);

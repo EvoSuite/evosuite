@@ -106,6 +106,10 @@ public class JUnitTestCarvedChromosomeFactory implements
 		return junitTests.size();
 	}
 
+	public List<TestCase> getCarvedTestCases() {
+		return junitTests;
+	}
+
 	@Override
 	public TestChromosome getChromosome() {
 		final int N_mutations = Properties.SEED_MUTATIONS;

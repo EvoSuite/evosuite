@@ -25,7 +25,9 @@ package org.evosuite.instrumentation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -63,14 +65,14 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		if (opcode == Opcodes.NEWARRAY) {
 			Label origTarget = new Label();
 			visitInsn(Opcodes.DUP);
-			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
+			visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
 			super.visitTypeInsn(Opcodes.NEW,
-			                    "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded");
+					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded",
+					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
 			                      "<init>", "()V", false);
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
@@ -89,14 +91,14 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		if (opcode == Opcodes.ANEWARRAY) {
 			Label origTarget = new Label();
 			visitInsn(Opcodes.DUP);
-			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
+			visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
 			super.visitTypeInsn(Opcodes.NEW,
-			                    "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded");
+					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded",
+					PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
 			                      "<init>", "()V", false);
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
@@ -118,7 +120,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		// Multidimensional arrays can only have max 256 dimensions
 		if (Properties.ARRAY_LIMIT < 256) {
 			push(dims);
-			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
+			visitFieldInsn(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(org.evosuite.Properties.class),
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
 		}
@@ -139,10 +141,10 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		goTo(origTarget);
 		super.visitLabel(errorTarget);
 		super.visitTypeInsn(Opcodes.NEW,
-		                    "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded");
+				PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class));
 		super.visitInsn(Opcodes.DUP);
 		super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-		                      "org/evosuite/testcase/execution/TestCaseExecutor$TimeoutExceeded",
+				PackageInfo.getNameWithSlash(TestCaseExecutor.TimeoutExceeded.class),
 		                      "<init>", "()V", false);
 		super.visitInsn(Opcodes.ATHROW);
 		super.visitLabel(origTarget);

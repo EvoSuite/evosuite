@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.evosuite.ClientProcess;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHacker;
@@ -98,7 +99,7 @@ public class PrintStats {
 		}
 
 		cmdLine.add("-Dclassloader=true");
-		cmdLine.add("org.evosuite.ClientProcess");
+		cmdLine.add(ClientProcess.class.getName());
 
 		/*
 		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie

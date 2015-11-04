@@ -19,9 +19,14 @@
  */
 package org.evosuite.classpath;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Scanner;
 
 import org.evosuite.Properties;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * When running EvoSuite there are at least three different classpaths
@@ -127,10 +132,24 @@ public class ClassPathHandler {
 	 * 
 	 * @return
 	 */
-	public String getTargetProjectClasspath(){
-		if(targetClassPath == null){
-			targetClassPath = Properties.CP;
+	public String getTargetProjectClasspath() {
+
+		if (targetClassPath == null) {
+			String line = null;
+			if (Properties.CP_FILE_PATH != null) {
+				File file = new File(Properties.CP_FILE_PATH);
+
+				try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
+					Scanner scanner = new Scanner(in);
+					line = scanner.nextLine();
+				} catch (Exception e) {
+					LoggingUtils.getEvoLogger().error("Error while processing " + file.getAbsolutePath() + " : " + e.getMessage());
+				}
+			}
+
+			targetClassPath = line!=null ? line : Properties.CP;
 		}
+		
 		return targetClassPath;
 	}
 	

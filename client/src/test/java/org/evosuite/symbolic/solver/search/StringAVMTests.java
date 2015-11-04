@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
@@ -36,7 +37,7 @@ import org.evosuite.symbolic.solver.search.StringAVM;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.junit.Test;
 
-public class StringAVMTests {
+public class StringAVMTests extends RandomizedTC {
 
 	private List<Constraint<?>> getPatternConstraint(StringVariable var, String format){
 		StringConstant symb_regex = ExpressionFactory.buildNewStringConstant(format);

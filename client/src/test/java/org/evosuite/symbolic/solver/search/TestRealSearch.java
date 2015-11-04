@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
@@ -40,7 +41,7 @@ import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.junit.Test;
 
-public class TestRealSearch {
+public class TestRealSearch extends RandomizedTC {
 
 	@Test
 	public void testEQConstant() {

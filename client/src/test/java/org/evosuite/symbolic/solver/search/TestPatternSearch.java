@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
@@ -42,7 +43,7 @@ import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.junit.Test;
 
-public class TestPatternSearch {
+public class TestPatternSearch extends RandomizedTC {
 
 	@Test
 	public void testMatcherMatches() throws SolverEmptyQueryException {

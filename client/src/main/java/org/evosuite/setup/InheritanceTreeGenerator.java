@@ -22,25 +22,15 @@
  */
 package org.evosuite.setup;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
@@ -65,6 +55,10 @@ public class InheritanceTreeGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(InheritanceTreeGenerator.class);
 
+	private static final String resourceFolder = "client/src/main/resources/";
+	private static final String jdkFile =  "JDK_inheritance.xml";
+	private static final String shadedJdkFile = "JDK_inheritance_shaded.xml";
+
 	/**
 	 * Iterate over items in classpath and analyze them
 	 * 
@@ -80,8 +74,7 @@ public class InheritanceTreeGenerator {
 				return tree;
 
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().warn("* Error loading inheritance tree: {}",
-				                                 e);
+				LoggingUtils.getEvoLogger().warn("* Error loading inheritance tree: {}", e);
 			}
 		}
 		
@@ -91,20 +84,22 @@ public class InheritanceTreeGenerator {
             inheritanceTree = new InheritanceTree();
         }
 
-		logger.debug("CP: "+classPath);
+		logger.debug("CP: {}", classPath);
 		for (String classPathEntry : classPath) {
-			logger.debug("Looking at CP entry: "+classPathEntry);
+			logger.debug("Looking at CP entry: {}", classPathEntry);
 			if (classPathEntry.isEmpty())
 				continue;
 
 			if (classPathEntry.matches(".*evosuite-.*\\.jar"))
 				continue;
 
-			logger.debug("Analyzing classpath entry " + classPathEntry);
+			logger.debug("Analyzing classpath entry {}", classPathEntry);
 			LoggingUtils.getEvoLogger().info("  - " + classPathEntry);
-	        for(String className : ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(classPathEntry, "", true, false)) {
+	        for(String className : ResourceList.getInstance(
+					TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(classPathEntry, "", true, false)) {
 	        	// handle individual class
-				analyzeClassStream(inheritanceTree, ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className), false);
+				analyzeClassStream(inheritanceTree, ResourceList.getInstance(
+						TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className), false);
 	        }
 
 			// analyze(inheritanceTree, classPathEntry);
@@ -139,7 +134,7 @@ public class InheritanceTreeGenerator {
 		}
 
 		// Remove all classes not in the parameter list, otherwise we get the superclasses from outside the list
-		Set<String> classes = new HashSet<String>(inheritanceTree.getAllClasses());
+		Set<String> classes = new HashSet<>(inheritanceTree.getAllClasses());
 		for (String className : classes) {
 			if (!classNames.contains(className))
 				inheritanceTree.removeClass(className);
@@ -150,16 +145,7 @@ public class InheritanceTreeGenerator {
 
 	public static void gatherStatistics(InheritanceTree inheritanceTree) {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Classpath_Classes,
-		                                                                 inheritanceTree.getNumClasses());
-	}
-
-	/**
-	 * 
-	 * @param inheritanceTree
-	 * @param entry
-	 */
-	private static void analyze(InheritanceTree inheritanceTree, String entry) {
-		analyze(inheritanceTree, new File(entry));
+				inheritanceTree.getNumClasses());
 	}
 
 	/**
@@ -238,12 +224,13 @@ public class InheritanceTreeGenerator {
 
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
 
-		InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
+		InputStream stream = ResourceList.getInstance(
+				TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		if(stream==null){
 			throw new IllegalArgumentException("Failed to locate/load class: "+className);
 		}
 		
-		logger.debug("Going to analyze: "+className);
+		logger.debug("Going to analyze: {}", className);
 		analyzeClassStream(inheritanceTree, stream, false);
 	}
 
@@ -270,7 +257,7 @@ public class InheritanceTreeGenerator {
 	private static void analyzeClassNode(InheritanceTree inheritanceTree,
 	        ClassNode cn, boolean onlyPublic) {
 		
-		logger.info("Analyzing class " + cn.name);
+		logger.info("Analyzing class {}", cn.name);
 		
 		// Don't load classes already seen from a different CP entry
 		if(inheritanceTree.hasClass(cn.name))
@@ -390,7 +377,7 @@ public class InheritanceTreeGenerator {
 
         Collection<String> list = getAllResources();
 		InheritanceTree inheritanceTree = new InheritanceTree();
-		List<InheritanceTree> others = new ArrayList<InheritanceTree>();
+		List<InheritanceTree> others = new ArrayList<>();
 
 		/*
 		 * Filtering against other inheritance trees is necessary to remove any
@@ -399,7 +386,7 @@ public class InheritanceTreeGenerator {
 		 * the intersection of classes. 
 		 */
 		for (String filterFile : filters) {
-			logger.info("Trying to load " + filterFile);
+			logger.info("Trying to load {}", filterFile);
 			try {
 				InheritanceTree tree = readUncompressedInheritanceTree(filterFile);
 				others.add(tree);
@@ -418,12 +405,10 @@ public class InheritanceTreeGenerator {
 			}
 			for (InheritanceTree other : others) {
 				if (!other.hasClass(ResourceList.getClassNameFromResourcePath(name))) {
-					logger.info("Skipping " + name
-					        + " because it is not in other inheritance tree");
+					logger.info("Skipping {} because it is not in other inheritance tree", name);
 					continue EXCEPTION;
 				} else {
-					logger.info("Not skipping " + name
-					        + " because it is in other inheritance tree");
+					logger.info("Not skipping {} because it is in other inheritance tree", name);
 				}
 			}
 			if (name.matches(".*\\$\\d+$")) {
@@ -431,8 +416,8 @@ public class InheritanceTreeGenerator {
 				continue;
 			}
 
-            //InputStream stream = TestGenerationContext.getInstance().getClassLoaderForSUT().getResourceAsStream(name);
-            InputStream stream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(name);
+            InputStream stream = ResourceList.getInstance(
+					TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(name);
 
             if(stream == null){
                 logger.warn("Cannot open/find "+name);
@@ -446,8 +431,7 @@ public class InheritanceTreeGenerator {
 
 		// Write data to XML file
 		try {
-			FileOutputStream stream = new FileOutputStream(
-			        new File("client/src/main/resources/JDK_inheritance.xml"));
+			FileOutputStream stream = new FileOutputStream(new File(resourceFolder+jdkFile));
 			XStream xstream = new XStream();
 			xstream.toXML(inheritanceTree, stream);
 		} catch (FileNotFoundException e) {
@@ -457,7 +441,14 @@ public class InheritanceTreeGenerator {
 
 	public static InheritanceTree readJDKData() {
 		XStream xstream = new XStream();
-		String fileName = "/JDK_inheritance.xml";
+
+		String fileName;
+		if(! PackageInfo.isCurrentlyShaded()) {
+			fileName = "/" + jdkFile;
+		} else {
+			fileName = "/" + shadedJdkFile;
+		}
+
 		InputStream inheritance = InheritanceTreeGenerator.class.getResourceAsStream(fileName);
 
         if (inheritance != null) {
@@ -470,9 +461,7 @@ public class InheritanceTreeGenerator {
 
 	public static InheritanceTree readInheritanceTree(String fileName) throws IOException {
 		XStream xstream = new XStream();
-		// InputStream inheritance = new FileInputStream(new File(fileName));
-		GZIPInputStream inheritance = new GZIPInputStream(new FileInputStream(new File(
-		        fileName)));
+		GZIPInputStream inheritance = new GZIPInputStream(new FileInputStream(new File(fileName)));
 		return (InheritanceTree) xstream.fromXML(inheritance);
 	}
 
@@ -483,10 +472,8 @@ public class InheritanceTreeGenerator {
 		return (InheritanceTree) xstream.fromXML(inheritance);
 	}
 
-	public static void writeInheritanceTree(InheritanceTree tree, File file)
-	        throws IOException {
+	public static void writeInheritanceTree(InheritanceTree tree, File file) throws IOException {
 		XStream xstream = new XStream();
-		//		OutputStream output = new FileOutputStream(file);	
 		GZIPOutputStream output = new GZIPOutputStream(new FileOutputStream(file));
 		xstream.toXML(tree, output);
 		output.close();
@@ -494,27 +481,50 @@ public class InheritanceTreeGenerator {
 
 
 	public static Collection<String> getAllResources() {
-		Collection<String> retval = getResources(System.getProperty("java.class.path",
-		                                                            "."));
+		Collection<String> retval = getResources(System.getProperty("java.class.path", "."));
 		retval.addAll(getResources(System.getProperty("sun.boot.class.path")));
 		return retval;
 	}
 
 	private static Collection<String> getResources(String classPath) {
-		final ArrayList<String> retval = new ArrayList<String>();
+		final ArrayList<String> retval = new ArrayList<>();
 		String[] classPathElements = classPath.split(File.pathSeparator);
 
 		for (final String element : classPathElements) {
 			if (element.contains("evosuite"))
 				continue;
 			try {
-				retval.addAll(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, "",true,true));
+				retval.addAll(ResourceList.getInstance(
+						TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(element, "",true,true));
 			} catch (IllegalArgumentException e) {
 				System.err.println("Does not exist: " + element);
 			}
 		}
 
 		return retval;
+	}
+
+	private static void makeShadedCopy(){
+
+		String content = null;
+		try {
+			content = new Scanner(new File(resourceFolder + jdkFile)).useDelimiter("\\Z").next();
+		} catch (Exception e) {
+			logger.error("Error when reading JDK file",e);
+			return;
+		}
+
+		String shadedContent = content.replace(PackageInfo.getEvoSuitePackage(), PackageInfo.getShadedEvoSuitePackage());
+
+		File shadedFile = new File(resourceFolder+shadedJdkFile);
+		if(shadedFile.exists()){
+			shadedFile.delete();
+		}
+		try (PrintWriter out = new PrintWriter(shadedFile)) {
+			out.write(shadedContent);
+		} catch (Exception e){
+			logger.error("Error when making shaded copy");
+		}
 	}
 
     /*
@@ -525,6 +535,7 @@ public class InheritanceTreeGenerator {
      */
 	public static void main(String[] args) {
 		generateJDKCluster(args);
+		makeShadedCopy();
 	}
 
 }

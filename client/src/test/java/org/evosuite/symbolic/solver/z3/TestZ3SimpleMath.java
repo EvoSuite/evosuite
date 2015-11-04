@@ -24,41 +24,15 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverSimpleMath;
-import org.evosuite.symbolic.solver.z3.Z3Solver;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestZ3SimpleMath {
-
-	private static final String DEFAULT_Z3_PATH = Properties.Z3_PATH;
-
-	@BeforeClass
-	public static void configureZ3Path() {
-		String z3StrPath = System.getenv("z3_path");
-		if (z3StrPath != null) {
-			Properties.Z3_PATH = z3StrPath;
-		}
-	}
-
-	@AfterClass
-	public static void restoreZ3Path() {
-		Properties.Z3_PATH = DEFAULT_Z3_PATH;
-	}
+public class TestZ3SimpleMath extends TestZ3{
 
 	@Test
 	public void testAdd() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver(true);
 		TestSolverSimpleMath.testAdd(solver);
 	}
@@ -66,13 +40,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testSub() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testSub(solver);
 	}
@@ -80,13 +47,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testMul() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testMul(solver);
 	}
@@ -94,13 +54,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testDiv() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		Map<String, Object> solution = TestSolverSimpleMath.testDiv(solver);
 		
@@ -115,13 +68,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testEq() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-		
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testEq(solver);
 	}
@@ -129,13 +75,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testNeq() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testNeq(solver);
 	}
@@ -143,13 +82,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testLt() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testLt(solver);
 	}
@@ -157,13 +89,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testGt() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testGt(solver);
 	}
@@ -171,13 +96,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testLte() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testLte(solver);
 	}
@@ -185,13 +103,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testGte() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testGte(solver);
 	}
@@ -199,13 +110,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testMod() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testMod(solver);
 	}
@@ -213,13 +117,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testMul2() throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		Map<String, Object> solution = TestSolverSimpleMath.testMul2(solver);
 		assertNotNull(solution);
@@ -234,13 +131,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testCastRealToInt() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testCastRealToInt(solver);
 	}
@@ -248,13 +138,6 @@ public class TestZ3SimpleMath {
 	@Test
 	public void testCastIntToReal() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.Z3_PATH == null) {
-			System.out
-					.println("Warning: z3_path should be configured to execute this test case");
-			return;
-		}
-
 		Z3Solver solver = new Z3Solver();
 		TestSolverSimpleMath.testCastIntToReal(solver);
 	}

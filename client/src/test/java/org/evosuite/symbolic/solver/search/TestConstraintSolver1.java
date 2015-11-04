@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.LocalSearchBudgetType;
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -43,7 +44,7 @@ import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
-public class TestConstraintSolver1 {
+public class TestConstraintSolver1 extends RandomizedTC {
 	public void testMe(String x) {
 		if (x.length() == 5 && x.charAt(4) == '_') {
 			System.out.println("Juhu");

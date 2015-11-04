@@ -56,6 +56,7 @@ import javax.security.auth.kerberos.ServicePermission;
 import javax.sound.sampled.AudioPermission;
 import javax.xml.ws.WebServicePermission;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.slf4j.Logger;
@@ -431,7 +432,8 @@ public class MSecurityManager extends SecurityManager {
 			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 				if (e.toString().contains(
-						"org.evosuite.regression.ObjectFields")) {
+						//FIXME use ObjectFields.class, but without adding Maven dependency (which would create a cycle)
+						PackageInfo.getEvoSuitePackage()+".regression.ObjectFields")) {
 					statistics.permissionAllowed(perm);
 					return;
 				}

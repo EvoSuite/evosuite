@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -38,7 +39,7 @@ import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.junit.Test;
 
-public class TestStringSearch3 {
+public class TestStringSearch3 extends RandomizedTC {
 
 	// (var3("<V6h") charAt 0) >= 0,
 	// (var3("<V6h").length() - 1) >= 0,

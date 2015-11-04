@@ -282,27 +282,6 @@ public class AgentLoader {
 		return null;
 	}
 
-	@Deprecated
-	private static String searchInM2() {
-
-		File home = new File(System.getProperty("user.home"));
-		File m2 = new File(home.getAbsolutePath()+"/.m2");
-		if(!m2.exists()){
-			logger.debug("Cannot find the .m2 folder in home directory in "+m2);
-			return null;
-		}
-
-		//FIXME we would need a more robust approach, as this is just an hack for now
-		String relativePath = "/repository/org/evosuite/evosuite/0.1-SNAPSHOT/evosuite-0.1-SNAPSHOT-jar-minimal.jar";
-		File jar = new File(m2.getAbsolutePath()+relativePath);
-
-		if(!jar.exists()){
-			logger.debug("No jar file at: "+jar);
-			return null;
-		} else {
-			return jar.getAbsolutePath();
-		}
-	}
 
 	private static String searchInFolder(String folder) {
 		File target = new File(folder);

@@ -249,7 +249,7 @@ public class CheapPurityAnalyzer {
 			return true;
 		else if (entry.className.equals("java.security.SecureRandom"))
 			return true;
-		else if (entry.className.equals("org.evosuite.Random"))
+		else if (entry.className.equals(org.evosuite.runtime.Random.class.getName()))
 			return true;
 		else if (entry.className.equals("java.lang.Math")
 				&& entry.methodName.equals("random"))

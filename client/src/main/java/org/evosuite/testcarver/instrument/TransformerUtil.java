@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcarver.instrument;
 
+import org.evosuite.PackageInfo;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -77,7 +78,7 @@ public class TransformerUtil {
 				   className.startsWith("java") ||
 				   className.startsWith("java/lang") ||
 				   className.startsWith("$Proxy") || // ignore all dynamic proxies (http://docs.oracle.com/javase/1.3/docs/guide/reflection/proxy.html)
-				   className.startsWith("org/evosuite/testcarver") 
+				   className.startsWith(PackageInfo.getEvoSuitePackageWithSlash()+"/testcarver")
 				   );
 	}
 	

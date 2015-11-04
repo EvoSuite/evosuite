@@ -33,6 +33,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.testcarver.capture.FieldRegistry;
+import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -60,7 +61,7 @@ public class CarvingManager {
 		return instance;
 	}
 	
-	private Map<Class<?>, List<TestCase>> carvedTests = new LinkedHashMap<Class<?>, List<TestCase>>();
+	private Map<Class<?>, List<TestCase>> carvedTests = new LinkedHashMap<>();
 	
 	private boolean carvingDone = false;
 	
@@ -143,9 +144,9 @@ public class CarvingManager {
 		Map<Class<?>, List<TestCase>> testMap = listener.getTestCases();
 		for(Class<?> targetClass : testMap.keySet()) {
 
-			List<TestCase> processedTests = new ArrayList<TestCase>();
-			
+			List<TestCase> processedTests = new ArrayList<>();
 			for (TestCase test : testMap.get(targetClass)) {
+				String testName = ((CarvedTestCase)test).getName();
 				if (test.isEmpty())
 					continue;
 				ExecutionResult executionResult = null;
@@ -153,7 +154,7 @@ public class CarvingManager {
 					executionResult = TestCaseExecutor.runTest(test);
 					
 				} catch(Throwable t) {
-					logger.info("Error while executing carved test: "+t);
+					logger.info("Error while executing carved test {}: {}", testName, t);
 					continue;
 				}
 				if (executionResult.noThrownExceptions()) {
@@ -161,8 +162,8 @@ public class CarvingManager {
 					logger.info(test.toCode());
 					processedTests.add(test);
 				} else {
-					logger.info("Exception thrown in carved test: "
-							+ executionResult.getExceptionThrownAtPosition(executionResult.getFirstPositionOfThrownException()));
+					logger.info("Exception thrown in carved test {}: {}", testName,
+							executionResult.getExceptionThrownAtPosition(executionResult.getFirstPositionOfThrownException()));
 					for (StackTraceElement elem : executionResult.getExceptionThrownAtPosition(executionResult.getFirstPositionOfThrownException()).getStackTrace()) {
 						logger.info(elem.toString());
 					}
@@ -187,7 +188,7 @@ public class CarvingManager {
 						processedTests.size(), targetClass);
 				if (logger.isDebugEnabled()) {
 					for (TestCase test : processedTests) {
-						logger.debug("Carved Test: {}", test.toCode());
+						logger.debug("Carved Test {}: {}", ((CarvedTestCase) test).getName(), test.toCode());
 					}
 				}
 			} else {

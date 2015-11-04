@@ -30,38 +30,13 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
-import org.evosuite.symbolic.solver.z3.Z3Solver;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestCVC4StringFunctions {
-
-	private static final String DEFAULT_CVC4_PATH = Properties.CVC4_PATH;
-
-	@BeforeClass
-	public static void configureCVC4Path() {
-		String cvc4Path = System.getenv("cvc4_path");
-		if (cvc4Path != null) {
-			Properties.CVC4_PATH = cvc4Path;
-		}
-	}
-
-	@AfterClass
-	public static void restoreCVC4Path() {
-		Properties.CVC4_PATH = DEFAULT_CVC4_PATH;
-	}
+public class TestCVC4StringFunctions  extends TestCVC4{
 
 	@Test
 	public void testStringLength() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringLength(solver);
 		assertNotNull(solution);
@@ -76,11 +51,6 @@ public class TestCVC4StringFunctions {
 	public void testNegativeLength() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
 
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
 
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testNegativeLength(solver);
@@ -91,13 +61,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringEquals() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringEquals(solver);
 		assertNotNull(solution);
@@ -111,13 +74,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringAppendString() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringAppendString(solver);
 	}
@@ -139,13 +95,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringNotEquals() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringNotEquals(solver);
 		assertNotNull(solution);
@@ -159,13 +108,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringStartsWith() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringStartsWith(solver);
 		
@@ -182,13 +124,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringStartsWithIndex() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions
 				.testStringStartsWithIndex(solver);
@@ -198,13 +133,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringEndsWith() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringEndsWith(solver);
 		
@@ -220,13 +148,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringCharAt() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringCharAt(solver);
 		assertNotNull(solution);
@@ -241,13 +162,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringContains() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringContains(solver);
 		assertNotNull(solution);
@@ -262,13 +176,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringIndexOfChar() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringIndexOfChar(solver);
 	}
@@ -276,13 +183,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringIndexOfCharInt() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringIndexOfCharInt(solver);
 	}
@@ -290,13 +190,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringIndexOfString() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringIndexOfString(solver);
 	}
@@ -304,13 +197,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringIndexOfStringInt() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringIndexOfStringInt(solver);
 	}
@@ -318,13 +204,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringTrim() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringTrim(solver);
 	}
@@ -332,13 +211,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringLowerCase() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringLowerCase(solver);
 	}
@@ -346,13 +218,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringUpperCase() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringUpperCase(solver);
 	}
@@ -360,13 +225,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringLastIndexOfChar() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringLastIndexOfChar(solver);
 	}
@@ -374,13 +232,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringLastIndexOfCharInt() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringLastIndexOfCharInt(solver);
 	}
@@ -388,13 +239,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringLastIndexOfString() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringLastIndexOfString(solver);
 	}
@@ -402,13 +246,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringLastIndexOfStringInt() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringLastIndexOfStringInt(solver);
 	}
@@ -416,13 +253,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringSubstring() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringSubstring(solver);
 	}
@@ -430,13 +260,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringSubstringFromTo() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringSubstringFromTo(solver);
 	}
@@ -444,13 +267,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringReplaceChar() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringReplaceChar(solver);
 	}
@@ -458,13 +274,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringReplaceCharSequence() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringReplaceCharSequence(solver);
 	}
@@ -472,13 +281,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringCompareTo() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringCompareTo(solver);
 	}
@@ -486,13 +288,6 @@ public class TestCVC4StringFunctions {
 	@Test
 	public void testStringEqualsIgnoreCase() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
 		TestSolverStringFunctions.testStringEqualsIgnoreCase(solver);
 	}

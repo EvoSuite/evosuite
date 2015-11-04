@@ -31,6 +31,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.event.*;
 import java.io.File;
 import java.text.NumberFormat;
+import java.util.List;
 
 public class EvoStartDialog extends JDialog {
     private JPanel contentPane;
@@ -305,8 +306,13 @@ public class EvoStartDialog extends JDialog {
         if(file == null || !file.exists() || file.isDirectory()){
             return false;
         }
-        String name = Utils.getMvnExecutableName();
-        return file.getName().toLowerCase().equals(name);
+        List<String> names = Utils.getMvnExecutableNames();
+        for(String name : names) {
+            if(file.getName().toLowerCase().equals(name)){
+                return true;
+            }
+        }
+        return false;
     }
 
 

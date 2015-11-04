@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
@@ -106,7 +107,7 @@ public class RuntimeInstrumentation {
 
 		//Note: be sure each package is ended with ".", otherwise you might ban more packages than you wanted
 
-		list.addAll(Arrays.asList(new String[]{"java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
+		list.addAll(Arrays.asList(new String[]{"java.", "javax.", "sun.", PackageInfo.getEvoSuitePackage(), "org.exsyst",
 				"de.unisb.cs.st.testcarver.", "de.unisb.cs.st.evosuite.", "org.uispec4j.",
 				"de.unisb.cs.st.specmate.", "org.xml.", "org.w3c.",
 				"testing.generation.evosuite.", "com.yourkit.", "com.vladium.emma.", "daikon.",

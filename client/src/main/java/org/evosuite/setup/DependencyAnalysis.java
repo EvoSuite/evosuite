@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -213,7 +214,7 @@ public class DependencyAnalysis {
 				.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
 				&& !className.startsWith("java.")
 				&& !className.startsWith("sun.")
-				&& !className.startsWith("org.evosuite")
+				&& !className.startsWith(PackageInfo.getEvoSuitePackage())
 				&& !className.startsWith("org.exsyst")
 				&& !className.startsWith("de.unisb.cs.st.evosuite")
 				&& !className.startsWith("de.unisb.cs.st.specmate")

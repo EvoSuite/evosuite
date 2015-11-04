@@ -30,16 +30,11 @@ import java.util.List;
 import java.util.ListIterator;
 
 
-
-
-
-
-
-
-
-
-
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
+import org.evosuite.testcarver.capture.CaptureLog;
+import org.evosuite.testcarver.capture.CaptureUtil;
+import org.evosuite.testcarver.capture.FieldRegistry;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -179,8 +174,8 @@ public final class Instrumenter
 		final InsnList instructions = new InsnList();
 		
 		instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-								  "org/evosuite/testcarver/capture/FieldRegistry", 
+		instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+				PackageInfo.getNameWithSlash(FieldRegistry.class),
 								  "register", 
 								  "(Ljava/lang/Object;)V"));
 		
@@ -354,8 +349,8 @@ public final class Instrumenter
 					il.add(new LdcInsnNode(fieldIns.name));
 					il.add(new LdcInsnNode(fieldIns.desc));
 					
-					il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-							  "org/evosuite/testcarver/capture/FieldRegistry", 
+					il.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+							PackageInfo.getNameWithSlash(org.evosuite.testcarver.capture.FieldRegistry.class),
 							  "notifyReadAccess", 
 							  "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
 					
@@ -434,8 +429,8 @@ public final class Instrumenter
 					il.add(new LdcInsnNode(fieldIns.name));
 					il.add(new LdcInsnNode(fieldIns.desc));
 
-					il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-							"org/evosuite/testcarver/capture/FieldRegistry", 
+					il.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+							PackageInfo.getNameWithSlash(FieldRegistry.class),
 							"notifyModification", 
 							"(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
 
@@ -475,8 +470,8 @@ public final class Instrumenter
 		{
 			// static method invocation
 			il.add(new LdcInsnNode(internalClassName));
-			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-					  "org/evosuite/testcarver/capture/CaptureUtil", 
+			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					PackageInfo.getNameWithSlash(CaptureUtil.class),
 					  "loadClass", 
 					  "(Ljava/lang/String;)Ljava/lang/Class;"));
 			
@@ -529,8 +524,8 @@ public final class Instrumenter
 		
 		// --- construct Capture.capture() call
 		
-		il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-								  "org/evosuite/testcarver/capture/Capturer", 
+		il.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+				PackageInfo.getNameWithSlash(org.evosuite.testcarver.capture.Capturer.class),
 								  "capture", 
 								  "(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V"));
 		
@@ -549,8 +544,8 @@ public final class Instrumenter
 			// static method
 			
 			il.add(new LdcInsnNode(className));
-			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-					  "org/evosuite/testcarver/capture/CaptureUtil", 
+			il.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					PackageInfo.getNameWithSlash(CaptureUtil.class),
 					  "loadClass", 
 					  "(Ljava/lang/String;)Ljava/lang/Class;"));
 		}
@@ -566,7 +561,7 @@ public final class Instrumenter
 		if(returnType.equals(Type.VOID_TYPE))
 		{
 			// load return value for VOID methods
-			il.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/evosuite/testcarver/capture/CaptureLog", 
+			il.add(new FieldInsnNode(Opcodes.GETSTATIC, PackageInfo.getNameWithSlash(CaptureLog.class),
 									 "RETURN_TYPE_VOID", 
 									  Type.getDescriptor(Object.class)));
 		}
@@ -576,8 +571,8 @@ public final class Instrumenter
 			il.add(new VarInsnNode(Opcodes.ALOAD, returnValueVar));
 		}
 		
-		il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-				  								  "org/evosuite/testcarver/capture/Capturer", 
+		il.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+				PackageInfo.getNameWithSlash(org.evosuite.testcarver.capture.Capturer.class),
 												  "enable", 
 												  "(ILjava/lang/Object;Ljava/lang/Object;)V"));	
 	}
@@ -865,7 +860,7 @@ public final class Instrumenter
 						if(wrapperClass.getName().equals(ownerName)) {
 							if(methodInsnNode.getOpcode() == Opcodes.INVOKESTATIC) {
 								logger.debug("Replacing call "+methodInsnNode.name);
-								methodInsnNode.owner = "org/evosuite/testcarver/wrapper/" + methodInsnNode.owner;
+								methodInsnNode.owner = PackageInfo.getEvoSuitePackageWithSlash()+"/testcarver/wrapper/" + methodInsnNode.owner;
 							}
 							Type[] parameterTypes = Type.getArgumentTypes(methodInsnNode.desc);
 							try {
@@ -913,7 +908,7 @@ public final class Instrumenter
 										for(int i = 0; i < args.length; i++)
 											newargs[i+1] = args[i];										
 										methodInsnNode.desc = Type.getMethodDescriptor(returnType, newargs); 
-										methodInsnNode.owner = "org/evosuite/testcarver/wrapper/" + methodInsnNode.owner;
+										methodInsnNode.owner = PackageInfo.getEvoSuitePackageWithSlash()+"/testcarver/wrapper/" + methodInsnNode.owner;
 									} else {
 										methodInsnNode.name += "_final";										
 									}
@@ -946,7 +941,7 @@ public final class Instrumenter
 				for(Class<?> wrapperClass : wrapperClasses) {
 					if(wrapperClass.getName().equals(name)) {
 						logger.debug("Replacing new "+name);
-						typeInsnNode.desc = "org/evosuite/testcarver/wrapper/" + generatedType.getInternalName();
+						typeInsnNode.desc = PackageInfo.getEvoSuitePackageWithSlash()+"/testcarver/wrapper/" + generatedType.getInternalName();
 						break;
 					}
 				}

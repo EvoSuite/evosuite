@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Operator;
@@ -35,7 +36,7 @@ import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.DistanceEstimator;
 import org.junit.Test;
 
-public class TestStringDistance {
+public class TestStringDistance extends RandomizedTC {
 
 	private static final double DELTA =0;// Math.pow(1,-10000000);
 

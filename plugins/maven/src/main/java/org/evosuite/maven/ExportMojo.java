@@ -31,16 +31,17 @@ import org.apache.maven.project.MavenProject;
 import org.evosuite.continuous.ContinuousTestGeneration;
 
 /**
+ * <p>
  * When run, EvoSuite generate tests in a specific folder.
  * New runs of EvoSuite can exploit the tests in such folder, and/or modify them.
- * 
+ * </p>
+ *
  * <p>
  * So, with "export" we can copy all generated tests to a specific folder, which
  * by default points to where Maven searches for tests.
  * If another folder is rather used (or if we want to run with Maven the tests in the default EvoSuite folder),
  * then Maven plugins like build-helper-maven-plugin are needed 
- * 
- * @author arcuri
+ * </p>
  *
  */
 @Mojo( name = "export")

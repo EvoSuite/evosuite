@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
@@ -178,6 +179,8 @@ public class DescriptorMapping {
 	}
 
 	private boolean isStringReplacement(String className, String methodName) {
+
+		//FIXME the class TestabilityTransformation does not seem to exist any more...
 		if (className.equals("org/evosuite/instrumentation/TestabilityTransformation")) {
 			if (methodName.equals("StringEquals")
 			        || methodName.equals("StringEqualsIgnoreCase")
