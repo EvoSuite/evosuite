@@ -33,6 +33,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoAssertions;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -203,8 +204,9 @@ public class TestSuiteWriter implements Opcodes {
 
         // Execute all tests
         executor.newObservers();
-        List<ExecutionResult> results = new ArrayList<ExecutionResult>();
+        List<ExecutionResult> results = new ArrayList<>();
         for (int i = 0; i < testCases.size(); i++) {
+            LoopCounter.getInstance().setActive(true); //be sure it is active here, as JUnit checks might have left it to false
             ExecutionResult result = runTest(testCases.get(i));
             results.add(result);
         }
