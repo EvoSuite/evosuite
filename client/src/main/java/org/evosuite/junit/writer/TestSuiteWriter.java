@@ -682,7 +682,7 @@ public class TestSuiteWriter implements Opcodes {
         if (Properties.ID_NAMING) {
             List<String> namesWithExceptions = new ArrayList<String>();
 
-            String newMethodName = TestNameGenerator.getInstance().checkExeptionInTest(testCode, methodName);
+            String newMethodName = methodName;//TestNameGenerator.getInstance().checkExeptionInTest(testCode, methodName);
             String[] tokens = newMethodName.split("_");
 
             newMethodName = tokens[0];

@@ -2,6 +2,7 @@ package org.evosuite.idnaming;
 
 import com.examples.with.different.packagename.idnaming.gnu.trove.TCollections;
 import com.examples.with.different.packagename.idnaming.gnu.trove.decorator.TIntShortMapDecorator;
+import com.examples.with.different.packagename.idnaming.gnu.trove.decorator.TShortShortMapDecorator;
 import com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap;
 
 import org.evosuite.EvoSuite;
@@ -80,13 +81,25 @@ public class TestIdNamingAssertion extends SystemTest {
 		String targetClass = TUnmodifiableIntByteMap.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.ID_NAMING = false;
+		Properties.ID_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 30;
 
-		Properties.CRITERION = new Properties.Criterion[] {
-				Properties.Criterion.OUTPUT, Properties.Criterion.EXCEPTION};
+		StringBuilder analysisCriteria = new StringBuilder();
+        analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.INPUT); analysisCriteria.append(",");
+        analysisCriteria.append(Properties.Criterion.BRANCH);
+        analysisCriteria.append(Properties.Criterion.EXCEPTION);
+        Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
+        
+        Properties.CRITERION = new Properties.Criterion[5];
+        Properties.CRITERION[0] = Properties.Criterion.METHOD;
+        Properties.CRITERION[1] = Properties.Criterion.OUTPUT;
+        Properties.CRITERION[2] = Properties.Criterion.INPUT;
+        Properties.CRITERION[3] = Properties.Criterion.BRANCH;
+        Properties.CRITERION[4] = Properties.Criterion.EXCEPTION;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -101,4 +114,5 @@ public class TestIdNamingAssertion extends SystemTest {
 		}
 		Assert.assertTrue("Wrong number of goals: expected at least " + 63 + ", found " + goals , goals >= 63); // nr of exception goals varies
 	}
+	
 }
