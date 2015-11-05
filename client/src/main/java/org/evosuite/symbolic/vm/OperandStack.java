@@ -98,6 +98,9 @@ public final class OperandStack implements Iterable<Operand> {
 	}
 
 	public void pushOperand(Operand operand) {
+		if (operand==null) {
+			throw new IllegalArgumentException("Cannot push a null operand into OperandStack");
+		}
 		stack.push(operand);
 	}
 

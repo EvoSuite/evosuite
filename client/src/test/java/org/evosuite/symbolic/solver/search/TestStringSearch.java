@@ -19,13 +19,12 @@
  */
 package org.evosuite.symbolic.solver.search;
 
+import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.evosuite.symbolic.solver.TestSolver.solve;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,7 +46,6 @@ import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestStringSearch extends RandomizedTC {
