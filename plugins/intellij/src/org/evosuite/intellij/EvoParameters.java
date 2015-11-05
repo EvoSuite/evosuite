@@ -39,6 +39,8 @@ public class EvoParameters {
     public static final String JAVA_HOME = "JAVA_HOME";
     public static final String EVOSUITE_JAR_LOCATION = "evosuite_jar_location";
     public static final String EXECUTION_MODE = "execution_mode";
+    public static final String GUI_DIALOG_WIDTH = "evosuite_gui_dialog_width";
+    public static final String GUI_DIALOG_HEIGHT = "evosuite_gui_dialog_height";
 
     public static final String EXECUTION_MODE_MVN = "JAR";
     public static final String EXECUTION_MODE_JAR = "MVN";
@@ -53,6 +55,9 @@ public class EvoParameters {
     private String javaHome;
     private String evosuiteJarLocation;
     private String executionMode;
+    private int guiWidth;
+    private int guiHeight;
+
 
     public static EvoParameters getInstance(){
         return singleton;
@@ -67,16 +72,19 @@ public class EvoParameters {
 
     public void load(Project project){
         PropertiesComponent p = PropertiesComponent.getInstance(project);
-        cores = p.getOrInitInt(CORES_EVOSUITE_PARAM,1);
-        memory = p.getOrInitInt(MEMORY_EVOSUITE_PARAM,2000);
-        time = p.getOrInitInt(TIME_EVOSUITE_PARAM,1);
-        folder = p.getOrInit(TARGET_FOLDER_EVOSUITE_PARAM, "src/evo");
+        cores = p.getInt(CORES_EVOSUITE_PARAM,1);
+        memory = p.getInt(MEMORY_EVOSUITE_PARAM,2000);
+        time = p.getInt(TIME_EVOSUITE_PARAM,1);
+        folder = p.getValue(TARGET_FOLDER_EVOSUITE_PARAM, "src/evo");
 
         String envJavaHome = System.getenv("JAVA_HOME");
-        javaHome = p.getOrInit(JAVA_HOME, envJavaHome!=null ? envJavaHome : "");
-        mvnLocation = p.getOrInit(MVN_LOCATION,"");
-        evosuiteJarLocation = p.getOrInit(EVOSUITE_JAR_LOCATION,"");
-        executionMode = p.getOrInit(EXECUTION_MODE,EXECUTION_MODE_MVN);
+        javaHome = p.getValue(JAVA_HOME, envJavaHome!=null ? envJavaHome : "");
+        mvnLocation = p.getValue(MVN_LOCATION,"");
+        evosuiteJarLocation = p.getValue(EVOSUITE_JAR_LOCATION,"");
+        executionMode = p.getValue(EXECUTION_MODE,EXECUTION_MODE_MVN);
+
+        guiWidth = p.getInt(GUI_DIALOG_WIDTH, 540);
+        guiHeight = p.getInt(GUI_DIALOG_HEIGHT, 300);
     }
 
     public void save(Project project){
@@ -89,6 +97,8 @@ public class EvoParameters {
         p.setValue(MVN_LOCATION,getPossibleLocationForMvn());
         p.setValue(EVOSUITE_JAR_LOCATION,evosuiteJarLocation);
         p.setValue(EXECUTION_MODE,executionMode);
+        p.setValue(GUI_DIALOG_WIDTH,""+guiWidth);
+        p.setValue(GUI_DIALOG_HEIGHT,""+guiHeight);
     }
 
     private String getPossibleLocationForMvn(){
@@ -194,5 +204,21 @@ public class EvoParameters {
 
     public void setExecutionMode(String executionMode) {
         this.executionMode = executionMode;
+    }
+
+    public int getGuiWidth() {
+        return guiWidth;
+    }
+
+    public void setGuiWidth(int guiWidth) {
+        this.guiWidth = guiWidth;
+    }
+
+    public int getGuiHeight() {
+        return guiHeight;
+    }
+
+    public void setGuiHeight(int guiHeight) {
+        this.guiHeight = guiHeight;
     }
 }

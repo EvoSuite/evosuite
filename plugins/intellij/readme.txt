@@ -19,8 +19,5 @@ Reading and parsing those configuration files (eg pom.xml) would be far too comp
 to just let the build process to generate the test cases (eg with the Maven plugin for EvoSuite).
 
 
-NOTE: plugin HAS TO be compiled with Java 6. Reason is that Java GUI does not work properly in Mac,
-and IntelliJ on Mac by default uses Java 6. As the plugin is loaded by IntelliJ, if its jar is compiled
-with 7/8, then it will crash in IntelliJ when run on a Mac.
 
 

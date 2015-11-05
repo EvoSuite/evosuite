@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.evosuite.intellij.EvoStartDialog">
   <grid id="cbd77" binding="contentPane" layout-manager="FormLayout">
     <rowspec value="center:193px:noGrow"/>
-    <rowspec value="center:44px:noGrow"/>
+    <rowspec value="center:44px:grow"/>
     <rowspec value="center:30px:noGrow"/>
     <colspec value="fill:391px:grow"/>
     <constraints>
@@ -30,9 +30,9 @@
         <rowspec value="center:15dlu:noGrow"/>
         <rowspec value="top:3dlu:noGrow"/>
         <rowspec value="center:15dlu:noGrow"/>
-        <colspec value="fill:170px:noGrow"/>
+        <colspec value="fill:170px:grow"/>
         <colspec value="fill:13px:noGrow"/>
-        <colspec value="fill:200px:noGrow"/>
+        <colspec value="fill:200px:grow(5.0)"/>
         <colspec value="left:4dlu:noGrow"/>
         <colspec value="fill:max(d;4px):noGrow"/>
         <colspec value="left:4dlu:noGrow"/>
@@ -151,7 +151,7 @@
             </constraints>
             <properties>
               <editable value="false"/>
-              <horizontalAlignment value="11"/>
+              <horizontalAlignment value="2"/>
             </properties>
           </component>
           <component id="854ce" class="javax.swing.JTextField" binding="javaHomeField">
@@ -163,7 +163,7 @@
             </constraints>
             <properties>
               <editable value="false"/>
-              <horizontalAlignment value="11"/>
+              <horizontalAlignment value="2"/>
             </properties>
           </component>
           <component id="fd43b" class="javax.swing.JButton" binding="selectMavenButton">
@@ -203,7 +203,7 @@
             </constraints>
             <properties>
               <editable value="false"/>
-              <horizontalAlignment value="11"/>
+              <horizontalAlignment value="2"/>
             </properties>
           </component>
           <component id="a0476" class="javax.swing.JButton" binding="evosuiteSelectionButton">
@@ -238,7 +238,7 @@
       <grid id="94766" layout-manager="FormLayout">
         <rowspec value="center:29px:noGrow"/>
         <colspec value="fill:max(d;4px):noGrow"/>
-        <colspec value="left:161dlu:noGrow"/>
+        <colspec value="left:161dlu:grow"/>
         <colspec value="fill:77px:noGrow"/>
         <colspec value="left:13dlu:noGrow"/>
         <colspec value="fill:77px:noGrow"/>
