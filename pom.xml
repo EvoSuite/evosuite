@@ -742,9 +742,22 @@
                                         <!-- This is special. Originally we wanted to handle it directly, but
                                          did not turn out to be a good idea. However, too early to remove
                                          that code, so we just shade this package to avoid backward
-                                         compatibility issues -->
+                                         compatibility issues
+                                         -->
                                         <pattern>javax.servlet</pattern>
                                         <shadedPattern>org.evosuite.shaded.javax.servlet</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.apache</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.apache</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.hamcrest</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.hamcrest</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.objenesis</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.objenesis</shadedPattern>
                                     </relocation>
                                 </relocations>
                             </configuration>

@@ -151,7 +151,7 @@ public class RuntimeInstrumentation {
 					"org.springframework.", "org.apache.commons.logging.", "javassist.","antlr.","org.dom4j.",
 					"org.aopalliance.",
 					"javax.servlet.",//note, Servlet is special. see comments in pom file
-					"org.mockito."
+					"org.mockito.", "org.apache", "org.hamcrest", "org.objenesis"
 					}));
 		}
 
