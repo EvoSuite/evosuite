@@ -73,4 +73,16 @@ public class SolverResult {
 
 	}
 
+	public String toString() {
+		StringBuffer buff = new StringBuffer();
+		buff.append(resultType + "\n");
+		if (resultType.equals(SolverResultType.SAT)) {
+			buff.append("--------------------" + "\n");
+			for (String varName : this.model.keySet()) {
+				Object value = this.model.get(varName);
+				buff.append(varName + "->" + value + "\n");
+			}
+		}
+		return buff.toString();
+	}
 }
