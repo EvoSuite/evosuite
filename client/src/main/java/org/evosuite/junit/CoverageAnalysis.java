@@ -58,16 +58,20 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.Test;
@@ -154,14 +158,36 @@ public class CoverageAnalysis {
 
 		Class<?>[] tests = testClasses.toArray(new Class<?>[testClasses.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing test(s)");
+		if (Properties.SELECTED_JUNIT == null) {
+			try {
+				EvoRunner.useAgent = false; //avoid double instrumentation
 
-		try {
-			EvoRunner.useAgent = false; //avoid double instrumentation 
+				List<JUnitResult> results = executeTests(tests);
+				printReport(results);
+			} finally {
+				EvoRunner.useAgent = true;
+			}
+		} else {
+			// instead of just running junit tests, carve them
+			JUnitTestCarvedChromosomeFactory carvedFactory = new JUnitTestCarvedChromosomeFactory(null);
+			TestSuiteChromosome testSuite = carvedFactory.getCarvedTestSuite();
 
-			List<JUnitResult> results = executeTests(tests);
-			printReport(results);
-		} finally {
-			EvoRunner.useAgent = true;
+			int goals = 0;
+			for (Properties.Criterion pc : Properties.CRITERION) {
+				LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
+
+				TestFitnessFactory ffactory = FitnessFunctions.getFitnessFactory(pc);
+				goals += ffactory.getCoverageGoals().size();
+
+				FitnessFunction ffunction = FitnessFunctions.getFitnessFunction(pc);
+				ffunction.getFitness(testSuite);
+
+				org.evosuite.coverage.CoverageAnalysis.analyzeCoverage(testSuite, pc);
+			}
+			StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals);
+			if (Properties.COVERAGE_MATRIX)
+				throw new IllegalArgumentException("Coverage matrix not yet available when measuring coverage of a carved test suite");
 		}
 	}
 

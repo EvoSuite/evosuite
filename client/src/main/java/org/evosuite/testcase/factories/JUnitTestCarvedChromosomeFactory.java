@@ -110,6 +110,14 @@ public class JUnitTestCarvedChromosomeFactory implements
 		return junitTests;
 	}
 
+	public TestSuiteChromosome getCarvedTestSuite() {
+		TestSuiteChromosome testSuite = new TestSuiteChromosome();
+		for (TestCase t : junitTests) {
+			testSuite.addTest(t);
+		}
+		return testSuite;
+	}
+
 	@Override
 	public TestChromosome getChromosome() {
 		final int N_mutations = Properties.SEED_MUTATIONS;

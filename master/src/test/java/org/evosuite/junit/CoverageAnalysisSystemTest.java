@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
+import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -156,5 +158,39 @@ public class CoverageAnalysisSystemTest extends SystemTest {
 	@Test
 	public void testMoreThanOneClassMoreThanOneCriterion() {
 		fail("Implementation missing...");
+	}
+
+
+	@Test
+	public void testMeasureCoverageOfCarvedTests() {
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
+		String testClass = TestMethodWithSeveralInputArguments.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		Properties.CRITERION = new Properties.Criterion[] {
+				Properties.Criterion.INPUT,
+				Properties.Criterion.METHOD,
+				Properties.Criterion.OUTPUT
+		};
+
+		String[] command = new String[] {
+				"-class", targetClass,
+				"-Djunit=" + testClass,
+				"-Dselected_junit=" + testClass,
+				"-measureCoverage"
+		};
+
+		SearchStatistics result = (SearchStatistics)evosuite.parseCommandLine(command);
+		Assert.assertNotNull(result);
+		OutputVariable methodCoverage = (OutputVariable)result.getOutputVariables().get("MethodCoverage");
+		OutputVariable inputCoverage = (OutputVariable)result.getOutputVariables().get("InputCoverage");
+		OutputVariable outputCoverage = (OutputVariable)result.getOutputVariables().get("OutputCoverage");
+
+		Assert.assertEquals("Unexpected method coverage value", 1d, (double)methodCoverage.getValue(), 0.01);
+		Assert.assertEquals("Unexpected input coverage value", 0.73d, (double)inputCoverage.getValue(), 0.01);
+		Assert.assertEquals("Unexpected output coverage value", 0.33d, (double)outputCoverage.getValue(), 0.01);
 	}
 }
