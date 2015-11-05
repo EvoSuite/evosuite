@@ -195,8 +195,8 @@ public class Z3Str2Solver extends Solver {
 		Z3Str2QueryPrinter printer = new Z3Str2QueryPrinter();
 		String smtQueryStr = printer.print(smtCheckSatQuery);
 
-		System.out.println("Z3-str2 input:");
-		System.out.println(smtQueryStr);
+		logger.debug("Z3-str2 input:");
+		logger.debug(smtQueryStr);
 
 		int timeout = (int) Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 

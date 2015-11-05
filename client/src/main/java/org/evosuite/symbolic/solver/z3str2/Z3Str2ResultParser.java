@@ -105,6 +105,21 @@ class Z3Str2ResultParser {
 				String varType = varSec[1].trim();
 				String value = fields[1].trim();
 
+				if (varName.startsWith("$$_len_")) {
+					// ignore $$_len_... string length variables
+					continue;
+				}
+				
+				if (varName.startsWith("$$_val_")) {
+					// ignore $$_val_... string val variables
+					continue;
+				}
+
+				if (varName.startsWith("$$_str")) {
+					// ignore $$_str... string str variables
+					continue;
+				}
+
 				if (varType.equals("string")) {
 					String noQuotationMarks = value.substring(1, value.length() - 1);
 					String valueStr = removeSlashX(noQuotationMarks);
