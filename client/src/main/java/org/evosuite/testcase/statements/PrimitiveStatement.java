@@ -65,7 +65,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * @param tc     a {@link org.evosuite.testcase.TestCase} object.
      * @param varRef a {@link org.evosuite.testcase.variable.VariableReference} object.
      * @param value  a T object.
-     * @param <T>    a T object.
      */
     public PrimitiveStatement(TestCase tc, VariableReference varRef, T value) {
         super(tc, varRef);
@@ -120,7 +119,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * value (0)
      *
      * @param tc    a {@link org.evosuite.testcase.TestCase} object.
-     * @param clazz a {@link java.lang.reflect.Type} object.
+     * @param genericClass a {@link java.lang.reflect.Type} object.
      * @return a {@link org.evosuite.testcase.statements.PrimitiveStatement} object.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -208,10 +207,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
     /**
      * Create random primitive statement
      *
-     * @param clazz    a {@link java.lang.reflect.Type} object.
      * @param tc       a {@link org.evosuite.testcase.TestCase} object.
-     * @param type     a {@link java.lang.reflect.Type} object.
-     * @param position a int.
+     * @param clazz    a {@link java.lang.reflect.Type} object.
+     * @param position an integer.
      * @return a {@link org.evosuite.testcase.statements.PrimitiveStatement} object.
      */
     public static PrimitiveStatement<?> getRandomStatement(TestCase tc,
@@ -262,10 +260,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
         references.add(retval);
         return references;
     }
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
-	 */
 
     /**
      * {@inheritDoc}
@@ -321,14 +315,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      */
     protected abstract void pushBytecode(GeneratorAdapter mg);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
-	 * asm.commons.GeneratorAdapter)
-	 */
-
     /**
      * {@inheritDoc}
      */
@@ -346,13 +332,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
         }
         retval.storeBytecode(mg, locals);
     }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
-	 */
 
     /**
      * {@inheritDoc}
@@ -425,10 +404,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
         }
     }
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#mutate(org.evosuite.testcase.TestCase)
-	 */
-
     /**
      * {@inheritDoc}
      */
@@ -479,10 +454,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
     public boolean isAssignmentStatement() {
         return false;
     }
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
-	 */
 
     /**
      * {@inheritDoc}

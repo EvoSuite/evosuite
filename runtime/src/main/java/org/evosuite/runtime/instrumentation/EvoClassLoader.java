@@ -49,7 +49,7 @@ public class EvoClassLoader extends ClassLoader {
 	 * </p>
 	 * 
 	 * @param instrumentation
-	 *            a {@link org.evosuite.instrumentation.BytecodeInstrumentation}
+	 *            a {@link org.evosuite.runtime.instrumentation.RuntimeInstrumentation}
 	 *            object.
 	 */
 	public EvoClassLoader(RuntimeInstrumentation instrumentation) {
