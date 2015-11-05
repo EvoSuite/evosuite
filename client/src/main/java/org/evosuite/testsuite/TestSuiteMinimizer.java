@@ -155,8 +155,7 @@ public class TestSuiteMinimizer {
         ExecutionTracer.enableTraceCalls();
 
         for (TestChromosome test : suite.getTestChromosomes()) {
-            test.setChanged(true);
-            test.clearCachedResults();
+            test.setChanged(true); // implies test.clearCachedResults();
         }
 
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
