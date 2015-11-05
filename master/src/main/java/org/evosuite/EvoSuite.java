@@ -207,6 +207,22 @@ public class EvoSuite {
 			 * side effects (eg, important when using it in shell scripts)
 			 */
             if (!line.hasOption(ListClasses.NAME)) {
+
+                /**
+                 * String generated from:
+                 *
+                 * http://patorjk.com/software/taag/#p=testall&f=Big%20Money-ne&t=EvoSuite
+                 */
+                String ascii = "$$$$$$$$\\                   $$$$$$\\            $$\\   $$\\               \n" +
+                        "$$  _____|                 $$  __$$\\           \\__|  $$ |              \n" +
+                        "$$ |  $$\\    $$\\  $$$$$$\\  $$ /  \\__|$$\\   $$\\ $$\\ $$$$$$\\    $$$$$$\\  \n" +
+                        "$$$$$\\\\$$\\  $$  |$$  __$$\\ \\$$$$$$\\  $$ |  $$ |$$ |\\_$$  _|  $$  __$$\\ \n" +
+                        "$$  __|\\$$\\$$  / $$ /  $$ | \\____$$\\ $$ |  $$ |$$ |  $$ |    $$$$$$$$ |\n" +
+                        "$$ |    \\$$$  /  $$ |  $$ |$$\\   $$ |$$ |  $$ |$$ |  $$ |$$\\ $$   ____|\n" +
+                        "$$$$$$$$\\\\$  /   \\$$$$$$  |\\$$$$$$  |\\$$$$$$  |$$ |  \\$$$$  |\\$$$$$$$\\ \n" +
+                        "\\________|\\_/     \\______/  \\______/  \\______/ \\__|   \\____/  \\_______|";
+
+                LoggingUtils.getEvoLogger().info("\n"+ascii+"\n");
                 LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
 
                 String conf = Properties.CONFIGURATION_ID;
