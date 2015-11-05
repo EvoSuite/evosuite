@@ -52,8 +52,7 @@ public final class CallVM extends AbstractVM {
 	/**
 	 * Constructor
 	 */
-	public CallVM(SymbolicEnvironment env,
-			ConcolicInstrumentingClassLoader classLoader) {
+	public CallVM(SymbolicEnvironment env, ConcolicInstrumentingClassLoader classLoader) {
 		this.env = env;
 		this.classLoader = classLoader;
 	}
@@ -76,8 +75,7 @@ public final class CallVM extends AbstractVM {
 	 * @return constructor matches with the current frame, after discarding some
 	 *         frames when necessary to match
 	 */
-	private boolean discardFrames(String className, String methName,
-			Member function) {
+	private boolean discardFrames(String className, String methName, Member function) {
 		if (function == null)
 			throw new IllegalArgumentException("function should be non null");
 
@@ -87,8 +85,7 @@ public final class CallVM extends AbstractVM {
 		Frame topFrame = env.topFrame();
 		if (topFrame instanceof StaticInitializerFrame) {
 			StaticInitializerFrame clinitFrame = (StaticInitializerFrame) topFrame;
-			if (methName.equals(conf.INIT)
-					&& clinitFrame.getClassName().equals(className)) {
+			if (methName.equals(conf.INIT) && clinitFrame.getClassName().equals(className)) {
 				return true;
 			}
 		}
@@ -111,8 +108,7 @@ public final class CallVM extends AbstractVM {
 	 * indicated by the parameters.
 	 */
 	@Override
-	public void HANDLER_BEGIN(int access, String className, String methName,
-			String methDesc) {
+	public void HANDLER_BEGIN(int access, String className, String methName, String methDesc) {
 
 		if (conf.CLINIT.equals(methName)) {
 
@@ -125,8 +121,7 @@ public final class CallVM extends AbstractVM {
 			if (conf.INIT.equals(methName))
 				function = resolveConstructorOverloading(className, methDesc);
 			else
-				function = resolveMethodOverloading(className, methName,
-						methDesc);
+				function = resolveMethodOverloading(className, methName, methDesc);
 
 			/**
 			 * function could be equal to null if handler is in class
@@ -144,8 +139,7 @@ public final class CallVM extends AbstractVM {
 		env.topFrame().operandStack.pushRef(ExceptionReference.getInstance());
 	}
 
-	private boolean discardFramesClassInitializer(String className,
-			String methName) {
+	private boolean discardFramesClassInitializer(String className, String methName) {
 		if (!conf.CLINIT.equals(methName))
 			throw new IllegalArgumentException("methName should be <clinit>");
 
@@ -155,8 +149,7 @@ public final class CallVM extends AbstractVM {
 		Frame topFrame = env.topFrame();
 		if (topFrame instanceof StaticInitializerFrame) {
 			StaticInitializerFrame clinitFrame = (StaticInitializerFrame) topFrame;
-			if (methName.equals(conf.CLINIT)
-					&& clinitFrame.getClassName().equals(className)) {
+			if (methName.equals(conf.CLINIT) && clinitFrame.getClassName().equals(className)) {
 				return true;
 			}
 		}
@@ -172,8 +165,7 @@ public final class CallVM extends AbstractVM {
 	 * Cache max values for this method, except for static initializers.
 	 */
 	@Override
-	public void METHOD_MAXS(String className, String methName, String methDesc,
-			int maxStack, int maxLocals) {
+	public void METHOD_MAXS(String className, String methName, String methDesc, int maxStack, int maxLocals) {
 		if (conf.CLINIT.equals(methName))
 			return;
 
@@ -216,8 +208,7 @@ public final class CallVM extends AbstractVM {
 	 * .doc.html#16262
 	 */
 	@Override
-	public void METHOD_BEGIN(int access, String className, String methName,
-			String methDesc) {
+	public void METHOD_BEGIN(int access, String className, String methName, String methDesc) {
 		/* TODO: Use access param to determine needsThis */
 
 		if (conf.CLINIT.equals(methName)) {
@@ -228,20 +219,32 @@ public final class CallVM extends AbstractVM {
 		prepareStackIfNeeded(className, methName, methDesc);
 
 		/* Begin of a method or constructor */
+		final Frame callerFrame = env.topFrame(); // guy who (transitively) called us
 		Frame frame;
 		boolean calleeNeedsThis = false;
 		if (conf.INIT.equals(methName)) {
-			Constructor<?> constructor = resolveConstructorOverloading(
-					className, methDesc);
+			Constructor<?> constructor = resolveConstructorOverloading(className, methDesc);
 			int maxLocals = conf.MAX_LOCALS_DEFAULT;
 			MemberInfo memberInfo = memberInfos.get(constructor);
 			if (memberInfo != null)
 				maxLocals = memberInfo.maxLocals;
 			frame = new ConstructorFrame(constructor, maxLocals);
 			calleeNeedsThis = true;
+			
+			if (callerFrame.weInvokedInstrumentedCode() == false) {
+				/**
+				 * Since this is a constructor called from un-instrumented code, 
+				 * we need to "simulate" the missing NEW. This means
+				 * 1) create a new object reference
+				 * 2) populate the localstable with the new reference
+				 */
+				Class<?> clazz = classLoader.getClassForName(className);
+				Type objectType = Type.getType(clazz);
+				NonNullReference newObject = this.env.heap.newReference(objectType);
+				frame.localsTable.setRefLocal(0, newObject);
+			}			
 		} else {
-			Method method = resolveMethodOverloading(className, methName,
-					methDesc);
+			Method method = resolveMethodOverloading(className, methName, methDesc);
 			int maxLocals = conf.MAX_LOCALS_DEFAULT;
 			MemberInfo memberInfo = memberInfos.get(method);
 			if (memberInfo != null)
@@ -255,10 +258,12 @@ public final class CallVM extends AbstractVM {
 		 * operand stack! Instead, METHOD_BEGIN_PARAM will supply the concrete
 		 * parameter values and create corresponding symbolic constants.
 		 */
-		if (env.topFrame().weInvokedInstrumentedCode() == false) { // guy who
-			// (transitively)
-			// called us
+		if (callerFrame.weInvokedInstrumentedCode() == false) {
+			
 			env.pushFrame(frame);
+
+			// deal with Class.newInstance?
+
 			return;
 		}
 
@@ -277,15 +282,13 @@ public final class CallVM extends AbstractVM {
 
 		int index = 0;
 		for (Operand param : params) {
-			frame.localsTable.setOperand(index + (calleeNeedsThis ? 1 : 0),
-					param);
+			frame.localsTable.setOperand(index + (calleeNeedsThis ? 1 : 0), param);
 			if (param instanceof SingleWordOperand)
 				index += 1;
 			else if (param instanceof DoubleWordOperand)
 				index += 2;
 			else {
-				throw new IllegalStateException("Unknown operand type "
-						+ param.getClass().getName());
+				throw new IllegalStateException("Unknown operand type " + param.getClass().getName());
 			}
 		}
 
@@ -298,8 +301,7 @@ public final class CallVM extends AbstractVM {
 		env.pushFrame(frame);
 	}
 
-	private void prepareStackIfNeeded(String className, String methName,
-			String methDesc) {
+	private void prepareStackIfNeeded(String className, String methName, String methDesc) {
 
 		Method method = null;
 		if (env.isEmpty()) {
@@ -335,8 +337,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_PARAM(int nr, int index, int value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			IntegerConstant literal_value = ExpressionFactory
-					.buildNewIntegerConstant(value);
+			IntegerConstant literal_value = ExpressionFactory.buildNewIntegerConstant(value);
 			env.topFrame().localsTable.setBv32Local(index, literal_value);
 		}
 	}
@@ -372,8 +373,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_PARAM(int nr, int index, long value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			IntegerConstant literal_value = ExpressionFactory
-					.buildNewIntegerConstant(value);
+			IntegerConstant literal_value = ExpressionFactory.buildNewIntegerConstant(value);
 			env.topFrame().localsTable.setBv64Local(index, literal_value);
 		}
 	}
@@ -381,8 +381,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_PARAM(int nr, int index, double value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			RealConstant literal_value = ExpressionFactory
-					.buildNewRealConstant(value);
+			RealConstant literal_value = ExpressionFactory.buildNewRealConstant(value);
 			env.topFrame().localsTable.setFp64Local(index, literal_value);
 		}
 	}
@@ -390,8 +389,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_PARAM(int nr, int index, float value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			RealConstant literal_value = ExpressionFactory
-					.buildNewRealConstant(value);
+			RealConstant literal_value = ExpressionFactory.buildNewRealConstant(value);
 			env.topFrame().localsTable.setFp32Local(index, literal_value);
 		}
 	}
@@ -430,8 +428,7 @@ public final class CallVM extends AbstractVM {
 	 * @return method named name, declared by owner or one of its super-classes,
 	 *         which has the parameters encoded in methDesc.
 	 */
-	private Method resolveMethodOverloading(String owner, String name,
-			String methDesc) {
+	private Method resolveMethodOverloading(String owner, String name, String methDesc) {
 		Method method = null;
 		final Deque<Class<?>> interfaces = new LinkedList<Class<?>>();
 
@@ -456,14 +453,12 @@ public final class CallVM extends AbstractVM {
 		}
 
 		if (method == null)
-			throw new IllegalArgumentException("Failed to resolve " + owner
-					+ "." + name);
+			throw new IllegalArgumentException("Failed to resolve " + owner + "." + name);
 
 		return method;
 	}
 
-	private Constructor<?> resolveConstructorOverloading(String owner,
-			String desc) {
+	private Constructor<?> resolveConstructorOverloading(String owner, String desc) {
 		Constructor<?> constructor = null;
 
 		Class<?> claz = env.ensurePrepared(owner);
@@ -474,8 +469,7 @@ public final class CallVM extends AbstractVM {
 		try {
 			constructor = claz.getDeclaredConstructor(argTypes);
 		} catch (NoSuchMethodException nsme) {
-			throw new IllegalArgumentException(
-					"Failed to resolve constructor of " + owner);
+			throw new IllegalArgumentException("Failed to resolve constructor of " + owner);
 		}
 
 		return constructor;
@@ -513,8 +507,7 @@ public final class CallVM extends AbstractVM {
 	 * @return static method descriptor
 	 */
 	private Method methodCall(String className, String methName, String methDesc) {
-		final Method method = resolveMethodOverloading(className, methName,
-				methDesc);
+		final Method method = resolveMethodOverloading(className, methName, methDesc);
 		/* private method may be native */
 		boolean instrumented = isIgnored(method);
 		env.topFrame().invokeInstrumentedCode(instrumented);
@@ -535,12 +528,10 @@ public final class CallVM extends AbstractVM {
 	/**
 	 * Used to invoke any
 	 * <ul>
-	 * <li>
-	 * instance initialization method <init> = (constructor + field init)</li>
-	 * <li>
-	 * private method</li>
-	 * <li>
-	 * method of a superclass of the current class</li>
+	 * <li>instance initialization method <init> = (constructor + field init)
+	 * </li>
+	 * <li>private method</li>
+	 * <li>method of a superclass of the current class</li>
 	 * </ul>
 	 * 
 	 * No dynamic dispatch (unlike InvokeVirtual)
@@ -565,8 +556,7 @@ public final class CallVM extends AbstractVM {
 	}
 
 	@Override
-	public void INVOKESPECIAL(Object conc_receiver, String className,
-			String methName, String methDesc) {
+	public void INVOKESPECIAL(Object conc_receiver, String className, String methName, String methDesc) {
 		String concreteClassName = conc_receiver.getClass().getName();
 		if (concreteClassName != null) {
 			INVOKESPECIAL(concreteClassName, methName, methDesc);
@@ -588,8 +578,7 @@ public final class CallVM extends AbstractVM {
 	 * doc6.html#invokevirtual
 	 */
 	@Override
-	public void INVOKEVIRTUAL(Object conc_receiver, String className,
-			String methName, String methDesc) {
+	public void INVOKEVIRTUAL(Object conc_receiver, String className, String methName, String methDesc) {
 		stackParamCount = 0;
 
 		env.topFrame().invokeNeedsThis = true;
@@ -611,8 +600,7 @@ public final class CallVM extends AbstractVM {
 		chooseReceiverType(className, conc_receiver, methDesc, virtualMethod);
 	}
 
-	private boolean nullReferenceViolation(Object conc_receiver,
-			Reference symb_receiver) {
+	private boolean nullReferenceViolation(Object conc_receiver, Reference symb_receiver) {
 		return conc_receiver == null;
 	}
 
@@ -626,8 +614,7 @@ public final class CallVM extends AbstractVM {
 	 * doc6.html#invokeinterface
 	 */
 	@Override
-	public void INVOKEINTERFACE(Object conc_receiver, String className,
-			String methName, String methDesc) {
+	public void INVOKEINTERFACE(Object conc_receiver, String className, String methName, String methDesc) {
 		stackParamCount = 0;
 		env.topFrame().invokeNeedsThis = true;
 		if (nullReferenceViolation(conc_receiver, null))
@@ -642,8 +629,7 @@ public final class CallVM extends AbstractVM {
 	/**
 	 * Add dynamic type of receiver to path condition.
 	 */
-	private void chooseReceiverType(String className, Object receiver,
-			String methDesc, Method staticMethod) {
+	private void chooseReceiverType(String className, Object receiver, String methDesc, Method staticMethod) {
 
 		if (nullReferenceViolation(receiver, null)) {
 			throw new IllegalArgumentException("we are post null-deref check");
@@ -665,8 +651,7 @@ public final class CallVM extends AbstractVM {
 		 * descriptor))
 		 */
 		final int methodModifiers = staticMethod.getModifiers();
-		if (Modifier.isNative(methodModifiers)
-				&& Modifier.isFinal(methodModifiers))
+		if (Modifier.isNative(methodModifiers) && Modifier.isFinal(methodModifiers))
 			return;
 
 	}
@@ -760,8 +745,7 @@ public final class CallVM extends AbstractVM {
 			 * of storing the uninstrumented return value to the symbolic state.
 			 */
 			int i = res ? 1 : 0;
-			IntegerConstant value = ExpressionFactory
-					.buildNewIntegerConstant(i);
+			IntegerConstant value = ExpressionFactory.buildNewIntegerConstant(i);
 			env.topFrame().operandStack.pushBv32(value);
 		}
 	}
@@ -783,8 +767,7 @@ public final class CallVM extends AbstractVM {
 			 * We are returning from uninstrumented code. This is the only way
 			 * of storing the uninstrumented return value to the symbolic state.
 			 */
-			IntegerConstant value = ExpressionFactory
-					.buildNewIntegerConstant(res);
+			IntegerConstant value = ExpressionFactory.buildNewIntegerConstant(res);
 			env.topFrame().operandStack.pushBv32(value);
 		}
 	}
@@ -818,8 +801,7 @@ public final class CallVM extends AbstractVM {
 			 * We are returning from uninstrumented code. This is the only way
 			 * of storing the uninstrumented return value to the symbolic state.
 			 */
-			IntegerConstant value = ExpressionFactory
-					.buildNewIntegerConstant(res);
+			IntegerConstant value = ExpressionFactory.buildNewIntegerConstant(res);
 			env.topFrame().operandStack.pushBv64(value);
 		}
 	}
@@ -916,8 +898,7 @@ public final class CallVM extends AbstractVM {
 	}
 
 	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
-			Object conc_ref) {
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object conc_ref) {
 		stackParamCount++;
 
 		int operand_index = stackParamCount - 1;

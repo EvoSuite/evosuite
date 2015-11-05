@@ -133,7 +133,7 @@ public abstract class ConcolicExecution {
 			TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
 			return new ArrayList<BranchCondition>();
 		}
-		VM.setIgnoreCallBack(true); // ignore all callbacks from now on
+		VM.disableCallBacks(); // ignore all callbacks from now on
 		
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()

@@ -54,10 +54,14 @@ public final class VM {
 	 * VM.meth()   // false
 	 * </pre>
 	 */
-	static boolean ignoreCallback = false;
+	private static boolean ignoreCallback = false;
 
-	public static void setIgnoreCallBack(boolean b) {
-		ignoreCallback = b;
+	public static void disableCallBacks() {
+		ignoreCallback = true;
+	}
+
+	public static void enableCallBacks() {
+		ignoreCallback = false;
 	}
 
 	protected int nrCallbacksPath = 0;
