@@ -69,7 +69,7 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
-		Assert.assertEquals(14, goals.size());
+		Assert.assertEquals(11, goals.size());
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
