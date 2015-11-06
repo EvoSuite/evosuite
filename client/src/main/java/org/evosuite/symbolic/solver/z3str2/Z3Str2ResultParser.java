@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.solver.z3str2;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class Z3Str2ResultParser {
+
+	private static final int BIG_DECIMAL_SCALE = 100;
 
 	static Logger logger = LoggerFactory.getLogger(Z3Str2ResultParser.class);
 
@@ -130,9 +133,18 @@ class Z3Str2ResultParser {
 						String[] fraction = value.split("/");
 						String numeratorStr = fraction[0];
 						String denominatorStr = fraction[1];
+						
+						try {
 						Long numerator = Long.valueOf(numeratorStr);
 						Long denominator = Long.valueOf(denominatorStr);
 						doubleVal = (double) numerator / (double) denominator;
+						} catch (NumberFormatException ex) {
+							// Perhaps the numerator or denominator are just bigger than Long.MAX_VALUE
+							BigDecimal bigNumerator = new BigDecimal(numeratorStr);
+							BigDecimal bigDenominator = new BigDecimal(denominatorStr);
+							BigDecimal rational = bigNumerator.divide(bigDenominator, BIG_DECIMAL_SCALE, BigDecimal.ROUND_UP);
+							doubleVal = rational.doubleValue();
+						}
 					} else {
 						doubleVal = Double.valueOf(value);
 					}
