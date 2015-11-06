@@ -19,10 +19,12 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.evosuite.symbolic.solver.ResultParser;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
@@ -30,7 +32,7 @@ import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class CVC4ResultParser {
+final class CVC4ResultParser extends ResultParser {
 
 	private final Map<String, Object> initialValues;
 	static Logger logger = LoggerFactory.getLogger(CVC4ResultParser.class);
@@ -138,10 +140,7 @@ final class CVC4ResultParser {
 								token = tokenizer.nextToken(); // " "
 								String denominatorStr = tokenizer.nextToken();
 
-								double numerator = Double.parseDouble(numeratorStr);
-								double denominator = Double.parseDouble(denominatorStr);
-
-								value = -(numerator / denominator);
+								value = parseRational(true, numeratorStr, denominatorStr);
 								token = tokenizer.nextToken(); // ")"
 								token = tokenizer.nextToken(); // ")"
 							} else {
@@ -156,11 +155,7 @@ final class CVC4ResultParser {
 								String numeratorStr = tokenizer.nextToken();
 								token = tokenizer.nextToken(); // " "
 								String denominatorStr = tokenizer.nextToken();
-
-								double numerator = Double.parseDouble(numeratorStr);
-								double denominator = Double.parseDouble(denominatorStr);
-
-								value = (numerator / denominator);
+								value = parseRational(false,numeratorStr,denominatorStr);
 								token = tokenizer.nextToken(); // )
 							} else {
 
