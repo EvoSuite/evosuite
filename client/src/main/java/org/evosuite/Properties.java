@@ -1498,7 +1498,7 @@ public class Properties {
 
 
 	@Parameter(key = "is_running_a_system_test", group = "Runtime", description = "Specify that a system test is running. To be used only for debugging purposes")
-	public static volatile boolean IS_RUNNING_A_SYTEM_TEST = false;
+	public static volatile boolean IS_RUNNING_A_SYSTEM_TEST = false;
 
 
 
