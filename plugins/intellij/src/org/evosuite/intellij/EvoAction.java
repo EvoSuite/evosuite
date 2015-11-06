@@ -34,7 +34,11 @@ import org.evosuite.intellij.util.AsyncGUINotifier;
 import org.evosuite.intellij.util.EvoSuiteExecutor;
 import org.evosuite.intellij.util.Utils;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -43,9 +47,23 @@ import java.util.*;
 public class EvoAction extends AnAction {
 
     public EvoAction() {
-        super("Run EvoSuite");
+        super("Run EvoSuite",
+                "Open GUI dialog to configure and start running EvoSuite to generate JUnit tests automatically",
+                loadIcon());
     }
 
+    private static Icon loadIcon(){
+        try {
+            Image image = ImageIO.read( EvoAction.class.getClassLoader().getResourceAsStream( "evosuite.png" ));
+            image = image.getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon icon =  new ImageIcon(image);
+
+            return icon;
+        } catch (IOException e) {
+            e.printStackTrace(); //should not really happen
+        }
+        return null;
+    }
 
     public void actionPerformed(AnActionEvent event) {
 

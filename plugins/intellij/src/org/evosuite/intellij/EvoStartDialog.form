@@ -3,14 +3,14 @@
   <grid id="cbd77" binding="contentPane" layout-manager="FormLayout">
     <rowspec value="center:193px:noGrow"/>
     <rowspec value="center:44px:grow"/>
-    <rowspec value="center:30px:noGrow"/>
+    <rowspec value="center:39px:noGrow"/>
     <colspec value="fill:391px:grow"/>
     <constraints>
-      <xy x="48" y="54" width="550" height="320"/>
+      <xy x="48" y="54" width="651" height="338"/>
     </constraints>
     <properties>
       <minimumSize width="540" height="300"/>
-      <preferredSize width="540" height="300"/>
+      <preferredSize width="570" height="300"/>
     </properties>
     <border type="bevel-lowered" title="EvoSuite Options">
       <font size="20"/>
@@ -239,9 +239,9 @@
         <rowspec value="center:29px:noGrow"/>
         <colspec value="fill:max(d;4px):noGrow"/>
         <colspec value="left:161dlu:grow"/>
-        <colspec value="fill:77px:noGrow"/>
+        <colspec value="fill:100px:noGrow"/>
         <colspec value="left:13dlu:noGrow"/>
-        <colspec value="fill:77px:noGrow"/>
+        <colspec value="fill:100px:noGrow"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <forms defaultalign-vert="false"/>
@@ -251,7 +251,7 @@
         <children>
           <component id="e7465" class="javax.swing.JButton" binding="buttonOK">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
               <forms defaultalign-vert="false"/>
             </constraints>
             <properties>
@@ -260,8 +260,8 @@
           </component>
           <component id="5723f" class="javax.swing.JButton" binding="buttonCancel">
             <constraints>
-              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <forms defaultalign-vert="false"/>
             </constraints>
             <properties>
               <text value="Cancel"/>
