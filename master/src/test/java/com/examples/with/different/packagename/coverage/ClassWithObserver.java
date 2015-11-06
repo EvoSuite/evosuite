@@ -26,6 +26,10 @@ public class ClassWithObserver {
     private boolean f;
     private int size;
 
+    public ClassWithObserver(int size) {
+        this.size = size;
+    }
+
     public boolean isF() {
         return f;
     }
