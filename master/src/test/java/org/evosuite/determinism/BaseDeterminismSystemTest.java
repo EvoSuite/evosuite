@@ -21,13 +21,13 @@ public class BaseDeterminismSystemTest{
     @BeforeClass
     public static void initClass(){
         LoggingUtils.changeLogbackFile("logback_for_determinism_check.xml");
-        Properties.IS_RUNNING_A_SYTEM_TEST = true;
+        Properties.IS_RUNNING_A_SYSTEM_TEST = true;
     }
 
     @AfterClass
     public static void tearDownClass(){
         LoggingUtils.changeLogbackFile("logback.xml");
-        Properties.IS_RUNNING_A_SYTEM_TEST = false;
+        Properties.IS_RUNNING_A_SYSTEM_TEST = false;
     }
 
 

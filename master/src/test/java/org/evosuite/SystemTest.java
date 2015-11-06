@@ -79,7 +79,7 @@ public class SystemTest {
 		
 		Properties.getInstance().resetToDefaults();
 
-		Properties.IS_RUNNING_A_SYTEM_TEST = true;
+		Properties.IS_RUNNING_A_SYSTEM_TEST = true;
 		RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
 
 		Properties.HTML = false;
