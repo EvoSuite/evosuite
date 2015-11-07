@@ -24,10 +24,12 @@ package org.evosuite.coverage;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TimeController;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -114,7 +116,7 @@ public class CoverageAnalysis {
 			for (Criterion c : Properties.CRITERION) {
 				// Analyse coverage for enabled criteria
 				// LoggingUtils.getEvoLogger().info("  - " + c.name());
-				logger.debug("Measuring coverage of target criterion "+c);
+				logger.debug("Measuring coverage of target criterion {}", c);
 				analyzeCoverage(testSuite, c.name());
 			}
 		}
@@ -126,7 +128,7 @@ public class CoverageAnalysis {
     		}
             // Analyse coverage for extra criteria
             if (! ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
-    		    logger.debug("Measuring additional coverage of target criterion "+extraCriterion);
+    		    logger.debug("Measuring additional coverage of target criterion {}", extraCriterion);
                 analyzeCoverage(testSuite, extraCriterion);
             }
         }
@@ -188,6 +190,21 @@ public class CoverageAnalysis {
 		default:
 			throw new RuntimeException("Criterion not supported: " + criterion);
 
+		}
+	}
+
+	public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion[] criteria){
+
+		LoggingUtils.getEvoLogger().info("* Going to analyze the coverage criteria");
+
+		/*
+			FIXME: this looks quite inefficient, as we re-execute the test suite for each
+			single criterion :(
+		 */
+
+		for (Properties.Criterion pc : criteria) {
+			LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
+			analyzeCoverage(testSuite, pc);
 		}
 	}
 

@@ -218,10 +218,8 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.COVERAGE) {
-		    for (Properties.Criterion pc : Properties.CRITERION) {
-		    	LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
-		        CoverageAnalysis.analyzeCoverage(testSuite, pc);
-		    }
+			ClientServices.getInstance().getClientNode().changeState(ClientState.COVERAGE_ANALYSIS);
+			CoverageAnalysis.analyzeCoverage(testSuite, Properties.CRITERION);
 		}
 
         double coverage = testSuite.getCoverage();

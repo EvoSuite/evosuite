@@ -297,7 +297,7 @@ public class TestClusterGenerator {
 
 		while (!dependencies.isEmpty()
 		        && TimeController.getInstance().isThereStillTimeInThisPhase()) {
-			logger.debug("Dependencies left: " + dependencies.size());
+			logger.debug("Dependencies left: {}", dependencies.size());
 
 			Iterator<Pair> iterator = dependencies.iterator();
 			Pair dependency = iterator.next();

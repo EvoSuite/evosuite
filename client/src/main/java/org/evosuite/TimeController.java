@@ -96,7 +96,7 @@ public class TimeController {
 		if(phaseTimeouts!=null){
 			phaseTimeouts.clear();
 		} else {
-			phaseTimeouts = new ConcurrentHashMap<ClientState,Long>();
+			phaseTimeouts = new ConcurrentHashMap<>();
 		}
 
 		// TODO: I don't understand why, but this may not have happened at this point 
@@ -147,7 +147,7 @@ public class TimeController {
 			}
 			timeSpentInEachPhase.put(state, elapsed);
 			
-			logger.debug("Phase "+state+" lasted "+ (elapsed/1000) + " seconds");
+			logger.debug("Phase {} lasted {} seconds", state, (elapsed/1000));
 
 
 			//check if spent too much time, eg due to bug in EvoSuite
@@ -243,7 +243,7 @@ public class TimeController {
 			long timeoutInMs = getCurrentPhaseTimeout();
 			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
 			long phaseLeft = timeoutInMs - timeSincePhaseStarted;
-			logger.debug("Time left for current phase " + state + ": " + phaseLeft);
+			logger.debug("Time left for current phase {}: {}", state, phaseLeft);
 			if(ms > phaseLeft){
 				return false;
 			}
