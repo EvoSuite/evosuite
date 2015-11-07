@@ -87,7 +87,7 @@ public class MockTcpSystemTest extends SystemTest{
         String targetClass = ReceiveTcp_exception_tryCatch.class.getCanonicalName();
 
         Properties.TARGET_CLASS = targetClass;
-        Properties.SEARCH_BUDGET = 20000;
+        Properties.SEARCH_BUDGET = 40000;
         Properties.VIRTUAL_NET = true;
 
         Properties.CRITERION = new Properties.Criterion[]{
