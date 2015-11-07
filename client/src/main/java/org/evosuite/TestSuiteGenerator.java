@@ -219,7 +219,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.COVERAGE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.COVERAGE_ANALYSIS);
-			CoverageCriteriaAnalyzer.analyzeCoverage(testSuite, Properties.CRITERION);
+			CoverageCriteriaAnalyzer.analyzeCoverage(testSuite);
 		}
 
         double coverage = testSuite.getCoverage();

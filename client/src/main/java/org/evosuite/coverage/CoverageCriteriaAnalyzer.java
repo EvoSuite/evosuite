@@ -1,24 +1,24 @@
 /**
  * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * <p/>
  * This file is part of EvoSuite.
- *
+ * <p/>
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser Public License as published by the
  * Free Software Foundation, either version 3.0 of the License, or (at your
  * option) any later version.
- *
+ * <p/>
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.coverage;
 
@@ -44,299 +44,302 @@ import java.util.*;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class CoverageCriteriaAnalyzer {
 
-	private static final Logger logger = LoggerFactory.getLogger(CoverageCriteriaAnalyzer.class);
+    private static final Logger logger = LoggerFactory.getLogger(CoverageCriteriaAnalyzer.class);
 
-	private static Map<String, StringBuffer> coverageBitString = new TreeMap<>();
+    private static Map<String, StringBuffer> coverageBitString = new TreeMap<>();
 
-	private static boolean isMutationCriterion(Properties.Criterion criterion) {
-		switch (criterion) {
-		case MUTATION:
-		case WEAKMUTATION:
-		case STRONGMUTATION:
-		case ONLYMUTATION:
-			return true;
-		default:
-			return false;
-		}
-	}
+    private static boolean isMutationCriterion(Properties.Criterion criterion) {
+        switch (criterion) {
+            case MUTATION:
+            case WEAKMUTATION:
+            case STRONGMUTATION:
+            case ONLYMUTATION:
+                return true;
+            default:
+                return false;
+        }
+    }
 
-	private static void reinstrument(TestSuiteChromosome testSuite,
-	        Properties.Criterion criterion) {
+    private static void reinstrument(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
 
-		if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
-				|| Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
-			ExecutionTracer.enableContext();
-		}
-		if (!ExecutionTracer.isTraceCallsEnabled()) {
-			ExecutionTracer.enableTraceCalls();
-		}
+        if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
+                || Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
+            ExecutionTracer.enableContext();
+        }
+        if (!ExecutionTracer.isTraceCallsEnabled()) {
+            ExecutionTracer.enableTraceCalls();
+        }
 
-		// do not reinstrument a testSuite for criterion that we have
-		// been optimizing (because we already have coverage for that)
-		if (ArrayUtil.contains(Properties.CRITERION, criterion)) {
-			return ;
-		}
-
-		testSuite.setChanged(true);
-		for (TestChromosome test : testSuite.getTestChromosomes()) {
-			test.setChanged(true);
-			test.clearCachedResults(); // clears last execution result and last mutation result
-		}
+        testSuite.setChanged(true);
+        for (TestChromosome test : testSuite.getTestChromosomes()) {
+            test.setChanged(true);
+            test.clearCachedResults(); // clears last execution result and last mutation result
+        }
 
         Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
-		Properties.CRITERION = new Properties.Criterion[] { criterion };
+        Properties.CRITERION = new Properties.Criterion[]{criterion};
 
-		logger.info("Re-instrumenting for criterion: " + criterion);
-		TestGenerationContext.getInstance().resetContext();
+        logger.info("Re-instrumenting for criterion: " + criterion);
+        TestGenerationContext.getInstance().resetContext();
 
-		// Need to load class explicitly in case there are no test cases.
-		// If there are tests, then this is redundant
-		Properties.getTargetClass();
+        // Need to load class explicitly in case there are no test cases.
+        // If there are tests, then this is redundant
+        Properties.getTargetClass();
 
-		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
-		logger.info("Changing classloader of test suite for criterion: " + criterion);
+        // TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
+        logger.info("Changing classloader of test suite for criterion: " + criterion);
 
-		for (TestChromosome test : testSuite.getTestChromosomes()) {
-			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
-			dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
-		}
-		Properties.CRITERION = oldCriterion;
-	}
+        for (TestChromosome test : testSuite.getTestChromosomes()) {
+            DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
+            dtest.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
+        }
+        Properties.CRITERION = oldCriterion;
+    }
 
-	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
+    public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
 
-		// If coverage of target criteria is not already measured
-		if(!Properties.COVERAGE) {
-			for (Criterion c : Properties.CRITERION) {
-				// Analyse coverage for enabled criteria
-				// LoggingUtils.getEvoLogger().info("  - " + c.name());
-				logger.debug("Measuring coverage of target criterion {}", c);
-				analyzeCoverage(testSuite, c.name());
-			}
-		}
+        // If coverage of target criteria is not already measured
+        if (!Properties.COVERAGE) {
+            for (Criterion c : Properties.CRITERION) {
+                // Analyse coverage for enabled criteria
+                // LoggingUtils.getEvoLogger().info("  - " + c.name());
+                logger.debug("Measuring coverage of target criterion {}", c);
+                analyzeCoverage(testSuite, c.name());
+            }
+        }
 
-        for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(",")))
-        {
-        	if (extraCriterion.equals("CBRANCH")){
-    			Properties.INSTRUMENT_METHOD_CALLS = true;
-    		}
+        for (String extraCriterion : Arrays.asList(criteria.toUpperCase().split(","))) {
+            if (extraCriterion.equals("CBRANCH")) {
+                Properties.INSTRUMENT_METHOD_CALLS = true;
+            }
             // Analyse coverage for extra criteria
-            if (! ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
-    		    logger.debug("Measuring additional coverage of target criterion {}", extraCriterion);
+            if (!ArrayUtil.contains(Properties.CRITERION, extraCriterion)) {
+                logger.debug("Measuring additional coverage of target criterion {}", extraCriterion);
                 analyzeCoverage(testSuite, extraCriterion);
             }
         }
-	}
+    }
 
-	private static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
-		try {
-			Properties.Criterion crit = Properties.Criterion.valueOf(criterion.toUpperCase());
-			analyzeCoverage(testSuite, crit);
-		} catch (IllegalArgumentException e) {
-			LoggingUtils.getEvoLogger().info("* Unknown coverage criterion: " + criterion);
-		}
-	}
+    private static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
+        try {
+            Properties.Criterion crit = Properties.Criterion.valueOf(criterion.toUpperCase());
+            analyzeCoverage(testSuite, crit);
+        } catch (IllegalArgumentException e) {
+            LoggingUtils.getEvoLogger().info("* Unknown coverage criterion: " + criterion);
+        }
+    }
 
-	public static RuntimeVariable getCoverageVariable(Properties.Criterion criterion) {
-		switch (criterion) {
-		case ALLDEFS:
-			return RuntimeVariable.AllDefCoverage;
-		case BRANCH:
-			return RuntimeVariable.BranchCoverage;
-		case CBRANCH:
-			return RuntimeVariable.CBranchCoverage;
-		case EXCEPTION:
-			return RuntimeVariable.ExceptionCoverage;
-		case DEFUSE:
-			return RuntimeVariable.DefUseCoverage;
-		case STATEMENT:
-			return RuntimeVariable.StatementCoverage;
-		case RHO:
-			return RuntimeVariable.RhoCoverage;
-		case AMBIGUITY:
-			return RuntimeVariable.AmbiguityCoverage;
-		case STRONGMUTATION:
-		case MUTATION:
-			return RuntimeVariable.MutationScore;
-		case ONLYMUTATION:
-			return RuntimeVariable.OnlyMutationScore;
-		case WEAKMUTATION:
-			return RuntimeVariable.WeakMutationScore;
-		case ONLYBRANCH:
-			return RuntimeVariable.OnlyBranchCoverage;
-		case METHODTRACE:
-			return RuntimeVariable.MethodTraceCoverage;
-		case METHOD:
-			return RuntimeVariable.MethodCoverage;
-		case METHODNOEXCEPTION:
-			return RuntimeVariable.MethodNoExceptionCoverage;
-		case ONLYLINE:
-		case LINE:
-			return RuntimeVariable.LineCoverage;
-		case OUTPUT:
-			return RuntimeVariable.OutputCoverage;
-		case INPUT:
-			return RuntimeVariable.InputCoverage;
-		case IBRANCH:
-			return RuntimeVariable.IBranchCoverage;
-		case REGRESSION:
-			return RuntimeVariable.BranchCoverage;
-		default:
-			throw new RuntimeException("Criterion not supported: " + criterion);
+    public static RuntimeVariable getCoverageVariable(Properties.Criterion criterion) {
+        switch (criterion) {
+            case ALLDEFS:
+                return RuntimeVariable.AllDefCoverage;
+            case BRANCH:
+                return RuntimeVariable.BranchCoverage;
+            case CBRANCH:
+                return RuntimeVariable.CBranchCoverage;
+            case EXCEPTION:
+                return RuntimeVariable.ExceptionCoverage;
+            case DEFUSE:
+                return RuntimeVariable.DefUseCoverage;
+            case STATEMENT:
+                return RuntimeVariable.StatementCoverage;
+            case RHO:
+                return RuntimeVariable.RhoCoverage;
+            case AMBIGUITY:
+                return RuntimeVariable.AmbiguityCoverage;
+            case STRONGMUTATION:
+            case MUTATION:
+                return RuntimeVariable.MutationScore;
+            case ONLYMUTATION:
+                return RuntimeVariable.OnlyMutationScore;
+            case WEAKMUTATION:
+                return RuntimeVariable.WeakMutationScore;
+            case ONLYBRANCH:
+                return RuntimeVariable.OnlyBranchCoverage;
+            case METHODTRACE:
+                return RuntimeVariable.MethodTraceCoverage;
+            case METHOD:
+                return RuntimeVariable.MethodCoverage;
+            case METHODNOEXCEPTION:
+                return RuntimeVariable.MethodNoExceptionCoverage;
+            case ONLYLINE:
+            case LINE:
+                return RuntimeVariable.LineCoverage;
+            case OUTPUT:
+                return RuntimeVariable.OutputCoverage;
+            case INPUT:
+                return RuntimeVariable.InputCoverage;
+            case IBRANCH:
+                return RuntimeVariable.IBranchCoverage;
+            case REGRESSION:
+                return RuntimeVariable.BranchCoverage;
+            default:
+                throw new RuntimeException("Criterion not supported: " + criterion);
 
-		}
-	}
+        }
+    }
 
-	public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion[] criteria){
+    public static void analyzeCoverage(TestSuiteChromosome testSuite) {
 
-		LoggingUtils.getEvoLogger().info("* Going to analyze the coverage criteria");
+        LoggingUtils.getEvoLogger().info("* Going to analyze the coverage criteria");
 
-		/*
-			FIXME: this looks quite inefficient, as we re-execute the test suite for each
-			single criterion :(
-		 */
+        Properties.Criterion[] criteria = Properties.CRITERION;
 
-		for (Properties.Criterion pc : criteria) {
-			LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
-			analyzeCoverage(testSuite, pc);
-		}
-	}
+        /*
+            As we analyze exactly the same criteria used during the search, we should do not
+            need to re-instrument and re-run the tests
+         */
+        boolean recalculate = false;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
+        for (Properties.Criterion pc : criteria) {
+            LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
 
-		TestSuiteChromosome testSuiteCopy = testSuite.clone();
+            analyzeCoverage(testSuite, pc, recalculate);
+        }
+    }
 
-		reinstrument(testSuiteCopy, criterion);
-		TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
+    public static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
+        analyzeCoverage(testSuite,criterion,true);
+    }
 
-		for(TestChromosome test : testSuiteCopy.getTestChromosomes()) {
-			test.getTestCase().clearCoveredGoals();
-			test.clearCachedResults();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void analyzeCoverage(TestSuiteChromosome testSuite, Properties.Criterion criterion, boolean recalculate) {
 
-			// independently of mutation being a main or secondary criteria,
-			// test cases have to be 'changed'. with this, isCovered() will
-			// re-execute test cases and it will be able to find the covered goals
-			if (isMutationCriterion(criterion)) {
-				test.setChanged(true);
-			}
-		}
+        TestSuiteChromosome testSuiteCopy = testSuite.clone();
 
-		List<TestFitnessFunction> goals = factory.getCoverageGoals();
-        Collections.sort(goals);
+        TestFitnessFactory factory = FitnessFunctions.getFitnessFactory(criterion);
 
-		StringBuffer buffer = new StringBuffer(goals.size());
-		int covered = 0;
+        if(recalculate) {
+            reinstrument(testSuiteCopy, criterion);
 
-		for (TestFitnessFunction goal : goals) {
-			if (goal.isCoveredBy(testSuiteCopy)) {
-				logger.debug("Goal {} is covered", goal);
-				covered++;
-                buffer.append("1");
-			} else {
-				logger.debug("Goal {} is not covered", goal);
-                buffer.append("0");
-			}
-		}
+            for (TestChromosome test : testSuiteCopy.getTestChromosomes()) {
+                test.getTestCase().clearCoveredGoals();
+                test.clearCachedResults();
 
-		coverageBitString.put(criterion.name(), buffer);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString,
-				coverageBitString.size() == 0 ? "0" : coverageBitString.values().toString().replace("[", "").replace("]", "").replace(", ", ""));
-
-        RuntimeVariable bitStringVariable = getBitStringVariable(criterion);
-        if(bitStringVariable != null){
-            String goalBitString = buffer.toString();
-            ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable,goalBitString);
+                // independently of mutation being a main or secondary criteria,
+                // test cases have to be 'changed'. with this, isCovered() will
+                // re-execute test cases and it will be able to find the covered goals
+                if (isMutationCriterion(criterion)) {
+                    test.setChanged(true);
+                }
+            }
         }
 
-		if (goals.isEmpty()) {
-			if (criterion == Properties.Criterion.MUTATION
-			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				ClientServices.getInstance().getClientNode().trackOutputVariable(
-                        RuntimeVariable.MutationScore, 1.0);
-			}
-			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
-			ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion), 1.0);
-		} else {
+        List<TestFitnessFunction> goals = factory.getCoverageGoals();
+        Collections.sort(goals);
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(
+        StringBuffer buffer = new StringBuffer(goals.size());
+        int covered = 0;
+
+        for (TestFitnessFunction goal : goals) {
+            if (goal.isCoveredBy(testSuiteCopy)) {
+                logger.debug("Goal {} is covered", goal);
+                covered++;
+                buffer.append("1");
+            } else {
+                logger.debug("Goal {} is not covered", goal);
+                buffer.append("0");
+            }
+        }
+
+        coverageBitString.put(criterion.name(), buffer);
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.CoverageBitString,
+                coverageBitString.size() == 0 ? "0" : coverageBitString.values().toString().replace("[", "").replace("]", "").replace(", ", ""));
+
+        RuntimeVariable bitStringVariable = getBitStringVariable(criterion);
+        if (bitStringVariable != null) {
+            String goalBitString = buffer.toString();
+            ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, goalBitString);
+        }
+
+        if (goals.isEmpty()) {
+            if (criterion == Properties.Criterion.MUTATION
+                    || criterion == Properties.Criterion.STRONGMUTATION) {
+                ClientServices.getInstance().getClientNode().trackOutputVariable(
+                        RuntimeVariable.MutationScore, 1.0);
+            }
+            LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
+            ClientServices.getInstance().getClientNode().trackOutputVariable(getCoverageVariable(criterion), 1.0);
+        } else {
+
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
                     getCoverageVariable(criterion), (double) covered / (double) goals.size());
 
-			if (criterion == Properties.Criterion.MUTATION
-			        || criterion == Properties.Criterion.STRONGMUTATION) {
-				ClientServices.getInstance().getClientNode().trackOutputVariable(
-                        RuntimeVariable.MutationScore, (double) covered  / (double) goals.size());
-			}
+            if (criterion == Properties.Criterion.MUTATION
+                    || criterion == Properties.Criterion.STRONGMUTATION) {
+                ClientServices.getInstance().getClientNode().trackOutputVariable(
+                        RuntimeVariable.MutationScore, (double) covered / (double) goals.size());
+            }
 
-			LoggingUtils.getEvoLogger().info("* Coverage of criterion "
+            LoggingUtils.getEvoLogger().info("* Coverage of criterion "
                     + criterion
                     + ": "
-                    + NumberFormat.getPercentInstance().format((double) covered  / (double) goals.size()));
+                    + NumberFormat.getPercentInstance().format((double) covered / (double) goals.size()));
 
-			LoggingUtils.getEvoLogger().info("* Total number of goals: " + goals.size());
-			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered);
-		}
+            LoggingUtils.getEvoLogger().info("* Total number of goals: " + goals.size());
+            LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered);
+        }
 
-		// FIXME it works, but needs a better way of handling this
-		if (criterion == Properties.Criterion.RHO) {
-			RhoCoverageSuiteFitness rho = new RhoCoverageSuiteFitness();
-			ClientServices.getInstance().getClientNode().trackOutputVariable(
-					RuntimeVariable.RhoScore, Math.abs(0.5 - rho.getFitness(testSuite)));
-		} else if (criterion == Properties.Criterion.AMBIGUITY) {
-			AmbiguityCoverageSuiteFitness ag = new AmbiguityCoverageSuiteFitness();
-			ClientServices.getInstance().getClientNode().trackOutputVariable(
-					RuntimeVariable.AmbiguityScore, ag.getFitness(testSuite));
-		}
-	}
+        // FIXME it works, but needs a better way of handling this
+        if (criterion == Properties.Criterion.RHO) {
+            RhoCoverageSuiteFitness rho = new RhoCoverageSuiteFitness();
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.RhoScore, Math.abs(0.5 - rho.getFitness(testSuite)));
+        } else if (criterion == Properties.Criterion.AMBIGUITY) {
+            AmbiguityCoverageSuiteFitness ag = new AmbiguityCoverageSuiteFitness();
+            ClientServices.getInstance().getClientNode().trackOutputVariable(
+                    RuntimeVariable.AmbiguityScore, ag.getFitness(testSuite));
+        }
+    }
 
-    public static RuntimeVariable getBitStringVariable(Properties.Criterion criterion){
-        switch (criterion){
-        	case EXCEPTION:
-        		return RuntimeVariable.ExceptionCoverageBitString;
-        	case DEFUSE:
-        		return RuntimeVariable.DefUseCoverageBitString;
-        	case ALLDEFS:
-        		return RuntimeVariable.AllDefCoverageBitString;
-        	case BRANCH:
+    public static RuntimeVariable getBitStringVariable(Properties.Criterion criterion) {
+        switch (criterion) {
+            case EXCEPTION:
+                return RuntimeVariable.ExceptionCoverageBitString;
+            case DEFUSE:
+                return RuntimeVariable.DefUseCoverageBitString;
+            case ALLDEFS:
+                return RuntimeVariable.AllDefCoverageBitString;
+            case BRANCH:
                 return RuntimeVariable.BranchCoverageBitString;
-        	case CBRANCH:
-        		return RuntimeVariable.CBranchCoverageBitString;
-        	case IBRANCH:
-        		return RuntimeVariable.IBranchCoverageBitString;
-        	case ONLYBRANCH:
-        		return RuntimeVariable.OnlyBranchCoverageBitString;
-        	case MUTATION:
-        	case STRONGMUTATION:
-        		return RuntimeVariable.MutationCoverageBitString;
-        	case WEAKMUTATION:
-        		return RuntimeVariable.WeakMutationCoverageBitString;
-        	case ONLYMUTATION:
-        		return RuntimeVariable.OnlyMutationCoverageBitString;
-        	case METHODTRACE:
-        		return RuntimeVariable.MethodTraceCoverageBitString;
-        	case METHOD:
-        		return RuntimeVariable.MethodCoverageBitString;
-        	case METHODNOEXCEPTION:
-        		return RuntimeVariable.MethodNoExceptionCoverageBitString;
-        	case OUTPUT:
-        		return RuntimeVariable.OutputCoverageBitString;
-        	case INPUT:
-        		return RuntimeVariable.InputCoverageBitString;
-        	case STATEMENT:
-        		return RuntimeVariable.StatementCoverageBitString;
-        	case LINE:
-        	case ONLYLINE:
-        		return RuntimeVariable.LineCoverageBitString;
-        	case REGRESSION:
-        	case REGRESSIONTESTS:
-        		return null;
+            case CBRANCH:
+                return RuntimeVariable.CBranchCoverageBitString;
+            case IBRANCH:
+                return RuntimeVariable.IBranchCoverageBitString;
+            case ONLYBRANCH:
+                return RuntimeVariable.OnlyBranchCoverageBitString;
+            case MUTATION:
+            case STRONGMUTATION:
+                return RuntimeVariable.MutationCoverageBitString;
+            case WEAKMUTATION:
+                return RuntimeVariable.WeakMutationCoverageBitString;
+            case ONLYMUTATION:
+                return RuntimeVariable.OnlyMutationCoverageBitString;
+            case METHODTRACE:
+                return RuntimeVariable.MethodTraceCoverageBitString;
+            case METHOD:
+                return RuntimeVariable.MethodCoverageBitString;
+            case METHODNOEXCEPTION:
+                return RuntimeVariable.MethodNoExceptionCoverageBitString;
+            case OUTPUT:
+                return RuntimeVariable.OutputCoverageBitString;
+            case INPUT:
+                return RuntimeVariable.InputCoverageBitString;
+            case STATEMENT:
+                return RuntimeVariable.StatementCoverageBitString;
+            case LINE:
+            case ONLYLINE:
+                return RuntimeVariable.LineCoverageBitString;
+            case REGRESSION:
+            case REGRESSIONTESTS:
+                return null;
             default:
-            	logger.debug("Criterion not supported: " + criterion);
-            	return null;
+                logger.debug("Criterion not supported: " + criterion);
+                return null;
         }
     }
 }
