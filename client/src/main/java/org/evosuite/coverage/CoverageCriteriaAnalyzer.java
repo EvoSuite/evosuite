@@ -24,12 +24,10 @@ package org.evosuite.coverage;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.TimeController;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -48,11 +46,11 @@ import java.util.*;
  * @author Gordon Fraser
  * 
  */
-public class CoverageAnalysis {
+public class CoverageCriteriaAnalyzer {
 
-	private static final Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
+	private static final Logger logger = LoggerFactory.getLogger(CoverageCriteriaAnalyzer.class);
 
-	private static Map<String, StringBuffer> coverageBitString = new TreeMap<String, StringBuffer>();
+	private static Map<String, StringBuffer> coverageBitString = new TreeMap<>();
 
 	private static boolean isMutationCriterion(Properties.Criterion criterion) {
 		switch (criterion) {

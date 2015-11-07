@@ -29,7 +29,7 @@ import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
-import org.evosuite.coverage.CoverageAnalysis;
+import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.Branch;
@@ -219,7 +219,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.COVERAGE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.COVERAGE_ANALYSIS);
-			CoverageAnalysis.analyzeCoverage(testSuite, Properties.CRITERION);
+			CoverageCriteriaAnalyzer.analyzeCoverage(testSuite, Properties.CRITERION);
 		}
 
         double coverage = testSuite.getCoverage();
@@ -237,7 +237,7 @@ public class TestSuiteGenerator {
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
-		    CoverageAnalysis.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bestSuites?
+		    CoverageCriteriaAnalyzer.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bestSuites?
 		}
         if (Properties.CRITERION.length > 1)
             LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "

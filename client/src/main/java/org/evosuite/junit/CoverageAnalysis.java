@@ -53,6 +53,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.annotations.EvoSuiteTest;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.mutation.Mutation;
@@ -182,7 +183,7 @@ public class CoverageAnalysis {
 				FitnessFunction ffunction = FitnessFunctions.getFitnessFunction(pc);
 				ffunction.getFitness(testSuite);
 
-				org.evosuite.coverage.CoverageAnalysis.analyzeCoverage(testSuite, pc);
+				CoverageCriteriaAnalyzer.analyzeCoverage(testSuite, pc);
 			}
 			StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals);
@@ -549,10 +550,10 @@ public class CoverageAnalysis {
         }
         logger.info("* CoverageBitString " + str.toString());
 
-        RuntimeVariable bitStringVariable = org.evosuite.coverage.CoverageAnalysis.getBitStringVariable(criterion);
+        RuntimeVariable bitStringVariable = CoverageCriteriaAnalyzer.getBitStringVariable(criterion);
         if (goals.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
-			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), 1.0);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(CoverageCriteriaAnalyzer.getCoverageVariable(criterion), 1.0);
 			if (bitStringVariable != null) {
 				ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, "1");
 			}
@@ -562,7 +563,7 @@ public class CoverageAnalysis {
         	LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": " + NumberFormat.getPercentInstance().format(coverage));
 			LoggingUtils.getEvoLogger().info("* Number of covered goals: " + covered.cardinality() + " / " + goals.size());
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(org.evosuite.coverage.CoverageAnalysis.getCoverageVariable(criterion), coverage);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(CoverageCriteriaAnalyzer.getCoverageVariable(criterion), coverage);
 			if (bitStringVariable != null) {
 				ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, str.toString());
 			}
