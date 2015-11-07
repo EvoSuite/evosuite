@@ -168,6 +168,15 @@ public class TimeController {
 		if(state.equals(ClientState.STARTED)){
 			clientStartTime = currentPhaseStartTime;
 		}
+
+		if(currentPhaseHasTimeout()) {
+			long left = getLeftTimeBeforeEnd();
+			long timeout = getCurrentPhaseTimeout();
+			if(left < timeout){
+				logger.warn("Current phase {} could run up to {}s, but only {}s are left",
+						state, (int)(timeout/1000), (int)(left/1000));
+			}
+		}
 	}
 	
 	public static int getSearchBudgetInSeconds(){
@@ -227,9 +236,7 @@ public class TimeController {
 		}
 
 		//all time values are in milliseconds
-		long timeSinceStart = System.currentTimeMillis() - clientStartTime;
-		long totalTimeLimit = 1000 * calculateForHowLongClientWillRunInSeconds();
-		long left = totalTimeLimit - timeSinceStart;
+		long left = getLeftTimeBeforeEnd();
 
 		if(ms > left){
 			return false;
@@ -252,7 +259,13 @@ public class TimeController {
 		return true; 
 	}
 
-    /**
+	private long getLeftTimeBeforeEnd() {
+		long timeSinceStart = System.currentTimeMillis() - clientStartTime;
+		long totalTimeLimit = 1000 * calculateForHowLongClientWillRunInSeconds();
+		return totalTimeLimit - timeSinceStart;
+	}
+
+	/**
      * Calculate the percentage of progress in which we currently are in the phase.
      *
      * @return a value in [0,1] if the current phase has a timeout, otherwise a negative value
