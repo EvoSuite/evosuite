@@ -48,6 +48,7 @@ import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
+import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.JUnitCore;
@@ -297,6 +298,7 @@ public class JUnitAnalyzer {
 		
 		TestGenerationContext.getInstance().goingToExecuteSUTCode();
 
+		JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
 		Result result = runner.run(testClasses);
 
 		TestGenerationContext.getInstance().doneWithExecutingSUTCode();

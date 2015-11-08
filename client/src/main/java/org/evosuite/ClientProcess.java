@@ -31,6 +31,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.MasterNodeRemote;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.sandbox.MSecurityManager;
@@ -64,6 +65,7 @@ public class ClientProcess {
 		Properties.getInstance();
 		setupRuntimeProperties();
 		handleShadingSpecialCases();
+		JDKClassResetter.init();
 		Sandbox.setCheckForInitialization(Properties.SANDBOX);
 		MockFramework.enable();
 

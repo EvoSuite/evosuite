@@ -46,6 +46,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
@@ -317,6 +318,7 @@ public class TestSuiteGenerator {
         }
 
         ClientServices.getInstance().getClientNode().changeState(ClientState.JUNIT_CHECK);
+
 
         // Store this value; if this option is true then the JUnit check
         // would not succeed, as the JUnit classloader wouldn't find the class
