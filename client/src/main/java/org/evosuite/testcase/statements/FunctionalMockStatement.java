@@ -89,9 +89,6 @@ import static org.mockito.Mockito.withSettings;
  * However, there might be special cases: eg SUT being an abstract class with no
  * concrete implementation. That would need to be handled specially.
  *
- * <p>
- * TODO: need to handle Generics, eg <br>
- * Foo&lt;Bar&gt; foo = (Foo&lt;Bar&gt;) mock(Foo.class);
  *
  * <p>
  * Created by Andrea Arcuri on 01/08/15.
@@ -640,14 +637,22 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 VariableReference parameterVar = parameters.get(i + index);
                                 thenReturnInputs[i] = parameterVar.getObject(scope);
 
-                                if (thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
-                                    throw new CodeUnderTestException(new NullPointerException());
-                                }
+                                CodeUnderTestException codeUnderTestException = null;
 
-                                if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), method.getReturnType())) {
-                                    throw new CodeUnderTestException(
+                                if (thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
+                                    codeUnderTestException = new CodeUnderTestException(new NullPointerException());
+
+                                } else if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), method.getReturnType())) {
+                                    codeUnderTestException = new CodeUnderTestException(
                                             new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName()
                                                     + " to " + method.getReturnType()));
+                                }
+
+                                if (codeUnderTestException != null) {
+                                    //be sure "then" is always called after a "when", otherwise Mockito might end up in
+                                    //a inconsistent state
+                                    retForThen.thenThrow(new RuntimeException("Failed to setup mock due to type mismatches"));
+                                    throw  codeUnderTestException;
                                 }
 
                                 thenReturnInputs[i] = fixBoxing(thenReturnInputs[i], method.getReturnType());
