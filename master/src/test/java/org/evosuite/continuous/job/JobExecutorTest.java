@@ -102,23 +102,23 @@ public class JobExecutorTest {
 		if(!isOk){
 			//build a better error message by looking at the log files
 			File logDir = storage.getTmpLogs();
-			msg += "Log folder: "+logDir.getAbsolutePath();
-			msg += "# log files: " + logDir.listFiles().length;
+			msg += "Log folder: "+logDir.getAbsolutePath()+"\n";
+			msg += "# log files: " + logDir.listFiles().length+"\n";
 			for(File log : logDir.listFiles()){
 				if(log.isDirectory()){
-					msg += "Folder: " + log.getName();
+					msg += "Folder: " + log.getName()+"\n";
 				} else {
 					String content = null;
 					try {
 						content = FileUtils.readFileToString(log);
 					} catch (IOException e) {
-						msg += "Failed to read file "+log.getName()+" due to: " + e.toString();
+						msg += "Failed to read file "+log.getName()+" due to: " + e.toString()+"\n";
 					}
 					if(content != null) {
-						msg += "Content for file: " + log.getName();
-						msg += "--------------------------------------------------";
+						msg += "Content for file: " + log.getName()+"\n";
+						msg +=      "--------------------------------------------------"+"\n";
 						msg += content;
-						msg += "--------------------------------------------------";
+						msg += "\n"+"--------------------------------------------------"+"\n";
 					}
 				}
 			}
@@ -159,7 +159,7 @@ public class JobExecutorTest {
 
 		JobDefinition ust = new JobDefinition(30, memory, 
 				UsingSimpleAndTrivial.class.getName(), 0, 
-				new HashSet<String>(Arrays.asList(new String[]{Simple.class.getName(),Trivial.class.getName()})), 
+				new HashSet<>(Arrays.asList(new String[]{Simple.class.getName(),Trivial.class.getName()})),
 				null);
 
 
