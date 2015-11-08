@@ -729,8 +729,14 @@ public class TestSuiteGenerator {
 		case INPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Input Coverage");
 			break;
-		default:
+		case BRANCH:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
+			break;
+		case CBRANCH:BRANCH:
+		    LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
+			break;
+		default:
+			throw new IllegalArgumentException("Unrecognized criterion: "+criterion);
 		}
 	}
 
