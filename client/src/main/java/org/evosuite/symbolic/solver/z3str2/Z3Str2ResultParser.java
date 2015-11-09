@@ -120,6 +120,16 @@ class Z3Str2ResultParser extends ResultParser {
 					// ignore $$_str... string str variables
 					continue;
 				}
+				
+				if (varName.startsWith("$$_bol")) {
+					// ignore $$_bol... bool variables
+					continue;
+				}
+
+				if (varName.startsWith("$$_int_")) {
+					// ignore $$_int_... int variables
+					continue;
+				}
 
 				if (varType.equals("string")) {
 					String noQuotationMarks = value.substring(1, value.length() - 1);
