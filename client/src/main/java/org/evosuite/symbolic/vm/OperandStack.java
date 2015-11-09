@@ -98,7 +98,7 @@ public final class OperandStack implements Iterable<Operand> {
 	}
 
 	public void pushOperand(Operand operand) {
-		if (operand==null) {
+		if (operand == null) {
 			throw new IllegalArgumentException("Cannot push a null operand into OperandStack");
 		}
 		stack.push(operand);
@@ -138,6 +138,10 @@ public final class OperandStack implements Iterable<Operand> {
 
 	public Reference peekRef() {
 		Operand operand = this.peekOperand();
+		if (!(operand instanceof ReferenceOperand)) {
+			throw new ClassCastException(
+					"top of stack is not a reference but an operand of type " + operand.getClass().getCanonicalName());
+		}
 		ReferenceOperand refOp = (ReferenceOperand) operand;
 		Reference ref = refOp.getReference();
 		return ref;

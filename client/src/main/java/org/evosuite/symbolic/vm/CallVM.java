@@ -216,10 +216,16 @@ public final class CallVM extends AbstractVM {
 			return;
 		}
 
+		if (env.topFrame().weInvokedInstrumentedCode() == false) {
+			// An uninstrumented caller has called instrumented code
+			// This is problemtatic
+		}
+
 		prepareStackIfNeeded(className, methName, methDesc);
 
 		/* Begin of a method or constructor */
-		final Frame callerFrame = env.topFrame(); // guy who (transitively) called us
+		final Frame callerFrame = env.topFrame(); // guy who (transitively)
+													// called us
 		Frame frame;
 		boolean calleeNeedsThis = false;
 		if (conf.INIT.equals(methName)) {
@@ -230,19 +236,19 @@ public final class CallVM extends AbstractVM {
 				maxLocals = memberInfo.maxLocals;
 			frame = new ConstructorFrame(constructor, maxLocals);
 			calleeNeedsThis = true;
-			
+
 			if (callerFrame.weInvokedInstrumentedCode() == false) {
 				/**
-				 * Since this is a constructor called from un-instrumented code, 
-				 * we need to "simulate" the missing NEW. This means
-				 * 1) create a new object reference
-				 * 2) populate the localstable with the new reference
+				 * Since this is a constructor called from un-instrumented code,
+				 * we need to "simulate" the missing NEW. This means 1) create a
+				 * new object reference 2) populate the localstable with the new
+				 * reference
 				 */
 				Class<?> clazz = classLoader.getClassForName(className);
 				Type objectType = Type.getType(clazz);
 				NonNullReference newObject = this.env.heap.newReference(objectType);
 				frame.localsTable.setRefLocal(0, newObject);
-			}			
+			}
 		} else {
 			Method method = resolveMethodOverloading(className, methName, methDesc);
 			int maxLocals = conf.MAX_LOCALS_DEFAULT;
@@ -259,7 +265,7 @@ public final class CallVM extends AbstractVM {
 		 * parameter values and create corresponding symbolic constants.
 		 */
 		if (callerFrame.weInvokedInstrumentedCode() == false) {
-			
+
 			env.pushFrame(frame);
 
 			// deal with Class.newInstance?
@@ -494,6 +500,7 @@ public final class CallVM extends AbstractVM {
 		} else {
 			String declClass = method.getDeclaringClass().getCanonicalName();
 			return !conf.isIgnored(declClass);
+
 		}
 	}
 
@@ -551,18 +558,20 @@ public final class CallVM extends AbstractVM {
 		if (conf.INIT.equals(methName)) {
 			boolean instrumented = !conf.isIgnored(className);
 			env.topFrame().invokeInstrumentedCode(instrumented);
-		} else
+		} else {
 			methodCall(className, methName, methDesc);
+		}
 	}
 
 	@Override
 	public void INVOKESPECIAL(Object conc_receiver, String className, String methName, String methDesc) {
-		String concreteClassName = conc_receiver.getClass().getName();
-		if (concreteClassName != null) {
-			INVOKESPECIAL(concreteClassName, methName, methDesc);
-		} else {
-			INVOKESPECIAL(className, methName, methDesc);
-		}
+		INVOKESPECIAL(className, methName, methDesc);
+//		String concreteClassName = conc_receiver.getClass().getName();
+//		if (concreteClassName != null) {
+//			INVOKESPECIAL(concreteClassName, methName, methDesc);
+//		} else {
+//			INVOKESPECIAL(className, methName, methDesc);
+//		}
 	}
 
 	/**
