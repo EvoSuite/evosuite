@@ -78,9 +78,9 @@ public class TestSuiteWriter implements Opcodes {
 
     protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
-    protected List<TestCase> testCases = new ArrayList<TestCase>();
+    protected List<TestCase> testCases = new ArrayList<>();
 
-    protected Map<Integer, String> testComment = new HashMap<Integer, String>();
+    protected Map<Integer, String> testComment = new HashMap<>();
 
     private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
@@ -370,7 +370,7 @@ public class TestSuiteWriter implements Opcodes {
             imports.add(RunWith.class);
         }
 
-        Set<String> importNames = new HashSet<String>();
+        Set<String> importNames = new HashSet<>();
         for (Class<?> imp : imports) {
             while (imp.isArray())
                 imp = imp.getComponentType();
