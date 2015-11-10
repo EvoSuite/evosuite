@@ -233,9 +233,18 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 			}
 
 			enumClass = (Class<T>) loader.loadClass(enumClass.getName());
-			constants = enumClass.getEnumConstants();
-			if(constants.length > 0)
+			constants = enumClass.getEnumConstants(); // wtf
+			if (constants==null) {
+				/**
+				 * I am not sure why, but sometimes it looks as getEnumConstants()
+				 * returns a null value even when the enumClass is actually an enum 
+				 * with values. So, the hack I found was simply to retry this again.
+				 */
+				constants = enumClass.getEnumConstants();
+			}
+			if (constants .length>0) {
 				value = constants[pos];
+			}
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {
