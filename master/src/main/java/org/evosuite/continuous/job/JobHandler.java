@@ -36,7 +36,9 @@ import java.util.jar.Manifest;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -58,8 +60,7 @@ public class JobHandler extends Thread {
 	
 	/**
 	 * Main constructor
-	 * 
-	 * @param queue
+	 *
 	 */
 	public JobHandler(JobExecutor executor) {
 		super();
@@ -193,84 +194,9 @@ public class JobHandler extends Thread {
 		String classpath = System.getProperty("java.class.path");
 		classpath += File.pathSeparator + executor.getProjectClassPath();
 
-		/*
-			instead of just returning the classpath, create a jar file having it in the
-			manifest, and return the path to such jar. This is done to avoid issues in
-			Windows where cannot have too long classpaths
-		 */
-
-		StringBuffer escaped = new StringBuffer();
-		for(String element : classpath.split(File.pathSeparator)){
-			try {
-
-				/*
-					as the path separator in the manifest is just spaces " ", we need
-					to escape the paths to URL to avoid issues in Windows where path might
-					have spaces...
-				 */
-
-				element.replace("\\","/");
-				element.replace(" ","%20");
-				if(!element.startsWith("/")){
-					element = "/" + element;
-				}
-
-
-				if(!element.endsWith(".jar")){
-					//that means it is a folder. we need to make sure it does end with a "/"
-					if(!element.endsWith("/")){
-						element += "/";
-					}
-				}
-
-
-				escaped.append(element+ " ");
-				//escaped.append(URLEncoder.encode(element,"UTF-8")+ " ");
-			} catch (Exception e) {
-				logger.error("Problem when encoding '"+element+"': "+e.toString());
-			}
-		}
-
-		String jarLocation = null;
-		try {
-			File tmp = File.createTempFile("EvoSuite_pathingJar",".jar");
-			tmp.deleteOnExit();
-			jarLocation = tmp.getAbsolutePath();
-
-			Manifest m = new Manifest();
-			m.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-			m.getMainAttributes().put(Attributes.Name.CLASS_PATH, escaped.toString());
-			JarOutputStream out = new JarOutputStream(new FileOutputStream(tmp), m);
-			out.flush();
-			out.close();
-
-		} catch (Exception e) {
-			logger.error("Cannot create pathing jar: "+e.toString());
-			return classpath;
-		}
-
-		return jarLocation;
+		return JarPathing.createJarPathing(classpath);
 	}
 
-
-	private String writeClasspathToFile(String classpath) {
-
-		try {
-			File file = File.createTempFile("EvoSuite_classpathFile","txt");
-			file.deleteOnExit();
-
-			BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			String line = classpath;
-			out.write(line);
-			out.newLine();
-			out.close();
-
-			return file.getAbsolutePath();
-
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to create tmp file for classpath specification: "+e.getMessage());
-		}
-	}
 
 	private List<String> getCommandString(JobDefinition job) {
 
@@ -321,7 +247,7 @@ public class JobHandler extends Thread {
 		//commands.add("-projectCP");
 		//commands.add(executor.getProjectClassPath()); might be too long and fail on Windows
 
-		String classpath = writeClasspathToFile(executor.getProjectClassPath());
+		String classpath = ClassPathHandler.writeClasspathToFile(executor.getProjectClassPath());
 		commands.add("-DCP_file_path="+classpath);
 
 		//needs to be called twice, after the Java command

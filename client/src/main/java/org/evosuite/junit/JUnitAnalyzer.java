@@ -50,6 +50,7 @@ import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.junit.xml.JUnitProcessLauncher;
 import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -371,8 +372,17 @@ public class JUnitAnalyzer {
 
 			List<String> optionList = new ArrayList<>();
 			String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
+			if(JarPathing.isPathingJar(evosuiteCP)){
+				evosuiteCP = JarPathing.extractCPFromPathingJar(evosuiteCP);
+			}
+
 			String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
+			if(JarPathing.isPathingJar(targetProjectCP)){
+				targetProjectCP = JarPathing.extractCPFromPathingJar(targetProjectCP);
+			}
+
 			String classpath = targetProjectCP + File.pathSeparator + evosuiteCP;
+
 			optionList.addAll(Arrays.asList("-classpath", classpath));
 
 			CompilationTask task = compiler.getTask(null, fileManager, diagnostics,

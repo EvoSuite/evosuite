@@ -32,6 +32,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.evosuite.runtime.util.JarPathing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
  
@@ -92,9 +93,10 @@ public class AgentLoader {
 			logger.error("Exception "+e.getClass()+": "+e.getMessage()+causeDescription,e);
 			try {
 				Thread.sleep(5000);
-				logger.error("Trying again to attach agent:");
-				logger.error("VM: "+nameOfRunningVM);
-				logger.error("PID: "+pid);
+				String msg = "Trying again to attach agent:" + jarFilePath + "\n";
+				msg += "VM: "+nameOfRunningVM + "\n";
+				msg += "PID: "+pid + "\n";
+				logger.error(msg);
 				
 				attachAgent(pid, jarFilePath, toolLoader);
 				
@@ -212,9 +214,10 @@ public class AgentLoader {
             if(entry==null || entry.isEmpty()){
                 continue;
             }
-            if(isEvoSuiteMainJar(entry)){
-                return entry;
-            }
+			String jar = findEvoSuiteMainJar(entry);
+			if(jar != null){
+				return jar;
+			}
         }
         return null;
     }
@@ -248,7 +251,7 @@ public class AgentLoader {
 
 	private static String searchInCurrentClassLoaderIfUrlOne() {
 
-		Set<URI> uris = new HashSet<URI>();
+		Set<URI> uris = new HashSet<>();
 
 		ClassLoader loader = AgentLoader.class.getClassLoader();
 		while(loader != null){
@@ -260,8 +263,10 @@ public class AgentLoader {
 						uris.add(uri);
 
 						File file = new File(uri);
-						if(isEvoSuiteMainJar(file.getAbsolutePath())){
-							return file.getAbsolutePath();
+						String path = file.getAbsolutePath();
+						String jar = findEvoSuiteMainJar(path);
+						if(jar != null){
+							return jar;
 						}
 					} catch (Exception e) {
 						logger.error("Error while parsing URL "+url);
@@ -282,6 +287,19 @@ public class AgentLoader {
 		return null;
 	}
 
+	private static String findEvoSuiteMainJar(String path){
+		if(isEvoSuiteMainJar(path)){
+			return path;
+		}
+		if(JarPathing.isPathingJar(path)){
+			for(String subpath : JarPathing.extractCPFromPathingJar(path).split(File.pathSeparator)){
+				if(isEvoSuiteMainJar(subpath)){
+					return subpath;
+				}
+			}
+		}
+		return null;
+	}
 
 	private static String searchInFolder(String folder) {
 		File target = new File(folder);
@@ -297,8 +315,9 @@ public class AgentLoader {
 
 		for(File file : target.listFiles()){
 			String path = file.getAbsolutePath();
-			if(isEvoSuiteMainJar(path)){
-				return path;
+			String jar = findEvoSuiteMainJar(path);
+			if(jar != null){
+				return jar;
 			}
 		}
 
