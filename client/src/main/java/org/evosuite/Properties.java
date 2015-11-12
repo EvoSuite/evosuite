@@ -961,6 +961,10 @@ public class Properties {
 	@Parameter(key = "print_covered_goals", group = "Output", description = "Print out covered goals during test generation")
 	public static boolean PRINT_COVERED_GOALS = false;
 
+	/** Constant <code>PRINT_MISSED_GOALS=false</code> */
+	@Parameter(key = "print_missed_goals", group = "Output", description = "Print out missed goals at the end")
+	public static boolean PRINT_MISSED_GOALS = false;
+
 	/** Constant <code>ASSERTIONS=false</code> */
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
 	public static boolean ASSERTIONS = true;
