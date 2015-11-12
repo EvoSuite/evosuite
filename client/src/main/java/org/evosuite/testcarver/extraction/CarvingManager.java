@@ -103,7 +103,8 @@ public class CarvingManager {
 	private void readTestCases() throws IllegalStateException {
 		ClientServices.getInstance().getClientNode().changeState(ClientState.CARVING);
 		Collection<String> junitTestNames = getListOfJUnitClassNames();
-		LoggingUtils.getEvoLogger().info("* Executing tests from {} test classes for carving", junitTestNames.size());
+		LoggingUtils.getEvoLogger().info("* Executing tests from {} test {} for carving",
+				junitTestNames.size(), junitTestNames.size() == 1 ? "class" : "classes");
 		final JUnitCore runner = new JUnitCore();
 		final CarvingRunListener listener = new CarvingRunListener();
 		runner.addListener(listener);
@@ -121,24 +122,22 @@ public class CarvingManager {
 		}
 
 		for (String className : junitTestNames) {
-
 			String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 			try {
 				final Class<?> junitClass = classLoader.loadClass(classNameWithDots);
 				junitTestClasses.add(junitClass);
 			} catch (ClassNotFoundException e) {
-				logger.warn("Error trying to load JUnit test class " + classNameWithDots
-				        + ": " + e);
+				logger.error("Failed to load JUnit test class {}: {}", classNameWithDots, e);
 			}
 		}
 
 		final Class<?>[] classes = new Class<?>[junitTestClasses.size()];
 		junitTestClasses.toArray(classes);
 		Result result = runner.run(classes);
-		logger.info("Result: "+result.getFailureCount() +"/"+result.getRunCount());
+		logger.info("Result: {}/{}", result.getFailureCount(), result.getRunCount());
 		for(Failure failure : result.getFailures()) {
-			logger.info("Failure: "+failure.getMessage());
-			logger.info("Exception: "+failure.getException());
+			logger.info("Failure: {}", failure.getMessage());
+			logger.info("Exception: {}", failure.getException());
 		}
 		
 		Map<Class<?>, List<TestCase>> testMap = listener.getTestCases();

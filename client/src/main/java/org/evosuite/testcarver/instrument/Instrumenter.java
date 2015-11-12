@@ -83,7 +83,7 @@ public final class Instrumenter
 	{
 		if(! TransformerUtil.isClassConsideredForInstrumentation(className))
 		{
-			logger.debug("class {} has not been instrumented because its name is on the blacklist", className);
+			logger.debug("Class {} has not been instrumented because its name is on the blacklist", className);
 			return;
 		}
 		
@@ -93,14 +93,14 @@ public final class Instrumenter
 		}
 		catch(final Throwable t)
 		{
-			logger.error("An errorn occurred while instrumenting class {} -> returning unmodified version", className, t);
+			logger.error("An error occurred while instrumenting class {} -> returning unmodified version", className, t);
 		}	
 			
 	}
 
 	public byte[] instrument(final String className, final byte[] classfileBuffer) throws IllegalClassFormatException 
 	{
-		logger.debug("start instrumenting class {}", className);
+		logger.debug("Start instrumenting class {}", className);
 		
 		
 		final ClassReader 		cr 			  = new ClassReader(classfileBuffer);
@@ -110,7 +110,7 @@ public final class Instrumenter
 
 		if(! TransformerUtil.isClassConsideredForInstrumentation(className))
 		{
-			logger.debug("class {} has not been instrumented because its name is on the blacklist", className);
+			logger.debug("Class {} has not been instrumented because its name is on the blacklist", className);
 			return classfileBuffer;
 		}
 		
@@ -125,7 +125,7 @@ public final class Instrumenter
 		}
 		catch(final Throwable t)
 		{
-			logger.error("An errorn occurred while instrumenting class {} -> returning unmodified version", className, t);
+			logger.error("An error occurred while instrumenting class {} -> returning unmodified version", className, t);
 			return classfileBuffer;
 		}
 	}
@@ -187,7 +187,7 @@ public final class Instrumenter
 	{
 		if(! TransformerUtil.isClassConsideredForInstrumentation(internalClassName))
 		{
-			logger.debug("class {} has not been instrumented because its name is on the blacklist", internalClassName);
+			logger.debug("Class {} has not been instrumented because its name is on the blacklist", internalClassName);
 			return;
 		}
 		
@@ -199,7 +199,7 @@ public final class Instrumenter
 		// No private
 		if((cn.access & Opcodes.ACC_PRIVATE) != 0) {
 			// TODO: Why is this not detecting $DummyIntegrator?
-			logger.debug("Ignoring private class: "+cn.name);
+			logger.debug("Ignoring private class {}", cn.name);
 			return;
 		}
 		
@@ -223,12 +223,10 @@ public final class Instrumenter
 				if ((inc.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) { 
 					return;
 				}
-				logger.debug("Can use inner class: "+inc.name);
+				logger.debug("Can use inner class {}", inc.name);
 			}
 		}
-
-		
-		logger.info("Checking package: "+packageName+" for class "+cn.name);
+		logger.info("Checking package {} for class {}", packageName, cn.name);
 
 		// Protected/default only if in same package
 		if((cn.access & Opcodes.ACC_PUBLIC) == 0) {
@@ -593,8 +591,9 @@ public final class Instrumenter
 			}
 		}
 	
+	 * @param classNode
+	 * @param className
 	 * @param methodNode
-	 * @param after
 	 */
 	@SuppressWarnings("unchecked")
 	private MethodNode wrapMethod(final ClassNode classNode, final String className, final MethodNode methodNode)

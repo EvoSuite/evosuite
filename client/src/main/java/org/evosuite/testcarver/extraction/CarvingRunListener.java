@@ -73,7 +73,7 @@ public class CarvingRunListener extends RunListener {
 	public void testFinished(Description description) throws Exception {
 		final CaptureLog log = Capturer.stopCapture();
 		if (TimeController.getInstance().isThereStillTimeInThisPhase()) {
-			LoggingUtils.getEvoLogger().info(" - Carving tests from {}.{}", description.getClassName(), description.getMethodName());
+			LoggingUtils.getEvoLogger().info(" - Carving test {}.{}", description.getClassName(), description.getMethodName());
 			this.processLog(description, log);
 		}
 		Capturer.clear();
