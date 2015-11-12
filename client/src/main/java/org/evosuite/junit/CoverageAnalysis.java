@@ -50,6 +50,7 @@ import junit.framework.TestCase;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.annotations.EvoSuiteTest;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
@@ -185,6 +186,10 @@ public class CoverageAnalysis {
 
 				CoverageCriteriaAnalyzer.analyzeCoverage(testSuite, pc);
 			}
+
+			// Generate test suite
+			TestSuiteGenerator.writeJUnitTestsAndCreateResult(testSuite);
+
 			StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals);
 			if (Properties.COVERAGE_MATRIX)
