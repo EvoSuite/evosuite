@@ -31,6 +31,7 @@ import org.evosuite.Properties.OutputFormat;
 import org.evosuite.junit.JUnit3TestAdapter;
 import org.evosuite.junit.JUnit4TestAdapter;
 import org.evosuite.junit.UnitTestAdapter;
+import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
@@ -86,12 +87,17 @@ public class TestSuiteWriterUtils {
 			throw new IllegalStateException(
 			        "For the moment, structured tests are not supported");
 		}
-
-		int totalNumberOfTests = tests.size();
-		String totalNumberOfTestsString = String.valueOf(totalNumberOfTests - 1);
-		String testNumber = StringUtils.leftPad(String.valueOf(position),
-		                                        totalNumberOfTestsString.length(), "0");
-		String testName = "test" + testNumber;
+		TestCase test = tests.get(position);
+		String testName = null;
+		if (test instanceof CarvedTestCase) {
+			testName = ((CarvedTestCase)test).getName();
+		} else {
+			int totalNumberOfTests = tests.size();
+			String totalNumberOfTestsString = String.valueOf(totalNumberOfTests - 1);
+			String testNumber = StringUtils.leftPad(String.valueOf(position),
+					totalNumberOfTestsString.length(), "0");
+			testName = "test" + testNumber;
+		}
 		return testName;
 	}
 	
