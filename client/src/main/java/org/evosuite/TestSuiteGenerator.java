@@ -477,24 +477,24 @@ public class TestSuiteGenerator {
 		if (Properties.JUNIT_TESTS) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_TESTS);
 
-			TestSuiteWriter suite = new TestSuiteWriter();
+			TestSuiteWriter suiteWriter = new TestSuiteWriter();
 			if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED)
-				suite.insertAllTests(tests);
+				suiteWriter.insertAllTests(tests);
 			else
-				suite.insertTests(tests);
+				suiteWriter.insertTests(tests);
 
 			if (Properties.CHECK_CONTRACTS) {
 				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
 				// suite.insertAllTests(FailingTestSet.getFailingTests());
-				FailingTestSet.writeJUnitTestSuite(suite);
+				FailingTestSet.writeJUnitTestSuite(suiteWriter);
 			}
 
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
-			suite.writeTestSuite(name + suffix, testDir);
-			
+			suiteWriter.writeTestSuite(name + suffix, testDir);
+
 			// If in regression mode, create a separate copy of the tests 
 			if (!RegressionSearchListener.statsID.equals("")) {
 				File evosuiterTestDir = new File("evosuiter-stats");
@@ -508,7 +508,7 @@ public class TestSuiteGenerator {
 					
 					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
 	
-					suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
 				}
 			}
 		}
