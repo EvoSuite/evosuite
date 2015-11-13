@@ -965,6 +965,14 @@ public class Properties {
 	@Parameter(key = "print_missed_goals", group = "Output", description = "Print out missed goals at the end")
 	public static boolean PRINT_MISSED_GOALS = false;
 
+	/** Constant <code>WRITE_COVERED_GOALS_FILE=false</code> */
+	@Parameter(key = "write_covered_goals_file", group = "Output", description = "Write covered goals file")
+	public static boolean WRITE_COVERED_GOALS_FILE = false;
+
+	/** Constant <code>COVERED_GOALS_FILE="covered.goals"</code> */
+	@Parameter(key = "covered_goals_file", group = "Output", description = "File with relation of tests and covered goals")
+	public static String COVERED_GOALS_FILE = REPORT_DIR + File.separator + "covered.goals";
+
 	/** Constant <code>ASSERTIONS=false</code> */
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
 	public static boolean ASSERTIONS = true;

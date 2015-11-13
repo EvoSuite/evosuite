@@ -29,6 +29,11 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.junit.writer.Foo;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class TestSuiteWriterSystemTest extends SystemTest {
 
 	
@@ -42,6 +47,15 @@ public class TestSuiteWriterSystemTest extends SystemTest {
 	public void testScaffoldingFile(){		
 		Properties.TEST_SCAFFOLDING = true;
 		test();
+	}
+
+	@Test
+	public void testWriteCoveredGoals() throws IOException {
+		Properties.WRITE_COVERED_GOALS_FILE = true;
+		test();
+		Path path = Paths.get(Properties.COVERED_GOALS_FILE);
+		Assert.assertTrue("Covered goals file does not exist", Files.exists(path));
+		Assert.assertEquals("Covered goals file with 2 lines was expected", 2, Files.readAllLines(path).size());
 	}
 	
 	

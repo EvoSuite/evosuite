@@ -239,6 +239,8 @@ public class TestSuiteWriter implements Opcodes {
             content += scaffoldingContent;
         }
 
+        writeCoveredGoalsFile();
+
         TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
         return generated;
     }
@@ -543,12 +545,14 @@ public class TestSuiteWriter implements Opcodes {
 
         boolean wasSecurityException = result.hasSecurityException();
 
+        String testInfo = getInformation(id);
+
         StringBuilder builder = new StringBuilder();
         builder.append(NEWLINE);
         if (Properties.TEST_COMMENTS || testComment.containsKey(id)) {
             builder.append(METHOD_SPACE);
             builder.append("//");
-            builder.append(getInformation(id));
+            builder.append(testInfo);
             builder.append(NEWLINE);
         }
         String methodName;
@@ -659,7 +663,7 @@ public class TestSuiteWriter implements Opcodes {
 
         String testCode = builder.toString();
         TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
-                getInformation(id), result);
+                testInfo, result);
         return testCode;
     }
 
@@ -720,4 +724,19 @@ public class TestSuiteWriter implements Opcodes {
         return builder.toString();
     }
 
+    private void writeCoveredGoalsFile() {
+        if (Properties.WRITE_COVERED_GOALS_FILE) {
+            StringBuilder builder = new StringBuilder();
+            File file = new File(Properties.COVERED_GOALS_FILE);
+            for (int i = 0; i < testCases.size(); i++) {
+                TestCase test = testCases.get(i);
+                String testName = TestSuiteWriterUtils.getNameOfTest(testCases, i);
+                Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
+                for (TestFitnessFunction goal : coveredGoals) {
+                    builder.append(testName + "," + goal.toString() + NEWLINE);
+                }
+            }
+            Utils.writeFile(builder.toString(), file);
+        }
+    }
 }
