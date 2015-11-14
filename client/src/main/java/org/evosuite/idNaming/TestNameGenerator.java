@@ -720,7 +720,13 @@ public class TestNameGenerator extends DistinguishNames {
             }
             if(testMethodNameOptimized.contains("Constructor") && testMethodNameOptimized.contains("Throwing") && testMethodNameOptimized.contains("Exception")){
             	testMethodNameOptimized=testMethodNameOptimized.replace("Constructor","FailsToCreate"+className);
-            	testMethodNameOptimized=testMethodNameOptimized.replace(testMethodNameOptimized.substring(testMethodNameOptimized.indexOf("Throwing"), testMethodNameOptimized.length()), "");
+            	
+            	if(Character.isDigit(testMethodNameOptimized.charAt(testMethodNameOptimized.length()-1))){
+            		testMethodNameOptimized=testMethodNameOptimized.replace(testMethodNameOptimized.substring(testMethodNameOptimized.indexOf("Throwing"), testMethodNameOptimized.length()-1), "");
+            	}else
+            	{
+            		testMethodNameOptimized=testMethodNameOptimized.replace(testMethodNameOptimized.substring(testMethodNameOptimized.indexOf("Throwing"), testMethodNameOptimized.length()), "");
+            	}
             }else{
 	            if(testMethodNameOptimized.contains("Constructor")){
 	            	testMethodNameOptimized=testMethodNameOptimized.replace("Constructor",className);
