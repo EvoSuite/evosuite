@@ -715,7 +715,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (int) ((Character)value).charValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (int) ((Byte)value).intValue();
-                        } else if(value.equals(Short.TYPE)){
+                        } else if(valuesClass.equals(Short.class)){
                             value = (int) ((Short)value).intValue();
                         }
                     }
@@ -727,7 +727,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (double) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
                             value = (double) ((Character)value).charValue();
-                        } else if(value.equals(Short.TYPE)){
+                        } else if(valuesClass.equals(Short.class)){
                             value = (double) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
                             value = (double) ((Long)value).longValue();
@@ -743,7 +743,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (float) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
                             value = (float) ((Character)value).charValue();
-                        } else if(value.equals(Short.TYPE)){
+                        } else if(valuesClass.equals(Short.class)){
                             value = (float) ((Short)value).intValue();
                         } else if(valuesClass.equals(Long.class)){
                             value = (float) ((Long)value).longValue();
@@ -757,7 +757,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (long) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
                             value = (long) ((Character)value).charValue();
-                        } else if(value.equals(Short.TYPE)){
+                        } else if(valuesClass.equals(Short.class)){
                             value = (long) ((Short)value).intValue();
                         }
                     }
