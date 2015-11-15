@@ -312,7 +312,9 @@ public class TestSuiteGenerator {
         LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
 
         if(!JUnitAnalyzer.isJavaCompilerAvailable()) {
-            String msg = "No Java compiler is available. Are you running with the JDK?";
+            String msg = "No Java compiler is available. Make sure to run EvoSuite with the JDK and not the JRE." +
+					"You can try to setup the JAVA_HOME system variable to point to it, as well as to make sure that the PATH " +
+					"variable points to the JDK before any JRE.";
             logger.error(msg);
             throw new RuntimeException(msg);
         }
