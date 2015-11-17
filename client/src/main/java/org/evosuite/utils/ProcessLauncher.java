@@ -19,88 +19,112 @@
  */
 package org.evosuite.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.Timer;
-import java.util.TimerTask;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessLauncher {
 
-	private OutputStream sinkStdOut = null;
+	private final OutputStream outAndErr;
 
-	private OutputStream sinkStdErr = null;
+	private final InputStream input;
 
-	public void setSinkStdOut(OutputStream sinkStdOut) {
-		this.sinkStdOut = sinkStdOut;
+	public ProcessLauncher() {
+		this(null,null);
+	}
+	
+	public ProcessLauncher(OutputStream outAndErr) {
+		this(outAndErr,null);
 	}
 
-	public void setSinkStdErr(OutputStream sinkStdErr) {
-		this.sinkStdErr = sinkStdErr;
+	public ProcessLauncher(InputStream input) {
+		this(null,input);
+	}
+
+	public ProcessLauncher(OutputStream outAndErr, InputStream input) {
+		this.outAndErr = outAndErr;
+		this.input = input;
 	}
 
 	private static Logger logger = LoggerFactory
 			.getLogger(ProcessLauncher.class);
 
+	private static String concatToString(String[] cmd) {
+		String cmdLine = "";
+		for (String cmdStr : cmd) {
+			if (cmdLine.length() == 0) {
+				cmdLine = cmdStr;
+			} else {
+				cmdLine += " " + cmdStr;
+			}
+		}
+		return cmdLine;
+	}
+
+	public int launchNewProcess(String parsedCommand,
+			int timeout) throws IOException, ProcessTimeoutException {
+		int ret_code =launchNewProcess(null, parsedCommand,
+				timeout);
+		return ret_code;
+	}
+
 	public int launchNewProcess(File baseDir, String[] parsedCommand,
-			int timeout) throws IOException {
-
-		ProcessBuilder builder = new ProcessBuilder(parsedCommand);
-		builder.directory(baseDir);
-		builder.redirectErrorStream(false);
-		final Process process = builder.start();
-
-		InputStream stdout = process.getInputStream();
-		InputStream stderr = process.getErrorStream();
-		logger.debug("Process output:");
-
-		Timer t = new Timer();
-		t.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				process.destroy();
-			}
-		}, timeout);
-
-		do {
-			readInputStream(stdout, sinkStdOut);
-			readInputStream(stderr, sinkStdErr);
-		} while (!isFinished(process));
-
-		int exitValue = process.exitValue();
-		return exitValue;
+			int timeout) throws IOException, ProcessTimeoutException {
+		String cmdString = concatToString(parsedCommand);
+		int ret_code = launchNewProcess(baseDir, cmdString, timeout);
+		return ret_code;
 	}
+	
+	public int launchNewProcess(File baseDir, String cmdString,
+			int timeout) throws IOException, ProcessTimeoutException {
 
-	private static boolean isFinished(Process process) {
+		DefaultExecutor executor = new DefaultExecutor();
+		ExecuteWatchdog timeoutWatchdog = new ExecuteWatchdog(timeout);
+		executor.setWatchdog(timeoutWatchdog);
+
+		PumpStreamHandler streamHandler =new PumpStreamHandler(this.outAndErr, this.outAndErr, this.input);
+		executor.setStreamHandler(streamHandler);
+		if (baseDir!=null) {
+			executor.setWorkingDirectory(baseDir);
+		}
+
+		int exitValue;
 		try {
-			process.exitValue();
-			return true;
-		} catch (IllegalThreadStateException ex) {
-			return false;
-		}
-	}
-
-	private static void readInputStream(InputStream in, OutputStream out)
-			throws IOException {
-		InputStreamReader is = new InputStreamReader(in);
-		BufferedReader br = new BufferedReader(is);
-		String read = br.readLine();
-		while (read != null) {
-			logger.debug(read);
-			if (out != null) {
-				byte[] bytes = (read + "\n").getBytes();
-				out.write(bytes);
+			logger.debug("About to execute command " + cmdString);
+			exitValue = executor.execute(CommandLine.parse(cmdString));
+			if (executor.isFailure(exitValue)
+					&& timeoutWatchdog.killedProcess()) {
+				// it was killed on purpose by the watchdog
+				logger.debug("A timeout occured while executing a process");
+				logger.debug("The command is " + cmdString);
+				throw new ProcessTimeoutException(
+						"A timeout occurred while executing command "
+								+ cmdString);
 			}
-			read = br.readLine();
+
+			return exitValue;
+		} catch (ExecuteException e) {
+			if (timeoutWatchdog.killedProcess()) {
+				logger.debug("A timeout occured while executing a process");
+				logger.debug("The command is " + cmdString);
+				throw new ProcessTimeoutException(
+						"A timeout occurred while executing command "
+								+ cmdString);
+			} else {
+				throw e;
+			}
+
 		}
+
 	}
 
 }

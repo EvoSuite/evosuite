@@ -32,6 +32,7 @@ import org.evosuite.junit.JUnitExecutionException;
 import org.evosuite.junit.JUnitResult;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ProcessLauncher;
+import org.evosuite.utils.ProcessTimeoutException;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,6 +161,9 @@ public class JUnitProcessLauncher {
 
 		} catch (IOException e) {
 			logger.warn("IOException during JUnit process execution ");
+			throw new JUnitExecutionException(e);
+		} catch (ProcessTimeoutException e) {
+			logger.warn("A timeout occurred during JUnit process execution ");
 			throw new JUnitExecutionException(e);
 		}
 	}
