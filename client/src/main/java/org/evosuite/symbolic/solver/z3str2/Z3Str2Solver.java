@@ -19,11 +19,9 @@
  */
 package org.evosuite.symbolic.solver.z3str2;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,12 +35,12 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
-import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.SubProcessSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -58,13 +56,11 @@ import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.testcase.execution.EvosuiteError;
-import org.evosuite.utils.ProcessLauncher;
-import org.evosuite.utils.ProcessTimeoutException;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Z3Str2Solver extends Solver {
+public class Z3Str2Solver extends SubProcessSolver {
 
 	private static final String EVOSUITE_Z3_STR_FILENAME = "evosuite.z3";
 
@@ -270,35 +266,6 @@ public class Z3Str2Solver extends Solver {
 		}
 		buff.append("\n");
 		return buff.toString();
-	}
-
-	private static int launchNewProcess(String z3Str2Cmd, String smtQuery, int hard_timeout, OutputStream outputStream)
-			throws IOException {
-
-		ByteArrayInputStream input = new ByteArrayInputStream(smtQuery.getBytes());
-
-		ProcessLauncher launcher = new ProcessLauncher(outputStream, input);
-
-		long z3Str2_start_time_millis = System.currentTimeMillis();
-		try {
-			int exit_code = launcher.launchNewProcess(z3Str2Cmd, hard_timeout);
-			if (exit_code == 0) {
-				logger.debug("Z3Str2 execution finished normally");
-			} else {
-				logger.debug("Z3Str2 execution finished abnormally with exit code {}", exit_code);
-			}
-			return exit_code;
-		} catch (IOException ex) {
-			logger.debug("An IO Exception occurred while executing Z3Str2");
-			return -1;
-		} catch (ProcessTimeoutException ex) {
-			logger.debug("Z3Str2 execution stopped due to solver timeout");
-			return -1;
-		} finally {
-			long z3Str2_end_time_millis = System.currentTimeMillis();
-			long z3Str2_duration_secs = (z3Str2_end_time_millis - z3Str2_start_time_millis) / 1000;
-			logger.debug("Z3Str2 execution time was {}s", z3Str2_duration_secs);
-		}
 	}
 
 }

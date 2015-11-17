@@ -19,10 +19,8 @@
  */
 package org.evosuite.symbolic.solver.z3;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,22 +35,20 @@ import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
-import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.SubProcessSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
-import org.evosuite.utils.ProcessLauncher;
-import org.evosuite.utils.ProcessTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Z3Solver extends Solver {
+public class Z3Solver extends SubProcessSolver {
 
 	public Z3Solver() {
 		super();
@@ -145,35 +141,6 @@ public class Z3Solver extends Solver {
 
 		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(constantDeclarations, assertions);
 		return smtCheckSatQuery;
-	}
-
-	private static int launchNewProcess(String z3Cmd, String smtQuery, int hard_timeout, OutputStream outputStream)
-			throws IOException {
-
-		ByteArrayInputStream input = new ByteArrayInputStream(smtQuery.getBytes());
-
-		ProcessLauncher launcher = new ProcessLauncher(outputStream, input);
-
-		long z3_start_time_millis = System.currentTimeMillis();
-		try {
-			int exit_code = launcher.launchNewProcess(z3Cmd, hard_timeout);
-			if (exit_code == 0) {
-				logger.debug("Z3 execution finished normally");
-			} else {
-				logger.debug("Z3 execution finished abnormally with exit code {}", exit_code);
-			}
-			return exit_code;
-		} catch (IOException ex) {
-			logger.debug("An IO Exception occurred while executing Z3");
-			return -1;
-		} catch (ProcessTimeoutException ex) {
-			logger.debug("Z3 execution stopped due to solver timeout");
-			return -1;
-		} finally {
-			long z3_end_time_millis = System.currentTimeMillis();
-			long z3_duration_secs = (z3_end_time_millis - z3_start_time_millis) / 1000;
-			logger.debug("Z3 execution time was {}s", z3_duration_secs);
-		}
 	}
 
 }
