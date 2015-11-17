@@ -59,10 +59,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 		logger.info("Starting symbolic execution");
 		// Backup copy
 		// test.getMutationHistory().clear();
-		TestChromosome clone = (TestChromosome) test.clone();
+		test.clone(); // I am not sure what is the purpose of this 
 
-		// List<BranchCondition> conditions =
-		// ConcolicExecution.getSymbolicPath(test);
 		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase().clone();
 		List<BranchCondition> conditions = ConcolicExecution.executeConcolic(clone_test_case);
 		logger.info("Done symbolic execution");

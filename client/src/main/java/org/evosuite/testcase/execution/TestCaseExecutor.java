@@ -253,6 +253,10 @@ public class TestCaseExecutor implements ThreadFactory {
 	public void newObservers() {
 		observers = new LinkedHashSet<>();
 	}
+	
+	public Set<ExecutionObserver> getExecutionObservers() {
+		return new LinkedHashSet<ExecutionObserver>(observers);
+	}
 
 	private void resetObservers() {
 		for (ExecutionObserver observer : observers) {
@@ -645,6 +649,10 @@ public class TestCaseExecutor implements ThreadFactory {
 				.getClassLoaderForSUT());
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
+	}
+
+	public void setExecutionObservers(Set<ExecutionObserver> observers) {
+		this.observers = observers;
 	}
 
 }

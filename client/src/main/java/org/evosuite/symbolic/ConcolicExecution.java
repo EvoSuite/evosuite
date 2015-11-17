@@ -21,6 +21,7 @@ package org.evosuite.symbolic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -38,6 +39,7 @@ import org.evosuite.symbolic.vm.SymbolicFunctionVM;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
@@ -109,6 +111,7 @@ public abstract class ConcolicExecution {
 		defaultTestCase.changeClassLoader(classLoader);
 		SymbolicObserver symbolicExecObserver = new SymbolicObserver(env);
 
+		Set<ExecutionObserver> originalExecutionObservers = TestCaseExecutor.getInstance().getExecutionObservers();
 		TestCaseExecutor.getInstance().newObservers();
 		TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
 
@@ -130,8 +133,10 @@ public abstract class ConcolicExecution {
 
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
-			TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
 			return new ArrayList<BranchCondition>();
+		} finally {
+			logger.debug("Cleaning concolic execution");
+			TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 		}
 		VM.disableCallBacks(); // ignore all callbacks from now on
 		
@@ -146,7 +151,7 @@ public abstract class ConcolicExecution {
 		logNrOfConstraints(branches);
 
 		logger.debug("Cleaning concolic execution");
-		TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
+		TestCaseExecutor.getInstance().setExecutionObservers(originalExecutionObservers);
 
 		return branches;
 	}
