@@ -276,7 +276,7 @@ public final class CVC4Solver extends Solver {
 			}
 			return exit_code;
 		} catch (IOException ex) {
-			logger.debug("An IO Exception occurred while executing Z3Str2");
+			logger.debug("An IO Exception occurred while executing CVC4");
 			return -1;
 		} catch (ProcessTimeoutException ex) {
 			logger.debug("CVC4 execution stopped due to solver timeout");

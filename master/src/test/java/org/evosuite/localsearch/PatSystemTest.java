@@ -42,8 +42,8 @@ public class PatSystemTest extends SystemTest {
 	public void init() {
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
 		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TIME;
+		Properties.LOCAL_SEARCH_BUDGET = 10;
 		Properties.SEARCH_BUDGET = 20;
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
 	}
