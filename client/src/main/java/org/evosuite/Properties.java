@@ -1202,7 +1202,7 @@ public class Properties {
 	public static boolean SERIALIZE_REGRESSION_TEST_SUITE = false;
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */
-	@Parameter(key = "concolic_mutation", description = "Deprcated. Probability of using concolic mutation operator")
+	@Parameter(key = "concolic_mutation", description = "Deprecated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
 	@Deprecated
 	public static double CONCOLIC_MUTATION = 0.0;
