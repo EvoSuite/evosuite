@@ -25,7 +25,9 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,8 +36,17 @@ import org.junit.Test;
  */
 public class DependencyLibrary_SystemTest extends SystemTest {
 
+    @After
+    public void reset(){
+        RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
+    }
+
     @Test
     public void testSUTThatIsPartOfEvoSuiteDependencies() {
+
+        //Chosen dependency might be among the shaded ones
+        RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(false);
+
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = DependencyLibrary.class.getCanonicalName();

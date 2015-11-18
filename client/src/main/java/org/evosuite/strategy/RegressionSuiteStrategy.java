@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.coverage.CoverageAnalysis;
+import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -38,11 +38,9 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.regression.RegressionAssertionCounter;
 import org.evosuite.regression.RegressionSearchListener;
-import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosome;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosome;
-import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -184,7 +182,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
 		if (Properties.COVERAGE) {
 			for (Properties.Criterion pc : Properties.CRITERION)
-				CoverageAnalysis.analyzeCoverage(bestSuites, pc); // FIXME: can
+				CoverageCriteriaAnalyzer.analyzeCoverage(bestSuites, pc); // FIXME: can
 																	// we send
 																	// all
 																	// bestSuites?
@@ -222,7 +220,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			// SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
 			// coverage);
-			CoverageAnalysis.analyzeCriteria(bestSuites,
+			CoverageCriteriaAnalyzer.analyzeCriteria(bestSuites,
 					Properties.ANALYSIS_CRITERIA); // FIXME: can we send all
 													// bestSuites?
 		}

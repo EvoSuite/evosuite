@@ -118,7 +118,7 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
 		
-		if(!Properties.IS_RUNNING_A_SYTEM_TEST) { //avoid printing time related info in system tests due to lack of determinism
+		if(!Properties.IS_RUNNING_A_SYSTEM_TEST) { //avoid printing time related info in system tests due to lack of determinism
 			LoggingUtils.getEvoLogger().info("* Search finished after "
 					+ (endTime - startTime)
 					+ "s and "

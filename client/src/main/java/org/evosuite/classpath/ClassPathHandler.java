@@ -19,14 +19,17 @@
  */
 package org.evosuite.classpath;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.jar.*;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.utils.LoggingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * When running EvoSuite there are at least three different classpaths
@@ -41,8 +44,11 @@ import org.evosuite.utils.LoggingUtils;
  */
 public class ClassPathHandler {
 
+	private static Logger logger = LoggerFactory.getLogger(ClassPathHandler.class);
+
 	private static final ClassPathHandler singleton = new ClassPathHandler();
-	
+
+
 	/**
 	 * The classpath of the project to test, including all
 	 * its dependencies
@@ -57,8 +63,8 @@ public class ClassPathHandler {
 	 * So, in those cases, we need to manually specify it
 	 */
 	private String evosuiteClassPath;
-	
-	
+
+
 	private ClassPathHandler(){		
 	}
 	
@@ -70,8 +76,7 @@ public class ClassPathHandler {
 		getInstance().targetClassPath = null;
 		getInstance().evosuiteClassPath = null;
 	}
-	
-	
+
 	public String getEvoSuiteClassPath(){
 		if(evosuiteClassPath==null){
 			evosuiteClassPath = System.getProperty("java.class.path");
@@ -152,7 +157,27 @@ public class ClassPathHandler {
 		
 		return targetClassPath;
 	}
-	
+
+	public static String writeClasspathToFile(String classpath) {
+
+		try {
+			File file = File.createTempFile("EvoSuite_classpathFile",".txt");
+			file.deleteOnExit();
+
+			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			String line = classpath;
+			out.write(line);
+			out.newLine();
+			out.close();
+
+			return file.getAbsolutePath();
+
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to create tmp file for classpath specification: "+e.getMessage());
+		}
+	}
+
+
 	/**
 	 * Add classpath entry to the classpath of the target project
 	 * 

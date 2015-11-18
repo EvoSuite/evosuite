@@ -347,7 +347,7 @@ public interface Statement {
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param factory
-	 *            a {@link org.evosuite.testcase.AbstractTestFactory} object.
+	 *            a {@link org.evosuite.testcase.TestFactory} object.
 	 * @return a boolean.
 	 */
 	public boolean mutate(TestCase test, TestFactory factory);

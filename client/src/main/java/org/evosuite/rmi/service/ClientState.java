@@ -36,15 +36,17 @@ public enum ClientState {
 	INITIALIZATION("Initializing", "Analyzing classpath and dependencies", 2),
 	CARVING("Carving", "Carving JUnit tests", 3),
 	SEARCH("Search", "Generating test cases", 4),
-	MINIMIZING_VALUES("Minimizing values", "Mininizing primitive values in the tests", 5),
+	MINIMIZING_VALUES("Minimizing values", "Minimizing primitive values in the tests", 5),
 	INLINING("Inlining", "Inlining constants", 6),
-	MINIMIZATION("Minimizing", "Minimizing test cases", 7),
-	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 8),
-	JUNIT_CHECK("Check JUnit", "Validate and fix the generated tests",9),
-	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 10),
-    WRITING_STATISTICS("Statistics", "Writing statistics to disk", 11),
-	DONE("Done", "Test case generation is finished", 12),
-	FINISHED("Finished", "Client process is fully finished", 13);
+	MINIMIZATION("Minimizing", "Minimizing size/length of test cases", 7),
+	//TODO, question: why is it before ASSERTION?
+	COVERAGE_ANALYSIS("Coverage Analysis","Compute and the different coverage criteria of the generated test suite",8),
+	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 9),
+	JUNIT_CHECK("Check JUnit", "Validate and fix the generated tests",10),
+	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 11),
+    WRITING_STATISTICS("Statistics", "Writing statistics to disk", 12),
+	DONE("Done", "Test case generation is finished", 13),
+	FINISHED("Finished", "Client process is fully finished", 14);
 
 	private String name;
 	private String description;
@@ -162,25 +164,31 @@ public enum ClientState {
 			progress = startProgress;
 			break;
 
-		case 8: // generating assertions
-			startProgress = 67;				
+		case 8: // coverage analysis
+			startProgress = 67;
+			maxProgress = 75;
+			progress = startProgress;
+			break;
+
+		case 9: // generating assertions
+			startProgress = 76;
 			maxProgress = 92;
 			progress = startProgress;
 			break;
 
-		case 9: // writing statistics
+		case 10: // writing statistics
 			startProgress = 93;
 			maxProgress = 94;
 			progress = startProgress;
 			break;
 			
-		case 10: // writing tests
+		case 11: // writing tests
 			startProgress = 95;				
 			maxProgress = 98;
 			progress = startProgress;
 			break;
 			
-		case 11: // shutting down
+		case 12: // shutting down
 			startProgress = 99;				
 			maxProgress = 100;
 			progress = startProgress;

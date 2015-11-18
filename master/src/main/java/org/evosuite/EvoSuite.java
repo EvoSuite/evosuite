@@ -207,6 +207,7 @@ public class EvoSuite {
 			 * side effects (eg, important when using it in shell scripts)
 			 */
             if (!line.hasOption(ListClasses.NAME)) {
+
                 LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
 
                 String conf = Properties.CONFIGURATION_ID;

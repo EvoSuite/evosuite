@@ -72,7 +72,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 	private final Map<Integer, VariableReference> oidToVarRefMap;
 
 	public EvoTestCaseCodeGenerator() {
-		this.oidToVarRefMap = new HashMap<Integer, VariableReference>();
+		this.oidToVarRefMap = new HashMap<>();
 	}
 	
 	@Override
@@ -93,15 +93,17 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final int oid = log.objectIds.get(logRecNo);
 		final Object[] methodArgs = log.params.get(logRecNo);
 		final String methodName = log.methodNames.get(logRecNo);
-
 		Class<?> type;
 		try {
+			final String typeName = log.getTypeName(oid);
+			type = getClassForName(typeName);
+
+			logger.debug("Creating method call statement for call to method {}.{}", typeName,methodName);
+
 			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
 			final ArrayList<VariableReference> args = getArguments(methodArgs,
 			                                                       methodParamTypeClasses);
 
-			final String typeName = log.getTypeName(oid);
-			type = getClassForName(typeName);
 
 			if (CaptureLog.OBSERVED_INIT.equals(methodName)) {
 				// Person var0 = new Person();
@@ -149,7 +151,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			logger.info("Test case so far: "+testCase.toCode());
 			logger.info(log.toString());
 
-			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt.", logRecNo);
+			CodeGeneratorException.propagateError(e, "[logRecNo = %s] - an unexpected error occurred while creating method call stmt for %s.", logRecNo, methodName);
 		}
 	}
 

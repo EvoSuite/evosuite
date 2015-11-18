@@ -133,7 +133,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		if (VM.getInstance().isStopped()) {
 			return;
 		}
-		VM.setIgnoreCallBack(false);
+		VM.enableCallBacks();
 
 		try {
 			if (env.isEmpty()) {

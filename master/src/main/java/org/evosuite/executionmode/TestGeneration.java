@@ -42,6 +42,7 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
+import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
@@ -207,16 +208,10 @@ public class TestGeneration {
 		
 		LoggingUtils.getEvoLogger().info("* Going to generate test cases for class: "+target);
 		
-		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();		
-		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-		
 		if (!findTargetClass(target)) {
 		    return Arrays.asList(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") }));
-		}	
+		}
 
-		if (!classPath.isEmpty())
-			classPath += File.pathSeparator;
-		classPath += cp;
 
 		if (!BytecodeInstrumentation.checkIfCanInstrument(target)) {
 			throw new IllegalArgumentException(
@@ -225,36 +220,17 @@ public class TestGeneration {
 			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
 
+		List<String> cmdLine = new ArrayList<>();
+		cmdLine.add(EvoSuite.JAVA_CMD);
+
+		handleClassPath(cmdLine);
+
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		int port = handler.openServer();
 		if (port <= 0) {
 			throw new RuntimeException("Not possible to start RMI service");
 		}
 
-		List<String> cmdLine = new ArrayList<String>();
-		cmdLine.add(EvoSuite.JAVA_CMD);
-		
-		cmdLine.add("-cp");
-		cmdLine.add(classPath);
-		
-		if (cp.isEmpty()) {
-			cmdLine.add("-DCP=" + classPath);
-		} else {
-			cmdLine.add("-DCP=" + cp);
-		}
-
-		/*
-		if (Properties.VIRTUAL_FS) {
-			LoggingUtils.getEvoLogger().info("* Setting up virtual FS for testing");
-			String stringToBePrependedToBootclasspath = locateEvoSuiteIOClasses();
-			if (stringToBePrependedToBootclasspath == null)
-				throw new IllegalStateException(
-				        "Could not prepend needed classes for VFS functionality to bootclasspath of client!");
-			cmdLine.add("-Xbootclasspath/p:" + stringToBePrependedToBootclasspath);
-			cmdLine.add("-Dvirtual_fs=true");
-		}
-		 */
-		
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
 		if(Properties.HEADLESS_MODE == true) {
@@ -534,7 +510,32 @@ public class TestGeneration {
 		return results;
 	}
 
-	
+	private static void handleClassPath(List<String> cmdLine) {
+		String classPath = ClassPathHandler.getInstance().getEvoSuiteClassPath();
+		String projectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
+
+		if (! classPath.isEmpty() && ! projectCP.isEmpty()) {
+			classPath += File.pathSeparator;
+		}
+
+		if(! projectCP.isEmpty()) {
+			classPath += projectCP;
+		}
+
+		cmdLine.add("-cp");
+		//cmdLine.add(classPath);
+		String pathingJar = JarPathing.createJarPathing(classPath);
+		cmdLine.add(pathingJar);
+
+		if (projectCP.isEmpty()) {
+			projectCP =  classPath;
+		}
+
+		String projectCPFilePath = ClassPathHandler.writeClasspathToFile(projectCP);
+		cmdLine.add("-DCP_file_path="+projectCPFilePath);
+	}
+
+
 	private static List<List<TestGenerationResult>> generateTestsTarget(Properties.Strategy strategy, String target,
 	        List<String> args) {
 	    List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();

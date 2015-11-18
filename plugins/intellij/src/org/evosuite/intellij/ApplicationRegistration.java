@@ -34,6 +34,7 @@ public class ApplicationRegistration implements ApplicationComponent {
     public void initComponent() {
         EvoAction evo = new EvoAction();
 
+
         // Gets an instance of the WindowMenu action group.
         //DefaultActionGroup windowM = (DefaultActionGroup) am.getAction("WindowMenu");
         //this in the file editor, not the left-pane file selection

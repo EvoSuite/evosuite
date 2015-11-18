@@ -29,7 +29,7 @@ import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
-import org.evosuite.coverage.CoverageAnalysis;
+import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.Branch;
@@ -46,6 +46,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
@@ -218,10 +219,8 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.COVERAGE) {
-		    for (Properties.Criterion pc : Properties.CRITERION) {
-		    	LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
-		        CoverageAnalysis.analyzeCoverage(testSuite, pc);
-		    }
+			ClientServices.getInstance().getClientNode().changeState(ClientState.COVERAGE_ANALYSIS);
+			CoverageCriteriaAnalyzer.analyzeCoverage(testSuite);
 		}
 
         double coverage = testSuite.getCoverage();
@@ -239,7 +238,7 @@ public class TestSuiteGenerator {
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 		    //SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), coverage);
-		    CoverageAnalysis.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bestSuites?
+		    CoverageCriteriaAnalyzer.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA); // FIXME: can we send all bestSuites?
 		}
         if (Properties.CRITERION.length > 1)
             LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
@@ -313,7 +312,9 @@ public class TestSuiteGenerator {
         LoggingUtils.getEvoLogger().info("* Compiling and checking tests");
 
         if(!JUnitAnalyzer.isJavaCompilerAvailable()) {
-            String msg = "No Java compiler is available. Are you running with the JDK?";
+            String msg = "No Java compiler is available. Make sure to run EvoSuite with the JDK and not the JRE." +
+					"You can try to setup the JAVA_HOME system variable to point to it, as well as to make sure that the PATH " +
+					"variable points to the JDK before any JRE.";
             logger.error(msg);
             throw new RuntimeException(msg);
         }
@@ -477,16 +478,16 @@ public class TestSuiteGenerator {
 		if (Properties.JUNIT_TESTS) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_TESTS);
 
-			TestSuiteWriter suite = new TestSuiteWriter();
+			TestSuiteWriter suiteWriter = new TestSuiteWriter();
 			if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED)
-				suite.insertAllTests(tests);
+				suiteWriter.insertAllTests(tests);
 			else
-				suite.insertTests(tests);
+				suiteWriter.insertTests(tests);
 
 			if (Properties.CHECK_CONTRACTS) {
 				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
 				// suite.insertAllTests(FailingTestSet.getFailingTests());
-				FailingTestSet.writeJUnitTestSuite(suite);
+				FailingTestSet.writeJUnitTestSuite(suiteWriter);
 			}
 
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
@@ -494,7 +495,7 @@ public class TestSuiteGenerator {
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 
-			suite.writeTestSuite(name + suffix, testDir, true);
+			suiteWriter.writeTestSuite(name + suffix, testDir, true);
 			
 			// If in regression mode, create a separate copy of the tests 
 			if (!RegressionSearchListener.statsID.equals("")) {
@@ -509,7 +510,7 @@ public class TestSuiteGenerator {
 					
 					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
 
-					suite.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), false);
+					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), false);
 				}
 			}
 		}
@@ -730,8 +731,14 @@ public class TestSuiteGenerator {
 		case INPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Input Coverage");
 			break;
-		default:
+		case BRANCH:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
+			break;
+		case CBRANCH:BRANCH:
+		    LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
+			break;
+		default:
+			throw new IllegalArgumentException("Unrecognized criterion: "+criterion);
 		}
 	}
 

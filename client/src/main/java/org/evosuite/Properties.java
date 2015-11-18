@@ -961,6 +961,18 @@ public class Properties {
 	@Parameter(key = "print_covered_goals", group = "Output", description = "Print out covered goals during test generation")
 	public static boolean PRINT_COVERED_GOALS = false;
 
+	/** Constant <code>PRINT_MISSED_GOALS=false</code> */
+	@Parameter(key = "print_missed_goals", group = "Output", description = "Print out missed goals at the end")
+	public static boolean PRINT_MISSED_GOALS = false;
+
+	/** Constant <code>WRITE_COVERED_GOALS_FILE=false</code> */
+	@Parameter(key = "write_covered_goals_file", group = "Output", description = "Write covered goals file")
+	public static boolean WRITE_COVERED_GOALS_FILE = false;
+
+	/** Constant <code>COVERED_GOALS_FILE="covered.goals"</code> */
+	@Parameter(key = "covered_goals_file", group = "Output", description = "File with relation of tests and covered goals")
+	public static String COVERED_GOALS_FILE = REPORT_DIR + File.separator + "covered.goals";
+
 	/** Constant <code>ASSERTIONS=false</code> */
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
 	public static boolean ASSERTIONS = true;
@@ -1190,7 +1202,7 @@ public class Properties {
 	public static boolean SERIALIZE_REGRESSION_TEST_SUITE = false;
 
 	/** Constant <code>CONCOLIC_MUTATION=0.0</code> */
-	@Parameter(key = "concolic_mutation", description = "Deprcated. Probability of using concolic mutation operator")
+	@Parameter(key = "concolic_mutation", description = "Deprecated. Probability of using concolic mutation operator")
 	@DoubleValue(min = 0.0, max = 1.0)
 	@Deprecated
 	public static double CONCOLIC_MUTATION = 0.0;
@@ -1500,7 +1512,7 @@ public class Properties {
 
 
 	@Parameter(key = "is_running_a_system_test", group = "Runtime", description = "Specify that a system test is running. To be used only for debugging purposes")
-	public static volatile boolean IS_RUNNING_A_SYTEM_TEST = false;
+	public static volatile boolean IS_RUNNING_A_SYSTEM_TEST = false;
 
 
 

@@ -19,13 +19,9 @@
  */
 package org.evosuite.symbolic.solver.z3str2;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,20 +29,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
-import org.evosuite.symbolic.solver.Solver;
+import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.SubProcessSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -66,20 +60,7 @@ import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Z3Str2Solver extends Solver {
-
-	private static final class TimeoutTask extends TimerTask {
-		private final Process process;
-
-		private TimeoutTask(Process process) {
-			this.process = process;
-		}
-
-		@Override
-		public void run() {
-			process.destroy();
-		}
-	}
+public class Z3Str2Solver extends SubProcessSolver {
 
 	private static final String EVOSUITE_Z3_STR_FILENAME = "evosuite.z3";
 
@@ -195,8 +176,8 @@ public class Z3Str2Solver extends Solver {
 		Z3Str2QueryPrinter printer = new Z3Str2QueryPrinter();
 		String smtQueryStr = printer.print(smtCheckSatQuery);
 
-		System.out.println("Z3-str2 input:");
-		System.out.println(smtQueryStr);
+		logger.debug("Z3-str2 input:");
+		logger.debug(smtQueryStr);
 
 		int timeout = (int) Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
@@ -285,51 +266,6 @@ public class Z3Str2Solver extends Solver {
 		}
 		buff.append("\n");
 		return buff.toString();
-	}
-
-	private static int launchNewProcess(String z3StrCmd, String smtQuery, int timeout, OutputStream outputStream)
-			throws IOException {
-
-		final Process process = Runtime.getRuntime().exec(z3StrCmd);
-
-		InputStream stdout = process.getInputStream();
-		InputStream stderr = process.getErrorStream();
-
-		logger.debug("Process output:");
-
-		Timer t = new Timer();
-		t.schedule(new TimeoutTask(process), timeout);
-
-		do {
-			readInputStream(stdout, outputStream);
-			readInputStream(stderr, null);
-		} while (!isFinished(process));
-
-		int exitValue = process.exitValue();
-		return exitValue;
-	}
-
-	private static void readInputStream(InputStream in, OutputStream out) throws IOException {
-		InputStreamReader is = new InputStreamReader(in);
-		BufferedReader br = new BufferedReader(is);
-		String read = br.readLine();
-		while (read != null) {
-			logger.debug(read);
-			if (out != null) {
-				byte[] bytes = (read + "\n").getBytes();
-				out.write(bytes);
-			}
-			read = br.readLine();
-		}
-	}
-
-	private static boolean isFinished(Process process) {
-		try {
-			process.exitValue();
-			return true;
-		} catch (IllegalThreadStateException ex) {
-			return false;
-		}
 	}
 
 }

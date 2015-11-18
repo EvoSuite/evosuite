@@ -19,6 +19,9 @@
  */
 package org.evosuite.testcarver.capture;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -29,9 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class FieldRegistry {
 	private static final Map<String, ReferenceQueue<?>> classRefQueueMapping = new LinkedHashMap<String, ReferenceQueue<?>>();
@@ -157,49 +157,45 @@ public final class FieldRegistry {
 	}
 
 	private static Map<String, Field> collectAccessibleFields(Map<String, Field> accessibleFields,
-	        final Class<?> clazz, final Package childPackage) {
+	                                                          final Class<?> clazz, final Package childPackage) {
+		logger.debug("Collecting accessible fields for {}", clazz.getCanonicalName());
 		if (clazz == null || Object.class.equals(clazz)) {
-			logger.debug("Trying to get fields for null class");
-			return new LinkedHashMap<String, Field>();
+			logger.debug("Cannot get fields for null class");
+			return new LinkedHashMap<>();
 		}
-		logger.debug("Getting fields for {} "+clazz);
-
-		Map<String, Field> currentAccessibleFields = new LinkedHashMap<String, Field>();
+		Map<String, Field> currentAccessibleFields = new LinkedHashMap<>();
 		try {
-		final Field[] fields = clazz.getDeclaredFields();
-
-		int modifier;
-		Field f;
-		for (int i = 0; i < fields.length; i++) {
-			try {
-			f = fields[i];
-
-			modifier = f.getModifiers();
-
-			if (Modifier.isPublic(modifier)
-			        || (Modifier.isProtected(modifier) && (childPackage == null || childPackage.equals(clazz.getPackage())))) {
-				f.setAccessible(true);
-				currentAccessibleFields.put(f.getName(), f);
+			for (Field f : clazz.getDeclaredFields()) {
+				try {
+					int modifier = f.getModifiers();
+					if (Modifier.isPublic(modifier)
+							|| (Modifier.isProtected(modifier) && (childPackage == null || childPackage.equals(clazz.getPackage())))) {
+						f.setAccessible(true);
+						currentAccessibleFields.put(f.getName(), f);
+						logger.debug("Field {} is accessible", f.getName());
+					} else {
+						logger.debug("Field {} is NOT accessible", f.getName());
+					}
+				} catch (Throwable t) {
+					logger.error("Exception caught while looking at field {}: {}", f.getName(), t.toString());
+				}
+				//			if(! Modifier.isPrivate(modifier) )
+				//			{
+				//			    f.setAccessible(true);
+				//				accessibleFields.put(f.getName(), f);
+				//			}
 			}
-			} catch(Throwable t) {
-				logger.debug("AHA " + t.toString());
-			}
-			//			if(! Modifier.isPrivate(modifier) )
-			//			{
-			//			    f.setAccessible(true);
-			//				accessibleFields.put(f.getName(), f);
-			//			}
-		}
-		} catch(Throwable t) {
-			logger.debug("Arglquargl " + t.toString());
+		} catch (Throwable t) {
+			logger.error("Exception caught while collecting fields from class {}: {}", clazz.getCanonicalName(), t.toString());
 		}
 
-		logger.debug("Looking at fields of superclass "+clazz.getSuperclass());
+		logger.debug("Looking at fields of superclass {}", clazz.getSuperclass().getCanonicalName());
 		Map<String, Field> superFieldMap = collectAccessibleFields(accessibleFields, clazz.getSuperclass(),
-		                        clazz.getPackage());
+				clazz.getPackage());
 		currentAccessibleFields.putAll(superFieldMap);
 		classFieldsMapping.put(clazz.getName().replace('.', '/'), currentAccessibleFields);
-		logger.debug("Storing fields for {} to {}", clazz.getName().replace('.', '/'), currentAccessibleFields);
+		logger.debug("Storing {} field(s) for {}: {}", currentAccessibleFields.size(),
+				clazz.getCanonicalName(), currentAccessibleFields);
 		return currentAccessibleFields;
 	}
 
@@ -273,7 +269,7 @@ public final class FieldRegistry {
 
 					currentValue = targetField.get(receiver);
 				}
-				logger.debug("Notify modification of field "+fieldName+" on class "+internalClassName);
+				logger.debug("Notify modification of field {} on class {}", fieldName, internalClassName);
 				if(Modifier.isStatic(targetField.getModifiers())) {
 					Capturer.capture(captureId, receiver,
 			                 CaptureLog.PUTSTATIC, desc,
@@ -363,13 +359,13 @@ public final class FieldRegistry {
 	}
 	
 	private static void populateFieldMap(String internalClassName, String fieldName) {
-		Map<String, Field> observedFields = new LinkedHashMap<String, Field>();
+		Map<String, Field> observedFields = new LinkedHashMap<>();
 		try {
 			Class<?> clazz = Class.forName(internalClassName.replace('/', '.'), true, carvingClassLoader);
-			logger.debug("Collecting fields for {}", clazz);
+
 			collectAccessibleFields(observedFields, clazz, null);
 			if(!observedFields.containsKey(fieldName)) {
-				logger.debug("Not observed: "+fieldName);
+				logger.debug("Field {} not observed", fieldName);
 				return;
 			}
 			logger.debug("Trying to get field {} for class {}", fieldName, internalClassName);

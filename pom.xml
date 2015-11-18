@@ -669,103 +669,116 @@
 				<!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution
 					see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
 
-				<!-- Need to change packages of dependencies to avoid classpath conflicts with previous versions.
-                	 This is done mainly due to ASM that is not backward compatible and for many packages
-                	 used by in memory database -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-shade-plugin</artifactId>
-					<version>2.4.1</version>
-					<executions>
-						<execution>
-							<phase>package</phase>
-							<goals>
-								<goal>shade</goal>
-							</goals>
-							<configuration>
-								<shadedArtifactAttached>false</shadedArtifactAttached>
-								<createDependencyReducedPom>true</createDependencyReducedPom>
-								<!-- do not change "org.evosuite.shaded." as it used in some of the java classes -->
-								<relocations>
-									<relocation>
-										<pattern>org.objectweb.asm</pattern>
-										<shadedPattern>org.evosuite.shaded.org.objectweb.asm</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.hibernate</pattern>
-										<shadedPattern>org.evosuite.shaded.org.hibernate</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.hsqldb</pattern>
-										<shadedPattern>org.evosuite.shaded.org.hsqldb</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.jboss</pattern>
-										<shadedPattern>org.evosuite.shaded.org.jboss</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.springframework</pattern>
-										<shadedPattern>org.evosuite.shaded.org.springframework</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.apache.commons.logging</pattern>
-										<shadedPattern>org.evosuite.shaded.org.apache.commons.logging</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>javassist</pattern>
-										<shadedPattern>org.evosuite.shaded.javassist</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>antlr</pattern>
-										<shadedPattern>org.evosuite.shaded.antlr</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.dom4j</pattern>
-										<shadedPattern>org.evosuite.shaded.org.dom4j</shadedPattern>
-									</relocation>
-									<!--
-									<relocation>
-										<pattern>org.xml</pattern>
-										<shadedPattern>org.evosuite.shaded.org.xml</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.w3c</pattern>
-										<shadedPattern>org.evosuite.shaded.org.w3c</shadedPattern>
-									</relocation>
-									-->
-									<relocation>
-										<pattern>org.aopalliance</pattern>
-										<shadedPattern>org.evosuite.shaded.org.aopalliance</shadedPattern>
-									</relocation>
-									<relocation>
-										<pattern>org.mockito</pattern>
-										<shadedPattern>org.evosuite.shaded.org.mockito</shadedPattern>
-									</relocation>
-									<relocation>
-										<!-- This is special. Originally we wanted to handle it directly, but
-										 did not turn out to be a good idea. However, too early to remove
-										 that code, so we just shade this package to avoid backward
-										 compatibility issues -->
-										<pattern>javax.servlet</pattern>
-										<shadedPattern>org.evosuite.shaded.javax.servlet</shadedPattern>
-									</relocation>
-								</relocations>
-								<!-- ERMIRA -->
-								<filters>
-								  <filter>
-								    <artifact>*:*</artifact>
-								    <excludes>
-								      <exclude>META-INF/*.SF</exclude>
-								      <exclude>META-INF/*.DSA</exclude>
-								      <exclude>META-INF/*.RSA</exclude>
-								    </excludes>
-								  </filter>
-								</filters>
-								<!-- END ERMIRA -->
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
+                <!-- Need to change packages of dependencies to avoid classpath conflicts with previous versions.
+                     This is done mainly due to ASM that is not backward compatible and for many packages
+                     used by in memory database -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>2.4.1</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                                <shadedArtifactAttached>false</shadedArtifactAttached>
+                                <createDependencyReducedPom>true</createDependencyReducedPom>
+                                <!-- do not change "org.evosuite.shaded." as it used in some of the java classes -->
+                                <relocations>
+                                    <relocation>
+                                        <pattern>org.objectweb.asm</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.objectweb.asm</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.hibernate</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.hibernate</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.hsqldb</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.hsqldb</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.jboss</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.jboss</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.springframework</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.springframework</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.apache.commons.logging</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.apache.commons.logging</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>javassist</pattern>
+                                        <shadedPattern>org.evosuite.shaded.javassist</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>antlr</pattern>
+                                        <shadedPattern>org.evosuite.shaded.antlr</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.dom4j</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.dom4j</shadedPattern>
+                                    </relocation>
+                                    <!--
+                                    <relocation>
+                                        <pattern>org.xml</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.xml</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.w3c</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.w3c</shadedPattern>
+                                    </relocation>
+                                    -->
+                                    <relocation>
+                                        <pattern>org.aopalliance</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.aopalliance</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.mockito</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.mockito</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <!-- This is special. Originally we wanted to handle it directly, but
+                                         did not turn out to be a good idea. However, too early to remove
+                                         that code, so we just shade this package to avoid backward
+                                         compatibility issues
+                                         -->
+                                        <pattern>javax.servlet</pattern>
+                                        <shadedPattern>org.evosuite.shaded.javax.servlet</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.apache</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.apache</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.hamcrest</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.hamcrest</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.objenesis</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.objenesis</shadedPattern>
+                                    </relocation>
+                                </relocations>
+                                <!-- ERMIRA -->
+                                <filters>
+                                  <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                      <exclude>META-INF/*.SF</exclude>
+                                      <exclude>META-INF/*.DSA</exclude>
+                                      <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                  </filter>
+                                </filters>
+                                <!-- END ERMIRA -->
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
 
 
 			</plugins>

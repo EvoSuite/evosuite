@@ -19,31 +19,25 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
-import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.SubProcessSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -61,7 +55,7 @@ import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CVC4Solver extends Solver {
+public final class CVC4Solver extends SubProcessSolver {
 
 	private boolean reWriteNonLinearConstraints = false;
 
@@ -73,22 +67,6 @@ public final class CVC4Solver extends Solver {
 	 */
 	public void setRewriteNonLinearConstraints(boolean rewrite) {
 		reWriteNonLinearConstraints = rewrite;
-	}
-
-	private static final class TimeoutTask extends TimerTask {
-		private final Process process;
-		private final long timeout;
-
-		private TimeoutTask(Process process, long timeout) {
-			this.process = process;
-			this.timeout = timeout;
-		}
-
-		@Override
-		public void run() {
-			logger.debug("CVC4 timeout was reached after " + timeout + " milliseconds ");
-			process.destroy();
-		}
 	}
 
 	static Logger logger = LoggerFactory.getLogger(CVC4Solver.class);
@@ -118,9 +96,7 @@ public final class CVC4Solver extends Solver {
 			throw new SolverEmptyQueryException("Skipping query due to (unsupported) non-linear constraints");
 		}
 
-		long cvcTimeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS * 10;
-
-		long processTimeout = cvcTimeout * 2;
+		long cvcTimeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
 
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		for (Constraint<?> c : constraints) {
@@ -149,15 +125,13 @@ public final class CVC4Solver extends Solver {
 		String cvc4Cmd = buildCVC4cmd(cvcTimeout);
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-		ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
 		try {
-			launchNewProcess(cvc4Cmd, smtQueryStr, (int) processTimeout, stdout, stderr);
+			launchNewProcess(cvc4Cmd, smtQueryStr, (int) cvcTimeout, stdout);
 
 			String cvc4ResultStr = stdout.toString("UTF-8");
-			String errorStr = stderr.toString("UTF-8");
 
-			if (errorStr.contains("error")) {
+			if (cvc4ResultStr.contains("error")) {
 				String errMsg = "An error occurred while executing CVC4!";
 				logger.error(errMsg);
 				throw new SolverErrorException(errMsg);
@@ -282,46 +256,6 @@ public final class CVC4Solver extends Solver {
 		return false;
 	}
 
-	private static int launchNewProcess(String cvc4Cmd, String smtQuery, int timeout, OutputStream outputStream,
-			OutputStream errorStream) throws IOException {
-
-		final Process process = Runtime.getRuntime().exec(cvc4Cmd);
-
-		InputStream stdout = process.getInputStream();
-		InputStream stderr = process.getErrorStream();
-		OutputStream stdin = process.getOutputStream();
-
-		stdin.write(smtQuery.getBytes());
-		stdin.flush();
-		stdin.close();
-
-		logger.debug("Process output:");
-
-		Timer t = new Timer();
-		t.schedule(new TimeoutTask(process, timeout), timeout);
-
-		do {
-			readInputStream(stdout, outputStream);
-			readInputStream(stderr, errorStream);
-		} while (!isFinished(process));
-
-		int exitValue = process.exitValue();
-		return exitValue;
-	}
-
-	private static void readInputStream(InputStream in, OutputStream out) throws IOException {
-		InputStreamReader is = new InputStreamReader(in);
-		BufferedReader br = new BufferedReader(is);
-		String read = br.readLine();
-		while (read != null) {
-			logger.debug(read);
-			if (out != null) {
-				byte[] bytes = (read + "\n").getBytes();
-				out.write(bytes);
-			}
-			read = br.readLine();
-		}
-	}
 
 	// private final static int ASCII_TABLE_LENGTH = 256;
 	private final static int ASCII_TABLE_LENGTH = 256;
@@ -376,15 +310,6 @@ public final class CVC4Solver extends Solver {
 			buff.append(")");
 		}
 		return buff.toString();
-	}
-
-	private static boolean isFinished(Process process) {
-		try {
-			process.exitValue();
-			return true;
-		} catch (IllegalThreadStateException ex) {
-			return false;
-		}
 	}
 
 }

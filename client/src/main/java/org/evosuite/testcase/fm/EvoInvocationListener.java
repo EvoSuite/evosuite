@@ -26,6 +26,7 @@ import org.mockito.listeners.MethodInvocationReport;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,12 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
      * logging also cases like "when(...)" which are set before a mock is used
      */
     private volatile boolean active = false;
+
+    private final Type retvalType;
+
+    public EvoInvocationListener(Type retvalType){
+        this.retvalType = retvalType;
+    }
 
     public void activate(){
         active = true;
@@ -84,7 +91,7 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
         if(di instanceof InvocationImpl){
             InvocationImpl impl = (InvocationImpl) di;
             Method method = impl.getMethod();
-            md = new MethodDescriptor(method);
+            md = new MethodDescriptor(method, retvalType);
         } else {
             //hopefully it should never happen
             md = getMethodDescriptor_old(di);

@@ -22,12 +22,13 @@ package org.evosuite.symbolic.solver.z3str2;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.symbolic.solver.ResultParser;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Z3Str2ResultParser {
+class Z3Str2ResultParser extends ResultParser {
 
 	static Logger logger = LoggerFactory.getLogger(Z3Str2ResultParser.class);
 
@@ -105,6 +106,31 @@ class Z3Str2ResultParser {
 				String varType = varSec[1].trim();
 				String value = fields[1].trim();
 
+				if (varName.startsWith("$$_len_")) {
+					// ignore $$_len_... string length variables
+					continue;
+				}
+				
+				if (varName.startsWith("$$_val_")) {
+					// ignore $$_val_... string val variables
+					continue;
+				}
+
+				if (varName.startsWith("$$_str")) {
+					// ignore $$_str... string str variables
+					continue;
+				}
+				
+				if (varName.startsWith("$$_bol")) {
+					// ignore $$_bol... bool variables
+					continue;
+				}
+
+				if (varName.startsWith("$$_int_")) {
+					// ignore $$_int_... int variables
+					continue;
+				}
+
 				if (varType.equals("string")) {
 					String noQuotationMarks = value.substring(1, value.length() - 1);
 					String valueStr = removeSlashX(noQuotationMarks);
@@ -115,9 +141,8 @@ class Z3Str2ResultParser {
 						String[] fraction = value.split("/");
 						String numeratorStr = fraction[0];
 						String denominatorStr = fraction[1];
-						Long numerator = Long.valueOf(numeratorStr);
-						Long denominator = Long.valueOf(denominatorStr);
-						doubleVal = (double) numerator / (double) denominator;
+						
+						doubleVal = parseRational(false, numeratorStr, denominatorStr);
 					} else {
 						doubleVal = Double.valueOf(value);
 					}

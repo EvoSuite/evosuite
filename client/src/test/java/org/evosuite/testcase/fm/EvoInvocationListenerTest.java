@@ -19,11 +19,16 @@
  */
 package org.evosuite.testcase.fm;
 
+import org.evosuite.utils.ParameterizedTypeImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -48,12 +53,40 @@ public class EvoInvocationListenerTest {
         }
     }
 
+    public interface AGenericClass<T>{
+        boolean genericAsInput(T t);
+    }
+
+    @Test
+    public void testGenerics(){
+
+        ParameterizedTypeImpl type = new ParameterizedTypeImpl(AGenericClass.class, new Type[]{String.class}, null);
+        EvoInvocationListener listener = new EvoInvocationListener(type);
+        AGenericClass<String> aGenericClass = (AGenericClass<String>) mock(AGenericClass.class, withSettings().invocationListeners(listener));
+        when(aGenericClass.genericAsInput(any((Class<String>)type.getActualTypeArguments()[0]))).thenReturn(true);
+        listener.activate();
+
+        boolean b = aGenericClass.genericAsInput("foo");
+        assertTrue(b);
+
+        List<MethodDescriptor> list = listener.getCopyOfMethodDescriptors();
+        Assert.assertEquals(1, list.size());
+    }
+
+    @Test
+    public void testCheckGenericsProperties() throws Exception{
+        AGenericClass<String> aGenericClass = (AGenericClass<String>) mock(AGenericClass.class);
+
+        Method m = aGenericClass.getClass().getDeclaredMethod("genericAsInput", Object.class);
+        assertEquals(""+Object.class.toString(), m.getParameterTypes()[0].toString());
+    }
+
     @Test
     public void testFinal(){
         /*
             If no special instrumentation is done, we cannot handle final methods
          */
-        EvoInvocationListener listener = new EvoInvocationListener();
+        EvoInvocationListener listener = new EvoInvocationListener(AClassWithFinal.class);
         AClassWithFinal foo = mock(AClassWithFinal.class, withSettings().invocationListeners(listener));
         listener.activate();
 
@@ -67,7 +100,7 @@ public class EvoInvocationListenerTest {
     @Test
     public void testBase(){
 
-        EvoInvocationListener listener = new EvoInvocationListener();
+        EvoInvocationListener listener = new EvoInvocationListener(Foo.class);
         Foo foo = mock(Foo.class, withSettings().invocationListeners(listener));
 
         when(foo.parseString(any())).thenReturn(1);

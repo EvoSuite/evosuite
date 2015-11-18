@@ -119,10 +119,14 @@ public class MethodStatement extends EntityWithParametersStatement {
 	private void init(GenericMethod method, VariableReference callee) throws IllegalArgumentException {
 		if (callee == null && !method.isStatic()) {
 			throw new IllegalArgumentException(
-			        "A null callee cannot call a non-static method");
+					"A null callee cannot call a non-static method: " +
+							method.getDeclaringClass().getCanonicalName() +
+							"." + method.getName());
 		}
 		if (parameters == null) {
-			throw new IllegalArgumentException("Parameter list cannot be null");
+			throw new IllegalArgumentException("Parameter list cannot be null for method " +
+					method.getDeclaringClass().getCanonicalName() +
+					"." + method.getName());
 		}
 		for (VariableReference var : parameters) {
 			if (var == null) {
@@ -477,7 +481,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 				}
 
 				if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
-					logger.debug("Types don't match - casting!");
+					logger.debug("Argument types don't match - casting!");
 					mg.cast(Type.getType(parameter.getVariableClass()),
 					        Type.getType(method.getMethod().getParameterTypes()[num]));
 				}
@@ -486,7 +490,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 			}
 			num++;
 		}
-		logger.debug("Invoking method");
+		logger.debug("Invoking method {}", method.getName());
 		// if(exception != null) {
 		//
 		// mg.visitTryCatchBlock(start, end, handler,

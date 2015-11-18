@@ -260,7 +260,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 			});
 
 		} catch (InvocationTargetException e) {
-			VM.setIgnoreCallBack(true);
+			VM.disableCallBacks();
 			exceptionThrown = e.getCause();
 			if (logger.isDebugEnabled()) {
 				try {

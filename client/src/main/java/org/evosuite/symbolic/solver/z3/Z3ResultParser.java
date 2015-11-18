@@ -23,12 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.evosuite.symbolic.solver.ResultParser;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Z3ResultParser {
+class Z3ResultParser extends ResultParser {
 
 	private final Map<String, Object> initialValues;
 	static Logger logger = LoggerFactory.getLogger(Z3ResultParser.class);
@@ -97,10 +98,7 @@ class Z3ResultParser {
 							String numeratorStr = tokenizer.nextToken();
 							String denominatorStr = tokenizer.nextToken();
 
-							double numerator = Double.parseDouble(numeratorStr);
-							double denominator = Double.parseDouble(denominatorStr);
-
-							value = -(numerator / denominator);
+							value = parseRational(true, numeratorStr, denominatorStr);
 						} else {
 							value = Double.parseDouble("-" + absoluteValueStr);
 						}
@@ -110,10 +108,7 @@ class Z3ResultParser {
 							String numeratorStr = tokenizer.nextToken();
 							String denominatorStr = tokenizer.nextToken();
 
-							double numerator = Double.parseDouble(numeratorStr);
-							double denominator = Double.parseDouble(denominatorStr);
-
-							value = (numerator / denominator);
+							value = parseRational(false, numeratorStr, denominatorStr);
 						} else {
 
 							value = Double.parseDouble(realValueStr);
@@ -155,6 +150,7 @@ class Z3ResultParser {
 		}
 		return solution;
 	}
+
 
 	private static void addMissingValues(Map<String, Object> initialValues, Map<String, Object> solution) {
 		for (String otherVarName : initialValues.keySet()) {

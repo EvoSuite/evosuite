@@ -29,6 +29,6 @@ public class TestMethodWithSeveralInputArguments {
 
     @Test
     public void testWithArray() {
-        (new MethodWithSeveralInputArguments()).testFoo(42, '@', "asdf", new String[] {"foo", "bar"} );
+        (new MethodWithSeveralInputArguments()).testFoo(-42, '2', "asdf", new String[] {"foo", "bar"} );
     }
 }

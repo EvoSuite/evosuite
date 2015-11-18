@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
@@ -59,10 +60,8 @@ public class DSELocalSearch extends StatementLocalSearch {
 		logger.info("Starting symbolic execution");
 		// Backup copy
 		// test.getMutationHistory().clear();
-		TestChromosome clone = (TestChromosome) test.clone();
+		test.clone(); // I am not sure what is the purpose of this 
 
-		// List<BranchCondition> conditions =
-		// ConcolicExecution.getSymbolicPath(test);
 		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase().clone();
 		List<BranchCondition> conditions = ConcolicExecution.executeConcolic(clone_test_case);
 		logger.info("Done symbolic execution");
@@ -78,6 +77,15 @@ public class DSELocalSearch extends StatementLocalSearch {
 		logger.info("Checking {} conditions", conditions.size());
 		int num = 0;
 		for (BranchCondition condition : conditions) {
+			
+			if (LocalSearchBudget.getInstance().isFinished()) {
+				logger.debug("Local search budget used up: "
+				        + Properties.LOCAL_SEARCH_BUDGET_TYPE);
+				break;
+			}
+			logger.debug("Local search budget not yet used up");
+			
+			
 			logger.info("Current condition: " + num + "/" + conditions.size() + ": " + condition.getLocalConstraint());
 			num++;
 			// Determine if this a branch condition depending on the target
@@ -154,7 +162,6 @@ public class DSELocalSearch extends StatementLocalSearch {
 				}
 			}
 		}
-
 		return false;
 	}
 

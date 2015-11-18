@@ -60,16 +60,27 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
     private transient volatile String id; //derived field
 
 
-    public MethodDescriptor(Method method){
-        Inputs.checkNull(method);
+    /**
+     *
+     * @param method the one that is going to be mocked
+     * @param retvalType type of the class the mocked method belongs to. The type might be parameterized (ie generics)
+     */
+    public MethodDescriptor(Method method, Type retvalType){
+        Inputs.checkNull(method, retvalType);
         this.method = method;
         methodName = method.getName();
         className = method.getDeclaringClass().getName();
-        inputParameterMatchers = initMatchers(method);
+        inputParameterMatchers = initMatchers(method, retvalType);
     }
 
+    private MethodDescriptor(Method m, String methodName, String className, String inputParameterMatchers){
+        this.method = m;
+        this.methodName = methodName;
+        this.className = className;
+        this.inputParameterMatchers = inputParameterMatchers;
+    }
 
-    private String initMatchers(Method method) {
+    private String initMatchers(Method method, Type retvalType) {
 
         String matchers = "";
         Type[] types = method.getParameterTypes();
@@ -94,7 +105,18 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
             }else{
-                matchers += "any(" + type.getTypeName()+".class)";
+                if(type.getTypeName().equals(Object.class.getName())){
+                    /*
+                        Ideally here we should use retvalType to understand if the target class
+                        is using generics and if this method parameters would need to be handled
+                        accordingly. However, doing it does not seem so trivial...
+                        so a current workaround is that, when a method takes an Object as input (which is
+                        that would happen in case of Generics T), we use the undetermined "any()"
+                     */
+                    matchers += "any()";
+                } else {
+                    matchers += "any(" + type.getTypeName() + ".class)";
+                }
             }
         }
 
@@ -157,7 +179,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
     }
 
     public MethodDescriptor getCopy(){
-        MethodDescriptor copy = new MethodDescriptor(method);
+        MethodDescriptor copy = new MethodDescriptor(method, methodName, className, inputParameterMatchers);
         copy.counter = this.counter;
         return copy;
     }

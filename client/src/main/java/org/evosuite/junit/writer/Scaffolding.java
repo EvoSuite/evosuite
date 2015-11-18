@@ -39,6 +39,7 @@ import org.evosuite.runtime.*;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
 import org.evosuite.runtime.classhandling.ClassStateSupport;
+import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.classhandling.ClassResetter;
@@ -413,6 +414,8 @@ public class Scaffolding {
 
         if (Properties.RESET_STATIC_FIELDS) {
             bd.append(BLOCK_SPACE);
+            bd.append(JDKClassResetter.class.getName() + ".reset(); \n");
+            bd.append(BLOCK_SPACE);
             bd.append("resetClasses(); \n");
         }
 
@@ -669,6 +672,8 @@ public class Scaffolding {
         }
 
         if (Properties.RESET_STATIC_FIELDS) {
+            bd.append(BLOCK_SPACE);
+            bd.append(JDKClassResetter.class.getName() + ".init(); \n");
             bd.append(BLOCK_SPACE);
             bd.append(InitializingListener.INITIALIZE_CLASSES_METHOD+"();" + "\n");
         }

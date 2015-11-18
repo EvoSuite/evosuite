@@ -19,10 +19,13 @@
  */
 package org.evosuite.continuous.job;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 
 import org.evosuite.Properties;
@@ -46,7 +49,8 @@ public class JobExecutorTest {
 	public void init(){
 		Properties.CTG_DIR = ".tmp_for_testing_" + JobExecutorTest.class.getName();
 		if(storage!=null){
-			storage.clean();
+			boolean deleted = storage.clean();
+			Assert.assertTrue(deleted);
 		}
 		storage = new StorageManager();
 	}
@@ -92,9 +96,38 @@ public class JobExecutorTest {
 		// if Properties.TEST_SCAFFOLDING is enabled, we should have
 		// 4 java files (2 test cases and 2 scaffolding files), however
 		// 'storage' just returns the 2 test cases
-		Assert.assertEquals("Tmp folder: "+Properties.CTG_DIR, 2, data.size());
 
-		storage.clean();
+		boolean isOk = (data.size() == 2);
+		String msg = "Tmp folder: "+Properties.CTG_DIR+"\n";
+		if(!isOk){
+			//build a better error message by looking at the log files
+			File logDir = storage.getTmpLogs();
+			msg += "Log folder: "+logDir.getAbsolutePath()+"\n";
+			msg += "# log files: " + logDir.listFiles().length+"\n";
+			for(File log : logDir.listFiles()){
+				if(log.isDirectory()){
+					msg += "Folder: " + log.getName()+"\n";
+				} else {
+					String content = null;
+					try {
+						content = FileUtils.readFileToString(log);
+					} catch (IOException e) {
+						msg += "Failed to read file "+log.getName()+" due to: " + e.toString()+"\n";
+					}
+					if(content != null) {
+						msg += "Content for file: " + log.getName()+"\n";
+						msg +=      "--------------------------------------------------"+"\n";
+						msg += content;
+						msg += "\n"+"--------------------------------------------------"+"\n";
+					}
+				}
+			}
+		}
+
+		Assert.assertEquals(msg, 2, data.size());
+
+		boolean deleted = storage.clean();
+		Assert.assertTrue(deleted);
 	}
 
 	@Test
@@ -126,7 +159,7 @@ public class JobExecutorTest {
 
 		JobDefinition ust = new JobDefinition(30, memory, 
 				UsingSimpleAndTrivial.class.getName(), 0, 
-				new HashSet<String>(Arrays.asList(new String[]{Simple.class.getName(),Trivial.class.getName()})), 
+				new HashSet<>(Arrays.asList(new String[]{Simple.class.getName(),Trivial.class.getName()})),
 				null);
 
 

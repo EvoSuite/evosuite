@@ -28,6 +28,7 @@ import org.evosuite.intellij.util.Utils;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.text.NumberFormat;
@@ -145,6 +146,8 @@ public class EvoStartDialog extends JDialog {
                 onSelectEvosuite();
             }
         });
+
+        setPreferredSize(new Dimension(EvoParameters.getInstance().getGuiWidth(), EvoParameters.getInstance().getGuiHeight()));
     }
 
     private void onSelectEvosuite() {
@@ -369,6 +372,10 @@ public class EvoStartDialog extends JDialog {
 
     private void onCancel() {
 // add your code here if necessary
+
+        EvoParameters.getInstance().setGuiWidth(this.getWidth());
+        EvoParameters.getInstance().setGuiHeight(this.getHeight());
+
         dispose();
     }
 

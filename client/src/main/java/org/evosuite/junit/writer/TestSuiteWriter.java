@@ -85,9 +85,9 @@ public class TestSuiteWriter implements Opcodes {
 
     protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
-    protected List<TestCase> testCases = new ArrayList<TestCase>();
+    protected List<TestCase> testCases = new ArrayList<>();
 
-    protected Map<Integer, String> testComment = new HashMap<Integer, String>();
+    protected Map<Integer, String> testComment = new HashMap<>();
 
     private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
@@ -251,6 +251,8 @@ public class TestSuiteWriter implements Opcodes {
             content += scaffoldingContent;
         }
 
+        writeCoveredGoalsFile();
+
         TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
         return generated;
     }
@@ -382,7 +384,7 @@ public class TestSuiteWriter implements Opcodes {
             imports.add(RunWith.class);
         }
 
-        Set<String> importNames = new HashSet<String>();
+        Set<String> importNames = new HashSet<>();
         for (Class<?> imp : imports) {
             while (imp.isArray())
                 imp = imp.getComponentType();
@@ -555,12 +557,14 @@ public class TestSuiteWriter implements Opcodes {
 
         boolean wasSecurityException = result.hasSecurityException();
 
+        String testInfo = getInformation(id);
+
         StringBuilder builder = new StringBuilder();
         builder.append(NEWLINE);
         if (Properties.TEST_COMMENTS || testComment.containsKey(id)) {
             builder.append(METHOD_SPACE);
             builder.append("//");
-            builder.append(getInformation(id));
+            builder.append(testInfo);
             builder.append(NEWLINE);
         }
 
@@ -703,7 +707,7 @@ public class TestSuiteWriter implements Opcodes {
             testCode = builder.toString();
         }
         TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
-                getInformation(id), result);
+                testInfo, result);
         return testCode;
     }
 
@@ -780,6 +784,22 @@ public class TestSuiteWriter implements Opcodes {
 
         builder.append("] ");
         return builder.toString();
+    }
+
+    private void writeCoveredGoalsFile() {
+        if (Properties.WRITE_COVERED_GOALS_FILE) {
+            StringBuilder builder = new StringBuilder();
+            File file = new File(Properties.COVERED_GOALS_FILE);
+            for (int i = 0; i < testCases.size(); i++) {
+                TestCase test = testCases.get(i);
+                String testName = TestSuiteWriterUtils.getNameOfTest(testCases, i);
+                Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
+                for (TestFitnessFunction goal : coveredGoals) {
+                    builder.append(testName + "," + goal.toString() + NEWLINE);
+                }
+            }
+            Utils.writeFile(builder.toString(), file);
+        }
     }
 
 

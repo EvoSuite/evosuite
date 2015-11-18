@@ -96,7 +96,7 @@ public class TimeController {
 		if(phaseTimeouts!=null){
 			phaseTimeouts.clear();
 		} else {
-			phaseTimeouts = new ConcurrentHashMap<ClientState,Long>();
+			phaseTimeouts = new ConcurrentHashMap<>();
 		}
 
 		// TODO: I don't understand why, but this may not have happened at this point 
@@ -147,7 +147,7 @@ public class TimeController {
 			}
 			timeSpentInEachPhase.put(state, elapsed);
 			
-			logger.debug("Phase "+state+" lasted "+ (elapsed/1000) + " seconds");
+			logger.debug("Phase {} lasted {} seconds", state, (elapsed/1000));
 
 
 			//check if spent too much time, eg due to bug in EvoSuite
@@ -167,6 +167,15 @@ public class TimeController {
 
 		if(state.equals(ClientState.STARTED)){
 			clientStartTime = currentPhaseStartTime;
+		}
+
+		if(currentPhaseHasTimeout()) {
+			long left = getLeftTimeBeforeEnd();
+			long timeout = getCurrentPhaseTimeout();
+			if(left < timeout){
+				logger.warn("Current phase {} could run up to {}s, but only {}s are left",
+						state, (int)(timeout/1000), (int)(left/1000));
+			}
 		}
 	}
 	
@@ -227,9 +236,7 @@ public class TimeController {
 		}
 
 		//all time values are in milliseconds
-		long timeSinceStart = System.currentTimeMillis() - clientStartTime;
-		long totalTimeLimit = 1000 * calculateForHowLongClientWillRunInSeconds();
-		long left = totalTimeLimit - timeSinceStart;
+		long left = getLeftTimeBeforeEnd();
 
 		if(ms > left){
 			return false;
@@ -243,7 +250,7 @@ public class TimeController {
 			long timeoutInMs = getCurrentPhaseTimeout();
 			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
 			long phaseLeft = timeoutInMs - timeSincePhaseStarted;
-			logger.debug("Time left for current phase " + state + ": " + phaseLeft);
+			logger.debug("Time left for current phase {}: {}", state, phaseLeft);
 			if(ms > phaseLeft){
 				return false;
 			}
@@ -252,7 +259,13 @@ public class TimeController {
 		return true; 
 	}
 
-    /**
+	private long getLeftTimeBeforeEnd() {
+		long timeSinceStart = System.currentTimeMillis() - clientStartTime;
+		long totalTimeLimit = 1000 * calculateForHowLongClientWillRunInSeconds();
+		return totalTimeLimit - timeSinceStart;
+	}
+
+	/**
      * Calculate the percentage of progress in which we currently are in the phase.
      *
      * @return a value in [0,1] if the current phase has a timeout, otherwise a negative value

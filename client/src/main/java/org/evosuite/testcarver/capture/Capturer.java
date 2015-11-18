@@ -250,11 +250,10 @@ public final class Capturer {
 				setCapturing(false);
 
 				if (logger.isDebugEnabled()) {
-					logger.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} "
-							+ Arrays.toString(methodParams), new Object[] {
-								captureId, System.identityHashCode(receiver),
-								receiver.getClass().getName(), methodName,
-								methodDesc });
+					logger.debug("Method call captured:  captureId={} receiver={} type={} method={} methodDesc={} params={}",
+							captureId, System.identityHashCode(receiver),
+							receiver.getClass().getName(), methodName,
+							methodDesc, Arrays.toString(methodParams));
 				}
 				
 				currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
