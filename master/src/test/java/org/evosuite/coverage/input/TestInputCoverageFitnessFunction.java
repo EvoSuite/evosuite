@@ -19,20 +19,38 @@
  */
 package org.evosuite.coverage.input;
 
+import com.examples.with.different.packagename.coverage.ClassWithField;
 import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.SystemTest;
+import org.evosuite.coverage.FitnessFunctions;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericField;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
+
+import static junit.framework.TestCase.assertEquals;
+
 
 /**
  * @author Jose Miguel Rojas
@@ -71,6 +89,39 @@ public class TestInputCoverageFitnessFunction extends SystemTest {
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(11, goals.size());
 		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testInputCoverageClassWithField() throws NoSuchFieldException, NoSuchMethodException {
+		Class<?> sut = ClassWithField.class;
+
+		DefaultTestCase tc = new DefaultTestCase();
+		// ClassWithField classWithField0 = new ClassWithField();
+		GenericConstructor constructor = new GenericConstructor(sut.getConstructors()[0], sut);
+		ConstructorStatement constructorStatement = new ConstructorStatement(tc, constructor, Arrays.asList(new VariableReference[] {}));
+		VariableReference obj = tc.addStatement(constructorStatement);
+
+		// classWithField0.testFoo(classWithField0.BOOLEAN_FIELD);
+		FieldReference field = new FieldReference(tc, new GenericField(sut.getDeclaredField("BOOLEAN_FIELD"), sut),obj);
+		Method m = sut.getMethod("testFoo", new Class<?>[] { Boolean.TYPE});
+		GenericMethod gm = new GenericMethod(m, sut);
+		tc.addStatement(new MethodStatement(tc, gm, obj, Arrays.asList(new VariableReference[] {field})));
+
+		// classWithField0.BOOLEAN_FIELD = false;
+		VariableReference boolRef = tc.addStatement(new BooleanPrimitiveStatement(tc,false));
+		tc.addStatement(new AssignmentStatement(tc, field, boolRef));
+		tc.addStatement(new MethodStatement(tc, gm, obj, Arrays.asList(new VariableReference[] {field})));
+
+		Properties.TARGET_CLASS = sut.getCanonicalName();
+		Properties.JUNIT_TESTS = true;
+
+		TestSuiteChromosome testSuite = new TestSuiteChromosome();
+		testSuite.addTest(tc);
+
+		FitnessFunction ffunction = FitnessFunctions.getFitnessFunction(Properties.Criterion.INPUT);
+		assertEquals("Should be 0.0", 0.0, ffunction.getFitness(testSuite), 0.0);
+		assertEquals("Should be 1.0", 1.0, testSuite.getCoverage(ffunction), 0.0);
+
 	}
 
 }

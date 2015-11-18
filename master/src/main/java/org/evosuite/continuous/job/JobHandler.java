@@ -135,8 +135,11 @@ public class JobHandler extends Thread {
 
 
 				logger.debug("Base directory: " + baseDir);
-				logger.debug("Commands: " + Arrays.asList(parsedCommand));
-
+				if(logger.isDebugEnabled()) {
+					String commandString = String.join(" ", parsedCommand);
+					commandString.replace("\\","\\\\"); //needed for nice print in bash shell on Windows (eg Cygwin and GitBash)
+					logger.debug("Commands: " + commandString);
+				}
 				process = builder.start();
 				latestProcess = process;
 				
@@ -236,9 +239,27 @@ public class JobHandler extends Thread {
 		int clientMB = job.memoryInMB - masterMB;
 
 		commands.add("-Xmx" + masterMB + "m");
-		
+
+		if(Properties.CTG_DEBUG_PORT != null){
+			//set for Master
+			commands.add("-Xdebug");
+			commands.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
+				+ Properties.CTG_DEBUG_PORT
+			);
+		}
+
+		/*
+			Actual call to EvoSuite. "Commands" before this line will be applied
+			to the spawn process, whereas the ones after will be its input parameters
+		 */
 		commands.add(org.evosuite.EvoSuite.class.getName());
-		
+
+		if(Properties.CTG_DEBUG_PORT != null) {
+			//set for Client
+			commands.add("-Ddebug");
+			commands.add("-Dport="+(Properties.CTG_DEBUG_PORT+1));
+		}
+
 		commands.add("-mem");
 		commands.add(""+clientMB);
 		commands.add("-class");
@@ -399,7 +420,7 @@ public class JobHandler extends Thread {
 	}
 
 	private List<String> getOutputVariables() {
-		List<String> commands = new ArrayList<String>();
+		List<String> commands = new ArrayList<>();
 
 		if (Properties.OUTPUT_VARIABLES == null) {
 			// add some default output variables

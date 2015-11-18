@@ -105,6 +105,11 @@ public class RuntimeSettings {
     public static boolean applyUIDTransformation = false;
 
 
+    /**
+     * Used internally in EvoSuite when its regression suites are run
+     */
+    public static boolean isRunningASystemTest = false;
+
     public static boolean isUsingAnyMocking(){
         return mockJVMNonDeterminism || useVFS || useVNET;
     }
