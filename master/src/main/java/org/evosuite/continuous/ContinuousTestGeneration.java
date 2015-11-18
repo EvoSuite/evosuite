@@ -160,6 +160,10 @@ public class ContinuousTestGeneration {
 					"Prefix: '" + prefix + "'\n";
 		}
 
+		if(Properties.CTG_DEBUG_PORT != null && data.getTotalNumberOfTestableCUTs() != 1){
+			throw new IllegalStateException("Cannot debug CTG when more than one CUT is selected");
+		}
+
 		if (Properties.CTG_TIME_PER_CLASS != null) {
 			configuration = configuration.getWithChangedTime(Properties.CTG_TIME_PER_CLASS, data.getTotalNumberOfTestableCUTs());
 		}
