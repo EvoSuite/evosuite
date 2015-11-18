@@ -133,6 +133,7 @@ public class ClientProcess {
 		RuntimeSettings.className = Properties.TARGET_CLASS;
 		RuntimeSettings.useJEE = Properties.JEE;
 		RuntimeSettings.applyUIDTransformation = true;
+		RuntimeSettings.isRunningASystemTest = Properties.IS_RUNNING_A_SYSTEM_TEST;
         MethodCallReplacementCache.resetSingleton();
     }
 

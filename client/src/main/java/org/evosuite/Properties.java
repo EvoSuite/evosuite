@@ -760,6 +760,8 @@ public class Properties {
 	@Parameter(key = "ctg_export_folder", group = "Continuous Test Generation", description = "If specified, make a copy of all tests into the target export folder")
 	public static String CTG_EXPORT_FOLDER = null;
 
+	@Parameter(key = "ctg_debug_port", group = "Continuous Test Generation", description = "Port for remote debugging of 'Master' spawn processes. 'Clinet' process will have port+1. This only applies when for a single CUT.")
+	public static Integer CTG_DEBUG_PORT = null;
 
 	/**
 	 * The types of CTG schedules that can be used

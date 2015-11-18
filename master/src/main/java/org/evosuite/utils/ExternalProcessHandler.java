@@ -137,9 +137,11 @@ public class ExternalProcessHandler {
 	 * @return a boolean.
 	 */
 	public boolean startProcess(String[] command) {
-		
-		logger.debug("Going to start process with command (note ',' is replace by ' '): "+Arrays.toString(command).replace(",", " "));
-		
+
+		if(! Properties.IS_RUNNING_A_SYSTEM_TEST) {
+			logger.debug("Going to start process with command: " + Arrays.toString(command).replace(",", " "));
+		}
+
 		List<String> formatted = new LinkedList<>();
 		for(String s : command){
 			String token = s.trim();
