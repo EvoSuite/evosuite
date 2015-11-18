@@ -30,16 +30,16 @@ import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.symbolic.solver.DistanceEstimator;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class StringAVM {
+final class StringAVM extends VariableAVM {
 
-	public StringAVM(StringVariable strVar, Collection<Constraint<?>> cnstr) {
-		super();
+	public StringAVM(StringVariable strVar, Collection<Constraint<?>> cnstr, long start_time, long timeout) {
+		super(cnstr, start_time, timeout);
 		this.strVar = strVar;
-		this.cnstr = cnstr;
 	}
 
 	static Logger log = LoggerFactory.getLogger(StringAVM.class);
@@ -50,8 +50,6 @@ final class StringAVM {
 
 	private final StringVariable strVar;
 
-	private final Collection<Constraint<?>> cnstr;
-
 	/**
 	 * <p>
 	 * strLocalSearch
@@ -59,7 +57,7 @@ final class StringAVM {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean applyAVM() {
+	public boolean applyAVM() throws SolverTimeoutException {
 
 		ExpressionExecutor exprExecutor = new ExpressionExecutor();
 		// try to remove each
@@ -71,7 +69,12 @@ final class StringAVM {
 		// First chop characters from the back until distance doesn't improve
 		String oldString = strVar.getConcreteValue();
 		boolean improved = true;
-		while (improved && oldString.length() > 0) {
+		while (improved && oldString.length() > 0 ) {
+			
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+			
 			String newStr = oldString.substring(0, oldString.length() - 1);
 			strVar.setConcreteValue(newStr);
 			log.debug("Current attempt: " + newStr);
@@ -79,8 +82,8 @@ final class StringAVM {
 
 			double newDist = DistanceEstimator.getDistance(cnstr);
 
-			//if (distImpr(newDist)) {
-			if(newDist <= checkpointDistance) {
+			// if (distImpr(newDist)) {
+			if (newDist <= checkpointDistance) {
 				log.debug("Distance improved or did not increase, keeping change");
 				checkpointVar(newDist);
 				improvement = true;
@@ -103,8 +106,9 @@ final class StringAVM {
 			oldString = strVar.getConcreteValue();
 		}
 
-		if (checkpointDistance == 0.0)
+		if (checkpointDistance == 0.0) {
 			return true;
+		}
 
 		// try to add at the end
 		log.debug("Trying to add characters");
@@ -114,6 +118,11 @@ final class StringAVM {
 		// Finally add new characters at the end of the string
 		improved = true;
 		while (improved) {
+			
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+
 			improved = false;
 			char charToInsert = Randomness.nextChar();
 			String newStr = oldString + charToInsert;
@@ -125,8 +134,7 @@ final class StringAVM {
 				improved = true;
 				checkpointVar(newDist);
 				if (checkpointDistance == 0.0) {
-					log.debug("Search seems successful, stopping at "
-							+ checkpointDistance + "/" + newDist);
+					log.debug("Search seems successful, stopping at " + checkpointDistance + "/" + newDist);
 					return true;
 				}
 
@@ -140,9 +148,19 @@ final class StringAVM {
 		// try to insert delimiters (if any)
 		Set<StringValue> delimiters = getTokenDelimiters(cnstr);
 		for (StringValue delimiter : delimiters) {
+
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+
 			improved = true;
-			String delimiterStr = (String) delimiter.accept(exprExecutor,null);
+			String delimiterStr = (String) delimiter.accept(exprExecutor, null);
 			while (improved) {
+
+				if (isFinished()) {
+					throw new SolverTimeoutException();
+				}
+
 				improved = false;
 				char charToInsert = Randomness.nextChar();
 				String newStr = oldString + delimiterStr + charToInsert;
@@ -154,8 +172,7 @@ final class StringAVM {
 					improved = true;
 					checkpointVar(newDist);
 					if (checkpointDistance == 0.0) {
-						log.debug("Search seems successful, stopping at "
-								+ checkpointDistance + "/" + newDist);
+						log.debug("Search seems successful, stopping at " + checkpointDistance + "/" + newDist);
 						return true;
 					}
 
@@ -192,19 +209,23 @@ final class StringAVM {
 	 * 
 	 * @return
 	 */
-	private boolean doCharacterAVM(int position) {
+	private boolean doCharacterAVM(int position) throws SolverTimeoutException {
 		checkpointVar(DistanceEstimator.getDistance(cnstr));
 		boolean done = false;
 		boolean hasImproved = false;
 
 		while (!done) {
+			
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+
 			done = true;
 			String origString = strVar.getConcreteValue();
 			char oldChar = origString.charAt(position);
 
 			char[] characters = origString.toCharArray();
 
-			
 			// Try +1
 			char replacement = oldChar;
 			replacement = nextChar(replacement, 1);
@@ -212,8 +233,8 @@ final class StringAVM {
 			String newString = new String(characters);
 			strVar.setConcreteValue(newString);
 			double newDist = DistanceEstimator.getDistance(cnstr);
-			log.debug("Probing increment " + position + ": " + newString + ": "
-					+ newDist + " replacement = " + (int) replacement);
+			log.debug("Probing increment " + position + ": " + newString + ": " + newDist + " replacement = "
+					+ (int) replacement);
 			if (distImpr(newDist)) {
 				checkpointVar(newDist);
 
@@ -228,8 +249,7 @@ final class StringAVM {
 				newString = new String(characters);
 				strVar.setConcreteValue(newString);
 				newDist = DistanceEstimator.getDistance(cnstr);
-				log.debug("Probing decrement " + position + ": " + newString
-						+ ": " + newDist + " replacement = "
+				log.debug("Probing decrement " + position + ": " + newString + ": " + newDist + " replacement = "
 						+ (int) replacement);
 				if (distImpr(newDist)) {
 					checkpointVar(newDist);
@@ -241,17 +261,15 @@ final class StringAVM {
 					hasImproved = true;
 					iterateCharacterAVM(position, -2);
 				} else {
-					
-					
+
 					// Try +32
 					replacement = (char) (oldChar + 32);
 					characters[position] = replacement;
 					newString = new String(characters);
 					strVar.setConcreteValue(newString);
 					newDist = DistanceEstimator.getDistance(cnstr);
-					log.debug("Probing increment [32] " + position + ": " + newString
-							+ ": " + newDist + " replacement = "
-							+ (int) replacement);
+					log.debug("Probing increment [32] " + position + ": " + newString + ": " + newDist
+							+ " replacement = " + (int) replacement);
 					if (distImpr(newDist)) {
 						checkpointVar(newDist);
 
@@ -266,9 +284,8 @@ final class StringAVM {
 						newString = new String(characters);
 						strVar.setConcreteValue(newString);
 						newDist = DistanceEstimator.getDistance(cnstr);
-						log.debug("Probing increment [32] " + position + ": " + newString
-								+ ": " + newDist + " replacement = "
-								+ (int) replacement);
+						log.debug("Probing increment [32] " + position + ": " + newString + ": " + newDist
+								+ " replacement = " + (int) replacement);
 						if (distImpr(newDist)) {
 							checkpointVar(newDist);
 
@@ -281,11 +298,9 @@ final class StringAVM {
 					}
 
 					if (done)
-						log.debug("Search finished " + position + ": "
-								+ newString + ": " + newDist);
+						log.debug("Search finished " + position + ": " + newString + ": " + newDist);
 					else
-						log.debug("Going for another iteration at position "
-								+ position);
+						log.debug("Going for another iteration at position " + position);
 
 				}
 			}
@@ -301,11 +316,15 @@ final class StringAVM {
 	 * 
 	 * @return
 	 */
-	private boolean doStringAVM(String oldString) {
+	private boolean doStringAVM(String oldString) throws SolverTimeoutException {
 
 		boolean improvement = false;
 
 		for (int i = 0; i < oldString.length(); i++) {
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+			
 			log.info("Current character: " + i);
 			if (doCharacterAVM(i))
 				improvement = true;
@@ -313,7 +332,7 @@ final class StringAVM {
 		return improvement;
 	}
 
-	private boolean iterateCharacterAVM(int position, int delta) {
+	private boolean iterateCharacterAVM(int position, int delta) throws SolverTimeoutException {
 
 		boolean improvement = false;
 		String oldString = strVar.getConcreteValue();
@@ -331,6 +350,10 @@ final class StringAVM {
 		double newDist = DistanceEstimator.getDistance(cnstr);
 
 		while (distImpr(newDist)) {
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+			
 			checkpointVar(newDist);
 			if (newDist == 0.0)
 				return true;
@@ -343,8 +366,7 @@ final class StringAVM {
 			log.info("Current delta: " + delta + " -> " + replacement);
 			characters[position] = replacement;
 			newString = new String(characters);
-			log.info(" " + position + " " + oldString + "/"
-					+ oldString.length() + " -> " + newString + "/"
+			log.info(" " + position + " " + oldString + "/" + oldString.length() + " -> " + newString + "/"
 					+ newString.length());
 			strVar.setConcreteValue(newString);
 			newDist = DistanceEstimator.getDistance(cnstr);
@@ -378,19 +400,17 @@ final class StringAVM {
 		return nextChar;
 	}
 
-	private static Set<StringValue> getTokenDelimiters(
-			Collection<Constraint<?>> constraints) {
+	private static Set<StringValue> getTokenDelimiters(Collection<Constraint<?>> constraints) {
 
 		Set<StringValue> delimiters = new HashSet<StringValue>();
 		for (Constraint<?> constraint : constraints) {
+			
 			if (constraint instanceof StringConstraint) {
 				StringConstraint stringConstraint = (StringConstraint) constraint;
 
 				if (stringConstraint.getLeftOperand() instanceof HasMoreTokensExpr) {
-					HasMoreTokensExpr hasMoreTokensExpr = (HasMoreTokensExpr) stringConstraint
-							.getLeftOperand();
-					StringValue delimiter = hasMoreTokensExpr
-							.getTokenizerExpr().getDelimiter();
+					HasMoreTokensExpr hasMoreTokensExpr = (HasMoreTokensExpr) stringConstraint.getLeftOperand();
+					StringValue delimiter = hasMoreTokensExpr.getTokenizerExpr().getDelimiter();
 					delimiters.add(delimiter);
 				}
 
