@@ -118,14 +118,14 @@ public class SimplifyMethodNames extends ShorterNames{
 							break;
 						}
 					}*/
-					if(newName2.contains("_Constructor")){
+					if(newName2.contains("_CreatesConstructor")){
 						String [] subNames=newName2.split("_");
 						for(String str: subNames){
 							if(str.contains("Constructor")){
 								newName2 = newName2.replace("_"+str,"");
 								tokens = newName2.split("_");
 								k--;						
-								newName = newName2.replace("_Constructor_", ""); 
+								newName = newName2.replace("_CreatesConstructor_", ""); 
 								if(newName2.split("_").length>2){
 									
 								}else {
