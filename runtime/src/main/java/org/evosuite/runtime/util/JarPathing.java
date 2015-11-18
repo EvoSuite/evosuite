@@ -1,5 +1,6 @@
 package org.evosuite.runtime.util;
 
+import org.evosuite.runtime.RuntimeSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -132,7 +134,10 @@ public class JarPathing {
             out.flush();
             out.close();
 
-            logger.info("Created jar path at {} with CP: {}", jarLocation, escaped.toString());
+            if(! RuntimeSettings.isRunningASystemTest) {
+                //the location is likely non-deterministic
+                logger.info("Created jar path at {} with CP: {}", jarLocation, escaped.toString());
+            }
 
         } catch (Exception e) {
             logger.error("Cannot create pathing jar: "+e.toString());
