@@ -257,10 +257,10 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			double delta = 0.000000001; //it seems there is some rounding error in LS, but hard to debug :(
 
 			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= (bestFitness - delta)) : "Best fitness was: " + bestFitness
+				assert (newFitness >= (bestFitness - delta)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			else
-				assert (newFitness <= (bestFitness + delta)) : "Best fitness was: " + bestFitness
+				assert (newFitness <= (bestFitness + delta)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
 			
