@@ -711,6 +711,8 @@ public class TestNameGenerator extends DistinguishNames {
     	testName = optimize.minimizeNames(testName);    	
     	testName = optimize.countSameNames(testName); 
     	
+    	
+    		
         for (int i=0; i<testName.length; i++) {        	           
             String testMethodNameOptimized = testName[i]; // TODO
             if(StringUtils.countMatches(testMethodNameOptimized, "_")>=2){
@@ -718,7 +720,7 @@ public class TestNameGenerator extends DistinguishNames {
             			testMethodNameOptimized.substring(0, testMethodNameOptimized.lastIndexOf("_"))+
             			"And"+testMethodNameOptimized.substring(testMethodNameOptimized.lastIndexOf("_"),testMethodNameOptimized.length());
             }
-            if(testMethodNameOptimized.contains("Constructor") && testMethodNameOptimized.contains("Throwing") && testMethodNameOptimized.contains("Exception")){
+         /*   if(testMethodNameOptimized.contains("Constructor") && testMethodNameOptimized.contains("Throwing") && testMethodNameOptimized.contains("Exception")){
             	testMethodNameOptimized=testMethodNameOptimized.replace("Constructor","FailsToCreate"+className);
             	
             	if(Character.isDigit(testMethodNameOptimized.charAt(testMethodNameOptimized.length()-1))){
@@ -727,14 +729,16 @@ public class TestNameGenerator extends DistinguishNames {
             	{
             		testMethodNameOptimized=testMethodNameOptimized.replace(testMethodNameOptimized.substring(testMethodNameOptimized.indexOf("Throwing"), testMethodNameOptimized.length()), "");
             	}
-            }else{
+            }else{*/
 	            if(testMethodNameOptimized.contains("Constructor")){
 	            	testMethodNameOptimized=testMethodNameOptimized.replace("Constructor",className);
 	            }
-            }
+          //  }
             setNameGeneratedFor(testCs[i], testMethodNameOptimized);         
             methodNames.add(testMethodNameOptimized);           
         }     
+    		
+    	
     }
     
   
@@ -768,9 +772,9 @@ public class TestNameGenerator extends DistinguishNames {
 				  str=methodChecked[1];
 			  }else{
 				  if(methodChecked.length==2){
-				 str= methodChecked[1].substring(0,methodChecked[1].lastIndexOf(")"));
+					  str= methodChecked[1].substring(0,methodChecked[1].length()-2);
 				  } else {
-					  str= methodChecked[0].substring(methodChecked[0].indexOf("(")+1, methodChecked[0].lastIndexOf(")"));
+					  str= methodChecked[0].substring(methodChecked[0].indexOf("(")+1, methodChecked[0].length()-2);
 				  }
 			  }
 			  
@@ -846,7 +850,7 @@ public class TestNameGenerator extends DistinguishNames {
 				if(token.contains("/")){
 					argType.add(token.substring(token.lastIndexOf("/")+1,token.length()));
 				}else{
-	  				for (int i = 0; i <str.length() ; i++) {
+	  				for (int i = 0; i <token.length() ; i++) {
 	  			       switch(token.charAt(i)){
 	  			        	case 'Z': argType.add("Boolean");
 	  			        	break;

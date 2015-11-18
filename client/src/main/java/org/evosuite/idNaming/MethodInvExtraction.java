@@ -53,6 +53,7 @@ public class MethodInvExtraction
         total_method_invocations = 0;
         av_method_invocations = 0.0;
         counter=0;		
+        method_names = new ArrayList<String>();
         setMethods(s);
     }
 
