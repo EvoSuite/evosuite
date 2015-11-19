@@ -29,6 +29,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.ReplacementFunction;
+import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,7 +210,8 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
-		
+		int count = 0;
+		int genCount = 0;
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
 				|| Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
@@ -228,8 +230,11 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			bestFitness = 0.0;
 			lastBestFitness = 0.0;
 		} 
+		System.out.println("GenCount=" + genCount);
+		System.out.println("new Best fitness " + bestFitness);
 
 		while (!isFinished()) {
+			System.out.println("GenCount=" + ++genCount);
 			logger.info("Population size before: " + population.size());
 			
 			// related to Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER;
@@ -253,9 +258,18 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			//sortPopulation();
 
 			double newFitness = getBestIndividual().getFitness();
-
 			double delta = 0.000000001; //it seems there is some rounding error in LS, but hard to debug :(
 
+			System.out.println("new Best fitness " + newFitness);
+			if (Math.abs(newFitness-45.49999999422311)<delta) {
+				System.out.println("Count " + ++count);
+			}
+
+			if (LocalSearchBudget.getInstance().isFinished()) {
+				System.out.println("LS Budget available");
+			} else {
+				System.out.println("LS Budget exhausted");
+			}
 			if (getFitnessFunction().isMaximizationFunction())
 				assert (newFitness >= (bestFitness - delta)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
