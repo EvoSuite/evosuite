@@ -210,8 +210,6 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
-		int count = 0;
-		int genCount = 0;
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
 				|| Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
