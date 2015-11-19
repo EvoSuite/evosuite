@@ -207,7 +207,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		this.notifyIteration();
 	}
 
-	private static final double delta = 0.000000001; // it seems there is some
+	private static final double DELTA = 0.000000001; // it seems there is some
 														// rounding error in LS,
 														// but hard to debug :(
 
@@ -242,18 +242,18 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			{
 				double bestFitnessBeforeEvolution = getBestIndividual().getFitness();
 				evolve();
+				sortPopulation();
 				double bestFitnessAfterEvolution = getBestIndividual().getFitness();
 
 				if (getFitnessFunction().isMaximizationFunction())
 					assert(bestFitnessAfterEvolution >= (bestFitnessBeforeEvolution
-							- delta)) : "best fitness before evolve() was: " + bestFitnessBeforeEvolution
+							- DELTA)) : "best fitness before evolve()/sortPopulation() was: " + bestFitnessBeforeEvolution
 									+ ", now best fitness is " + bestFitnessAfterEvolution;
 				else
 					assert(bestFitnessAfterEvolution <= (bestFitnessBeforeEvolution
-							+ delta)) : "best fitness before evolve() was: " + bestFitnessBeforeEvolution
+							+ DELTA)) : "best fitness before evolve()/sortPopulation() was: " + bestFitnessBeforeEvolution
 									+ ", now best fitness is " + bestFitnessAfterEvolution;
 			}
-			sortPopulation();
 
 			{
 				double bestFitnessBeforeLocalSearch = getBestIndividual().getFitness();
@@ -262,11 +262,11 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 				if (getFitnessFunction().isMaximizationFunction())
 					assert(bestFitnessAfterLocalSearch >= (bestFitnessBeforeLocalSearch
-							- delta)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
+							- DELTA)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
 									+ ", now best fitness is " + bestFitnessAfterLocalSearch;
 				else
 					assert(bestFitnessAfterLocalSearch <= (bestFitnessBeforeLocalSearch
-							+ delta)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
+							+ DELTA)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
 									+ ", now best fitness is " + bestFitnessAfterLocalSearch;
 			}
 
@@ -284,10 +284,10 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			double newFitness = getBestIndividual().getFitness();
 
 			if (getFitnessFunction().isMaximizationFunction())
-				assert(newFitness >= (bestFitness - delta)) : "best fitness was: " + bestFitness
+				assert(newFitness >= (bestFitness - DELTA)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			else
-				assert(newFitness <= (bestFitness + delta)) : "best fitness was: " + bestFitness
+				assert(newFitness <= (bestFitness + DELTA)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
 
