@@ -230,11 +230,8 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			bestFitness = 0.0;
 			lastBestFitness = 0.0;
 		} 
-		System.out.println("GenCount=" + genCount);
-		System.out.println("new Best fitness " + bestFitness);
 
 		while (!isFinished()) {
-			System.out.println("GenCount=" + ++genCount);
 			logger.info("Population size before: " + population.size());
 			
 			// related to Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER;
@@ -260,16 +257,6 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			double newFitness = getBestIndividual().getFitness();
 			double delta = 0.000000001; //it seems there is some rounding error in LS, but hard to debug :(
 
-			System.out.println("new Best fitness " + newFitness);
-			if (Math.abs(newFitness-45.49999999422311)<delta) {
-				System.out.println("Count " + ++count);
-			}
-
-			if (LocalSearchBudget.getInstance().isFinished()) {
-				System.out.println("LS Budget available");
-			} else {
-				System.out.println("LS Budget exhausted");
-			}
 			if (getFitnessFunction().isMaximizationFunction())
 				assert (newFitness >= (bestFitness - delta)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
