@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.evosuite.Properties;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
@@ -311,10 +312,15 @@ public class JobExecutor {
 		 * and assertion generation), it is likely that jobs will finish before the expected time.
 		 */
 		try {
-			//add one extra minute just to be sure
-			boolean elapsed = !latch.await(configuration.timeInMinutes+1, TimeUnit.MINUTES);  
-			if(elapsed){
-				logger.error("The jobs did not finish in time");
+			if(Properties.CTG_DEBUG_PORT != null){
+				//do not use timeout if we are debugging
+				latch.await();
+			} else {
+				//add one extra minute just to be sure
+				boolean elapsed = !latch.await(configuration.timeInMinutes + 1, TimeUnit.MINUTES);
+				if (elapsed) {
+					logger.error("The jobs did not finish in time");
+				}
 			}
 		} catch (InterruptedException e) {
 		}
