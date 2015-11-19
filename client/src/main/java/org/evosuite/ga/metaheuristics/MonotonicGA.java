@@ -179,7 +179,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 
 		population = newGeneration;
-		//archive
+		// archive
 		updateFitnessFunctionsAndValues();
 
 		currentIteration++;
@@ -203,97 +203,118 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		generateInitialPopulation(Properties.POPULATION);
 		logger.debug("Calculating fitness of initial population");
 		calculateFitnessAndSortPopulation();
-		
+
 		this.notifyIteration();
 	}
+
+	private static final double delta = 0.000000001; // it seems there is some
+														// rounding error in LS,
+														// but hard to debug :(
 
 	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
-		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
-				|| Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
+		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
-		
+
 		if (population.isEmpty()) {
 			initializePopulation();
-			assert ! population.isEmpty() : "Could not create any test";
+			assert!population.isEmpty() : "Could not create any test";
 		}
 
 		logger.debug("Starting evolution");
 		int starvationCounter = 0;
 		double bestFitness = Double.MAX_VALUE;
 		double lastBestFitness = Double.MAX_VALUE;
-		if (getFitnessFunction().isMaximizationFunction()){
+		if (getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;
 			lastBestFitness = 0.0;
-		} 
+		}
 
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
-			
+
 			// related to Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER;
 			// check the budget progress and activate a secondary criterion
-			// according to the property value. 
-			
+			// according to the property value.
 
-			evolve();
+			{
+				double bestFitnessBeforeEvolution = getBestIndividual().getFitness();
+				evolve();
+				double bestFitnessAfterEvolution = getBestIndividual().getFitness();
 
+				if (getFitnessFunction().isMaximizationFunction())
+					assert(bestFitnessAfterEvolution >= (bestFitnessBeforeEvolution
+							- delta)) : "best fitness before evolve() was: " + bestFitnessBeforeEvolution
+									+ ", now best fitness is " + bestFitnessAfterEvolution;
+				else
+					assert(bestFitnessAfterEvolution <= (bestFitnessBeforeEvolution
+							+ delta)) : "best fitness before evolve() was: " + bestFitnessBeforeEvolution
+									+ ", now best fitness is " + bestFitnessAfterEvolution;
+			}
 			sortPopulation();
-			applyLocalSearch();
+
+			{
+				double bestFitnessBeforeLocalSearch = getBestIndividual().getFitness();
+				applyLocalSearch();
+				double bestFitnessAfterLocalSearch = getBestIndividual().getFitness();
+
+				if (getFitnessFunction().isMaximizationFunction())
+					assert(bestFitnessAfterLocalSearch >= (bestFitnessBeforeLocalSearch
+							- delta)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
+									+ ", now best fitness is " + bestFitnessAfterLocalSearch;
+				else
+					assert(bestFitnessAfterLocalSearch <= (bestFitnessBeforeLocalSearch
+							+ delta)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
+									+ ", now best fitness is " + bestFitnessAfterLocalSearch;
+			}
 
 			/*
-				TODO:
-				before explanation: due to static state handling, LS can worse individuals. so, need to re-sort.
-
-				now: the system tests that were failing have no static state... so re-sorting does just hide
-				the problem away, and reduce performance (likely significantly).
-				it is definitively a bug somewhere...
-			*/
-			//sortPopulation();
+			 * TODO: before explanation: due to static state handling, LS can
+			 * worse individuals. so, need to re-sort.
+			 * 
+			 * now: the system tests that were failing have no static state...
+			 * so re-sorting does just hide the problem away, and reduce
+			 * performance (likely significantly). it is definitively a bug
+			 * somewhere...
+			 */
+			// sortPopulation();
 
 			double newFitness = getBestIndividual().getFitness();
-			double delta = 0.000000001; //it seems there is some rounding error in LS, but hard to debug :(
 
 			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= (bestFitness - delta)) : "best fitness was: " + bestFitness
+				assert(newFitness >= (bestFitness - delta)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			else
-				assert (newFitness <= (bestFitness + delta)) : "best fitness was: " + bestFitness
+				assert(newFitness <= (bestFitness + delta)) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
-			
+
 			if (Double.compare(bestFitness, lastBestFitness) == 0) {
 				starvationCounter++;
 			} else {
 				logger.info("reset starvationCounter after " + starvationCounter + " iterations");
 				starvationCounter = 0;
 				lastBestFitness = bestFitness;
-				
+
 			}
-			
+
 			updateSecondaryCriterion(starvationCounter);
-			
-			
+
 			logger.info("Current iteration: " + currentIteration);
 			this.notifyIteration();
 
 			logger.info("Population size: " + population.size());
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
-			logger.info("Worst individual has fitness: "
-					+ population.get(population.size() - 1).getFitness());
-			
-			
+			logger.info("Worst individual has fitness: " + population.get(population.size() - 1).getFitness());
+
 		}
-		//archive
+		// archive
 		updateBestIndividualFromArchive();
-		
+
 		notifySearchFinished();
 	}
-
-	
-	
-
 
 	/**
 	 * <p>
