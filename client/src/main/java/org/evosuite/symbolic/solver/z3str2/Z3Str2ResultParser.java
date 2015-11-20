@@ -131,6 +131,11 @@ class Z3Str2ResultParser extends ResultParser {
 					continue;
 				}
 
+				if (varName.startsWith("$$_xor_")) {
+					// ignore $$_xor_... int variables
+					continue;
+				}
+				
 				if (varType.equals("string")) {
 					String noQuotationMarks = value.substring(1, value.length() - 1);
 					String valueStr = removeSlashX(noQuotationMarks);

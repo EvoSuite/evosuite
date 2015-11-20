@@ -73,4 +73,29 @@ public class PatSystemTest extends SystemTest {
 		assertNotNull(best);
 	}
 
+	@Test
+	public void testZ3Str2() {
+		Assume.assumeTrue(System.getenv("z3_str2_path")!=null);
+		
+		Properties.Z3_STR2_PATH =System.getenv("z3_str2_path");
+		Properties.DSE_SOLVER = Properties.SolverType.Z3_STR2_SOLVER;
+		
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = Pat.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		
+		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
+		Properties.CRITERION = new Criterion[] {
+	            //these are basic criteria that should be always on by default
+	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
+		
+		String[] command = new String[] { "-generateSuite", "-class",
+				targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		assertNotNull(best);
+	}
+
 }
