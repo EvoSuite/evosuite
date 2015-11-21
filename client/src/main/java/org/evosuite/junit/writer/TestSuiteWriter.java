@@ -246,6 +246,24 @@ public class TestSuiteWriter implements Opcodes {
     }
 
     /**
+     * To avoid having completely empty test classes, a no-op test is created
+     * 
+     * @return
+     */
+    private String getEmptyTest() {
+    	StringBuilder bd = new StringBuilder();
+        bd.append(METHOD_SPACE);
+    	bd.append("@Test\n");
+        bd.append(METHOD_SPACE);
+        bd.append("public void test0() {\n");
+        bd.append(BLOCK_SPACE);
+    	bd.append("// EvoSuite did not generate any tests\n");
+        bd.append(METHOD_SPACE);
+        bd.append("}\n");
+    	return bd.toString();
+    }
+    
+    /**
      * Create JUnit file for given class name
      *
      * @param name Name of the class file
@@ -266,9 +284,13 @@ public class TestSuiteWriter implements Opcodes {
         if (!Properties.TEST_SCAFFOLDING) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
-
-        for (int i = 0; i < testCases.size(); i++) {
-            builder.append(testToString(i, i, results.get(i)));
+        
+        if(testCases.isEmpty()) {
+        	builder.append(getEmptyTest());
+        } else {
+        	for (int i = 0; i < testCases.size(); i++) {
+        		builder.append(testToString(i, i, results.get(i)));
+        	}
         }
         builder.append(getFooter());
 
