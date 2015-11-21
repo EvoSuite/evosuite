@@ -74,7 +74,9 @@ public class TestSuiteWriter implements Opcodes {
     /**
      * Constant <code>logger</code>
      */
-    protected final static Logger logger = LoggerFactory.getLogger(TestSuiteWriter.class);
+    private final static Logger logger = LoggerFactory.getLogger(TestSuiteWriter.class);
+
+    public static final String NOT_GENERATED_TEST_NAME = "notGeneratedAnyTest";
 
     protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -255,7 +257,7 @@ public class TestSuiteWriter implements Opcodes {
         bd.append(METHOD_SPACE);
     	bd.append("@Test\n");
         bd.append(METHOD_SPACE);
-        bd.append("public void test0() {\n");
+        bd.append("public void "+NOT_GENERATED_TEST_NAME+"() {\n");
         bd.append(BLOCK_SPACE);
     	bd.append("// EvoSuite did not generate any tests\n");
         bd.append(METHOD_SPACE);

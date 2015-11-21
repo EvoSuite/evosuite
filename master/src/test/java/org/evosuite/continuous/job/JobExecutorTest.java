@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.utils.FileIOUtils;
 import org.junit.Assert;
 
@@ -108,7 +109,7 @@ public class JobExecutorTest {
 		//check if indeed they have tests
 		for(TestsOnDisk tod : data){
 			String content = FileUtils.readFileToString(tod.testSuite);
-			areThereTests = areThereTests && content.contains("@Test");
+			areThereTests = areThereTests && content.contains("@Test") && !content.contains(TestSuiteWriter.NOT_GENERATED_TEST_NAME);
 		}
 
 		String msg = "Tmp folder: "+Properties.CTG_DIR+"\n";
