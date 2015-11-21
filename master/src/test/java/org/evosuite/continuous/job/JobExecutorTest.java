@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 
@@ -41,6 +42,8 @@ import com.examples.with.different.packagename.continuous.Simple;
 import com.examples.with.different.packagename.continuous.Trivial;
 import com.examples.with.different.packagename.continuous.UsingSimpleAndTrivial;
 
+import static org.junit.Assert.assertTrue;
+
 public class JobExecutorTest {
 
 	private StorageManager storage;
@@ -50,20 +53,22 @@ public class JobExecutorTest {
 		Properties.CTG_DIR = ".tmp_for_testing_" + JobExecutorTest.class.getName();
 		if(storage!=null){
 			boolean deleted = storage.clean();
-			Assert.assertTrue(deleted);
+			assertTrue(deleted);
+		} else {
+			storage = new StorageManager();
+			storage.clean();
 		}
-		storage = new StorageManager();
 	}
 
-	@Test(timeout = 90000)
-	public void testActualExecutionOfSchedule(){
+	@Test(timeout = 90_000)
+	public void testActualExecutionOfSchedule() throws IOException {
 
 		Properties.TEST_SCAFFOLDING = true;
 		
 		boolean storageOK = storage.isStorageOk();
-		Assert.assertTrue(storageOK);
+		assertTrue(storageOK);
 		storageOK = storage.createNewTmpFolders();
-		Assert.assertTrue(storageOK);
+		assertTrue(storageOK);
 		
 		List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
 		Assert.assertEquals(0, data.size());
@@ -84,7 +89,7 @@ public class JobExecutorTest {
 		JobDefinition trivial = new JobDefinition(30, memory, 
 				com.examples.with.different.packagename.continuous.Trivial.class.getName(), 0, null, null);
 
-		Assert.assertTrue(simple.jobID < trivial.jobID);
+		assertTrue(simple.jobID < trivial.jobID);
 
 		List<JobDefinition> jobs = Arrays.asList(simple,trivial);
 
@@ -97,34 +102,41 @@ public class JobExecutorTest {
 		// 4 java files (2 test cases and 2 scaffolding files), however
 		// 'storage' just returns the 2 test cases
 
-		boolean isOk = (data.size() == 2);
+		boolean areThereFiles = (data.size() == 2);
+		boolean areThereTests = true;
+
+		//check if indeed they have tests
+		for(TestsOnDisk tod : data){
+			String content = FileUtils.readFileToString(tod.testSuite);
+			areThereTests = areThereTests && content.contains("@Test");
+		}
+
 		String msg = "Tmp folder: "+Properties.CTG_DIR+"\n";
-		if(!isOk){
+		if(!areThereFiles || !areThereTests){
 			//build a better error message by looking at the log files
 			File logDir = storage.getTmpLogs();
 			msg += "Log folder: "+logDir.getAbsolutePath()+"\n";
-			msg += "# log files: " + logDir.listFiles().length+"\n";
-			for(File log : logDir.listFiles()){
-				if(log.isDirectory()){
-					msg += "Folder: " + log.getName()+"\n";
-				} else {
-					String content = null;
-					try {
-						content = FileUtils.readFileToString(log);
-					} catch (IOException e) {
-						msg += "Failed to read file "+log.getName()+" due to: " + e.toString()+"\n";
-					}
-					if(content != null) {
-						msg += "Content for file: " + log.getName()+"\n";
-						msg +=      "--------------------------------------------------"+"\n";
-						msg += content;
-						msg += "\n"+"--------------------------------------------------"+"\n";
-					}
+			List<File> files = org.evosuite.utils.FileSystemUtils.getRecursivelyAllFiles(logDir, ".log");
+			msg += "# log files: " + files.size()+"\n";
+
+			for (File log : files) {
+				String content = null;
+				try {
+					content = FileUtils.readFileToString(log);
+				} catch (IOException e) {
+					msg += "Failed to read file " + log.getName() + " due to: " + e.toString() + "\n";
+				}
+				if (content != null) {
+					msg += "Content for file: " + log.getName() + "\n";
+					msg += "--------------------------------------------------" + "\n";
+					msg += content;
+					msg += "\n" + "--------------------------------------------------" + "\n";
 				}
 			}
 		}
 
 		Assert.assertEquals(msg, 2, data.size());
+		Assert.assertTrue(msg, areThereTests);
 
 		boolean deleted = storage.clean();
 		Assert.assertTrue(deleted);
@@ -134,9 +146,9 @@ public class JobExecutorTest {
 	public void testEventSequenceWhenWrongSchedule() throws InterruptedException{
 
 		boolean storageOK = storage.isStorageOk();
-		Assert.assertTrue(storageOK);
+		assertTrue(storageOK);
 		storageOK = storage.createNewTmpFolders();
-		Assert.assertTrue(storageOK);
+		assertTrue(storageOK);
 
 		List<TestsOnDisk> data = storage.gatherGeneratedTestsOnDisk();
 		Assert.assertEquals(0, data.size());

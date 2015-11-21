@@ -19,7 +19,11 @@
  */
 package org.evosuite.utils;
 
+import org.evosuite.runtime.util.Inputs;
+
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class used to cover some limitations of Apache IO FileUtils
@@ -27,6 +31,33 @@ import java.io.*;
  * Created by Andrea Arcuri on 07/06/15.
  */
 public class FileSystemUtils {
+
+
+    public static List<File> getRecursivelyAllFiles(File folder, String suffix) throws IllegalArgumentException{
+        Inputs.checkNull(folder, suffix);
+        List<File> buffer = new ArrayList<>();
+        _recursiveAllFiles(folder, suffix, buffer);
+        return buffer;
+    }
+
+    private static void _recursiveAllFiles(File folder, String suffix, List<File> buffer){
+        if(! folder.exists()){
+            throw new IllegalArgumentException("Folder does not exist: "+folder.getAbsolutePath());
+        }
+        if(! folder.isDirectory()){
+            throw new IllegalArgumentException("File is not a folder: "+folder.getAbsolutePath());
+        }
+
+        for(File file : folder.listFiles()){
+            if(file.isDirectory()){
+                _recursiveAllFiles(file, suffix, buffer);
+            } else {
+                if(file.getName().endsWith(suffix)){
+                    buffer.add(file);
+                }
+            }
+        }
+    }
 
     /**
      * Method similar to FileUtils.copyDirectory, but with overwrite
