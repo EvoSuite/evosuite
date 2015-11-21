@@ -56,7 +56,7 @@ import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.testcase.execution.EvosuiteError;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,7 +191,7 @@ public class Z3Str2Solver extends SubProcessSolver {
 		}
 
 		try {
-			Utils.writeFile(smtQueryStr, z3TempFileName);
+			FileIOUtils.writeFile(smtQueryStr, z3TempFileName);
 			String z3Cmd = Properties.Z3_STR2_PATH + " -f " + z3TempFileName;
 			ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 			launchNewProcess(z3Cmd, smtQueryStr, timeout, stdout);

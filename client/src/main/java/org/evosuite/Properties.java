@@ -24,7 +24,7 @@ import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -2388,7 +2388,7 @@ public class Properties {
 				buffer.append("\n\n");
 			}
 		}
-		Utils.writeFile(buffer.toString(), fileName);
+		FileIOUtils.writeFile(buffer.toString(), fileName);
 	}
 
 	/**

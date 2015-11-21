@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobExecutor;
@@ -31,7 +30,7 @@ import org.evosuite.continuous.job.JobScheduler;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
-import org.evosuite.utils.FileSystemUtils;
+import org.evosuite.utils.FileIOUtils;
 import org.evosuite.xsd.ProjectInfo;
 
 
@@ -209,7 +208,7 @@ public class ContinuousTestGeneration {
 
 		File target = new File(basedir.getAbsolutePath()+File.separator+exportFolder);
 		//FileUtils.copyDirectory(evoFolder, target); //This did not overwrite old files!
-		FileSystemUtils.copyDirectoryAndOverwriteFilesIfNeeded(evoFolder,target);
+		FileIOUtils.copyDirectoryAndOverwriteFilesIfNeeded(evoFolder,target);
 		return true;
 	}
 

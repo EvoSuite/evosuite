@@ -42,7 +42,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
@@ -324,9 +324,9 @@ public class StorageManager {
 	public List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
 		
 		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
-		List<File> generatedTests = Utils.getAllFilesInSubFolder(tmpTests.getAbsolutePath(), ".java");
-		List<File> generatedReports = Utils.getAllFilesInSubFolder(tmpReports.getAbsolutePath(), ".csv");
-		List<File> generatedSerialized = Utils.getAllFilesInSubFolder(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
+		List<File> generatedTests = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpTests.getAbsolutePath(), ".java");
+		List<File> generatedReports = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpReports.getAbsolutePath(), ".csv");
+		List<File> generatedSerialized = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
 
 		/*
 		 * Key -> name of CUT

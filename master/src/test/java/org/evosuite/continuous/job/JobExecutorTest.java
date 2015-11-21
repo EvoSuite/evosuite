@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
+import org.evosuite.utils.FileIOUtils;
 import org.junit.Assert;
 
 import org.evosuite.Properties;
@@ -116,7 +116,7 @@ public class JobExecutorTest {
 			//build a better error message by looking at the log files
 			File logDir = storage.getTmpLogs();
 			msg += "Log folder: "+logDir.getAbsolutePath()+"\n";
-			List<File> files = org.evosuite.utils.FileSystemUtils.getRecursivelyAllFiles(logDir, ".log");
+			List<File> files = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(logDir, ".log");
 			msg += "# log files: " + files.size()+"\n";
 
 			for (File log : files) {

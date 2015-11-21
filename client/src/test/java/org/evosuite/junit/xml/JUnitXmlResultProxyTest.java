@@ -25,7 +25,7 @@ import java.io.File;
 
 import org.evosuite.junit.FooTestClassLoader;
 import org.evosuite.junit.JUnitResult;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,10 +51,10 @@ public class JUnitXmlResultProxyTest {
 		Class<?> fooTestClass = new FooTestClassLoader().loadFooTestClass();
 		JUnitResult result = executor.execute(fooTestClass);
 
-		Utils.writeXML(result, JUNIT_RESULT_FILENAME);
+		FileIOUtils.writeXML(result, JUNIT_RESULT_FILENAME);
 		assertTrue(checkFileExists());
 
-		JUnitResult result_from_xml_file = Utils
+		JUnitResult result_from_xml_file = FileIOUtils
 				.<JUnitResult> readXML(JUNIT_RESULT_FILENAME);
 
 		assertEquals(result, result_from_xml_file);

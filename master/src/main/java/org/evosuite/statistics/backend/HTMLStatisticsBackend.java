@@ -44,7 +44,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.HtmlAnalyzer;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +83,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 		StringBuffer report = new StringBuffer();
 
 		if (file.exists()) {
-			List<String> lines = Utils.readFile(file);
+			List<String> lines = FileIOUtils.readFile(file);
 			for (String line : lines) {
 				if (line.contains("<!-- EVOSUITE INSERTION POINT -->")) {
 					break;
@@ -129,7 +129,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 
 		writeHTMLFooter(report);
 
-		Utils.writeFile(report.toString(), file);
+		FileIOUtils.writeFile(report.toString(), file);
 	}
 	
 	public static void copyFile(URL src, File dest) {
@@ -383,7 +383,7 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 
 		String filename = "report-" + className + "-" + getNumber(className) + ".html";
 		File file = new File(getReportDir().getAbsolutePath() + "/html/" + filename);
-		Utils.writeFile(sb.toString(), file);
+		FileIOUtils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
 	}

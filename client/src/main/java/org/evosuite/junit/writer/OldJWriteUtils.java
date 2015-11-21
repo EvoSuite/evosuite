@@ -37,7 +37,7 @@ import org.evosuite.Properties;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -213,6 +213,6 @@ public class OldJWriteUtils extends TestSuiteWriter{
 			suites.add(name);
 		}
 		builder.append(TestSuiteWriterUtils.getAdapter().getSuite(suites));
-		Utils.writeFile(builder.toString(), file);
+		FileIOUtils.writeFile(builder.toString(), file);
 	}
 }

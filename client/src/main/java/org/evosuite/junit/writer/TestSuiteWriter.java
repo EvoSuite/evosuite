@@ -42,7 +42,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.objectweb.asm.Opcodes;
@@ -215,7 +215,7 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
-            Utils.writeFile(content, file);
+            FileIOUtils.writeFile(content, file);
             generated.add(file);
         } else {
             for (int i = 0; i < testCases.size(); i++) {
@@ -223,7 +223,7 @@ public class TestSuiteWriter implements Opcodes {
                 File file = new File(dir + "/" + testSuiteName + ".java");
                 //executor.newObservers();
                 String testCode = getOneUnitTestInAFile(name, i, results);
-                Utils.writeFile(testCode, file);
+                FileIOUtils.writeFile(testCode, file);
                 content += testCode;
                 generated.add(file);
             }
@@ -234,7 +234,7 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(dir + "/" + scaffoldingName + ".java");
             String scaffoldingContent = Scaffolding.getScaffoldingFileContent(name, results,
                     TestSuiteWriterUtils.hasAnySecurityException(results));
-            Utils.writeFile(scaffoldingContent, file);
+            FileIOUtils.writeFile(scaffoldingContent, file);
             generated.add(file);
             content += scaffoldingContent;
         }
@@ -736,7 +736,7 @@ public class TestSuiteWriter implements Opcodes {
                     builder.append(testName + "," + goal.toString() + NEWLINE);
                 }
             }
-            Utils.writeFile(builder.toString(), file);
+            FileIOUtils.writeFile(builder.toString(), file);
         }
     }
 }
