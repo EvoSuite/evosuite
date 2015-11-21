@@ -197,7 +197,7 @@ public class ContinuousTestGeneration {
 
 	public static boolean exportToFolder(String baseFolder, String exportFolder) throws IOException {
 		File basedir = new File(baseFolder);
-		File evoFolder = new File(basedir.getAbsolutePath()+File.separator+Properties.CTG_BESTS_DIR);
+		File evoFolder = StorageManager.getBestTestFolder(basedir);
 
 		File[] children = evoFolder.listFiles();
 		boolean isEmpty = children==null || children.length==0;
