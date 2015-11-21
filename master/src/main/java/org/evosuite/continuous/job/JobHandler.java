@@ -223,6 +223,7 @@ public class JobHandler extends Thread {
 		 *  Note: the Client will get it automatically from Master
 		 */
 		commands.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER + "=logback-ctg.xml");
+		commands.add("-Dlogback.configurationFile=logback-ctg.xml");
 
 		StorageManager storage = executor.getStorage();
 		File logs = storage.getTmpLogs();
