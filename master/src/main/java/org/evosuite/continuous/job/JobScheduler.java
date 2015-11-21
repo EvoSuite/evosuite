@@ -56,10 +56,6 @@ public class JobScheduler {
 	 * Main constructor
 	 * 
 	 * @param projectData
-	 * @param numberOfCores
-	 * @param totalMemoryInMB
-	 * @param totalBudgetInMinutes
-	 * @param minMinutesPerJob
 	 */
 	public JobScheduler(ProjectStaticData projectData,
 			CtgConfiguration conf) {
