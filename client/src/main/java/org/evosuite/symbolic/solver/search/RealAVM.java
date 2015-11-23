@@ -26,15 +26,15 @@ import java.util.Collection;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.solver.DistanceEstimator;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class RealAVM {
+final class RealAVM extends VariableAVM {
 
-	public RealAVM(RealVariable realVar, Collection<Constraint<?>> cnstr) {
-		super();
+	public RealAVM(RealVariable realVar, Collection<Constraint<?>> cnstr, long start_time, long timeout) {
+		super(cnstr, start_time, timeout);
 		this.realVar = realVar;
-		this.cnstr = cnstr;
 	}
 
 	static Logger log = LoggerFactory.getLogger(RealAVM.class);
@@ -42,13 +42,10 @@ final class RealAVM {
 	private double checkpointedConcreteValue;
 
 	private double checkpointedDistance = Double.MAX_VALUE;
-	
-	private final RealVariable realVar;
-	
-	private final Collection<Constraint<?>> cnstr;
-	
 
-	public boolean applyAVM() {
+	private final RealVariable realVar;
+
+	public boolean applyAVM() throws SolverTimeoutException {
 		boolean improvement = false;
 
 		improvement = doRealSearch(1.0, 2.0);
@@ -66,8 +63,7 @@ final class RealAVM {
 		return false;
 	}
 
-	private boolean doRealSearch(double delta,
-			double factor) {
+	private boolean doRealSearch(double delta, double factor) throws SolverTimeoutException {
 
 		boolean improvement = false;
 
@@ -79,12 +75,15 @@ final class RealAVM {
 		}
 
 		while (true) {
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+
 			// Try increment
 			log.debug("Trying to increment " + realVar + " with: " + delta);
 			incrementVar(delta);
 			double newDist = DistanceEstimator.getDistance(cnstr);
-			log.debug("Old distance: " + this.checkpointedDistance
-					+ ", new distance: " + newDist);
+			log.debug("Old distance: " + this.checkpointedDistance + ", new distance: " + newDist);
 			if (distImpr(newDist)) {
 				improvement = true;
 				checkpointVar(newDist);
@@ -127,6 +126,7 @@ final class RealAVM {
 	 * Increments the realVar with the specified value. If we are going out of
 	 * the bounds of the variable the new value is set to the the appropriate
 	 * bound.
+	 * 
 	 * @param increment
 	 */
 	private void incrementVar(double i) {
@@ -163,8 +163,7 @@ final class RealAVM {
 	 * Restores the intVar concrete value using the check-pointed value.
 	 */
 	private void restoreVar() {
-		log.debug("restoring to: " + realVar + " with dist: "
-				+ checkpointedDistance);
+		log.debug("restoring to: " + realVar + " with dist: " + checkpointedDistance);
 		realVar.setConcreteValue(checkpointedConcreteValue);
 	}
 
@@ -175,8 +174,7 @@ final class RealAVM {
 	 * @param cnstr
 	 * @return
 	 */
-	private boolean afterCommaSearch(RealVariable realVar,
-			Collection<Constraint<?>> cnstr) {
+	private boolean afterCommaSearch(RealVariable realVar, Collection<Constraint<?>> cnstr) throws SolverTimeoutException{
 		boolean improvement = false;
 
 		// Assume that floats have 7 digits after comma and double 15. This is
@@ -200,23 +198,21 @@ final class RealAVM {
 
 	/**
 	 * Cut off digits after comma.
+	 * 
 	 * @param precision
 	 * @param isFloat
 	 */
-	private void chopOffPrecision(int precision,
-			boolean isFloat) {
+	private void chopOffPrecision(int precision, boolean isFloat) {
 
 		double value = realVar.getConcreteValue();
-		BigDecimal bd = new BigDecimal(value).setScale(precision,
-				RoundingMode.HALF_EVEN);
+		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
 		double newValue = bd.doubleValue();
 		if (newValue == value) {
 			return;// false;
 		}
 		realVar.setConcreteValue(newValue);
 
-		log.debug("Trying to chop precision " + precision + ": " + value
-				+ " -> " + newValue);
+		log.debug("Trying to chop precision " + precision + ": " + value + " -> " + newValue);
 		double dist = DistanceEstimator.getDistance(cnstr);
 		if (!distWrsn(dist)) {
 			checkpointVar(dist);
@@ -233,19 +229,22 @@ final class RealAVM {
 
 	/**
 	 * Apply AVM on variable
+	 * 
 	 * @param delta
 	 * @param factor
 	 */
-	private void iterateVar(double delta, double factor) {
+	private void iterateVar(double delta, double factor) throws SolverTimeoutException {
 
-		log.debug("[Loop] Trying increment " + delta + " of "
-				+ realVar.toString());
+		log.debug("[Loop] Trying increment " + delta + " of " + realVar.toString());
 
 		incrementVar(delta);
 		double newDist = DistanceEstimator.getDistance(cnstr);
-		log.debug("[Loop] Old distance: " + this.checkpointedDistance
-				+ ", new distance: " + newDist);
+		log.debug("[Loop] Old distance: " + this.checkpointedDistance + ", new distance: " + newDist);
 		while (distImpr(newDist)) {
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+
 			checkpointVar(newDist);
 			if (newDist == 0.0) {
 				// solution found

@@ -25,7 +25,7 @@ package org.evosuite.junit;
 import java.io.File;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ public class CoverageReportGenerator {
 			suite.append(test);
 		}
 
-		Utils.writeFile(suite.toString(), new File(getReportDir().getAbsolutePath() +
+		FileIOUtils.writeFile(suite.toString(), new File(getReportDir().getAbsolutePath() +
 				File.separator + "data" + File.separator +
 				Properties.TARGET_CLASS + "." + criterion.toString() + ".matrix"));
 	}

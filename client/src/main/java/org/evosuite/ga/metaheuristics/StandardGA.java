@@ -153,10 +153,10 @@ public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			double newFitness = getBestIndividual().getFitness();
 
 			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
+				assert (newFitness >= bestFitness) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			else
-				assert (newFitness <= bestFitness) : "Best fitness was: " + bestFitness
+				assert (newFitness <= bestFitness) : "best fitness was: " + bestFitness
 						+ ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
 			

@@ -33,7 +33,7 @@ import org.evosuite.junit.JUnitResult;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ProcessLauncher;
 import org.evosuite.utils.ProcessTimeoutException;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +144,7 @@ public class JUnitProcessLauncher {
 
 			if (xmlFile.exists()) {
 				logger.debug("Reading JUnitResult from file: " + xmlFileName);
-				JUnitResult result = Utils.<JUnitResult> readXML(xmlFileName);
+				JUnitResult result = FileIOUtils.<JUnitResult> readXML(xmlFileName);
 				xmlFile.delete();
 				LoggingUtils.getEvoLogger().info(
 						"JUnit finished correctly and created JUnit result.");

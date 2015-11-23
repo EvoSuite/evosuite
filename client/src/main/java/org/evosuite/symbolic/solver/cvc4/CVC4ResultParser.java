@@ -19,7 +19,6 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;

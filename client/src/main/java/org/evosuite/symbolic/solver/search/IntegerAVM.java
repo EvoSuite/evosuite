@@ -24,15 +24,17 @@ import java.util.Collection;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.solver.DistanceEstimator;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class IntegerAVM {
+final class IntegerAVM extends VariableAVM {
 
-	public IntegerAVM(IntegerVariable intVar, Collection<Constraint<?>> cnstr) {
-		super();
+
+
+	public IntegerAVM(IntegerVariable intVar, Collection<Constraint<?>> cnstr, long startTimeMillis, long timeout) {
+		super(cnstr, startTimeMillis, timeout);
 		this.intVar = intVar;
-		this.cnstr = cnstr;
 	}
 
 	static Logger log = LoggerFactory.getLogger(IntegerAVM.class);
@@ -43,10 +45,9 @@ final class IntegerAVM {
 
 	private final IntegerVariable intVar;
 
-	private final Collection<Constraint<?>> cnstr;
-
 	/**
 	 * Saves a new checkpoint for the current value and the current distance.
+	 * 
 	 * @param newDist
 	 */
 	private void checkpointVar(double newDist) {
@@ -103,7 +104,7 @@ final class IntegerAVM {
 	 * @return true iff a new value was found such that distance is smaller than
 	 *         before
 	 */
-	public boolean applyAVM() {
+	public boolean applyAVM() throws SolverTimeoutException {
 		double newDist;
 		boolean improvement = false;
 
@@ -118,12 +119,15 @@ final class IntegerAVM {
 		}
 
 		while (true) {
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+			
 			// Try increment
 			log.debug("Trying to increment " + intVar);
 			incrementVar(1);
 			newDist = DistanceEstimator.getDistance(cnstr);
-			log.debug("newDist: " + newDist + " oldDist: "
-					+ checkpointedDistance);
+			log.debug("newDist: " + newDist + " oldDist: " + checkpointedDistance);
 			if (distImpr(newDist)) {
 				improvement = true;
 				checkpointVar(newDist);
@@ -140,8 +144,7 @@ final class IntegerAVM {
 				log.debug("Trying to decrement " + intVar);
 				incrementVar(-1);
 				newDist = DistanceEstimator.getDistance(cnstr);
-				log.debug("newDist: " + newDist + " oldDist: "
-						+ checkpointedDistance);
+				log.debug("newDist: " + newDist + " oldDist: " + checkpointedDistance);
 				if (distImpr(newDist)) {
 					improvement = true;
 					checkpointVar(newDist);
@@ -168,16 +171,16 @@ final class IntegerAVM {
 	 * Restores the intVar concrete value using the check-pointed value.
 	 */
 	private void restoreVar() {
-		log.debug("restoring to: " + intVar + " with dist: "
-				+ checkpointedDistance);
+		log.debug("restoring to: " + intVar + " with dist: " + checkpointedDistance);
 		intVar.setConcreteValue(checkpointedConcreteValue);
 	}
 
 	/**
 	 * AVM inner loop
+	 * 
 	 * @param delta
 	 */
-	private void iterateVar(long delta) {
+	private void iterateVar(long delta) throws SolverTimeoutException {
 
 		log.debug("Trying increment " + delta + " of " + intVar.toString());
 
@@ -185,6 +188,10 @@ final class IntegerAVM {
 		double newDist = DistanceEstimator.getDistance(cnstr);
 		log.debug("newDist: " + newDist + " oldDist: " + checkpointedDistance);
 		while (distImpr(newDist)) {
+			if (isFinished()) {
+				throw new SolverTimeoutException();
+			}
+
 			checkpointVar(newDist);
 			if (newDist == 0.0) {
 				// solution found
@@ -195,8 +202,7 @@ final class IntegerAVM {
 			log.debug("Trying increment " + delta + " of " + intVar);
 			incrementVar(delta);
 			newDist = DistanceEstimator.getDistance(cnstr);
-			log.debug("newDist: " + newDist + " oldDist: "
-					+ checkpointedDistance);
+			log.debug("newDist: " + newDist + " oldDist: " + checkpointedDistance);
 		}
 		log.debug("No improvement on " + intVar);
 

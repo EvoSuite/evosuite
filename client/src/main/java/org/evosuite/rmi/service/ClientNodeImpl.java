@@ -50,7 +50,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -451,7 +451,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 						fileNames.append("\n");
 					}
 					LoggingUtils.getEvoLogger().info("* Writing class dependencies to file "+fileName);
-					Utils.writeFile(fileNames.toString(), fileName);
+					FileIOUtils.writeFile(fileNames.toString(), fileName);
 				} catch (Throwable t) {
 					logger.error("Error when analysing coverage for: "
 							+ Properties.TARGET_CLASS + " with seed "

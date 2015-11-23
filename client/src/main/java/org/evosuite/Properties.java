@@ -24,7 +24,7 @@ import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -709,11 +709,11 @@ public class Properties {
 	@Parameter(key = "ctg_min_time_per_job", group = "Continuous Test Generation", description = "How many minutes each class under test should have at least")
 	public static int CTG_MIN_TIME_PER_JOB = 1;
 
-	@Parameter(key = "ctg_folder", group = "Continuous Test Generation", description = "Where generated files will be stored")
+	@Parameter(key = "ctg_dir", group = "Continuous Test Generation", description = "Where generated files will be stored")
 	public static String CTG_DIR = ".evosuite";
 
 	@Parameter(key = "ctg_bests_folder", group = "Continuous Test Generation", description = "Folder where all the best test suites generated so far in all CTG runs are stored")
-	public static String CTG_BESTS_DIR = CTG_DIR + File.separator + "evosuite-tests";
+	public static String CTG_BESTS_DIR_NAME = "best-tests";
 
 	@Parameter(key = "ctg_generation_dir_prefix", group = "Continuous Test Generation", description = "")
 	public static String CTG_GENERATION_DIR_PREFIX = null;
@@ -746,7 +746,7 @@ public class Properties {
 	public static String CTG_SEEDS_EXT = "seed";
 
 	@Parameter(key = "ctg_project_info", group = "Continuous Test Generation", description = "XML file which stores stats about all CTG executions")
-	public static String CTG_PROJECT_INFO = CTG_DIR + File.separator + "project_info.xml";
+	public static String CTG_PROJECT_INFO = "project_info.xml";
 
 	@Parameter(key = "ctg_history_file", group = "Continuous Test Generation", description = "File with the list of new(A)/modified(M)/deleted(D) files")
 	public static String CTG_HISTORY_FILE = null;
@@ -2390,7 +2390,7 @@ public class Properties {
 				buffer.append("\n\n");
 			}
 		}
-		Utils.writeFile(buffer.toString(), fileName);
+		FileIOUtils.writeFile(buffer.toString(), fileName);
 	}
 
 	/**

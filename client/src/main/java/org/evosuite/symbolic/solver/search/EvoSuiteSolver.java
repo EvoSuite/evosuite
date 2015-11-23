@@ -53,6 +53,8 @@ public final class EvoSuiteSolver extends Solver {
 	public SolverResult solve(Collection<Constraint<?>> constraints)
 			throws SolverTimeoutException, SolverEmptyQueryException {
 
+		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+
 		long startTimeMillis = System.currentTimeMillis();
 
 		Set<Variable<?>> variables = getVariables(constraints);
@@ -68,8 +70,9 @@ public final class EvoSuiteSolver extends Solver {
 		for (int attempt = 0; attempt <= Properties.DSE_VARIABLE_RESETS; attempt++) {
 			for (Variable<?> v : variables) {
 				long currentTimeMillis = System.currentTimeMillis();
-				if (Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS > 0
-						&& (currentTimeMillis - startTimeMillis > Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS)) {
+
+				long elapsed_solving_time = currentTimeMillis - startTimeMillis;
+				if (elapsed_solving_time > timeout) {
 					throw new SolverTimeoutException();
 				}
 
@@ -77,15 +80,15 @@ public final class EvoSuiteSolver extends Solver {
 
 				if (v instanceof IntegerVariable) {
 					IntegerVariable integerVariable = (IntegerVariable) v;
-					IntegerAVM avm = new IntegerAVM(integerVariable, constraints);
+					IntegerAVM avm = new IntegerAVM(integerVariable, constraints, startTimeMillis, timeout);
 					avm.applyAVM();
 				} else if (v instanceof RealVariable) {
 					RealVariable realVariable = (RealVariable) v;
-					RealAVM avm = new RealAVM(realVariable, constraints);
+					RealAVM avm = new RealAVM(realVariable, constraints, startTimeMillis, timeout);
 					avm.applyAVM();
 				} else if (v instanceof StringVariable) {
 					StringVariable strVariable = (StringVariable) v;
-					StringAVM avm = new StringAVM(strVariable, constraints);
+					StringAVM avm = new StringAVM(strVariable, constraints, startTimeMillis, timeout);
 					avm.applyAVM();
 				} else {
 					throw new RuntimeException("Unknown variable type " + v.getClass().getName());
@@ -118,11 +121,6 @@ public final class EvoSuiteSolver extends Solver {
 			SolverResult unsatResult = SolverResult.newUNSAT();
 			return unsatResult;
 		}
-
-		// if (DSEBudget.isFinished()) {
-		// log.debug("Out of time");
-		// //break resetLoop;
-		// }
 
 	}
 

@@ -372,13 +372,13 @@ public class JUnitAnalyzer {
 
 			List<String> optionList = new ArrayList<>();
 			String evosuiteCP = ClassPathHandler.getInstance().getEvoSuiteClassPath();
-			if(JarPathing.isPathingJar(evosuiteCP)){
-				evosuiteCP = JarPathing.extractCPFromPathingJar(evosuiteCP);
+			if(JarPathing.containsAPathingJar(evosuiteCP)){
+				evosuiteCP = JarPathing.expandPathingJars(evosuiteCP);
 			}
 
 			String targetProjectCP = ClassPathHandler.getInstance().getTargetProjectClasspath();
-			if(JarPathing.isPathingJar(targetProjectCP)){
-				targetProjectCP = JarPathing.extractCPFromPathingJar(targetProjectCP);
+			if(JarPathing.containsAPathingJar(targetProjectCP)){
+				targetProjectCP = JarPathing.expandPathingJars(targetProjectCP);
 			}
 
 			String classpath = targetProjectCP + File.pathSeparator + evosuiteCP;
@@ -393,6 +393,9 @@ public class JUnitAnalyzer {
 			if (!compiled) {
 				logger.error("Compilation failed on compilation units: "+ compilationUnits);
 				logger.error("Classpath: "+classpath);
+				//TODO remove
+				logger.error("evosuiteCP: "+evosuiteCP);
+
 
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
 					if (diagnostic.getMessage(null).startsWith("error while writing")) {

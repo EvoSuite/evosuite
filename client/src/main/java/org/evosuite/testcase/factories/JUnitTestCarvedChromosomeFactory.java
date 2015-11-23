@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientNodeLocal;
@@ -32,6 +32,7 @@ import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -84,12 +85,16 @@ public class JUnitTestCarvedChromosomeFactory implements
 					logger.debug("Carved Test: {}", test.toCode());
 				}
 			}
-			BranchCoverageSuiteFitness f = new BranchCoverageSuiteFitness();
+
 			TestSuiteChromosome suite = new TestSuiteChromosome();
 			for (TestCase test : junitTests) {
 				suite.addTest(test);
 			}
-			f.getFitness(suite);
+
+			for (Properties.Criterion pc : Properties.CRITERION) {
+				TestSuiteFitnessFunction f = FitnessFunctions.getFitnessFunction(pc);
+				f.getFitness(suite);
+			}
 			carvedCoverage = suite.getCoverage();
 		}
 		

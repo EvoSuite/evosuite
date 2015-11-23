@@ -62,7 +62,7 @@ public class HtmlAnalyzer implements Serializable {
 		for (File f : files) {
 			String name = getContainingClassName(f);
 			if (name.endsWith(className) && !name.endsWith("Test" + className)) {
-				List<String> linesFromFile = Utils.readFile(f);
+				List<String> linesFromFile = FileIOUtils.readFile(f);
 				logger.debug("Got file " + f + "for class " + fullClassName);
 				return linesFromFile;
 			}

@@ -9,8 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -25,10 +25,34 @@ public class JarPathing {
 
     private static final String PATHING_JAR_PREFIX = "EvoSuite_pathingJar";
 
+    public static boolean containsAPathingJar(String sequence){
+        for(String token : sequence.split(File.pathSeparator)){
+            if(isPathingJar(token)){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static boolean isPathingJar(String path) throws IllegalArgumentException {
 
+        if(path.contains(File.pathSeparator)){
+            throw new IllegalArgumentException("Multiple elements in path: "+path);
+        }
+
         return path != null && path.contains(PATHING_JAR_PREFIX) && path.endsWith(".jar");
+    }
+
+    public static String expandPathingJars(String sequence){
+        List<String> list = new ArrayList<>();
+        for(String token : sequence.split(File.pathSeparator)){
+            if(isPathingJar(token)){
+                list.add(extractCPFromPathingJar(token));
+            } else {
+                list.add(token);
+            }
+        }
+        return String.join(File.pathSeparator, list);
     }
 
     public static String extractCPFromPathingJar(String pathingJar) throws IllegalArgumentException{
@@ -48,10 +72,13 @@ public class JarPathing {
 
             List<String> list = new ArrayList<>();
             for(String token : escapedCP.split(" ")){
-                File file = new File(token);
+                File file = new File(token.replace("%20"," "));
                 if(! file.exists()){
                     //this should never happen, unless bug in EvoSuite
                     throw new IllegalStateException("Pathing jar "+pathingJar+" refers to non-existing entry " + token);
+                }
+                if(isPathingJar(file.getAbsolutePath())){
+                    throw new IllegalArgumentException("Pathing jar "+pathingJar+" contains the pathing jar "+file.getAbsolutePath());
                 }
                 list.add(file.getAbsolutePath());
             }
@@ -74,13 +101,14 @@ public class JarPathing {
      */
     public static String createJarPathing(String classpath){
 
-		/*
-			instead of just returning the classpath,
-		 */
-        logger.debug("Going to create jar pathing for: {}", classpath);
+		logger.debug("Going to create jar pathing for: {}", classpath);
+
+        List<String> elements = new ArrayList<>();
+        elements.addAll(Arrays.asList(classpath.split(File.pathSeparator)));
 
         StringBuffer escaped = new StringBuffer();
-        for(String element : classpath.split(File.pathSeparator)){
+        while(! elements.isEmpty()){
+            String element = elements.remove(0);
             try {
 
                 //be sure the classpath element is absolute
@@ -92,14 +120,19 @@ public class JarPathing {
                     continue;
                 }
 
+                if(isPathingJar(element)){
+                    elements.addAll(Arrays.asList(extractCPFromPathingJar(element).split(File.pathSeparator)));
+                    continue;
+                }
+
 				/*
 					as the path separator in the manifest is just spaces " ", we need
 					to escape the paths to URL to avoid issues in Windows where path might
 					have spaces...
 				 */
 
-                element.replace("\\","/");
-                element.replace(" ","%20");
+                element = element.replace("\\","/");
+                element = element.replace(" ","%20");
                 if(!element.startsWith("/")){
                     element = "/" + element;
                 }

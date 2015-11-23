@@ -42,7 +42,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
@@ -111,7 +111,7 @@ public class StorageManager {
 			}
 		}
 
-		File testsFolder = new File(Properties.CTG_BESTS_DIR);
+		File testsFolder = getBestTestFolder();
 		if(!testsFolder.exists()){
 			if(!testsFolder.mkdirs()){
 				logger.error("Failed to mkdir "+testsFolder.getAbsolutePath());
@@ -129,7 +129,20 @@ public class StorageManager {
 		return true;		
 	}
 
-	public File getSeedInFolder(){
+	public static File getBestTestFolder(){
+		return getBestTestFolder(null);
+	}
+
+	public static File getBestTestFolder(File baseDir){
+		String base = "";
+		if(baseDir != null){
+			base = baseDir.getAbsolutePath() + File.separator;
+		}
+		return new File(base + Properties.CTG_DIR +
+				File.separator + Properties.CTG_BESTS_DIR_NAME);
+	}
+
+	public static File getSeedInFolder(){
 		return new File(new File(Properties.CTG_DIR),"evosuite-"+Properties.CTG_SEEDS_DIR_NAME);
 	}
 
@@ -245,7 +258,7 @@ public class StorageManager {
 	 * Compare the results of this CTG run with what was in
 	 * the database. Keep/update the best results. 
 	 * 
-	 * @param data
+	 * @param
 	 * @return
 	 */
 	public String mergeAndCommitChanges(ProjectStaticData current, String[] cuts) throws NullPointerException{
@@ -324,9 +337,9 @@ public class StorageManager {
 	public List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
 		
 		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
-		List<File> generatedTests = Utils.getAllFilesInSubFolder(tmpTests.getAbsolutePath(), ".java");
-		List<File> generatedReports = Utils.getAllFilesInSubFolder(tmpReports.getAbsolutePath(), ".csv");
-		List<File> generatedSerialized = Utils.getAllFilesInSubFolder(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
+		List<File> generatedTests = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpTests.getAbsolutePath(), ".java");
+		List<File> generatedReports = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpReports.getAbsolutePath(), ".csv");
+		List<File> generatedSerialized = FileIOUtils.getRecursivelyAllFilesInAllSubfolders(tmpSeeds.getAbsolutePath(), Properties.CTG_SEEDS_EXT);
 
 		/*
 		 * Key -> name of CUT
@@ -449,13 +462,17 @@ public class StorageManager {
 		 * TODO: to be safe, we should first write to tmp file, delete original, and then
 		 * rename the tmp
 		 */
-		File current = new File(Properties.CTG_PROJECT_INFO);
+		File current = getProjectInfoFile();
 		current.delete();
 		try {
 			FileUtils.write(current, writer.toString());
 		} catch (IOException e) {
 			logger.error("Failed to write to database: "+e.getMessage(),e);
 		}
+	}
+
+	private static File getProjectInfoFile(){
+		return new File(Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO);
 	}
 
 	private void updateProjectStatistics(ProjectInfo db, ProjectStaticData current) {
@@ -601,7 +618,7 @@ public class StorageManager {
 		String testName = extractClassName(tmpTests,newlyGeneratedTestSuite);
 		
 		String path = testName.replace(".", File.separator) + ".java";
-		File file = new File(Properties.CTG_BESTS_DIR + File.separator + path);
+		File file = new File(getBestTestFolder() + File.separator + path);
 		file.delete(); //the following copy does not overwrite
 
 		try {
@@ -827,7 +844,7 @@ public class StorageManager {
 	private File getFileForTargetBestTest(String testName) {
 		String path = testName.replace(".", File.separator);
 		path += ".java";
-		return new File(Properties.CTG_BESTS_DIR + File.separator + path);
+		return new File(getBestTestFolder() + File.separator + path);
 	}
 
 	/**
@@ -837,7 +854,7 @@ public class StorageManager {
 	 */
 	public static ProjectInfo getDatabaseProjectInfo(){
 
-		File current = new File(Properties.CTG_PROJECT_INFO);
+		File current = getProjectInfoFile();
 		InputStream stream = null;
 		if(!current.exists()){
 			stream = getDefaultXmlStream();

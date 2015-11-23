@@ -53,6 +53,7 @@ public class DSELocalSearch extends StatementLocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(DSELocalSearch.class);
 
+
 	public boolean doSearch(TestChromosome test, Set<Integer> statements,
 			LocalSearchObjective<TestChromosome> objective) {
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");

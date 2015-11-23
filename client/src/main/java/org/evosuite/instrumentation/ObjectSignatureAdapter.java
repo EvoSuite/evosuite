@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -74,7 +74,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 			// Initialize descriptors
 			// mutation-report/className.obj contains method signatures
 			File file = new File(Properties.OUTPUT_DIR + "/" + className + ".obj");
-			List<String> lines = Utils.readFile(file);
+			List<String> lines = FileIOUtils.readFile(file);
 			descriptors = new HashMap<String, String>();
 			for (String line : lines) {
 				line = line.trim();

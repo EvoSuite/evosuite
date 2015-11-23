@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -33,6 +34,7 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.search.StringAVM;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.junit.Test;
@@ -48,28 +50,33 @@ public class StringAVMTests extends RandomizedTC {
 	}
 	
 	@Test
-	public void testIssueWithOptional(){
+	public void testIssueWithOptional() throws SolverTimeoutException{
 		String name = "addd";
 		StringVariable var = new StringVariable(name, "");
 		
 		String format = "a.?c";
 		List<Constraint<?>> constraints = getPatternConstraint(var,format);
 				
-		StringAVM avm = new StringAVM(var,constraints);
+		long start_time = System.currentTimeMillis();
+		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+
+		StringAVM avm = new StringAVM(var,constraints,start_time,timeout);
 		boolean succeded = avm.applyAVM();
 		assertTrue(succeded);
 	}
 	
 	@Test
-	public void testSimpleRegexThreeDigits(){
+	public void testSimpleRegexThreeDigits() throws SolverTimeoutException{
 		String name = "foo";
 		StringVariable var = new StringVariable(name, "");
 		
 		String format = "\\d\\d\\d";
 		List<Constraint<?>> constraints = getPatternConstraint(var,format);
 		
-		
-		StringAVM avm = new StringAVM(var,constraints);
+		long start_time = System.currentTimeMillis();
+		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+
+		StringAVM avm = new StringAVM(var,constraints,start_time,timeout);
 		boolean succeded = avm.applyAVM();
 		assertTrue(succeded);
 		
@@ -79,7 +86,7 @@ public class StringAVMTests extends RandomizedTC {
 	}
 	
 	@Test
-	public void testInsertLeft(){
+	public void testInsertLeft() throws SolverTimeoutException{
 		String name = "foo";
 		String start = "abc";
 		StringVariable var = new StringVariable(name, start);
@@ -87,8 +94,9 @@ public class StringAVMTests extends RandomizedTC {
 		String format = "\\d\\d\\d"+start;
 		List<Constraint<?>> constraints = getPatternConstraint(var,format);
 		
-		
-		StringAVM avm = new StringAVM(var,constraints);
+		long start_time = System.currentTimeMillis();
+		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+		StringAVM avm = new StringAVM(var,constraints, start_time, timeout);
 		boolean succeded = avm.applyAVM();
 		assertTrue(succeded);
 		
@@ -98,7 +106,7 @@ public class StringAVMTests extends RandomizedTC {
 	}
 	
 	@Test
-	public void testInsertRight(){
+	public void testInsertRight() throws SolverTimeoutException{
 		String name = "foo";
 		String start = "abc";
 		StringVariable var = new StringVariable(name, start);
@@ -106,8 +114,10 @@ public class StringAVMTests extends RandomizedTC {
 		String format = start+"\\d\\d\\d";
 		List<Constraint<?>> constraints = getPatternConstraint(var,format);
 		
-		
-		StringAVM avm = new StringAVM(var,constraints);
+		long start_time = System.currentTimeMillis();
+		long timeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+
+		StringAVM avm = new StringAVM(var,constraints,start_time,timeout);
 		boolean succeded = avm.applyAVM();
 		assertTrue(succeded);
 		

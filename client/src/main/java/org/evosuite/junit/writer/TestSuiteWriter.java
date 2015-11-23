@@ -49,7 +49,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.Utils;
+import org.evosuite.utils.FileIOUtils;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.objectweb.asm.Opcodes;
@@ -81,7 +81,9 @@ public class TestSuiteWriter implements Opcodes {
     /**
      * Constant <code>logger</code>
      */
-    protected final static Logger logger = LoggerFactory.getLogger(TestSuiteWriter.class);
+    private final static Logger logger = LoggerFactory.getLogger(TestSuiteWriter.class);
+
+    public static final String NOT_GENERATED_TEST_NAME = "notGeneratedAnyTest";
 
     protected TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -228,14 +230,14 @@ public class TestSuiteWriter implements Opcodes {
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             content = getUnitTestsAllInSameFile(name, results);
-            Utils.writeFile(content, file);
+            FileIOUtils.writeFile(content, file);
             generated.add(file);
         } else {
             for (int i = 0; i < testCases.size(); i++) {
                 String testSuiteName = name.substring(0, name.length() - "Test".length()) + "_" + i + "_Test";
                 File file = new File(dir + "/" + testSuiteName + ".java");
                 String testCode = getOneUnitTestInAFile(name, i, results);
-                Utils.writeFile(testCode, file);
+                FileIOUtils.writeFile(testCode, file);
                 content += testCode;
                 generated.add(file);
             }
@@ -246,7 +248,7 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(dir + "/" + scaffoldingName + ".java");
             String scaffoldingContent = Scaffolding.getScaffoldingFileContent(name, results,
                     TestSuiteWriterUtils.hasAnySecurityException(results));
-            Utils.writeFile(scaffoldingContent, file);
+            FileIOUtils.writeFile(scaffoldingContent, file);
             generated.add(file);
             content += scaffoldingContent;
         }
@@ -257,6 +259,24 @@ public class TestSuiteWriter implements Opcodes {
         return generated;
     }
 
+    /**
+     * To avoid having completely empty test classes, a no-op test is created
+     * 
+     * @return
+     */
+    private String getEmptyTest() {
+    	StringBuilder bd = new StringBuilder();
+        bd.append(METHOD_SPACE);
+    	bd.append("@Test\n");
+        bd.append(METHOD_SPACE);
+        bd.append("public void "+NOT_GENERATED_TEST_NAME+"() {\n");
+        bd.append(BLOCK_SPACE);
+    	bd.append("// EvoSuite did not generate any tests\n");
+        bd.append(METHOD_SPACE);
+        bd.append("}\n");
+    	return bd.toString();
+    }
+    
     /**
      * Create JUnit file for given class name
      *
@@ -278,9 +298,13 @@ public class TestSuiteWriter implements Opcodes {
         if (!Properties.TEST_SCAFFOLDING) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
-
-        for (int i = 0; i < testCases.size(); i++) {
-            builder.append(testToString(i, i, results.get(i)));
+        
+        if(testCases.isEmpty()) {
+        	builder.append(getEmptyTest());
+        } else {
+        	for (int i = 0; i < testCases.size(); i++) {
+        		builder.append(testToString(i, i, results.get(i)));
+        	}
         }
         builder.append(getFooter());
 
@@ -798,7 +822,7 @@ public class TestSuiteWriter implements Opcodes {
                     builder.append(testName + "," + goal.toString() + NEWLINE);
                 }
             }
-            Utils.writeFile(builder.toString(), file);
+            FileIOUtils.writeFile(builder.toString(), file);
         }
     }
 

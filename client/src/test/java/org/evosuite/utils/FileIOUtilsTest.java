@@ -27,12 +27,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Scanner;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by Andrea Arcuri on 07/06/15.
  */
-public class FileSystemUtilsTest {
+public class FileIOUtilsTest {
 
     @Test
     public void testCopyDirectoryAndOverwriteFilesIfNeeded() throws Exception {
@@ -67,7 +65,7 @@ public class FileSystemUtilsTest {
         Assert.assertFalse(destC.exists());
 
 
-        FileSystemUtils.copyDirectoryAndOverwriteFilesIfNeeded(src, dest);
+        FileIOUtils.copyDirectoryAndOverwriteFilesIfNeeded(src, dest);
 
         Assert.assertTrue(destA.exists());
         Assert.assertTrue(destB.exists());
@@ -91,7 +89,7 @@ public class FileSystemUtilsTest {
 
         Assert.assertNotEquals(c.lastModified(), destC.lastModified());
 
-        FileSystemUtils.copyDirectoryAndOverwriteFilesIfNeeded(src, dest);
+        FileIOUtils.copyDirectoryAndOverwriteFilesIfNeeded(src, dest);
 
         Assert.assertEquals(c.lastModified(), destC.lastModified());
         Scanner in = new Scanner(new FileReader(destC));
