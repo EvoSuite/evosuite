@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
@@ -130,6 +131,11 @@ public class TestCaseMinimizer {
 		return fitnessMap;
 	}
 
+	
+    private boolean isTimeoutReached() {
+        return !TimeController.getInstance().isThereStillTimeInThisPhase();
+    }
+    
 	/**
 	 * Central minimization function. Loop and try to remove until all
 	 * statements have been checked.
@@ -158,7 +164,10 @@ public class TestCaseMinimizer {
 			changed = false;
 
 			for (int i = c.test.size() - 1; i >= 0; i--) {
-
+				if (isTimeoutReached()) {
+					return;
+				}
+				
 				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
 				boolean modified = false;
@@ -186,6 +195,7 @@ public class TestCaseMinimizer {
 						isWorse = true;
 						break;
 					}
+					
 				}
 
 				if (!isWorse) {
