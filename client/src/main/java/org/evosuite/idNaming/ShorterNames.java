@@ -24,11 +24,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class ShorterNames {
-	protected static String[] minimizePair(String name1, String name2, List<String> nameList){	
-		//System.out.println(name1+"-"+name2);
+	protected static String[] minimizePair(String name1, String name2, List<String> nameList, List<String> optimizedNames){	
+//	protected static String[] minimizePair(String name1, String name2, List<String> nameList){	
+
+	//System.out.println(name1+"-"+name2);
 		List<String> list1 = new ArrayList(Arrays.asList(name1.split("_")));
 		List<String> list2 = new ArrayList(Arrays.asList(name2.split("_")));
 		List<String> union = new ArrayList<String>(list1);
+		
 		union.addAll(list2);
 		List<String> intersection=null;
 		// Prepare an intersection
@@ -64,6 +67,14 @@ public abstract class ShorterNames {
 			nameSecond+="_"+name2.split("_")[1];
 		}
 		// in case that after minimizing a name it became equal with another name in the list, do not minimize it
+		for(String str: optimizedNames){
+			if(str.equals(nameFirst)){
+				nameFirst = name1;
+			}
+			if(str.equals(nameSecond)){
+				nameSecond = name2;
+			}
+		}
 		for(String str: nameList){
 			if(str.equals(nameFirst)){
 				nameFirst = name1;
@@ -73,6 +84,8 @@ public abstract class ShorterNames {
 			}
 		}
 		String [] result= {nameFirst, nameSecond};
+		optimizedNames.add(nameFirst);
+		optimizedNames.add(nameSecond);
 		System.out.println(nameFirst);
 		System.out.println(nameSecond);
 		return result;    			

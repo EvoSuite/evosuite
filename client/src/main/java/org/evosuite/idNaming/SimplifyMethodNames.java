@@ -36,9 +36,10 @@ public class SimplifyMethodNames extends ShorterNames{
         return instance;
     }
 
-    public String[] optimizeNames(List<String> nameList){
-    	System.out.println(nameList.toString());
+    public static String[] optimizeNames(List<String> nameList){
+    	
 		SimplifyMethodNames simple= new SimplifyMethodNames();
+		List<String> optimizedNames = new ArrayList<String>();
 		String[] methodNames = nameList.toArray(new String[nameList.size()]) ;
 		for(int i=0; i<nameList.size(); i++){
 			String [] name1=methodNames[i].split("_");
@@ -71,30 +72,26 @@ public class SimplifyMethodNames extends ShorterNames{
 				}				
 			}
 			if(prevInter!=0){
-				String[] optNames=minimizePair(methodNames[i], secondName, nameList);				
+				String[] optNames=minimizePair(methodNames[i], secondName, nameList, optimizedNames);
+			//	String[] optNames=minimizePair(methodNames[i], secondName, nameList);
 					methodNames[i] = optNames[0];
 					methodNames[position] = optNames[1];
 			}
 		}
 	//methodNames = simple.minimizeNames(methodNames);
 	//	methodNames = simple.countSameNames(methodNames); 
+		System.out.println(nameList.toString());
 		return methodNames;
 	}
 	
   public static void main(String[] args){
 	  String[] name={
-			  "test_ToArrayWith4Arguments_ToArrayThrowingArrayIndexOutOfBoundsException", 
-			  "test_ToArrayThrowingArrayIndexOutOfBoundsException", 
-			  "test_SetThrowingIndexOutOfBoundsException", 
-			  "test_SetThrowingArrayIndexOutOfBoundsException"
-			 
 			 };
 	  minimizeNames(name);
   }
 	
     public static String[] minimizeNames (String[] names){		
-    	
-		for(int i=0; i<names.length; i++){
+    	for(int i=0; i<names.length; i++){
 			String [] tokens = names[i].split("_");
 			String newName=names[i];
 			int nameFound=-1;
@@ -140,7 +137,9 @@ public class SimplifyMethodNames extends ShorterNames{
 					}
 				//	newName=newName2.substring(newName2.indexOf("_"+tokens[i]),newName2.lastIndexOf("_"+tokens[k]));
 					//if test_a_a_b replace 2 a. if test_a_a then replace only one a
-					if(k==tokens.length-2 && !newName2.contains("Exception")){
+					
+					
+					if(k==names[i].length()-2 && !newName2.contains("Exception")){
 						newName = newName2.replace("_"+tokens[k], "");
 					} else{
 						newName = newName2.replaceFirst("_"+tokens[k]+"_", "_");
@@ -193,7 +192,7 @@ public class SimplifyMethodNames extends ShorterNames{
 				}
 			}
 		}
-    	
+		System.out.println(Arrays.toString(names));
 		minimizeFurther(names);
 		System.out.println(Arrays.toString(names));
 		return names;
