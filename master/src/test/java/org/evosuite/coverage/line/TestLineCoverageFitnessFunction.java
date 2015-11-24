@@ -199,7 +199,7 @@ public class TestLineCoverageFitnessFunction extends SystemTest {
 		// To see whether there is any guidance we turn off
 		// seeding, but need to increase the budget
 		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 50000;
+		Properties.SEARCH_BUDGET = 500_000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
