@@ -117,16 +117,23 @@ public class TestCaseMinimizer {
 	}
 
 	/**
-	 * Calculate the fitness values for all fitness functions in a map
+	 * Calculate the fitness values for all fitness functions in a map.
+	 * Returns null if a timeout is reached
 	 * 
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a {@link java.util.Map} object.
 	 */
-	public Map<TestFitnessFunction, Double> getFitnessValues(TestChromosome test) {
+	private Map<TestFitnessFunction, Double> getFitnessValues(TestChromosome test) {
 		Map<TestFitnessFunction, Double> fitnessMap = new HashMap<TestFitnessFunction, Double>();
 		for (TestFitnessFunction fitness : fitnessFunctions) {
-			fitnessMap.put(fitness, fitness.getFitness(test));
+			if (isTimeoutReached()) {
+				logger.debug("Timeout while computing fitness values");
+				return null;
+			}
+			
+			double fit = fitness.getFitness(test);
+			fitnessMap.put(fitness, fit);
 		}
 		return fitnessMap;
 	}
@@ -154,10 +161,18 @@ public class TestCaseMinimizer {
 		TestFactory testFactory = TestFactory.getInstance();
 
 		Map<TestFitnessFunction, Double> fitness = getFitnessValues(c);
-
+		if (fitness==null|| isTimeoutReached()) {
+			return;
+		}
 
 		logger.debug("Start fitness values: " + fitness);
 		assert ConstraintVerifier.verifyTest(c);
+		
+		if (isTimeoutReached()) {
+			logger.debug("Timeout reached after verifying test");
+			return;
+		}
+		
 		boolean changed = true;
 
 		while (changed) {
@@ -165,6 +180,7 @@ public class TestCaseMinimizer {
 
 			for (int i = c.test.size() - 1; i >= 0; i--) {
 				if (isTimeoutReached()) {
+					logger.debug("Timeout reached before minimizing statement {}", c.test.getStatement(i).getCode());
 					return;
 				}
 				
@@ -176,7 +192,7 @@ public class TestCaseMinimizer {
 				} catch (ConstructionFailedException e) {
 					modified = false;
 				}
-
+				
 				if(!modified){
 					c.setChanged(false);
 					c.test = copy.test;
@@ -187,10 +203,21 @@ public class TestCaseMinimizer {
 				c.setChanged(true);
 
 				Map<TestFitnessFunction, Double> newFitness = getFitnessValues(c);
+				if (newFitness==null) {
+					logger.debug("Keeping original version due to timeout");
+					restoreTestCase(c, copy);
+					return;
+				}
 				//double new_fitness = fitnessFunction.getFitness(c);
 
 				boolean isWorse = false;
 				for (TestFitnessFunction fitnessFunction : fitnessFunctions) {
+					if (isTimeoutReached()) {
+						logger.debug("Keeping original version due to timeout");
+						restoreTestCase(c, copy);
+						return;
+					}
+					
 					if (isWorse(fitnessFunction, copy, c)) {
 						isWorse = true;
 						break;
@@ -205,13 +232,9 @@ public class TestCaseMinimizer {
 					break;
 				} else {
 					logger.debug("Keeping original version");
-					c.test = copy.test;
-					c.copyCachedResults(copy);
-					//c.setFitness(copy.getFitness());
-					c.setFitnessValues(copy.getFitnessValues());
-			        c.setPreviousFitnessValues(copy.getPreviousFitnessValues());
-					c.setChanged(false);
+					restoreTestCase(c, copy);
 				}
+
 			}
 		}
 
@@ -222,6 +245,15 @@ public class TestCaseMinimizer {
 			logger.debug(c.test.toCode());
 		}
 
+	}
+
+	private static void restoreTestCase(TestChromosome c, TestChromosome copy) {
+		c.test = copy.test;
+		c.copyCachedResults(copy);
+		//c.setFitness(copy.getFitness());
+		c.setFitnessValues(copy.getFitnessValues());
+		c.setPreviousFitnessValues(copy.getPreviousFitnessValues());
+		c.setChanged(false);
 	}
 
 }

@@ -159,8 +159,12 @@ public class TestSuiteMinimizer {
         }
 
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-        for (TestFitnessFactory<?> ff : testFitnessFactories)
+        for (TestFitnessFactory<?> ff : testFitnessFactories) {
+            if (isTimeoutReached()) {
+            	return;
+            }
             goals.addAll(ff.getCoverageGoals());
+        }
         filterJUnitCoveredGoals(goals);
 
         int currentGoal = 0;
@@ -248,6 +252,11 @@ public class TestSuiteMinimizer {
                     copy.setTestCase(new StructuredTestCase(test.getTestCase()));
                 }
                 minimizer.minimize(copy);
+                if (isTimeoutReached()) {
+                    logger.warn("Minimization timeout. Roll back to original test suite");
+                    return;
+                }
+                
                 if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
                     // TODO: Find proper way to determine statements
                     ((StructuredTestCase) copy.getTestCase()).setExerciseStatement(copy.size() - 1);
