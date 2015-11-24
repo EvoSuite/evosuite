@@ -707,29 +707,7 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(NEWLINE);
 
         String testCode = builder.toString();
-        if (Properties.ID_NAMING) {
-            List<String> namesWithExceptions = new ArrayList<String>();
-
-            String newMethodName = methodName;//TestNameGenerator.getInstance().checkExeptionInTest(testCode, methodName);
-            String[] tokens = newMethodName.split("_");
-
-            newMethodName = tokens[0];
-            for (int i = 1; i < tokens.length; i++) {
-                if (i == tokens.length - 1) {
-                    if (tokens[i].contains("Exception")) {
-                        //newMethodName += "Throwing" + WordUtils.capitalize(tokens[i]);
-                    	newMethodName += WordUtils.capitalize(tokens[i]);
-                    } else {
-                        newMethodName += WordUtils.capitalize(tokens[i]);
-                    }
-                } else {
-                    newMethodName += WordUtils.capitalize(tokens[i]);
-                }
-
-            }
-            builder.replace(builder.indexOf(methodName), builder.indexOf("()  throws Throwable  {"), newMethodName);
-            testCode = builder.toString();
-        }
+        
         TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
                 testInfo, result);
         return testCode;

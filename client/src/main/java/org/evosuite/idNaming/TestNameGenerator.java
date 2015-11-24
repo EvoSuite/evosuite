@@ -734,6 +734,22 @@ public class TestNameGenerator extends DistinguishNames {
 	            	testMethodNameOptimized=testMethodNameOptimized.replace("Constructor",className);
 	            }
           //  }
+	            String[] tokens = testMethodNameOptimized.split("_");
+
+	            testMethodNameOptimized = tokens[0];
+	            for (int j = 1; j < tokens.length; j++) {
+	                if (i == tokens.length - 1) {
+	                    if (tokens[j].contains("Exception")) {
+	                        //newMethodName += "Throwing" + WordUtils.capitalize(tokens[i]);
+	                    	testMethodNameOptimized += WordUtils.capitalize(tokens[j]);
+	                    } else {
+	                    	testMethodNameOptimized += WordUtils.capitalize(tokens[j]);
+	                    }
+	                } else {
+	                	testMethodNameOptimized += WordUtils.capitalize(tokens[j]);
+	                }
+
+	            }
             setNameGeneratedFor(testCs[i], testMethodNameOptimized);         
             methodNames.add(testMethodNameOptimized);           
         }     
