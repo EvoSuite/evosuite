@@ -33,7 +33,7 @@ import com.examples.with.different.packagename.concolic.FileSuffix;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class FileSuffixSystemTest extends SystemTest {
+public class FileSuffixLSSystemTest extends SystemTest {
 
 	@Before
 	public void init() {
@@ -57,29 +57,6 @@ public class FileSuffixSystemTest extends SystemTest {
 	            //these are basic criteria that should be always on by default
 	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-
-	}
-
-	@Test
-	public void testDSE() {
-
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = FileSuffix.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-
-		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
-		Properties.CRITERION = new Criterion[] {
-	            //these are basic criteria that should be always on by default
-	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
-		
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
