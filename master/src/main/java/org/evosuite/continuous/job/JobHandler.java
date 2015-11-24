@@ -318,17 +318,8 @@ public class JobHandler extends Thread {
 		commands.add("-Dctg_seeds_file_in=" + seedIn.getAbsolutePath() + File.separator +seedsFileName);
 
 		commands.addAll(getOutputVariables());
-		if (Properties.ANALYSIS_CRITERIA.isEmpty()) {
-			commands.add("-Danalysis_criteria=" +
-					Properties.Criterion.LINE + "," + Properties.Criterion.STATEMENT + "," +
-					Properties.Criterion.BRANCH + "," + Properties.Criterion.ONLYBRANCH + "," + Properties.Criterion.CBRANCH + "," + Properties.Criterion.IBRANCH + "," +
-					Properties.Criterion.EXCEPTION + "," +
-					Properties.Criterion.WEAKMUTATION + "," + Properties.Criterion.ONLYMUTATION + "," + Properties.Criterion.MUTATION + "," +
-					Properties.Criterion.OUTPUT + "," + Properties.Criterion.INPUT + "," +
-					Properties.Criterion.METHOD + "," + Properties.Criterion.METHODTRACE + "," + Properties.Criterion.METHODNOEXCEPTION);
-		} else {
-			commands.add("-Danalysis_criteria=" + Properties.ANALYSIS_CRITERIA);
-		}
+		commands.add("-Danalysis_criteria=" + Properties.ANALYSIS_CRITERIA);
+
 		commands.add("-Dcriterion=" + Arrays.toString(Properties.CRITERION).
 												replace("[", "").
 												replace("]", "").
