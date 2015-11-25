@@ -52,6 +52,7 @@ public class FileSuffixLSSystemTest extends SystemTest {
 		String targetClass = FileSuffix.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
+		Properties.PRINT_TO_SYSTEM = true;
 		Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
 		Properties.CRITERION = new Criterion[] {
 	            //these are basic criteria that should be always on by default

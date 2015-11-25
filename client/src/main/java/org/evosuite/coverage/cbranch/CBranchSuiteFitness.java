@@ -204,7 +204,9 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 							suite.isToBeUpdated(true);
 						}
 					}
-					// //
+				}
+				
+				for (CallContext context : falseMap.keySet()) {
 					CBranchTestFitness goalF = getContextGoal(branchId, context, false);
 					if (goalF == null)
 						continue;
