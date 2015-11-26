@@ -266,6 +266,11 @@ public class JobHandler extends Thread {
 		commands.add("-class");
 		commands.add(job.cut);
 
+		if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
+			commands.add("-Dspawn_process_manager_port="+Properties.SPAWN_PROCESS_MANAGER_PORT);
+		}
+
+
 		//commands.add("-projectCP");
 		//commands.add(executor.getProjectClassPath()); might be too long and fail on Windows
 
