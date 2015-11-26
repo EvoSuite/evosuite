@@ -55,13 +55,14 @@ public class SpawnProcessKeepAliveChecker {
 
         serverThread = new Thread(){
             @Override public void run(){
-                while(! isInterrupted()){
+                while(! isInterrupted() && server!=null && !server.isClosed()){
                     try {
                         Socket socket = server.accept();
                         socket.setKeepAlive(true);
                         executor.submit(new KeepAliveTask(socket));
                     } catch (IOException e) {
-                        logger.error("Error while accepting incoming connections: "+e.getMessage());
+                        //fine, expected
+                        return;
                     }
                 }
 
@@ -70,12 +71,13 @@ public class SpawnProcessKeepAliveChecker {
         serverThread.start();
 
         int port = server.getLocalPort();
-        LoggingUtils.getEvoLogger().info("* Started spawn process manager on port {}", port);
+        logger.info("Started spawn process manager on port {}", port);
 
         return port;
     }
 
     public void stopServer(){
+        logger.info("Stopping spawn process manager");
         try {
             if(server != null) {
                 server.close();
