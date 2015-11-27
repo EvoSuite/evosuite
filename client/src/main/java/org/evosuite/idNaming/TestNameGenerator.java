@@ -11,13 +11,8 @@ import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.Statement;
 
 import java.util.*;
-import java.util.Map.Entry;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 //import com.sun.codemodel.internal.util.Surrogate.Generator;
 
@@ -134,7 +129,10 @@ public class TestNameGenerator extends DistinguishNames {
         testCaseNames.put(tc, name);
         testCaseNames1.put(tc.toCode().trim(), name);
     }
-    
+
+	public static Map<TestCase, String> getResults() {
+		return getInstance().testCaseNames;
+	}
     /**
      * Generates test name for one particular test case
      *
