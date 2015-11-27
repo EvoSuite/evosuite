@@ -53,12 +53,12 @@ public class TestSuiteWriterSystemTest extends SystemTest {
 	public void testWriteCoveredGoals() throws IOException {
 		Properties.WRITE_COVERED_GOALS_FILE = true;
 		test();
-		Path path = Paths.get(Properties.COVERED_GOALS_FILE);
+		Path path = Paths.get(Properties.getCoveredGoalsFile());
 		Assert.assertTrue("Covered goals file does not exist", Files.exists(path));
 		Assert.assertEquals("Covered goals file with 2 lines was expected", 2, Files.readAllLines(path).size());
 	}
 	
-	
+
 	public void test(){
 
 		Assert.assertNull(System.getSecurityManager());

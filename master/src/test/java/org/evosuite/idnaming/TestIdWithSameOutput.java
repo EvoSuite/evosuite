@@ -17,13 +17,7 @@
  */
 package org.evosuite.idnaming;
 
-import com.examples.with.different.packagename.Calculator;
-import com.examples.with.different.packagename.errorbranch.*;
-import com.examples.with.different.packagename.idnaming.SimpleIdNaming;
 import com.examples.with.different.packagename.sette.L4_Collections;
-import com.examples.with.different.packagename.sette.SnippetInputContainer;
-import com.examples.with.different.packagename.stable.Base64;
-import com.examples.with.different.packagename.staticfield.UnstableAssertion;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -42,7 +36,7 @@ public class TestIdWithSameOutput extends SystemTest {
 		String targetClass = L4_Collections.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.ID_NAMING = true;
+		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 		StringBuilder analysisCriteria = new StringBuilder();
         analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");

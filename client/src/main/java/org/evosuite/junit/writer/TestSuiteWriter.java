@@ -35,6 +35,7 @@ import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.idNaming.TestNameGenerator;
+import org.evosuite.idNaming.VariableNamesGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoAssertions;
@@ -42,6 +43,7 @@ import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
+import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -222,10 +224,9 @@ public class TestSuiteWriter implements Opcodes {
             ExecutionResult result = runTest(testCases.get(i));
             results.add(result);
         }
-        
-        if (Properties.ID_NAMING && optimizeIDNaming) {
+
+        if (Properties.TEST_NAMING && optimizeIDNaming)
             TestNameGenerator.getInstance().execute(testCases,results);
-        }
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
@@ -254,6 +255,8 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         writeCoveredGoalsFile();
+
+        writeTestNamesFile();
 
         TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
         return generated;
@@ -734,6 +737,13 @@ public class TestSuiteWriter implements Opcodes {
         StringBuilder builder = new StringBuilder();
         builder.append("Test case number: " + num);
 
+        // comment with carved test name
+        String carvedName = test instanceof CarvedTestCase ? ((CarvedTestCase) test).getName() : null;
+        if (carvedName != null) {
+            builder.append(NEWLINE);
+            builder.append(METHOD_SPACE);
+            builder.append("//Carved test name: " + carvedName);
+        }
         if (!coveredGoals.isEmpty()) {
             builder.append(NEWLINE);
             builder.append("  /*");
@@ -746,7 +756,7 @@ public class TestSuiteWriter implements Opcodes {
             int nr = 1;
             for (TestFitnessFunction goal : coveredGoals) {
                 builder.append(NEWLINE);
-                builder.append("   * " + "Goal " + nr + ". " + getGoalPrefix(goal) + goal.toString());
+                builder.append("   * Goal " + nr + ". " + getGoalPrefix(goal) + goal.toString());
                 // TODO only for debugging purposes
                 if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
                         && (goal instanceof DefUseCoverageTestFitness)) {
@@ -783,7 +793,8 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(Criterion.OUTPUT.toString());
         else if (f instanceof ExceptionCoverageTestFitness)
             builder.append(Criterion.EXCEPTION.toString());
-
+        else
+            builder.append("~");
         builder.append("] ");
         return builder.toString();
     }
@@ -791,10 +802,11 @@ public class TestSuiteWriter implements Opcodes {
     private void writeCoveredGoalsFile() {
         if (Properties.WRITE_COVERED_GOALS_FILE) {
             StringBuilder builder = new StringBuilder();
-            File file = new File(Properties.COVERED_GOALS_FILE);
+            File file = new File(Properties.getCoveredGoalsFile());
             for (int i = 0; i < testCases.size(); i++) {
                 TestCase test = testCases.get(i);
-                String testName = TestSuiteWriterUtils.getNameOfTest(testCases, i);
+                String generatedName = TestNameGenerator.getNameGeneratedFor(test);
+                String testName = (generatedName != null) ? generatedName : TestSuiteWriterUtils.getNameOfTest(testCases, i);
                 Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
                 for (TestFitnessFunction goal : coveredGoals) {
                     builder.append(testName + "," + goal.toString() + NEWLINE);
@@ -804,5 +816,18 @@ public class TestSuiteWriter implements Opcodes {
         }
     }
 
+    private void writeTestNamesFile() {
+        if (Properties.WRITE_TEST_NAMES_FILE) {
+            StringBuilder builder = new StringBuilder();
+            File file = new File(Properties.getTestNamesFile());
+            for (int i = 0; i < testCases.size(); i++) {
+                TestCase test = testCases.get(i);
+                String generatedName = TestNameGenerator.getNameGeneratedFor(test);
+                String carvedName = TestSuiteWriterUtils.getNameOfTest(testCases, i);
+                builder.append(generatedName + "," + carvedName + NEWLINE);
+            }
+            FileIOUtils.writeFile(builder.toString(), file);
+        }
+    }
 
 }

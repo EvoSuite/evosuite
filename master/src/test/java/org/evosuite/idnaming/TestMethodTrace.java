@@ -1,11 +1,8 @@
 package org.evosuite.idnaming;
 
-import static org.junit.Assert.*;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -23,7 +20,7 @@ public class TestMethodTrace extends SystemTest{
 		String targetClass = SnippetInputContainer.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.ID_NAMING = true;
+		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 		StringBuilder analysisCriteria = new StringBuilder();
         analysisCriteria.append(Properties.Criterion.METHODTRACE); analysisCriteria.append(",");

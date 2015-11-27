@@ -328,7 +328,7 @@ public class TestCodeVisitor extends TestVisitor {
 	 */
 	public String getVariableName(VariableReference var) {
 
-        if (Properties.ID_NAMING) {
+        if (Properties.TEST_NAMING) {
             String name = VariableNamesGenerator.getVariableName(this.test,var);
             if (name != null)
                 return name;

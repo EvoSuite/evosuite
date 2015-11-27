@@ -2,7 +2,6 @@ package org.evosuite.idnaming;
 
 import com.examples.with.different.packagename.idnaming.gnu.trove.TCollections;
 import com.examples.with.different.packagename.idnaming.gnu.trove.decorator.TIntShortMapDecorator;
-import com.examples.with.different.packagename.idnaming.gnu.trove.decorator.TShortShortMapDecorator;
 import com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap;
 
 import org.evosuite.EvoSuite;
@@ -27,7 +26,7 @@ public class TestIdNamingAssertion extends SystemTest {
 		String targetClass = TIntShortMapDecorator.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.ID_NAMING = true;
+		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 
 		Properties.CRITERION = new Properties.Criterion[] {
@@ -55,7 +54,7 @@ public class TestIdNamingAssertion extends SystemTest {
 		String targetClass = TCollections.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.ID_NAMING = true;
+		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 
 		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.INPUT };
@@ -81,7 +80,7 @@ public class TestIdNamingAssertion extends SystemTest {
 		String targetClass = TUnmodifiableIntByteMap.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.ID_NAMING = true;
+		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 30;
