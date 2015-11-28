@@ -60,6 +60,7 @@ public class SpawnProcessKeepAliveChecker {
                         Socket socket = server.accept();
                         socket.setKeepAlive(true);
                         executor.submit(new KeepAliveTask(socket));
+                        logger.info("Registered remote process from "+socket.getRemoteSocketAddress());
                     } catch (IOException e) {
                         //fine, expected
                         return;

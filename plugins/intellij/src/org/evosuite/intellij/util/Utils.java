@@ -19,6 +19,9 @@
  */
 package org.evosuite.intellij.util;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.compiler.CompilerPaths;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -30,6 +33,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Andrea Arcuri on 11/03/15.
@@ -87,4 +92,33 @@ public class Utils {
         }
         return cp;
     }
+
+    public static boolean compileModule(Project project, AsyncGUINotifier notifier, Module module) {
+        final AtomicBoolean ok = new AtomicBoolean(true);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+
+        //Maybe this is not really needed if using Maven plugin?
+        //However, would still be good to have it here to get warning if there are compilation errors
+        ApplicationManager.getApplication().invokeAndWait(
+                () -> CompilerManager.getInstance(project).make(module,
+                        (aborted, errors, warnings, compileContext) -> {
+                            if (errors > 0) {
+                                ok.set(false);
+                            }
+                            latch.countDown();
+                        }), ModalityState.defaultModalityState());
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            return true;
+        }
+        if(! ok.get()){
+            notifier.failed("Compilation failure. Fix the compilation issues before running EvoSuite.");
+            return false;
+        }
+        return true;
+    }
+
 }
