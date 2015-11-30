@@ -45,7 +45,11 @@ public class BudgetSchedule extends OneTimeSchedule{
 	protected List<JobDefinition> createScheduleOnce() {
 		
 		ProjectStaticData data = scheduler.getProjectData();
-		
+
+		if(data.getTotalNumberOfBranches() == 0){
+			return new SimpleSchedule(scheduler).createScheduleOnce();
+		}
+
 		int maximumBudgetPerCore = 60 * scheduler.getConfiguration().timeInMinutes;
 		
 		/*
@@ -64,15 +68,15 @@ public class BudgetSchedule extends OneTimeSchedule{
 		 * choose how best to allocate
 		 */
 		int extraTime = totalBudget - minTime;
-		
+
 		/*
 		 * check how much time we can give extra for each branch in a CUT 
 		 */
-		double timePerBranch = (double)extraTime / (double)data.getTotalNumberOfBranches(); 
+		double timePerBranch = (double)extraTime / (double)data.getTotalNumberOfBranches();
 		
 		int totalLeftOver = 0;
 		
-		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
+		List<JobDefinition> jobs = new LinkedList<>();
 
 		for(ClassInfo info : data.getClassInfos()){
 			if(!info.isTestable()){
@@ -115,16 +119,13 @@ public class BudgetSchedule extends OneTimeSchedule{
 		 * as soon as possible
 		 */
 		
-		Collections.sort(jobs, new Comparator<JobDefinition>(){
-			@Override
-			public int compare(JobDefinition a, JobDefinition b) {
-				/*
-				 * the job with takes most time will be "lower".
-				 * recall that sorting is in ascending order
-				 */
-				return b.seconds - a.seconds;
-			}
-		});
+		Collections.sort(jobs, (a, b) -> {
+            /*
+             * the job with takes most time will be "lower".
+             * recall that sorting is in ascending order
+             */
+            return b.seconds - a.seconds;
+        });
 		
 		
 		return jobs;

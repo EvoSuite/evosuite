@@ -252,8 +252,10 @@ public class EvoSuiteRunner {
 			}
 
 			logger.debug("Working directory: "+baseDir);
-			logger.debug("Going to execute command: "+Arrays.toString(cmd.toArray()));
-			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Going to execute command: " + String.join(" ", cmd));
+			}
+
 			File dir = new File(baseDir);
 
 			ProcessBuilder builder = new ProcessBuilder(cmd);

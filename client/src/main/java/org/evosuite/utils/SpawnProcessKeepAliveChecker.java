@@ -136,6 +136,7 @@ public class SpawnProcessKeepAliveChecker {
               }
           }
         };
+        clientThread.start();
     }
 
     public void unRegister(){
