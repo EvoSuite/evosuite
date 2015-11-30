@@ -64,7 +64,7 @@ public class ProcessRunner {
     }
 
     private static List<String> getEvoJarCommand( Project project, File dir, EvoParameters params, Set<String> classes) throws IllegalArgumentException{
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         String java = "java";
         if(Utils.isWindows()){
             java += ".exe";

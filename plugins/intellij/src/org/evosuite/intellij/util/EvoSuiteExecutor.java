@@ -166,6 +166,7 @@ public class EvoSuiteExecutor {
             if(Thread.currentThread().isInterrupted()){
                 return;
             }
+            progressIndicator.checkCanceled();
 
             final Module module = Utils.getModule(project,modulePath);
             if(module == null){
