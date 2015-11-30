@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -155,7 +156,8 @@ public class EvoSuiteExecutor {
 
 
 
-    private void executeOnAllModules(Map<String, Set<String>> suts, Project project, AsyncGUINotifier notifier, EvoParameters params) {
+    private void executeOnAllModules(Map<String, Set<String>> suts, Project project, AsyncGUINotifier notifier,
+                                     EvoParameters params, ProgressIndicator progressIndicator) {
 
         thread = Thread.currentThread();
 
@@ -182,17 +184,24 @@ public class EvoSuiteExecutor {
                 return;
             }
 
-            int res = 0;
-            try {
-                /*
+            boolean done = false;
+
+            while(! done) {
+                try {
+                   /*
                     this is blocking, which is fine, as we want it
                     to run till completion, unless manually stopped
-                 */
-                res = p.waitFor();
-            } catch (InterruptedException e) {
-                p.destroy();
-                return;
+                     */
+                    done = p.waitFor(1, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    p.destroy();
+                    progressIndicator.checkCanceled();
+                    return;
+                }
+                progressIndicator.checkCanceled();
             }
+
+            int res = p.exitValue();
             if (res != 0) {
                 notifier.failed("EvoSuite ended abruptly");
                 return;
@@ -252,7 +261,7 @@ public class EvoSuiteExecutor {
 
             running.set(true);
 
-            executeOnAllModules(suts, getProject(), notifier, params);
+            executeOnAllModules(suts, getProject(), notifier, params, progressIndicator);
 
             running.set(false);
         }
