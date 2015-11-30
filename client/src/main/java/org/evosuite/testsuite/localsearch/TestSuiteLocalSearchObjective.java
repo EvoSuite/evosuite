@@ -172,6 +172,20 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 			return newFitness > oldFitness;
 		}
 	}
+
+	
+	public double getFitness(TestChromosome individual) {
+		TestSuiteChromosome newSuite = new TestSuiteChromosome();
+		newSuite.addTest(individual);
+		newSuite.addTest(individual);
+		LocalSearchBudget.getInstance().countFitnessEvaluation();
+		for(TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
+			fitnessFunction.getFitness(newSuite);
+		}
+		double fitness = newSuite.getFitness();
+		return fitness;
+	}
+	
 	
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)

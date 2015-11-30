@@ -79,5 +79,8 @@ public interface LocalSearchObjective<T extends Chromosome> {
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
 	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions();
+	
+	
+	public double getFitness(T individual);
 
 }
