@@ -43,6 +43,7 @@ import org.evosuite.Properties;
 import org.evosuite.maven.util.EvoSuiteRunner;
 import org.evosuite.maven.util.FileUtils;
 import org.evosuite.maven.util.HistoryChanges;
+import org.evosuite.utils.SpawnProcessKeepAliveChecker;
 
 /**
  * Generate JUnit tests
@@ -235,6 +236,10 @@ public class GenerateMojo extends AbstractMojo {
 		}
 		params.add("-Dctg_memory="+memoryInMB);
 		params.add("-Dctg_cores="+numberOfCores);
+
+		int port = SpawnProcessKeepAliveChecker.getInstance().startServer();
+		params.add("-Dspawn_process_manager_port="+port);
+
 		if (timeInMinutesPerProject != 0) {
 			params.add("-Dctg_time="+timeInMinutesPerProject);
 			params.add("-Dctg_min_time_per_job="+timeInMinutesPerClass);
@@ -276,7 +281,9 @@ public class GenerateMojo extends AbstractMojo {
 		EvoSuiteRunner runner = new EvoSuiteRunner(getLog(),artifacts,projectBuilder,repoSession);
 		runner.registerShutDownHook();
 		boolean ok = runner.runEvoSuite(dir,params);
-		
+
+		SpawnProcessKeepAliveChecker.getInstance().stopServer();
+
 		if(!ok){
 			throw new MojoFailureException("Failed to correctly execute EvoSuite");
 		}

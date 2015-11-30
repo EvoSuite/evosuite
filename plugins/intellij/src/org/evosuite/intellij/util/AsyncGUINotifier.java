@@ -27,13 +27,13 @@ package org.evosuite.intellij.util;
  */
 public interface AsyncGUINotifier {
 
-    public void success(String message);
+    void success(String message);
 
-    public void failed(String message);
+    void failed(String message);
 
-    public void attachProcess(Process process);
+    void attachProcess(Process process);
 
-    public void printOnConsole(String message);
+    void printOnConsole(String message);
 
-    public void clearConsole();
+    void clearConsole();
 }

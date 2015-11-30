@@ -38,6 +38,7 @@ import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.SpawnProcessKeepAliveChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,12 @@ public class ClientProcess {
 					+ Properties.PROCESS_COMMUNICATION_PORT);
 		}
 
+		if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
+			SpawnProcessKeepAliveChecker.getInstance().registerToRemoteServerAndDieIfFails(
+					Properties.SPAWN_PROCESS_MANAGER_PORT
+			);
+		}
+
 		/*
 		 * Now the client node is registered with RMI.
 		 * The master will control this node directly.
@@ -94,6 +101,7 @@ public class ClientProcess {
 
 		ClientServices.getInstance().getClientNode().waitUntilDone();
 		ClientServices.getInstance().stopServices();
+		SpawnProcessKeepAliveChecker.getInstance().unRegister();
 	}
 
 	private void initializeToolJar() {

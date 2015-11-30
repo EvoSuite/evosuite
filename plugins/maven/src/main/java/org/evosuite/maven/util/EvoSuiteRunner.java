@@ -250,7 +250,7 @@ public class EvoSuiteRunner {
 				baseDir = System.getProperty("user.dir");
 			}
 
-			logger.debug("Workind directory: "+baseDir);
+			logger.debug("Working directory: "+baseDir);
 			logger.debug("Going to execute command: "+Arrays.toString(cmd.toArray()));
 			
 			File dir = new File(baseDir);
