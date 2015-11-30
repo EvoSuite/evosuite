@@ -145,12 +145,10 @@ public class EvoSuiteRunner {
 		DefaultProjectBuildingRequest req = new DefaultProjectBuildingRequest();
 		req.setRepositorySession(repoSession);
 		req.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL);
-		req.setActiveProfileIds( Arrays.asList("Java7"));
-		req.setInactiveProfileIds(Arrays.asList("Java6"));
 		req.setSystemProperties(System.getProperties());
 		req.setResolveDependencies(true);
 
-		ProjectBuildingResult res = null;
+		ProjectBuildingResult res;
 
 		try {
 			res = projectBuilder.build(evosuite, req);
