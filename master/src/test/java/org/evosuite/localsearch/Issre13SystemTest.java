@@ -65,8 +65,8 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 50000;
+		Properties.LOCAL_SEARCH_BUDGET = 500;
+		Properties.SEARCH_BUDGET = 100000;
 	}
 
 	@Test
@@ -139,8 +139,6 @@ public class Issre13SystemTest extends SystemTest {
 
 		System.out.println("Test suite: "+suite);
 		
-		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
-		
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
 		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
 		localObjective.addFitnessFunction(fitness);
@@ -201,9 +199,6 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
-
-		// Properties.DSE_SOLVER = SolverType.Z3_STR_SOLVER;
-		// Properties.Z3_STR_PATH = "/home/galeotti/Z3-str/str";
 
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
