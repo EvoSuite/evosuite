@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.evosuite</groupId>
-	<artifactId>evosuite</artifactId>
-	<name>EvoSuite</name>
-	<description>n/a</description>
-	<version>1.0.2-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<url>http://www.evosuite.org/</url>
-	<inceptionYear>2010</inceptionYear>
+    <groupId>org.evosuite</groupId>
+    <artifactId>evosuite</artifactId>
+    <name>EvoSuite</name>
+    <description>n/a</description>
+    <version>1.0.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <url>http://www.evosuite.org/</url>
+    <inceptionYear>2010</inceptionYear>
 
     <licenses>
         <license>
@@ -41,57 +41,57 @@
         <module>generated</module>
     </modules>
 
-	<prerequisites>
-	  <maven>3.1</maven>
-	</prerequisites>
+    <prerequisites>
+        <maven>3.1</maven>
+    </prerequisites>
 
-	<developers>
-		<developer>
-			<id>fraser</id>
-			<name>Gordon Fraser</name>
-			<email>Gordon.Fraser@sheffield.ac.uk</email>
-			<url>http://staffwww.dcs.shef.ac.uk/people/G.Fraser</url>
-			<organization>University of Sheffield</organization>
-			<organizationUrl>http://www.sheffield.ac.uk/dcs</organizationUrl>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>arcuri</id>
-			<name>Andrea Arcuri</name>
-			<url>http://www.arcuriandrea.org</url>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>fgross</id>
-			<name>Florian Gross</name>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>jroessler</id>
-			<name>Jeremias Roessler</name>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>amis</id>
-			<name>Andre Mis</name>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <id>fraser</id>
+            <name>Gordon Fraser</name>
+            <email>Gordon.Fraser@sheffield.ac.uk</email>
+            <url>http://staffwww.dcs.shef.ac.uk/people/G.Fraser</url>
+            <organization>University of Sheffield</organization>
+            <organizationUrl>http://www.sheffield.ac.uk/dcs</organizationUrl>
+            <timezone>2</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>arcuri</id>
+            <name>Andrea Arcuri</name>
+            <url>http://www.arcuriandrea.org</url>
+            <timezone>2</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>fgross</id>
+            <name>Florian Gross</name>
+            <timezone>2</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>jroessler</id>
+            <name>Jeremias Roessler</name>
+            <timezone>2</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>amis</id>
+            <name>Andre Mis</name>
+            <timezone>2</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <scm>
         <connection>scm:git:https://github.com/EvoSuite/evosuite.git</connection>
@@ -99,10 +99,10 @@
         <url>https://github.com/EvoSuite/evosuite/tree/master</url>
     </scm>
 
-	<organization>
-		<name>EvoSuite</name>
-		<url>http://www.evosuite.org/</url>
-	</organization>
+    <organization>
+        <name>EvoSuite</name>
+        <url>http://www.evosuite.org/</url>
+    </organization>
 
 
     <profiles>
@@ -324,219 +324,86 @@
                 <version>2.0.8</version>
             </dependency>
 
-	<dependencyManagement>
-		<!-- It is important that _no_ GPL library is used here. Note, in some 
-			cases, a GPL licencse can have "classpath" exceptions, like usually for Oracle 
-			libraries: https://glassfish.java.net/public/CDDL+GPL_1_1.html For each library 
-			you want to add, add a comment regarding its used license. -->
-		<dependencies>
-			<dependency>
-				<groupId>com.sun</groupId>
-				<artifactId>tools</artifactId>
-<!--				<version>${toolsVersion}</version> -->
-				<version>1.0.0</version>
-				<scope>system</scope>
-				<systemPath>${toolsjar}</systemPath>
-			</dependency>
-			<dependency>
-				<!-- GPL, but classpath exception -->
-				<groupId>javax.xml.bind</groupId>
-				<artifactId>jaxb-api</artifactId>
-				<version>2.2.12</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>net.sf.opencsv</groupId>
-				<artifactId>opencsv</artifactId>
-				<version>2.3</version>
-			</dependency>
-			<dependency>
-				<!-- BSD -->
-				<groupId>dk.brics.automaton</groupId>
-				<artifactId>automaton</artifactId>
-				<version>1.11-8</version>
-			</dependency>
-			<dependency>
-				<!-- MIT -->
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.7.12</version>
-			</dependency>
-			<dependency>
-				<!-- EPL/LGPL -->
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>1.1.3</version>
-			</dependency>
-			<dependency>
-				<!-- MIT -->
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-all</artifactId>
-				<version>2.0.2-beta</version>
-			</dependency>
-			<dependency>
-				<!-- Common Public License Version 1.0 -->
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.12</version>
-			</dependency>
-			<dependency>
-				<!-- Adhoc license, copyright holder is INRIA -->
-				<groupId>org.ow2.asm</groupId>
-				<artifactId>asm-all</artifactId>
-				<version>5.0.4</version>
-<!--				<version>4.2</version> -->
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>com.googlecode.gentyref</groupId>
-				<artifactId>gentyref</artifactId>
-				<version>1.2.0</version>
-			</dependency>
-			<dependency>
-				<!-- LGPL -->
-				<groupId>net.sf.jgrapht</groupId>
-				<artifactId>jgrapht</artifactId>
-				<version>0.8.3</version>
-			</dependency>
-<!--			<dependency> -->
-				<!-- LGPL -->
-<!--				<groupId>org.jgrapht</groupId>
-				<artifactId>jgrapht-core</artifactId>
-				<version>0.9.0</version>
-			</dependency>
-			<dependency> -->
-				<!-- LGPL -->
-<!--				<groupId>org.jgrapht</groupId>
-				<artifactId>jgrapht-ext</artifactId>
-				<version>0.9.0</version>
-			</dependency> -->
-			<dependency>
-				<!-- LGPL -->
-				<groupId>com.panayotis</groupId>
-				<artifactId>JavaPlot</artifactId>
-				<version>0.4.0</version>
-			</dependency>
-			<dependency>
-				<!-- BSD -->
-				<groupId>com.thoughtworks.xstream</groupId>
-				<artifactId>xstream</artifactId>
-				<version>1.4.8</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>3.3.2</version>
-				<!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder
-					in 92_jcvi-javacommon -->
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>2.4</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>commons-cli</groupId>
-				<artifactId>commons-cli</artifactId>
-				<version>1.3.1</version>
-			</dependency>
-			<dependency>
-				<!-- EPL -->
-				<groupId>org.kohsuke</groupId>
-				<artifactId>graphviz-api</artifactId>
-				<version>1.1</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>oro</groupId>
-				<artifactId>oro</artifactId>
-				<version>2.0.8</version>
-			</dependency>
+            <!--  JavaEE -->
 
-			<!--  JavaEE -->
+            <dependency>
+                <!-- GPL, but classpath exception -->
+                <groupId>org.jboss.spec.javax.servlet</groupId>
+                <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+                <version>1.0.0.Final</version>
+            </dependency>
 
-			<dependency>
-				<!-- GPL, but classpath exception -->
-				<groupId>org.jboss.spec.javax.servlet</groupId>
-				<artifactId>jboss-servlet-api_3.1_spec</artifactId>
-				<version>1.0.0.Final</version>
-			</dependency>
+            <!-- LGPL 2.1 -->
+            <!--
+            <dependency>
 
-			<!-- LGPL 2.1 -->
-			<!--
-			<dependency>
-
-				<groupId>org.hibernate.javax.persistence</groupId>
-				<artifactId>hibernate-jpa-2.0-api</artifactId>
-				<version>1.0.1.Final</version>
-			</dependency>
-			-->
-			<dependency>
-				<!-- LGPL 2.1 -->
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-entitymanager</artifactId>
-				<version>4.3.10.Final</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>javax.inject</groupId>
-				<artifactId>javax.inject</artifactId>
-				<version>1</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>javax.enterprise</groupId>
-				<artifactId>cdi-api</artifactId>
-				<version>1.2</version>
-			</dependency>
-			<dependency>
-				<!-- HSQLDB License	http://hsqldb.org/web/hsqlLicense.html, based on BSD -->
-				<groupId>org.hsqldb</groupId>
-				<artifactId>hsqldb</artifactId>
-				<version>2.3.2</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
-				<version>4.1.6.RELEASE</version>
-			</dependency>
-			<dependency>
-				<!-- Apache 2 -->
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>4.1.6.RELEASE</version>
-			</dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>1.0.1.Final</version>
+            </dependency>
+            -->
+            <dependency>
+                <!-- LGPL 2.1 -->
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-entitymanager</artifactId>
+                <version>4.3.10.Final</version>
+            </dependency>
+            <dependency>
+                <!-- Apache 2 -->
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+            </dependency>
+            <dependency>
+                <!-- Apache 2 -->
+                <groupId>javax.enterprise</groupId>
+                <artifactId>cdi-api</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <!-- HSQLDB License	http://hsqldb.org/web/hsqlLicense.html, based on BSD -->
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <!-- Apache 2 -->
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>4.1.6.RELEASE</version>
+            </dependency>
+            <dependency>
+                <!-- Apache 2 -->
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>4.1.6.RELEASE</version>
+            </dependency>
 
 
-		</dependencies>
-	</dependencyManagement>
+        </dependencies>
+    </dependencyManagement>
 
 
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>http://www.evosuite.org/m2/</url>
+            <layout>default</layout>
+        </repository>
 
-	<repositories>
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-			<id>EvoSuite</id>
-			<name>EvoSuite Repository</name>
-			<url>http://www.evosuite.org/m2/</url>
-			<layout>default</layout>
-		</repository>
-
-		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>
-			</repository> -->
-	</repositories>
+        <!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>
+            </repository> -->
+    </repositories>
 
 
     <!-- Once we publish EvoSuite as open source, we should rather deploy to MavenCentral -->
@@ -550,207 +417,206 @@
 
 
     <build>
-      <!-- this is needed for "deploy" with SSH -->
-      <extensions>
-        <extension>
-          <groupId>org.apache.maven.wagon</groupId>
-          <artifactId>wagon-ssh-external</artifactId>
-          <version>2.7</version>
-        </extension>
-      </extensions>
+        <!-- this is needed for "deploy" with SSH -->
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.7</version>
+            </extension>
+        </extensions>
 
-      <plugins>
+        <plugins>
 
 
+            <!-- we need at least Maven 3.1 due to special features in EvoSuite Maven Plugin -->
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven-3</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Generate startings scripts for different platforms -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <!-- Set the target configuration directory to be used in the bin scripts -->
+                    <configurationDirectory>conf</configurationDirectory>
+                    <!-- Copy the contents from "/src/main/config" to the target configuration
+                     directory in the assembled application -->
+                    <copyConfigurationDirectory>false</copyConfigurationDirectory>
+                    <!-- Include the target configuration directory in the beginning of
+                     the classpath declaration in the bin scripts -->
+                    <includeConfigurationDirectoryInClasspath>false</includeConfigurationDirectoryInClasspath>
+                    <!-- set alternative assemble directory -->
+                    <assembleDirectory>${project.build.directory}</assembleDirectory>
+                    <!-- Extra JVM arguments that will be included in the bin scripts -->
+                    <extraJvmArguments>-Xms128m -Xmx1024m</extraJvmArguments>
+                    <platforms>
+                        <platform>windows</platform>
+                        <platform>unix</platform>
+                    </platforms>
+                    <programs>
+                        <program>
+                            <mainClass>org.evosuite.EvoSuite</mainClass>
+                            <name>EvoSuite</name>
+                            <commandLineArguments>
+                                <!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument>
+                                     <commandLineArgument>arg2</commandLineArgument> -->
+                            </commandLineArguments>
+                        </program>
+                    </programs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <xmlOutput>true</xmlOutput>
+                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+                </configuration>
+            </plugin>
 
-        <!-- we need at least Maven 3.1 due to special features in EvoSuite Maven Plugin -->
-        <plugin>
-          <inherited>true</inherited>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.4</version>
-          <executions>
-            <execution>
-              <id>enforce-maven-3</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <requireMavenVersion>
-                    <version>3.1</version>
-                  </requireMavenVersion>
-                </rules>
-                <fail>true</fail>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-	<!-- Generate startings scripts for different platforms -->
-	<plugin>
-	  <groupId>org.codehaus.mojo</groupId>
-	  <artifactId>appassembler-maven-plugin</artifactId>
-	  <version>1.10</version>
-	  <configuration>
-	    <!-- Set the target configuration directory to be used in the bin scripts -->
-	    <configurationDirectory>conf</configurationDirectory>
-	    <!-- Copy the contents from "/src/main/config" to the target configuration
-		 directory in the assembled application -->
-	    <copyConfigurationDirectory>false</copyConfigurationDirectory>
-	    <!-- Include the target configuration directory in the beginning of
-		 the classpath declaration in the bin scripts -->
-	    <includeConfigurationDirectoryInClasspath>false</includeConfigurationDirectoryInClasspath>
-	    <!-- set alternative assemble directory -->
-	    <assembleDirectory>${project.build.directory}</assembleDirectory>
-	    <!-- Extra JVM arguments that will be included in the bin scripts -->
-	    <extraJvmArguments>-Xms128m -Xmx1024m</extraJvmArguments>
-	    <platforms>
-	      <platform>windows</platform>
-	      <platform>unix</platform>
-	    </platforms>
-	    <programs>
-	      <program>
-		<mainClass>org.evosuite.EvoSuite</mainClass>
-		<name>EvoSuite</name>
-		<commandLineArguments>
-		  <!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument>
-		       <commandLineArgument>arg2</commandLineArgument> -->
-		</commandLineArguments>
-	      </program>
-	    </programs>
-	  </configuration>
-	</plugin>
-	<plugin>
-	  <groupId>org.codehaus.mojo</groupId>
-	  <artifactId>build-helper-maven-plugin</artifactId>
-	  <version>1.9.1</version>
-	</plugin>
-	<plugin>
-	  <groupId>org.codehaus.mojo</groupId>
-	  <artifactId>findbugs-maven-plugin</artifactId>
-	  <version>3.0.2</version>
-	  <configuration>
-	    <xmlOutput>true</xmlOutput>
-	    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-	  </configuration>
-	</plugin>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.10.b1</version>
+                <configuration>
+                    <header>src/etc/header.txt</header>
+                    <properties>
+                        <year>2010-2015</year>
+                    </properties>
+                    <excludes>
+                        <exclude>DSC_LICENSE.txt</exclude>
+                        <exclude>LICENSE.txt</exclude>
+                        <exclude>IMPORTANT_README_FOR_DEVELOPERS.txt</exclude>
+                        <exclude>release_results/script/sf110.txt</exclude>
+                        <exclude>removed/readme.txt</exclude>
+                        <exclude>**/.idea/**</exclude>
+                        <exclude>release_results/generated_files/**</exclude>
+                        <exclude>**/dk/brics/**</exclude>
+                        <exclude>**/readme.txt</exclude>
+                        <exclude>**/how_to.txt</exclude>
+                        <exclude>client/src/main/resources/report/**</exclude>
+                        <exclude>**/.hgignore</exclude>
+                        <exclude>README.md</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.10</version>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <source>1.7</source>
+                </configuration>
+            </plugin>
+            <!-- TODO Update URL. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId>
+                 <version>2.5.1</version> <executions> <execution> <id>copy</id> <phase>compile</phase>
+                 <goals> <goal>copy</goal> </goals> <configuration> <artifactItems> <artifactItem>
+                 <groupId>com.googlecode.jmockit</groupId> <artifactId>jmockit</artifactId>
+                 <version>0.999.16</version> <overWrite>true</overWrite> <outputDirectory>target/</outputDirectory>
+                 <destFileName>jmockit.jar</destFileName> </artifactItem> </artifactItems>
+                 </configuration> </execution> </executions> </plugin> -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
+                <configuration>
+                    <skipTests>${skipTests}</skipTests>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <reportFormat>xml</reportFormat>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <includePom>true</includePom>
+                    <excludes>
+                        <exclude>src/exsyst/java/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
 
-	<plugin>
-	  <groupId>com.mycila.maven-license-plugin</groupId>
-	  <artifactId>maven-license-plugin</artifactId>
-	  <version>1.10.b1</version>
-	  <configuration>
-	    <header>src/etc/header.txt</header>
-	    <properties>
-              <year>2010-2015</year>
-            </properties>
-	    <excludes>
-	      <exclude>DSC_LICENSE.txt</exclude>
-	      <exclude>LICENSE.txt</exclude>
-	      <exclude>IMPORTANT_README_FOR_DEVELOPERS.txt</exclude>
-	      <exclude>release_results/script/sf110.txt</exclude>
-	      <exclude>removed/readme.txt</exclude>
-	      <exclude>**/.idea/**</exclude>
-	      <exclude>release_results/generated_files/**</exclude>
-	      <exclude>**/dk/brics/**</exclude>
-	      <exclude>**/readme.txt</exclude>
-	      <exclude>**/how_to.txt</exclude>
-	      <exclude>client/src/main/resources/report/**</exclude>
-	      <exclude>**/.hgignore</exclude>
-	      <exclude>README.md</exclude>
-	    </excludes>
-	  </configuration>
-	</plugin>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-eclipse-plugin</artifactId>
-	  <version>2.10</version>
-	  <configuration>
-	    <downloadSources>true</downloadSources>
-	  </configuration>
-	</plugin>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-compiler-plugin</artifactId>
-	  <version>3.3</version>
-	  <configuration>
-	    <source>1.8</source>
-	    <target>1.8</target>
-	    <encoding>${project.build.sourceEncoding}</encoding>
-	  </configuration>
-	</plugin>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-javadoc-plugin</artifactId>
-	  <version>2.10.3</version>
-	  <configuration>
-	    <source>1.7</source>
-	  </configuration>
-	</plugin>
-	<!-- TODO Update URL. -->
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-release-plugin</artifactId>
-	  <version>2.5.2</version>
-	</plugin>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-resources-plugin</artifactId>
-	  <version>2.7</version>
-	  <configuration>
-	    <encoding>${project.build.sourceEncoding}</encoding>
-	  </configuration>
-	</plugin>
-	<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId>
-	     <version>2.5.1</version> <executions> <execution> <id>copy</id> <phase>compile</phase>
-	     <goals> <goal>copy</goal> </goals> <configuration> <artifactItems> <artifactItem>
-	     <groupId>com.googlecode.jmockit</groupId> <artifactId>jmockit</artifactId>
-	     <version>0.999.16</version> <overWrite>true</overWrite> <outputDirectory>target/</outputDirectory>
-	     <destFileName>jmockit.jar</destFileName> </artifactItem> </artifactItems>
-	     </configuration> </execution> </executions> </plugin> -->
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-surefire-plugin</artifactId>
-	  <version>2.18.1</version>
-	  <configuration>
-	    <skipTests>${skipTests}</skipTests>
-	    <forkCount>1</forkCount>
-	    <reuseForks>false</reuseForks>
-	    <reportFormat>xml</reportFormat>
-	  </configuration>
-	</plugin>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-source-plugin</artifactId>
-	  <version>2.4</version>
-	  <configuration>
-	    <includePom>true</includePom>
-	    <excludes>
-	      <exclude>src/exsyst/java/**</exclude>
-	    </excludes>
-	  </configuration>
-	</plugin>
-
-			<!-- pluging to run tests after 'package' phase in 'integration-test' -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.18.1</version>
-				<configuration>
-					<includes>
-						<include>**/*IT.java</include>
-					</includes>
-				</configuration>
-				<executions>
-					<execution>
-						<id>failsafe-integration-tests</id>
-						<phase>integration-test</phase>
-						<goals>
-							<goal>integration-test</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <!-- pluging to run tests after 'package' phase in 'integration-test' -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.18.1</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>failsafe-integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Need for issues when "deploy" -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -763,29 +629,29 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
+        </plugins>
 
-		<pluginManagement>
-			<plugins>
+        <pluginManagement>
+            <plugins>
                 <plugin>
                     <!-- This is used differently in "runtime" pom-->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.6</version>
                 </plugin>
-				<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.1.201405082137</version> <executions> <execution> <id>default-prepare-agent</id>
-					<goals> <goal>prepare-agent</goal> </goals> </execution> <execution> <id>default-report</id>
-					<phase>prepare-package</phase> <goals> <goal>report</goal> </goals> </execution>
-					<execution> <id>default-check</id> <goals> <goal>check</goal> </goals> <configuration>
-					<rules> </rules> </configuration> </execution> </executions> </plugin> -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-site-plugin</artifactId>
-					<version>3.4</version>
-				</plugin>
-				<!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution
-					see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
+                <!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.1.201405082137</version> <executions> <execution> <id>default-prepare-agent</id>
+                    <goals> <goal>prepare-agent</goal> </goals> </execution> <execution> <id>default-report</id>
+                    <phase>prepare-package</phase> <goals> <goal>report</goal> </goals> </execution>
+                    <execution> <id>default-check</id> <goals> <goal>check</goal> </goals> <configuration>
+                    <rules> </rules> </configuration> </execution> </executions> </plugin> -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.4</version>
+                </plugin>
+                <!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution
+                    see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
 
                 <!-- Need to change packages of dependencies to avoid classpath conflicts with previous versions.
                      This is done mainly due to ASM that is not backward compatible and for many packages
@@ -899,14 +765,14 @@
                 </plugin>
 
 
-			</plugins>
-		</pluginManagement>
-	</build>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
         <deployURL>Needs to be fixed in Jenkins</deployURL>
-	</properties>
+    </properties>
 
 </project>
