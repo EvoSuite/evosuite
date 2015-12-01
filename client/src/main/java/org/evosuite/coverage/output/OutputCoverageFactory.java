@@ -75,7 +75,7 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
             if (!(targetClass.equals("") || className.endsWith(targetClass)))
                 continue;
             for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
-                if (!matcher.methodMatches(methodName))
+                if (!matcher.methodMatches(methodName) || methodName.equals("hashCode()I"))
                     continue;
                 logger.info("Adding goals for method " + className + "." + methodName);
                 Type returnType = Type.getReturnType(methodName);

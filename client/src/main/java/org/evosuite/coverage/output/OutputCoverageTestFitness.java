@@ -66,6 +66,8 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
             if (! className.equals(Properties.TARGET_CLASS))
                 continue;
             String methodName = entry.getKey().getMethod().getName() + Type.getMethodDescriptor(entry.getKey().getMethod().getMethod());
+            if (methodName.equals("hashCode()I"))
+                continue;
             Type returnType = Type.getReturnType(entry.getKey().getMethod().getMethod());
             Object returnValue = entry.getValue();
             switch (returnType.getSort()) {
