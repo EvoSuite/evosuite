@@ -164,10 +164,11 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		//if (result.hasUndeclaredException())
 		//	fitness += 1;
 
-		logger.debug("Approach level: " + distance.getApproachLevel()
-		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
-		        + fitness);
-
+		if(logger.isDebugEnabled()) {
+			logger.debug("Goal at line "+goal.getLineNumber()+": approach level = " + distance.getApproachLevel()
+					+ " / branch distance = " + distance.getBranchDistance() + ", fitness = "
+					+ fitness);
+		}
 		updateIndividual(this, individual, fitness);
 
 		return fitness;
