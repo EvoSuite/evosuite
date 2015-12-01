@@ -78,12 +78,6 @@ public class EvoSuiteExecutor {
 
     public boolean isAlreadyRunning() {
         return running.get();
-        /*
-        if (thread != null && thread.isAlive()) {
-            return true;
-        }
-        return false;
-        */
     }
 
     public synchronized void stopRun(){
@@ -138,18 +132,8 @@ public class EvoSuiteExecutor {
             throw new IllegalStateException("EvoSuite already running");
         }
 
-        /*
-        thread = new Thread() {
-            @Override
-            public void run() {
-                executeOnAllModules(suts, project, notifier, params);
-            }
-        };
-        thread.start();
-        */
 
-        EvoTask task = new EvoTask(project,"EvoSuite",true,null,suts,notifier,params);
-        //BackgroundableProcessIndicator progressIndicator = new BackgroundableProcessIndicator(task);
+        Task.Backgroundable task = new EvoTask(project,"EvoSuite",true,null,suts,notifier,params);
         BackgroundableProcessIndicator progressIndicator = new EvoIndicator(task);
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(task, progressIndicator);
     }
@@ -179,27 +163,34 @@ public class EvoSuiteExecutor {
             }
 
             File dir = new File(modulePath);
-            //should be on background process
-            Process p = ProcessRunner.execute(project,notifier, params, dir, suts.get(modulePath));
-            if(p == null){
-                return;
-            }
+            Process p;
 
-            boolean done = false;
+            try {
+                int port = SpawnProcessKeepAliveCheckerIntelliJ.getInstance().startServer();
 
-            while(! done) {
-                try {
+                p = ProcessRunner.execute(project, notifier, params, dir, suts.get(modulePath), port);
+                if (p == null) {
+                    return;
+                }
+
+                boolean done = false;
+
+                while (!done) {
+                    try {
                    /*
                     this is blocking, which is fine, as we want it
                     to run till completion, unless manually stopped
                      */
-                    done = p.waitFor(1, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    p.destroy();
+                        done = p.waitFor(1, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        p.destroy();
+                        progressIndicator.checkCanceled();
+                        return;
+                    }
                     progressIndicator.checkCanceled();
-                    return;
                 }
-                progressIndicator.checkCanceled();
+            } finally {
+                SpawnProcessKeepAliveCheckerIntelliJ.getInstance().stopServer();
             }
 
             int res = p.exitValue();
