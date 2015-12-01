@@ -21,13 +21,14 @@ import java.util.Set;
 public class ProcessRunner {
 
 
-    public static Process execute(Project project, AsyncGUINotifier notifier, EvoParameters params, File dir, Set<String> classes) {
+    public static Process execute(Project project, AsyncGUINotifier notifier, EvoParameters params, File dir,
+                                  Set<String> classes, int managerPort) {
 
         List<String> list;
         if(params.usesMaven()){
-            list = getMavenCommand(params, classes);
+            list = getMavenCommand(params, classes,managerPort);
         } else {
-            list = getEvoJarCommand(project, dir,params, classes);
+            list = getEvoJarCommand(project, dir,params, classes,managerPort);
         }
 
         String[] command = list.toArray(new String[list.size()]);
@@ -63,7 +64,8 @@ public class ProcessRunner {
 
     }
 
-    private static List<String> getEvoJarCommand( Project project, File dir, EvoParameters params, Set<String> classes) throws IllegalArgumentException{
+    private static List<String> getEvoJarCommand( Project project, File dir, EvoParameters params,
+                                                  Set<String> classes, int port) throws IllegalArgumentException{
         List<String> list = new ArrayList<>();
         String java = "java";
         if(Utils.isWindows()){
@@ -83,6 +85,8 @@ public class ProcessRunner {
             //if we want to change it, we need to handle 'target'
             throw new IllegalArgumentException("Need to specify class list");
         }
+
+        list.add("-Dspawn_process_manager_port="+port);
 
         //the memory is per core
         list.add("-Dctg_memory="+ (params.getMemory() * params.getCores()));
@@ -149,8 +153,8 @@ public class ProcessRunner {
     }
 
     @NotNull
-    private static List<String> getMavenCommand(EvoParameters params, Set<String> classes) {
-        List<String> list = new ArrayList<String>();
+    private static List<String> getMavenCommand(EvoParameters params, Set<String> classes, int port) {
+        List<String> list = new ArrayList<>();
         list.add(params.getMvnLocation());
         list.add("compile");
         list.add("evosuite:generate");
@@ -158,6 +162,7 @@ public class ProcessRunner {
         //the memory is per core
         list.add("-DmemoryInMB=" + (params.getMemory() * params.getCores()));
         list.add("-DtimeInMinutesPerClass=" + params.getTime());
+        list.add("-DspawnManagerPort="+port);
 
         if(classes != null && classes.size() >= 0) {
             if (classes.size() <= 10) {
@@ -176,17 +181,7 @@ public class ProcessRunner {
 
     private static String getCommaList(Set<String> set){
         if (set != null && !set.isEmpty()) {
-            StringBuffer s = new StringBuffer("");
-            boolean first = true;
-            for (String cl : set) {
-                if(first){
-                    first = false;
-                } else {
-                    s.append(",");
-                }
-                s.append(cl);
-            }
-            return s.toString();
+            return String.join(",", set);
         }
         return null;
     }

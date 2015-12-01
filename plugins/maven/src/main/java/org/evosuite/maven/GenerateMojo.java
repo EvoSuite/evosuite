@@ -98,6 +98,9 @@ public class GenerateMojo extends AbstractMojo {
 	@Parameter( property = "criterion", defaultValue = "LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH" )
 	private String criterion;
 
+	@Parameter(property = "spawnManagerPort", defaultValue = "")
+	private Integer spawnManagerPort;
+
 	@Parameter( property = "extraArgs" , defaultValue = "")
 	private String extraArgs;
 
@@ -196,7 +199,8 @@ public class GenerateMojo extends AbstractMojo {
 			throw new MojoExecutionException("", e);
 		}
 
-		runEvoSuiteOnSeparatedProcess(target, cp, basedir.getAbsolutePath()); 
+		runEvoSuiteOnSeparatedProcess(target, cp, basedir.getAbsolutePath());
+
 	}
 
 	private String addPathIfExists(String cp, String element, Set<String> alreadyExist) {
@@ -237,8 +241,15 @@ public class GenerateMojo extends AbstractMojo {
 		params.add("-Dctg_memory="+memoryInMB);
 		params.add("-Dctg_cores="+numberOfCores);
 
-		int port = SpawnProcessKeepAliveChecker.getInstance().startServer();
-		params.add("-Dspawn_process_manager_port="+port);
+		int port;
+		if(spawnManagerPort != null) {
+			SpawnProcessKeepAliveChecker.getInstance().registerToRemoteServerAndDieIfFails(spawnManagerPort);
+			port = spawnManagerPort;
+		} else {
+			port = SpawnProcessKeepAliveChecker.getInstance().startServer();
+		}
+		params.add("-Dspawn_process_manager_port=" + port);
+
 
 		if (timeInMinutesPerProject != 0) {
 			params.add("-Dctg_time="+timeInMinutesPerProject);
@@ -282,7 +293,11 @@ public class GenerateMojo extends AbstractMojo {
 		runner.registerShutDownHook();
 		boolean ok = runner.runEvoSuite(dir,params);
 
-		SpawnProcessKeepAliveChecker.getInstance().stopServer();
+		if(spawnManagerPort != null) {
+			SpawnProcessKeepAliveChecker.getInstance().unRegister();
+		} else {
+			SpawnProcessKeepAliveChecker.getInstance().stopServer();
+		}
 
 		if(!ok){
 			throw new MojoFailureException("Failed to correctly execute EvoSuite");
