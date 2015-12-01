@@ -725,6 +725,9 @@ public class TestSuiteGenerator {
 		case LINE:
 			LoggingUtils.getEvoLogger().info("  - Line Coverage");
 			break;
+		case ONLYLINE:
+			LoggingUtils.getEvoLogger().info("  - Only-Line Coverage");
+			break;
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
