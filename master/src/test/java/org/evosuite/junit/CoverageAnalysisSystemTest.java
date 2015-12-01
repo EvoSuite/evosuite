@@ -64,6 +64,7 @@ public class CoverageAnalysisSystemTest extends SystemTest {
         Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
         Properties.COVERAGE_MATRIX = false;
 
+        SearchStatistics.clearInstance();
         CoverageAnalysis.reset();
 	}
 
