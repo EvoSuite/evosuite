@@ -186,9 +186,9 @@ public class CoverageAnalysisSystemTest extends SystemTest {
 
 		SearchStatistics result = (SearchStatistics)evosuite.parseCommandLine(command);
 		Assert.assertNotNull(result);
-		OutputVariable methodCoverage = (OutputVariable)result.getOutputVariables().get("MethodCoverage");
-		OutputVariable inputCoverage = (OutputVariable)result.getOutputVariables().get("InputCoverage");
-		OutputVariable outputCoverage = (OutputVariable)result.getOutputVariables().get("OutputCoverage");
+		OutputVariable<?> methodCoverage = (OutputVariable<?>) result.getOutputVariables().get(RuntimeVariable.MethodCoverage.name());
+		OutputVariable<?> inputCoverage = (OutputVariable<?>) result.getOutputVariables().get(RuntimeVariable.InputCoverage.name());
+		OutputVariable<?> outputCoverage = (OutputVariable<?>) result.getOutputVariables().get(RuntimeVariable.OutputCoverage.name());
 
 		Assert.assertEquals("Unexpected method coverage value", 1d, (double)methodCoverage.getValue(), 0.01);
 		Assert.assertEquals("Unexpected input coverage value", 0.73d, (double)inputCoverage.getValue(), 0.01);
