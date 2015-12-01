@@ -47,7 +47,6 @@ import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.junit.xml.JUnitProcessLauncher;
 import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.JarPathing;
@@ -263,18 +262,7 @@ public class JUnitAnalyzer {
 
 	private static JUnitResult runTests(Class<?>[] testClasses, File testClassDir)
 	        throws JUnitExecutionException {
-		if (Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS) {
-			return runJUnitOnSeparateProcess(testClasses, testClassDir);
-		} else {
-			return runJUnitOnCurrentProcess(testClasses);
-		}
-	}
-
-	private static JUnitResult runJUnitOnSeparateProcess(Class<?>[] testClasses,
-	        File testClassDir) throws JUnitExecutionException {
-		JUnitProcessLauncher launcher = new JUnitProcessLauncher();
-		JUnitResult result = launcher.startNewJUnitProcess(testClasses, testClassDir);
-		return result;
+		return runJUnitOnCurrentProcess(testClasses);
 	}
 
 	private static JUnitResult runJUnitOnCurrentProcess(Class<?>[] testClasses) {

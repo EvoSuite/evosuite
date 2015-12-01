@@ -26,6 +26,8 @@ import com.intellij.openapi.compiler.CompileStatusNotification;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.progress.*;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -35,17 +37,21 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.evosuite.intellij.EvoParameters;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -59,6 +65,9 @@ public class EvoSuiteExecutor {
 
     private volatile Thread thread;
 
+    private final AtomicBoolean running = new AtomicBoolean(false);
+
+
     private EvoSuiteExecutor() {
     }
 
@@ -68,10 +77,7 @@ public class EvoSuiteExecutor {
 
 
     public boolean isAlreadyRunning() {
-        if (thread != null && thread.isAlive()) {
-            return true;
-        }
-        return false;
+        return running.get();
     }
 
     public synchronized void stopRun(){
@@ -126,248 +132,142 @@ public class EvoSuiteExecutor {
             throw new IllegalStateException("EvoSuite already running");
         }
 
-        thread = new Thread() {
-            @Override
-            public void run() {
 
-                for (String modulePath : suts.keySet()) {
-
-                    if(isInterrupted()){
-                        return;
-                    }
-
-                    final Module module = Utils.getModule(project,modulePath);
-                    if(module == null){
-                        notifier.failed("Failed to determine IntelliJ module for "+modulePath);
-                        return;
-                    } else {
-                        final AtomicBoolean ok = new AtomicBoolean(true);
-                        final CountDownLatch latch = new CountDownLatch(1);
+        Task.Backgroundable task = new EvoTask(project,"EvoSuite",true,null,suts,notifier,params);
+        BackgroundableProcessIndicator progressIndicator = new EvoIndicator(task);
+        ProgressManager.getInstance().runProcessWithProgressAsynchronously(task, progressIndicator);
+    }
 
 
-                        //TODO: maybe this is not really needed if using Maven plugin?
-                        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
-                            public void run() {
-                                CompilerManager.getInstance(project).make(module, new CompileStatusNotification() {
-                                    @Override
-                                    public void finished(boolean aborted, int errors, int warnings, CompileContext compileContext) {
-                                        if (errors > 0) {
-                                            ok.set(false);
-                                        }
-                                        latch.countDown();
-                                    }
-                                });
-                            }
-                        }, ModalityState.defaultModalityState());
 
-                        try {
-                            latch.await();
-                        } catch (InterruptedException e) {
-                            return;
-                        }
-                        if(! ok.get()){
-                            notifier.failed("Compilation failure. Fix the compilation issues before running EvoSuite.");
-                            return;
-                        }
-                    }
+    private void executeOnAllModules(Map<String, Set<String>> suts, Project project, AsyncGUINotifier notifier,
+                                     EvoParameters params, ProgressIndicator progressIndicator) {
 
-                    File dir = new File(modulePath);
-                    //should be on background process
-                    Process p = execute(project,notifier, params, dir, suts.get(modulePath));
-                    if(p == null){
-                        return;
-                    }
+        thread = Thread.currentThread();
 
-                    int res = 0;
+        for (String modulePath : suts.keySet()) {
+
+            if(Thread.currentThread().isInterrupted()){
+                return;
+            }
+            progressIndicator.checkCanceled();
+
+            final Module module = Utils.getModule(project,modulePath);
+            if(module == null){
+                notifier.failed("Failed to determine IntelliJ module for "+modulePath);
+                return;
+            } else {
+                if (! Utils.compileModule(project, notifier, module)){
+                    return;
+                }
+            }
+
+            File dir = new File(modulePath);
+            Process p;
+
+            try {
+                int port = SpawnProcessKeepAliveCheckerIntelliJ.getInstance().startServer();
+
+                p = ProcessRunner.execute(project, notifier, params, dir, suts.get(modulePath), port);
+                if (p == null) {
+                    return;
+                }
+
+                boolean done = false;
+
+                while (!done) {
                     try {
-                        /*
-                            this is blocking, which is fine, as we want it
-                            to run till completion, unless manually stopped
-                         */
-                        res = p.waitFor();
+                   /*
+                    this is blocking, which is fine, as we want it
+                    to run till completion, unless manually stopped
+                     */
+                        done = p.waitFor(1, TimeUnit.SECONDS);
                     } catch (InterruptedException e) {
                         p.destroy();
+                        progressIndicator.checkCanceled();
                         return;
                     }
-                    if (res != 0) {
-                        notifier.failed("EvoSuite ended abruptly");
-                        return;
-                    }
+                    progressIndicator.checkCanceled();
                 }
-                VirtualFileManager.getInstance().asyncRefresh(null);
-                notifier.success("EvoSuite run is completed");
+            } finally {
+                SpawnProcessKeepAliveCheckerIntelliJ.getInstance().stopServer();
             }
-        };
-        thread.start();
-    }
 
-    private Process execute( Project project, AsyncGUINotifier notifier, EvoParameters params, File dir, Set<String> classes) {
-
-        List<String> list;
-        if(params.usesMaven()){
-            list = getMavenCommand(params, classes);
-        } else {
-            list = getEvoJarCommand(project, dir,params, classes);
-        }
-
-        String[] command = list.toArray(new String[list.size()]);
-
-        String concat = "Going to execute command:\n";
-        for(String c : command){
-            concat += c + "  ";
-        }
-        concat += "\nin folder: "+dir.getAbsolutePath();
-        concat += "\n";
-
-        System.out.println(concat);
-        notifier.printOnConsole(concat);//FIXME: done here it gets cleared by IntelliJ... really fucking annoying
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder();
-            builder.directory(dir);
-            builder.command(command);
-
-            Map<String,String> map = builder.environment();
-            map.put("JAVA_HOME", params.getJavaHome());
-
-            Process p =  builder.start();
-            notifier.attachProcess(p);
-
-            notifier.printOnConsole(concat); //this doesn't work either...
-
-            return p;
-        } catch (IOException e) {
-            notifier.failed("Failed to execute EvoSuite: "+e.getMessage());
-            return null;
-        }
-
-    }
-
-    private List<String> getEvoJarCommand( Project project, File dir, EvoParameters params, Set<String> classes) throws IllegalArgumentException{
-        List<String> list = new ArrayList<String>();
-        String java = "java";
-        if(Utils.isWindows()){
-            java += ".exe";
-        }
-        list.add(params.getJavaHome() + File.separator + "bin" + File.separator + java);
-        list.add("-jar");
-        list.add(params.getEvosuiteJarLocation());
-
-        list.add("-continuous");
-        list.add("execute");
-
-        //No need to specify target, as we do specify the CUT list
-        //list.add("-target");
-        //list.add(target);
-        if(classes==null || classes.isEmpty()){
-            //if we want to change it, we need to handle 'target'
-            throw new IllegalArgumentException("Need to specify class list");
-        }
-
-        //the memory is per core
-        list.add("-Dctg_memory="+ (params.getMemory() * params.getCores()));
-        list.add("-Dctg_cores="+params.getCores());
-        list.add("-Dctg_time_per_class=" + params.getTime());
-        list.add("-Dctg_export_folder=" + params.getFolder());
-
-        if(classes != null && classes.size() >= 0) {
-            if (classes.size() <= 10) {
-                String cuts = getCommaList(classes);
-                list.add("-Dctg_selected_cuts=" + cuts);
-            } else {
-                String filePath = writeClassesToFile(classes);
-                list.add("-Dctg_selected_cuts_file_location="+filePath);
+            int res = p.exitValue();
+            if (res != 0) {
+                notifier.failed("EvoSuite ended abruptly");
+                return;
             }
         }
-
-        if(dir==null || !dir.exists()){
-            throw new IllegalArgumentException("Invalid module dir");
-        }
-        String folderPath = dir.getAbsolutePath();
-
-        Module module = null;
-        for(Module m : ModuleManager.getInstance(project).getModules()){
-            String modulePath = Utils.getFolderLocation(m);
-            if(modulePath.equals(folderPath)){
-                module = m;
-                break;
-            }
-        }
-
-        if(module == null){
-            throw new IllegalArgumentException("Cannot determine module for "+folderPath);
-        }
-
-        String cp = Utils.getFullClassPath(module);
-        String path = writeLineToFile("EvoSuite_ctg_classpath_file", cp);
-        list.add("-DCP_file_path="+path);
-        //list.add("-DCP=" + cp);//this did not work properly on Windows
-
-        return list;
+        VirtualFileManager.getInstance().asyncRefresh(null);
+        notifier.success("EvoSuite run is completed");
     }
 
-    private String writeClassesToFile(Set<String> classes) {
-        return writeLineToFile("EvoSuite_ctg_CUT_file", getCommaList(classes));
-    }
+    private class EvoIndicator extends BackgroundableProcessIndicator{
 
-    private String writeLineToFile(String fileName, String line) {
-
-        try {
-            File file = File.createTempFile(fileName,".txt");
-            file.deleteOnExit();
-
-            BufferedWriter out = new BufferedWriter(new FileWriter(file));
-            out.write(line);
-            out.newLine();
-            out.close();
-
-            return file.getAbsolutePath();
-
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to create tmp file: "+e.getMessage());
-        }
-    }
-
-    @NotNull
-    private List<String> getMavenCommand(EvoParameters params, Set<String> classes) {
-        List<String> list = new ArrayList<String>();
-        list.add(params.getMvnLocation());
-        list.add("compile");
-        list.add("evosuite:generate");
-        list.add("-Dcores=" + params.getCores());
-        //the memory is per core
-        list.add("-DmemoryInMB=" + (params.getMemory() * params.getCores()));
-        list.add("-DtimeInMinutesPerClass=" + params.getTime());
-
-        if(classes != null && classes.size() >= 0) {
-            if (classes.size() <= 10) {
-                String cuts = getCommaList(classes);
-                list.add("-Dcuts=" + cuts);
-            } else {
-                String filePath = writeClassesToFile(classes);
-                list.add("-DcutsFile="+filePath);
-            }
+        public EvoIndicator(@NotNull Task.Backgroundable task) {
+            super(task);
         }
 
-        list.add("evosuite:export"); //note, here -Dctg_export_folder would do as well
-        list.add("-DtargetFolder=" + params.getFolder());
-        return list;
-    }
+//        @Override  //can't override because final
+//        public void cancel(){
+//        }
 
-    private String getCommaList(Set<String> set){
-        if (set != null && !set.isEmpty()) {
-            StringBuffer s = new StringBuffer("");
-            boolean first = true;
-            for (String cl : set) {
-                if(first){
-                    first = false;
-                } else {
-                    s.append(",");
+        @Override
+        protected void delegateRunningChange(@NotNull IndicatorAction action) {
+            try {
+                Field f = com.intellij.openapi.progress.util.AbstractProgressIndicatorExBase.class.getDeclaredField("CANCEL_ACTION");
+                f.setAccessible(true);
+                Object obj = f.get(null);
+                if(action.equals(obj)){
+                    thread.interrupt();
                 }
-                s.append(cl);
+            } catch (Exception e) {
             }
-            return s.toString();
+            super.delegateRunningChange(action);
         }
-        return null;
+
+    }
+
+
+
+    private class EvoTask extends Task.Backgroundable{
+
+        private final Map<String, Set<String>>  suts;
+        private final AsyncGUINotifier notifier;
+        private final EvoParameters params;
+
+        public EvoTask(@Nullable Project project,
+                       @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title,
+                       boolean canBeCancelled,
+                       @Nullable PerformInBackgroundOption backgroundOption,
+                       Map<String, Set<String>> suts,  AsyncGUINotifier notifier, EvoParameters params) {
+            super(project, title, canBeCancelled, backgroundOption);
+            this.suts = suts;
+            this.notifier = notifier;
+            this.params = params;
+        }
+
+        @Override
+        public void run(@NotNull ProgressIndicator progressIndicator) {
+
+            running.set(true);
+
+            executeOnAllModules(suts, getProject(), notifier, params, progressIndicator);
+
+            running.set(false);
+        }
+
+
+        @Override
+        public void onCancel(){
+            notifier.printOnConsole("\n\n\nEvoSuite run has been cancelled\n");
+            running.set(false);
+        }
+
+        @Override
+        public void onSuccess(){
+            running.set(false);
+        }
     }
 }

@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.output;
 
+import com.examples.with.different.packagename.coverage.ClassWithHashCode;
 import com.examples.with.different.packagename.coverage.MethodReturnsArray;
 import com.examples.with.different.packagename.coverage.MethodReturnsObject;
 import com.examples.with.different.packagename.coverage.MethodReturnsPrimitive;
@@ -27,6 +28,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.SystemTest;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -131,6 +133,25 @@ public class TestOutputCoverageFitnessFunction extends SystemTest {
 		for (TestFitnessFactory ff : TestGenerationStrategy.getFitnessFactories())
 			goals += ff.getCoverageGoals().size();
 		Assert.assertEquals("Unexpected number of goals", 15, goals);
+		Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testOutputCoverageIgnoreHashCode() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ClassWithHashCode.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		int goals = 0;
+		for (TestFitnessFactory ff : TestGenerationStrategy.getFitnessFactories())
+			goals += ff.getCoverageGoals().size();
+		Assert.assertEquals("Unexpected number of goals", 2, goals);
 		Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}

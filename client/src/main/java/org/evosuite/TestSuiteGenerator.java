@@ -734,8 +734,11 @@ public class TestSuiteGenerator {
 		case BRANCH:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 			break;
-		case CBRANCH:BRANCH:
+		case CBRANCH:
 		    LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
+			break;
+		case IBRANCH:
+			LoggingUtils.getEvoLogger().info("  - 'i' Branch Coverage"); //FIXME what is "I" standing for???
 			break;
 		default:
 			throw new IllegalArgumentException("Unrecognized criterion: "+criterion);

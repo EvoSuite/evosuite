@@ -234,7 +234,6 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
-
 			// related to Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER;
 			// check the budget progress and activate a secondary criterion
 			// according to the property value.

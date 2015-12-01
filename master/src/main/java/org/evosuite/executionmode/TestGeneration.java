@@ -225,6 +225,10 @@ public class TestGeneration {
 
 		handleClassPath(cmdLine);
 
+		if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
+			cmdLine.add("-Dspawn_process_manager_port="+Properties.SPAWN_PROCESS_MANAGER_PORT);
+		}
+
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		int port = handler.openServer();
 		if (port <= 0) {

@@ -61,6 +61,10 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 			        || currentTest.getStatement(var.getStPosition()).isAssignmentStatement())
 				return;
 
+			if(var.getType() != null && var.getType().equals(Void.class)){
+				return; // do not generate assertion for Void type
+			}
+
 			// We don't need assertions on constant values
 			if (statement instanceof PrimitiveStatement<?>)
 				return;
