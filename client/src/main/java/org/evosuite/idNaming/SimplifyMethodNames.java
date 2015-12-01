@@ -85,7 +85,7 @@ public class SimplifyMethodNames extends ShorterNames{
 	}
 	
   public static void main(String[] args){
-	  String[] name={
+	  String[] name={"test_GetBOM_CreatesConstructor_CreatesConstructor"
 			 };
 	  minimizeNames(name);
   }
@@ -103,23 +103,11 @@ public class SimplifyMethodNames extends ShorterNames{
 					if(tokens[k].contains("Exception") && tokens[k].contains("Throwing")){
 						k--;
 					}
-		/*		if(newName2.contains("_Constructor_") ){
-						newName2 = newName2.replace("_Constructor_", "_");
-						tokens = newName2.split("_");
-						k--;						
-						newName = newName2.replace("_Constructor_", ""); 
-						if(newName2.split("_").length>2){
-							
-						}else {
-							names[i] = newName;
-							break;
-						}
-					}*/
 					if(newName2.contains("_CreatesConstructor")){
 						String [] subNames=newName2.split("_");
 						for(String str: subNames){
 							if(str.contains("Constructor")){
-								newName2 = newName2.replace("_"+str,"");
+								newName2 = newName2.replaceFirst("_"+str,"");
 								tokens = newName2.split("_");
 								k--;						
 								newName = newName2.replace("_CreatesConstructor_", ""); 
@@ -142,7 +130,17 @@ public class SimplifyMethodNames extends ShorterNames{
 					if(k==names[i].length()-2 && !newName2.contains("Exception")){
 						newName = newName2.replace("_"+tokens[k], "");
 					} else{
+						try{
 						newName = newName2.replaceFirst("_"+tokens[k]+"_", "_");
+						} catch(Exception e){
+							try {
+								throw new Exception(newName,e);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
 					}
 					
 					for (int j=0; j<names.length; j++){

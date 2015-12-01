@@ -1,5 +1,6 @@
 package org.evosuite.idnaming;
 
+import com.examples.with.different.packagename.idnaming.BOMInputStream;
 import com.examples.with.different.packagename.idnaming.gnu.trove.TCollections;
 import com.examples.with.different.packagename.idnaming.gnu.trove.decorator.TIntShortMapDecorator;
 import com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap;
@@ -23,7 +24,7 @@ public class TestIdNamingAssertion extends SystemTest {
 
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = TIntShortMapDecorator.class.getCanonicalName();
+		String targetClass = BOMInputStream.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TEST_NAMING = true;
@@ -47,7 +48,7 @@ public class TestIdNamingAssertion extends SystemTest {
 		Assert.assertTrue("Wrong number of goals: expected at least " + 155 + ", found " + goals, goals >= 155); // nr of exception goals varies
 	}
 
-	@Test
+/*	@Test
 	public void testGeneratesExceptionDuringTestGeneration() {
 
 		EvoSuite evosuite = new EvoSuite();
@@ -112,6 +113,6 @@ public class TestIdNamingAssertion extends SystemTest {
 			goals += ff.getCoverageGoals().size();
 		}
 		Assert.assertTrue("Wrong number of goals: expected at least " + 63 + ", found " + goals , goals >= 63); // nr of exception goals varies
-	}
+	}*/
 	
 }

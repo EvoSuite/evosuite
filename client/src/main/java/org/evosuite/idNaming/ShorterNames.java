@@ -86,8 +86,6 @@ public abstract class ShorterNames {
 		String [] result= {nameFirst, nameSecond};
 		optimizedNames.add(nameFirst);
 		optimizedNames.add(nameSecond);
-		System.out.println(nameFirst);
-		System.out.println(nameSecond);
 		return result;    			
 	}
 }

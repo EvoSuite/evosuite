@@ -8,10 +8,12 @@ import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 //import com.sun.codemodel.internal.util.Surrogate.Generator;
@@ -150,210 +152,29 @@ public class TestNameGenerator extends DistinguishNames {
 		String branchName="";
 		String methodArguments="", inputArguments="", outputArguments="", branchArguments="", str="";
 		String methodArgumentTypes="", inputArgumentTypes="", outputArgumentTypes="", branchArgumentTypes="";
-		int noOfArguments=0;
-		String argTypes = "";
+		
 		String exceptionName="";
 		
-		for (TestFitnessFunction goal : goals) {
-			noOfArguments=0;
-  		  	String goalName = goal.toString();  		  	
-  		  	str=goalName.substring(goalName.lastIndexOf("(")+1,goalName.lastIndexOf(")"));
-		  	if (goal instanceof MethodCoverageTestFitness) {
-		  		className=goalName.substring(0,goalName.lastIndexOf("."));
-	  		  	className=className.substring(className.lastIndexOf(".")+1, className.length());
-		  		methodName+="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")));	
-		  		noOfArguments = countArguments(str);
-		  		argTypes=getArgumentTypes(str);
-			  	if(noOfArguments==0){
-					methodArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"WithNoArgument";
-					
-				}else{
-					if(noOfArguments==1){
-						methodArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"With"+noOfArguments+"Argument";
-						methodArgumentTypes +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"With"+noOfArguments+"ArgumentOfType"+argTypes;	
-			  		}else{
-			  			methodArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"With"+noOfArguments+"Arguments";
-			  			methodArgumentTypes +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"With"+noOfArguments+"ArgumentsOfType"+argTypes;	
-			  		}
-				} 				
-		  	}else {
-		  		if (goal instanceof BranchCoverageTestFitness){
-		  			if(goalName.contains("root-Branch")){
-		  				branchName+="_Invokes"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")));
-		  				noOfArguments = countArguments(str);
-		  			  	if(noOfArguments==0){
-		  					branchArguments +=branchName+"WithNoArgument";
-		  				}else{
-		  					if(noOfArguments==1){
-		  						branchArguments +=branchName+"With"+noOfArguments+"Argument";
-		  			  		}else{
-		  			  			branchArguments +=branchName+"With"+noOfArguments+"Arguments";
-		  			  		}
-		  				}
-		  				argTypes=getArgumentTypes(str);			  	
-					  	branchArgumentTypes += branchArguments+"OfType"+argTypes.toString();
-					} 				
-		  			else{
-		  				branchName+="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
-		  				noOfArguments = countArguments(str);
-		  			  	if(noOfArguments==0){
-		  			  		branchArguments +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-		  			  				"WithNoArgument"+
-				  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
-		  				}else{
-		  					if(noOfArguments==1){
-		  						branchArguments +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-		  				  				"With"+noOfArguments+"Argument"+
-					  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
-		  			  		}else{
-		  			  		branchArguments +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-		  			  				"With"+noOfArguments+"Arguments"+
-				  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
-		  			  		}
-		  				}
-		  			  	//test_CallsAWithXArgumentsOfTypeYTrueBranch;
-		  			 	argTypes=getArgumentTypes(str);			  	
-					  	branchArgumentTypes +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-	  			  				"With"+noOfArguments+"Arguments"+"OfType"+argTypes.toString()+
-			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
-					}
-		  			
-				} else {
-					if (goal instanceof OutputCoverageTestFitness ) {	
-						if(StringUtils.countMatches(goalName, "(")==2){
-							String[] outputN=goalName.split(":");
-							outputName+="_"+WordUtils.capitalize(outputN[0].substring(outputN[0].lastIndexOf(".")+1,outputN[0].indexOf("(")))+"With"+
-									WordUtils.capitalize(outputN[3].substring(0,outputN[3].indexOf("(")))+
-									WordUtils.capitalize(outputN[4]);
-							noOfArguments = countArguments(str);
-							argTypes=getArgumentTypes(str);	
-			  			  	if(noOfArguments==0){
-			  			  		outputArguments +="_"+WordUtils.capitalize(outputN[0].substring(outputN[0].lastIndexOf(".")+1,outputN[0].indexOf("(")))+
-			  			  				"WithNoArgument"+"With"+
-										WordUtils.capitalize(outputN[3].substring(0,outputN[3].indexOf("(")))+
-										WordUtils.capitalize(outputN[4]);
-			  			  		
-			  				}else{
-			  					if(noOfArguments==1){
-			  						outputArguments +="_"+WordUtils.capitalize(outputN[0].substring(outputN[0].lastIndexOf(".")+1,outputN[0].indexOf("(")))+
-			  				  				"With"+noOfArguments+"Argument"+"With"+
-											WordUtils.capitalize(outputN[3].substring(0,outputN[3].indexOf("(")))+
-											WordUtils.capitalize(outputN[4]);
-			  						outputArgumentTypes+="_"+WordUtils.capitalize(outputN[0].substring(outputN[0].lastIndexOf(".")+1,outputN[0].indexOf("(")))+
-			  				  				"With"+noOfArguments+"Argument"+"OfType"+argTypes.toString()+"With"+
-											WordUtils.capitalize(outputN[3].substring(0,outputN[3].indexOf("(")))+
-											WordUtils.capitalize(outputN[4]);
-			  			  		}else{
-			  			  			outputArguments +="_"+WordUtils.capitalize(outputN[0].substring(outputN[0].lastIndexOf(".")+1,outputN[0].indexOf("(")))+
-				  			  				"With"+noOfArguments+"Arguments"+"With"+
-											WordUtils.capitalize(outputN[3].substring(0,outputN[3].indexOf("(")))+
-											WordUtils.capitalize(outputN[4]);
-			  			  			outputArgumentTypes+="_"+WordUtils.capitalize(outputN[0].substring(outputN[0].lastIndexOf(".")+1,outputN[0].indexOf("(")))+
-			  			  					"With"+noOfArguments+"Arguments"+"OfType"+argTypes.toString()+"With"+
-				  			  				WordUtils.capitalize(outputN[3].substring(0,outputN[3].indexOf("(")))+
-											WordUtils.capitalize(outputN[4]);
-			  			  		}
-			  				}
-						}else{
-							outputName+="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"Returning"+
-								WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));	
-							noOfArguments = countArguments(str);
-							argTypes=getArgumentTypes(str);	
-			  			  	if(noOfArguments==0){
-			  			  		outputArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-			  			  				"WithNoArgument"+"Returning"+
-										WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));
-			  				}else{
-			  					if(noOfArguments==1){
-			  						outputArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-				  			  				"With"+noOfArguments+"Argument"+"Returning"+
-											WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));
-			  						outputArgumentTypes+="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-				  			  				"With"+noOfArguments+"Argument"+"OfType"+argTypes.toString()+"Returning"+
-											WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));
-			  			  		}else{
-			  			  			outputArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-				  			  				"With"+noOfArguments+"Arguments"+"Returning"+
-											WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));
-			  			  			outputArgumentTypes+="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-			  			  					"With"+noOfArguments+"Arguments"+"OfType"+argTypes.toString()+"Returning"+
-			  			  					WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1));
-			  			  		}
-			  				}
-						}
-					}else{
-						if (goal instanceof InputCoverageTestFitness ) {	
-							if(StringUtils.countMatches(goalName, "(")==2){
-								String[] inputN=goalName.split(":");
-								inputName+="_"+WordUtils.capitalize(inputN[0].substring(inputN[0].lastIndexOf(".")+1,inputN[0].indexOf("(")))+"With"+
-										WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
-										WordUtils.capitalize(inputN[4]);
-								noOfArguments = countArguments(str);
-								argTypes=getArgumentTypes(str);
-				  			  	if(noOfArguments==0){
-				  			  		inputArguments +="_"+WordUtils.capitalize(inputN[0].substring(inputN[0].lastIndexOf(".")+1,inputN[0].indexOf("(")))+
-				  			  				"WithNoArgument"+"With"+
-											WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
-											WordUtils.capitalize(inputN[4]);
-				  				}else{
-				  					if(noOfArguments==1){
-				  						inputArguments +="_"+WordUtils.capitalize(inputN[0].substring(inputN[0].lastIndexOf(".")+1,inputN[0].indexOf("(")))+
-				  				  				"With"+noOfArguments+"Argument"+"With"+
-												WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
-												WordUtils.capitalize(inputN[4]);
-				  						inputArgumentTypes +="_"+WordUtils.capitalize(inputN[0].substring(inputN[0].lastIndexOf(".")+1,inputN[0].indexOf("(")))+
-				  				  				"With"+noOfArguments+"Argument"+"OfType"+argTypes.toString()+"With"+
-												WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
-												WordUtils.capitalize(inputN[4]);
-				  			  		}else{
-				  			  			inputArguments +="_"+WordUtils.capitalize(inputN[0].substring(inputN[0].lastIndexOf(".")+1,inputN[0].indexOf("(")))+
-					  			  				"With"+noOfArguments+"Arguments"+"With"+
-												WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
-												WordUtils.capitalize(inputN[4]);
-				  			  			inputArgumentTypes +="_"+WordUtils.capitalize(inputN[0].substring(inputN[0].lastIndexOf(".")+1,inputN[0].indexOf("(")))+
-				  			  					"With"+noOfArguments+"Arguments"+"OfType"+argTypes.toString()+"With"+
-				  			  					WordUtils.capitalize(inputN[3].substring(0,inputN[3].indexOf("(")))+
-				  			  					WordUtils.capitalize(inputN[4]);
-				  			  		}
-				  				}
-							} else{
-								inputName+="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"With"+
-									WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";	
-								noOfArguments = countArguments(str);
-								argTypes=getArgumentTypes(str);
-				  			  	if(noOfArguments==0){
-				  			  		inputArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-				  			  				"WithNoArgument"+"With"+
-											WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";
-				  				}else{
-				  					if(noOfArguments==1){
-				  						inputArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-				  				  				"With"+noOfArguments+"Argument"+"With"+
-												WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";
-				  						inputArgumentTypes +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-				  				  				"With"+noOfArguments+"Argument"+"OfType"+argTypes.toString()+"With"+
-												WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";
-				  			  		}else{
-				  			  			inputArguments +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+"With"+noOfArguments+"Arguments"
-				  			  					+"With"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";
-				  			  			inputArgumentTypes +="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-				  			  					"With"+noOfArguments+"Arguments"+"OfType"+argTypes.toString()+"With"+
-				  			  					WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(":")+1))+"Input";
-				  			  		}
-				  				}
-							}
-						}else {
-							if (goal instanceof ExceptionCoverageTestFitness) {
-								//exceptionName+="_"+goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("("));
-								exceptionName+="_"+WordUtils.capitalize(goalName.substring(0,goalName.indexOf("(")))+
-										"Throwing"+goalName.substring(goalName.lastIndexOf(".")+1, goalName.lastIndexOf("_"));
-						  	}
-						}
-					}
-				}
-		  	}
-		}	
+		MethodName methods = new MethodName(tc);
+		OutputName output = new OutputName(tc);
+		InputName input = new InputName(tc);
+		BranchName branch = new BranchName(tc);
+		ExceptionName exceptions = new ExceptionName(tc);
+		
+		className = methods.className;
+		methodName += methods.getMethodGoal();
+		outputName = output.getOutputGoal();
+		inputName = input.getInputGoal();
+		branchName = branch.getBranchGoal();
+		methodArguments = methods.getMethodArguments();
+		inputArguments = input.getInputArguments();
+		outputArguments = output.getOutputArguments();
+		branchArguments = branch.getBranchArguments();
+		methodArgumentTypes = methods.getMethodArgumentTypes();
+		inputArgumentTypes = input.getInputArgumentTypes();
+		outputArgumentTypes = output.getOutputArgumentTypes();
+		branchArgumentTypes = branch.getBranchArgumentTypes();
+		exceptionName = exceptions.getExceptionGoal();
 		
 		methodName = methodName.replace("<","").replace(">","").replace("(","").replace(")","");//+
 		exceptionName =	exceptionName.replace("<","").replace(">","").replace("(","").replace(")","");
@@ -370,7 +191,7 @@ public class TestNameGenerator extends DistinguishNames {
 		outputArgumentTypes = outputArgumentTypes.replace("<","").replace(">","").replace("(","").replace(")","");
 		
 		
-		methodName=methodName.replace("_init", "_CreatesConstructor");
+		methodName=methodName.replace("_init", "_CreateConstructor");
 		exceptionName =	exceptionName.replace("_init", "_Constructor");
 		outputName = outputName.replace("_init", "_Constructor");
 		branchName = branchName.replace("_Invokesinit", "_InvokesConstructor");
@@ -399,6 +220,7 @@ public class TestNameGenerator extends DistinguishNames {
 		if(branchArguments.split("_").length!=branchArgumentTypes.split("_").length){
 			branchArgumentTypes="";
 		}
+		System.out.println(methodArguments+"-"+inputArguments+"-"+outputArguments+"-" +branchArguments);
 		testNames.put(tc, methodName); 
 		testOutputs.put(tc, outputName);
 		testBranches.put(tc, branchName);
@@ -699,6 +521,7 @@ public class TestNameGenerator extends DistinguishNames {
     		//System.out.println(testName[count]);
     		count++;
     	}
+    	System.out.println(Arrays.toString(testName));
     	SimplifyMethodNames optimize = new SimplifyMethodNames();
     	testName = optimize.optimizeNames(Arrays.asList(testName));
     	for (int i=0; i<testName.length; i++) {        	 
@@ -732,29 +555,19 @@ public class TestNameGenerator extends DistinguishNames {
 	            	testMethodNameOptimized=testMethodNameOptimized.replace("Constructor",className);
 	            }
           //  }
-	            String[] tokens = testMethodNameOptimized.split("_");
-
-	            testMethodNameOptimized = tokens[0];
-	            for (int j = 1; j < tokens.length; j++) {
-	                if (i == tokens.length - 1) {
-	                    if (tokens[j].contains("Exception")) {
-	                        //newMethodName += "Throwing" + WordUtils.capitalize(tokens[i]);
-	                    	testMethodNameOptimized += WordUtils.capitalize(tokens[j]);
-	                    } else {
-	                    	testMethodNameOptimized += WordUtils.capitalize(tokens[j]);
-	                    }
-	                } else {
-	                	testMethodNameOptimized += WordUtils.capitalize(tokens[j]);
-	                }
-
-	            }
+	            testMethodNameOptimized = testMethodNameOptimized.replace("_", "");
+	            
             setNameGeneratedFor(testCs[i], testMethodNameOptimized);         
             methodNames.add(testMethodNameOptimized);           
         }     
     		
     	
     }
-    
+    public static void main(String[] args){
+    	String s= "test_ReadWith3ArgumentsOfTypeArrayByteIntInt_ReadThrowingNullPointerException";
+    	s=s.replace("_", "");
+    	
+    }
   
     /**
      * Infers the target Method Under Test
@@ -827,98 +640,7 @@ public class TestNameGenerator extends DistinguishNames {
 	  return name;
   }
   
-  private int countArguments(String str){
-	  int noOfArguments=0;
-	//count arguments in a method goal
-		if(str.contains(";")){
-			//noOfArguments=StringUtils.countMatches(str, ";");
-			String[] strParts= str.split(";");
-			for(String token: strParts){
-				if(token.contains("/")){
-					noOfArguments++;
-				}else{
-	  				for (int i = token.length() - 1; i >= 0; i--) {
-	  			        if (Character.isUpperCase(token.charAt(i))) {
-	  			        	noOfArguments++;
-	  			        }
-	  			    }
-				}
-			}
-		}else{
-			for (int i = str.length() - 1; i >= 0; i--) {
-		        if (Character.isUpperCase(str.charAt(i))) {
-		        	noOfArguments++;
-		        }
-		    }
-		}
-		return noOfArguments;
-		//end argument counting
-  }
-  private String getArgumentTypes(String str){	  
-		//str=Lcom/examples/with/different/packagename/idnaming/gnu/trove/map/TShortShortMap;
-	  List<String> argType = new ArrayList<String>();
-	  String names="";
-	  if(str.contains(";")){			
-			String[] strParts= str.split(";");
-			for(String token: strParts){
-				if(token.contains("/")){
-					argType.add(token.substring(token.lastIndexOf("/")+1,token.length()));
-				}else{
-	  				for (int i = 0; i <token.length() ; i++) {
-	  			       switch(token.charAt(i)){
-	  			        	case 'Z': argType.add("Boolean");
-	  			        	break;
-	  			        	case 'B': argType.add("Byte");
-	  			        	break;
-	  			        	case 'C': argType.add("Char");
-	  			        	break;
-	  			        	case 'S': argType.add("Short");
-	  			        	break;
-	  			        	case 'I': argType.add("Int");
-	  			        	break;
-	  			        	case 'J': argType.add("Long");
-	  			        	break;
-	  			        	case 'F': argType.add("Float");
-	  			        	break;
-	  			        	case 'D': argType.add("Double");
-	  			        	break;
-	  			        	case '[': argType.add("Array");
-	  			        	break;
-	  			        }
-	  			    }
-				}
-			}
-		}else{
-			for (int i = 0; i <str.length() ; i++) {
-				switch(str.charAt(i)){
-  			        	case 'Z': argType.add("Boolean");
-  			        	break;
-  			        	case 'B': argType.add("Byte");
-  			        	break;
-  			        	case 'C': argType.add("Char");
-  			        	break;
-  			        	case 'S': argType.add("Short");
-  			        	break;
-  			        	case 'I': argType.add("Int");
-  			        	break;
-  			        	case 'J': argType.add("Long");
-  			        	break;
-  			        	case 'F': argType.add("Float");
-  			        	break;
-  			        	case 'D': argType.add("Double");
-  			        	break;
-  			        	case '[': argType.add("Array");
-  			        	break;
-  			        	
-		        }
-		    }
-		}
-	  for(String s:argType){
-		  names+=s;
-	  }
-		return names;
-		//end argument counting
-  }
+ 
   private int checkOtherNames(List<TestCase> testCases,String str, int i){
 	  int temp=-1;
 	  for(int k=0; k<testCases.size(); k++){ 			    					
@@ -930,5 +652,18 @@ public class TestNameGenerator extends DistinguishNames {
 		}
 	  return temp;
   }
+  private Class<?> getExceptionClassToUse(Throwable exception){
+      /*
+          we can only catch a public class.
+          for "readability" of tests, it shouldn't be a mock one either
+        */
+      Class<?> ex = exception.getClass();
+      while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
+				ex.getCanonicalName().startsWith("com.sun.")) {
+          ex = ex.getSuperclass();
+      }
+      return ex;
+  }
+ 
   
 }
