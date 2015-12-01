@@ -81,6 +81,6 @@ public interface LocalSearchObjective<T extends Chromosome> {
 	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions();
 	
 	
-	public double getFitness(T individual);
+	public double getChromosomeFitness(T individual);
 
 }

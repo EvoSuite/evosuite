@@ -173,8 +173,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		}
 	}
 
-	
-	public double getFitness(TestChromosome individual) {
+	/**
+	 * Returns the fitness of the TestChromosome in isolation. 
+	 * This means, the test case is executed and the fitness of the
+	 * test case alone is reported.
+	 * Notice that the test is executed twice to have two counts of each 
+	 * branch.
+	 */
+	public double getChromosomeFitness(TestChromosome individual) {
 		TestSuiteChromosome newSuite = new TestSuiteChromosome();
 		newSuite.addTest(individual);
 		newSuite.addTest(individual);
