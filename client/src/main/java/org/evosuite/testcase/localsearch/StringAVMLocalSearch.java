@@ -23,17 +23,12 @@
 package org.evosuite.testcase.localsearch;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.localsearch.TestSuiteLocalSearchObjective;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
