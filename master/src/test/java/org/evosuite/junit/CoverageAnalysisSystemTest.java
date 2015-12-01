@@ -140,15 +140,15 @@ public class CoverageAnalysisSystemTest extends SystemTest {
         assertTrue(CsvJUnitData.getValue(rows, "TARGET_CLASS").equals(Calculator.class.getCanonicalName()));
         assertTrue(CsvJUnitData.getValue(rows, "criterion").equals(Properties.Criterion.BRANCH.toString() + ";" + Properties.Criterion.LINE.toString()));
 
-        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, "Coverage")), 0.88, 0.01);
-        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, "Covered_Goals")), 8, 0);
-        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, "Total_Goals")), 9, 0);
+        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Coverage.name())), 0.88, 0.01);
+        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Covered_Goals.name())), 8, 0);
+        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name())), 9, 0);
 
-        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, "BranchCoverage")), 0.8, 0.0);
-        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, "LineCoverage")), 1.0, 0.0);
+        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverage.name())), 0.8, 0.0);
+        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name())), 1.0, 0.0);
 
-        assertTrue(CsvJUnitData.getValue(rows, "BranchCoverageBitString").equals("10111"));
-        assertTrue(CsvJUnitData.getValue(rows, "LineCoverageBitString").equals("1111"));
+        assertTrue(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverageBitString.name()).equals("10111"));
+        assertTrue(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverageBitString.name()).equals("1111"));
 	}
 
 	@Test
