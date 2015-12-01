@@ -21,6 +21,7 @@ package org.evosuite.continuous.persistency;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +136,21 @@ public class CsvJUnitData {
 			}
 		}
 		return null;
+	}
+
+	public static List<String> getValues(List<String[]> rows, String columnName) {
+		String[] names = rows.get(0);
+		List<String> values = new ArrayList<String>();
+
+		for (int i = 0; i < names.length; i++) {
+			if (names[i].trim().equalsIgnoreCase(columnName.trim())) {
+				for (int j = 1; j < rows.size(); j++) {
+					values.add(rows.get(j)[i].trim());
+				}
+			}
+		}
+
+		return values;
 	}
 
 	public String getTargetClass(){
