@@ -79,6 +79,65 @@ public class TestIDNaming extends SystemTest {
 
 		EvoSuite evosuite = new EvoSuite();
 
+		String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
+		String testClass = TestMethodWithSeveralInputArguments.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.JUNIT = testClass;
+		Properties.SELECTED_JUNIT = testClass;
+
+		Properties.TEST_NAMING = true;
+		Properties.JUNIT_TESTS = true;
+		Properties.WRITE_COVERED_GOALS_FILE = true;
+		Properties.WRITE_TEST_NAMES_FILE = true;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.INPUT,
+				Properties.Criterion.OUTPUT, Properties.Criterion.METHOD};
+
+		String[] command = new String[] {
+				"-class", targetClass,
+				"-Djunit=" + testClass,
+				"-Dselected_junit=" + testClass,
+				"-measureCoverage"
+		};
+
+		SearchStatistics result = (SearchStatistics)evosuite.parseCommandLine(command);
+		Assert.assertNotNull(result);
+
+		Map<TestCase,String> testNamesMap = TestNameGenerator.getResults();
+		Assert.assertEquals("Incorrect number of carved tests", 2, testNamesMap.size());
+
+		Object[] tests = testNamesMap.keySet().toArray();
+		TestCase tc0 = (TestCase)tests[0];
+		TestCase tc1 = (TestCase)tests[1];
+
+		Assert.assertEquals("Unexpected number of covered goals", 7, tc0.getCoveredGoals().size());
+		Assert.assertEquals("Unexpected number of covered goals", 7, tc1.getCoveredGoals().size());
+
+		String carvedName0 = ((CarvedTestCase)tc0).getName();
+		String generatedName0 = testNamesMap.get(tc0);
+
+		String carvedName1 = ((CarvedTestCase)tc1).getName();
+		String generatedName1 = testNamesMap.get(tc1);
+
+		String[] carved = { carvedName0, carvedName1 };
+		Arrays.sort(carved);
+		String[] carvedExpected = {"testWithNull", "testWithArray"};
+		Arrays.sort(carvedExpected);
+		String[] generated = { generatedName0, generatedName1 };
+		Arrays.sort(generated);
+		String[] generatedExpected = {"testTestFooWithNonemptyInput", "testTestFooWithNullInput"};
+		Arrays.sort(generatedExpected);
+
+		Assert.assertArrayEquals("Unexpected carved test names", carvedExpected, carved);
+		Assert.assertArrayEquals("Unexpected generated test names", generatedExpected, generated);
+	}
+
+	@Test
+	public void testCarvedTestNamesBOMInputStream() {
+
+		EvoSuite evosuite = new EvoSuite();
+
 		String targetClass = BOMInputStream.class.getCanonicalName();
 		String testClass = BOMInputStreamTest.class.getCanonicalName();
 
