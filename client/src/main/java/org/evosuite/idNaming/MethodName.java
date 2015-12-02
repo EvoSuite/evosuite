@@ -34,11 +34,15 @@ public class MethodName extends MethodArguments{
 	public void setMethodGoal(TestCase tc){
 		Set<? extends TestFitnessFunction> goals = tc.getCoveredGoals();		
 		for (TestFitnessFunction goal : goals) {
-  		  	String goalName = goal.toString();  		  	
+  		  	String goalName = goal.toString();  		  
+  		  className=goalName.substring(0,goalName.lastIndexOf("."));
+  		  className=className.substring(className.lastIndexOf(".")+1, className.length());
+		  	
   		  	if (goal instanceof MethodCoverageTestFitness) {
   		  	String str = goalName.substring(goalName.lastIndexOf("(")+1,goalName.lastIndexOf(")"));
-  		    className=goalName.substring(0,goalName.lastIndexOf("."));
-		  	className=className.substring(className.lastIndexOf(".")+1, className.length());
+  		  className=goalName.substring(0,goalName.lastIndexOf("."));
+  		  className=className.substring(className.lastIndexOf(".")+1, className.length());
+		  	
 	  		
   		  		methodName+="_"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")));	
 		  		noOfArguments = countArguments(str);

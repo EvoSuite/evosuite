@@ -19,8 +19,10 @@
  */
 package org.evosuite.idnaming;
 
+import com.examples.with.different.packagename.coverage.*;
 import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
 import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
+import com.examples.with.different.packagename.idnaming.BOMInputStream;
 import com.examples.with.different.packagename.strings.Calc;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -44,7 +46,7 @@ import java.util.SortedSet;
 
 public class TestIDNaming extends SystemTest {
 
-	@Test
+/*	@Test
 	public void testIDNamingOn() {
 		EvoSuite evosuite = new EvoSuite();
 
@@ -70,15 +72,15 @@ public class TestIDNaming extends SystemTest {
 
 		List<TestCase> tests = best.getTests();
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.145834);
-	}
+	}*/
 
 	@Test
 	public void testCarvedTestNames() {
 
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
-		String testClass = TestMethodWithSeveralInputArguments.class.getCanonicalName();
+		String targetClass = BOMInputStream.class.getCanonicalName();
+		String testClass = BOMInputStreamTest.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.JUNIT = testClass;
@@ -90,7 +92,7 @@ public class TestIDNaming extends SystemTest {
 		Properties.WRITE_TEST_NAMES_FILE = true;
 
 		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.INPUT,
-				Properties.Criterion.OUTPUT, Properties.Criterion.METHOD};
+				Properties.Criterion.OUTPUT, Properties.Criterion.METHOD, Properties.Criterion.BRANCH, Properties.Criterion.EXCEPTION};
 
 		String[] command = new String[] {
 				"-class", targetClass,

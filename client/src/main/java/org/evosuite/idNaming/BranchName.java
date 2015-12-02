@@ -27,7 +27,7 @@ public class BranchName extends MethodArguments{
   		  	String goalName = goal.toString();  		  	
   			if (goal instanceof BranchCoverageTestFitness){
   				String str = goalName.substring(goalName.lastIndexOf("(")+1,goalName.lastIndexOf(")"));
-	  			if(goalName.contains("root-Branch")){
+	  		//	if(goalName.contains("root-Branch")){
 	  				branchName+="_Invokes"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")));
 	  				noOfArguments = countArguments(str);
 	  			  	if(noOfArguments==0){
@@ -41,32 +41,32 @@ public class BranchName extends MethodArguments{
 	  				}
 	  				argTypes=getArgumentTypes(str);			  	
 				  	branchArgumentTypes += branchArguments+"OfType"+argTypes.toString();
-				} 				
-	  			else{
-	  				branchName+="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-		  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
+			//	} 				
+	  		/*	else{
+	  				branchName+="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")));//+
+		  					//WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
 	  				noOfArguments = countArguments(str);
 	  			  	if(noOfArguments==0){
 	  			  		branchArguments +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-	  			  				"WithNoArgument"+
-			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
+	  			  				"WithNoArgument";//+
+			  					//WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
 	  				}else{
 	  					if(noOfArguments==1){
 	  						branchArguments +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-	  				  				"With"+noOfArguments+"Argument"+
-				  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
+	  				  				"With"+noOfArguments+"Argument";//+
+				  				//	WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
 	  			  		}else{
 	  			  		branchArguments +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-	  			  				"With"+noOfArguments+"Arguments"+
-			  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
+	  			  				"With"+noOfArguments+"Arguments";//+
+			  				//	WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
 	  			  		}
 	  				}
 	  			  	//test_CallsAWithXArgumentsOfTypeYTrueBranch;
 	  			 	argTypes=getArgumentTypes(str);			  	
 				  	branchArgumentTypes +="_Calls"+WordUtils.capitalize(goalName.substring(goalName.lastIndexOf(".")+1,goalName.indexOf("(")))+
-  			  				"With"+noOfArguments+"Arguments"+"OfType"+argTypes.toString()+
-		  					WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
-				}
+  			  				"With"+noOfArguments+"Arguments"+"OfType"+argTypes.toString();//+
+		  				//	WordUtils.capitalize(goalName.substring(goalName.indexOf(" - ")+3))+"Branch";
+				}*/
   			}
 		}
 	}

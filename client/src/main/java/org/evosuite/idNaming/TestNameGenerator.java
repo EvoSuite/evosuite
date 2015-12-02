@@ -531,8 +531,6 @@ public class TestNameGenerator extends DistinguishNames {
         }    
     	testName = optimize.minimizeNames(testName);    	
     	testName = optimize.countSameNames(testName); 
-    	
-    	
     		
         for (int i=0; i<testName.length; i++) {        	           
             String testMethodNameOptimized = testName[i]; // TODO
@@ -558,7 +556,8 @@ public class TestNameGenerator extends DistinguishNames {
 	            testMethodNameOptimized = testMethodNameOptimized.replace("_", "");
 	            
             setNameGeneratedFor(testCs[i], testMethodNameOptimized);         
-            methodNames.add(testMethodNameOptimized);           
+            methodNames.add(testMethodNameOptimized);     
+            System.out.println(testMethodNameOptimized);
         }     
     		
     	
