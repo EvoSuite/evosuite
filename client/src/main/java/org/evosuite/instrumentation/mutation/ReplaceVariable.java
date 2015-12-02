@@ -66,6 +66,8 @@ public class ReplaceVariable implements MutationOperator {
 
 	private static Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
 
+	public static final String NAME = "ReplaceVariable";
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
@@ -98,7 +100,7 @@ public class ReplaceVariable implements MutationOperator {
 				// insert mutation into pool
 				Mutation mutationObject = MutationPool.addMutation(className,
 				                                                   methodName,
-				                                                   "ReplaceVariable "
+				                                                   NAME + " "
 				                                                           + origName
 				                                                           + " -> "
 				                                                           + mutation.getKey(),

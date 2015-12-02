@@ -996,6 +996,9 @@ public class Properties {
 	@Parameter(key = "max_mutants_per_method", group = "Output", description = "How many mutants can be inserted into a single method")
 	public static int MAX_MUTANTS_PER_METHOD = 700;
 
+	@Parameter(key = "max_mutants_per_class", group = "Output", description = "How many mutants can be used as target for a single class")
+	public static int MAX_MUTANTS_PER_CLASS = 1000;
+
 	@Parameter(key = "max_replace_mutants", group = "Output", description = "How many replacement mutants can be inserted for any one variable")
 	public static int MAX_REPLACE_MUTANTS = 100;
 

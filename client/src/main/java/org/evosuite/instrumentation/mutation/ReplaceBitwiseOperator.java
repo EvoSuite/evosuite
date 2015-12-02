@@ -50,6 +50,8 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public class ReplaceBitwiseOperator implements MutationOperator {
 
+	public static final String NAME = "ReplaceBitwiseOperator";
+	
 	private static Set<Integer> opcodesInt = new HashSet<Integer>();
 
 	private static Set<Integer> opcodesIntShift = new HashSet<Integer>();
@@ -106,7 +108,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			// insert mutation into pool
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceBitwiseOperator "
+			                                                   NAME + " "
 			                                                           + getOp(node.getOpcode())
 			                                                           + " -> "
 			                                                           + getOp(opcode),

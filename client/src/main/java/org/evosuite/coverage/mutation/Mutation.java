@@ -178,7 +178,7 @@ public class Mutation implements Comparable<Mutation> {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMutationName() {
-		return id + ": " + mutationName + ", line " + original.getLineNumber();
+		return mutationName + " ("+id + "): " + ", line " + original.getLineNumber();
 	}
 
 	/**

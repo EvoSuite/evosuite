@@ -53,6 +53,8 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public class ReplaceArithmeticOperator implements MutationOperator {
 
+	public static final String NAME = "ReplaceArithmeticOperator";
+	
 	private static Set<Integer> opcodesInt = new HashSet<Integer>();
 
 	private static Set<Integer> opcodesLong = new HashSet<Integer>();
@@ -194,7 +196,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			// insert mutation into pool
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceArithmeticOperator "
+			                                                   NAME + " "
 			                                                           + getOp(node.getOpcode())
 			                                                           + " -> "
 			                                                           + getOp(opcode),

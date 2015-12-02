@@ -55,6 +55,8 @@ public class InsertUnaryOperator implements MutationOperator {
 
 	private static final Logger logger = LoggerFactory.getLogger(InsertUnaryOperator.class);
 
+	public static final String NAME = "InsertUnaryOp";
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
@@ -143,7 +145,7 @@ public class InsertUnaryOperator implements MutationOperator {
 			// insert mutation into pool
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "InsertUnaryOp "
+			                                                   NAME + " "
 			                                                           + descriptions.get(i++),
 			                                                   instruction,
 			                                                   mutation,
