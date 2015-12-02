@@ -114,7 +114,7 @@ public class SearchStatisticsSystemTest extends SystemTest{
 
         Properties.TARGET_CLASS = targetClass;
         Properties.DYNAMIC_SEEDING = true;
-        Properties.SEARCH_BUDGET = 30;
+        Properties.SEARCH_BUDGET = 250;
         Properties.TRACK_BOOLEAN_BRANCHES = true;
         Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.Coverage+","+RuntimeVariable.Gradient_Branches;
 

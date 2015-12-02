@@ -196,7 +196,7 @@ public class MockTcpSystemTest extends SystemTest{
         String targetClass = ReceiveTcp.class.getCanonicalName();
 
         Properties.TARGET_CLASS = targetClass;
-        Properties.SEARCH_BUDGET = 20000;
+        Properties.SEARCH_BUDGET = 200_000;
         Properties.VIRTUAL_NET = true;
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
