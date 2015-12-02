@@ -146,8 +146,8 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		}
 
 		// Return true if fitness has improved
-		return objective.isMaximizationObjective() ? fitnessBefore < individual.getFitness()
-				: fitnessBefore > individual.getFitness();
+		boolean hasImproved = hasImproved(fitnessBefore,  individual, objective);
+		return hasImproved;
 
 	}
 

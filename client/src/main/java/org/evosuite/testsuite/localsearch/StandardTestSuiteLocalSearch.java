@@ -74,14 +74,13 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		//		        + fitnessBefore + " and now is " + individual.getFitness();
 
 		// Return true if fitness has improved
-		return objective.isMaximizationObjective() ? fitnessBefore > individual.getFitness()
-		        : fitnessBefore < individual.getFitness();
+		boolean hasImproved = hasImproved(fitnessBefore,  individual, objective);
+		return hasImproved;
 	}
 
 	private void doRegularSearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
 		List<TestChromosome> tests = individual.getTestChromosomes();
-		double fit = individual.getFitness();
 		for (int i = 0; i < tests.size(); i++) {
 			TestChromosome test = tests.get(i);
 			

@@ -206,4 +206,18 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 		}
 	}
 	
+	/**
+	 * Indicates if the fitness of the individual has improved with respected to 
+	 * parameter <code>fitnessBefore</code>
+	 * 
+	 * @param fitnessBefore the previous fitness of the individual
+	 * @param individual the individual
+	 * @param objective the local search objective 
+	 * @return true if fitness improved, false otherwise 
+	 */
+	protected boolean hasImproved(double fitnessBefore, TestSuiteChromosome individual, 
+			LocalSearchObjective<TestSuiteChromosome> objective) {
+		return objective.isMaximizationObjective() ? fitnessBefore < individual.getFitness()
+				: fitnessBefore > individual.getFitness();
+	}
 }
