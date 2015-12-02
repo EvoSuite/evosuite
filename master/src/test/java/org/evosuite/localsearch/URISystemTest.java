@@ -19,54 +19,58 @@
  */
 package org.evosuite.localsearch;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.concolic.FileSuffix;
+import com.examples.with.different.packagename.concolic.URI;
 
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class FileSuffixLSSystemTest extends SystemTest {
+public class URISystemTest extends SystemTest {
 
 	@Before
 	public void init() {
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
 		Properties.LOCAL_SEARCH_RATE = 1;
-		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
-		Properties.LOCAL_SEARCH_BUDGET = 100;
-		Properties.SEARCH_BUDGET = 10;
+		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TIME;
+		Properties.LOCAL_SEARCH_BUDGET = 10;
+		Properties.SEARCH_BUDGET = 20;
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
 	}
 
 	@Test
-	public void testLocalSearch() {
-
+	public void testZ3Str2() {
+		Assume.assumeTrue(System.getenv("z3_str2_path")!=null);
+		
+		Properties.Z3_STR2_PATH =System.getenv("z3_str2_path");
+		Properties.DSE_SOLVER = Properties.SolverType.Z3_STR2_SOLVER;
+		
 		EvoSuite evosuite = new EvoSuite();
-		String targetClass = FileSuffix.class.getCanonicalName();
+		String targetClass = URI.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-
-		Properties.PRINT_TO_SYSTEM = true;
-		Properties.DSE_PROBABILITY = 0.0; // force using only LS, no DSE
+		
+		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 		Properties.CRITERION = new Criterion[] {
 	            //these are basic criteria that should be always on by default
 	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
-
+		
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-
+		assertNotNull(best);
 	}
 
 }

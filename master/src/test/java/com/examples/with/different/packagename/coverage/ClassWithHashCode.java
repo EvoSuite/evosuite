@@ -17,25 +17,13 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.junit.xml;
+package com.examples.with.different.packagename.coverage;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+public class ClassWithHashCode {
 
-import org.evosuite.junit.FooTestClassLoader;
-import org.evosuite.junit.JUnitResult;
-import org.junit.Test;
-
-
-public class JUnitExecutorTest {
-
-	@Test
-	public void testJUnitFoo() {
-		JUnitExecutor executor = new JUnitExecutor();
-		Class<?> fooTestClass = new FooTestClassLoader().loadFooTestClass();
-		JUnitResult result = executor.execute(fooTestClass);
-		assertNotNull(result);
-		assertFalse(result.wasSuccessful());
+	@Override
+	public int hashCode() {
+		return -1;
 	}
 
 }

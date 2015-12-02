@@ -143,18 +143,6 @@
             </properties>
         </profile>
         <profile>
-            <id>Java7</id>
-            <activation>
-                <jdk>1.7</jdk>
-                <property>
-                    <name>Java7</name>
-                </property>
-            </activation>
-            <properties>
-                <toolsVersion>1.7.0</toolsVersion>
-            </properties>
-        </profile>
-        <profile>
             <!-- needed as profile, as getting issue with Maven Plugin :( -->
             <id>rootReporting</id>
             <reporting>
@@ -214,7 +202,6 @@
             <dependency>
                 <groupId>com.sun</groupId>
                 <artifactId>tools</artifactId>
-                <!--				<version>${toolsVersion}</version> -->
                 <version>1.0.0</version>
                 <scope>system</scope>
                 <systemPath>${toolsjar}</systemPath>

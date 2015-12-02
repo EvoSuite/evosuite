@@ -2,7 +2,7 @@
 *.dot
 *.iml
 *~
-target/*
+target/
 evosuite-files
 evosuite-report
 evosuite-tests

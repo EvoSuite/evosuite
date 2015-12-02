@@ -68,10 +68,14 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 	        LocalSearchObjective<TestChromosome> objective) {
 		StringPrimitiveStatement p = (StringPrimitiveStatement) test.getTestCase().getStatement(statement);
 		backup(test, p);
+		double oldFitness = objective.getChromosomeFitness(test);
+		
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
 		boolean affected = false;
 		String oldValue = p.getValue();
+		
+		
 		for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
 			if (Randomness.nextDouble() > 0.5)
 				p.increment();
@@ -80,12 +84,18 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 
 			logger.info("Probing string " + oldValue + " ->" + p.getCode());
 			int result = objective.hasChanged(test);
+			if (!affected && result==0) {
+				double newFitness = objective.getChromosomeFitness(test);
+				if (newFitness!=oldFitness) {
+					affected=true;
+				}
+			}
 			if (result < 0) {
 				backup(test, p);
 			} else {
 				restore(test, p);
 			}
-			if (result != 0) {
+			if (affected || result != 0) {
 				affected = true;
 				logger.info("String affects fitness");
 				break;

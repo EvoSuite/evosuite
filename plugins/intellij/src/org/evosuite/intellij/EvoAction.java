@@ -97,10 +97,7 @@ public class EvoAction extends AnAction {
         dialog.setVisible(true);
 
         if (dialog.isWasOK()) {
-            toolWindow.show(new Runnable(){@Override public void run(){
-                notifier.clearConsole();
-            }
-            });
+            toolWindow.show(() -> notifier.clearConsole());
             EvoParameters.getInstance().save(project);
             EvoSuiteExecutor.getInstance().run(project,EvoParameters.getInstance(),map,notifier);
         }

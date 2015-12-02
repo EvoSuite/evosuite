@@ -38,6 +38,7 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.eclipse.aether.RepositorySystemSession;
 import org.evosuite.EvoSuite;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * Note: we cannot call EvoSuite directly on same JVM, like the following:
@@ -144,12 +145,10 @@ public class EvoSuiteRunner {
 		DefaultProjectBuildingRequest req = new DefaultProjectBuildingRequest();
 		req.setRepositorySession(repoSession);
 		req.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL);
-		req.setActiveProfileIds( Arrays.asList("Java7"));
-		req.setInactiveProfileIds(Arrays.asList("Java6"));
 		req.setSystemProperties(System.getProperties());
 		req.setResolveDependencies(true);
 
-		ProjectBuildingResult res = null;
+		ProjectBuildingResult res;
 
 		try {
 			res = projectBuilder.build(evosuite, req);
@@ -170,6 +169,8 @@ public class EvoSuiteRunner {
 		
 		List<String> cmd = new ArrayList<>();
 		cmd.add("java");
+		cmd.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER + "=logback-ctg-entry.xml");
+		cmd.add("-Dlogback.configurationFile=logback-ctg-entry.xml");
 		cmd.add("-cp");
 		cmd.add(cp);
 		cmd.add(entryPoint);
@@ -250,9 +251,11 @@ public class EvoSuiteRunner {
 				baseDir = System.getProperty("user.dir");
 			}
 
-			logger.debug("Workind directory: "+baseDir);
-			logger.debug("Going to execute command: "+Arrays.toString(cmd.toArray()));
-			
+			logger.debug("Working directory: "+baseDir);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Going to execute command: " + String.join(" ", cmd));
+			}
+
 			File dir = new File(baseDir);
 
 			ProcessBuilder builder = new ProcessBuilder(cmd);
@@ -303,12 +306,12 @@ public class EvoSuiteRunner {
 						}
 					}
 				} catch(Exception e){
-					//
-					//logger.error(""+e.getMessage(),e);
+					logger.debug("Exception while reading spawn process output: "+ e.toString());
 				}
 			}
 		};
 
 		reader.start();
+		logger.debug("Started thread to read spawn process output");
 	}
 }

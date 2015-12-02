@@ -46,7 +46,6 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.LoopCounter;
-import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
@@ -725,6 +724,9 @@ public class TestSuiteGenerator {
 		case LINE:
 			LoggingUtils.getEvoLogger().info("  - Line Coverage");
 			break;
+		case ONLYLINE:
+			LoggingUtils.getEvoLogger().info("  - Only-Line Coverage");
+			break;
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
 			break;
@@ -734,8 +736,11 @@ public class TestSuiteGenerator {
 		case BRANCH:
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 			break;
-		case CBRANCH:BRANCH:
+		case CBRANCH:
 		    LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
+			break;
+		case IBRANCH:
+			LoggingUtils.getEvoLogger().info("  - 'i' Branch Coverage"); //FIXME what is "I" standing for???
 			break;
 		default:
 			throw new IllegalArgumentException("Unrecognized criterion: "+criterion);

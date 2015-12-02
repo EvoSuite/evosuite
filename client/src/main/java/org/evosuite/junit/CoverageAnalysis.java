@@ -657,10 +657,20 @@ public class CoverageAnalysis {
 			return false;
 		}
 
+		TestClass tc;
+
+		try {
+			tc = new TestClass(cls);
+		} catch (IllegalArgumentException e) {
+			return false;
+		} catch (RuntimeException e){
+			//this can happen if class has Annotations that are not available on classpath
+			throw new RuntimeException("Failed to analyze class "+cls.getName()+ " due to: " + e.toString());
+		}
+
 		// JUnit 4
 		try {
-			List<FrameworkMethod> methods = new ArrayList<FrameworkMethod>();
-			TestClass tc = new TestClass(cls);
+			List<FrameworkMethod> methods = new ArrayList<>();
 			methods.addAll(tc.getAnnotatedMethods(Test.class));
 			methods.addAll(tc.getAnnotatedMethods(EvoSuiteTest.class));
 			for (FrameworkMethod method : methods) {

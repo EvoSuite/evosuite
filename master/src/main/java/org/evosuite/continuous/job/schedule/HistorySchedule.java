@@ -71,7 +71,7 @@ public class HistorySchedule
         LoggingUtils.getEvoLogger().info("extraTime: " + extraTime);
 
         // check how much time we can give extra for each branch in a CUT
-        double timePerBranch = (double) extraTime / (double) data.getTotalNumberOfBranches();
+        double timePerBranch = (double) extraTime / (double) data.getTotalNumberOfBranches(); //FIXME: this could be 0
 
         // left
         int totalLeftOver = 0;

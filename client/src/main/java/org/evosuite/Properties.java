@@ -1490,6 +1490,9 @@ public class Properties {
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
 	public static int PROCESS_COMMUNICATION_PORT = -1;
 
+	@Parameter(key = "spawn_process_manager_port", group = "Runtime", description = "Port at which the spawn process manager (if any) is listening")
+	public static Integer SPAWN_PROCESS_MANAGER_PORT = null;
+
 	/** Constant <code>STOPPING_PORT=-1</code> */
 	@Parameter(key = "stopping_port", group = "Runtime", description = "Port at which a stopping condition waits for interruption")
 	public static int STOPPING_PORT = -1;
