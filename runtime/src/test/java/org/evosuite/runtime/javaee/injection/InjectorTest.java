@@ -26,13 +26,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.enterprise.event.Event;
+import javax.faces.bean.ManagedProperty;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 import javax.transaction.UserTransaction;
+import javax.ws.rs.core.Context;
+import javax.xml.ws.WebServiceRef;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
@@ -146,7 +150,7 @@ public class InjectorTest {
     }
 
     @Test
-    public void test_getGeneralFieldsToInject(){
+    public void test_getGeneralFieldsToInject_Foo(){
         List<Field> list = Injector.getGeneralFieldsToInject(Foo.class);
         Assert.assertEquals(5, list.size());
         Set<String> names = new LinkedHashSet<>();
@@ -159,6 +163,21 @@ public class InjectorTest {
         Assert.assertTrue(names.contains("springWired"));
         Assert.assertTrue(names.contains("aResource"));
     }
+
+    @Test
+    public void test_getGeneralFieldsToInject_Bar(){
+        List<Field> list = Injector.getGeneralFieldsToInject(Bar.class);
+        Assert.assertEquals(4, list.size());
+        Set<String> names = new LinkedHashSet<>();
+        for(Field f : list){
+            names.add(f.getName());
+        }
+        Assert.assertTrue(names.contains("ejb"));
+        Assert.assertTrue(names.contains("webServiceRef"));
+        Assert.assertTrue(names.contains("managedProperty"));
+        Assert.assertTrue(names.contains("context"));
+    }
+
 
     @Test
     public void test_getGeneralFieldsToInject_subclass_differentField(){
@@ -271,6 +290,23 @@ public class InjectorTest {
         private String b;
     }
 
+    
+    private static class Bar {
+        
+        @EJB
+        private Object ejb;
+        
+        @WebServiceRef
+        private Object webServiceRef;
+        
+        @ManagedProperty(value = "")
+        private Object managedProperty;
+
+        @Context
+        private Object context;
+
+        private Object noTag;
+    }
 
     private static class Foo {
 
