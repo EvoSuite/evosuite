@@ -165,8 +165,10 @@ public class EvoSuiteExecutor {
             File dir = new File(modulePath);
             Process p;
 
+            SpawnProcessKeepAliveCheckerIntelliJ checker = new SpawnProcessKeepAliveCheckerIntelliJ(notifier);
+
             try {
-                int port = SpawnProcessKeepAliveCheckerIntelliJ.getInstance().startServer();
+                int port = checker.startServer();
 
                 p = ProcessRunner.execute(project, notifier, params, dir, suts.get(modulePath), port);
                 if (p == null) {
@@ -190,7 +192,7 @@ public class EvoSuiteExecutor {
                     progressIndicator.checkCanceled();
                 }
             } finally {
-                SpawnProcessKeepAliveCheckerIntelliJ.getInstance().stopServer();
+                checker.stopServer();
             }
 
             int res = p.exitValue();
