@@ -39,6 +39,22 @@ public class InjectionSupport {
     private static volatile GenericMethod event;
     private static volatile GenericMethod postConstruct;
     private static volatile GenericMethod generalField;
+    private static volatile GenericMethod validateBean;
+
+
+    public static GenericMethod getValidateBean(){
+        if(validateBean==null){
+            try {
+                validateBean = new GenericMethod(
+                        Injector.class.getDeclaredMethod("validateBean",Object.class, Class.class)
+                        , Injector.class);
+            } catch (NoSuchMethodException e) {
+                logger.error("Reflection failed in InjectionSupport: "+e.getMessage());
+                return null;
+            }
+        }
+        return validateBean;
+    }
 
     public static GenericMethod getInjectorForGeneralField(){
         if(generalField == null){

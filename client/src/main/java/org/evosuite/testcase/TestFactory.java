@@ -239,6 +239,7 @@ public class TestFactory {
 	private int doInjection(TestCase test, int position, Class<?> klass, VariableReference ref) throws ConstructionFailedException {
 
 		int injectPosition = position + 1;
+		int startPos = injectPosition;
 
 		//check if this object needs any dependency injection
 
@@ -288,6 +289,13 @@ public class TestFactory {
 			}
 
 			target = target.getSuperclass();
+		}
+
+		if(injectPosition != startPos) {
+			//validate the bean, but only if there was any injection
+			VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), klass);
+			Statement ms = new MethodStatement(test, InjectionSupport.getValidateBean(), null, Arrays.asList(ref, classConstant));
+			test.addStatement(ms, injectPosition++);
 		}
 
 		/*

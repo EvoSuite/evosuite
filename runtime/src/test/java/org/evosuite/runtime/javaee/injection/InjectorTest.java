@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.javaee.injection;
 
+import org.evosuite.runtime.FalsePositiveException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,6 +174,82 @@ public class InjectorTest {
         Assert.assertEquals("aString", list.get(0).getName());
     }
 
+
+    @Test
+    public void testValidateBean_A_invalid(){
+        A a = new A();
+        try {
+            Injector.validateBean(a, A.class);
+            fail();
+        } catch (FalsePositiveException e){
+            //OK
+        }
+    }
+
+    @Test
+    public void testValidateBean_A_ok(){
+        A a = new A();
+        try {
+            Injector.inject(a,A.class,"a","foo");
+            Injector.validateBean(a, A.class);
+        } catch (FalsePositiveException e){
+            fail();
+        }
+    }
+
+
+    @Test
+    public void testValidateBean_B_invalid_AB(){
+        B b = new B();
+        try {
+            Injector.validateBean(b, B.class);
+            fail();
+        } catch (FalsePositiveException e){
+            //OK
+        }
+    }
+
+    @Test
+    public void testValidateBean_B_invalid_A(){
+        B b = new B();
+        try {
+            Injector.inject(b,B.class,"b","bar");
+            Injector.validateBean(b, B.class);
+            fail();
+        } catch (FalsePositiveException e){
+            //OK
+        }
+    }
+
+
+    @Test
+    public void testValidateBean_B_invalid_B(){
+        B b = new B();
+        try {
+            Injector.inject(b,A.class,"a","foo");
+            Injector.validateBean(b, B.class);
+            fail();
+        } catch (FalsePositiveException e){
+            //OK
+        }
+    }
+
+
+    @Test
+    public void testValidateBean_B_ok(){
+        B b = new B();
+        try {
+            Injector.inject(b,A.class,"a","foo");
+            Injector.inject(b,B.class,"b","bar");
+            Injector.validateBean(b, B.class);
+        } catch (FalsePositiveException e){
+            fail();
+        }
+    }
+
+    //---------------------------------------------
+
+
     private static class SubclassDifferentField extends Foo{
         @Inject
         private String aDifferentString;
@@ -183,6 +260,16 @@ public class InjectorTest {
         private String aString;
     }
 
+
+    private static class A {
+        @Autowired
+        private String a;
+    }
+
+    private static class B extends A{
+        @Resource
+        private String b;
+    }
 
 
     private static class Foo {

@@ -98,9 +98,18 @@ public class Injector {
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public  static <T> void inject(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance,
                                    Class<?> klass, String fieldName, Object value)
-            throws IllegalArgumentException, FalsePositiveException {
+            throws IllegalArgumentException {
 
-        PrivateAccess.setVariable(klass, instance, fieldName, value, InjectionList.getList());
+        try {
+            PrivateAccess.setVariable(klass, instance, fieldName, value, InjectionList.getList());
+        } catch (FalsePositiveException e){
+            /*
+                do not abort the test if failed to add dependency injection.
+                This is quite different from private access: a PA does have effect
+                on test, otherwise minimization would had removed them.
+                But a dependency injection might have no impact whatsoever
+             */
+        }
     }
 
     @EvoSuiteExclude
@@ -118,6 +127,45 @@ public class Injector {
     public static List<Field> getGeneralFieldsToInject(Class<?> klass){
         return generalInjection.getFieldsToInject(klass);
     }
+
+    /**
+     * Check if all beans that need injection have been properly injected
+     *
+     * @param instance
+     * @param clazz
+     * @param <T>
+     * @throws FalsePositiveException
+     * @throws IllegalArgumentException
+     */
+    @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
+    public static <T> void validateBean(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
+            throws FalsePositiveException, IllegalArgumentException{
+
+        Inputs.checkNull(instance, clazz);
+
+
+        for(Field f : getAllFieldsToInject(clazz)){
+            f.setAccessible(true);
+            try {
+                Object obj = f.get(instance);
+                if(obj == null){
+                    throw new FalsePositiveException("Missing dependency injection for field "+f.getName()+" in class "+clazz.getName());
+                }
+
+                //it might be a bean with its own dependency injections.
+                //but those should be handled in its instantiation
+
+            } catch (IllegalAccessException e) {
+                logger.warn(e.toString());//shouldn't really happen
+            }
+        }
+
+        Class<?> parent = clazz.getSuperclass();
+        if(parent != null && ! parent.equals(Object.class)){
+            validateBean(instance, parent);
+        }
+    }
+
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static <T> void injectEntityManager(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
