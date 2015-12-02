@@ -38,6 +38,11 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	@Override
 	public boolean doSearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
+		for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+			((TestSuiteFitnessFunction)ff).getFitness(individual);
+		}
+		double fitnessBefore = individual.getFitness();
+		
 		//logger.info("Test suite before local search: " + individual);
 
 		List<TestChromosome> tests = individual.getTestChromosomes();
@@ -48,17 +53,16 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		 * others skipped, then we shuffle the test cases, so each time the order is different 
 		 */
 		Randomness.shuffle(tests);
-		
+
 		if(Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
 			ensureDoubleExecution(individual, objective);
-	
+
 		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
 			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
 		
 		if(Properties.LOCAL_SEARCH_EXPAND_TESTS)
 			expandTestSuite(individual, objective);
 
-		double fitnessBefore = individual.getFitness();
 		if (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE &&
 				Randomness.nextDouble() < Properties.DSE_PROBABILITY){
 			doDSESearch(individual, objective);
