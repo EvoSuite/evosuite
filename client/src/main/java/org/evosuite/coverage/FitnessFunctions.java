@@ -33,6 +33,8 @@ import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPACoverageFactory;
+import org.evosuite.coverage.epa.EPACoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
@@ -89,6 +91,8 @@ public class FitnessFunctions {
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
+		case EPA:
+			return new EPACoverageSuiteFitness();
 		case CBRANCH:
 			return new CBranchSuiteFitness();
 		case IBRANCH:
@@ -153,6 +157,8 @@ public class FitnessFunctions {
 			return new DefUseCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
+		case EPA:
+			return new EPACoverageFactory();
 		case CBRANCH:
 			return new CBranchFitnessFactory();
 		case IBRANCH:
