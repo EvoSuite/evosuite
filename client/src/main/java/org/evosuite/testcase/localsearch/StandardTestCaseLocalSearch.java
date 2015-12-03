@@ -37,8 +37,11 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 			LocalSearchObjective<TestChromosome> objective) {
 
 		logger.info("Test before local search: " + individual.getTestCase().toCode());
+
+		// TestChromosome.getFitness() always returns 0
 		double oldFitness = individual.getFitness();
-		boolean result = false;
+
+		boolean improved = false;
 		
 		// Only apply local search up to the point where an exception was thrown
 		// TODO: Check whether this conflicts with test expansion
@@ -85,8 +88,9 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 				
 				if (search != null) {
 					logger.info("Applying local search of type "+search.getClass()+" to statement "+test.getStatement(i) +" / "+individual.getTestCase().getStatement(i));
-					if(search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective))
-						result = true;
+					if(search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective)) {
+						improved = true;
+					}
 					// i = s.getPosition();
 					logger.debug("Old position was: "+i+", adjusting to: "+ (i + search.getPositionDelta()));
 					i += search.getPositionDelta();
@@ -97,7 +101,8 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
 			DSELocalSearch dse = new DSELocalSearch();
-			result = dse.doSearch(individual, targetPositions,
+			// could improved be true? // what if dse.doSearch returns false? Is it okay to be overriden?
+			improved = dse.doSearch(individual, targetPositions,
 			             (LocalSearchObjective<TestChromosome>) objective);
 		}
 
@@ -106,7 +111,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 		assert individual.getFitness() <= oldFitness;
 		// logger.warn("Test after local search: " + individual.getTestCase().toCode());
 
-		return result;
+		return improved;
 		
 		// TODO: Handle arrays in local search
 		// TODO: mutating an int might have an effect on array lengths
