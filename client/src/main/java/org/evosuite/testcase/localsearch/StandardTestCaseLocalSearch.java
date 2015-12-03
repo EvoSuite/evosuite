@@ -38,9 +38,6 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		logger.info("Test before local search: " + individual.getTestCase().toCode());
 
-		// TestChromosome.getFitness() always returns 0
-		double oldFitness = individual.getFitness();
-
 		boolean improved = false;
 		
 		// Only apply local search up to the point where an exception was thrown
@@ -108,7 +105,6 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
-		assert individual.getFitness() <= oldFitness;
 		// logger.warn("Test after local search: " + individual.getTestCase().toCode());
 
 		return improved;
