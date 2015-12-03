@@ -47,6 +47,11 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearch.class);
 	
+	protected void updateFitness(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
+		for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+			((TestSuiteFitnessFunction)ff).getFitness(individual);
+		}
+	}
 	
 	public static TestSuiteLocalSearch getLocalSearch() {
 		if(Properties.LOCAL_SEARCH_SELECTIVE)

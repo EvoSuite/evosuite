@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEType;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
@@ -38,11 +36,8 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	@Override
 	public boolean doSearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
-		for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
-			((TestSuiteFitnessFunction)ff).getFitness(individual);
-		}
+		updateFitness(individual, objective);
 		double fitnessBefore = individual.getFitness();
-		
 		//logger.info("Test suite before local search: " + individual);
 
 		List<TestChromosome> tests = individual.getTestChromosomes();
@@ -82,6 +77,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		return hasImproved;
 	}
 
+
 	private void doRegularSearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
 		List<TestChromosome> tests = individual.getTestChromosomes();
@@ -92,9 +88,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			// without success, we reset all primitive values before trying again 
 			if(test.hasLocalSearchBeenApplied()) {
 				TestCaseLocalSearch.randomizePrimitives(test.getTestCase());
-				for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
-					((TestSuiteFitnessFunction) ff).getFitness(individual);
-				}
+				updateFitness(individual, objective);
 			}
 
 			logger.debug("Local search on test " + i + ", current fitness: "
@@ -109,7 +103,14 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			}
 			logger.debug("Local search budget not yet used up");
 
-			test.localSearch(testObjective);
+			boolean improved = test.localSearch(testObjective);
+			if (improved) {
+				updateFitness(individual, objective);
+			} else {
+				//fitness cannot be worse than before by construction
+				//no need to update fitness
+			}
+			
 			test.setLocalSearchApplied(true);
 		}
 

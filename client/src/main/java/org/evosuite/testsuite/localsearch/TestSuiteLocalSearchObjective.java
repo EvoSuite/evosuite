@@ -245,4 +245,14 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	public boolean isMaximizationObjective() {
 		return isMaximization;
 	}
+	
+	public double getSuiteFitness() {
+		return suite.getFitness();
+	}
+	
+	public void updateSuiteFitness() {
+		for(TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
+			fitnessFunction.getFitness(suite);
+		}
+	}
 }
