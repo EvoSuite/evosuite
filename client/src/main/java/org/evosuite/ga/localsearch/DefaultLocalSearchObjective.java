@@ -105,11 +105,6 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	}
 
 	@Override
-	public void retainPartialSolution(T individual) {
-		// Ignore		
-	}
-
-	@Override
 	public double getChromosomeFitness(T individual) {
 		throw new UnsupportedOperationException("Not implemented for default objective");
 	}

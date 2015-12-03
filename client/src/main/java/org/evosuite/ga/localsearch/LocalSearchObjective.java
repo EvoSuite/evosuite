@@ -63,14 +63,6 @@ public interface LocalSearchObjective<T extends Chromosome> {
 	 */
 	public int hasChanged(T individual);
 
-	/**
-	 * Even if not successful, the local search might create some additional tests
-	 * as a side effect which we may want to keep
-	 * 
-	 * @param individual
-	 */
-	public void retainPartialSolution(T individual);
-	
 	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness);
 	
 	/**

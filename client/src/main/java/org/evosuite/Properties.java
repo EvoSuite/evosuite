@@ -379,6 +379,7 @@ public class Properties {
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;
 
+	@Deprecated
 	@Parameter(key = "dse_keep_all_tests", group = "DSE", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 

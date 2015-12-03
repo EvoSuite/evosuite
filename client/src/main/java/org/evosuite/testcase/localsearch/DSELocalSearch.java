@@ -150,11 +150,6 @@ public class DSELocalSearch extends StatementLocalSearch {
 					return true;
 				} else {
 					DSEStats.reportNewTestUnuseful();
-					if (Properties.DSE_KEEP_ALL_TESTS) {
-						logger.info("Solution does not improve fitness, keeping solution");
-						objective.retainPartialSolution((TestChromosome) test.clone());
-					}
-
 					test.setTestCase(oldTest);
 					// FIXXME: How can this be null?
 					if (oldResult != null)

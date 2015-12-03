@@ -55,8 +55,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private final TestSuiteChromosome suite;
 	
-	private Set<TestChromosome> partialSolutions = new HashSet<TestChromosome>();
-
 	private final int testIndex;
 
 	// TODO: This assumes we are not doing NSGA-II
@@ -237,14 +235,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		// return (List<FitnessFunction<? extends Chromosome>>) fitnessFunctions;
 	}
 
-	public Set<TestChromosome> getPartialSolutions() {
-		return partialSolutions;
-	}
-	
-	@Override
-	public void retainPartialSolution(TestChromosome individual) {
-		partialSolutions.add(individual);
-	}
 
 	@Override
 	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness) {
