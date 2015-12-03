@@ -252,11 +252,20 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	public boolean isMaximizationObjective() {
 		return isMaximization;
 	}
-	
+
+	/**
+	 * This method returns the stored suite fitness value. 
+	 * @return
+	 */
+	@Deprecated
 	public double getSuiteFitness() {
 		return suite.getFitness();
 	}
 	
+	/**
+	 * This method updates the fitness values using the list of fitness functions.
+	 */
+	@Deprecated
 	public void updateSuiteFitness() {
 		for(TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
 			fitnessFunction.getFitness(suite);
