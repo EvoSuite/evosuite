@@ -120,6 +120,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		}
 	}
 
+	/**
+	 * Returns a new TestSuiteLocalSearchObjective. This fresh objective has a 
+	 * fresh test suite with only two duplicates of the passed test
+	 * 
+	 * @param test the test used to create the fresh TestSuiteChromosome
+	 * @return
+	 */
 	public TestSuiteLocalSearchObjective getCopyForTest(TestChromosome test) {
 		TestSuiteChromosome s = new TestSuiteChromosome();
 		s.addTest(test);
