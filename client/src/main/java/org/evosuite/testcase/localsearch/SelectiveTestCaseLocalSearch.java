@@ -99,6 +99,7 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
 			DSELocalSearch dse = new DSELocalSearch();
+			assert improved==false;
 			improved = dse.doSearch(individual, targetPositions,
 			             (LocalSearchObjective<TestChromosome>) objective);
 		}
@@ -106,10 +107,10 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
-		// Return true if search was successful
-		return improved;
-
 		//logger.info("Test after local search: " + test.toCode());
+
+		// Return true iif search was successful
+		return improved;
 
 		// TODO: Handle arrays in local search
 		// TODO: mutating an int might have an effect on array lengths

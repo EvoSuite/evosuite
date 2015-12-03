@@ -98,7 +98,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
 			DSELocalSearch dse = new DSELocalSearch();
-			// could improved be true? // what if dse.doSearch returns false? Is it okay to be overriden?
+			assert improved==false;
 			improved = dse.doSearch(individual, targetPositions,
 			             (LocalSearchObjective<TestChromosome>) objective);
 		}
@@ -107,6 +107,7 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		// logger.warn("Test after local search: " + individual.getTestCase().toCode());
 
+		// Return true iif search was successful
 		return improved;
 		
 		// TODO: Handle arrays in local search
