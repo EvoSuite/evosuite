@@ -198,16 +198,18 @@ public class ConstraintHelper {
 
         int p = vr.getStPosition();
 
+        int lastPos = -1;
+
         for(int i=p+1; i<tc.size(); i++){
             Statement st = tc.getStatement(i);
             if(st instanceof EntityWithParametersStatement){
                 EntityWithParametersStatement es = (EntityWithParametersStatement) st;
                 if(es.isBounded(vr)){
-                    return i;
+                    lastPos = i;
                 }
             }
         }
 
-        return -1;
+        return lastPos;
     }
 }
