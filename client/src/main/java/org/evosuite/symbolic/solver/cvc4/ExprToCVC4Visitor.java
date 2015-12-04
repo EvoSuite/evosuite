@@ -1002,6 +1002,10 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr app = SmtExprBuilder.mkStrLen(operand);
 			return app;
 		}
+		case IS_INTEGER: {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
 		default:
 			throw new IllegalArgumentException("The operator "
 					+ e.getOperator()

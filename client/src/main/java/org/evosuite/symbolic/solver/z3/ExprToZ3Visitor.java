@@ -589,11 +589,12 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	public SmtExpr visit(StringUnaryToIntegerExpression e, Void v) {
 		Operator op = e.getOperator();
 		switch (op) {
-		case LENGTH: {
-			Long concreteValue = e.getConcreteValue();
-			SmtExpr intNum = createIntegerConstant(concreteValue);
-			return intNum;
-		}
+			case LENGTH:
+			case IS_INTEGER: {
+				Long concreteValue = e.getConcreteValue();
+				SmtExpr intNum = createIntegerConstant(concreteValue);
+				return intNum;
+			}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet!");
 		}

@@ -828,6 +828,10 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case LENGTH: {
 			return SmtExprBuilder.mkLength(innerString);
 		}
+		case IS_INTEGER: {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet!");
 		}
