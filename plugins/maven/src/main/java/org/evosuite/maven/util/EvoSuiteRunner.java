@@ -280,6 +280,14 @@ public class EvoSuiteRunner {
 			return false;
 		} catch (InterruptedException e) {
 			if(process!=null){
+				try {
+					//be sure streamers are closed, otherwise process might hang on Windows
+					process.getOutputStream().close();
+					process.getInputStream().close();
+					process.getErrorStream().close();
+				} catch (Exception t){
+					logger.error("Failed to close process stream: "+t.toString());
+				}
 				process.destroy();					
 			}
 			return false;

@@ -192,6 +192,7 @@ public class EvoSuiteExecutor {
                     progressIndicator.checkCanceled();
                 }
             } finally {
+                notifier.detachLastProcess();
                 checker.stopServer();
             }
 

@@ -294,8 +294,17 @@ public class ExternalProcessHandler {
 		 * TODO: use RMI to 'gracefully' stop the client
 		 */
 
-		if (process != null)
+		if (process != null) {
+			try {
+				//be sure streamers are closed, otherwise process might hang on Windows
+				process.getOutputStream().close();
+				process.getInputStream().close();
+				process.getErrorStream().close();
+			} catch (Exception t){
+				logger.error("Failed to close process stream: "+t.toString());
+			}
 			process.destroy();
+		}
 		process = null;
 
 		if (clientRunningOnThread != null && clientRunningOnThread.isAlive()) {
