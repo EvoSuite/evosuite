@@ -26,6 +26,7 @@ import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.javaee.JeeData;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
+import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.testdata.*;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -65,8 +66,6 @@ public class EnvironmentTestClusterAugmenter {
     private volatile boolean hasAddedUdpSupport;
     private volatile boolean hasAddedTcpListeningSupport;
     private volatile boolean hasAddedTcpRemoteSupport;
-
-    private volatile boolean hasAddedServlet;
 
     private final TestCluster cluster;
 
@@ -122,6 +121,15 @@ public class EnvironmentTestClusterAugmenter {
 
     private void handleJEE(TestCase test) {
 
+        JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
+        test.getAccessedEnvironment().setJeeData(jeeData);
+
+        if(jeeData.lookedUpContextNames.size() > 0){
+            addEnvironmentClassToCluster(EvoNamingContext.class);
+
+            //TODO add method with right input type
+        }
+
         if(! Properties.HANDLE_SERVLETS){
             /*
                 Started to prepare custom mocks for Servlets, but then realized that
@@ -132,15 +140,11 @@ public class EnvironmentTestClusterAugmenter {
             return;
         }
 
-        JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
-        test.getAccessedEnvironment().setJeeData(jeeData);
-
-        if(!hasAddedServlet && jeeData.wasAServletInitialized){
-            hasAddedServlet = true;
+        if(jeeData.wasAServletInitialized){
             addEnvironmentClassToCluster(EvoServletState.class);
         }
 
-        //TODO TestDataJavaEE data
+        //TODO TestDataJavaEE data for Servlets
     }
 
     /**
@@ -150,9 +154,9 @@ public class EnvironmentTestClusterAugmenter {
      *
      * @param klass
      */
-    private void addEnvironmentClassToCluster(Class<?> klass) {
+    private boolean addEnvironmentClassToCluster(Class<?> klass) {
         if(handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)){
-            return; //already handled, or not valid
+            return false; //already handled, or not valid
         }
         handledClasses.add(klass.getCanonicalName());
 
@@ -188,6 +192,8 @@ public class EnvironmentTestClusterAugmenter {
                 addEnvironmentDependency(returnType);
             }
         }
+
+        return true;
     }
 
     private void addEnvironmentDependency(Class<?> klass){

@@ -47,6 +47,10 @@ public class EnvironmentDataList {
             classes.add(EvoSuiteURL.class);
         }
 
+        if(RuntimeSettings.useJEE){
+            classes.add(EvoName.class);
+        }
+
         return classes;
     }
 
