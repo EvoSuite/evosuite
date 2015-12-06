@@ -36,7 +36,7 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.setup.TestUsageChecker;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -505,7 +505,7 @@ public class ReplaceVariable implements MutationOperator {
 			Class<?> clazz = Class.forName(className, false,
 			                               ReplaceVariable.class.getClassLoader());
 
-			for (Field field : TestClusterGenerator.getFields(clazz)) {
+			for (Field field : TestClusterUtils.getFields(clazz)) {
 				if (!TestUsageChecker.canUse(field))
 					continue;
 

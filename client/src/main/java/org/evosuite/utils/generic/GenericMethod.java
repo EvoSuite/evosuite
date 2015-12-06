@@ -37,7 +37,7 @@ import java.util.List;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
 
@@ -370,7 +370,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		try {
 			Class<?> oldClass = method.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Method newMethod : TestClusterGenerator.getMethods(newClass)) {
+			for (Method newMethod : TestClusterUtils.getMethods(newClass)) {
 				if (newMethod.getName().equals(this.method.getName())) {
 					boolean equals = true;
 					Class<?>[] oldParameters = this.method.getParameterTypes();

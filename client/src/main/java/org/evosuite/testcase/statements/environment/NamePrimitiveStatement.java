@@ -1,5 +1,6 @@
 package org.evosuite.testcase.statements.environment;
 
+import org.evosuite.runtime.javaee.JeeData;
 import org.evosuite.runtime.testdata.EvoName;
 import org.evosuite.runtime.testdata.EvoSuiteURL;
 import org.evosuite.testcase.TestCase;
@@ -64,7 +65,12 @@ public class NamePrimitiveStatement extends EnvironmentDataStatement<EvoName>{
     @Override
     public void randomize() {
 
-        String name = Randomness.choice(tc.getAccessedEnvironment().getJeeData().lookedUpContextNames);
+        JeeData data = tc.getAccessedEnvironment().getJeeData();
+        if(data == null){
+            setValue(null);
+            return;
+        }
+        String name = Randomness.choice(data.lookedUpContextNames);
         if(name != null){
             setValue(new EvoName(name));
         } else {

@@ -27,7 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.evosuite.TestGenerationContext;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Type;
 
@@ -192,7 +192,7 @@ public class Inspector implements Serializable {
 		try {
 			Class<?> oldClass = method.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Method newMethod : TestClusterGenerator.getMethods(newClass)) {
+			for (Method newMethod : TestClusterUtils.getMethods(newClass)) {
 				if (newMethod.getName().equals(this.method.getName())) {
 					boolean equals = true;
 					Class<?>[] oldParameters = this.method.getParameterTypes();
