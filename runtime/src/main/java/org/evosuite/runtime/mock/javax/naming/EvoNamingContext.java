@@ -69,7 +69,12 @@ public class EvoNamingContext implements Context{
 
         Class<?> klass;
         try {
-            klass = this.getClass().getClassLoader().loadClass(type);
+            ClassLoader loader = obj.getClass().getClassLoader();
+            if(loader == null){
+                //this can happen for example for String
+                loader = this.getClass().getClassLoader();
+            }
+            klass = loader.loadClass(type);
         } catch (ClassNotFoundException e) {
             throw new NamingException("Cannot load type "+type+": "+e.toString());
         }
