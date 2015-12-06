@@ -48,6 +48,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -91,17 +92,17 @@ public class TestClusterGenerator {
 	private final Set<Class<?>> analyzedClasses = new LinkedHashSet<>();
 
 
-	//XXX refactor and move these as parameters in all methods.
-	private InheritanceTree inheritanceTree;
-	private CallGraph callGraph;
+	private final InheritanceTree inheritanceTree;
 
 
 	//-------- public methods  -----------------
 
+	public TestClusterGenerator(InheritanceTree tree){
+		inheritanceTree = tree;
+	}
 
-	public void generateCluster(String targetClass, InheritanceTree inheritanceTree, CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
-		this.inheritanceTree = inheritanceTree;
-		this.callGraph = callGraph;
+	public void generateCluster(CallGraph callGraph) throws RuntimeException, ClassNotFoundException {
+
 		TestCluster.setInheritanceTree(inheritanceTree);
 
 		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)) {
@@ -142,6 +143,22 @@ public class TestClusterGenerator {
 		gatherStatistics();
 	}
 
+
+	public void addNewDependencies(List<Class<?>> rawTypes){
+
+		Inputs.checkNull(rawTypes);
+
+		Set<String> blackList = new LinkedHashSet<>();
+		initBlackListWithEvoSuitePrimitives(blackList);
+
+		rawTypes.stream().forEach(c -> dependencies.add(new DependencyPair(0, c)));
+
+		resolveDependencies(blackList);
+
+		dependencyCache.clear();
+	}
+
+	// ------------------------------------
 
 
 	private void handleCastClasses() {
@@ -286,17 +303,6 @@ public class TestClusterGenerator {
 	}
 
 
-
-	private List<GenericClass> getAssignableTypes(java.lang.reflect.Type type) {
-		List<GenericClass> types = new ArrayList<>();
-		for (GenericClass clazz : genericCastClasses) {
-			if (clazz.isAssignableTo(type)) {
-				logger.debug(clazz + " is assignable to " + type);
-				types.add(clazz);
-			}
-		}
-		return types;
-	}
 
 	private void addDeclaredClasses(Set<Class<?>> targetClasses, Class<?> currentClass) {
 		for (Class<?> c : currentClass.getDeclaredClasses()) {
@@ -551,7 +557,7 @@ public class TestClusterGenerator {
 
 				Class<?> clazz;
 				try {
-					clazz = getClass(className);
+					clazz = TestClusterUtils.getClass(className);
 				} catch (ExceptionInInitializerError ex) {
 					logger.debug("Class class init caused exception " + className);
 					continue;
@@ -585,14 +591,14 @@ public class TestClusterGenerator {
 
 			for (MethodIdentifier methodId : methodIdentifiers) {
 
-				Class<?> clazz = getClass(methodId.getClassName());
+				Class<?> clazz = TestClusterUtils.getClass(methodId.getClassName());
 				if (clazz == null)
 					continue;
 
 				if (!TestUsageChecker.canUse(clazz))
 					continue;
 
-				Method method = getMethod(clazz, methodId.getMethodName(),
+				Method method = TestClusterUtils.getMethod(clazz, methodId.getMethodName(),
 				                          methodId.getDesc());
 
 				if (method == null)
@@ -606,29 +612,6 @@ public class TestClusterGenerator {
 		}
 
 		logger.info("Finished analyzing target class");
-	}
-
-	private Method getMethod(Class<?> clazz, String methodName, String desc) {
-		for (Method method : clazz.getMethods()) {
-			if (method.getName().equals(methodName)
-			        && Type.getMethodDescriptor(method).equals(desc))
-				return method;
-		}
-		return null;
-	}
-
-	private Class<?> getClass(String className) {
-		try {
-			Class<?> clazz = Class.forName(className,
-			                               true,
-			                               TestGenerationContext.getInstance().getClassLoaderForSUT());
-			return clazz;
-		} catch (ClassNotFoundException e) {
-			return null;
-		} catch (NoClassDefFoundError e) {
-			// an ExceptionInInitializationError might have happened during class initialization.
-			return null;
-		}
 	}
 
 
@@ -1055,4 +1038,14 @@ public class TestClusterGenerator {
 		TestCluster.getInstance().clearGeneratorCache(new GenericClass(clazz));
 	}
 
+	private List<GenericClass> getAssignableTypes(java.lang.reflect.Type type) {
+		List<GenericClass> types = new ArrayList<>();
+		for (GenericClass clazz : genericCastClasses) {
+			if (clazz.isAssignableTo(type)) {
+				logger.debug(clazz + " is assignable to " + type);
+				types.add(clazz);
+			}
+		}
+		return types;
+	}
 }

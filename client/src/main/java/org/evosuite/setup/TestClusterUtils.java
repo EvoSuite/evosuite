@@ -25,6 +25,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.mock.MockList;
 import org.junit.Test;
 import org.junit.runners.Suite;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -313,5 +314,28 @@ public class TestClusterUtils {
 		methods.addAll(helper.values());
 		methodCache.put(clazz, methods);
 		return methods;
+	}
+
+	public static Method getMethod(Class<?> clazz, String methodName, String desc) {
+		for (Method method : clazz.getMethods()) {
+			if (method.getName().equals(methodName)
+					&& Type.getMethodDescriptor(method).equals(desc))
+				return method;
+		}
+		return null;
+	}
+
+	public static Class<?> getClass(String className) {
+		try {
+			Class<?> clazz = Class.forName(className,
+			                               true,
+			                               TestGenerationContext.getInstance().getClassLoaderForSUT());
+			return clazz;
+		} catch (ClassNotFoundException e) {
+			return null;
+		} catch (NoClassDefFoundError e) {
+			// an ExceptionInInitializationError might have happened during class initialization.
+			return null;
+		}
 	}
 }
