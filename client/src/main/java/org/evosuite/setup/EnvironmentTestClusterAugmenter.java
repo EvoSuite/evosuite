@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -68,6 +69,7 @@ public class EnvironmentTestClusterAugmenter {
     private volatile boolean hasAddedTcpRemoteSupport;
 
     private final TestCluster cluster;
+    private final TestClusterGenerator testClusterGenerator;
 
     /**
      * Keep track of all EvoSuite classes that have been already fully handled (via recursion)
@@ -76,6 +78,7 @@ public class EnvironmentTestClusterAugmenter {
 
     public EnvironmentTestClusterAugmenter(TestCluster cluster) {
         this.cluster = cluster;
+        testClusterGenerator = new TestClusterGenerator(cluster.getInheritanceTree());
         this.handledClasses = new LinkedHashSet<>();
     }
 
@@ -175,6 +178,8 @@ public class EnvironmentTestClusterAugmenter {
             GenericClass genclass = new GenericClass(klass);
             TestCluster.getInstance().invalidateGeneratorCache(genclass);
             TestCluster.getInstance().addGenerator(genclass,gc);
+
+            testClusterGenerator.addNewDependencies(Arrays.asList(c.getParameterTypes()));
         }
 
         for(Method m : klass.getMethods()){
@@ -184,6 +189,9 @@ public class EnvironmentTestClusterAugmenter {
 
             GenericAccessibleObject gm = new GenericMethod(m,klass);
             TestCluster.getInstance().addEnvironmentTestCall(gm);
+
+            testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
+
             Class<?> returnType = m.getReturnType();
             if(! returnType.equals(Void.TYPE)){
                 GenericClass genclass = new GenericClass(returnType);
@@ -213,6 +221,8 @@ public class EnvironmentTestClusterAugmenter {
             GenericAccessibleObject gm = new GenericMethod(m,klass);
             GenericClass gc = new GenericClass(klass);
             TestCluster.getInstance().addModifier(gc,gm);
+
+            testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
 
             Class<?> returnType = m.getReturnType();
 

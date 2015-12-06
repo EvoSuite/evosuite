@@ -118,6 +118,8 @@ public class TestClusterGenerator {
 			}
 		}
 
+		dependencyCache.clear();
+
 		/*
 		 * If we fail to load a class, we skip it, and avoid to try
 		 * to load it again (which would result in extra unnecessary logging)
@@ -139,7 +141,7 @@ public class TestClusterGenerator {
 		if (logger.isDebugEnabled()) {
 			logger.debug(TestCluster.getInstance().toString());
 		}
-		dependencyCache.clear();
+
 		gatherStatistics();
 	}
 
@@ -151,11 +153,9 @@ public class TestClusterGenerator {
 		Set<String> blackList = new LinkedHashSet<>();
 		initBlackListWithEvoSuitePrimitives(blackList);
 
-		rawTypes.stream().forEach(c -> dependencies.add(new DependencyPair(0, c)));
+		rawTypes.stream().forEach(c -> dependencies.add(new DependencyPair(0, new GenericClass(c).getRawClass())));
 
 		resolveDependencies(blackList);
-
-		dependencyCache.clear();
 	}
 
 	// ------------------------------------
