@@ -418,7 +418,8 @@ public class TestClusterGenerator {
 				if (TestUsageChecker.canUse(constructor)) {
 					GenericConstructor genericConstructor = new GenericConstructor(
 					        constructor, clazz);
-					cluster.addTestCall(genericConstructor);
+					if(constructor.getDeclaringClass().equals(clazz))
+						cluster.addTestCall(genericConstructor);
 					// TODO: Add types!
 					cluster.addGenerator(new GenericClass(clazz), //.getWithWildcardTypes(),
 					                     genericConstructor);
@@ -455,7 +456,9 @@ public class TestClusterGenerator {
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
 
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
-					cluster.addTestCall(genericMethod);
+					if(method.getDeclaringClass().equals(clazz))
+                        cluster.addTestCall(genericMethod);
+
 					// TODO: We could restrict this to pure methods here
 					//       but for SUT classes without impure methods
 					//       this can affect the chances of covering the targets
@@ -488,7 +491,8 @@ public class TestClusterGenerator {
 					logger.debug("Adding field " + field);
 					if (!Modifier.isFinal(field.getModifiers())) {
 						logger.debug("Is not final");
-						cluster.addTestCall(new GenericField(field, clazz));
+						if(field.getDeclaringClass().equals(clazz))
+							cluster.addTestCall(new GenericField(field, clazz));
 						cluster.addModifier(new GenericClass(clazz),
 			                    genericField);
 					} else {

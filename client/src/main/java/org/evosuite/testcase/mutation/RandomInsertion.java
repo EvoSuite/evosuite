@@ -70,7 +70,6 @@ public class RandomInsertion implements InsertionStrategy {
 
 		boolean insertParam = !insertUUT && !insertEnv;
 
-
 		boolean success = false;
 		if (insertUUT) {
 			// Insert a call to the UUT at the end
@@ -157,7 +156,12 @@ public class RandomInsertion implements InsertionStrategy {
 					/* Note: this check has been added only recently,
 						to avoid having added calls to UUT in the middle of the test
 					 */
-					!var.getVariableClass().equals(Properties.getTargetClass()) &&
+					/*
+					   Commented this out again, as it would mean that methods of the SUT class
+					   that are declared in a superclass would not be inserted at all, but now
+					   this may break some constraints.
+					 */
+//					!var.getVariableClass().equals(Properties.getTargetClass()) &&
 					//do not directly call methods on mock objects
 					! (test.getStatement(var.getStPosition()) instanceof FunctionalMockStatement) ){
 
