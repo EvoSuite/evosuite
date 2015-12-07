@@ -176,17 +176,17 @@ public class TestSuiteGenerator {
         	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
 
-		if (Properties.MINIMIZE_VALUES && 
-		                Properties.CRITERION.length == 1) {
-		    double fitness = testSuite.getFitness();
-
-			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
-			LoggingUtils.getEvoLogger().info("* Minimizing values");
-			ValueMinimizer minimizer = new ValueMinimizer();
-			minimizer.minimize(testSuite, (TestSuiteFitnessFunction)testSuite.getFitnessValues().keySet().iterator().next());
-//			minimizer.minimizeUnsafeType(testSuite);
-			assert (fitness >= testSuite.getFitness());
-		}
+//		if (Properties.MINIMIZE_VALUES &&
+//		                Properties.CRITERION.length == 1) {
+//		    double fitness = testSuite.getFitness();
+//
+//			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
+//			LoggingUtils.getEvoLogger().info("* Minimizing values");
+//			ValueMinimizer minimizer = new ValueMinimizer();
+//			minimizer.minimize(testSuite, (TestSuiteFitnessFunction)testSuite.getFitnessValues().keySet().iterator().next());
+////			minimizer.minimizeUnsafeType(testSuite);
+//			assert (fitness >= testSuite.getFitness());
+//		}
 
 		if (Properties.INLINE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
