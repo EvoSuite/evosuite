@@ -47,7 +47,7 @@ public class TestIntOptimisation extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 50000;
+		Properties.SEARCH_BUDGET = 100000; // TODO: Can we reduce the variation in results somehow?
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
