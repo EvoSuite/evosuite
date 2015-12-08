@@ -93,6 +93,20 @@ public class SimpleFM_SystemTest extends SystemTest{
         assertFalse(code, code.contains("(Object)"));
     }
 
+    @Test
+    public void testSimpleNullString(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_NullString.class);
+
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        String code = best.toString();
+        // "null" should be casted to "String" (if at all) and not to "Object"
+        assertFalse(code, code.contains("(Object)"));
+    }
+
     @Ignore //FIXME once we handle package-level methods
     @Test
     public void testSimplePLM(){
