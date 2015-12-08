@@ -29,6 +29,8 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+
 /**
  * Created by Andrea Arcuri on 09/08/15.
  */
@@ -75,6 +77,20 @@ public class SimpleFM_SystemTest extends SystemTest{
         Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
 
         do100percentLineTest(SimpleFM_GenericReturn.class);
+    }
+
+    @Test
+    public void testSimpleGenericNullString(){
+
+        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_GenericsNullString.class);
+
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        String code = best.toString();
+        // "null" should be casted to "String" (if at all) and not to "Object"
+        assertFalse(code, code.contains("(Object)"));
     }
 
     @Ignore //FIXME once we handle package-level methods
