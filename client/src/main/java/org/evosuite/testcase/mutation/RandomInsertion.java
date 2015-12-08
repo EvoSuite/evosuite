@@ -100,8 +100,9 @@ public class RandomInsertion implements InsertionStrategy {
 					position = boundPosition + 1;
 				} else {
 
-					if (lastUsage != var.getStPosition()) {
-						position = Randomness.nextInt(var.getStPosition(), lastUsage);
+					if (lastUsage > var.getStPosition() + 1) {
+						position = Randomness.nextInt(var.getStPosition(), // call has to be after the object is created
+								lastUsage) + 1;
 					} else {
 						position = lastUsage;
 					}
