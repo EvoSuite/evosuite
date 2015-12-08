@@ -459,14 +459,17 @@ public class TestClusterGenerator {
 					if(method.getDeclaringClass().equals(clazz))
                         cluster.addTestCall(genericMethod);
 
-					// TODO: We could restrict this to pure methods here
-					//       but for SUT classes without impure methods
+                    // This is now enabled, as the test calls are managed by the test archive
+                    // However, there previously were concerns that:
+                    //       For SUT classes without impure methods
 					//       this can affect the chances of covering the targets
 					//       so for now we keep all pure methods.
 					//       In the long run, covered methods maybe should be
 					//       removed?
-					cluster.addModifier(new GenericClass(clazz),
-							genericMethod);
+                    if(!CheapPurityAnalyzer.getInstance().isPure(method)) {
+                        cluster.addModifier(new GenericClass(clazz),
+                                genericMethod);
+                    }
 					addDependencies(genericMethod, 1);
 					GenericClass retClass = new GenericClass(method.getReturnType());
 
