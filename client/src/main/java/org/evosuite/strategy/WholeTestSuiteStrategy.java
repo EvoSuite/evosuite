@@ -103,10 +103,9 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : testSuite.getFitnessValues().keySet()) {
+			for (FitnessFunction<?> ff : fitnessFunctions) {
 				testSuite.setCoverage(ff, 1.0);
 			}
-
 		}
 
 		long endTime = System.currentTimeMillis() / 1000;

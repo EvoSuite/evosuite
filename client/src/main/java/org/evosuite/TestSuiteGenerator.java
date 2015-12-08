@@ -142,6 +142,7 @@ public class TestSuiteGenerator {
 		    return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 
 		TestSuiteChromosome testCases = generateTests();
+
 		postProcessTests(testCases);
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
@@ -176,18 +177,6 @@ public class TestSuiteGenerator {
         	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
 
-//		if (Properties.MINIMIZE_VALUES &&
-//		                Properties.CRITERION.length == 1) {
-//		    double fitness = testSuite.getFitness();
-//
-//			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
-//			LoggingUtils.getEvoLogger().info("* Minimizing values");
-//			ValueMinimizer minimizer = new ValueMinimizer();
-//			minimizer.minimize(testSuite, (TestSuiteFitnessFunction)testSuite.getFitnessValues().keySet().iterator().next());
-////			minimizer.minimizeUnsafeType(testSuite);
-//			assert (fitness >= testSuite.getFitness());
-//		}
-
 		if (Properties.INLINE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
 			ConstantInliner inliner = new ConstantInliner();
@@ -206,7 +195,7 @@ public class TestSuiteGenerator {
 				minimizer.minimize(testSuite);
 			} else {
 				TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
-	
+
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(testSuite, true);
 			}
