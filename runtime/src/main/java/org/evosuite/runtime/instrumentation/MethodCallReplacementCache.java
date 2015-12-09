@@ -524,7 +524,7 @@ public class MethodCallReplacementCache {
                             + mockClass + " is not an instance of " + target);
         }
 
-        for (Constructor<?> constructor : mockClass.getConstructors()) {
+        for (Constructor<?> constructor : mockClass.getDeclaredConstructors()) {
             String desc = Type.getConstructorDescriptor(constructor);
             addSpecialReplacementCall(new MethodCallReplacement(
                     target.getCanonicalName().replace('.', '/'), "<init>", desc, Opcodes.INVOKESPECIAL,
