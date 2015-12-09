@@ -66,7 +66,7 @@ public class Issre13SystemTest extends SystemTest {
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 500;
-		Properties.SEARCH_BUDGET = 350000;
+		Properties.SEARCH_BUDGET = 100000;
 	}
 
 	@Test

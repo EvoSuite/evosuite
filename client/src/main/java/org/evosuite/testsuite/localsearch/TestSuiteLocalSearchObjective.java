@@ -24,10 +24,8 @@ package org.evosuite.testsuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.ga.Chromosome;
@@ -178,26 +176,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		}
 	}
 
-	/**
-	 * Returns the fitness of the TestChromosome in isolation. 
-	 * This means, the test case is executed and the fitness of the
-	 * test case alone is reported.
-	 * Notice that the test is executed twice to have two counts of each 
-	 * branch.
-	 */
-	public double getChromosomeFitness(TestChromosome individual) {
-		TestSuiteChromosome newSuite = new TestSuiteChromosome();
-		newSuite.addTest(individual);
-		newSuite.addTest(individual);
-		LocalSearchBudget.getInstance().countFitnessEvaluation();
-		for(TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
-			fitnessFunction.getFitness(newSuite);
-		}
-		double fitness = newSuite.getFitness();
-		return fitness;
-	}
-	
-	
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)
 	 */
