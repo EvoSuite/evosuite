@@ -141,13 +141,13 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
         if ((this.type == null && other.type != null) || (this.type != null && other.type == null))
             return false;
 
-        if (!this.type.equals(other.type))
+        if (type != null && !this.type.equals(other.type))
             return false;
 
         if ((this.valueDescriptor == null && other.valueDescriptor != null) || (this.valueDescriptor != null && other.valueDescriptor == null))
             return false;
 
-        if (!this.valueDescriptor.equals(other.valueDescriptor))
+        if (valueDescriptor != null && !this.valueDescriptor.equals(other.valueDescriptor))
             return false;
 
         return true;
