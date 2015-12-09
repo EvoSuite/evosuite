@@ -1122,7 +1122,7 @@ public class TestCodeVisitor extends TestVisitor {
 			if(! returnType.isPrimitive()) {
 				Type[] types = new Type[params.size()];
 				for (int i = 0; i < types.length; i++) {
-					types[i] = md.getMethod().getReturnType();
+					types[i] = params.get(i).getType();
 				}
 
 				parameter_string = getParameterString(types, params, false, false, 0);//TODO unsure of these parameters
