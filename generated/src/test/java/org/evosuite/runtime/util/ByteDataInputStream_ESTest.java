@@ -45,31 +45,7 @@ public class ByteDataInputStream_ESTest extends ByteDataInputStream_ESTest_scaff
       assertEquals((-1), int1);
   }
 
-  @Test
-  public void test03()  throws Throwable  {
-      byte[] byteArray0 = new byte[6];
-      ByteDataInputStream byteDataInputStream0 = new ByteDataInputStream(byteArray0);
-      byteDataInputStream0.close();
-      // Undeclared exception!
-      try {
-        byteDataInputStream0.read();
-        fail("Expecting exception: VerifyError");
 
-      } catch(VerifyError e) {
-         //
-         // Bad <init> method call
-         // Exception Details:
-         //   Location:
-         //     org/evosuite/runtime/mock/java/lang/MockThrowable.<init>(Ljava/lang/String;Ljava/lang/Throwable;ZZ)V @6: invokespecial
-         //   Reason:
-         //     Type 'java/lang/Throwable' is not assignable to 'org/evosuite/runtime/mock/java/lang/MockThrowable'
-         //   Bytecode:
-         //     0x0000000: 2a2b 2c1d 1504 b700 38b8 001b 2ab7 001e
-         //     0x0000010: b800 1b2a b800 24b1
-         //
-         assertThrownBy("org.evosuite.runtime.mock.java.io.MockIOException", e);
-      }
-  }
 
   @Test
   public void test04()  throws Throwable  {
@@ -116,31 +92,7 @@ public class ByteDataInputStream_ESTest extends ByteDataInputStream_ESTest_scaff
       assertFalse(byteDataInputStream0.markSupported());
   }
 
-  @Test
-  public void test08()  throws Throwable  {
-      byte[] byteArray0 = new byte[3];
-      ByteDataInputStream byteDataInputStream0 = new ByteDataInputStream(byteArray0);
-      byteDataInputStream0.close();
-      // Undeclared exception!
-      try {
-        byteDataInputStream0.available();
-        fail("Expecting exception: VerifyError");
 
-      } catch(VerifyError e) {
-         //
-         // Bad <init> method call
-         // Exception Details:
-         //   Location:
-         //     org/evosuite/runtime/mock/java/lang/MockThrowable.<init>(Ljava/lang/String;Ljava/lang/Throwable;ZZ)V @6: invokespecial
-         //   Reason:
-         //     Type 'java/lang/Throwable' is not assignable to 'org/evosuite/runtime/mock/java/lang/MockThrowable'
-         //   Bytecode:
-         //     0x0000000: 2a2b 2c1d 1504 b700 38b8 001b 2ab7 001e
-         //     0x0000010: b800 1b2a b800 24b1
-         //
-         assertThrownBy("org.evosuite.runtime.mock.java.io.MockIOException", e);
-      }
-  }
 
   @Test
   public void test09()  throws Throwable  {
