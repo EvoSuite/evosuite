@@ -28,6 +28,7 @@ import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
+import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.runtime.RuntimeSettings;
@@ -52,6 +53,8 @@ public class SystemTest {
 	public static final String ALREADY_SETUP = "systemtest.alreadysetup";
 
 	private static java.util.Properties currentProperties;
+
+	private static Criterion[] standardCriteria = Properties.CRITERION;
 
 	static {
 		String s = System.getProperty(ALREADY_SETUP);
@@ -116,6 +119,29 @@ public class SystemTest {
 		MockFramework.enable();
 	}
 
+	protected GeneticAlgorithm<?>  do100percentLineTestOnStandardCriteria(Class<?> target){
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = target.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.CRITERION = standardCriteria;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		double cov = best.getCoverageInstanceOf(LineCoverageSuiteFitness.class);
+
+		Assert.assertEquals("Non-optimal coverage: ", 1d, cov, 0.001);
+
+		return ga;
+	}
+
+
 	protected GeneticAlgorithm<?>  do100percentLineTest(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
@@ -136,16 +162,19 @@ public class SystemTest {
 		return ga;
 	}
 
-
-	protected void checkUnstable() throws IllegalStateException{
-		
-		if(!Properties.OUTPUT_VARIABLES.contains(RuntimeVariable.HadUnstableTests.toString())){
-			throw new IllegalStateException("Properties.OUTPUT_VARIABLES needs to contain RuntimeVariable.HadUnstableTests");
+	protected OutputVariable getOutputVariable(RuntimeVariable rv){
+		if(!Properties.OUTPUT_VARIABLES.contains(rv.toString())){
+			throw new IllegalStateException("Properties.OUTPUT_VARIABLES needs to contain "+rv.toString());
 		}
-		
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
-		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
+		OutputVariable out = map.get(rv.toString());
+		return out;
+	}
+
+
+	protected void checkUnstable() throws IllegalStateException{
+		OutputVariable unstable = getOutputVariable(RuntimeVariable.HadUnstableTests);
 		Assert.assertNotNull(unstable);
 		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}
