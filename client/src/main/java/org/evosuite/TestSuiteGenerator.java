@@ -57,6 +57,7 @@ import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -194,10 +195,18 @@ public class TestSuiteGenerator {
 				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
 				minimizer.minimize(testSuite);
 			} else {
+
+				double before = testSuite.getFitness();
+
 				TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
 
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 			    minimizer.minimize(testSuite, true);
+
+				double after = testSuite.getFitness();
+				if(after > before + 0.01d) { //assume minimization
+					throw new Error("EvoSuite bug: minimization lead fitness from "+before + " to "+after);
+				}
 			}
 		} else {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());

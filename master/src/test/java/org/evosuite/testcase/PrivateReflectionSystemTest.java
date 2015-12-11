@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase;
 
+import com.examples.with.different.packagename.reflection.CoverageIssue;
 import com.examples.with.different.packagename.reflection.OnlyPrivateMethods;
 import com.examples.with.different.packagename.reflection.PrivateFieldInPrivateMethod;
 import com.examples.with.different.packagename.reflection.PrivateFieldInPublicMethod;
@@ -26,16 +27,37 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 /**
  * Created by Andrea Arcuri on 02/03/15.
  */
-public class TestPrivateReflection extends SystemTest {
+public class PrivateReflectionSystemTest extends SystemTest {
+
+
+    @Test
+    public void testCoverageIssue(){
+        Properties.P_REFLECTION_ON_PRIVATE = 0.9;
+        Properties.REFLECTION_START_PERCENT = 0.0;
+        Properties.COVERAGE = true;
+        Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.LineCoverage;
+
+        do100percentLineTestOnStandardCriteria(CoverageIssue.class);
+
+        OutputVariable out = getOutputVariable(RuntimeVariable.LineCoverage);
+        double lineCov = (Double) out.getValue();
+        assertEquals(1d, lineCov, 0.01);
+    }
+
 
     @Test
     public void testPrivateFieldInPrivateMethod() throws IOException {
@@ -50,7 +72,7 @@ public class TestPrivateReflection extends SystemTest {
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 
 
@@ -68,7 +90,7 @@ public class TestPrivateReflection extends SystemTest {
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println(best.toString());
-        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 
 
@@ -85,7 +107,7 @@ public class TestPrivateReflection extends SystemTest {
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
 
     @Test
