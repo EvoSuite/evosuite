@@ -45,7 +45,7 @@ public class TestObjectPool extends SystemTest {
 	
 	@Before
 	public void initProperties() {
-		Properties.SEARCH_BUDGET = 10000;		
+		Properties.SEARCH_BUDGET = 20000;
 	}
 	
 	@After
