@@ -45,9 +45,21 @@ public class PrivateReflectionSystemTest extends SystemTest {
 
 
     @Test
-    public void testCoverageIssue(){
+    public void testCoverageIssueNoPrivateAccess(){
+        //Properties.P_REFLECTION_ON_PRIVATE = 0.9;
+        //Properties.REFLECTION_START_PERCENT = 0.0;
+        testCoverageIssue();
+    }
+
+    @Test
+    public void testCoverageIssueWithPrivateAccess(){
         Properties.P_REFLECTION_ON_PRIVATE = 0.9;
         Properties.REFLECTION_START_PERCENT = 0.0;
+        testCoverageIssue();
+    }
+
+
+    private void testCoverageIssue(){
         Properties.COVERAGE = true;
         Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.LineCoverage;
 
