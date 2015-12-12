@@ -41,6 +41,7 @@ import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.DefaultTestCase;
@@ -310,6 +311,10 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	}
 
+    /*
+     * TODO: I think this would be nicer if each type of statement registered the classes
+     *       to reset as part of their execute() method
+     */
 	private static HashSet<String> getMoreClassesToReset(TestCase tc,
 			ExecutionResult result) {
 		HashSet<String> moreClassesForStaticReset = new HashSet<String>();
@@ -354,7 +359,11 @@ public class TestCaseExecutor implements ThreadFactory {
 						}
 					}
 				}
-
+			} else if (statement instanceof PrivateFieldStatement) {
+				PrivateFieldStatement fieldStatement = (PrivateFieldStatement) statement;
+				if(fieldStatement.isStaticField()) {
+					moreClassesForStaticReset.add(fieldStatement.getOwnerClassName());
+				}
 			}
 		}
 		return moreClassesForStaticReset;

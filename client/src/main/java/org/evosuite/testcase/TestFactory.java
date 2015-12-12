@@ -1803,13 +1803,8 @@ public class TestFactory {
             parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false);
             VariableReference callee = parameters.remove(0);
 
-            try {
-                st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
+			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
                         callee,parameters);
-            } catch (NoSuchFieldException e) {
-                logger.error("Reflection problem: " + e, e);
-                throw new ConstructionFailedException("Reflection problem");
-            }
         }
 
         int newLength = test.size();

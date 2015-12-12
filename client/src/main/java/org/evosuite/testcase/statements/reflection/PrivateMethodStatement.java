@@ -23,6 +23,7 @@ import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericClass;
@@ -40,8 +41,11 @@ public class PrivateMethodStatement extends MethodStatement {
 
 	private static final long serialVersionUID = -4555899888145880432L;
 
-	public PrivateMethodStatement(TestCase tc, Class<?> klass , String methodName, VariableReference callee, List<VariableReference> params)
-            throws NoSuchFieldException {
+    private String className;
+
+    private String methodName;
+
+	public PrivateMethodStatement(TestCase tc, Class<?> klass , String methodName, VariableReference callee, List<VariableReference> params) {
         super(
                 tc,
                 new GenericMethod(PrivateAccess.getCallMethod(params.size()),PrivateAccess.class),
@@ -51,11 +55,12 @@ public class PrivateMethodStatement extends MethodStatement {
         List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
         this.method.setTypeParameters(parameterTypes);
+        this.methodName = methodName;
+        this.className = klass.getCanonicalName();
     }
 
     private static List<VariableReference> getReflectionParams(TestCase tc, Class<?> klass , String methodName,
-                                                               VariableReference callee, List<VariableReference> inputs)
-            throws NoSuchFieldException{
+                                                               VariableReference callee, List<VariableReference> inputs) {
 
         List<VariableReference> list = new ArrayList<>(3 + inputs.size()*2);
         list.add(new ConstantValue(tc,new GenericClass(Class.class),klass));
@@ -76,8 +81,27 @@ public class PrivateMethodStatement extends MethodStatement {
         return false;
         //return super.mutate(test,factory); //tricky, as should do some restrictions
     }
-    
-	@Override
+
+    @Override
+    public Statement copy(TestCase newTestCase, int offset) {
+        PrivateMethodStatement pm;
+        List<VariableReference> newParams = new ArrayList<>();
+        for(int i = 3; i < parameters.size(); i++) {
+            newParams.add(parameters.get(i).copy(newTestCase, offset));
+        }
+        VariableReference newCallee = parameters.get(1).copy(newTestCase, offset);
+        Class<?> klass = (Class<?>)((ConstantValue)parameters.get(0)).getValue(); // TODO: Make this nice
+
+        if (isStatic()) {
+            pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams);
+        } else {
+            pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams);
+        }
+        return pm;
+    }
+
+
+    @Override
 	public boolean isReflectionStatement() {
 		return true;
 	}
