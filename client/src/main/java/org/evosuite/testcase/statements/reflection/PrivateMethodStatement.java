@@ -86,9 +86,10 @@ public class PrivateMethodStatement extends MethodStatement {
     public Statement copy(TestCase newTestCase, int offset) {
         PrivateMethodStatement pm;
         List<VariableReference> newParams = new ArrayList<>();
-        for(int i = 3; i < parameters.size(); i++) {
+        for(int i = 3; i < parameters.size(); i = i + 2) {
             newParams.add(parameters.get(i).copy(newTestCase, offset));
         }
+
         VariableReference newCallee = parameters.get(1).copy(newTestCase, offset);
         Class<?> klass = (Class<?>)((ConstantValue)parameters.get(0)).getValue(); // TODO: Make this nice
 
@@ -97,6 +98,9 @@ public class PrivateMethodStatement extends MethodStatement {
         } else {
             pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams);
         }
+
+        assert pm.parameters.size() == this.parameters.size();
+
         return pm;
     }
 
