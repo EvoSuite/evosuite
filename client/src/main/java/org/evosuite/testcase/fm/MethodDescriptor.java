@@ -102,6 +102,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 matchers += "anyFloat()";
             }else if(type.equals(Short.TYPE) || type.equals(Short.class)){
                 matchers += "anyShort()";
+            }else if(type.equals(Character.TYPE) || type.equals(Character.class)){
+                matchers += "anyChar()";
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
             }else{
@@ -209,6 +211,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 return Mockito.anyFloat();
             } else if (type.equals(Short.TYPE) || type.equals(Short.class)) {
                 return Mockito.anyShort();
+            } else if (type.equals(Character.TYPE) || type.equals(Character.class)) {
+                return Mockito.anyChar();
             } else if (type.equals(String.class)) {
                 return Mockito.anyString();
             } else {
