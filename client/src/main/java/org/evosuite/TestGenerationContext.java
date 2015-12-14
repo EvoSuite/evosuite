@@ -48,6 +48,7 @@ import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -215,5 +216,7 @@ public class TestGenerationContext {
         MethodCallReplacementCache.resetSingleton();
 
 		Injector.reset();
+		
+		DSEStats.clear();
 	}
 }
