@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.continuous.Simple;
 import com.examples.with.different.packagename.continuous.Trivial;
 
-public class ProjectAnalyzerTest {
+public class ProjectAnalyzerIntTest {
 
 	@BeforeClass
 	public static void initClass() {
