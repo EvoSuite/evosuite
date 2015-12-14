@@ -44,6 +44,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Andrea Arcuri
  * 
@@ -62,6 +64,12 @@ public class SystemTestBase {
 			System.setProperty(ALREADY_SETUP, ALREADY_SETUP);
 			runSetup();
 		}
+	}
+
+	@Before
+	public void checkIfValidName(){
+		String name = this.getClass().getName();
+		assertTrue("Invalid name for system test: "+name, name.endsWith("SystemTest"));
 	}
 
 	@After
@@ -207,7 +215,7 @@ public class SystemTestBase {
 		Assert.assertNull(result);
 		File evoProp = new File(Properties.OUTPUT_DIR + File.separator
 		        + "evosuite.properties");
-		Assert.assertTrue("It was not created: " + evoProp.getAbsolutePath(),
+		assertTrue("It was not created: " + evoProp.getAbsolutePath(),
 		                  evoProp.exists());
 
 		hasBeenAlreadyRun = true;
@@ -257,12 +265,12 @@ public class SystemTestBase {
 	private static void checkFile(String target) {
 		File targetDir = new File(target);
 		try {
-			Assert.assertTrue("Target directory does not exist: "
+			assertTrue("Target directory does not exist: "
 			                          + targetDir.getCanonicalPath(), targetDir.exists());
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
-		Assert.assertTrue(targetDir.isDirectory());
+		assertTrue(targetDir.isDirectory());
 	}
 
 	private static void deleteEvoDirs() {

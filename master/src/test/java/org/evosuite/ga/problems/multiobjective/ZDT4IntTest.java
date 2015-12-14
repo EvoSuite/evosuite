@@ -48,7 +48,7 @@ import org.junit.Test;
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestFON
+public class ZDT4IntTest
 {
     @Before
     public void setUp() {
@@ -59,41 +59,49 @@ public class TestFON
     }
 
     @Test
-    public void testFONFitnesses()
+    public void testZDT4Fitnesses()
     {
-        Problem p = new FON();
+        Problem p = new ZDT4();
         FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
 
-        double[] values = {-2.0, 1.0, 3.0};
-        NSGAChromosome c = new NSGAChromosome(-4.0, 4.0, values);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), -2.0, 0.0);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(1)).getValue(), 1.0, 0.0);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(2)).getValue(), 3.0, 0.0);
+        double[] values = {0.5, -5.0, -4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0};
+        NSGAChromosome c = new NSGAChromosome(-5, 5, values);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), 0.5, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(1)).getValue(), -5.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(2)).getValue(), -4.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(3)).getValue(), -3.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(4)).getValue(), -2.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(5)).getValue(), -1.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(6)).getValue(), 0.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(7)).getValue(), 1.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(8)).getValue(), 2.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(9)).getValue(), 3.0, 0.0);
 
-        Assert.assertEquals(f1.getFitness(c), 0.9999969200553233, 0.0);
-        Assert.assertEquals(f2.getFitness(c), 0.9999999696175615, 0.0);
+        Assert.assertEquals(f1.getFitness(c), 0.5, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 65.68459221202592, 0.0);
     }
 
     /**
-     * Testing NSGA-II with FON Problem
+     * Testing NSGA-II with ZDT4 Problem
      * 
      * @throws IOException 
      * @throws NumberFormatException 
      */
     @Test
-    public void testFON() throws NumberFormatException, IOException
+    public void testZDT4() throws NumberFormatException, IOException
     {
-        Properties.MUTATION_RATE = 1d / 3d;
+        Properties.MUTATION_RATE = 1d / 10d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 3, -4.0, 4.0);
+        ChromosomeFactory<?> factory = new RandomFactory(true, 10, -5.0, 5.0);
 
         GeneticAlgorithm<?> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        ts.setMaximize(false);
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new FON();
+        Problem p = new ZDT4();
         final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
@@ -122,7 +130,7 @@ public class TestFON
         }
 
         // load True Pareto Front
-        double[][] trueParetoFront = Metrics.readFront("Fonseca.pf");
+        double[][] trueParetoFront = Metrics.readFront("ZDT4.pf");
 
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
@@ -134,6 +142,6 @@ public class TestFON
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.01, 0.01);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.20, 0.10);
     }
 }

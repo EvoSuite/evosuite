@@ -36,7 +36,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.agent.InfiniteLoop;
 import com.examples.with.different.packagename.agent.TimerClass;
 
-public class InstrumentingAgent_threadIT {
+public class InstrumentingAgent_threadIntTest {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
 	

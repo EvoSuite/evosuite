@@ -50,7 +50,7 @@ import org.evosuite.runtime.mock.java.io.MockFile;
  * @author arcuri
  *
  */
-public class InstrumentingAgent_IT {
+public class InstrumentingAgent_IntTest {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
 	private final boolean vfs = RuntimeSettings.useVFS;

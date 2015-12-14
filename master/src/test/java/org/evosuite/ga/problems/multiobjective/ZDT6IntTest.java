@@ -38,7 +38,6 @@ import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.metrics.GenerationalDistance;
 import org.evosuite.ga.problems.metrics.Metrics;
 import org.evosuite.ga.problems.metrics.Spacing;
-import org.evosuite.ga.variables.DoubleVariable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,54 +47,42 @@ import org.junit.Test;
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestSCH2
+public class ZDT6IntTest
 {
     @Before
     public void setUp() {
         Properties.POPULATION = 100;
-        Properties.SEARCH_BUDGET = 10000;
+        Properties.SEARCH_BUDGET = 50000;
         Properties.CROSSOVER_RATE = 0.9;
         Properties.RANDOM_SEED = 1l;
     }
 
     @Test
-    public void testSCH2Fitnesses()
+    public void testZDT6Fitnesses()
     {
-        Problem p = new SCH2();
+        Problem p = new ZDT6();
         FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
 
-        double[] values_n = {-3.0};
-        NSGAChromosome c = new NSGAChromosome(-5.0, 10.0, values_n);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), -3.0, 0.0);
-        Assert.assertEquals(f1.getFitness(c), 3.0, 0.0);
-        Assert.assertEquals(f2.getFitness(c), 64.0, 0.0);
+        double[] values = {0.541, 0.585, 0.915, 0.624, 0.493, 0.142, 0.971, 0.836, 0.763, 0.323};
+        NSGAChromosome c = new NSGAChromosome(0.0, 1.0, values);
 
-        double[] values_z = {0.0};
-        c = new NSGAChromosome(-5.0, 10.0, values_z);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), 0.0, 0.0);
-        Assert.assertEquals(f1.getFitness(c), 0.0, 0.0);
-        Assert.assertEquals(f2.getFitness(c), 25.0, 0.0);
-
-        double[] values_p = {9.0};
-        c = new NSGAChromosome(-5.0, 10.0, values_p);
-        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), 9.0, 0.0);
-        Assert.assertEquals(f1.getFitness(c), 5.0, 0.0);
-        Assert.assertEquals(f2.getFitness(c), 16.0, 0.0);
+        Assert.assertEquals(f1.getFitness(c), 0.9866973935066625, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 8.903810335418541, 0.0);
     }
 
     /**
-     * Testing NSGA-II with SCH2 Problem
+     * Testing NSGA-II with ZDT6 Problem
      * 
      * @throws IOException 
      * @throws NumberFormatException 
      */
     @Test
-    public void testSCH2() throws NumberFormatException, IOException
+    public void testZDT6() throws NumberFormatException, IOException
     {
-        Properties.MUTATION_RATE = 1d / 1d;
+        Properties.MUTATION_RATE = 1d / 10d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 1, -5.0, 10.0);
+        ChromosomeFactory<?> factory = new RandomFactory(false, 10, 0.0, 1.0);
 
         GeneticAlgorithm<?> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
@@ -103,7 +90,7 @@ public class TestSCH2
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new SCH2();
+        Problem p = new ZDT6();
         final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
@@ -132,18 +119,18 @@ public class TestSCH2
         }
 
         // load True Pareto Front
-        double[][] trueParetoFront = Metrics.readFront("Schaffer2.pf");
+        double[][] trueParetoFront = Metrics.readFront("ZDT6.pf");
 
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
         System.out.println("GenerationalDistance: " + gdd);
-        Assert.assertEquals(gdd, 0.0004, 0.0001);
+        Assert.assertEquals(gdd, 0.0005, 0.0005);
 
         Spacing sp = new Spacing();
         double spd = sp.evaluate(front);
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.05, 0.05);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.15, 0.05);
     }
 }

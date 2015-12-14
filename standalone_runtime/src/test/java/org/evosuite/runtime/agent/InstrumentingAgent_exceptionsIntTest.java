@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.agent.ExceptionHolder;
 
-public class InstrumentingAgent_exceptionsIT {
+public class InstrumentingAgent_exceptionsIntTest {
 
 	private final boolean replaceCalls = RuntimeSettings.mockJVMNonDeterminism;
 

@@ -38,6 +38,7 @@ import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.metrics.GenerationalDistance;
 import org.evosuite.ga.problems.metrics.Metrics;
 import org.evosuite.ga.problems.metrics.Spacing;
+import org.evosuite.ga.variables.DoubleVariable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,7 @@ import org.junit.Test;
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestPOL
+public class SCH2IntTest
 {
     @Before
     public void setUp() {
@@ -58,38 +59,51 @@ public class TestPOL
     }
 
     @Test
-    public void testPOLFitnesses()
+    public void testSCH2Fitnesses()
     {
-        Problem p = new POL();
+        Problem p = new SCH2();
         FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
 
-        double[] values = {-2.9272124303, 2.7365080818};
-        NSGAChromosome c = new NSGAChromosome(-Math.PI, Math.PI, values);
+        double[] values_n = {-3.0};
+        NSGAChromosome c = new NSGAChromosome(-5.0, 10.0, values_n);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), -3.0, 0.0);
+        Assert.assertEquals(f1.getFitness(c), 3.0, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 64.0, 0.0);
 
-        Assert.assertEquals(f1.getFitness(c), 9.25584063461892, 0.0);
-        Assert.assertEquals(f2.getFitness(c), 13.966790675659546, 0.0);
+        double[] values_z = {0.0};
+        c = new NSGAChromosome(-5.0, 10.0, values_z);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), 0.0, 0.0);
+        Assert.assertEquals(f1.getFitness(c), 0.0, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 25.0, 0.0);
+
+        double[] values_p = {9.0};
+        c = new NSGAChromosome(-5.0, 10.0, values_p);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), 9.0, 0.0);
+        Assert.assertEquals(f1.getFitness(c), 5.0, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 16.0, 0.0);
     }
 
     /**
-     * Testing NSGA-II with POL Problem
+     * Testing NSGA-II with SCH2 Problem
      * 
      * @throws IOException 
      * @throws NumberFormatException 
      */
     @Test
-    public void testPOL() throws NumberFormatException, IOException
+    public void testSCH2() throws NumberFormatException, IOException
     {
-        Properties.MUTATION_RATE = 1d / 2d;
+        Properties.MUTATION_RATE = 1d / 1d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 2, -Math.PI, Math.PI);
+        ChromosomeFactory<?> factory = new RandomFactory(false, 1, -5.0, 10.0);
 
         GeneticAlgorithm<?> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        ts.setMaximize(false);
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new POL();
+        Problem p = new SCH2();
         final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
@@ -118,18 +132,18 @@ public class TestPOL
         }
 
         // load True Pareto Front
-        double[][] trueParetoFront = Metrics.readFront("Poloni.pf");
+        double[][] trueParetoFront = Metrics.readFront("Schaffer2.pf");
 
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
         System.out.println("GenerationalDistance: " + gdd);
-        Assert.assertEquals(gdd, 0.0005, 0.0001);
+        Assert.assertEquals(gdd, 0.0004, 0.0001);
 
         Spacing sp = new Spacing();
         double spd = sp.evaluate(front);
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.10, 0.05);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.05, 0.05);
     }
 }

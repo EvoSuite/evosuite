@@ -29,7 +29,7 @@ import java.util.concurrent.TimeoutException;
 import org.evosuite.testcase.execution.TimeoutHandler;
 import org.junit.*;
 
-public class TimeoutTest 
+public class TimeoutIntTest
 {
 	protected static int RESULT = -1;
 	

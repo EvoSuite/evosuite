@@ -45,13 +45,13 @@ import com.examples.with.different.packagename.continuous.UsingSimpleAndTrivial;
 
 import static org.junit.Assert.assertTrue;
 
-public class JobExecutorTest {
+public class JobExecutorIntTest {
 
 	private StorageManager storage;
 
 	@Before
 	public void init(){
-		Properties.CTG_DIR = ".tmp_for_testing_" + JobExecutorTest.class.getName();
+		Properties.CTG_DIR = ".tmp_for_testing_" + JobExecutorIntTest.class.getName();
 		if(storage!=null){
 			boolean deleted = storage.clean();
 			assertTrue(deleted);

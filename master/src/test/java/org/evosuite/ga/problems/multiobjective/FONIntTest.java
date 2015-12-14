@@ -28,6 +28,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.RandomFactory;
@@ -37,6 +38,7 @@ import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.metrics.GenerationalDistance;
 import org.evosuite.ga.problems.metrics.Metrics;
 import org.evosuite.ga.problems.metrics.Spacing;
+import org.evosuite.ga.variables.DoubleVariable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +48,7 @@ import org.junit.Test;
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestZDT1
+public class FONIntTest
 {
     @Before
     public void setUp() {
@@ -56,26 +58,42 @@ public class TestZDT1
         Properties.RANDOM_SEED = 1l;
     }
 
+    @Test
+    public void testFONFitnesses()
+    {
+        Problem p = new FON();
+        FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
+        FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
+
+        double[] values = {-2.0, 1.0, 3.0};
+        NSGAChromosome c = new NSGAChromosome(-4.0, 4.0, values);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(0)).getValue(), -2.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(1)).getValue(), 1.0, 0.0);
+        Assert.assertEquals(((DoubleVariable) c.getVariables().get(2)).getValue(), 3.0, 0.0);
+
+        Assert.assertEquals(f1.getFitness(c), 0.9999969200553233, 0.0);
+        Assert.assertEquals(f2.getFitness(c), 0.9999999696175615, 0.0);
+    }
+
     /**
-     * Testing NSGA-II with ZDT1 Problem
+     * Testing NSGA-II with FON Problem
      * 
      * @throws IOException 
      * @throws NumberFormatException 
      */
     @Test
-    public void testZDT1() throws NumberFormatException, IOException
+    public void testFON() throws NumberFormatException, IOException
     {
-        Properties.MUTATION_RATE = 1d / 30d;
+        Properties.MUTATION_RATE = 1d / 3d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 30, 0.0, 1.0);
+        ChromosomeFactory<?> factory = new RandomFactory(false, 3, -4.0, 4.0);
 
         GeneticAlgorithm<?> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
-        ts.setMaximize(false);
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new ZDT1();
+        Problem p = new FON();
         final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
         final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
         ga.addFitnessFunction(f1);
@@ -104,18 +122,18 @@ public class TestZDT1
         }
 
         // load True Pareto Front
-        double[][] trueParetoFront = Metrics.readFront("ZDT1.pf");
+        double[][] trueParetoFront = Metrics.readFront("Fonseca.pf");
 
         GenerationalDistance gd = new GenerationalDistance();
         double gdd = gd.evaluate(front, trueParetoFront);
         System.out.println("GenerationalDistance: " + gdd);
-        Assert.assertEquals(gdd, 0.001, 0.001);
+        Assert.assertEquals(gdd, 0.0006, 0.0001);
 
         Spacing sp = new Spacing();
         double spd = sp.evaluate(front);
         double spdt = sp.evaluate(trueParetoFront);
         System.out.println("SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = "
                             + Math.abs(spd - spdt));
-        Assert.assertEquals(Math.abs(spd - spdt), 0.10, 0.10);
+        Assert.assertEquals(Math.abs(spd - spdt), 0.01, 0.01);
     }
 }

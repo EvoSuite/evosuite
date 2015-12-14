@@ -48,7 +48,7 @@ import org.junit.Test;
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestKUR
+public class KURIntTest
 {
     @Before
     public void setUp() {
