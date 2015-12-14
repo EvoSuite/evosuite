@@ -17,17 +17,15 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.basic;
 
+import org.evosuite.coverage.exception.ImplicitExplicitExceptionsSystemTest;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@SuiteClasses({ SUTDivisionByZeroSystemTest.class, SUTPrintingThatShouldBeMutedSystemTest.class })
-public class DivisionByZeroFollowByOther {
+@SuiteClasses({ SUTWithSimpleSingleMethod_v2SystemTest.class, ImplicitExplicitExceptionsSystemTest.class })
+public class SimpleFollowedByExceptionIntTest {
 
 }

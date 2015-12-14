@@ -17,15 +17,18 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.basic;
+package org.evosuite.statistics;
 
-import org.evosuite.coverage.exception.ImplicitExplicitExceptionsSystemTest;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
 import org.junit.runners.Suite;
 
+/**
+ * Test that runs TimelineForCombinedFitness1Test followed by
+ * TimelineForCombinedFitness2Test.
+ *
+ */
 @RunWith(Suite.class)
-@SuiteClasses({ SUTWithSimpleSingleMethod_v2SystemTest.class, ImplicitExplicitExceptionsSystemTest.class })
-public class SimpleFollowedByExceptionTest {
 
+@Suite.SuiteClasses({ TimelineForCombinedFitness1SystemTest.class, TimelineForCombinedFitness2SystemTest.class })
+public class TimelineForCombinedFitnessBothIntTest {
 }

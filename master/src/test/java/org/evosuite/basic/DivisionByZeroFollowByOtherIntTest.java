@@ -17,18 +17,17 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.statistics;
+/**
+ * 
+ */
+package org.evosuite.basic;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-/**
- * Test that runs TimelineForCombinedFitness1Test followed by
- * TimelineForCombinedFitness2Test.
- *
- */
 @RunWith(Suite.class)
+@SuiteClasses({ SUTDivisionByZeroSystemTest.class, SUTPrintingThatShouldBeMutedSystemTest.class })
+public class DivisionByZeroFollowByOtherIntTest {
 
-@Suite.SuiteClasses({ TimelineForCombinedFitness1SystemTest.class, TimelineForCombinedFitness2SystemTest.class })
-public class TimelineForCombinedFitnessBothTest {
 }
