@@ -49,7 +49,7 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
                         Socket socket = server.accept();
                         socket.setKeepAlive(true);
                         executor.submit(new KeepAliveTask(socket));
-                        notifier.printOnConsole("Registered remote process from "+socket.getRemoteSocketAddress()+"\n");
+                        //notifier.printOnConsole("Registered remote process from "+socket.getRemoteSocketAddress()+"\n");
                     } catch (IOException e) {
                         //fine, expected
                         return;
@@ -61,13 +61,13 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
         serverThread.start();
 
         int port = server.getLocalPort();
-        notifier.printOnConsole("Started spawn process manager on port "+ port+"\n");
+        //notifier.printOnConsole("Started spawn process manager on port "+ port+"\n");
 
         return port;
     }
 
     public void stopServer(){
-        notifier.printOnConsole("Stopping spawn process manager\n");
+        //notifier.printOnConsole("Stopping spawn process manager\n");
         try {
             if(server != null) {
                 server.close();
