@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.SystemTestBase;
 import org.evosuite.result.TestGenerationResult;
 import org.junit.Test;
 
@@ -37,7 +38,7 @@ public class TestShouldNotWork {
 	public void testShouldNotWorkOnEvoSuitePackage(){
 		EvoSuite evosuite = new EvoSuite();
 		
-		String targetClass = org.evosuite.SystemTest.class.getCanonicalName();
+		String targetClass = SystemTestBase.class.getCanonicalName();
 		
 		Properties.TARGET_CLASS = targetClass;
 		

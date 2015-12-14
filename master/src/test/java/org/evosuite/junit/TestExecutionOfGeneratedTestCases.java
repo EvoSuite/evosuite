@@ -23,8 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.evosuite.SystemTest;
-import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.Euclidean_ESTest;

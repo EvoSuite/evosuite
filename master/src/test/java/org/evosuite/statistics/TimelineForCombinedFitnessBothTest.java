@@ -29,6 +29,6 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 
-@Suite.SuiteClasses({ TimelineForCombinedFitness1Test.class, TimelineForCombinedFitness2Test.class })
+@Suite.SuiteClasses({ TimelineForCombinedFitness1SystemTest.class, TimelineForCombinedFitness2SystemTest.class })
 public class TimelineForCombinedFitnessBothTest {
 }

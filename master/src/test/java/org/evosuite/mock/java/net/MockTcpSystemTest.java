@@ -23,7 +23,7 @@ import com.examples.with.different.packagename.mock.java.net.*;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * Created by arcuri on 12/19/14.
  */
-public class MockTcpSystemTest extends SystemTest{
+public class MockTcpSystemTest extends SystemTestBase {
 
     private static final boolean VNET = Properties.VIRTUAL_NET;
 

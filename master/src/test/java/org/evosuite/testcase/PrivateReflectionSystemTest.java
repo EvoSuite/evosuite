@@ -25,7 +25,7 @@ import com.examples.with.different.packagename.reflection.PrivateFieldInPrivateM
 import com.examples.with.different.packagename.reflection.PrivateFieldInPublicMethod;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Created by Andrea Arcuri on 02/03/15.
  */
-public class PrivateReflectionSystemTest extends SystemTest {
+public class PrivateReflectionSystemTest extends SystemTestBase {
 
 
     @Test

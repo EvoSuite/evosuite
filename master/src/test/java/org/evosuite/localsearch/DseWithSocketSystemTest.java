@@ -24,7 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
@@ -35,7 +35,7 @@ import com.examples.with.different.packagename.dse.DseWithSocket;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class DseWithSocketSystemTest extends SystemTest {
+public class DseWithSocketSystemTest extends SystemTestBase {
 
 	@Before
 	public void init() {

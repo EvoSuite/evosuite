@@ -22,7 +22,7 @@ package org.evosuite.coverage;
 import com.examples.with.different.packagename.coverage.BooleanOneLine;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -31,7 +31,7 @@ import org.junit.Test;
 /**
  * Created by arcuri on 12/24/14.
  */
-public class CompositeFitnessSystemTest extends SystemTest{
+public class CompositeFitnessSystemTest extends SystemTestBase {
 
     @Test
     public void testBooleanOneLine_3(){

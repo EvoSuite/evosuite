@@ -21,9 +21,8 @@ package org.evosuite.testcase.fm;
 
 import com.examples.with.different.packagename.fm.*;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -34,7 +33,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * Created by Andrea Arcuri on 09/08/15.
  */
-public class SimpleFM_SystemTest extends SystemTest{
+public class SimpleFM_SystemTest extends SystemTestBase {
 
 
     @Test

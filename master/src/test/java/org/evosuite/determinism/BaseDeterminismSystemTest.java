@@ -3,7 +3,7 @@ package org.evosuite.determinism;
 import com.examples.with.different.packagename.localsearch.IsstaFoo;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -84,7 +84,7 @@ public class BaseDeterminismSystemTest{
 
     private static String run(Class<?> target, Runnable initializer){
 
-        SystemTest scaffolding = new SystemTest();
+        SystemTestBase scaffolding = new SystemTestBase();
 
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         PrintStream outStream = new PrintStream(byteStream);

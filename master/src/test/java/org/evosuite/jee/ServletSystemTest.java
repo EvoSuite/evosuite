@@ -19,12 +19,11 @@
  */
 package org.evosuite.jee;
 
-import com.examples.with.different.packagename.jee.injection.InjectionWithInheritance;
 import com.examples.with.different.packagename.jee.servlet.PostPutGetServlet;
 import com.examples.with.different.packagename.jee.servlet.SimpleHttpServlet;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -35,7 +34,7 @@ import org.junit.Test;
 /**
  * Created by Andrea Arcuri on 01/07/15.
  */
-public class ServletSystemTest extends SystemTest{
+public class ServletSystemTest extends SystemTestBase {
 
     @Before()
     public void init(){

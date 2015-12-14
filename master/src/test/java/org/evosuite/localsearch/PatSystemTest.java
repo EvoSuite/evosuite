@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -36,7 +36,7 @@ import com.examples.with.different.packagename.concolic.Pat;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class PatSystemTest extends SystemTest {
+public class PatSystemTest extends SystemTestBase {
 
 	@Before
 	public void init() {

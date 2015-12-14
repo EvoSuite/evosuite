@@ -23,7 +23,7 @@ package org.evosuite.localsearch;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.LocalSearchBudgetType;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ import com.examples.with.different.packagename.localsearch.FloatLocalSearchExamp
 import com.examples.with.different.packagename.localsearch.IntegerLocalSearchExample;
 import com.examples.with.different.packagename.localsearch.StringLocalSearchExample;
 
-public class LocalSearchSystemTest extends SystemTest {
+public class LocalSearchSystemTest extends SystemTestBase {
 
 	@Before
     public void init(){

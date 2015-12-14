@@ -19,12 +19,12 @@
  */
 package org.evosuite.basic;
 
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.junit.Assert;
 
 import org.junit.Test;
 
-public class CheckPropertiesInSystemTest extends SystemTest {
+public class CheckPropertiesInSystemTest extends SystemTestBase {
 
 	private static final String PROPERTY = "Some_property_name_used_for_testing_SystemTest";
 	

@@ -19,13 +19,13 @@
  */
 package org.evosuite.basic;
 
-import org.evosuite.coverage.exception.TestImplicitExplicitExceptions;
+import org.evosuite.coverage.exception.ImplicitExplicitExceptionsSystemTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@SuiteClasses({ TestSUTWithSimpleSingleMethod_v2.class, TestImplicitExplicitExceptions.class })
+@SuiteClasses({ SUTWithSimpleSingleMethod_v2SystemTest.class, ImplicitExplicitExceptionsSystemTest.class })
 public class SimpleFollowedByExceptionTest {
 
 }
