@@ -36,7 +36,7 @@ import java.util.Set;
 /**
  * Created by Andrea Arcuri on 31/05/15.
  */
-public class DBManagerTest {
+public class DBManagerIntTest {
 
     @Before
     public void init(){
