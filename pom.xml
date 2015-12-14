@@ -108,9 +108,13 @@
     <profiles>
         <profile>
             <id>SystemTests</id>
-            <properties>
+            <!-- properties>
                 <systemTests>**/*SystemTest.java</systemTests>
                 <integrationTests>**/*IntTest.java</integrationTests>
+            </properties -->
+            <properties>
+                <systemTests></systemTests>
+                <integrationTests></integrationTests>
             </properties>
         </profile>
         <profile>
@@ -618,9 +622,13 @@
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
                     <reportFormat>xml</reportFormat>
-                    <excludes>
+                    <!-- excludes>
                         <exclude>**/*SystemTest.java</exclude>
                         <exclude>**/*IntTest.java</exclude>
+                    </excludes -->
+                    <excludes>
+                        <exclude>${integrationTests}</exclude>
+                        <exclude>${systemTests}</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -630,10 +638,10 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.18.1</version>
                 <configuration>
-                    <includes>
+                    <!-- includes>
                         <include>${integrationTests}</include>
                         <include>${systemTests}</include>
-                    </includes>
+                    </includes -->
                 </configuration>
                 <executions>
                     <execution>
@@ -788,8 +796,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <deployURL>Needs to be fixed in Jenkins</deployURL>
-        <systemTests></systemTests><!-- empty by default. activated through profile -->
-        <integrationTests></integrationTests>
+        <!-- empty by default. activated through profile -->
+        <!-- systemTests></systemTests>
+        <integrationTests></integrationTests -->
+
+        <systemTests>**/*SystemTest.java</systemTests>
+        <integrationTests>**/*IntTest.java</integrationTests>
+
     </properties>
 
 </project>
