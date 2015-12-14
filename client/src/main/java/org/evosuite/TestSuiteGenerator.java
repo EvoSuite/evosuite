@@ -249,12 +249,12 @@ public class TestSuiteGenerator {
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-        DSEStats.trackConstraintTypes();
+        DSEStats.getInstance().trackConstraintTypes();
 
-        DSEStats.trackSolverStatistics();
+        DSEStats.getInstance().trackSolverStatistics();
         
         if (Properties.DSE_PROBABILITY > 0.0 && Properties.LOCAL_SEARCH_RATE > 0 && Properties.LOCAL_SEARCH_PROBABILITY > 0.0) {
-                DSEStats.logStatistics();
+                DSEStats.getInstance().logStatistics();
         }
         
 		if (Properties.FILTER_SANDBOX_TESTS) {

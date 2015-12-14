@@ -75,7 +75,7 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 		this.op = op2;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.reportConstraintTooLong(getSize());
+			DSEStats.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

@@ -50,7 +50,7 @@ public final class IntegerConstraint extends Constraint<Long> {
 		this.cmp = cmp;
 		this.right = right;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.reportConstraintTooLong(getSize());
+			DSEStats.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

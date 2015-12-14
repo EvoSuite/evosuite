@@ -126,7 +126,7 @@ public abstract class ConcolicExecution {
 					Properties.CONCOLIC_TIMEOUT);
 			long estimatedConcolicExecutionTime = System.currentTimeMillis()
 					- startConcolicExecutionTime;
-			DSEStats.reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
+			DSEStats.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
 
 			MaxStatementsStoppingCondition.statementsExecuted(result
 					.getExecutedStatements());
