@@ -651,7 +651,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 				return goalDefinition.compareTo(otherFitness.getGoalDefinition());
 			}
 		}
-		return 0;
+		return compareClassName(other);
 	}
 
 	/**

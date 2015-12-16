@@ -230,7 +230,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 				else
 					return line.compareTo(otherLineFitness.getLine());
 		}
-		return 0;
+		return compareClassName(other);
 	}
 
 	/* (non-Javadoc)

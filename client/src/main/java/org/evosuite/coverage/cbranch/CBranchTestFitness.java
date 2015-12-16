@@ -134,12 +134,19 @@ public class CBranchTestFitness extends TestFitnessFunction {
 		if (other instanceof CBranchTestFitness) {
 			CBranchTestFitness otherBranchFitness = (CBranchTestFitness) other;
 			return branchGoal.compareTo(otherBranchFitness.branchGoal);
-		} 
+		}
+
+		/*
+			This check is wrong, unless BranchCoverageTestFitness is checking as well for CBranchTestFitness in
+			its compareTo method
+
 		else if (other instanceof BranchCoverageTestFitness) {
 			BranchCoverageTestFitness otherBranchFitness = (BranchCoverageTestFitness) other;
 			return branchGoal.compareTo(otherBranchFitness.getBranchGoal());
 		}
-		return 0;
+		*/
+
+		return compareClassName(other);
 //		return -1;
 	}
 

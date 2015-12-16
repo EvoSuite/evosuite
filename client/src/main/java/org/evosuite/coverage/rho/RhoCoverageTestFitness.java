@@ -101,7 +101,7 @@ public class RhoCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public int compareTo(TestFitnessFunction other) {
 		// TODO Auto-generated method stub
-		return 0;
+		return compareClassName(other);
 	}
 
 	

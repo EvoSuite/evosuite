@@ -173,7 +173,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
             } else
                 return methodIdentifier.compareTo(otherMethodFitness.getMethod());
         }
-        return 0;
+        return compareClassName(other);
     }
 
 
