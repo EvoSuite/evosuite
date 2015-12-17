@@ -1129,7 +1129,7 @@ public class MSecurityManager extends SecurityManager {
 					|| library.equals("management") || library.equals("kcms")
 					|| library.startsWith("jaybird") || library.equals("instrument")
 					|| library.startsWith("osxui") || library.contains("libawt_lwawt")
-					|| library.contains("libawt_headless")
+					|| library.contains("libawt_headless") || library.contains("libawt_xawt")
 					) {
 				return true;
 			}
