@@ -864,7 +864,6 @@ public class TestClusterGenerator {
 					logger.debug("Adding method " + clazz.getClassName() + "."
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
-					logger.debug("HashCode: "+(method.getName().equals("hashCode"))+", "+method.getName());
 					if (method.getTypeParameters().length > 0) {
 						logger.info("Type parameters in methods are not handled yet, skipping "
 						        + method);
