@@ -119,7 +119,7 @@ public class TestCluster {
 
 	/**
 	 * A generator for X might be a non-static method M of Y, but what if Y itself has no generator?
-	 * In that case, M should not be a generator for X, as impossible to instantiate Y
+	 * In that case, M should not be a generator for X, as it is impossible to instantiate Y
 	 */
 	public void removeUnusableGenerators(){
 
