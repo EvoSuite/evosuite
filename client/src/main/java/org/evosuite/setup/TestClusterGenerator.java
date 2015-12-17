@@ -136,6 +136,7 @@ public class TestClusterGenerator {
 		logger.info("Resolving dependencies");
 		resolveDependencies(blackList);
 
+		logger.info("Removing unusable generators");
 		TestCluster.getInstance().removeUnusableGenerators();
 
 		if (logger.isDebugEnabled()) {
