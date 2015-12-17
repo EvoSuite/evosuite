@@ -114,8 +114,8 @@ public class PrivateFieldStatement extends MethodStatement {
     public Statement copy(TestCase newTestCase, int offset) {
         try {
             PrivateFieldStatement pf;
-            VariableReference owner = parameters.get(3).copy(newTestCase, offset);
-            VariableReference value = parameters.get(1).copy(newTestCase, offset);
+            VariableReference owner = parameters.get(1).copy(newTestCase, offset);
+            VariableReference value = parameters.get(3).copy(newTestCase, offset);
 
             if (isStatic()) {
                 pf = new PrivateFieldStatement(newTestCase, ownerClass, fieldName, owner, value);
