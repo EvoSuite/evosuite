@@ -13,7 +13,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <tycho-version>0.23.1</tycho-version>
+    <tycho-version>0.24.0</tycho-version>
     <eclipse-repo.url>http://download.eclipse.org/releases/mars</eclipse-repo.url>
   </properties>
 
