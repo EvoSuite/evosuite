@@ -523,7 +523,7 @@ public class ExternalProcessHandler {
 						 */
 						logger.error("Class "
 								+ Properties.TARGET_CLASS
-								+ ". Error in reading message. Likely the client has crashed. Error message: "
+								+ ". Error when reading message. Likely the client has crashed. Error message: "
 								+ e.getMessage());
 						message = Messages.FINISHED_COMPUTATION;
 						data = null;
@@ -597,7 +597,7 @@ public class ExternalProcessHandler {
 			long start = System.currentTimeMillis();
 			Set<ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(timeout);
 			if(clients==null){
-				logger.error("Not possible to access to clients");
+				logger.error("Could not access client process");
 				return TestGenerationResultBuilder.buildErrorResult("Could not access client process");
 			}
 
@@ -612,7 +612,7 @@ public class ExternalProcessHandler {
 					 * TODO what to do here? Try to stop the the client through RMI?
 					 * Or check in which state it is, and based on that decide if giving more time?
 					 */
-					logger.error("Class "+ Properties.TARGET_CLASS+". Clients have not finished yet, although timeout.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses());					
+					logger.error("Class "+ Properties.TARGET_CLASS+". Clients have not finished yet, although a timeout occurred.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses());
 				}				
 			}
 		} catch (InterruptedException e) {		
@@ -622,7 +622,7 @@ public class ExternalProcessHandler {
 
 			if(didClientJVMCrash()){
 				String err = getAndDeleteHsErrFile();
-				msg += "The JVM of the client process did crash:\n"+err;
+				msg += "The JVM of the client process crashed:\n"+err;
 				logger.error(msg);
 			} else {
 				logger.error(msg, e);
