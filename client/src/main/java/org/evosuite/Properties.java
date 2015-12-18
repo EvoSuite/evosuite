@@ -679,6 +679,8 @@ public class Properties {
 	@Parameter(key = "branch_comparison_types", group = "Search Algorithm", description = "Track branch comparison types based on the bytecode")
 	public static boolean BRANCH_COMPARISON_TYPES = false;
 
+	@Parameter(key = "track_diversity", group = "Search Algorithm", description = "Track population diversity")
+	public static boolean TRACK_DIVERSITY = false;
 
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";

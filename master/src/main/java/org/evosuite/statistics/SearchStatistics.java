@@ -143,6 +143,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.WeakMutationCoverageTimeline.name(), new WeakMutationCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), new DiversitySequenceOutputVariableFactory());
 
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
@@ -198,8 +199,14 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
          * value so that it can be used to produce the next timeline variable.
          */
         if (sequenceOutputVariableFactories.containsKey(variable.getName())) {
-            DirectSequenceOutputVariableFactory<Integer> v = (DirectSequenceOutputVariableFactory<Integer>)sequenceOutputVariableFactories.get(variable.getName());
-            v.setValue((Integer)variable.getValue());
+			if(variable.getValue() instanceof Integer) {
+				DirectSequenceOutputVariableFactory<Integer> v = (DirectSequenceOutputVariableFactory<Integer>) sequenceOutputVariableFactories.get(variable.getName());
+				v.setValue((Integer) variable.getValue());
+			} else if(variable.getValue() instanceof Double) {
+				DirectSequenceOutputVariableFactory<Double> v = (DirectSequenceOutputVariableFactory<Double>) sequenceOutputVariableFactories.get(variable.getName());
+				v.setValue((Double) variable.getValue());
+			}
+//            v.setValue((Integer)variable.getValue());
         } else
             outputVariables.put(variable.getName(), variable);
     }
@@ -529,6 +536,26 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
             this.value = value;
         }
     }
+
+	/**
+	 * Total number of exceptions
+	 */
+	private static class DiversitySequenceOutputVariableFactory extends DirectSequenceOutputVariableFactory<Double> {
+		public DiversitySequenceOutputVariableFactory() {
+			super(RuntimeVariable.DiversityTimeline);
+			this.value = 0.0;
+		}
+
+		@Override
+		public Double getValue(TestSuiteChromosome individual) {
+			return (Double) this.value;
+		}
+
+		@Override
+		public void setValue(Double value) {
+			this.value = value;
+		}
+	}
 
     /**
      * Sequence variable for coverage values

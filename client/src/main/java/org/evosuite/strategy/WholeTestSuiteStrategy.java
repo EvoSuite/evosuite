@@ -33,6 +33,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -72,6 +73,9 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		algorithm.addListener(progressMonitor); // FIXME progressMonitor may cause
 		// client hang if EvoSuite is
 		// executed with -prefix!
+
+		if(Properties.TRACK_DIVERSITY)
+			algorithm.addListener(new DiversityObserver());
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
