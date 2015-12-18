@@ -62,7 +62,7 @@ public class EvoAssertions {
 
         while(klass != null){
             klass = klass.getSuperclass();
-            if(klass.getName().equals(name)){
+            if(klass != null && klass.getName().equals(name)){
                 return;
             }
         }
