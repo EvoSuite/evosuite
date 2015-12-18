@@ -26,6 +26,7 @@ import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -212,9 +213,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
         //FIXME: tmp fix to avoid mocking any class with private access methods
         try {
             for (Method m : rawClass.getDeclaredMethods()) {
-                if (!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) &&
-                        !Modifier.isPrivate(m.getModifiers())) {
-                    //package level
+                if(TestUsageChecker.canUse(m) && !Modifier.isPublic(m.getModifiers())) {
                     return false;
                 }
             }

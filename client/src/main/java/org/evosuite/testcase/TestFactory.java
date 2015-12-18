@@ -1143,7 +1143,7 @@ public class TestFactory {
 				 */
 					ret = addFunctionalMock(test, type, position, recursionDepth + 1);
 				} else {
-					throw new ConstructionFailedException("Generator is null");
+					throw new ConstructionFailedException("Have no generator for "+ type+" canUseFunctionalMocks="+canUseFunctionalMocks+", canBeMocked: "+FunctionalMockStatement.canBeFunctionalMocked(type));
 				}
 
 			} else if (o.isField()) {
