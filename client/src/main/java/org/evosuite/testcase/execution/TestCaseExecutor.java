@@ -380,9 +380,8 @@ public class TestCaseExecutor implements ThreadFactory {
 		Scope scope = new Scope();
 		ExecutionResult result = execute(tc, scope, timeout);
 
-		if (Properties.RESET_STATIC_FIELDS
-				&& TimeController.getInstance().isThereStillTimeInThisPhase(
-						Properties.TIMEOUT_RESET)) {
+		if (Properties.RESET_STATIC_FIELDS) {
+			logger.debug("Resetting classes after execution");
 			resetClasses(tc, result);
 		}
 		return result;
