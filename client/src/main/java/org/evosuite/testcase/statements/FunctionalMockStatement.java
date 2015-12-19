@@ -22,6 +22,7 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
@@ -210,10 +211,17 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
-        //FIXME: tmp fix to avoid mocking any class with private access methods
+        //FIXME: tmp fix to avoid mocking any class with package access methods
         try {
             for (Method m : rawClass.getDeclaredMethods()) {
-                if(TestUsageChecker.canUse(m) && !Modifier.isPublic(m.getModifiers())) {
+
+                /*
+                    Unfortunately, it does not seem there is a "isPackageLevel" method, so we have
+                    to go by exclusion
+                 */
+
+                if(!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) && !Modifier.isPublic(m.getModifiers())
+                        && !m.isBridge() && !m.isSynthetic() && !m.getName().equals(ClassResetter.STATIC_RESET)) {
                     return false;
                 }
             }
