@@ -93,11 +93,7 @@ public class PrivateMethodStatement extends MethodStatement {
         VariableReference newCallee = parameters.get(1).copy(newTestCase, offset);
         Class<?> klass = (Class<?>)((ConstantValue)parameters.get(0)).getValue(); // TODO: Make this nice
 
-        if (isStatic()) {
-            pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams);
-        } else {
-            pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams);
-        }
+        pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams);
 
         assert pm.parameters.size() == this.parameters.size();
 
