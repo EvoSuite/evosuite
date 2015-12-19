@@ -22,6 +22,7 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
@@ -344,7 +345,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
      * @return a ordered, non-null list of types of missing new inputs that will need to be provided
      *
      */
-    public List<Type> updateMockedMethods() {
+    public List<Type> updateMockedMethods() throws ConstructionFailedException {
 
         logger.debug("Executing updateMockedMethods. Parameter size: " + parameters.size());
 
@@ -375,6 +376,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             }
 
             int added = 0;
+
+            logger.debug("Method called on mock object: "+md.getMethod());
 
             //infer parameter mapping of current vars from previous execution, if any
             int[] minMax = methodParameters.get(md.getID());
@@ -408,9 +411,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
             //check if rather more calls
             if (existingParameters < md.getCounter()) {
-                Type returnType = md.getGenericMethodFor(retval.getGenericClass()).getGeneratedType();                
+                Type returnType = md.getGenericMethodFor(retval.getGenericClass()).getGeneratedType();
                 assert !returnType.equals(Void.TYPE);
-
+                logger.debug("Return type: "+returnType +" for retval "+retval.getGenericClass());
                 for (int i = existingParameters; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
                     list.add(returnType);
 
@@ -460,6 +463,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         throw new IllegalArgumentException("Not enough parameter place holders");
                     }
                 }
+                logger.debug("Current input: "+ref+" for expected type "+getExpectedParameterType(index));
 
                 assert ref.isAssignableTo(getExpectedParameterType(index));
 
