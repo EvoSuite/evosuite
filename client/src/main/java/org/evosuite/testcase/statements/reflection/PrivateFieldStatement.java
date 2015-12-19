@@ -117,15 +117,10 @@ public class PrivateFieldStatement extends MethodStatement {
             VariableReference owner = parameters.get(1).copy(newTestCase, offset);
             VariableReference value = parameters.get(3).copy(newTestCase, offset);
 
-            if (isStatic()) {
-                pf = new PrivateFieldStatement(newTestCase, ownerClass, fieldName, owner, value);
-            } else {
-                pf = new PrivateFieldStatement(newTestCase, ownerClass, fieldName, owner, value);
-            }
+            pf = new PrivateFieldStatement(newTestCase, ownerClass, fieldName, owner, value);
+
             return pf;
-        } catch(NoSuchFieldException e) {
-            throw new RuntimeException("EvoSuite bug", e);
-        } catch(ConstructionFailedException e) {
+        } catch(NoSuchFieldException | ConstructionFailedException e) {
             throw new RuntimeException("EvoSuite bug", e);
         }
     }
