@@ -92,7 +92,7 @@ public class ClassResetter {
 	private void cacheResetMethod(String classNameWithDots) {
 
 		if (!resetMethodCache.containsKey(loader)) {
-            resetMethodCache.put(loader, new HashMap<String, Method>());
+            resetMethodCache.put(loader, new HashMap<>());
         }
 
 		Map<String, Method> methodMap = resetMethodCache.get(loader);
@@ -113,7 +113,7 @@ public class ClassResetter {
 
         } catch (NoSuchMethodException e) {
 			//this can happen if class was not instrumented with a static reset
-			logger.debug("__STATIC_RESET() method does not exists in class " + classNameWithDots);
+			logger.debug("__STATIC_RESET() method does not exists in class {}", classNameWithDots);
 		} catch (Exception | Error e) {
 			logWarn(classNameWithDots, e.getClass() + " thrown while loading method  __STATIC_RESET() for class " + classNameWithDots);
 		}
@@ -149,11 +149,13 @@ public class ClassResetter {
 
 		InstrumentingAgent.activate();
 		org.evosuite.runtime.Runtime.getInstance().resetRuntime();
+		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
 
 		try {
 			if(!safe){
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			}
+			LoopCounter.getInstance().setActive(false);
 			m.invoke(null, (Object[]) null);
 		} catch (IllegalAccessException | IllegalArgumentException e) {
             logger.error(""+e,e);
@@ -174,6 +176,7 @@ public class ClassResetter {
 			if(!safe){
 				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			}
+			LoopCounter.getInstance().setActive(wasLoopCheckOn);
 		}
 
 		InstrumentingAgent.deactivate();

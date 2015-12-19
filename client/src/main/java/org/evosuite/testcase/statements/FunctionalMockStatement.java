@@ -641,6 +641,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             Object[] thenReturnInputs = new Object[size];
                             for (int i = 0; i < thenReturnInputs.length; i++) {
 
+                                int k = i + index; //the position in flat parameter list
+                                if(k >= parameters.size()){
+                                    throw new RuntimeException("EvoSuite ERROR: index "+k+" out of "+parameters.size());
+                                }
+
                                 VariableReference parameterVar = parameters.get(i + index);
                                 thenReturnInputs[i] = parameterVar.getObject(scope);
 

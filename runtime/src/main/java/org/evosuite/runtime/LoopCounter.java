@@ -61,6 +61,10 @@ public class LoopCounter {
     	this.activated = active;
     }
 
+    public boolean isActivated() {
+        return activated;
+    }
+
     /**
      * This is called during bytecode instrumentation to determine which index
      * to assign to a new parsed loop

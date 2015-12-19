@@ -20,6 +20,7 @@
 package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -2299,6 +2300,8 @@ public class Properties {
 
 		TARGET_CLASS_INSTANCE = null;
 
+		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
+
 		try {
 			/*
 			 * TODO: loading the SUT will execute its static initializer.
@@ -2309,6 +2312,8 @@ public class Properties {
 
 			Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 
+
+			LoopCounter.getInstance().setActive(false);
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
 			
@@ -2323,6 +2328,8 @@ public class Properties {
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().warn(
 					"* Could not find class under test " + Properties.TARGET_CLASS + ": " + e);
+		} finally {
+			LoopCounter.getInstance().setActive(wasLoopCheckOn);
 		}
 
 		return (Properties.toReturnRegression) ? TARGET_REGRESSION_CLASS_INSTANCE : TARGET_CLASS_INSTANCE;
