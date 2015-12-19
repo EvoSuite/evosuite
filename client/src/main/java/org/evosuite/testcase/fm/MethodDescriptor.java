@@ -21,6 +21,7 @@ package org.evosuite.testcase.fm;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.generic.GenericClass;
@@ -233,8 +234,9 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         counter = 0;
     }
     
-    public GenericMethod getGenericMethodFor(GenericClass clazz) {
-    	return new GenericMethod(method, clazz);
+    public GenericMethod getGenericMethodFor(GenericClass clazz) throws ConstructionFailedException {
+    	GenericMethod m  = new GenericMethod(method, clazz);
+        return m.getGenericInstantiation(clazz);
     }
 
     public Method getMethod(){

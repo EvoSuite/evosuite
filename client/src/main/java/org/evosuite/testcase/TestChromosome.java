@@ -341,7 +341,7 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 
-	private boolean mockChange() {
+	private boolean mockChange()  {
 
 		/*
 			Be sure to update the mocked values if there has been any change in
@@ -365,12 +365,12 @@ public class TestChromosome extends ExecutableChromosome {
 				continue;
 			}
 
-			List<Type> missing = fms.updateMockedMethods();
-			int pos = st.getPosition();
-
 			int preLength = test.size();
 
 			try {
+				List<Type> missing = fms.updateMockedMethods();
+				int pos = st.getPosition();
+				logger.debug("Generating parameters for mock call");
 				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true, false);
 				fms.addMissingInputs(refs);
 			} catch (Exception e){

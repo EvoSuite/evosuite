@@ -1141,6 +1141,7 @@ public class TestFactory {
 					Even if mocking is not active yet in this phase, if we have
 					no generator for a type, we use mocking directly
 				 */
+					logger.debug("Using mock for type "+type);
 					ret = addFunctionalMock(test, type, position, recursionDepth + 1);
 				} else {
 					throw new ConstructionFailedException("Have no generator for "+ type+" canUseFunctionalMocks="+canUseFunctionalMocks+", canBeMocked: "+FunctionalMockStatement.canBeFunctionalMocked(type));
