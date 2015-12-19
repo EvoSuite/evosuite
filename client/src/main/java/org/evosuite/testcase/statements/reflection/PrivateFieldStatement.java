@@ -22,6 +22,8 @@ package org.evosuite.testcase.statements.reflection;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.TestCase;
@@ -30,7 +32,9 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
 
+import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -137,4 +141,13 @@ public class PrivateFieldStatement extends MethodStatement {
 		return true;
 	}
 
+    @Override
+    public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+        if(!isStaticField) {
+            Object receiver = scope.getObject(parameters.get(1));
+            if(receiver == null)
+                return new CodeUnderTestException(new NullPointerException());
+        }
+        return super.execute(scope, out);
+    }
 }
