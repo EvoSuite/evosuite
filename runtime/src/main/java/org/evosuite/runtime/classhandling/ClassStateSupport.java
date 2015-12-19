@@ -23,6 +23,7 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
@@ -125,11 +126,13 @@ public class ClassStateSupport {
 			String classNameToLoad = classNames[i];
 
 			Sandbox.goingToExecuteSUTCode();
+			boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
 
 			try {
 				if(!safe){
 					Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 				}
+				LoopCounter.getInstance().setActive(false);
 				Class<?> aClass = Class.forName(classNameToLoad, true, classLoader);
 				classes.add(aClass);
 
@@ -140,6 +143,7 @@ public class ClassStateSupport {
 					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				}
 				Sandbox.doneWithExecutingSUTCode();
+				LoopCounter.getInstance().setActive(wasLoopCheckOn);
 			}
 		}
 		InstrumentingAgent.deactivate();
