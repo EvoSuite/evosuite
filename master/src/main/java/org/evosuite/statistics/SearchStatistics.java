@@ -323,10 +323,40 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		}	
 
 		TestSuiteChromosome individual = bestIndividual.values().iterator().next();
+
 		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
 		if(map==null){
-			logger.error("Not going to write down statistics data, as some are missing");
-			return false;
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+
+			boolean couldBeFine = MasterServices.getInstance().getMasterNode().getCurrentState().stream()
+					.anyMatch(s -> s.equals(ClientState.DONE) || s.equals(ClientState.FINISHED));
+
+
+			if(couldBeFine){
+				//maybe data just didn't arrive yet
+
+				int counter = 0;
+
+				while (map == null && counter < 5) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+
+					//retry
+					map = getOutputVariables(individual);
+					counter++;
+				}
+			}
+
+			if(map == null) {
+				logger.error("Not going to write down statistics data, as some are missing" );
+				return false;
+			}
 		} 			
 
 		boolean valid = RuntimeVariable.validateRuntimeVariables(map);
