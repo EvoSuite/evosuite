@@ -411,10 +411,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
             //check if rather more calls
             if (existingParameters < md.getCounter()) {
-                Type returnType = md.getGenericMethodFor(retval.getGenericClass()).getGeneratedType();
-                assert !returnType.equals(Void.TYPE);
-                logger.debug("Return type: "+returnType +" for retval "+retval.getGenericClass());
                 for (int i = existingParameters; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
+                    // Create a copy as the typemap is stored in the class during generic instantiation
+                    // but we might want to have a different type for each call of the same method invocation
+                    GenericClass calleeClass = new GenericClass(retval.getGenericClass());
+                    Type returnType = md.getGenericMethodFor(calleeClass).getGeneratedType();
+                    assert !returnType.equals(Void.TYPE);
+                    logger.debug("Return type: "+returnType +" for retval "+retval.getGenericClass());
                     list.add(returnType);
 
                     super.parameters.add(null); //important place holder for following updates
