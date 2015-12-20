@@ -31,12 +31,14 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.execution.MethodCall;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -350,6 +352,13 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+		List<ExecutionResult> executionResults = runTestSuite(suite);
+		for (ExecutionResult executionResult : executionResults) {
+			for (MethodCall methodCallexecution : executionResult.getTrace().getMethodCalls()) {
+				LoggingUtils.getEvoLogger().info(Integer.toString(methodCallexecution.methodId));
+			}
+		}
+
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 

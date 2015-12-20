@@ -77,7 +77,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY))
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPA))
 			ExecutionTracer.enableTraceCalls();
 
 		// TODO: why it was only if "analyzing"???

@@ -21,7 +21,7 @@ public class EPACoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> executionResults = runTestSuite(suite);
 		for (ExecutionResult executionResult : executionResults) {
 			for (MethodCall methodCallexecution : executionResult.getTrace().getMethodCalls()) {
-				System.out.println(methodCallexecution);
+				System.out.println("- " + methodCallexecution.className + "||" + methodCallexecution.methodName);
 			}
 		}
 		return 0;
