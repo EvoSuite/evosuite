@@ -639,51 +639,60 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             logger.debug("Mockito: call 'when'");
                             OngoingStubbing<Object> retForThen = Mockito.when(targetMethodResult);
 
-                            int size = Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT);
-
                             //thenReturn(...)
-                            Object[] thenReturnInputs = new Object[size];
-                            for (int i = 0; i < thenReturnInputs.length; i++) {
+                            Object[] thenReturnInputs = null;
+                            try {
+                                int size = Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT);
 
-                                int k = i + index; //the position in flat parameter list
-                                if(k >= parameters.size()){
-                                    throw new RuntimeException("EvoSuite ERROR: index "+k+" out of "+parameters.size());
+                                thenReturnInputs = new Object[size];
+
+                                for (int i = 0; i < thenReturnInputs.length; i++) {
+
+                                    int k = i + index; //the position in flat parameter list
+                                    if (k >= parameters.size()) {
+                                        throw new RuntimeException("EvoSuite ERROR: index " + k + " out of " + parameters.size());
+                                    }
+
+                                    VariableReference parameterVar = parameters.get(i + index);
+                                    thenReturnInputs[i] = parameterVar.getObject(scope);
+
+                                    CodeUnderTestException codeUnderTestException = null;
+
+                                    if (thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
+                                        codeUnderTestException = new CodeUnderTestException(new NullPointerException());
+
+                                    } else if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), method.getReturnType())) {
+                                        codeUnderTestException = new CodeUnderTestException(
+                                                new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName()
+                                                        + " to " + method.getReturnType()));
+                                    }
+
+                                    if (codeUnderTestException != null) {
+                                        throw codeUnderTestException;
+                                    }
+
+                                    thenReturnInputs[i] = fixBoxing(thenReturnInputs[i], method.getReturnType());
                                 }
-
-                                VariableReference parameterVar = parameters.get(i + index);
-                                thenReturnInputs[i] = parameterVar.getObject(scope);
-
-                                CodeUnderTestException codeUnderTestException = null;
-
-                                if (thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
-                                    codeUnderTestException = new CodeUnderTestException(new NullPointerException());
-
-                                } else if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), method.getReturnType())) {
-                                    codeUnderTestException = new CodeUnderTestException(
-                                            new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName()
-                                                    + " to " + method.getReturnType()));
-                                }
-
-                                if (codeUnderTestException != null) {
-                                    //be sure "then" is always called after a "when", otherwise Mockito might end up in
-                                    //a inconsistent state
-                                    retForThen.thenThrow(new RuntimeException("Failed to setup mock due to type mismatches"));
-                                    throw  codeUnderTestException;
-                                }
-
-                                thenReturnInputs[i] = fixBoxing(thenReturnInputs[i], method.getReturnType());
+                            } catch (Exception e){
+                                //be sure "then" is always called after a "when", otherwise Mockito might end up in
+                                //a inconsistent state
+                                retForThen.thenThrow(new RuntimeException("Failed to setup mock: "+e.getMessage()));
+                                throw e;
                             }
+
 
                             //final call when(...).thenReturn(...)
                             logger.debug("Mockito: executing 'thenReturn'");
-                            if (thenReturnInputs.length == 1) {
+                            if(thenReturnInputs == null || thenReturnInputs.length == 0) {
+                                retForThen.thenThrow(new RuntimeException("No valid return value"));
+                            } else if (thenReturnInputs.length == 1) {
                                 retForThen.thenReturn(thenReturnInputs[0]);
                             } else {
                                 Object[] values = Arrays.copyOfRange(thenReturnInputs, 1, thenReturnInputs.length);
                                 retForThen.thenReturn(thenReturnInputs[0], values);
                             }
 
-                            index += size;
+                            index += thenReturnInputs==null ? 0 : thenReturnInputs.length;
                         }
 
                     } catch (CodeUnderTestException e){
