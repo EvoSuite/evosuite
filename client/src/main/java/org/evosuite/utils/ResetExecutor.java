@@ -72,7 +72,7 @@ public class ResetExecutor {
 
 			if(!className.equals(Properties.TARGET_CLASS) && (! TimeController.getInstance().isThereStillTimeInThisPhase() || elapsed > Properties.TIMEOUT_RESET)){
 				logger.warn("Stopped resetting of classes due to timeout");
-				continue;
+				break;
 			}
 			resetClass(className);
 		}
