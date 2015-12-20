@@ -8,11 +8,11 @@ public class SimpleFM_GenericsReturnWithExtend {
     public interface B {
     }
 
-    private class W implements B {
+    public class W implements B {
         public boolean isW(){return true;}
     }
 
-    private class Z implements B{
+    public class Z implements B{
         public boolean isZ(){return true;}
     }
 
