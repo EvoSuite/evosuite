@@ -30,6 +30,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Andrea Arcuri on 09/08/15.
@@ -43,8 +46,29 @@ public class SimpleFM_SystemTest extends SystemTestBase {
     }
 
     @Test
-    public void testGenericsReturnWithExtend(){
-        do100percentLineTest(SimpleFM_GenericsReturnWithExtend.class);
+    public void testGenericsReturnWithExtend_Single(){
+        do100percentLineTest(SimpleFM_GenericsReturnWithExtend_Single.class);
+    }
+
+    @Test
+    public void testGenericsReturnWithExtend_Double(){
+        do100percentLineTest(SimpleFM_GenericsReturnWithExtend_Double.class);
+    }
+
+    @Test
+    public void testGenericsReturnWithExtend_Double_Feasability(){
+
+        SimpleFM_GenericsReturnWithExtend_Double.W w = mock(SimpleFM_GenericsReturnWithExtend_Double.W.class);
+        when(w.isW()).thenReturn(true);
+
+        SimpleFM_GenericsReturnWithExtend_Double.Z z = mock(SimpleFM_GenericsReturnWithExtend_Double.Z.class);
+        when(z.isZ()).thenReturn(true);
+
+        SimpleFM_GenericsReturnWithExtend_Double.A a = mock(SimpleFM_GenericsReturnWithExtend_Double.A.class);
+        when(a.getB()).thenReturn(w, z);
+
+        boolean res = SimpleFM_GenericsReturnWithExtend_Double.foo(a);
+        assertTrue(res);
     }
 
 
