@@ -26,6 +26,8 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -39,6 +41,8 @@ import java.util.Map.Entry;
 public class OutputCoverageTestFitness extends TestFitnessFunction {
 
     private static final long serialVersionUID = 1383064944691491355L;
+
+    protected static final Logger logger = LoggerFactory.getLogger(OutputCoverageTestFitness.class);
 
     /**
      * Target goal
@@ -93,13 +97,15 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                 case Type.LONG:
                 case Type.DOUBLE:
                     assert (returnValue instanceof Number);
-                    double value = ((Number) returnValue).doubleValue();
-                    if (value < 0)
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_NEGATIVE));
-                    else if (value == 0)
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_ZERO));
-                    else
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_POSITIVE));
+                    if(isJavaNumber(returnValue)) {
+                        double value = ((Number) returnValue).doubleValue();
+                        if (value < 0)
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_NEGATIVE));
+                        else if (value == 0)
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_ZERO));
+                        else
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_POSITIVE));
+                    }
                     break;
                 case Type.ARRAY:
                     if (returnValue == null)
@@ -116,6 +122,12 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
                     else {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL));
+
+                        /*
+                            NOTE: we cannot have this code. Calling SUT methods should only be done EXCLUSIVELY as part
+                            of test execution, as they involve security manager checks, loop counter handling, etc.
+                            Doing it as side effects of fitness evaluation could have many side effects
+
                         List<String> inspectors = OutputCoverageFactory.getInspectors(returnType.getClassName());
                         for (String insp : inspectors) {
                             try {
@@ -129,7 +141,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.BOOL_TRUE));
                                     else
                                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.BOOL_FALSE));
-                                } else if (val instanceof Number) {
+                                } else if (isJavaNumber(val)) {
                                     double dv = ((Number) val).doubleValue();
                                     if (dv < 0)
                                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_NEGATIVE));
@@ -138,14 +150,11 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                                     else
                                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_POSITIVE));
                                 }
-                            } catch (NoSuchMethodException e) {
-                                e.printStackTrace();
-                            } catch (InvocationTargetException e) {
-                                e.printStackTrace();
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
+                            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                                logger.warn(e.getMessage(), e);
                             }
                         }
+                        */
                     }
                     break;
                 default:
@@ -155,6 +164,18 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
             }
         }
         return results;
+    }
+
+    /**
+     * The SUT could have classes extending Number. Calling doubleValue()
+     * on those would lead to many problems, like for example security and
+     * loop counter checks.
+     *
+     * @param val
+     * @return
+     */
+    private static boolean isJavaNumber(Object val){
+        return val instanceof Number && val.getClass().getName().startsWith("java.");
     }
 
     /**
