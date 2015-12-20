@@ -98,21 +98,20 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			final String typeName = log.getTypeName(oid);
 			type = getClassForName(typeName);
 
-			logger.debug("Creating method call statement for call to method {}.{}", typeName,methodName);
+			logger.debug("Creating method call statement for call to method {}.{}", typeName, methodName);
 
 			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
 			final ArrayList<VariableReference> args = getArguments(methodArgs,
-			                                                       methodParamTypeClasses);
+					methodParamTypeClasses);
 
 
 			if (CaptureLog.OBSERVED_INIT.equals(methodName)) {
 				// Person var0 = new Person();
-
 				final ConstructorStatement constStmt = new ConstructorStatement(
-				        testCase,
-				        new GenericConstructor(
-				                type.getDeclaredConstructor(methodParamTypeClasses), type),
-				        args);
+						testCase,
+						new GenericConstructor(
+								type.getDeclaredConstructor(methodParamTypeClasses), type),
+						args);
 
 				this.oidToVarRefMap.put(oid, testCase.addStatement(constStmt));
 			} else {
@@ -122,12 +121,12 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				if (CaptureLog.RETURN_TYPE_VOID.equals(returnValue)) {
 
 					GenericMethod genericMethod = new GenericMethod(
-					        this.getDeclaredMethod(type, methodName,
-					                               methodParamTypeClasses)
+							this.getDeclaredMethod(type, methodName,
+									methodParamTypeClasses)
 							, type);
 
 					MethodStatement m = new MethodStatement(testCase, genericMethod,
-					        this.oidToVarRefMap.get(oid), args);
+							this.oidToVarRefMap.get(oid), args);
 
 					testCase.addStatement(m);
 				} else {
@@ -135,17 +134,20 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					logger.debug("Callee: {} ({})", this.oidToVarRefMap.get(oid), this.oidToVarRefMap.keySet());
 					// Person var0 = var.getPerson();
 					final MethodStatement m = new MethodStatement(
-					        testCase,
-					        new GenericMethod(
-					                this.getDeclaredMethod(type, methodName,
-					                                       methodParamTypeClasses), type),
-					        
-					        this.oidToVarRefMap.get(oid), 					        
-					        args);
+							testCase,
+							new GenericMethod(
+									this.getDeclaredMethod(type, methodName,
+											methodParamTypeClasses), type),
+
+							this.oidToVarRefMap.get(oid),
+							args);
 					final Integer returnValueOID = (Integer) returnValue;
 					this.oidToVarRefMap.put(returnValueOID, testCase.addStatement(m));
 				}
 			}
+		} catch(NoSuchMethodException e) {
+			logger.info("Method not found; this may happen e.g. if an exception is thrown in the constructor");
+			return;
 		} catch (final Exception e) {
 			logger.info("Error at log record number {}: {}", logRecNo, e.toString());
 			logger.info("Test case so far: "+testCase.toCode());
