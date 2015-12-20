@@ -31,6 +31,7 @@ import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +72,8 @@ public class ResetExecutor {
 			long elapsed = System.currentTimeMillis() - start;
 
 			if(!className.equals(Properties.TARGET_CLASS) && (! TimeController.getInstance().isThereStillTimeInThisPhase() || elapsed > Properties.TIMEOUT_RESET)){
-				logger.warn("Stopped resetting of classes due to timeout");
-				break;
+				AtMostOnceLogger.warn(logger, "Stopped resetting of classes due to timeout");
+				continue; //do not "break", as need to be sure we still reset TARGET_CLASS
 			}
 			resetClass(className);
 		}
