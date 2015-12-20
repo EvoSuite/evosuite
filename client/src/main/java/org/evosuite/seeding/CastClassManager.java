@@ -127,10 +127,17 @@ public class CastClassManager {
 			for (Class<?> concreteClass : ConcreteClassAnalyzer.getConcreteClasses(clazz.getRawClass(),
 			                                                                      TestCluster.getInheritanceTree())) {
 				GenericClass c = new GenericClass(concreteClass);
-				if(TestUsageChecker.canUse(c.getRawClass()))
+				if(TestUsageChecker.canUse(c.getRawClass())) {
 					classMap.put(c, depth);
+				}
 			}
-		} else {
+
+			if(Properties.P_FUNCTIONAL_MOCKING > 0.0) {
+				if (TestUsageChecker.canUse(clazz.getRawClass()))
+					classMap.put(clazz, depth);
+			}
+
+		}  else {
 			if(TestUsageChecker.canUse(clazz.getRawClass()))
 				classMap.put(clazz, depth);
 		}
