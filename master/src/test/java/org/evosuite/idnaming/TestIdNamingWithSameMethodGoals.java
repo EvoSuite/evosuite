@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.Branch;
@@ -42,10 +41,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.objectweb.asm.tree.JumpInsnNode;
 
-public class TestIdNamingWithSameMethodGoals extends SystemTest {
+public class TestIdNamingWithSameMethodGoals {
 
 	@Test
-	 public void testIDNamingWithSameMethodGoals() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
+	 public void testIdNamingWithSameMethodGoals() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
         TestFitnessFunction goal1 = new MethodCoverageTestFitness("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap","keys()[I");
         TestFitnessFunction goal2 = new MethodCoverageTestFitness("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "<init>(Lcom/examples/with/different/packagename/idnaming/gnu/trove/map/TIntByteMap;)V");
         JumpInsnNode inst1 = new JumpInsnNode(155,null);
@@ -54,7 +53,7 @@ public class TestIdNamingWithSameMethodGoals extends SystemTest {
         Branch br1 = new Branch(bcInst1, 1);
         TestFitnessFunction goal3 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()","I","empty"));
         TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()","I","nonempty"));
-        
+
         DefaultTestCase test1 = new DefaultTestCase();
         test1.addStatement(new IntPrimitiveStatement(test1,42)); // any statement to fool hashcode function
         test1.addCoveredGoal(goal1);
@@ -66,7 +65,7 @@ public class TestIdNamingWithSameMethodGoals extends SystemTest {
         test2.addCoveredGoal(goal1);
         test2.addCoveredGoal(goal2);
         test2.addCoveredGoal(goal4);
-     
+
 
         ArrayList<TestCase> testCases = new ArrayList<TestCase>();
         testCases.add(test1);

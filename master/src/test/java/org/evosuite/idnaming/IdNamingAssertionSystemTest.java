@@ -7,7 +7,8 @@ import com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifia
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
+import org.evosuite.SystemTestBase;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
@@ -15,7 +16,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestIdNamingAssertion extends SystemTest {
+public class IdNamingAssertionSystemTest extends SystemTestBase {
 
 	@Test
 	public void testGeneratesDuplicatedNamesWhenExceptionIsThrown() {

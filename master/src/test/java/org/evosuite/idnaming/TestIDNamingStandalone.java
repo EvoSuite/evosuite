@@ -112,4 +112,5 @@ public class TestIDNamingStandalone {
         assertEquals("Generated test name differs from expected", "test_init_mist_isPositive_foo_isPositive_init_isPositive_mist_foo", nameTest1);
         assertEquals("Generated test name differs from expected", "test_init_mist_bar_isPositive_foo_isPositive_init_isPositive_mist_bar_foo", nameTest2);
     }
+
 }
