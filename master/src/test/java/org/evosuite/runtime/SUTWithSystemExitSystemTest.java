@@ -37,6 +37,14 @@ public class SUTWithSystemExitSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.REPLACE_CALLS = true;
 
+		/*
+			Somehow, if assertion is on, the exit() is called. However,
+			that does not happen from command line. Might be just an issue
+			here in the SystemTestBase framework, as everything is run in same JVM.
+			Furthermore, trying to run this test in a debugger does hang it :(
+		 */
+		Properties.ASSERTIONS = false;
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		evosuite.parseCommandLine(command);
