@@ -1087,7 +1087,7 @@ public class Properties {
     public static boolean VIRTUAL_NET = true;
 
     @Parameter(key = "use_separate_classloader", group = "Sandbox", description = "Usa a separate classloader in the final test cases")
-    public static boolean USE_SEPARATE_CLASSLOADER = false;
+    public static boolean USE_SEPARATE_CLASSLOADER = true;
 
 
     // ---------------------------------------------------------------
