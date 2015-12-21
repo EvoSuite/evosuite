@@ -118,7 +118,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                      */
                     matchers += "any()";
                 } else {
-                    if(type.equals(Class.class)){
+                    if(type instanceof Class){
                         matchers += "any(" + ((Class)type).getCanonicalName() + ".class)";
                     } else {
                         //what to do here? is it even possible?
