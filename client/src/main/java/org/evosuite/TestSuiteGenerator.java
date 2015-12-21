@@ -122,6 +122,9 @@ public class TestSuiteGenerator {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
             TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			// Once class loading is complete we can start checking loops
+			// without risking to interfere with class initialisation
+			LoopCounter.getInstance().setActive(true);
 		}
 		
         /*
@@ -130,9 +133,7 @@ public class TestSuiteGenerator {
 		// TODO: Do parts of this need to be wrapped into sandbox statements?
 		ObjectPoolManager.getInstance();
 
-		// Once class loading is complete we can start checking loops
-		// without risking to interfere with class initialisation
-		LoopCounter.getInstance().setActive(true);
+
 
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "

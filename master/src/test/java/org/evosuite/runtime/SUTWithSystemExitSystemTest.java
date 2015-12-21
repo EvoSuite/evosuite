@@ -22,14 +22,23 @@ package org.evosuite.runtime;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.junit.After;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.CallExit;
+
+import java.lang.*;
+import java.security.Permission;
+
+import static org.junit.Assert.assertFalse;
 
 public class SUTWithSystemExitSystemTest extends SystemTestBase {
 
 	@Test
 	public void testSystemExit() {
+
+		java.lang.System.setSecurityManager(new SafeExit());
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = CallExit.class.getCanonicalName();
@@ -37,17 +46,30 @@ public class SUTWithSystemExitSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.REPLACE_CALLS = true;
 
-		/*
-			Somehow, if assertion is on, the exit() is called. However,
-			that does not happen from command line. Might be just an issue
-			here in the SystemTestBase framework, as everything is run in same JVM.
-			Furthermore, trying to run this test in a debugger does hang it :(
-		 */
-		Properties.ASSERTIONS = false;
-
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		evosuite.parseCommandLine(command);
+
+		assertFalse(SafeExit.calledExit);
+	}
+
+	@After
+	public void removeSecurity(){
+		java.lang.System.setSecurityManager(null);
+	}
+
+	private static class SafeExit extends SecurityManager{
+
+		public static boolean calledExit = false;
+
+		public void checkPermission(Permission perm) throws SecurityException {
+
+			final String name = perm.getName().trim();
+			if (name.startsWith("exitVM")){
+				calledExit = true;
+				throw new RuntimeException("CALLED EXIT");
+			}
+		}
 	}
 
 }
