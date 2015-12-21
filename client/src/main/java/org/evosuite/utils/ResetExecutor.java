@@ -26,10 +26,12 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.MutationObserver;
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,15 +71,16 @@ public class ResetExecutor {
 
 			long elapsed = System.currentTimeMillis() - start;
 
-			if(! TimeController.getInstance().isThereStillTimeInThisPhase() || elapsed > Properties.TIMEOUT_RESET){
-				logger.warn("Stopped resetting of classes due to timeout");
-				break;
+			if(!className.equals(Properties.TARGET_CLASS) && (! TimeController.getInstance().isThereStillTimeInThisPhase() || elapsed > Properties.TIMEOUT_RESET)){
+				AtMostOnceLogger.warn(logger, "Stopped resetting of classes due to timeout");
+				continue; //do not "break", as need to be sure we still reset TARGET_CLASS
 			}
 			resetClass(className);
 		}
 	}
 
 	private void resetClass(String className) {
+
 
 		//className.__STATIC_RESET() exists
 		logger.debug("Resetting class " + className);
@@ -90,10 +93,12 @@ public class ResetExecutor {
         TestGenerationContext.getInstance().goingToExecuteSUTCode();
 
 		Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
+		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
 
 		try {
 			Method resetMethod = ClassResetter.getInstance().getResetMethod(className);
 			if (resetMethod!=null) {
+				LoopCounter.getInstance().setActive(false);
 				resetMethod.invoke(null, (Object[]) null);
 			}
 		} catch (Throwable  e) {
@@ -102,6 +107,7 @@ public class ResetExecutor {
 			Sandbox.doneWithExecutingSUTCode();
             TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			MutationObserver.activateMutation(mutationActive);
+			LoopCounter.getInstance().setActive(wasLoopCheckOn);
 		}
 	}
 }

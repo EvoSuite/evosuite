@@ -206,7 +206,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		if (other instanceof MutationTestFitness) {
 			return mutation.compareTo(((MutationTestFitness) other).getMutation());
 		}
-		return 0;
+		return compareClassName(other);
 	}
 	
 	

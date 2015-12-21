@@ -25,6 +25,11 @@ package org.evosuite.coverage.mutation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.Properties;
+import org.evosuite.instrumentation.mutation.InsertUnaryOperator;
+import org.evosuite.instrumentation.mutation.ReplaceArithmeticOperator;
+import org.evosuite.instrumentation.mutation.ReplaceConstant;
+import org.evosuite.instrumentation.mutation.ReplaceVariable;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -86,7 +91,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 
 		goals = new ArrayList<MutationTestFitness>();
 
-		for (Mutation m : MutationPool.getMutants()) {
+		for (Mutation m : getMutantsLimitedPerClass()) {
 			if (targetMethod != null && !m.getMethodName().endsWith(targetMethod))
 				continue;
 
@@ -101,5 +106,22 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, goals.size());
 
 		return goals;
+	}
+	
+	/**
+	 * Try to remove mutants per mutation operator until the number of mutants
+	 * is acceptable wrt the class limit
+	 */
+	private List<Mutation> getMutantsLimitedPerClass() {
+		List<Mutation> mutants = MutationPool.getMutants();
+		String[] operators = { ReplaceVariable.NAME, InsertUnaryOperator.NAME, ReplaceConstant.NAME, ReplaceArithmeticOperator.NAME };
+		if(mutants.size() > Properties.MAX_MUTANTS_PER_CLASS) {
+			for(String op : operators) {
+				mutants.removeIf(u -> u.getMutationName().startsWith(op));
+				if(mutants.size() < Properties.MAX_MUTANTS_PER_CLASS)
+					break;
+			}
+		}
+		return mutants;
 	}
 }

@@ -55,6 +55,8 @@ public class ReplaceComparisonOperator implements MutationOperator {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReplaceComparisonOperator.class);
 
+	public static final String NAME = "ReplaceComparisonOperator";
+	
 	private static Set<Integer> opcodesReference = new HashSet<Integer>();
 
 	private static Set<Integer> opcodesNull = new HashSet<Integer>();
@@ -131,7 +133,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 				// insert mutation into pool
 				Mutation mutationObject = MutationPool.addMutation(className,
 				                                                   methodName,
-				                                                   "ReplaceComparisonOperator "
+				                                                   NAME + " "
 				                                                           + getOp(node.getOpcode())
 				                                                           + " -> "
 				                                                           + getOp(op),
@@ -156,7 +158,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 				mutation.add(new JumpInsnNode(Opcodes.IFNE, target));
 				Mutation mutationObject = MutationPool.addMutation(className,
 				                                                   methodName,
-				                                                   "ReplaceComparisonOperator "
+				                                                   NAME + " "
 				                                                           + getOp(node.getOpcode())
 				                                                           + " -> " + op,
 				                                                   instruction,

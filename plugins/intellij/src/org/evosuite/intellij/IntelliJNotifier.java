@@ -42,6 +42,8 @@ public class IntelliJNotifier implements AsyncGUINotifier {
     private final Project project;
     private final ConsoleViewImpl console;
 
+    private volatile OSProcessHandler processHandler;
+
     public IntelliJNotifier(Project project, String title, ConsoleViewImpl console) {
         this.project = project;
         this.title = title;
@@ -76,13 +78,22 @@ public class IntelliJNotifier implements AsyncGUINotifier {
         });
     }
 
-
+    @Override
+    public void detachLastProcess(){
+        if(processHandler != null){
+            processHandler.destroyProcess();
+            processHandler = null;
+        }
+    }
 
     @Override
     public void attachProcess(Process process) {
-        OSProcessHandler handler = new OSProcessHandler(process, null);
-        console.attachToProcess(handler);
-        handler.startNotify();
+        if(processHandler != null){
+            detachLastProcess();
+        }
+        processHandler = new OSProcessHandler(process, null);
+        console.attachToProcess(processHandler);
+        processHandler.startNotify();
     }
 
     @Override

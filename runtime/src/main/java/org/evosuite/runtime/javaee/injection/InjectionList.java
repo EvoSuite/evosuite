@@ -40,7 +40,11 @@ public class InjectionList {
                     javax.persistence.PersistenceContext.class,
                     javax.persistence.PersistenceUnit.class,
                     javax.annotation.Resource.class,
-                    org.springframework.beans.factory.annotation.Autowired.class
+                    org.springframework.beans.factory.annotation.Autowired.class,
+                    javax.ejb.EJB.class,
+                    javax.xml.ws.WebServiceRef.class,
+                    javax.faces.bean.ManagedProperty.class,
+                    javax.ws.rs.core.Context.class
     ));
 
     public static List<Class<? extends Annotation>> getList(){

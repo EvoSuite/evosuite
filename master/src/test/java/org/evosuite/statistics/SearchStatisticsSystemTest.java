@@ -25,7 +25,7 @@ import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.ExampleGradientBranches;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -34,7 +34,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.statistics.MultiThreads;
 import com.examples.with.different.packagename.statistics.NoThreads;
 
-public class SearchStatisticsSystemTest extends SystemTest{
+public class SearchStatisticsSystemTest extends SystemTestBase {
 
 	@Test
 	public void testHandlingOfNoThreads(){
@@ -114,7 +114,7 @@ public class SearchStatisticsSystemTest extends SystemTest{
 
         Properties.TARGET_CLASS = targetClass;
         Properties.DYNAMIC_SEEDING = true;
-        Properties.SEARCH_BUDGET = 30;
+        Properties.SEARCH_BUDGET = 2500;
         Properties.TRACK_BOOLEAN_BRANCHES = true;
         Properties.OUTPUT_VARIABLES = ""+RuntimeVariable.Coverage+","+RuntimeVariable.Gradient_Branches;
 

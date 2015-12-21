@@ -21,26 +21,59 @@ package org.evosuite.testcase.fm;
 
 import com.examples.with.different.packagename.fm.*;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Andrea Arcuri on 09/08/15.
  */
-public class SimpleFM_SystemTest extends SystemTest{
+public class SimpleFM_SystemTest extends SystemTestBase {
+
+    @Before
+    public void init(){
+        Properties.P_FUNCTIONAL_MOCKING = 0.5;
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
+    }
+
+    @Test
+    public void testGenericsReturnWithExtend_Single(){
+        do100percentLineTest(SimpleFM_GenericsReturnWithExtend_Single.class);
+    }
+
+    @Test
+    public void testGenericsReturnWithExtend_Double(){
+        do100percentLineTest(SimpleFM_GenericsReturnWithExtend_Double.class);
+    }
+
+    @Test
+    public void testGenericsReturnWithExtend_Double_Feasability(){
+
+        SimpleFM_GenericsReturnWithExtend_Double.W w = mock(SimpleFM_GenericsReturnWithExtend_Double.W.class);
+        when(w.isW()).thenReturn(true);
+
+        SimpleFM_GenericsReturnWithExtend_Double.Z z = mock(SimpleFM_GenericsReturnWithExtend_Double.Z.class);
+        when(z.isZ()).thenReturn(true);
+
+        SimpleFM_GenericsReturnWithExtend_Double.A a = mock(SimpleFM_GenericsReturnWithExtend_Double.A.class);
+        when(a.getB()).thenReturn(w, z);
+
+        boolean res = SimpleFM_GenericsReturnWithExtend_Double.foo(a);
+        assertTrue(res);
+    }
 
 
     @Test
     public void testSimpleReturnString(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5;
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_returnString.class);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         String code = best.toString();
@@ -52,122 +85,96 @@ public class SimpleFM_SystemTest extends SystemTest{
 
     @Test
     public void testSimpleGenerics(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_Generics.class);
     }
 
     @Test
     public void testSimpleGenericsAsInput(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_GenericsAsInput.class);
     }
 
     @Test
     public void testSimpleGenericReturn(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_GenericReturn.class);
+    }
+
+    @Test
+    public void testSimpleGenericNullString(){
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_GenericsNullString.class);
+
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        String code = best.toString();
+        // "null" should be casted to "String" (if at all) and not to "Object"
+        assertFalse(code, code.contains("(Object)"));
+    }
+
+    @Test
+    public void testSimpleNullString(){
+        GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_NullString.class);
+
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        String code = best.toString();
+        // "null" should be casted to "String" (if at all) and not to "Object"
+        assertFalse(code, code.contains("(Object)"));
     }
 
     @Ignore //FIXME once we handle package-level methods
     @Test
     public void testSimplePLM(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_PackageMethod.class);
     }
 
     @Ignore //FIXME once we handle package-level methods
     @Test
     public void testSimplePLMwithReturn(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_PackageMethodWithReturn.class);
     }
 
     @Test
     public void testSimpleNonFinal(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_nonFinal.class);
     }
 
     @Test
     public void testSimpleFinalClass(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_finalClass.class);
     }
 
     @Test
     public void testSimpleFinalMethod(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
-
         do100percentLineTest(SimpleFM_finalMethod.class);
     }
 
     @Test
     public void testSimpleBoolean(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
-
         do100percentLineTest(SimpleFM_Boolean.class);
     }
 
     @Test
     public void testSimpleDoubleMock(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
-
         do100percentLineTest(SimpleFM_DoubleMock.class);
     }
 
 
     @Test
     public void testSimpleInt(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
-
         do100percentLineTest(SimpleFM_Int.class);
     }
 
     @Test
     public void testSimpleString(){
-
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
-
         do100percentLineTest(SimpleFM_String.class);
     }
 
     @Test
     public void testSimpleDependency(){
 
-        Properties.P_FUNCTIONAL_MOCKING = 0.5; //any value above 0
         Properties.FUNCTIONAL_MOCKING_PERCENT = 1; //practically do not use FM, unless no generator
         Properties.P_REFLECTION_ON_PRIVATE = 0;
-
         do100percentLineTest(SimpleFM_Dependency.class);
     }
 }

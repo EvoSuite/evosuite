@@ -33,6 +33,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -73,6 +74,9 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		// client hang if EvoSuite is
 		// executed with -prefix!
 
+		if(Properties.TRACK_DIVERSITY)
+			algorithm.addListener(new DiversityObserver());
+
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
@@ -103,10 +107,9 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : testSuite.getFitnessValues().keySet()) {
+			for (FitnessFunction<?> ff : fitnessFunctions) {
 				testSuite.setCoverage(ff, 1.0);
 			}
-
 		}
 
 		long endTime = System.currentTimeMillis() / 1000;

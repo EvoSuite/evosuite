@@ -19,6 +19,8 @@
  */
 package org.evosuite.runtime.javaee;
 
+import org.evosuite.runtime.util.Inputs;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -66,9 +68,13 @@ public class TestDataJavaEE {
      */
     private volatile boolean wasAServletInitialized;
 
+    private final Set<String> lookedUpContextNames;
+
+
     private TestDataJavaEE(){
         httpRequestParameters = new CopyOnWriteArraySet<>();
         dispatchers = new CopyOnWriteArraySet<>();
+        lookedUpContextNames = new CopyOnWriteArraySet<>();
         readContentType = false;
         partNames = null;
     }
@@ -80,13 +86,23 @@ public class TestDataJavaEE {
     public void reset(){
         httpRequestParameters.clear();
         dispatchers.clear();
+        lookedUpContextNames.clear();
         readContentType = false;
         partNames = null;
         wasAServletInitialized = false;
     }
 
     public JeeData getJeeData(){
-        return new JeeData(httpRequestParameters,dispatchers,readContentType,partNames,wasAServletInitialized);
+        return new JeeData(httpRequestParameters,dispatchers,readContentType,partNames,wasAServletInitialized,lookedUpContextNames);
+    }
+
+    public Set<String> getViewOfLookedUpContextNames(){
+        return Collections.unmodifiableSet(lookedUpContextNames);
+    }
+
+    public void accessLookUpContextName(String name){
+        Inputs.checkNull(name);
+        lookedUpContextNames.add(name);
     }
 
     public boolean isWasAServletInitialized() {
@@ -130,16 +146,12 @@ public class TestDataJavaEE {
     }
 
     public void accessedDispatcher(String dispatcherName) throws IllegalArgumentException{
-        if(dispatcherName == null){
-            throw new IllegalArgumentException("Null input");
-        }
+        Inputs.checkNull(dispatcherName);
         dispatchers.add(dispatcherName);
     }
 
     public void accessedHttpRequestParameter(String param) throws IllegalArgumentException{
-        if(param == null){
-            throw new IllegalArgumentException("Null input");
-        }
+        Inputs.checkNull(param);
         httpRequestParameters.add(param);
     }
 }

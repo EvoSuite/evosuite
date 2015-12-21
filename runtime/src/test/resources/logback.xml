@@ -6,5 +6,12 @@
 
     <contextName>ContextForTests</contextName>
 
-    <root level="WARN" />
+    <root level="WARN">
+        <appender  class="ch.qos.logback.core.ConsoleAppender">
+            <target>System.out</target>
+            <encoder>
+                <pattern>%-5level %logger - %msg%n</pattern>
+            </encoder>
+        </appender>
+    </root>
 </configuration>

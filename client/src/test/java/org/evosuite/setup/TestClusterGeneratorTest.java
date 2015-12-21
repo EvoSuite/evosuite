@@ -21,7 +21,6 @@ package org.evosuite.setup;
 
 import java.io.File;
 
-import org.evosuite.Properties;
 import org.evosuite.runtime.RuntimeSettings;
 import org.junit.After;
 import org.junit.Assert;
@@ -40,7 +39,7 @@ public class TestClusterGeneratorTest {
 	public void test_checkIfCanUse_noVFS(){
 		
 		RuntimeSettings.useVFS = false;
-		boolean canUse = TestClusterGenerator.checkIfCanUse(File.class.getCanonicalName());
+		boolean canUse = TestClusterUtils.checkIfCanUse(File.class.getCanonicalName());
 		Assert.assertTrue(canUse);
 	}
 
@@ -48,7 +47,7 @@ public class TestClusterGeneratorTest {
 	public void test_checkIfCanUse_withVFS(){
 		
 		RuntimeSettings.useVFS = true;
-		boolean canUse = TestClusterGenerator.checkIfCanUse(File.class.getCanonicalName());
+		boolean canUse = TestClusterUtils.checkIfCanUse(File.class.getCanonicalName());
 		Assert.assertFalse(canUse);
 	}
 }

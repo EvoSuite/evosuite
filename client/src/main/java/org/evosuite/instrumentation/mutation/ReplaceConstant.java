@@ -45,6 +45,8 @@ import org.objectweb.asm.tree.analysis.Frame;
  */
 public class ReplaceConstant implements MutationOperator {
 
+	public static final String NAME = "ReplaceConstant";
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
@@ -60,7 +62,7 @@ public class ReplaceConstant implements MutationOperator {
 			// insert mutation into bytecode with conditional
 			LdcInsnNode mutation = new LdcInsnNode(replacement);
 			// insert mutation into pool
-			String summary = "ReplaceConstant - " + value + " -> " + replacement;
+			String summary = NAME + " - " + value + " -> " + replacement;
 			if (replacement instanceof String) {
 				summary = summary.replace("*/", "*_/");
 			}

@@ -52,6 +52,8 @@ public class DeleteField implements MutationOperator {
 
 	private static Logger logger = LoggerFactory.getLogger(DeleteField.class);
 
+	public static final String NAME = "DeleteField";
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
@@ -75,7 +77,7 @@ public class DeleteField implements MutationOperator {
 		// insert mutation into pool
 		Mutation mutationObject = MutationPool.addMutation(className,
 		                                                   methodName,
-		                                                   "DeleteField: " + node.name
+		                                                   NAME + " " + node.name
 		                                                           + node.desc,
 		                                                   instruction,
 		                                                   mutation,

@@ -92,6 +92,25 @@ public class TimeController {
 		getInstance().init();
 	}
 
+	/**
+	 * Execute the given runnable synchronously, but issue a warning if it takes too long
+	 *
+	 * @param runnable
+	 * @param name of the operation (will be used in the log)
+	 * @param warn_time_ms max time allowed for this operation before issuing a warning
+     */
+	public static void execute(Runnable runnable, String name, long warn_time_ms){
+		Inputs.checkNull(runnable, name);
+
+		long start = java.lang.System.currentTimeMillis();
+		runnable.run();
+		long delta = java.lang.System.currentTimeMillis() - start;
+
+		if(delta > warn_time_ms){
+			logger.warn("Operation '{}' took too long: {}ms", name, delta);
+		}
+	}
+
 	private void initializePhaseTimeouts() {
 		if(phaseTimeouts!=null){
 			phaseTimeouts.clear();
@@ -141,7 +160,7 @@ public class TimeController {
 
 		//first log the current state before changing it
 		if(!state.equals(ClientState.NOT_STARTED)){
-			long elapsed = System.currentTimeMillis() - currentPhaseStartTime;
+			long elapsed = java.lang.System.currentTimeMillis() - currentPhaseStartTime;
 			if(timeSpentInEachPhase.containsKey(state)){
 				logger.warn("Already entered in phase: "+state+". This will mess up the timing calculations.");
 			}

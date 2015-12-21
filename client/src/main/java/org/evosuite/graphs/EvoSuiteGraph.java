@@ -167,8 +167,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 */
 	public Set<E> incomingEdgesOf(V node) {
 		if (!containsVertex(node)) // should this just return null?
-			throw new IllegalArgumentException(
-					"node not contained in this graph ");
+			throw new IllegalArgumentException("node not contained in this graph ");
 		// TODO hash set? can't be sure E implements hash correctly
 		return new LinkedHashSet<E>(graph.incomingEdgesOf(node));
 	}

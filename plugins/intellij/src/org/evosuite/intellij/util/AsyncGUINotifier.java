@@ -33,6 +33,8 @@ public interface AsyncGUINotifier {
 
     void attachProcess(Process process);
 
+    void detachLastProcess();
+
     void printOnConsole(String message);
 
     void clearConsole();

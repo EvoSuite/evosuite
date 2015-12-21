@@ -107,7 +107,10 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		SelectiveTestCaseLocalSearch localSearch = new SelectiveTestCaseLocalSearch();
 		boolean result = localSearch.doSearch(clone, testObjective);
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
-
+		if (!result) {
+			logger.info("Deleting test case from individual");
+			individual.deleteTest(clone);
+		}
 		return result;
 	}
 
@@ -142,12 +145,15 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 		// Apply local search on individual tests
 		for(TestChromosome clone : candidates) {
-			applyLocalSearchToTest(clone, individual, objective);
+			boolean candidateHasImproved = applyLocalSearchToTest(clone, individual, objective);
+			if (candidateHasImproved) {
+				updateFitness(individual, objective);
+			}
 		}
 
 		// Return true if fitness has improved
-		return objective.isMaximizationObjective() ? fitnessBefore < individual.getFitness()
-				: fitnessBefore > individual.getFitness();
+		boolean hasImproved = hasImproved(fitnessBefore,  individual, objective);
+		return hasImproved;
 
 	}
 

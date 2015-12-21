@@ -19,11 +19,12 @@
  */
 package org.evosuite.testcase.statements.reflection;
 
-import org.evosuite.TestGenerationContext;
-import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
@@ -31,7 +32,11 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
 
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,11 +47,19 @@ import java.util.List;
  *
  * Created by foo on 20/02/15.
  */
-public class PrivateFieldStatement extends MethodStatement{
+public class PrivateFieldStatement extends MethodStatement {
 
 	private static final long serialVersionUID = 5152490398872348493L;
 
 	private static Method setVariable;
+
+    private transient Class<?> ownerClass;
+
+    private String className;
+
+    private String fieldName;
+
+    private boolean isStaticField = false;
 
     static {
         try {
@@ -72,9 +85,48 @@ public class PrivateFieldStatement extends MethodStatement{
                         param // Object value
                 )
         );
+        this.className = klass.getCanonicalName();
+        this.fieldName = fieldName;
+        this.ownerClass = klass;
+
         List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
         this.method.setTypeParameters(parameterTypes);
+        determineIfFieldIsStatic(klass, fieldName);
+    }
+
+    private void determineIfFieldIsStatic(Class<?> klass, String fieldName) {
+        try {
+            Field f = klass.getDeclaredField(fieldName);
+            if (Modifier.isStatic(f.getModifiers()))
+                isStaticField = true;
+        } catch(NoSuchFieldException f) {
+            // This should never happen
+            throw new RuntimeException("EvoSuite bug", f);
+        }
+    }
+
+    public boolean isStaticField() {
+        return isStaticField;
+    }
+
+    public String getOwnerClassName() {
+        return className;
+    }
+
+    @Override
+    public Statement copy(TestCase newTestCase, int offset) {
+        try {
+            PrivateFieldStatement pf;
+            VariableReference owner = parameters.get(1).copy(newTestCase, offset);
+            VariableReference value = parameters.get(3).copy(newTestCase, offset);
+
+            pf = new PrivateFieldStatement(newTestCase, ownerClass, fieldName, owner, value);
+
+            return pf;
+        } catch(NoSuchFieldException | ConstructionFailedException e) {
+            throw new RuntimeException("EvoSuite bug", e);
+        }
     }
 
     @Override
@@ -89,4 +141,13 @@ public class PrivateFieldStatement extends MethodStatement{
 		return true;
 	}
 
+    @Override
+    public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException {
+        if(!isStaticField) {
+            Object receiver = scope.getObject(parameters.get(1));
+            if(receiver == null)
+                return new CodeUnderTestException(new NullPointerException());
+        }
+        return super.execute(scope, out);
+    }
 }

@@ -20,6 +20,7 @@
 package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -379,6 +380,7 @@ public class Properties {
 	@Parameter(key = "local_search_dse", group = "DSE", description = "Granularity of DSE application")
 	public static DSEType LOCAL_SEARCH_DSE = DSEType.TEST;
 
+	@Deprecated
 	@Parameter(key = "dse_keep_all_tests", group = "DSE", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;
 
@@ -678,6 +680,8 @@ public class Properties {
 	@Parameter(key = "branch_comparison_types", group = "Search Algorithm", description = "Track branch comparison types based on the bytecode")
 	public static boolean BRANCH_COMPARISON_TYPES = false;
 
+	@Parameter(key = "track_diversity", group = "Search Algorithm", description = "Track population diversity")
+	public static boolean TRACK_DIVERSITY = false;
 
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";
@@ -1004,6 +1008,9 @@ public class Properties {
 	@Parameter(key = "max_mutants_per_method", group = "Output", description = "How many mutants can be inserted into a single method")
 	public static int MAX_MUTANTS_PER_METHOD = 700;
 
+	@Parameter(key = "max_mutants_per_class", group = "Output", description = "How many mutants can be used as target for a single class")
+	public static int MAX_MUTANTS_PER_CLASS = 1000;
+
 	@Parameter(key = "max_replace_mutants", group = "Output", description = "How many replacement mutants can be inserted for any one variable")
 	public static int MAX_REPLACE_MUTANTS = 100;
 
@@ -1316,6 +1323,9 @@ public class Properties {
 	/** Constant <code>DEBUG=false</code> */
 	@Parameter(key = "debug", group = "Debugging", description = "Enables debugging support in the client VM")
 	public static boolean DEBUG = false;
+
+	@Parameter(key = "profile", group = "Debugging", description = "Enables profiler support in the client VM")
+	public static String PROFILE = "";
 
 	/** Constant <code>PORT=1044</code> */
 	@Parameter(key = "port", group = "Debugging", description = "Port on localhost, to which the client VM will listen for a remote debugger; defaults to 1044")
@@ -2303,6 +2313,8 @@ public class Properties {
 
 		TARGET_CLASS_INSTANCE = null;
 
+		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
+
 		try {
 			/*
 			 * TODO: loading the SUT will execute its static initializer.
@@ -2313,6 +2325,8 @@ public class Properties {
 
 			Runtime.getInstance().resetRuntime(); //it is important to initialize the VFS
 
+
+			LoopCounter.getInstance().setActive(false);
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
 			
@@ -2327,6 +2341,8 @@ public class Properties {
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().warn(
 					"* Could not find class under test " + Properties.TARGET_CLASS + ": " + e);
+		} finally {
+			LoopCounter.getInstance().setActive(wasLoopCheckOn);
 		}
 
 		return (Properties.toReturnRegression) ? TARGET_REGRESSION_CLASS_INSTANCE : TARGET_CLASS_INSTANCE;

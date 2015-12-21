@@ -146,13 +146,13 @@ public class CarvingRunListener extends RunListener {
 			analyzer.analyze(log, codeGen, targetClasses);
 
 			CarvedTestCase test = (CarvedTestCase) codeGen.getCode();
-			test.setName(description.getMethodName());
 
 			if(test == null) {
 				logger.info("Failed to carve test for "+Arrays.asList(targetClasses));
 				codeGen.clear();
 				continue;
 			}
+			test.setName(description.getMethodName());
 			logger.info("Carved test of length " + test.size());
 			try {
 				test.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());

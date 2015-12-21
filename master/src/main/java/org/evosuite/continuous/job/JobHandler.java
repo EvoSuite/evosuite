@@ -138,7 +138,7 @@ public class JobHandler extends Thread {
 				logger.debug("Base directory: " + baseDir);
 				if(logger.isDebugEnabled()) {
 					String commandString = String.join(" ", parsedCommand);
-					commandString.replace("\\","\\\\"); //needed for nice print in bash shell on Windows (eg Cygwin and GitBash)
+					commandString = commandString.replace("\\","\\\\"); //needed for nice print in bash shell on Windows (eg Cygwin and GitBash)
 					logger.debug("Commands: " + commandString);
 				}
 				process = builder.start();
@@ -153,6 +153,14 @@ public class JobHandler extends Thread {
 			} catch (InterruptedException e) {
 				this.interrupt();
 				if (process != null) {
+					try {
+						//be sure streamers are closed, otherwise process might hang on Windows
+						process.getOutputStream().close();
+						process.getInputStream().close();
+						process.getErrorStream().close();
+					} catch (Exception t){
+						logger.error("Failed to close process stream: "+t.toString());
+					}
 					process.destroy();
 				}
 			} catch (Exception e) {

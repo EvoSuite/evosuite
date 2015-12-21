@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,18 +17,16 @@ import java.util.concurrent.Executors;
  */
 public class SpawnProcessKeepAliveCheckerIntelliJ {
 
-
-    private final static SpawnProcessKeepAliveCheckerIntelliJ instance = new SpawnProcessKeepAliveCheckerIntelliJ();
-
     private final static ExecutorService executor = Executors.newCachedThreadPool();
     private final static String STILL_ALIVE = "still_alive";
     private final static int DELTA_MS = 5_000;
 
     private volatile ServerSocket server;
     private volatile Thread serverThread;
+    private final AsyncGUINotifier notifier;
 
-    public static SpawnProcessKeepAliveCheckerIntelliJ getInstance(){
-        return instance;
+    public  SpawnProcessKeepAliveCheckerIntelliJ(AsyncGUINotifier notifier){
+        this.notifier = notifier;
     }
 
 
@@ -52,7 +49,7 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
                         Socket socket = server.accept();
                         socket.setKeepAlive(true);
                         executor.submit(new KeepAliveTask(socket));
-                        //logger.info("Registered remote process from "+socket.getRemoteSocketAddress());
+                        //notifier.printOnConsole("Registered remote process from "+socket.getRemoteSocketAddress()+"\n");
                     } catch (IOException e) {
                         //fine, expected
                         return;
@@ -64,20 +61,20 @@ public class SpawnProcessKeepAliveCheckerIntelliJ {
         serverThread.start();
 
         int port = server.getLocalPort();
-        //logger.info("Started spawn process manager on port {}", port);
+        //notifier.printOnConsole("Started spawn process manager on port "+ port+"\n");
 
         return port;
     }
 
     public void stopServer(){
-        //logger.info("Stopping spawn process manager");
+        //notifier.printOnConsole("Stopping spawn process manager\n");
         try {
             if(server != null) {
                 server.close();
                 server = null;
             }
         } catch (IOException e) {
-            //logger.error(e.toString());
+            notifier.printOnConsole(e.toString());
         }
 
         if(serverThread != null) {

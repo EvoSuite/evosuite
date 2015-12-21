@@ -176,7 +176,7 @@ public class OnlyBranchCoverageTestFitness extends TestFitnessFunction {
 			OnlyBranchCoverageTestFitness otherOnlyBranchFitness = (OnlyBranchCoverageTestFitness) other;
 			return goal.compareTo(otherOnlyBranchFitness.goal);
 		}
-		return 0;
+		return compareClassName(other);
 	}
 
 	/* (non-Javadoc)

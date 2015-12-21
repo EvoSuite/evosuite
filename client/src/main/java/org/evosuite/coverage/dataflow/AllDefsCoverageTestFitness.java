@@ -123,7 +123,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 			AllDefsCoverageTestFitness otherFitness = (AllDefsCoverageTestFitness) other;
 			return targetDef.compareTo(otherFitness.targetDef);
 		}
-		return 0;
+		return compareClassName(other);
 	}
 
 	/** {@inheritDoc} */

@@ -23,7 +23,7 @@ import com.examples.with.different.packagename.MainMethod;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -33,7 +33,7 @@ import org.junit.Test;
 /**
  * Created by Andrea Arcuri on 13/03/15.
  */
-public class MainMethodSystemTest extends SystemTest {
+public class MainMethodSystemTest extends SystemTestBase {
 
     @Test
     public void testDeprecatedMethods() {

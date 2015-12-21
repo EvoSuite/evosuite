@@ -257,7 +257,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             InputCoverageTestFitness otherInputFitness = (InputCoverageTestFitness) other;
             return goal.compareTo(otherInputFitness.goal);
         }
-        return 0;
+        return compareClassName(other);
     }
 
     /* (non-Javadoc)

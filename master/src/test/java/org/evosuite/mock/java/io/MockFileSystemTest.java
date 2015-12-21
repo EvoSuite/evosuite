@@ -21,7 +21,7 @@ package org.evosuite.mock.java.io;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -34,7 +34,7 @@ import com.examples.with.different.packagename.mock.java.io.FileAsInputExist;
 import com.examples.with.different.packagename.mock.java.io.FileExist;
 import com.examples.with.different.packagename.mock.java.io.ReadHelloWorldFromFileWithNameAsInput;
 
-public class MockFileSystemTest extends SystemTest {
+public class MockFileSystemTest extends SystemTestBase {
 	
 	private static final boolean VFS = Properties.VIRTUAL_FS;
 	private static final double defaultPoolP = Properties.SEED_CLONE;

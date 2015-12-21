@@ -23,9 +23,11 @@
 package org.evosuite.setup;
 
 import org.evosuite.PackageInfo;
+import org.evosuite.Properties;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -69,17 +71,15 @@ public class CallContext implements Serializable {
 	 *            an array of {@link java.lang.StackTraceElement} objects.
 	 */
 	public CallContext(StackTraceElement[] stackTrace) {
-		int startPos = stackTrace.length - 1;
+        addJUnitExcludes();
+
+        int startPos = stackTrace.length - 1;
 		List<Call> context = new ArrayList<Call>();
-		while (stackTrace[startPos].getClassName().startsWith("java")
-				|| stackTrace[startPos].getClassName().startsWith("sun")
-				|| stackTrace[startPos].getClassName().startsWith(PackageInfo.getEvoSuitePackage())) {
+		while (shouldSkipEntry(stackTrace[startPos].getClassName())) {
 			startPos--;
 		}
 		int endPos = 0;
-		while (stackTrace[endPos].getClassName().startsWith("java")
-				|| stackTrace[endPos].getClassName().startsWith("sun")
-				|| stackTrace[endPos].getClassName().startsWith(PackageInfo.getEvoSuitePackage())) {
+        while (shouldSkipEntry(stackTrace[endPos].getClassName())) {
 			endPos++;
 		}
 
@@ -99,19 +99,25 @@ public class CallContext implements Serializable {
 	 * @param methodName
 	 */
 	public CallContext(String className, String methodName) {
-		List<Call> context = new ArrayList<Call>();
+        addJUnitExcludes();
+
+        List<Call> context = new ArrayList<Call>();
 		context.add(new Call(className, methodName));
 		this.context=context;
 		hcode = this.context.hashCode();
 	}
 	
 	public CallContext() {
-		List<Call> context = new ArrayList<Call>();
+        addJUnitExcludes();
+
+        List<Call> context = new ArrayList<Call>();
 		this.context=context;
 		hcode = this.context.hashCode();
 	}
 
 	public CallContext(Collection<Call> contextt) {
+        addJUnitExcludes();
+
 		List<Call> context = new ArrayList<Call>();
 		context.addAll(contextt);
 		this.context=context;
@@ -122,6 +128,31 @@ public class CallContext implements Serializable {
 		return context.size();
 
 	}
+
+    private String[] excludedPackages = new String[] { "java", "sun", PackageInfo.getEvoSuitePackage() };
+
+    /**
+     * If we are using -measureCoverage then we need to also exclude the junit tests
+     */
+    private void addJUnitExcludes() {
+        if(Properties.JUNIT.isEmpty())
+            return;
+        List<String> values = new ArrayList<>(Arrays.asList(excludedPackages));
+        values.add("org.junit");
+        for(String junitClass : Properties.JUNIT.split(":")) {
+            values.add(junitClass);
+        }
+        excludedPackages = new String[values.size()];
+        excludedPackages = values.toArray(excludedPackages);
+    }
+
+    private boolean shouldSkipEntry(String entry) {
+        for(String excludedPackage : excludedPackages) {
+            if (entry.startsWith(excludedPackage))
+                return true;
+        }
+        return false;
+    }
 
 	/**
 	 * attach the className-methodname pair passed as parameter before the
@@ -162,6 +193,9 @@ public class CallContext implements Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
+        if(context == null)
+            return "";
+
 		StringBuilder builder = new StringBuilder();
 		for (Call call : context) {
 			builder.append(call.toString());

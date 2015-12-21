@@ -62,13 +62,17 @@ public class JeeData implements Serializable{
     public final boolean wasAServletInitialized;
 
 
+    public final Set<String> lookedUpContextNames;
+
+
     public JeeData(Set<String> httpRequestParameters, Set<String> dispatchers, boolean readContentType,
-                   Set<String> partNames, boolean wasAServletInitialized) {
+                   Set<String> partNames, boolean wasAServletInitialized, Set<String> lookedUpContextNames) {
 
         this.httpRequestParameters = Collections.unmodifiableSet(new LinkedHashSet<>(httpRequestParameters));
         this.dispatchers = Collections.unmodifiableSet(new LinkedHashSet<>(dispatchers));
         this.readContentType = readContentType;
         this.partNames = partNames==null ? null : Collections.unmodifiableSet(new LinkedHashSet<>(partNames));
         this.wasAServletInitialized = wasAServletInitialized;
+        this.lookedUpContextNames = Collections.unmodifiableSet(new LinkedHashSet<>(lookedUpContextNames));
     }
 }

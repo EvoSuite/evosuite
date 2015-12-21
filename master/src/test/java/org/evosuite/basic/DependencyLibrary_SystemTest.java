@@ -23,7 +23,7 @@ import com.examples.with.different.packagename.DependencyLibrary;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -34,7 +34,7 @@ import org.junit.Test;
 /**
  * Created by Andrea Arcuri on 21/04/15.
  */
-public class DependencyLibrary_SystemTest extends SystemTest {
+public class DependencyLibrary_SystemTest extends SystemTestBase {
 
     @After
     public void reset(){

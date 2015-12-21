@@ -24,7 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
@@ -35,7 +35,7 @@ import com.examples.with.different.packagename.strings.Cookie;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class CookieSystemTest extends SystemTest {
+public class CookieSystemTest extends SystemTestBase {
 
 	
 	@Before

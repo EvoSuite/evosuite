@@ -160,9 +160,6 @@ public class TestSuiteMinimizer {
 
         List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
         for (TestFitnessFactory<?> ff : testFitnessFactories) {
-            if (isTimeoutReached()) {
-            	return;
-            }
             goals.addAll(ff.getCoverageGoals());
         }
         filterJUnitCoveredGoals(goals);
@@ -182,7 +179,7 @@ public class TestSuiteMinimizer {
         		suite.removeCoveredGoal(f);
         	}
         }
-        
+
         if (Properties.MINIMIZE_SORT)
             Collections.sort(goals);
 

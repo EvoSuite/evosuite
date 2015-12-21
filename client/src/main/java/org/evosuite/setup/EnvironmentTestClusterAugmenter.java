@@ -26,6 +26,7 @@ import org.evosuite.runtime.annotation.*;
 import org.evosuite.runtime.javaee.JeeData;
 import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
+import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.testdata.*;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -66,9 +68,8 @@ public class EnvironmentTestClusterAugmenter {
     private volatile boolean hasAddedTcpListeningSupport;
     private volatile boolean hasAddedTcpRemoteSupport;
 
-    private volatile boolean hasAddedServlet;
-
     private final TestCluster cluster;
+    private final TestClusterGenerator testClusterGenerator;
 
     /**
      * Keep track of all EvoSuite classes that have been already fully handled (via recursion)
@@ -77,6 +78,7 @@ public class EnvironmentTestClusterAugmenter {
 
     public EnvironmentTestClusterAugmenter(TestCluster cluster) {
         this.cluster = cluster;
+        testClusterGenerator = new TestClusterGenerator(cluster.getInheritanceTree());
         this.handledClasses = new LinkedHashSet<>();
     }
 
@@ -122,6 +124,15 @@ public class EnvironmentTestClusterAugmenter {
 
     private void handleJEE(TestCase test) {
 
+        JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
+        test.getAccessedEnvironment().setJeeData(jeeData);
+
+        if(jeeData.lookedUpContextNames.size() > 0){
+            addEnvironmentClassToCluster(EvoNamingContext.class);
+
+            //TODO add method with right input type
+        }
+
         if(! Properties.HANDLE_SERVLETS){
             /*
                 Started to prepare custom mocks for Servlets, but then realized that
@@ -132,15 +143,11 @@ public class EnvironmentTestClusterAugmenter {
             return;
         }
 
-        JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
-        test.getAccessedEnvironment().setJeeData(jeeData);
-
-        if(!hasAddedServlet && jeeData.wasAServletInitialized){
-            hasAddedServlet = true;
+        if(jeeData.wasAServletInitialized){
             addEnvironmentClassToCluster(EvoServletState.class);
         }
 
-        //TODO TestDataJavaEE data
+        //TODO TestDataJavaEE data for Servlets
     }
 
     /**
@@ -150,9 +157,9 @@ public class EnvironmentTestClusterAugmenter {
      *
      * @param klass
      */
-    private void addEnvironmentClassToCluster(Class<?> klass) {
+    private boolean addEnvironmentClassToCluster(Class<?> klass) {
         if(handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)){
-            return; //already handled, or not valid
+            return false; //already handled, or not valid
         }
         handledClasses.add(klass.getCanonicalName());
 
@@ -171,6 +178,8 @@ public class EnvironmentTestClusterAugmenter {
             GenericClass genclass = new GenericClass(klass);
             TestCluster.getInstance().invalidateGeneratorCache(genclass);
             TestCluster.getInstance().addGenerator(genclass,gc);
+
+            testClusterGenerator.addNewDependencies(Arrays.asList(c.getParameterTypes()));
         }
 
         for(Method m : klass.getMethods()){
@@ -180,6 +189,9 @@ public class EnvironmentTestClusterAugmenter {
 
             GenericAccessibleObject gm = new GenericMethod(m,klass);
             TestCluster.getInstance().addEnvironmentTestCall(gm);
+
+            testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
+
             Class<?> returnType = m.getReturnType();
             if(! returnType.equals(Void.TYPE)){
                 GenericClass genclass = new GenericClass(returnType);
@@ -188,6 +200,8 @@ public class EnvironmentTestClusterAugmenter {
                 addEnvironmentDependency(returnType);
             }
         }
+
+        return true;
     }
 
     private void addEnvironmentDependency(Class<?> klass){
@@ -207,6 +221,8 @@ public class EnvironmentTestClusterAugmenter {
             GenericAccessibleObject gm = new GenericMethod(m,klass);
             GenericClass gc = new GenericClass(klass);
             TestCluster.getInstance().addModifier(gc,gm);
+
+            testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
 
             Class<?> returnType = m.getReturnType();
 

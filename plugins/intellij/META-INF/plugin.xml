@@ -22,15 +22,37 @@
 <idea-plugin version="2">
   <id>org.evosuite.plugin.intellij</id>
   <name>EvoSuite Plugin</name>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
   <vendor email="arcuri82@gmail.com" url="http://www.evosuite.org">EvoSuite</vendor>
 
   <description><![CDATA[
-      IntelliJ plugin for the EvoSuite tool, which is used to automatically generate high coverage JUnit tests.
-      Note: this plugin is just used to call EvoSuite from inside IntelliJ IDEA, and so you still need to
-      configure and install EvoSuite separately.
-      You can do it automatically via its Maven plugin, or add the executable jar directly into your project.
-      For more information, see the documentation on www.evosuite.org
+      <p>
+        IntelliJ plugin for the EvoSuite tool, which is used to automatically generate high coverage JUnit tests.
+        To generate test cases, EvoSuite uses advanced evolutionary algorithms enhanced by static analysis of
+        the bytecode of the tested classes.
+      </p>
+
+       <p>
+        <b>Note</b>: this plugin is just used to call EvoSuite from inside IntelliJ IDEA, and so you still need to
+        configure and install EvoSuite separately.
+        You can do it automatically via its Maven plugin, or add the executable jar directly into your project.
+      </p>
+
+
+       Main features:
+        <ul>
+          <li>Generation of JUnit 4 tests for the selected classes</li>
+          <li>Optimization of different coverage criteria, like lines, branches, outputs, mutation testing, etc.</li>
+          <li>Tests are minimized: only the ones contributing to achieve coverage are retained</li>
+          <li>Generation of JUnit asserts to capture the current behavior of the tested classes</li>
+          <li>Tests run in a sandbox to prevent potentially dangerous operations</li>
+          <li>Virtual file system</li>
+          <li>Virtual network</li>
+        </ul>
+
+      <p>
+        For more information, see the documentation on www.evosuite.org
+      </p>
     ]]></description>
 
   <change-notes><![CDATA[

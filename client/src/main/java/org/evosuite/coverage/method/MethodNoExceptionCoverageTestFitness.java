@@ -158,7 +158,7 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
             else
                 return className.compareTo(otherMethodFitness.getClassName());
         }
-        return 0;
+        return compareClassName(other);
     }
 
     /* (non-Javadoc)

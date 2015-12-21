@@ -46,6 +46,8 @@ public class NegateCondition implements MutationOperator {
 
 	private static Map<Integer, Integer> opcodeMap = new HashMap<Integer, Integer>();
 
+	public static final String NAME = "NegateCondition";
+	
 	static {
 		opcodeMap.put(Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE);
 		opcodeMap.put(Opcodes.IF_ACMPNE, Opcodes.IF_ACMPEQ);
@@ -83,7 +85,7 @@ public class NegateCondition implements MutationOperator {
 		// insert mutation into pool
 		Mutation mutationObject = MutationPool.addMutation(className,
 		                                                   methodName,
-		                                                   "NegateCondition",
+		                                                   NAME,
 		                                                   instruction,
 		                                                   mutation,
 		                                                   Mutation.getDefaultInfectionDistance());

@@ -461,7 +461,7 @@ public class TestGenerationJob extends Job {
 				System.out.println("CP type: " + curr.getEntryKind());
 			}
 		}
-		ResourceList.resetCache();
+		ResourceList.resetAllCaches();
 		if (!first)
 			classPath += File.pathSeparator;
 

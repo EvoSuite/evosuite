@@ -46,7 +46,6 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.LoopCounter;
-import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
@@ -58,6 +57,7 @@ import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -143,6 +143,7 @@ public class TestSuiteGenerator {
 		    return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 
 		TestSuiteChromosome testCases = generateTests();
+
 		postProcessTests(testCases);
         ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
@@ -177,18 +178,6 @@ public class TestSuiteGenerator {
         	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
 
-		if (Properties.MINIMIZE_VALUES && 
-		                Properties.CRITERION.length == 1) {
-		    double fitness = testSuite.getFitness();
-
-			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
-			LoggingUtils.getEvoLogger().info("* Minimizing values");
-			ValueMinimizer minimizer = new ValueMinimizer();
-			minimizer.minimize(testSuite, (TestSuiteFitnessFunction)testSuite.getFitnessValues().keySet().iterator().next());
-//			minimizer.minimizeUnsafeType(testSuite);
-			assert (fitness >= testSuite.getFitness());
-		}
-
 		if (Properties.INLINE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
 			ConstantInliner inliner = new ConstantInliner();
@@ -206,10 +195,18 @@ public class TestSuiteGenerator {
 				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
 				minimizer.minimize(testSuite);
 			} else {
+
+				double before = testSuite.getFitness();
+
 				TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
-	
+
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
 				minimizer.minimize(testSuite, true);
+
+				double after = testSuite.getFitness();
+				if(after > before + 0.01d) { //assume minimization
+					throw new Error("EvoSuite bug: minimization lead fitness from "+before + " to "+after);
+				}
 			}
 		} else {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
@@ -252,12 +249,12 @@ public class TestSuiteGenerator {
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-        DSEStats.trackConstraintTypes();
+        DSEStats.getInstance().trackConstraintTypes();
 
-        DSEStats.trackSolverStatistics();
+        DSEStats.getInstance().trackSolverStatistics();
         
         if (Properties.DSE_PROBABILITY > 0.0 && Properties.LOCAL_SEARCH_RATE > 0 && Properties.LOCAL_SEARCH_PROBABILITY > 0.0) {
-                DSEStats.logStatistics();
+                DSEStats.getInstance().logStatistics();
         }
         
 		if (Properties.FILTER_SANDBOX_TESTS) {
@@ -724,6 +721,9 @@ public class TestSuiteGenerator {
 			break;
 		case LINE:
 			LoggingUtils.getEvoLogger().info("  - Line Coverage");
+			break;
+		case ONLYLINE:
+			LoggingUtils.getEvoLogger().info("  - Only-Line Coverage");
 			break;
 		case OUTPUT:
 			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");

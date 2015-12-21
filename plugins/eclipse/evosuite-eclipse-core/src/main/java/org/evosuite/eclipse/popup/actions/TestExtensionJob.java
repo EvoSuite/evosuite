@@ -64,7 +64,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.evosuite.Properties;
 import org.evosuite.eclipse.Activator;
-import org.evosuite.utils.Utils;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.Charset;
 
 public class TestExtensionJob extends TestGenerationJob {
 
@@ -86,10 +88,16 @@ public class TestExtensionJob extends TestGenerationJob {
 		}
 
 	}
+	
+	protected static String readFile(String path, Charset encoding) throws IOException 
+	{
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return new String(encoded, encoding);
+	}
 
 	protected CompilationUnit parseJavaFile(String unitName, String fileName)
 	        throws IOException {
-		String fileContents = Utils.readFileToString(fileName);
+		String fileContents = readFile(fileName, Charset.defaultCharset());
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setStatementsRecovery(true);

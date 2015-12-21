@@ -22,7 +22,7 @@ package org.evosuite.basic;
 import com.examples.with.different.packagename.InfiniteWhile;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.TooManyResourcesException;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
@@ -38,7 +38,7 @@ import static org.junit.Assert.fail;
 /**
  * Created by Andrea Arcuri on 29/03/15.
  */
-public class InfiniteWhile_SystemTest  extends SystemTest {
+public class InfiniteWhile_SystemTest  extends SystemTestBase {
 
     @Test(timeout = 5000)
     public void testLoading() throws Exception{

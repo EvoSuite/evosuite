@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
@@ -233,16 +234,17 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 
 		while (!isFinished()) {
+			
 			logger.info("Population size before: " + population.size());
 			// related to Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER;
 			// check the budget progress and activate a secondary criterion
 			// according to the property value.
 
 			{
-				double bestFitnessBeforeEvolution = getBestIndividual().getFitness();
+				double bestFitnessBeforeEvolution = getBestFitness();
 				evolve();
 				sortPopulation();
-				double bestFitnessAfterEvolution = getBestIndividual().getFitness();
+				double bestFitnessAfterEvolution = getBestFitness();
 
 				if (getFitnessFunction().isMaximizationFunction())
 					assert(bestFitnessAfterEvolution >= (bestFitnessBeforeEvolution
@@ -255,9 +257,9 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			}
 
 			{
-				double bestFitnessBeforeLocalSearch = getBestIndividual().getFitness();
+				double bestFitnessBeforeLocalSearch = getBestFitness();
 				applyLocalSearch();
-				double bestFitnessAfterLocalSearch = getBestIndividual().getFitness();
+				double bestFitnessAfterLocalSearch = getBestFitness();
 
 				if (getFitnessFunction().isMaximizationFunction())
 					assert(bestFitnessAfterLocalSearch >= (bestFitnessBeforeLocalSearch
@@ -280,7 +282,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			 */
 			// sortPopulation();
 
-			double newFitness = getBestIndividual().getFitness();
+			double newFitness = getBestFitness();
 
 			if (getFitnessFunction().isMaximizationFunction())
 				assert(newFitness >= (bestFitness - DELTA)) : "best fitness was: " + bestFitness
@@ -310,9 +312,17 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 		}
 		// archive
-		updateBestIndividualFromArchive();
+		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 
 		notifySearchFinished();
+	}
+
+	private double getBestFitness() {
+		T bestIndividual = getBestIndividual();
+		for (FitnessFunction<T> ff : fitnessFunctions) {
+			ff.getFitness(bestIndividual);
+		}
+		return bestIndividual.getFitness();
 	}
 
 	/**

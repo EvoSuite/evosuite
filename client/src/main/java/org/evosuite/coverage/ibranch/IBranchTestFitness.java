@@ -142,7 +142,7 @@ public class IBranchTestFitness extends TestFitnessFunction {
 			BranchCoverageTestFitness otherBranchFitness = (BranchCoverageTestFitness) other;
 			return branchGoal.compareTo(otherBranchFitness.getBranchGoal());
 		}
-		return 0;
+		return compareClassName(other);
 //		return -1;
 	}
 

@@ -22,7 +22,7 @@ package org.evosuite.mock.java.lang;
 import com.examples.with.different.packagename.mock.java.lang.SourceExceptions;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -34,7 +34,7 @@ import org.junit.Test;
 /**
  * Created by Andrea Arcuri on 19/08/15.
  */
-public class SourceExceptionsSystemTest extends SystemTest{
+public class SourceExceptionsSystemTest extends SystemTestBase {
 
     @Test
     public void testRuntimeException() {

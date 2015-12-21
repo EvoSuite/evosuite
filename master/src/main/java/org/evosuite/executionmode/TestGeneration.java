@@ -275,6 +275,18 @@ public class TestGeneration {
 			// place for this
 		}
 
+		if (!Properties.PROFILE.isEmpty()) {
+			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
+			File agentFile = new File(Properties.PROFILE);
+			if(!agentFile.exists()) {
+				LoggingUtils.getEvoLogger().info("* Error: "+Properties.PROFILE+" not found");
+			} else {
+				cmdLine.add("-agentpath:" + Properties.PROFILE);
+				LoggingUtils.getEvoLogger().info("* Using profiling agent " + Properties.PROFILE);
+			}
+		}
+
+
 		if(Properties.JMC){
 			//FIXME: does not seem to work, at least on Mac. Looks like some RMI conflict
 			cmdLine.add("-XX:+UnlockCommercialFeatures");

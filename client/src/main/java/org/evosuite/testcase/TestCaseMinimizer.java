@@ -19,15 +19,6 @@
  */
 package org.evosuite.testcase;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
@@ -38,6 +29,10 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Remove all statements from a test case that do not contribute to the fitness
  * 
@@ -47,17 +42,7 @@ public class TestCaseMinimizer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseMinimizer.class);
 
-	private final Set<TestFitnessFunction> fitnessFunctions = new HashSet<TestFitnessFunction>();
-
-	/**
-	 * Constructor
-	 * 
-	 * @param fitnessFunctions
-	 *            a {@link java.util.Collection} object.
-	 */
-	public TestCaseMinimizer(Collection<TestFitnessFunction> fitnessFunctions) {
-		this.fitnessFunctions.addAll(fitnessFunctions);
-	}
+	private final TestFitnessFunction fitnessFunction;
 
 	/**
 	 * Constructor
@@ -67,7 +52,7 @@ public class TestCaseMinimizer {
 	 *            necessary
 	 */
 	public TestCaseMinimizer(TestFitnessFunction fitnessFunction) {
-		this.fitnessFunctions.add(fitnessFunction);
+		this.fitnessFunction = fitnessFunction;
 	}
 
 	/**
@@ -115,29 +100,6 @@ public class TestCaseMinimizer {
 
 		return false;
 	}
-
-	/**
-	 * Calculate the fitness values for all fitness functions in a map.
-	 * Returns null if a timeout is reached
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @return a {@link java.util.Map} object.
-	 */
-	private Map<TestFitnessFunction, Double> getFitnessValues(TestChromosome test) {
-		Map<TestFitnessFunction, Double> fitnessMap = new HashMap<TestFitnessFunction, Double>();
-		for (TestFitnessFunction fitness : fitnessFunctions) {
-			if (isTimeoutReached()) {
-				logger.debug("Timeout while computing fitness values");
-				return null;
-			}
-			
-			double fit = fitness.getFitness(test);
-			fitnessMap.put(fitness, fit);
-		}
-		return fitnessMap;
-	}
-
 	
     private boolean isTimeoutReached() {
         return !TimeController.getInstance().isThereStillTimeInThisPhase();
@@ -160,8 +122,8 @@ public class TestCaseMinimizer {
 		/** Factory method that handles statement deletion */
 		TestFactory testFactory = TestFactory.getInstance();
 
-		Map<TestFitnessFunction, Double> fitness = getFitnessValues(c);
-		if (fitness==null|| isTimeoutReached()) {
+		double fitness = fitnessFunction.getFitness(c);
+		if (isTimeoutReached()) {
 			return;
 		}
 
@@ -202,28 +164,19 @@ public class TestCaseMinimizer {
 
 				c.setChanged(true);
 
-				Map<TestFitnessFunction, Double> newFitness = getFitnessValues(c);
-				if (newFitness==null) {
+				double newFitness = fitnessFunction.getFitness(c);
+
+				boolean isWorse = false;
+				if (isTimeoutReached()) {
 					logger.debug("Keeping original version due to timeout");
 					restoreTestCase(c, copy);
 					return;
 				}
-				//double new_fitness = fitnessFunction.getFitness(c);
 
-				boolean isWorse = false;
-				for (TestFitnessFunction fitnessFunction : fitnessFunctions) {
-					if (isTimeoutReached()) {
-						logger.debug("Keeping original version due to timeout");
-						restoreTestCase(c, copy);
-						return;
-					}
-					
-					if (isWorse(fitnessFunction, copy, c)) {
-						isWorse = true;
-						break;
-					}
-					
+				if (isWorse(fitnessFunction, copy, c)) {
+					isWorse = true;
 				}
+					
 
 				if (!isWorse) {
 					logger.debug("Keeping shorter version");
@@ -236,6 +189,12 @@ public class TestCaseMinimizer {
 				}
 
 			}
+		}
+
+		if (Properties.MINIMIZE_VALUES) {
+			logger.info("Minimizing values of test case");
+			ValueMinimizer minimizer = new ValueMinimizer();
+			minimizer.minimize(c, fitnessFunction);
 		}
 
 		assert ConstraintVerifier.verifyTest(c);

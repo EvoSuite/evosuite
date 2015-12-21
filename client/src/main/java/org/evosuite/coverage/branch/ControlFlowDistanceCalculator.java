@@ -19,10 +19,7 @@
  */
 package org.evosuite.coverage.branch;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.coverage.TestCoverageGoal;
@@ -119,6 +116,15 @@ public class ControlFlowDistanceCalculator {
 		// if branch is null, we will just try to call the method at hand
 		if (branch == null)
 			return getRootDistance(result, className, methodName);
+
+		if(value) {
+			if (result.getTrace().getCoveredTrueBranches().contains(branch.getActualBranchId()))
+				return new ControlFlowDistance(0, 0.0);
+		}
+		else {
+			if (result.getTrace().getCoveredFalseBranches().contains(branch.getActualBranchId()))
+                return new ControlFlowDistance(0, 0.0);
+		}
 
 		ControlFlowDistance nonRootDistance = getNonRootDistance(result, branch, value);
 

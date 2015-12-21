@@ -154,7 +154,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		if (other instanceof StatementCoverageTestFitness) {
 			return goalInstruction.compareTo(((StatementCoverageTestFitness) other).goalInstruction);
 		}
-		return 0;
+		return compareClassName(other);
 	}
 	
 	

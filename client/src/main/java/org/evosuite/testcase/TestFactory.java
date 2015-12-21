@@ -239,6 +239,7 @@ public class TestFactory {
 	private int doInjection(TestCase test, int position, Class<?> klass, VariableReference ref) throws ConstructionFailedException {
 
 		int injectPosition = position + 1;
+		int startPos = injectPosition;
 
 		//check if this object needs any dependency injection
 
@@ -288,6 +289,13 @@ public class TestFactory {
 			}
 
 			target = target.getSuperclass();
+		}
+
+		if(injectPosition != startPos) {
+			//validate the bean, but only if there was any injection
+			VariableReference classConstant = new ConstantValue(test, new GenericClass(Class.class), klass);
+			Statement ms = new MethodStatement(test, InjectionSupport.getValidateBean(), null, Arrays.asList(ref, classConstant));
+			test.addStatement(ms, injectPosition++);
 		}
 
 		/*
@@ -1133,9 +1141,10 @@ public class TestFactory {
 					Even if mocking is not active yet in this phase, if we have
 					no generator for a type, we use mocking directly
 				 */
+					logger.debug("Using mock for type "+type);
 					ret = addFunctionalMock(test, type, position, recursionDepth + 1);
 				} else {
-					throw new ConstructionFailedException("Generator is null");
+					throw new ConstructionFailedException("Have no generator for "+ type+" canUseFunctionalMocks="+canUseFunctionalMocks+", canBeMocked: "+FunctionalMockStatement.canBeFunctionalMocked(type));
 				}
 
 			} else if (o.isField()) {
@@ -1795,13 +1804,8 @@ public class TestFactory {
             parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false);
             VariableReference callee = parameters.remove(0);
 
-            try {
-                st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
+			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
                         callee,parameters);
-            } catch (NoSuchFieldException e) {
-                logger.error("Reflection problem: " + e, e);
-                throw new ConstructionFailedException("Reflection problem");
-            }
         }
 
         int newLength = test.size();

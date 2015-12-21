@@ -27,6 +27,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.multiobjective.FON;
+import org.evosuite.ga.problems.multiobjective.FONIntTest;
 import org.evosuite.ga.problems.singleobjective.Booths;
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class TestDominanceComparator
     @Test
     public void testDominanceComparatorSeveralFitnessesNoDomination()
     {
-        Problem p = new FON<NSGAChromosome>();
+        Problem p = new FON();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff_1 = fitnessFunctions.get(0);
         FitnessFunction<NSGAChromosome> ff_2 = fitnessFunctions.get(1);
@@ -96,7 +97,7 @@ public class TestDominanceComparator
     @Test
     public void testDominanceComparatorSeveralFitnessesDomination()
     {
-        Problem p = new FON<NSGAChromosome>();
+        Problem p = new FON();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
         FitnessFunction<NSGAChromosome> ff_1 = fitnessFunctions.get(0);
         FitnessFunction<NSGAChromosome> ff_2 = fitnessFunctions.get(1);

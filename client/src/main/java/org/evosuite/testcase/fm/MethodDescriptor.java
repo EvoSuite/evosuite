@@ -21,6 +21,7 @@ package org.evosuite.testcase.fm;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.generic.GenericClass;
@@ -102,6 +103,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 matchers += "anyFloat()";
             }else if(type.equals(Short.TYPE) || type.equals(Short.class)){
                 matchers += "anyShort()";
+            }else if(type.equals(Character.TYPE) || type.equals(Character.class)){
+                matchers += "anyChar()";
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
             }else{
@@ -115,7 +118,12 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                      */
                     matchers += "any()";
                 } else {
-                    matchers += "any(" + type.getTypeName() + ".class)";
+                    if(type instanceof Class){
+                        matchers += "any(" + ((Class)type).getCanonicalName() + ".class)";
+                    } else {
+                        //what to do here? is it even possible?
+                        matchers += "any(" + type.getTypeName() + ".class)";
+                    }
                 }
             }
         }
@@ -209,6 +217,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 return Mockito.anyFloat();
             } else if (type.equals(Short.TYPE) || type.equals(Short.class)) {
                 return Mockito.anyShort();
+            } else if (type.equals(Character.TYPE) || type.equals(Character.class)) {
+                return Mockito.anyChar();
             } else if (type.equals(String.class)) {
                 return Mockito.anyString();
             } else {
@@ -229,8 +239,9 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         counter = 0;
     }
     
-    public GenericMethod getGenericMethodFor(GenericClass clazz) {
-    	return new GenericMethod(method, clazz);
+    public GenericMethod getGenericMethodFor(GenericClass clazz) throws ConstructionFailedException {
+    	GenericMethod m  = new GenericMethod(method, clazz);
+        return m.getGenericInstantiation(clazz);
     }
 
     public Method getMethod(){

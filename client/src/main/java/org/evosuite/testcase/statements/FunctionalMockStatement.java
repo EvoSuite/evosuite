@@ -22,10 +22,13 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
+import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -209,12 +212,17 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
-        //FIXME: tmp fix to avoid mocking any class with private access methods
+        //FIXME: tmp fix to avoid mocking any class with package access methods
         try {
             for (Method m : rawClass.getDeclaredMethods()) {
-                if (!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) &&
-                        !Modifier.isPrivate(m.getModifiers())) {
-                    //package level
+
+                /*
+                    Unfortunately, it does not seem there is a "isPackageLevel" method, so we have
+                    to go by exclusion
+                 */
+
+                if(!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) && !Modifier.isPublic(m.getModifiers())
+                        && !m.isBridge() && !m.isSynthetic() && !m.getName().equals(ClassResetter.STATIC_RESET)) {
                     return false;
                 }
             }
@@ -337,7 +345,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
      * @return a ordered, non-null list of types of missing new inputs that will need to be provided
      *
      */
-    public List<Type> updateMockedMethods() {
+    public List<Type> updateMockedMethods() throws ConstructionFailedException {
 
         logger.debug("Executing updateMockedMethods. Parameter size: " + parameters.size());
 
@@ -368,6 +376,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             }
 
             int added = 0;
+
+            logger.debug("Method called on mock object: "+md.getMethod());
 
             //infer parameter mapping of current vars from previous execution, if any
             int[] minMax = methodParameters.get(md.getID());
@@ -401,10 +411,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
             //check if rather more calls
             if (existingParameters < md.getCounter()) {
-                Type returnType = md.getGenericMethodFor(retval.getGenericClass()).getGeneratedType();                
-                assert !returnType.equals(Void.TYPE);
-
                 for (int i = existingParameters; i < md.getCounter() && i < Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT; i++) {
+                    // Create a copy as the typemap is stored in the class during generic instantiation
+                    // but we might want to have a different type for each call of the same method invocation
+                    GenericClass calleeClass = new GenericClass(retval.getGenericClass());
+                    Type returnType = md.getGenericMethodFor(calleeClass).getGeneratedType();
+                    assert !returnType.equals(Void.TYPE);
+                    logger.debug("Return type: "+returnType +" for retval "+retval.getGenericClass());
                     list.add(returnType);
 
                     super.parameters.add(null); //important place holder for following updates
@@ -453,6 +466,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         throw new IllegalArgumentException("Not enough parameter place holders");
                     }
                 }
+                logger.debug("Current input: "+ref+" for expected type "+getExpectedParameterType(index));
 
                 assert ref.isAssignableTo(getExpectedParameterType(index));
 
@@ -628,46 +642,60 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             logger.debug("Mockito: call 'when'");
                             OngoingStubbing<Object> retForThen = Mockito.when(targetMethodResult);
 
-                            int size = Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT);
-
                             //thenReturn(...)
-                            Object[] thenReturnInputs = new Object[size];
-                            for (int i = 0; i < thenReturnInputs.length; i++) {
+                            Object[] thenReturnInputs = null;
+                            try {
+                                int size = Math.min(md.getCounter(), Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT);
 
-                                VariableReference parameterVar = parameters.get(i + index);
-                                thenReturnInputs[i] = parameterVar.getObject(scope);
+                                thenReturnInputs = new Object[size];
 
-                                CodeUnderTestException codeUnderTestException = null;
+                                for (int i = 0; i < thenReturnInputs.length; i++) {
 
-                                if (thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
-                                    codeUnderTestException = new CodeUnderTestException(new NullPointerException());
+                                    int k = i + index; //the position in flat parameter list
+                                    if (k >= parameters.size()) {
+                                        throw new RuntimeException("EvoSuite ERROR: index " + k + " out of " + parameters.size());
+                                    }
 
-                                } else if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), method.getReturnType())) {
-                                    codeUnderTestException = new CodeUnderTestException(
-                                            new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName()
-                                                    + " to " + method.getReturnType()));
+                                    VariableReference parameterVar = parameters.get(i + index);
+                                    thenReturnInputs[i] = parameterVar.getObject(scope);
+
+                                    CodeUnderTestException codeUnderTestException = null;
+
+                                    if (thenReturnInputs[i] == null && method.getReturnType().isPrimitive()) {
+                                        codeUnderTestException = new CodeUnderTestException(new NullPointerException());
+
+                                    } else if (thenReturnInputs[i] != null && !TypeUtils.isAssignable(thenReturnInputs[i].getClass(), method.getReturnType())) {
+                                        codeUnderTestException = new CodeUnderTestException(
+                                                new UncompilableCodeException("Cannot assign " + parameterVar.getVariableClass().getName()
+                                                        + " to " + method.getReturnType()));
+                                    }
+
+                                    if (codeUnderTestException != null) {
+                                        throw codeUnderTestException;
+                                    }
+
+                                    thenReturnInputs[i] = fixBoxing(thenReturnInputs[i], method.getReturnType());
                                 }
-
-                                if (codeUnderTestException != null) {
-                                    //be sure "then" is always called after a "when", otherwise Mockito might end up in
-                                    //a inconsistent state
-                                    retForThen.thenThrow(new RuntimeException("Failed to setup mock due to type mismatches"));
-                                    throw  codeUnderTestException;
-                                }
-
-                                thenReturnInputs[i] = fixBoxing(thenReturnInputs[i], method.getReturnType());
+                            } catch (Exception e){
+                                //be sure "then" is always called after a "when", otherwise Mockito might end up in
+                                //a inconsistent state
+                                retForThen.thenThrow(new RuntimeException("Failed to setup mock: "+e.getMessage()));
+                                throw e;
                             }
+
 
                             //final call when(...).thenReturn(...)
                             logger.debug("Mockito: executing 'thenReturn'");
-                            if (thenReturnInputs.length == 1) {
+                            if(thenReturnInputs == null || thenReturnInputs.length == 0) {
+                                retForThen.thenThrow(new RuntimeException("No valid return value"));
+                            } else if (thenReturnInputs.length == 1) {
                                 retForThen.thenReturn(thenReturnInputs[0]);
                             } else {
                                 Object[] values = Arrays.copyOfRange(thenReturnInputs, 1, thenReturnInputs.length);
                                 retForThen.thenReturn(thenReturnInputs[0], values);
                             }
 
-                            index += size;
+                            index += thenReturnInputs==null ? 0 : thenReturnInputs.length;
                         }
 
                     } catch (CodeUnderTestException e){

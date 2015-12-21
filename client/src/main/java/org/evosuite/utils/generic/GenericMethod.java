@@ -37,7 +37,7 @@ import java.util.List;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
 
@@ -57,16 +57,19 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	public GenericMethod(Method method, GenericClass type) {
 		super(new GenericClass(type));
 		this.method = method;
+		Inputs.checkNull(method, type);
 	}
 
 	public GenericMethod(Method method, Class<?> type) {
 		super(new GenericClass(type));
 		this.method = method;
+		Inputs.checkNull(method, type);
 	}
 
 	public GenericMethod(Method method, Type type) {
 		super(new GenericClass(type));
 		this.method = method;
+		Inputs.checkNull(method, type);
 	}
 
 	@Override
@@ -96,17 +99,13 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return method;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getAccessibleObject()
-	 */
+
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		return method;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getDeclaringClass()
-	 */
+
 	@Override
 	public Class<?> getDeclaringClass() {
 		return method.getDeclaringClass();
@@ -117,11 +116,14 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	}
 
 	public List<GenericClass> getParameterClasses() {
-		List<GenericClass> parameters = new ArrayList<GenericClass>();
-		logger.debug("Parameter types: "
-		        + Arrays.asList(method.getGenericParameterTypes()));
+		List<GenericClass> parameters = new ArrayList<>();
+
+		if(logger.isDebugEnabled()) {
+			logger.debug("Parameter types: " + Arrays.asList(method.getGenericParameterTypes()));
+		}
+
 		for (Type parameterType : getParameterTypes()) {
-			logger.debug("Adding parameter: " + parameterType);
+			logger.debug("Adding parameter: {}", parameterType);
 			parameters.add(new GenericClass(parameterType));
 		}
 		return parameters;
@@ -170,7 +172,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	 * was declared in a superclass, or <tt>type</tt> has a type parameter that
 	 * is used in the return type, or <tt>type</tt> is a raw type.
 	 */
-	public Type getExactReturnType(Method m, Type type) throws IllegalArgumentException{
+	protected Type getExactReturnType(Method m, Type type) throws IllegalArgumentException{
 		Inputs.checkNull(m,type);
 
 		Type returnType = m.getGenericReturnType();
@@ -225,17 +227,13 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return TestUsageChecker.canUse(method);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#isMethod()
-	 */
+
 	@Override
 	public boolean isMethod() {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#isStatic()
-	 */
+
 	@Override
 	public boolean isStatic() {
 		return Modifier.isStatic(method.getModifiers());
@@ -254,7 +252,6 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 				}
 			}
 		} catch (SecurityException e) {
-		//} catch (NoSuchMethodException e) {
 		}
 
 		return false;
@@ -311,17 +308,13 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return getNumParameters() > 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getName()
-	 */
+
 	@Override
 	public String getName() {
 		return method.getName();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#toString()
-	 */
+
 	@Override
 	public String toString() {
 		return method.toGenericString();
@@ -370,7 +363,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		try {
 			Class<?> oldClass = method.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Method newMethod : TestClusterGenerator.getMethods(newClass)) {
+			for (Method newMethod : TestClusterUtils.getMethods(newClass)) {
 				if (newMethod.getName().equals(this.method.getName())) {
 					boolean equals = true;
 					Class<?>[] oldParameters = this.method.getParameterTypes();
@@ -400,11 +393,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			}
 			LoggingUtils.getEvoLogger().info("Method not found - keeping old class loader ");
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
-			                                 e);
+			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {
-			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
-			                                 e);
+			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",e);
 		}
 	}
 

@@ -113,8 +113,8 @@ public class DependencyAnalysis {
 		// update: we instrument only classes reachable from the class
 		// under test, the callgraph is populated with all classes, but only the
 		// set of relevant ones are instrumented - mattia
-		TestClusterGenerator clusterGenerator = new TestClusterGenerator();
-		clusterGenerator.generateCluster(className, inheritanceTree, callGraph);
+		TestClusterGenerator clusterGenerator = new TestClusterGenerator(inheritanceTree);
+		clusterGenerator.generateCluster(callGraph);
 
 		gatherStatistics();
 	}

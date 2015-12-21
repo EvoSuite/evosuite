@@ -24,7 +24,7 @@ import com.examples.with.different.packagename.inheritance.B;
 import com.examples.with.different.packagename.inheritance.TheSuperClass;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -33,7 +33,7 @@ import org.junit.Test;
 /**
  * Created by Andrea Arcuri on 16/07/15.
  */
-public class InheritanceIssue_SystemTest extends SystemTest {
+public class InheritanceIssue_SystemTest extends SystemTestBase {
 
     private void doTest(Class<?> target){
         EvoSuite evosuite = new EvoSuite();

@@ -29,7 +29,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
@@ -58,7 +58,7 @@ import com.examples.with.different.packagename.localsearch.DseFoo;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class Issre13SystemTest extends SystemTest {
+public class Issre13SystemTest extends SystemTestBase {
 
 	@Before
 	public void init() {

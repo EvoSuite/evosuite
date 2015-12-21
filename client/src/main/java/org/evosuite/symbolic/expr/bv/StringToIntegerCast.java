@@ -62,7 +62,7 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 		super(_concValue, 1 + _expr.getSize(), _expr.containsSymbolicVariable());
 		this.expr = _expr;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.reportConstraintTooLong(getSize());
+			DSEStats.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

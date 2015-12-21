@@ -56,7 +56,7 @@ public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
 		this.tokenizerExpr = tokenizerExpr;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.reportConstraintTooLong(getSize());
+			DSEStats.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

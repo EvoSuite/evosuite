@@ -39,7 +39,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -163,7 +163,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		if (!var.isPrimitive() && !(var instanceof NullReference)) {
 			// add fields of this object to list
-			for (Field field : TestClusterGenerator.getAccessibleFields(var.getVariableClass())) {
+			for (Field field : TestClusterUtils.getAccessibleFields(var.getVariableClass())) {
 				Type fieldType = field.getType();
 				try {
 					fieldType = field.getGenericType();

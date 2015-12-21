@@ -180,7 +180,7 @@ public final class CVC4Solver extends SubProcessSolver {
 
 	private static SmtCheckSatQuery buildSmtCheckSatQuery(Collection<Constraint<?>> constraints) {
 
-		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
+		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor(true);
 		SmtVariableCollector varCollector = new SmtVariableCollector();
 		SmtOperatorCollector funCollector = new SmtOperatorCollector();
 
