@@ -23,6 +23,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.CallExit;
@@ -34,7 +35,18 @@ import static org.junit.Assert.assertFalse;
 
 public class SUTWithSystemExitSystemTest extends SystemTestBase {
 
+	@Before
+	public void setFlag(){
+		SafeExit.calledExit = false;
+	}
+
 	@Test
+	public void testSystemExit_noAssertions() {
+		Properties.ASSERTIONS = false;
+		testSystemExit();
+	}
+
+		@Test
 	public void testSystemExit() {
 
 		java.lang.System.setSecurityManager(new SafeExit());
