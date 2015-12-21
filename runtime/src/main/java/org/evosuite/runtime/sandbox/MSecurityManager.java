@@ -1038,9 +1038,8 @@ public class MSecurityManager extends SecurityManager {
 		/*
 		 * Note: this actually should never be called, as the instrumenting class loader should replace System.exit
 		 */
-		if (name.startsWith("exitVM")){
-			//return false;
-			return true;//FIXME
+		if (name.startsWith("exitVM")) {
+			return false;
 		}
 		
 		if(name.equals("shutdownHooks")) {
