@@ -630,6 +630,7 @@
                         <exclude>${integrationTests}</exclude>
                         <exclude>${systemTests}</exclude>
                     </excludes>
+                    <argLine> -Xms512m -Xmx4096m </argLine>
                 </configuration>
             </plugin>
             <!-- pluging to run tests after 'package' phase in 'integration-test' -->
