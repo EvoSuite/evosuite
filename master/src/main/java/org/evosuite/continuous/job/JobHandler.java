@@ -138,7 +138,7 @@ public class JobHandler extends Thread {
 				logger.debug("Base directory: " + baseDir);
 				if(logger.isDebugEnabled()) {
 					String commandString = String.join(" ", parsedCommand);
-					commandString.replace("\\","\\\\"); //needed for nice print in bash shell on Windows (eg Cygwin and GitBash)
+					commandString = commandString.replace("\\","\\\\"); //needed for nice print in bash shell on Windows (eg Cygwin and GitBash)
 					logger.debug("Commands: " + commandString);
 				}
 				process = builder.start();
