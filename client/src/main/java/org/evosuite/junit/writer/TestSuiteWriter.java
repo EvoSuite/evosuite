@@ -22,7 +22,6 @@
  */
 package org.evosuite.junit.writer;
 
-import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
@@ -35,7 +34,6 @@ import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.idNaming.TestNameGenerator;
-import org.evosuite.idNaming.VariableNamesGenerator;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoAssertions;
@@ -226,7 +224,7 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         if (Properties.TEST_NAMING && optimizeIDNaming)
-            TestNameGenerator.getInstance().execute(testCases,results);
+            TestNameGenerator.execute(testCases,results);
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
