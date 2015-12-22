@@ -1,5 +1,8 @@
 package org.evosuite.idNaming;
 
+import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchCoverageGoal;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.input.InputCoverageGoal;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
@@ -7,6 +10,7 @@ import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageGoal;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
@@ -16,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by gordon on 22/12/2015.
@@ -213,4 +219,70 @@ public class TestCoverageGoalNameGeneration {
         assertEquals("testFooWithInt", naming.getName(test2));
         assertEquals("testFooWith2Arguments", naming.getName(test3));
     }
+
+    @Test
+    public void testOverloadedMethodWithObject() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "foo()");
+        test1.addCoveredGoal(goal1);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "foo(Ljava/util/List;)");
+        test2.addCoveredGoal(goal2);
+
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooWithoutArguments",     naming.getName(test1));
+        assertEquals("testFooWithList", naming.getName(test2));
+    }
+
+
+    @Test
+    public void testTwoTestsDifferOnlyInBranches() {
+        Branch b1 = mock(Branch.class);
+        BytecodeInstruction bi = mock(BytecodeInstruction.class);
+        when(b1.getInstruction()).thenReturn(bi);
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("FooClass", "toString");
+        test1.addCoveredGoal(methodGoal);
+        BranchCoverageTestFitness branchGoal1 = new BranchCoverageTestFitness(new BranchCoverageGoal(b1, true, "FooClass", "toStringBarFooBlubb", 0));
+        test1.addCoveredGoal(branchGoal1);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addCoveredGoal(methodGoal);
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        BranchCoverageTestFitness branchGoal2 = new BranchCoverageTestFitness(new BranchCoverageGoal(b1, false, "FooClass", "toString", 0));
+        test2.addCoveredGoal(branchGoal2);
+
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testToString0", naming.getName(test1));
+        assertEquals("testToString1", naming.getName(test2));
+    }
+
+    @Test
+    public void testMultipleMethods() {
+        TestCase test = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString");
+        test.addCoveredGoal(goal1);
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "foo");
+        test.addCoveredGoal(goal2);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testFoo", generatedName);
+        // TODO: What should be the name now? Need some heuristic, currently sorted alphabetically
+        //       Better heuristic would consider other things, like e.g. which method has more goals covered
+        //       or which one is the last one called?
+    }
+
+
 }
