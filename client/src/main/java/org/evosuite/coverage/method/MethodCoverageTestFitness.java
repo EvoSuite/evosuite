@@ -173,4 +173,5 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
     public String getTargetMethod() {
         return getMethod();
     }
+
 }

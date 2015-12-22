@@ -41,6 +41,8 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         /** Thrown exception which is expected, because declared in signature with "throws"*/
         DECLARED};
 
+    protected final String className;
+
     /**
      * name+descriptor
      */
@@ -59,10 +61,11 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      * @param exceptionClass the exception class
      * @throws IllegalArgumentException
      */
-    public ExceptionCoverageTestFitness(String methodIdentifier, Class<?> exceptionClass, ExceptionType type) throws IllegalArgumentException{
+    public ExceptionCoverageTestFitness(String className, String methodIdentifier, Class<?> exceptionClass, ExceptionType type) throws IllegalArgumentException{
         if ((methodIdentifier == null) || (exceptionClass == null) || type==null) {
             throw new IllegalArgumentException("method name and exception class and type cannot be null");
         }
+        this.className = className;
         this.exceptionClass = exceptionClass;
         this.methodIdentifier = methodIdentifier;
         this.type = type;
@@ -81,6 +84,10 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      */
     public String getMethod() {
         return methodIdentifier;
+    }
+
+    public Class<?> getExceptionClass() {
+        return exceptionClass;
     }
 
     /**
@@ -182,7 +189,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      */
     @Override
     public String getTargetClass() {
-        return null;
+        return className;
     }
 
     /* (non-Javadoc)
@@ -190,7 +197,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      */
     @Override
     public String getTargetMethod() {
-        return getMethod();
+        return methodIdentifier.substring(0, methodIdentifier.indexOf('('));
     }
 
 }
