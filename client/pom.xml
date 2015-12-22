@@ -132,6 +132,7 @@
         </dependency>
 
         <!-- ERMIRA -->
+        <!--
         <dependency>
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>core</artifactId>
@@ -141,12 +142,13 @@
             <groupId>org.eclipse.core</groupId>
             <artifactId>runtime</artifactId>
             <version>3.9.100-v20131218-1515</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
         </dependency>
+        <!--
        <dependency>
             <groupId>org.eclipse.tycho</groupId>
             <artifactId>org.eclipse.jdt.core</artifactId>
@@ -157,6 +159,7 @@
             <artifactId>org.eclipse.core.resources</artifactId>
             <version>3.8.101.v20130717-0806</version>
         </dependency>
+        -->
         <!-- END ERMIRA -->
     </dependencies>
 
