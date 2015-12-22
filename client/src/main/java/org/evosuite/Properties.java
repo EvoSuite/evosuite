@@ -1394,8 +1394,13 @@ public class Properties {
 	/** Generate readable test names */
 	public static Boolean TEST_NAMING = true;
 
-	/** Generate readable local variable names */
-	public static Boolean VARIABLES_NAMING = false;
+	public enum VariableNamingStrategy {
+		DEFAULT, DUMMY, DECLARATIONS, EXPLANATORY, NATURALIZE
+	}
+
+	/** Constant <code>VARIABLE_NAMING_STRATEGY</code> */
+	@Parameter(key = "variable_naming_strategy", group = "Output", description = "What variable naming strategy to use")
+	public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.DEFAULT;
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;

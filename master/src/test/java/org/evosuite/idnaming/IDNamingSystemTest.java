@@ -66,7 +66,7 @@ import static org.junit.Assert.assertEquals;
 
 public class IDNamingSystemTest extends SystemTestBase {
 
-/*	@Test
+	@Test
 	public void testIDNamingOn() {
 		EvoSuite evosuite = new EvoSuite();
 
@@ -75,6 +75,7 @@ public class IDNamingSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DUMMY;
 
         Properties.CRITERION = new Properties.Criterion[5];
         Properties.CRITERION[0] = Properties.Criterion.METHOD;
@@ -90,9 +91,8 @@ public class IDNamingSystemTest extends SystemTestBase {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		List<TestCase> tests = best.getTests();
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.145834);
-	}*/
+	}
 
 	@Test
 	public void testCarvedTestNames() {

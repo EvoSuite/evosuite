@@ -39,7 +39,9 @@ import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.idNaming.VariableNamesGenerator;
+import org.evosuite.idNaming.DummyNamingStrategy;
+import org.evosuite.idNaming.ExplanatoryNamingStrategy;
+import org.evosuite.idNaming.VariableNamingStrategy;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
@@ -328,12 +330,14 @@ public class TestCodeVisitor extends TestVisitor {
 	 */
 	public String getVariableName(VariableReference var) {
 
-        if (Properties.TEST_NAMING) {
-            String name = VariableNamesGenerator.getVariableName(this.test,var);
-            if (name != null)
-                return name;
+		// Variable Naming strategy?
+        VariableNamingStrategy strategy = getVariableNamingStrategy();
+        if (strategy != null) {
+	        String name = strategy.getVariableName(this.test, var);
+	        if (name != null)
+		        return name;
         }
-
+		// DEFAULT
 		if (var instanceof ConstantValue) {
 			ConstantValue cval = (ConstantValue)var;
 			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
@@ -418,9 +422,20 @@ public class TestCodeVisitor extends TestVisitor {
 		return variableNames.get(var);
 	}
 
+	private VariableNamingStrategy getVariableNamingStrategy() {
+		switch (Properties.VARIABLE_NAMING_STRATEGY) {
+			case EXPLANATORY:
+				return ExplanatoryNamingStrategy.getInstance();
+			case DUMMY:
+				return DummyNamingStrategy.getInstance();
+			default:
+				return null;
+		}
+	}
+
 	/**
 	 * Retrieve the names of all known variables
-	 * 
+	 *
 	 * @return
 	 */
 	public Collection<String> getVariableNames() {
@@ -429,7 +444,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 	/**
 	 * Retrieve the names of all known classes
-	 * 
+	 *
 	 * @return
 	 */
 	public Collection<String> getClassNames() {

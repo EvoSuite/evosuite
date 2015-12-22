@@ -150,7 +150,7 @@ public class TestNameGenerator extends DistinguishNames {
 		String outputName="";
 		String inputName="";
 		String branchName="";
-		String methodArguments="", inputArguments="", outputArguments="", branchArguments="", str="";
+		String methodArguments="", inputArguments="", outputArguments="", branchArguments="";
 		String methodArgumentTypes="", inputArgumentTypes="", outputArgumentTypes="", branchArgumentTypes="";
 		
 		String exceptionName="";
