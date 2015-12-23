@@ -13,9 +13,15 @@ import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -291,17 +297,37 @@ public class TestCoverageGoalNameGeneration {
     }
 
     @Test
-    public void testMultipleMethods() {
+    public void testTwoUniqueMethods() {
         TestCase test = new DefaultTestCase();
-        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString");
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "foo");
         test.addCoveredGoal(goal1);
-        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "foo");
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "bar");
         test.addCoveredGoal(goal2);
         List<TestCase> tests = new ArrayList<>();
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testFoo", generatedName);
+        assertEquals("testBarAndFoo", generatedName);
+    }
+
+    @Test
+    public void testMultipleMethods() throws NoSuchMethodException {
+        TestCase test = new DefaultTestCase();
+        GenericConstructor gc = new GenericConstructor(Object.class.getConstructor(), Object.class);
+        VariableReference callee = test.addStatement(new ConstructorStatement(test, gc, new ArrayList<VariableReference>()));
+        GenericMethod gm = new GenericMethod(Object.class.getMethod("toString"), Object.class);
+        test.addStatement(new MethodStatement(test, gm, callee, new ArrayList<VariableReference>()));
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString()Ljava/lang/String;");
+        test.addCoveredGoal(goal1);
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "foo()Ljava/lang/String;");
+        test.addCoveredGoal(goal2);
+        MethodCoverageTestFitness goal3 = new MethodCoverageTestFitness("FooClass", "bar()Ljava/lang/String;");
+        test.addCoveredGoal(goal3);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testToString", generatedName);
         // TODO: What should be the name now? Need some heuristic, currently sorted alphabetically
         //       Better heuristic would consider other things, like e.g. which method has more goals covered
         //       or which one is the last one called?

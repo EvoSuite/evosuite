@@ -9,7 +9,11 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
 
@@ -103,10 +107,10 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             if(entry.getValue().isEmpty()) {
                 // If there is nothing unique about the test
                 // use the original goals
-                testToName.put(entry.getKey(), getTestName(entry.getKey().getCoveredGoals()));
+                testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getKey().getCoveredGoals()));
 
             } else {
-                testToName.put(entry.getKey(), getTestName(entry.getValue()));
+                testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
             }
         }
     }
@@ -137,11 +141,85 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return new String(buffer);
     }
 
-    private String getTestName(Set<TestFitnessFunction> uniqueGoals) {
-        List<TestFitnessFunction> goalList = new ArrayList<>(uniqueGoals);
-        Collections.sort(goalList, new GoalComparator());
-        String name = PREFIX + capitalize(getGoalName(goalList.get(0)));
+    private String getTestName(TestCase test, Set<TestFitnessFunction> uniqueGoals) {
+        List<TestFitnessFunction> goalList = getTopGoals(uniqueGoals);
+        String name = PREFIX;
+        if(goalList.isEmpty()) {
+            // If there is nothing unique, we have to make do with what the test has
+            if(!test.getCoveredGoals().isEmpty()) {
+                return getTestName(test, test.getCoveredGoals());
+            } else {
+                // TODO - can this happen?
+            }
+        } else if(goalList.size() == 1) {
+            name += capitalize(getGoalName(goalList.get(0)));
+        } else if(goalList.size() == 2) {
+            name += capitalize(getGoalName(goalList.get(0))) + "And" + capitalize(getGoalName(goalList.get(1)));
+        } else {
+            name += capitalize(getGoalName(chooseRepresentativeGoal(test, goalList)));
+        }
         return name;
+    }
+
+    /**
+     * Retrieve all goals at the highest level of priority
+     *
+     * @param coveredGoals
+     * @return
+     */
+    private List<TestFitnessFunction> getTopGoals(Set<TestFitnessFunction> coveredGoals) {
+        List<TestFitnessFunction> goalList = new ArrayList<>(coveredGoals);
+        Collections.sort(goalList, new GoalComparator());
+
+        List<TestFitnessFunction> topGoals = new ArrayList<>();
+        if(coveredGoals.isEmpty())
+            return topGoals;
+
+        Iterator<TestFitnessFunction> iterator = goalList.iterator();
+        TestFitnessFunction lastGoal = iterator.next();
+        topGoals.add(lastGoal);
+        while(iterator.hasNext()) {
+            TestFitnessFunction nextGoal = iterator.next();
+            if(!nextGoal.getClass().equals(lastGoal.getClass()))
+                break;
+            topGoals.add(nextGoal);
+            lastGoal = nextGoal;
+        }
+        return topGoals;
+    }
+
+    /**
+     * Out of a set of multiple goals, select one that is representative.
+     * Assumes that goals is not empty, and all items in goals have the same type
+     * @param test
+     * @param goals
+     * @return
+     */
+    private TestFitnessFunction chooseRepresentativeGoal(TestCase test, Collection<TestFitnessFunction> goals) {
+        Map<String, Integer> methodToPosition = new HashMap<>();
+        for(Statement st : test) {
+            if(st instanceof MethodStatement) {
+                MethodStatement ms = (MethodStatement)st;
+                String name = ms.getMethod().getName() + Type.getMethodDescriptor(ms.getMethod().getMethod());
+                methodToPosition.put(name, st.getPosition());
+            } else if (st instanceof ConstructorStatement) {
+                ConstructorStatement cs = (ConstructorStatement)st;
+                String name = "<init>" + Type.getConstructorDescriptor(cs.getConstructor().getConstructor());
+                methodToPosition.put(name, st.getPosition());
+            }
+        }
+        TestFitnessFunction chosenGoal = Randomness.choice(goals);
+        int chosenPosition = -1;
+        for(TestFitnessFunction goal : goals) {
+            if(methodToPosition.containsKey(goal.getTargetMethod())) {
+                int position = methodToPosition.get(goal.getTargetMethod());
+                if(position >= chosenPosition) {
+                    chosenPosition = position;
+                    chosenGoal = goal;
+                }
+            }
+        }
+        return chosenGoal;
     }
 
     private String getGoalName(TestFitnessFunction goal) {
