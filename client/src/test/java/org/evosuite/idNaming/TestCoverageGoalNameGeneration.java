@@ -119,6 +119,29 @@ public class TestCoverageGoalNameGeneration {
     }
 
     @Test
+    public void testConstructorWithAndWithoutException() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "<init>");
+        test1.addCoveredGoal(goal1);
+        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "<init>");
+        test1.addCoveredGoal(goal1a);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(goal1);
+        ExceptionCoverageTestFitness goal2 = new ExceptionCoverageTestFitness("FooClass", "<init>()", RuntimeException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test2.addCoveredGoal(goal2);
+
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testGeneratesFooClass", naming.getName(test1));
+        assertEquals("testFailsToGenerateFooClassThrowsRuntimeException", naming.getName(test2));
+    }
+
+    @Test
     public void testMethodWithOutputGoals() {
         TestCase test1 = new DefaultTestCase();
         MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString");

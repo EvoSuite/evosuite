@@ -171,6 +171,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     private String getGoalName(ExceptionCoverageTestFitness goal) {
+        if(goal.getTargetMethod().startsWith("<init>")) {
+            return "FailsToGenerate" + capitalize(goal.getTargetClass())+ "Throws" + capitalize(goal.getExceptionClass().getSimpleName());
+        }
         return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + "Throws" + capitalize(goal.getExceptionClass().getSimpleName());
     }
 
