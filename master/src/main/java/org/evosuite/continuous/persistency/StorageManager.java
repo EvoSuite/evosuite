@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import javax.xml.XMLConstants;
@@ -494,7 +495,7 @@ public class StorageManager {
 		}
 
 		coverage = coverage / (double) n;
-		db.setOverallCoverage(coverage);
+		db.setOverallCoverage(Double.parseDouble(new DecimalFormat("#0.00").format(coverage)));
 	}
 
 	/**
@@ -542,7 +543,7 @@ public class StorageManager {
 		for (String criterion : csv.getCoverageVariables()) {
 			CriterionCoverage coverage = new CriterionCoverage();
 			coverage.setCriterion(criterion);
-			coverage.setCoverageValue(csv.getCoverage(criterion));
+			coverage.setCoverageValue(Double.parseDouble(new DecimalFormat("#0.00").format(csv.getCoverage(criterion))));
 
 			coverageValues.add(coverage);
 		}

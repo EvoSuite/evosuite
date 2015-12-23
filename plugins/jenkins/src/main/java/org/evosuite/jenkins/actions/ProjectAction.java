@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -170,7 +171,8 @@ public class ProjectAction implements Action {
 			coverage += m.getOverallCoverage();
 		}
 
-		return coverage / this.modules.size();
+		DecimalFormat formatter = new DecimalFormat("#0.00");
+		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
 	}
 
 	/**
@@ -188,6 +190,7 @@ public class ProjectAction implements Action {
 			coverage += m.getCriterionCoverage(criterionName);
 		}
 
-		return coverage / this.modules.size();
+		DecimalFormat formatter = new DecimalFormat("#0.00");
+		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
 	}
 }

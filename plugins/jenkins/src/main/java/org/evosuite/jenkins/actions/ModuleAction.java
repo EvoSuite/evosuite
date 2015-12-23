@@ -27,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -232,7 +234,8 @@ public class ModuleAction implements Action {
 			coverage += c.getOverallCoverage();
 		}
 
-		return coverage / this.classes.size();
+		DecimalFormat formatter = new DecimalFormat("#0.00");
+		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
 	}
 
 	/**
@@ -250,7 +253,8 @@ public class ModuleAction implements Action {
 			coverage += c.getCriterionCoverage(criterionName);
 		}
 
-		return coverage / this.classes.size();
+		DecimalFormat formatter = new DecimalFormat("#0.00");
+		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
 	}
 
 	/**

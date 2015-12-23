@@ -30,7 +30,6 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -88,19 +87,23 @@ public class ClassAction implements Action {
 		return this.suite.getFullNameOfTestSuite();
 	}
 
-	public void highlightSource(final String javafile) throws IOException {
-		InputStream file = new FileInputStream(new File(javafile));
-		JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
+	public void highlightSource(final String javafile) {
+		try {
+			InputStream file = new FileInputStream(new File(javafile));
+			JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
 
-		JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
-		options.setShowLineNumbers(true);
-		options.setAddLineAnchors(true);
+			JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
+			options.setShowLineNumbers(true);
+			options.setAddLineAnchors(true);
 
-		JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
-		StringWriter writer = new StringWriter();
-		converter.convert(source, options, writer);
+			JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
+			StringWriter writer = new StringWriter();
+			converter.convert(source, options, writer);
 
-		this.testSourceCode = writer.toString();
+			this.testSourceCode = writer.toString();
+		} catch (IOException e) {
+			this.testSourceCode = "";
+		}
 	}
 
 	// data for jelly template
@@ -188,9 +191,8 @@ public class ClassAction implements Action {
 			coverage += criterionCoverage.getCoverageValue();
 		}
 
-		NumberFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = new DecimalFormat("#0.00");
 		return Double.parseDouble(formatter.format(coverage / suiteCoverage.getCoverage().size() * 100.0));
-		//return coverage / suiteCoverage.getCoverage().size() * 100.0;
 	}
 
 	/**
@@ -207,9 +209,8 @@ public class ClassAction implements Action {
 		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterionCoverage : suiteCoverage.getCoverage()) {
 			if (criterionCoverage.getCriterion().equals(criterionName)) {
-				NumberFormat formatter = new DecimalFormat("#0.00");
+				DecimalFormat formatter = new DecimalFormat("#0.00");
 				return Double.parseDouble(formatter.format(criterionCoverage.getCoverageValue() * 100.0));
-				//return criterionCoverage.getCoverageValue() * 100.0;
 			}
 		}
 
