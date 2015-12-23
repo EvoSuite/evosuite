@@ -31,6 +31,8 @@ public interface SCM {
 
 	public static String TESTS_DIR_TO_COMMIT = "evosuite-tests";
 
+	public static String EVOSUITE_BRANCH = "evosuite-tests";
+
 	public ToolInstallation findInstallation();
 
 	public Credentials getCredentials(AbstractMavenProject<?, ?> project);
