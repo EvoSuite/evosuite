@@ -144,21 +144,30 @@ public class ConstantInliner extends ExecutionObserver {
 	        Throwable exception) {
 		try {
 			for (VariableReference var : statement.getVariableReferences()) {
-				if (var.equals(statement.getReturnValue())
-				        || var.equals(statement.getReturnValue().getAdditionalVariableReference()))
+				if (var.equals(statement.getReturnValue())) {
+					System.out.println("(a) NOT inlining statement  " + statement.getPosition());
 					continue;
+				}
+				if (var.equals(statement.getReturnValue().getAdditionalVariableReference())) {
+					System.out.println("(b) NOT inlining statement  " + statement.getPosition());
+					continue;
+				}
+
 				Object object = var.getObject(scope);
 
 				if (var.isPrimitive()) {
+					System.out.println("Inlining primitive statement " + statement.getPosition());
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
 					value.setValue(object);
 					// logger.info("Statement before inlining: " + statement.getCode());
 					statement.replace(var, value);
 					// logger.info("Statement after inlining: " + statement.getCode());
 				} else if (var.isString() && object != null) {
+					System.out.println("Inlining string statement " + statement.getPosition());
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
 					try {
 						String val = StringEscapeUtils.unescapeJava(object.toString());
+						System.out.println("=  replacing string : " + val + " in statement " + statement.getPosition());
 						value.setValue(val);
 						statement.replace(var, value);
 					} catch(IllegalArgumentException e) {

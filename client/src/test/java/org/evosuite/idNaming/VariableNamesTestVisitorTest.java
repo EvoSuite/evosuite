@@ -26,6 +26,7 @@ import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -61,8 +62,6 @@ public class VariableNamesTestVisitorTest {
         // test
         DefaultTestCase tc = createTestCaseWithPrimitiveStatements();
         System.out.println(tc);
-        List<TestCase> tcs = new LinkedList<>();
-        tcs.add(tc);
 
         // check variable names
         VariableReference var0 = tc.getStatement(0).getReturnValue();
@@ -70,10 +69,12 @@ public class VariableNamesTestVisitorTest {
         VariableReference var2 = tc.getStatement(2).getReturnValue();
         VariableReference var3 = tc.getStatement(3).getReturnValue();
 
-        Assert.assertEquals("Unexpected variable name", "var0", DummyNamingStrategy.getInstance().getVariableName(tc, var0));
-        Assert.assertEquals("Unexpected variable name", "var1", DummyNamingStrategy.getInstance().getVariableName(tc, var1));
-        Assert.assertEquals("Unexpected variable name", "var2", DummyNamingStrategy.getInstance().getVariableName(tc, var2));
-        Assert.assertEquals("Unexpected variable name", "var3", DummyNamingStrategy.getInstance().getVariableName(tc, var3));
+	    TestCodeVisitor tcv = new TestCodeVisitor();
+	    tcv.visitTestCase(tc);
+        Assert.assertEquals("Unexpected variable name", "var0", tcv.getVariableName(var0));
+        Assert.assertEquals("Unexpected variable name", "var1", tcv.getVariableName(var1));
+        Assert.assertEquals("Unexpected variable name", "var2", tcv.getVariableName(var2));
+        Assert.assertEquals("Unexpected variable name", "var3", tcv.getVariableName(var3));
     }
 
     @Test
