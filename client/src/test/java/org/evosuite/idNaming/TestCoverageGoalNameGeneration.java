@@ -11,6 +11,7 @@ import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageGoal;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -121,6 +122,29 @@ public class TestCoverageGoalNameGeneration {
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         assertEquals("testToString", naming.getName(test1));
         assertEquals("testToStringThrowsRuntimeException", naming.getName(test2));
+    }
+
+    @Test
+    public void testMethodWithAndWithoutMockException() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString");
+        test1.addCoveredGoal(goal1);
+        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "toString");
+        test1.addCoveredGoal(goal1a);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(goal1);
+        ExceptionCoverageTestFitness goal2 = new ExceptionCoverageTestFitness("FooClass", "toString()", MockArithmeticException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test2.addCoveredGoal(goal2);
+
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testToString", naming.getName(test1));
+        assertEquals("testToStringThrowsArithmeticException", naming.getName(test2));
     }
 
     @Test

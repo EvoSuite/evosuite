@@ -5,6 +5,7 @@ import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -17,6 +18,7 @@ import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -249,10 +251,16 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     private String getGoalName(ExceptionCoverageTestFitness goal) {
-        if(goal.getTargetMethod().startsWith("<init>")) {
-            return "FailsToGenerate" + capitalize(getShortClassName(goal.getTargetClass()))+ "Throws" + capitalize(goal.getExceptionClass().getSimpleName());
+        Class<?> ex = goal.getExceptionClass();
+        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
+                ex.getCanonicalName().startsWith("com.sun.")) {
+            ex = ex.getSuperclass();
         }
-        return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + "Throws" + capitalize(goal.getExceptionClass().getSimpleName());
+
+        if(goal.getTargetMethod().startsWith("<init>")) {
+            return "FailsToGenerate" + capitalize(getShortClassName(goal.getTargetClass()))+ "Throws" + capitalize(ex.getSimpleName());
+        }
+        return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + "Throws" + capitalize(ex.getSimpleName());
     }
 
     private String getGoalName(InputCoverageTestFitness goal) {
