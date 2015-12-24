@@ -21,7 +21,6 @@ import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -269,6 +268,33 @@ public class TestCoverageGoalNameGeneration {
         assertEquals("testFooWithList", naming.getName(test2));
     }
 
+    @Test
+    public void testOverloadedMethodWithArray() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "foo(I)");
+        test1.addCoveredGoal(goal1);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "foo([I)");
+        test2.addCoveredGoal(goal2);
+
+        TestCase test3 = new DefaultTestCase();
+        test3.addStatement(new IntPrimitiveStatement(test3, 0)); // Need to add statements to change hashCode
+        MethodCoverageTestFitness goal3 = new MethodCoverageTestFitness("FooClass", "foo([[I)");
+        test3.addCoveredGoal(goal3);
+
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooWithInt",     naming.getName(test1));
+        assertEquals("testFooWithIntArray", naming.getName(test2));
+        assertEquals("testFooWithIntArrayArray", naming.getName(test3));
+    }
+
 
     @Test
     public void testTwoTestsDifferOnlyInBranches() {
@@ -333,5 +359,151 @@ public class TestCoverageGoalNameGeneration {
         //       or which one is the last one called?
     }
 
+    @Test
+    public void testTwoOutputGoals() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "toString", "String", "NonNull");
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        OutputCoverageGoal outputGoal2 = new OutputCoverageGoal("FooClass", "bar", "String", "NonNull");
+        OutputCoverageTestFitness goal2 = new OutputCoverageTestFitness(outputGoal2);
+        test.addCoveredGoal(goal1);
+        test.addCoveredGoal(goal2);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testBarReturningNonNullAndToStringReturningNonNull", generatedName);
+    }
+
+    @Test
+    public void testTwoInputGoals() {
+        TestCase test = new DefaultTestCase();
+        InputCoverageGoal inputGoal1 = new InputCoverageGoal("FooClass", "foo", 0, "String", "NonNull");
+        InputCoverageTestFitness goal1 = new InputCoverageTestFitness(inputGoal1);
+        InputCoverageGoal inputGoal2 = new InputCoverageGoal("FooClass", "foo", 1, "String", "Null");
+        InputCoverageTestFitness goal2 = new InputCoverageTestFitness(inputGoal2);
+        test.addCoveredGoal(goal1);
+        test.addCoveredGoal(goal2);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testFooWithNonNullAndNull", generatedName);
+    }
+
+    @Test
+    public void testTwoMethodsOneWithException() {
+        TestCase test = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "foo");
+        test.addCoveredGoal(goal1);
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "bar");
+        test.addCoveredGoal(goal2);
+        ExceptionCoverageTestFitness goal3 = new ExceptionCoverageTestFitness("FooClass", "bar", RuntimeException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test.addCoveredGoal(goal3);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testBarAndFoo", generatedName);
+    }
+
+    @Test
+    public void testTwoTestsTwoMethodsOneWithException() {
+        TestCase test1 = new DefaultTestCase();
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "foo");
+        test1.addCoveredGoal(goal1);
+        test2.addCoveredGoal(goal1);
+
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "bar()I");
+        test1.addCoveredGoal(goal2);
+        test2.addCoveredGoal(goal2);
+
+        ExceptionCoverageTestFitness goal3 = new ExceptionCoverageTestFitness("FooClass", "bar()I", RuntimeException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test1.addCoveredGoal(goal3);
+        MethodNoExceptionCoverageTestFitness goal4 = new MethodNoExceptionCoverageTestFitness("FooClass", "bar()I");
+        test2.addCoveredGoal(goal4);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName1 = naming.getName(test1);
+        String generatedName2 = naming.getName(test2);
+        assertEquals("testBarThrowsRuntimeException", generatedName1);
+        assertEquals("testBar", generatedName2);
+    }
+
+    @Test
+    public void testTwoConstructorsDifferentClasses() {
+        TestCase test = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("Foo", "<init>()");
+        test.addCoveredGoal(goal1);
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("Bar", "<init>()");
+        test.addCoveredGoal(goal2);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testGeneratesBarAndGeneratesFoo", generatedName);
+    }
+
+    @Test
+    public void testTwoConstructorsSameClass() {
+        TestCase test = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "<init>()");
+        test.addCoveredGoal(goal1);
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "<init>(I)");
+        test.addCoveredGoal(goal2);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testGeneratesFooClassAndGeneratesFooClass", generatedName);
+    }
+
+    @Test
+    public void testConstructorAndMethod() {
+        TestCase test = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("Foo", "<init>()");
+        test.addCoveredGoal(goal1);
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("Foo", "bar()I");
+        test.addCoveredGoal(goal2);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testGeneratesFooAndCallsBar", generatedName);
+    }
+
+
+    @Test
+    public void testConstructorWithFullyQualifiedClassName() {
+        TestCase test = new DefaultTestCase();
+        MethodCoverageTestFitness goal = new MethodCoverageTestFitness("org.package.name.FooClass", "<init>()");
+        test.addCoveredGoal(goal);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testGeneratesFooClass", generatedName);
+    }
+
+    @Test
+    public void testConstructorExceptionWithFullyQualifiedClassName() {
+        TestCase test = new DefaultTestCase();
+        ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness("org.package.name.FooClass", "<init>()", RuntimeException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test.addCoveredGoal(goal);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testFailsToGenerateFooClassThrowsRuntimeException", generatedName);
+    }
 
 }

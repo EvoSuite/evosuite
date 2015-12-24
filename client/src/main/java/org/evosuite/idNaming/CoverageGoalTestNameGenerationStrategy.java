@@ -154,7 +154,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         } else if(goalList.size() == 1) {
             name += capitalize(getGoalName(goalList.get(0)));
         } else if(goalList.size() == 2) {
-            name += capitalize(getGoalName(goalList.get(0))) + "And" + capitalize(getGoalName(goalList.get(1)));
+            name += getGoalPairName(goalList.get(0), goalList.get(1));
         } else {
             name += capitalize(getGoalName(chooseRepresentativeGoal(test, goalList)));
         }
@@ -250,25 +250,71 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
 
     private String getGoalName(ExceptionCoverageTestFitness goal) {
         if(goal.getTargetMethod().startsWith("<init>")) {
-            return "FailsToGenerate" + capitalize(goal.getTargetClass())+ "Throws" + capitalize(goal.getExceptionClass().getSimpleName());
+            return "FailsToGenerate" + capitalize(getShortClassName(goal.getTargetClass()))+ "Throws" + capitalize(goal.getExceptionClass().getSimpleName());
         }
         return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + "Throws" + capitalize(goal.getExceptionClass().getSimpleName());
     }
 
     private String getGoalName(InputCoverageTestFitness goal) {
-        return formatMethodName(goal.getClassName(), goal.getMethod()) + "With" + capitalize(goal.getValueDescriptor());
+        return formatMethodName(goal.getClassName(), goal.getMethod()) + "With" + capitalize(getShortClassName(goal.getValueDescriptor()));
     }
 
     private String getGoalName(OutputCoverageTestFitness goal) {
-        return formatMethodName(goal.getClassName(), goal.getMethod()) + "Returning" + capitalize(goal.getValueDescriptor());
+        return formatMethodName(goal.getClassName(), goal.getMethod()) + "Returning" + capitalize(getShortClassName(goal.getValueDescriptor()));
+    }
+
+    private String getGoalPairName(TestFitnessFunction goal1, TestFitnessFunction goal2) {
+        if(goal1.getClass().equals(goal2.getClass())) {
+            if(goal1 instanceof MethodCoverageTestFitness) {
+                return getGoalPairName((MethodCoverageTestFitness) goal1, (MethodCoverageTestFitness) goal2);
+            }
+            if(goal1.getTargetClass().equals(goal2.getTargetClass()) && goal1.getTargetMethod().equals(goal2.getTargetMethod())) {
+                if (goal1 instanceof InputCoverageTestFitness) {
+                    return getGoalPairName((InputCoverageTestFitness) goal1, (InputCoverageTestFitness) goal2);
+                } else if (goal1 instanceof OutputCoverageTestFitness) {
+                    return getGoalPairName((OutputCoverageTestFitness) goal1, (OutputCoverageTestFitness) goal2);
+                }
+            }
+        }
+        return getGoalName(goal1) + "And" + getGoalName(goal2);
+    }
+
+    private String getGoalPairName(MethodCoverageTestFitness goal1, MethodCoverageTestFitness goal2) {
+        boolean isConstructor1 = goal1.getTargetMethod().startsWith("<init>");
+        boolean isConstructor2 = goal2.getTargetMethod().startsWith("<init>");
+
+        if(isConstructor1 != isConstructor2) {
+            if(isConstructor1)
+                return getGoalName(goal1) + "AndCalls" + getGoalName(goal2);
+            else
+                return getGoalName(goal2) + "AndCalls" + getGoalName(goal1);
+        } else {
+            return getGoalName(goal1) + "And" + getGoalName(goal2);
+        }
+    }
+
+    private String getGoalPairName(InputCoverageTestFitness goal1, InputCoverageTestFitness goal2) {
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + "With" + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
+    }
+
+    private String getGoalPairName(OutputCoverageTestFitness goal1, OutputCoverageTestFitness goal2 ) {
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + "Returning" + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
+    }
+
+    private String getShortClassName(String className) {
+        int pos = className.lastIndexOf(".");
+        if(pos >= 0)
+            return className.substring(pos+1).replace("[]", "Array");
+        else
+            return className.replace("[]", "Array");
     }
 
     private String formatMethodName(String className, String method) {
         if(method.startsWith("<init>"))
-            return "Generates"+capitalize(className);
+            return "Generates"+capitalize(getShortClassName(className));
         else {
             String methodWithoutDescriptor = getMethodNameWithoutDescriptor(method);
-            if(methodCount.get(methodWithoutDescriptor).size() > 1) {
+            if(methodCount.containsKey(methodWithoutDescriptor) && methodCount.get(methodWithoutDescriptor).size() > 1) {
                 return capitalize(getUniqueMethodName(methodWithoutDescriptor, method));
             }
             else {
@@ -286,11 +332,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         if(argumentTypes.length == 0)
             return methodNameWithoutDescriptor + "WithoutArguments";
         else if(argumentTypes.length == 1) {
-            String className = argumentTypes[0].getClassName();
-            int pos = className.lastIndexOf('.');
-            if(pos > 0)
-                className = className.substring(pos+1);
-            return methodNameWithoutDescriptor + "With" + capitalize(className);
+            return methodNameWithoutDescriptor + "With" + capitalize(getShortClassName(argumentTypes[0].getClassName()));
         }
         else
             return methodNameWithoutDescriptor + "With" + argumentTypes.length + "Arguments";
