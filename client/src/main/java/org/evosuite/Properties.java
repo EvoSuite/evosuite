@@ -1402,7 +1402,15 @@ public class Properties {
 	@Parameter(key = "variable_naming_strategy", group = "Output", description = "What variable naming strategy to use")
 	public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.DEFAULT;
 
-    /** Cache target class */
+	public enum TestNamingStrategy {
+		NUMBERED, COVERAGE
+	}
+
+	@Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
+	public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.COVERAGE;
+
+
+	/** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
 	
 	/** Cache target regression class */

@@ -33,7 +33,9 @@ import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
-// import org.evosuite.idNaming.TestNameGenerator;
+import org.evosuite.idNaming.CoverageGoalTestNameGenerationStrategy;
+import org.evosuite.idNaming.NumberedTestNameGenerationStrategy;
+import org.evosuite.idNaming.TestNameGenerationStrategy;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoAssertions;
@@ -99,6 +101,8 @@ public class TestSuiteWriter implements Opcodes {
     private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
 
     private final static String NEWLINE = System.getProperty("line.separator");
+
+    private TestNameGenerationStrategy nameGenerator = null;
 
     /**
      * Add test to suite. If the test is a prefix of an existing test, just keep
@@ -223,8 +227,13 @@ public class TestSuiteWriter implements Opcodes {
             results.add(result);
         }
 
-//        if (Properties.TEST_NAMING && optimizeIDNaming)
-//            TestNameGenerator.execute(testCases,results);
+        if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.NUMBERED) {
+            nameGenerator = new NumberedTestNameGenerationStrategy(testCases, results);
+        } else if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
+            nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases);
+        } else {
+            throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
+        }
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
@@ -594,7 +603,7 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         // Get the test method name generated in TestNameGenerator
-        String methodName = null; //TestNameGenerator.getInstance().getNameGeneratedFor(testCases.get(id));
+        String methodName = nameGenerator.getName(testCases.get(id));
 
         if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
             StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
