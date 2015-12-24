@@ -7,16 +7,13 @@ import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.Method;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -334,7 +331,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     private String getUniqueMethodName(String methodNameWithoutDescriptor, String methodName) {
         if(!methodCount.containsKey(methodNameWithoutDescriptor))
             return methodNameWithoutDescriptor;
-        String descriptor = methodName.substring(methodName.indexOf('('));
+        int pos = methodName.indexOf('(');
+        if(pos < 0) {
+            return methodName; // TODO: Should this really be possible?
+        }
+        String descriptor = methodName.substring(pos);
         Type[] argumentTypes = Type.getArgumentTypes(descriptor);
         // TODO: Dummy for now
         if(argumentTypes.length == 0)
