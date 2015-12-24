@@ -93,7 +93,7 @@ public class TestSuiteWriter implements Opcodes {
 
     private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
-    private TestCodeVisitor visitor = Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED ? visitor = new StructuredTestCodeVisitor()
+    private TestCodeVisitor visitor = Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED ? new StructuredTestCodeVisitor()
             : new TestCodeVisitor();
 
     private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
