@@ -80,8 +80,6 @@ import java.util.Set;
  */
 public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 
-	protected final Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
-
 	protected TestCase test = null;
 
 	protected final Map<Class<?>, String> classNames = new HashMap<Class<?>, String>();
