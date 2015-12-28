@@ -26,6 +26,8 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.objectweb.asm.Type;
 
+import java.util.Set;
+
 /**
  * Fitness function for a single test on a single method (no exception)
  *
@@ -90,7 +92,10 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
+        Set<Integer> exceptionPositions = result.getPositionsWhereExceptionsWereThrown();
         for (Statement stmt : result.test) {
+            if(exceptionPositions.contains(stmt.getPosition()))
+                break;
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {
                 String className;
                 String methodName;
@@ -136,7 +141,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
         if (getClass() != obj.getClass())
             return false;
         MethodCoverageTestFitness other = (MethodCoverageTestFitness) obj;
-        if (className != other.className) {
+        if (!className.equals(other.className)) {
             return false;
         } else if (! methodName.equals(other.methodName))
             return false;

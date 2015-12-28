@@ -94,6 +94,8 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
 
         Set<Integer> exceptionPositions = result.getPositionsWhereExceptionsWereThrown();
         for (Statement stmt : result.test) {
+            if(exceptionPositions.contains(stmt.getPosition()))
+                break;
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement) && ! exceptionPositions.contains(stmt.getPosition())) {
                 String className;
                 String methodName;
