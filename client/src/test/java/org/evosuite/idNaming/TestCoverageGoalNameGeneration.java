@@ -1,5 +1,6 @@
 package org.evosuite.idNaming;
 
+import com.examples.with.different.packagename.ClassWithOverloadedConstructor;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -55,7 +56,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testGeneratesFooClass", generatedName);
+        assertEquals("testCreatesFooClass", generatedName);
     }
 
     @Test
@@ -191,8 +192,8 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testGeneratesFooClass", naming.getName(test1));
-        assertEquals("testFailsToGenerateFooClassThrowsRuntimeException", naming.getName(test2));
+        assertEquals("testCreatesFooClass", naming.getName(test1));
+        assertEquals("testFailsToCreateFooClassThrowsRuntimeException", naming.getName(test2));
     }
 
     @Test
@@ -456,7 +457,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testBarAndFoo", generatedName);
+        assertEquals("testBarThrowsRuntimeException", generatedName);
     }
 
     @Test
@@ -499,7 +500,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testGeneratesBarAndGeneratesFoo", generatedName);
+        assertEquals("testCreatesBarAndCreatesFoo", generatedName);
     }
 
     @Test
@@ -513,7 +514,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testGeneratesFooClassAndGeneratesFooClass", generatedName);
+        assertEquals("testCreatesFooClassWithoutArgumentsAndCreatesFooClassWithInt", generatedName);
     }
 
     @Test
@@ -527,7 +528,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testGeneratesFooAndCallsBar", generatedName);
+        assertEquals("testCreatesFooAndCallsBar", generatedName);
     }
 
 
@@ -540,7 +541,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testGeneratesFooClass", generatedName);
+        assertEquals("testCreatesFooClass", generatedName);
     }
 
     @Test
@@ -552,7 +553,36 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testFailsToGenerateFooClassThrowsRuntimeException", generatedName);
+        assertEquals("testFailsToCreateFooClassThrowsRuntimeException", generatedName);
+    }
+
+    @Test
+    public void testOverloadedConstructor() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness(ClassWithOverloadedConstructor.class.getCanonicalName(), "<init>()");
+        test1.addCoveredGoal(goal1);
+
+        TestCase test2 = new DefaultTestCase();
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness(ClassWithOverloadedConstructor.class.getCanonicalName(), "<init>(Ljava/lang/String;)");
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(goal2);
+
+        TestCase test3 = new DefaultTestCase();
+        MethodCoverageTestFitness goal3 = new MethodCoverageTestFitness(ClassWithOverloadedConstructor.class.getCanonicalName(), "<init>(II)");
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(goal3);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName1 = naming.getName(test1);
+        String generatedName2 = naming.getName(test2);
+        String generatedName3 = naming.getName(test3);
+        assertEquals("testCreatesClassWithOverloadedConstructorWithoutArguments", generatedName1);
+        assertEquals("testCreatesClassWithOverloadedConstructorWithString", generatedName2);
+        assertEquals("testCreatesClassWithOverloadedConstructorWith2Arguments", generatedName3);
     }
 
 }
