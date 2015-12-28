@@ -181,7 +181,7 @@ public class TestCaseMinimizer {
 
 		//TODO: add back this check
 //		assert  (fitnessFunction.isMaximizationFunction() ?
-//				fitnessFunction.getFitness(c) > fitness : fitnessFunction.getFitness(c) <= fitness)
+//				fitnessFunction.getFitness(c) >= fitness : fitnessFunction.getFitness(c) <= fitness)
 //				:
 //				"Minimization worsened " + fitnessFunction.getClass().getName()+" fitness from "+fitness+
 //						" to "+fitnessFunction.getFitness(c);
