@@ -230,7 +230,7 @@ public class TestSuiteWriter implements Opcodes {
         if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.NUMBERED) {
             nameGenerator = new NumberedTestNameGenerationStrategy(testCases, results);
         } else if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
-            nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases);
+            nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
         } else {
             throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
         }

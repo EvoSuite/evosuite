@@ -1,5 +1,8 @@
 package org.evosuite.idNaming;
 
+import org.evosuite.Properties;
+import org.evosuite.coverage.FitnessFunctions;
+import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
@@ -31,11 +34,13 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     public static final String PREFIX = "test";
 
     public CoverageGoalTestNameGenerationStrategy(List<TestCase> testCases, List<ExecutionResult> results) {
+        addGoalsNotIncludedInTargetCriteria(results);
         Map<TestCase, Set<TestFitnessFunction>> testToGoals = initializeCoverageMapFromResults(results);
         generateNames(testToGoals);
     }
 
     public CoverageGoalTestNameGenerationStrategy(List<TestCase> testCases) {
+        // This assumes all goals are already saved in the tests
         Map<TestCase, Set<TestFitnessFunction>> testToGoals = initializeCoverageMapFromTests(testCases);
         generateNames(testToGoals);
     }
@@ -62,6 +67,21 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             testToGoals.put(result.test, filterSupportedGoals(new HashSet<>(result.test.getCoveredGoals())));
         }
         return testToGoals;
+    }
+
+    private void addGoalsNotIncludedInTargetCriteria(List<ExecutionResult> results) {
+        List<Properties.Criterion> requiredCriteria = new ArrayList<>(Arrays.asList(new Properties.Criterion[] { Properties.Criterion.OUTPUT, Properties.Criterion.INPUT, Properties.Criterion.METHOD, Properties.Criterion.METHODNOEXCEPTION, Properties.Criterion.EXCEPTION}));
+        requiredCriteria.removeAll(Arrays.asList(Properties.CRITERION));
+        for(Properties.Criterion c : requiredCriteria) {
+            TestFitnessFactory<? extends TestFitnessFunction> goalFactory = FitnessFunctions.getFitnessFactory(c);
+            List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
+            for(ExecutionResult result : results) {
+                for(TestFitnessFunction goal : goals) {
+                    if(goal.isCovered(result))
+                        result.test.addCoveredGoal(goal);
+                }
+            }
+        }
     }
 
     private List<Class<?>> supportedClasses = Arrays.asList(new Class<?> [] { MethodCoverageTestFitness.class, MethodNoExceptionCoverageTestFitness.class,

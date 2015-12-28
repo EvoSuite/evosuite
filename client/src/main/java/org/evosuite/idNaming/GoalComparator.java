@@ -3,6 +3,7 @@ package org.evosuite.idNaming;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.testcase.TestFitnessFunction;
 
@@ -27,16 +28,19 @@ public class GoalComparator implements Comparator<TestFitnessFunction> {
         if(c1.equals(c2))
             return o1.compareTo(o2);
 
+        if(c1.equals(ExceptionCoverageTestFitness.class))
+            return -1;
+        else if(c2.equals(ExceptionCoverageTestFitness.class))
+            return 1;
+
         if(c1.equals(MethodCoverageTestFitness.class))
             return -1;
         else if(c2.equals(MethodCoverageTestFitness.class))
             return 1;
 
-        // TODO: Interface
-
-        if(c1.equals(ExceptionCoverageTestFitness.class))
+        if(c1.equals(MethodNoExceptionCoverageTestFitness.class))
             return -1;
-        else if(c2.equals(ExceptionCoverageTestFitness.class))
+        else if(c2.equals(MethodNoExceptionCoverageTestFitness.class))
             return 1;
 
         if(c1.equals(OutputCoverageTestFitness.class))

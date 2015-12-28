@@ -147,6 +147,31 @@ public class TestCoverageGoalNameGeneration {
         assertEquals("testToStringThrowsArithmeticException", naming.getName(test2));
     }
 
+
+    @Test
+    public void testMethodWithExceptions() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString()");
+        test1.addCoveredGoal(goal1);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "toString2()");
+        test2.addCoveredGoal(goal2);
+
+        ExceptionCoverageTestFitness goal3 = new ExceptionCoverageTestFitness("FooClass", "toString()", MockArithmeticException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test1.addCoveredGoal(goal3);
+        test2.addCoveredGoal(goal3);
+
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testToString", naming.getName(test1));
+        assertEquals("testToString2", naming.getName(test2));
+    }
+
     @Test
     public void testConstructorWithAndWithoutException() {
         TestCase test1 = new DefaultTestCase();
