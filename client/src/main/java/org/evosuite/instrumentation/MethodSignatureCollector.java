@@ -1,11 +1,11 @@
 package org.evosuite.instrumentation;
 
-import jdk.nashorn.internal.codegen.types.Type;
 import org.evosuite.idNaming.VariableNameCollector;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +23,24 @@ public class MethodSignatureCollector extends MethodVisitor {
 
     private int numParams;
 
+    private int startIndex;
+
+    private int endIndex;
+
+    private boolean isStatic;
+
     private static final Logger logger = LoggerFactory.getLogger(MethodSignatureCollector.class);
 
-    public MethodSignatureCollector(MethodVisitor mv, String className, String methodName, String desc) {
+    public MethodSignatureCollector(MethodVisitor mv, String className, String methodName, String desc, boolean isStatic) {
         super(Opcodes.ASM5, mv);
         this.className = className;
         this.methodName = methodName;
-        numParams = 5; // Type.getMethodArguments(desc).length; - TODO why does this crash
+        numParams = Type.getArgumentTypes(desc).length;
+        this.isStatic = isStatic;
+        if(!isStatic) {
+            startIndex = 1;
+        }
+        endIndex = startIndex + numParams;
     }
 
     /* (non-Javadoc)
@@ -38,9 +49,9 @@ public class MethodSignatureCollector extends MethodVisitor {
     @Override
     public void visitLocalVariable(String name, String desc, String signature,
                                    Label start, Label end, int index) {
-        if(index < numParams) {
-            logger.info("Collecting name for parameter {} of method {}: {}", index, methodName, name);
-//            VariableNameCollector.getInstance().addParameterName(className, methodName, index, name);
+        if(index >= startIndex && index < endIndex) {
+            logger.debug("Collecting name for parameter {} of method {}: {}", index, methodName, name);
+            VariableNameCollector.getInstance().addParameterName(className.replace('/', '.'), methodName, index, name);
         }
 
         super.visitLocalVariable(name, desc, signature, start, end, index);

@@ -92,7 +92,7 @@ public class CFGClassAdapter extends ClassVisitor {
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
 		                                     exceptions);
 		mv = new JSRInlinerAdapter(mv, methodAccess, name, descriptor, signature, exceptions);
-		mv = new MethodSignatureCollector(mv, className, name, descriptor);
+		mv = new MethodSignatureCollector(mv, className, name, descriptor, (methodAccess & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC);
 
 
 		if ((methodAccess & Opcodes.ACC_SYNTHETIC) != 0
