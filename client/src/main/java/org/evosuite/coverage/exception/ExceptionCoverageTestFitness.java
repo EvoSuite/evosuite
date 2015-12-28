@@ -197,7 +197,11 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      */
     @Override
     public String getTargetMethod() {
-        return methodIdentifier.substring(0, methodIdentifier.indexOf('('));
+        int pos = methodIdentifier.indexOf('(');
+        if(pos < 0)
+            return methodIdentifier;
+        else
+            return methodIdentifier.substring(0, pos);
     }
 
 }

@@ -265,8 +265,8 @@ public class TestMethodNamingComplexExamples {
         String nameTest1 = naming.getName(test1);
         String nameTest2 = naming.getName(test2);
 
-        assertEquals("Generated test name differs from expected", "testGeneratesTUnmodifiableIntByteMap", nameTest1);
-        assertEquals("Generated test name differs from expected", "testFailsToGenerateTUnmodifiableIntByteMapThrowsArrayIndexOutOfBoundsException", nameTest2);
+        assertEquals("Generated test name differs from expected", "testCreatesTUnmodifiableIntByteMap", nameTest1);
+        assertEquals("Generated test name differs from expected", "testFailsToCreateTUnmodifiableIntByteMapThrowsArrayIndexOutOfBoundsException", nameTest2);
     }
 
     @Ignore // Not implemented yet
@@ -372,8 +372,8 @@ public class TestMethodNamingComplexExamples {
         String nameTest1 = naming.getName(test1);
         String nameTest2 = naming.getName(test2);
         System.out.println(nameTest1+nameTest2);
-        assertEquals("Generated test name differs from expected", "testGeneratesTUnmodifiableIntByteMap", nameTest1);
-        assertEquals("Generated test name differs from expected", "testFailsToGenerateTUnmodifiableIntByteMapThrowsArrayIndexOutOfBoundsException", nameTest2);
+        assertEquals("Generated test name differs from expected", "testCreatesTUnmodifiableIntByteMap", nameTest1);
+        assertEquals("Generated test name differs from expected", "testFailsToCreateTUnmodifiableIntByteMapThrowsArrayIndexOutOfBoundsException", nameTest2);
     }
 
     @Test
@@ -423,7 +423,7 @@ public class TestMethodNamingComplexExamples {
         String nameTest2 = naming.getName(test2);
 
         assertEquals("Generated test name differs from expected", "testGetPublicID", nameTest1);
-        assertEquals("Generated test name differs from expected", "testGeneratesDocTypeAndCallsSetPublicID", nameTest2);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeAndCallsSetPublicID", nameTest2);
     }
 
     @Test
@@ -502,9 +502,9 @@ public class TestMethodNamingComplexExamples {
         String nameTest2 = naming.getName(test2);
         String nameTest3 = naming.getName(test3);
 
-        assertEquals("Generated test name differs from expected", "testGeneratesDocTypeWithZeroAndZero", nameTest1);
-        assertEquals("Generated test name differs from expected", "testGeneratesDocTypeWithNull", nameTest2);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeWith3ArgumentsWithZeroAndZero", nameTest1);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeWithFieldMatrixWithNull", nameTest2);
         // TODO: Why is Positive vs nonnull nondeterministically chosen?
-        assertEquals("Generated test name differs from expected", "testGeneratesDocTypeWithPositive", nameTest3);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeWith3ArgumentsWithPositive", nameTest3);
     }
 }

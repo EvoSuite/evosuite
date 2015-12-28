@@ -33,6 +33,20 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
 
     public static final String PREFIX = "test";
 
+    public static final String STR_CREATE = "Creates";
+
+    public static final String STR_CREATE_EXCEPTION = "FailsToCreate";
+
+    public static final String STR_THROWS = "Throws";
+
+    public static final String STR_WITH = "With";
+
+    public static final String STR_WITHOUT = "Without";
+
+    public static final String STR_RETURNS = "Returning";
+
+    public static final String STR_ARGUMENTS = "Arguments";
+
     public CoverageGoalTestNameGenerationStrategy(List<TestCase> testCases, List<ExecutionResult> results) {
         addGoalsNotIncludedInTargetCriteria(results);
         Map<TestCase, Set<TestFitnessFunction>> testToGoals = initializeCoverageMapFromResults(results);
@@ -275,17 +289,17 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
 
         if(goal.getTargetMethod().startsWith("<init>")) {
-            return "FailsToGenerate" + capitalize(getShortClassName(goal.getTargetClass()))+ "Throws" + capitalize(ex.getSimpleName());
+            return STR_CREATE_EXCEPTION + capitalize(getShortClassName(goal.getTargetClass()))+ STR_THROWS + capitalize(ex.getSimpleName());
         }
-        return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + "Throws" + capitalize(ex.getSimpleName());
+        return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + STR_THROWS + capitalize(ex.getSimpleName());
     }
 
     private String getGoalName(InputCoverageTestFitness goal) {
-        return formatMethodName(goal.getClassName(), goal.getMethod()) + "With" + capitalize(getShortClassName(goal.getValueDescriptor()));
+        return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_WITH + capitalize(getShortClassName(goal.getValueDescriptor()));
     }
 
     private String getGoalName(OutputCoverageTestFitness goal) {
-        return formatMethodName(goal.getClassName(), goal.getMethod()) + "Returning" + capitalize(getShortClassName(goal.getValueDescriptor()));
+        return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_RETURNS + capitalize(getShortClassName(goal.getValueDescriptor()));
     }
 
     private String getGoalPairName(TestFitnessFunction goal1, TestFitnessFunction goal2) {
@@ -319,11 +333,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     private String getGoalPairName(InputCoverageTestFitness goal1, InputCoverageTestFitness goal2) {
-        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + "With" + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_WITH + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
     }
 
     private String getGoalPairName(OutputCoverageTestFitness goal1, OutputCoverageTestFitness goal2 ) {
-        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + "Returning" + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_RETURNS + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
     }
 
     private String getShortClassName(String className) {
@@ -338,9 +352,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         if(method.startsWith("<init>")) {
             String methodWithoutDescriptor = getMethodNameWithoutDescriptor(method);
             if(methodCount.containsKey(methodWithoutDescriptor) && methodCount.get(methodWithoutDescriptor).size() > 1) {
-                return "Generates" + capitalize(getUniqueConstructorName(getShortClassName(className), method));
+                return STR_CREATE + capitalize(getUniqueConstructorName(getShortClassName(className), method));
             } else {
-                return "Generates" + capitalize(getShortClassName(className));
+                return STR_CREATE + capitalize(getShortClassName(className));
             }
         }
         else {
@@ -365,12 +379,12 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         Type[] argumentTypes = Type.getArgumentTypes(descriptor);
         // TODO: Dummy for now
         if(argumentTypes.length == 0)
-            return methodNameWithoutDescriptor + "WithoutArguments";
+            return methodNameWithoutDescriptor + STR_WITHOUT + STR_ARGUMENTS;
         else if(argumentTypes.length == 1) {
-            return methodNameWithoutDescriptor + "With" + capitalize(getShortClassName(argumentTypes[0].getClassName()));
+            return methodNameWithoutDescriptor + STR_WITH + capitalize(getShortClassName(argumentTypes[0].getClassName()));
         }
         else
-            return methodNameWithoutDescriptor + "With" + argumentTypes.length + "Arguments";
+            return methodNameWithoutDescriptor + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
     }
 
     private String getUniqueConstructorName(String className, String methodName) {
@@ -384,12 +398,12 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         Type[] argumentTypes = Type.getArgumentTypes(descriptor);
         // TODO: Dummy for now
         if(argumentTypes.length == 0)
-            return className + "WithoutArguments";
+            return className + STR_WITHOUT + STR_ARGUMENTS;
         else if(argumentTypes.length == 1) {
-            return className + "With" + capitalize(getShortClassName(argumentTypes[0].getClassName()));
+            return className + STR_WITH + capitalize(getShortClassName(argumentTypes[0].getClassName()));
         }
         else
-            return className + "With" + argumentTypes.length + "Arguments";
+            return className + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
     }
 
 
