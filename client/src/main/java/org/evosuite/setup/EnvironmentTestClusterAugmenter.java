@@ -235,7 +235,42 @@ public class EnvironmentTestClusterAugmenter {
         }
     }
 
+    private boolean isObjectMethod(AccessibleObject ao){
+        if(! (ao instanceof Method)){
+            return false;
+        }
+
+        /*
+            Note: this check is not 100% precise (one could have new completely unrelated method
+            with same name from Object but different signature). However, as we only apply it
+            on EvoSuite methods, should be fine
+         */
+
+        Method m = (Method) ao;
+        String name = m.getName();
+        switch (name){
+            case "clone":
+            case "equals":
+            case "finalize":
+            case "getClass":
+            case "hashCode":
+            case "notify":
+            case "notifyAll":
+            case "toString":
+            case "wait":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
     private boolean shouldSkip(boolean excludeClass, AccessibleObject c) {
+
+        if(isObjectMethod(c)){
+            return true;
+        }
+
         if(excludeClass){
             boolean include = c.getAnnotation(EvoSuiteInclude.class) != null;
             if(!include){
@@ -373,17 +408,7 @@ public class EnvironmentTestClusterAugmenter {
 
             hasAddedFiles = true;
 
-            try {
-				/*
-				 * all methods in FileSystemHandling will be used in the search
-				 */
-                for(Method m : FileSystemHandling.class.getMethods()){
-                    cluster.addEnvironmentTestCall(new GenericMethod(m,
-                            new GenericClass(FileSystemHandling.class)));
-                }
-            } catch (Exception e) {
-                logger.error("Error while handling virtual file system: "+e.getMessage(),e);
-            }
+            addEnvironmentClassToCluster(FileSystemHandling.class);
         }
     }
 
@@ -397,9 +422,7 @@ public class EnvironmentTestClusterAugmenter {
                                 new Class<?>[]{int.class}),
                         new GenericClass(
                                 Random.class)));
-            } catch (SecurityException e) {
-                logger.error("Error while handling Random: "+e.getMessage(),e);
-            } catch (NoSuchMethodException e) {
+            } catch (SecurityException | NoSuchMethodException  e) {
                 logger.error("Error while handling Random: "+e.getMessage(),e);
             }
         }
