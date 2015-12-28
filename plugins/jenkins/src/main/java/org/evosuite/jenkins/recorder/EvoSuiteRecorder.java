@@ -19,35 +19,35 @@
  */
 package org.evosuite.jenkins.recorder;
 
+import org.evosuite.jenkins.actions.BuildAction;
+import org.evosuite.jenkins.actions.ProjectAction;
+import org.evosuite.jenkins.scm.Git;
+import org.evosuite.jenkins.scm.Mercurial;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+
+import java.io.IOException;
+
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.maven.AbstractMavenProject;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.mercurial.MercurialSCM;
 import hudson.scm.SCM;
-import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import hudson.util.FormValidation;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-
-import org.evosuite.jenkins.actions.BuildAction;
-import org.evosuite.jenkins.actions.ProjectAction;
-import org.evosuite.jenkins.scm.Mercurial;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-
 public class EvoSuiteRecorder extends Recorder {
+
+	public static final String LOG_PREFIX = "[EvoSuite] ";
 
 	@Extension
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
@@ -92,10 +92,6 @@ public class EvoSuiteRecorder extends Recorder {
 		BuildAction build_action = new BuildAction(build, projectAction);
 		build.addAction(build_action);
 
-		// FIXME the new test cases generated improved the coverage of manual written test cases?
-		// maybe we should do this on evosuite-maven-plugin?
-
-
 		// Deliver new test cases (i.e., commit and push the new test cases generated)
 
 		SCM scm = project.getScm();
@@ -105,19 +101,22 @@ public class EvoSuiteRecorder extends Recorder {
 		}
 
 		if (scm instanceof MercurialSCM) {
-			Mercurial m = new Mercurial((MercurialSCM) scm, project);
-			if (!m.commit(build, launcher, listener)) {
+			Mercurial m = new Mercurial((MercurialSCM) scm, project, build, launcher, listener);
+			if (!m.commit(build, listener)) {
 				return false;
 			}
-			if (!m.push(build, launcher, listener)) {
+			if (!m.push(build, listener)) {
 				return false;
 			}
 		}
 		else if (scm instanceof GitSCM) {
-			// empty
-		}
-		else if (scm instanceof SubversionSCM) {
-			// empty
+			Git g = new Git((GitSCM) scm, build, listener);
+			if (!g.commit(build, listener)) {
+				return false;
+			}
+			if (!g.push(build, listener)) {
+				return false;
+			}
 		}
 		else {
 			listener.getLogger().println("SCM of type " + scm.getType() + " not supported!");
@@ -149,16 +148,15 @@ public class EvoSuiteRecorder extends Recorder {
 		 */
 		@Override
 		public String getDisplayName() {
-			return "Add EvoSuite Stats";
+			return "EvoSuite";
 		}
 
-		public FormValidation doCheckCreateStats(@QueryParameter Boolean value) throws IOException, ServletException {
+		public FormValidation doCheckAutoCommits(@QueryParameter Boolean value) {
 			if (value == false) {
 				return FormValidation.error("Stats must be created for any infomation to be displayed");
 			} else {
 				return FormValidation.ok();
 			}
-
 		}
 
 		/*
