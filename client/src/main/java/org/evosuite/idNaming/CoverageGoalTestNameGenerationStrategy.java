@@ -335,8 +335,14 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     private String formatMethodName(String className, String method) {
-        if(method.startsWith("<init>"))
-            return "Generates"+capitalize(getShortClassName(className));
+        if(method.startsWith("<init>")) {
+            String methodWithoutDescriptor = getMethodNameWithoutDescriptor(method);
+            if(methodCount.containsKey(methodWithoutDescriptor) && methodCount.get(methodWithoutDescriptor).size() > 1) {
+                return "Generates" + capitalize(getUniqueConstructorName(getShortClassName(className), method));
+            } else {
+                return "Generates" + capitalize(getShortClassName(className));
+            }
+        }
         else {
             String methodWithoutDescriptor = getMethodNameWithoutDescriptor(method);
             if(methodCount.containsKey(methodWithoutDescriptor) && methodCount.get(methodWithoutDescriptor).size() > 1) {
@@ -366,6 +372,26 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         else
             return methodNameWithoutDescriptor + "With" + argumentTypes.length + "Arguments";
     }
+
+    private String getUniqueConstructorName(String className, String methodName) {
+        if(!methodCount.containsKey("<init>"))
+            return className;
+        int pos = methodName.indexOf('(');
+        if(pos < 0) {
+            return className; // TODO: Should this really be possible?
+        }
+        String descriptor = methodName.substring(pos);
+        Type[] argumentTypes = Type.getArgumentTypes(descriptor);
+        // TODO: Dummy for now
+        if(argumentTypes.length == 0)
+            return className + "WithoutArguments";
+        else if(argumentTypes.length == 1) {
+            return className + "With" + capitalize(getShortClassName(argumentTypes[0].getClassName()));
+        }
+        else
+            return className + "With" + argumentTypes.length + "Arguments";
+    }
+
 
     private String getMethodNameWithoutDescriptor(String methodName) {
         // Should have a descriptor
