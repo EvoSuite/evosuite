@@ -74,25 +74,25 @@ public class Mercurial implements SCM {
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener) {
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
 			Set<String> branches = this.getBranches(build.getWorkspace(), listener);
-			if (!branches.contains(SCM.EVOSUITE_BRANCH)) {
+			if (!branches.contains(branchName)) {
 				// create a new branch called "evosuite-tests" to commit and
 				// push the new generated test suites
 				listener.getLogger()
-						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + SCM.EVOSUITE_BRANCH);
-				if (this.hgClient.run("branch", SCM.EVOSUITE_BRANCH).pwd(build.getWorkspace()).join() != 0) {
-					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to create a new branch called " + SCM.EVOSUITE_BRANCH);
+						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + branchName);
+				if (this.hgClient.run("branch", branchName).pwd(build.getWorkspace()).join() != 0) {
+					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to create a new branch called " + branchName);
 					return false;
 				}
 			}
 
 			// switch to EVOSUITE_BRANCH
-			if (this.hgClient.run("update", SCM.EVOSUITE_BRANCH).pwd(build.getWorkspace()).join() != 0) {
-				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to switch to branch " + SCM.EVOSUITE_BRANCH);
+			if (this.hgClient.run("update", branchName).pwd(build.getWorkspace()).join() != 0) {
+				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to switch to branch " + branchName);
 				return false;
 			}
 
@@ -129,7 +129,7 @@ public class Mercurial implements SCM {
 	}
 
 	@Override
-	public boolean push(AbstractBuild<?, ?> build, BuildListener listener) {
+	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Pushing new test cases");
 

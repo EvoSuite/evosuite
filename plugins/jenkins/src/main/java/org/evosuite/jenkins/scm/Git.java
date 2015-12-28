@@ -86,22 +86,22 @@ public class Git implements SCM {
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener) {
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
 			Set<String> branches = this.getBranches();
-			if (!branches.contains(SCM.EVOSUITE_BRANCH)) {
+			if (!branches.contains(branchName)) {
 				// create a new branch called "evosuite-tests" to commit and
 				// push the new generated test suites
 				listener.getLogger()
-						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + SCM.EVOSUITE_BRANCH);
-				this.gitClient.branch(SCM.EVOSUITE_BRANCH);
+						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + branchName);
+				this.gitClient.branch(branchName);
 			}
 
 			this.gitClient.setAuthor("jenkins", "jenkins@localhost.com");
 			this.gitClient.setCommitter("jenkins", "jenkins@localhost.com");
-			this.gitClient.checkoutBranch(SCM.EVOSUITE_BRANCH, "HEAD");
+			this.gitClient.checkoutBranch(branchName, "HEAD");
 
 			// parse list of new and modified files
 			String status = ((CliGitAPIImpl) this.gitClient).launchCommand("ls-files", "--deleted", "--modified",
@@ -136,12 +136,12 @@ public class Git implements SCM {
 	}
 
 	@Override
-	public boolean push(AbstractBuild<?, ?> build, BuildListener listener) {
+	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Pushing new test cases");
 
 			PushCommand p = this.gitClient.push();
-			p.ref(SCM.EVOSUITE_BRANCH);
+			p.ref(branchName);
 			p.to(new URIish("origin"));
 			p.force().execute();
 

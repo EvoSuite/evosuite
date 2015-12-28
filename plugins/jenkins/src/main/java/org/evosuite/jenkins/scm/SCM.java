@@ -28,11 +28,9 @@ public interface SCM {
 
 	public static String TESTS_DIR_TO_COMMIT = ".evosuite" + File.separator + "best-tests";
 
-	public static String EVOSUITE_BRANCH = "evosuite-tests";
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener);
-
-	public boolean push(AbstractBuild<?, ?> build, BuildListener listener);
+	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 
 	public void rollback(AbstractBuild<?, ?> build, BuildListener listener);
 }

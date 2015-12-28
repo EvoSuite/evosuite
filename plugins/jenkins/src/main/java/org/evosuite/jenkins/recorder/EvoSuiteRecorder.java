@@ -23,8 +23,7 @@ import org.evosuite.jenkins.actions.BuildAction;
 import org.evosuite.jenkins.actions.ProjectAction;
 import org.evosuite.jenkins.scm.Git;
 import org.evosuite.jenkins.scm.Mercurial;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 
@@ -43,7 +42,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import hudson.util.FormValidation;
+import net.sf.json.JSONObject;
 
 public class EvoSuiteRecorder extends Recorder {
 
@@ -52,9 +51,36 @@ public class EvoSuiteRecorder extends Recorder {
 	@Extension
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-	@DataBoundConstructor
+	private boolean disableAutoCommit;
+	private boolean disableAutoPush;
+	private String branchName;
+
 	public EvoSuiteRecorder() {
 		// empty
+	}
+
+	public boolean getDisableAutoCommit() {
+		return this.disableAutoCommit;
+	}
+
+	public boolean getDisableAutoPush() {
+		return this.disableAutoPush;
+	}
+
+	public String getBranchName() {
+		return this.branchName;
+	}
+
+	public void setDisableAutoCommit(boolean disableAutoCommit) {
+		this.disableAutoCommit = disableAutoCommit;
+	}
+
+	public void setDisableAutoPush(boolean disableAutoPush) {
+		this.disableAutoPush = disableAutoPush;
+	}
+
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
 	}
 
 	@Override
@@ -100,26 +126,29 @@ public class EvoSuiteRecorder extends Recorder {
 			return true;
 		}
 
+		org.evosuite.jenkins.scm.SCM scmWrapper = null;
+
 		if (scm instanceof MercurialSCM) {
-			Mercurial m = new Mercurial((MercurialSCM) scm, project, build, launcher, listener);
-			if (!m.commit(build, listener)) {
-				return false;
-			}
-			if (!m.push(build, listener)) {
-				return false;
-			}
-		}
-		else if (scm instanceof GitSCM) {
-			Git g = new Git((GitSCM) scm, build, listener);
-			if (!g.commit(build, listener)) {
-				return false;
-			}
-			if (!g.push(build, listener)) {
-				return false;
-			}
-		}
-		else {
+			scmWrapper = new Mercurial((MercurialSCM) scm, project, build, launcher, listener);
+		} else if (scm instanceof GitSCM) {
+			scmWrapper = new Git((GitSCM) scm, build, listener);
+		} else {
 			listener.getLogger().println("SCM of type " + scm.getType() + " not supported!");
+			return true;
+		}
+		assert scmWrapper != null;
+
+		if (!this.disableAutoCommit) {
+			if (!scmWrapper.commit(build, listener, this.branchName)) {
+				return false;
+			}
+
+			// only perform a push if there was a commit
+			if (!this.disableAutoPush) {
+				if (!scmWrapper.push(build, listener, this.branchName)) {
+					return false;
+				}
+			}
 		}
 
 		return true;
@@ -151,14 +180,6 @@ public class EvoSuiteRecorder extends Recorder {
 			return "EvoSuite";
 		}
 
-		public FormValidation doCheckAutoCommits(@QueryParameter Boolean value) {
-			if (value == false) {
-				return FormValidation.error("Stats must be created for any infomation to be displayed");
-			} else {
-				return FormValidation.ok();
-			}
-		}
-
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -167,7 +188,20 @@ public class EvoSuiteRecorder extends Recorder {
 		@Override
 		@SuppressWarnings("rawtypes")
 		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-			return Boolean.TRUE;
+			return true;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see hudson.model.Descriptor#newInstance(org.kohsuke.stapler.StaplerRequest, net.sf.json.JSONObject)
+		 */
+		@Override
+		public Publisher newInstance(StaplerRequest req, JSONObject formData)
+				throws hudson.model.Descriptor.FormException {
+			EvoSuiteRecorder pub = new EvoSuiteRecorder();
+			req.bindJSON(pub, formData);
+			return pub;
 		}
 	}
 }
