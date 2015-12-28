@@ -350,7 +350,7 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		Object value = assertion.getValue();
 
 		collectClassNames(source);
-		if ((value == null) && (value.getClass().isEnum() || value instanceof Enum)) {
+		if ((value != null) && (value.getClass().isEnum() || value instanceof Enum)) {
 			// Make sure the enum is imported in the JUnit test
 			collectClassNames(value.getClass());
 		}
