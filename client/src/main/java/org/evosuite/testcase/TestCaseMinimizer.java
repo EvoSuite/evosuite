@@ -117,17 +117,14 @@ public class TestCaseMinimizer {
 			return;
 		}
 		logger.info("Minimizing test case");
-		//logger.info(c.test.toCode());
 
-		/** Factory method that handles statement deletion */
-		TestFactory testFactory = TestFactory.getInstance();
 
 		double fitness = fitnessFunction.getFitness(c);
 		if (isTimeoutReached()) {
 			return;
 		}
 
-		logger.debug("Start fitness values: " + fitness);
+		logger.debug("Start fitness values: {}", fitness);
 		assert ConstraintVerifier.verifyTest(c);
 		
 		if (isTimeoutReached()) {
@@ -148,9 +145,9 @@ public class TestCaseMinimizer {
 				
 				logger.debug("Deleting statement {}", c.test.getStatement(i).getCode());
 				TestChromosome copy = (TestChromosome) c.clone();
-				boolean modified = false;
+				boolean modified;
 				try {
-					modified = testFactory.deleteStatementGracefully(c.test, i);
+					modified = TestFactory.getInstance().deleteStatementGracefully(c.test, i);
 				} catch (ConstructionFailedException e) {
 					modified = false;
 				}
@@ -164,23 +161,14 @@ public class TestCaseMinimizer {
 
 				c.setChanged(true);
 
-				double newFitness = fitnessFunction.getFitness(c);
-
-				boolean isWorse = false;
 				if (isTimeoutReached()) {
 					logger.debug("Keeping original version due to timeout");
 					restoreTestCase(c, copy);
 					return;
 				}
 
-				if (isWorse(fitnessFunction, copy, c)) {
-					isWorse = true;
-				}
-					
-
-				if (!isWorse) {
+				if (! isWorse(fitnessFunction, copy, c)) {
 					logger.debug("Keeping shorter version");
-					fitness = newFitness;
 					changed = true;
 					break;
 				} else {
@@ -190,6 +178,14 @@ public class TestCaseMinimizer {
 
 			}
 		}
+
+		//TODO: add back this check
+//		assert  (fitnessFunction.isMaximizationFunction() ?
+//				fitnessFunction.getFitness(c) > fitness : fitnessFunction.getFitness(c) <= fitness)
+//				:
+//				"Minimization worsened " + fitnessFunction.getClass().getName()+" fitness from "+fitness+
+//						" to "+fitnessFunction.getFitness(c);
+
 
 		if (Properties.MINIMIZE_VALUES) {
 			logger.info("Minimizing values of test case");
