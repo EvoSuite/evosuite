@@ -48,8 +48,8 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
     public static final String NUM_NEGATIVE = "negative";
     public static final String REF_NULL = "null";
     public static final String REF_NONNULL = "nonnull";
-    public static final String EMPTY_ARRAY = "empty";
-    public static final String NONEMPTY_ARRAY = "nonempty";
+    public static final String EMPTY = "empty"; // used for arrays and strings
+    public static final String NONEMPTY = "nonempty"; // used for arrays and strings
     /*
 	 * (non-Javadoc)
 	 * 
@@ -101,12 +101,16 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                             break;
                         case Type.ARRAY:
                             goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NULL)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), EMPTY_ARRAY)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NONEMPTY_ARRAY)));
+                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), EMPTY)));
+                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NONEMPTY)));
                             break;
                         case Type.OBJECT:
                             goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NULL)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NONNULL)));
+                            if (argType.getClassName().equals("java.lang.String")) {
+                                goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), EMPTY)));
+                                goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NONEMPTY)));
+                            } else
+                                goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NONNULL)));
                             break;
                         default:
                             break;

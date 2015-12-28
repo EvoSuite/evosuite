@@ -23,6 +23,7 @@ import com.examples.with.different.packagename.coverage.ClassWithHashCode;
 import com.examples.with.different.packagename.coverage.MethodReturnsArray;
 import com.examples.with.different.packagename.coverage.MethodReturnsObject;
 import com.examples.with.different.packagename.coverage.MethodReturnsPrimitive;
+import com.examples.with.different.packagename.coverage.MethodReturnsString;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -119,7 +120,7 @@ public class OutputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = MethodReturnsArray.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
+		Properties.TARGET_CLASS = targetClass;Properties.JUNIT_TESTS=true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
@@ -129,6 +130,26 @@ public class OutputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		for (TestFitnessFactory ff : TestGenerationStrategy.getFitnessFactories())
 			goals += ff.getCoverageGoals().size();
 		Assert.assertEquals("Unexpected number of goals", 15, goals);
+		Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+
+	@Test
+	public void testOutputCoverageString() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = MethodReturnsString.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;Properties.PRINT_GOALS = true;Properties.JUNIT_TESTS=true;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		int goals = 0;
+		for (TestFitnessFactory ff : TestGenerationStrategy.getFitnessFactories())
+			goals += ff.getCoverageGoals().size();
+		Assert.assertEquals("Unexpected number of goals", 8, goals);
 		Assert.assertEquals("Non-optimal fitness: ", 0.0, best.getFitness(), 0.001);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}

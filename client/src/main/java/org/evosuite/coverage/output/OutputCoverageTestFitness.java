@@ -112,9 +112,9 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
                     else {
                         if (Array.getLength(returnValue) == 0)
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.EMPTY_ARRAY));
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.EMPTY));
                         else
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NONEMPTY_ARRAY));
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NONEMPTY));
                     }
                     break;
                 case Type.OBJECT:
@@ -122,12 +122,17 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
                     else {
                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL));
-
+                        if (returnType.getClassName().equals("java.lang.String")) {
+                            String valStr = ((String)returnValue).isEmpty() ? OutputCoverageFactory.EMPTY : OutputCoverageFactory.NONEMPTY;
+                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + valStr));
+                            break;
+                        }
                         /*
                             NOTE: we cannot have this code. Calling SUT methods should only be done EXCLUSIVELY as part
                             of test execution, as they involve security manager checks, loop counter handling, etc.
                             Doing it as side effects of fitness evaluation could have many side effects
-
+                            UPDATE: now ok to do these because security checks were added to inspectors.
+                        */
                         List<String> inspectors = OutputCoverageFactory.getInspectors(returnType.getClassName());
                         for (String insp : inspectors) {
                             try {
@@ -154,7 +159,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                                 logger.warn(e.getMessage(), e);
                             }
                         }
-                        */
+
                     }
                     break;
                 default:

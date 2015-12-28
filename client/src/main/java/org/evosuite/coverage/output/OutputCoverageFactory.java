@@ -50,8 +50,8 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
     public static final String NUM_NEGATIVE = "negative";
     public static final String REF_NULL = "null";
     public static final String REF_NONNULL = "nonnull";
-    public static final String EMPTY_ARRAY = "empty";
-    public static final String NONEMPTY_ARRAY = "nonempty";
+    public static final String EMPTY = "empty"; // used for arrays and strings
+    public static final String NONEMPTY = "nonempty"; // used for arrays and strings
 
     /*
 	 * (non-Javadoc)
@@ -101,12 +101,17 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                         break;
                     case Type.ARRAY:
                         goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), EMPTY_ARRAY)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NONEMPTY_ARRAY)));
+                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), EMPTY)));
+                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NONEMPTY)));
                         break;
                     case Type.OBJECT:
                         goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
                         //goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
+                        if (returnType.getClassName().equals("java.lang.String")) {
+                            goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + EMPTY)));
+                            goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + NONEMPTY)));
+                            break;
+                        }
                         boolean observerGoalsAdded = false;
                         List<String> inspectors = getInspectors(returnType.getClassName());
                         for (String insp : inspectors) {

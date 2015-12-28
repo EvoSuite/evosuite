@@ -127,16 +127,20 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                             goalSuffix = InputCoverageFactory.REF_NULL;
                         else {
                             if (Array.getLength(argValue) == 0)
-                                goalSuffix = InputCoverageFactory.EMPTY_ARRAY;
+                                goalSuffix = InputCoverageFactory.EMPTY;
                             else
-                                goalSuffix = InputCoverageFactory.NONEMPTY_ARRAY;
+                                goalSuffix = InputCoverageFactory.NONEMPTY;
                         }
                         break;
                     case Type.OBJECT:
                         if (argValue == null)
                             goalSuffix = InputCoverageFactory.REF_NULL;
-                        else
-                            goalSuffix = InputCoverageFactory.REF_NONNULL;
+                        else {
+                            if (argType.getClassName().equals("java.lang.String"))
+                                goalSuffix = ((String)argValue).isEmpty() ? InputCoverageFactory.EMPTY : InputCoverageFactory.NONEMPTY;
+                            else
+                                goalSuffix = InputCoverageFactory.REF_NONNULL;
+                        }
                         break;
                     default:
                         break;
