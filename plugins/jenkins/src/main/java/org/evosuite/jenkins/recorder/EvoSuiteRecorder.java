@@ -19,42 +19,68 @@
  */
 package org.evosuite.jenkins.recorder;
 
+import org.evosuite.jenkins.actions.BuildAction;
+import org.evosuite.jenkins.actions.ProjectAction;
+import org.evosuite.jenkins.scm.Git;
+import org.evosuite.jenkins.scm.Mercurial;
+import org.kohsuke.stapler.StaplerRequest;
+
+import java.io.IOException;
+
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.maven.AbstractMavenProject;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.mercurial.MercurialSCM;
 import hudson.scm.SCM;
-import hudson.scm.SubversionSCM;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import hudson.util.FormValidation;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-
-import org.evosuite.jenkins.actions.BuildAction;
-import org.evosuite.jenkins.actions.ProjectAction;
-import org.evosuite.jenkins.scm.Mercurial;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
+import net.sf.json.JSONObject;
 
 public class EvoSuiteRecorder extends Recorder {
+
+	public static final String LOG_PREFIX = "[EvoSuite] ";
 
 	@Extension
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-	@DataBoundConstructor
+	private boolean disableAutoCommit;
+	private boolean disableAutoPush;
+	private String branchName;
+
 	public EvoSuiteRecorder() {
 		// empty
+	}
+
+	public boolean getDisableAutoCommit() {
+		return this.disableAutoCommit;
+	}
+
+	public boolean getDisableAutoPush() {
+		return this.disableAutoPush;
+	}
+
+	public String getBranchName() {
+		return this.branchName;
+	}
+
+	public void setDisableAutoCommit(boolean disableAutoCommit) {
+		this.disableAutoCommit = disableAutoCommit;
+	}
+
+	public void setDisableAutoPush(boolean disableAutoPush) {
+		this.disableAutoPush = disableAutoPush;
+	}
+
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
 	}
 
 	@Override
@@ -92,10 +118,6 @@ public class EvoSuiteRecorder extends Recorder {
 		BuildAction build_action = new BuildAction(build, projectAction);
 		build.addAction(build_action);
 
-		// FIXME the new test cases generated improved the coverage of manual written test cases?
-		// maybe we should do this on evosuite-maven-plugin?
-
-
 		// Deliver new test cases (i.e., commit and push the new test cases generated)
 
 		SCM scm = project.getScm();
@@ -104,23 +126,29 @@ public class EvoSuiteRecorder extends Recorder {
 			return true;
 		}
 
+		org.evosuite.jenkins.scm.SCM scmWrapper = null;
+
 		if (scm instanceof MercurialSCM) {
-			Mercurial m = new Mercurial((MercurialSCM) scm, project);
-			if (!m.commit(build, launcher, listener)) {
-				return false;
-			}
-			if (!m.push(build, launcher, listener)) {
-				return false;
-			}
-		}
-		else if (scm instanceof GitSCM) {
-			// empty
-		}
-		else if (scm instanceof SubversionSCM) {
-			// empty
-		}
-		else {
+			scmWrapper = new Mercurial((MercurialSCM) scm, project, build, launcher, listener);
+		} else if (scm instanceof GitSCM) {
+			scmWrapper = new Git((GitSCM) scm, build, listener);
+		} else {
 			listener.getLogger().println("SCM of type " + scm.getType() + " not supported!");
+			return true;
+		}
+		assert scmWrapper != null;
+
+		if (!this.disableAutoCommit) {
+			if (!scmWrapper.commit(build, listener, this.branchName)) {
+				return false;
+			}
+
+			// only perform a push if there was a commit
+			if (!this.disableAutoPush) {
+				if (!scmWrapper.push(build, listener, this.branchName)) {
+					return false;
+				}
+			}
 		}
 
 		return true;
@@ -149,16 +177,7 @@ public class EvoSuiteRecorder extends Recorder {
 		 */
 		@Override
 		public String getDisplayName() {
-			return "Add EvoSuite Stats";
-		}
-
-		public FormValidation doCheckCreateStats(@QueryParameter Boolean value) throws IOException, ServletException {
-			if (value == false) {
-				return FormValidation.error("Stats must be created for any infomation to be displayed");
-			} else {
-				return FormValidation.ok();
-			}
-
+			return "EvoSuite";
 		}
 
 		/*
@@ -169,7 +188,20 @@ public class EvoSuiteRecorder extends Recorder {
 		@Override
 		@SuppressWarnings("rawtypes")
 		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-			return Boolean.TRUE;
+			return true;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see hudson.model.Descriptor#newInstance(org.kohsuke.stapler.StaplerRequest, net.sf.json.JSONObject)
+		 */
+		@Override
+		public Publisher newInstance(StaplerRequest req, JSONObject formData)
+				throws hudson.model.Descriptor.FormException {
+			EvoSuiteRecorder pub = new EvoSuiteRecorder();
+			req.bindJSON(pub, formData);
+			return pub;
 		}
 	}
 }

@@ -1,8 +1,12 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <!--
-    <f:entry title="${%Enable EvoSuite stats}" field="enable">
-      <f:checkbox name="EvoSuiteRecorder.enable" value="${instance.enable}" checked="${instance.enable}" />
-    </f:entry>
-    -->
+  <f:entry title="${%Disable automatic commit of new generated test cases}" help="...">
+    <f:checkbox name="evosuite.disableAutoCommit" checked="${instance.disableAutoCommit}" />
+  </f:entry>
+  <f:entry title="${%Disable automatic push of new generated test cases}" help="...">
+    <f:checkbox name="evosuite.disableAutoPush" checked="${instance.disableAutoPush}" />
+  </f:entry>
+  <f:entry title="${%Branch name}" help="...">
+    <f:textbox name="evosuite.branchName" value="${instance.branchName}" default="evosuite-tests" />
+  </f:entry>
 </j:jelly>
