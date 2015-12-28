@@ -376,7 +376,14 @@ public class TestClusterGenerator {
 				//	continue;
 
 				// Sometimes strange things appear such as Map$Entry
-				if (!targetClasses.contains(innerClass)) {
+				if (!targetClasses.contains(innerClass)
+						/*
+							FIXME: why all the checks were removed? without the following,
+							for example com.google.javascript.jscomp.IdMappingUtil in
+							 124_closure-compiler is not testable
+						 */
+						&& ! innerClassName.contains("Map$Entry")
+						) {
 					//						&& !innerClassName.matches(".*\\$\\d+(\\$.*)?$")) {
 
 					logger.info("Adding inner class " + innerClassName);
