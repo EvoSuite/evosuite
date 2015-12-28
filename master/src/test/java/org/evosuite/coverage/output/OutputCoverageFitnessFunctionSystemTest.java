@@ -120,7 +120,7 @@ public class OutputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = MethodReturnsArray.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;Properties.JUNIT_TESTS=true;
+		Properties.TARGET_CLASS = targetClass;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
@@ -140,7 +140,7 @@ public class OutputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = MethodReturnsString.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;Properties.PRINT_GOALS = true;Properties.JUNIT_TESTS=true;
+		Properties.TARGET_CLASS = targetClass;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
