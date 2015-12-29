@@ -19,17 +19,33 @@
  */
 package org.evosuite.idNaming;
 
+import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 
 /**
  * @author Jose Rojas
  *
  */
-public class MethodSignaturesNamingStrategy implements VariableNamingStrategy {
+public class MethodSignaturesNamingStrategy extends AbstractVariableNamingStrategy {
+
+	public MethodSignaturesNamingStrategy(ImportsTestCodeVisitor itv) {
+		super(itv);
+	}
 
 	@Override
-	public String getVariableName(TestCase testCase, VariableReference variableReference) {
+	public String getArrayReferenceName(TestCase testCase, ArrayReference var) {
+		return null;
+	}
+
+	@Override
+	public String getVariableName(TestCase testCase, VariableReference var) {
+		return null;
+	}
+
+	@Override
+	public String getName(TestCase testCase, VariableReference variableReference) {
 		return null;
 	}
 }

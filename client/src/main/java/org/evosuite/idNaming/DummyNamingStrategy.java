@@ -19,14 +19,12 @@
  */
 package org.evosuite.idNaming;
 
-import org.evosuite.parameterize.InputVariable;
 import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.generic.GenericField;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.VariableReference;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

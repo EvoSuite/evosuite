@@ -62,11 +62,11 @@ import java.util.*;
  */
 public class VariableNamesTestVisitor extends TestVisitor {
 
-    // mapping from test case to *list* of candidate variable names
-    protected final Map<TestCase,Map<VariableReference,List<CandidateName>>> varNamesCandidates = new HashMap<>();
+    // mapping from variable reference to *list* of candidate variable names
+    protected final Map<VariableReference,List<CandidateName>> varNamesCandidates = new HashMap<>();
 
-    // final mapping from test case to variable names
-    protected final Map<TestCase,Map<VariableReference,String>> varNamesFinal = new HashMap<>();
+    // final mapping from variable references to variable names
+    protected final Map<VariableReference,String> varNamesFinal = new HashMap<>();
 
     protected TestCase test = null;
 
@@ -79,23 +79,20 @@ public class VariableNamesTestVisitor extends TestVisitor {
 
     /**
      * Returns name for input variable reference {@code var} in test case {@code tc}
-     * @param tc test case
      * @param var variable reference
      * @return a {@link String} object representing the variable reference name
      */
-    public String getVariableName(TestCase tc, VariableReference var) {
-        if (varNamesCandidates.containsKey(tc))
-            return varNamesCandidates.get(tc).get(var).get(0).getName(); // TODO: Assume only one name
+    public String getVariableName_(VariableReference var) {
+        if (varNamesCandidates.containsKey(var))
+            return varNamesCandidates.get(var).get(0).getName(); // TODO: Assume only one name
         else
             return null;
     }
 
     private void addCandidateName(TestCase tc, VariableReference v, String explanation, String name) {
-        if (! varNamesCandidates.containsKey(tc))
-            varNamesCandidates.put(tc,new HashMap<VariableReference, List<CandidateName>>());
-        if (!varNamesCandidates.get(tc).containsKey(v))
-            varNamesCandidates.get(tc).put(v,new LinkedList<CandidateName>());
-        varNamesCandidates.get(tc).get(v).add(new CandidateName(explanation, name));
+        if (!varNamesCandidates.containsKey(v))
+            varNamesCandidates.put(v,new LinkedList<>());
+        varNamesCandidates.get(v).add(new CandidateName(explanation, name));
     }
 
     /**
@@ -516,36 +513,6 @@ public class VariableNamesTestVisitor extends TestVisitor {
             }
         }
     }
-
-    protected String getEnumValue(EnumPrimitiveStatement<?> statement) {
-        Object value = statement.getValue();
-        Class<?> clazz = statement.getEnumClass();
-        String className = getClassName(clazz);
-
-        try {
-            if (value.getClass().getField(value.toString()) != null)
-                return className + "." + value;
-
-        } catch (NoSuchFieldException e) {
-            // Ignore
-        }
-
-        for (Field field : value.getClass().getDeclaredFields()) {
-            if (field.isEnumConstant()) {
-                try {
-                    if (field.get(value).equals(value)) {
-                        return className + "." + field.getName();
-                    }
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-        }
-        return className + ".valueOf(\"" + value + "\")";
-
-    }
-
-
 
 	/*
 	 * (non-Javadoc)
@@ -1195,30 +1162,22 @@ public class VariableNamesTestVisitor extends TestVisitor {
         System.out.println("CANDIDATE NAMES MAPPING");
         String format = "%-5s| %-10s| %s\n";
         System.out.printf(format, "test", "varRef", "candidateName");
-        for (Map.Entry<TestCase,Map<VariableReference,List<CandidateName>>> entry : varNamesCandidates.entrySet()) {
-            TestCase t = entry.getKey();
-            for (Map.Entry<VariableReference,List<CandidateName>> varEntry : entry.getValue().entrySet()) {
-                VariableReference var = varEntry.getKey();
-                varEntry.getValue().forEach((candidate) -> {
-                    System.out.printf(format, t.getID(), var, candidate.toString());
-                });
-            }
+
+        for (Map.Entry<VariableReference,List<CandidateName>> varEntry : varNamesCandidates.entrySet()) {
+            VariableReference var = varEntry.getKey();
+            varEntry.getValue().forEach((candidate) -> {
+                System.out.printf(format, this.test.getID(), var, candidate.toString());
+            });
         }
     }
 
-	public Map<TestCase,Map<VariableReference,String>> getAllVariableNames() {
+	public Map<VariableReference,String> getAllVariableNames() {
 		varNamesFinal.clear();
-		for (Map.Entry<TestCase,Map<VariableReference,List<CandidateName>>> entry : varNamesCandidates.entrySet()) {
-			TestCase tc = entry.getKey();
-			Map<VariableReference,List<CandidateName>> variables = entry.getValue();
-			Map<VariableReference,String> tcVariables = new HashMap<>();
-			for (Map.Entry<VariableReference,List<CandidateName>> varEntry : variables.entrySet()) {
-				VariableReference key = varEntry.getKey();
-				List<CandidateName> candidates = varEntry.getValue();
-				// TODO: Choose the most appropriate name
-				tcVariables.put(key, candidates.get(0).getName());
-			}
-			varNamesFinal.put(tc, tcVariables);
+        for (Map.Entry<VariableReference,List<CandidateName>> varEntry : varNamesCandidates.entrySet()) {
+            VariableReference key = varEntry.getKey();
+            List<CandidateName> candidates = varEntry.getValue();
+            // TODO: Choose the most appropriate name
+            varNamesFinal.put(key, candidates.get(0).getName());
 		}
 		return varNamesFinal;
 	}
@@ -1237,10 +1196,6 @@ class CandidateName {
 
     public String getExplanation() {
         return explanation;
-    }
-
-    public void setExplanation(String explanation) {
-        this.explanation = explanation;
     }
 
     public String getName() {

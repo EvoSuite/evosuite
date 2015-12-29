@@ -37,6 +37,8 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.idNaming.DefaultNamingStrategy;
 import org.evosuite.idNaming.DummyNamingStrategy;
+import org.evosuite.idNaming.ExplanatoryNamingStrategy;
+import org.evosuite.idNaming.MethodSignaturesNamingStrategy;
 import org.evosuite.idNaming.VariableNamingStrategy;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.AbstractStatement;
@@ -95,7 +97,9 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 			case DUMMY:
 				return new DummyNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 			case EXPLANATORY:
+				return new ExplanatoryNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 			case DECLARATIONS:
+				return new MethodSignaturesNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 			case NATURALIZE:
 				return null;
 			default:
@@ -106,6 +110,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 	public TestCodeVisitor(){
 		this.tcv = new ImportsTestCodeVisitor();
 	}
+
 	/**
 	 * <p>
 	 * getCode
@@ -159,7 +164,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 	 */
 	public String getVariableName(VariableReference var) {
 
-        return strategy.getVariableName(this.test, var);
+        return strategy.getName(this.test, var);
 
 	}
 
