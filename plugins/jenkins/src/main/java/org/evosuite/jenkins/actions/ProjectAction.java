@@ -19,13 +19,10 @@
  */
 package org.evosuite.jenkins.actions;
 
-import hudson.FilePath;
-import hudson.maven.AbstractMavenProject;
-import hudson.maven.MavenModule;
-import hudson.maven.MavenModuleSet;
-import hudson.model.Action;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import org.evosuite.jenkins.plot.CoveragePlot;
+import org.evosuite.jenkins.plot.TimePlot;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,9 +35,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.evosuite.jenkins.plot.CoveragePlot;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import hudson.FilePath;
+import hudson.maven.AbstractMavenProject;
+import hudson.maven.MavenModule;
+import hudson.maven.MavenModuleSet;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Action;
 
 public class ProjectAction implements Action {
 
@@ -112,6 +113,16 @@ public class ProjectAction implements Action {
 	public void doCoverageMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
 		CoveragePlot c = new CoveragePlot(this, "Coverage");
 		c.doCoverageMap(req, rsp);
+	}
+
+	public void doTimeGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
+		TimePlot c = new TimePlot(this, "Time (minutes)");
+		c.doTimeGraph(req, rsp);
+	}
+
+	public void doTimeMap(StaplerRequest req, StaplerResponse rsp) throws IOException {
+		TimePlot c = new TimePlot(this, "Time");
+		c.doTimeMap(req, rsp);
 	}
 	
 	// data for jelly template
@@ -192,5 +203,23 @@ public class ProjectAction implements Action {
 
 		DecimalFormat formatter = new DecimalFormat("#0.00");
 		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
+	}
+
+	/**
+	 * Return the total time (minutes) spent on test generation
+	 * 
+	 * @return 
+	 */
+	public int getTotalEffort() {
+		if (this.modules.isEmpty()) {
+			return 0;
+		}
+
+		int effort = 0;
+		for (ModuleAction m : this.modules) {
+			effort += m.getTotalEffort();
+		}
+
+		return (int) Math.round( ((double) effort) / ((double) this.modules.size()) );
 	}
 }

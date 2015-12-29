@@ -75,7 +75,7 @@ public abstract class Plot extends Graph {
 
 		ValueAxis yAxis = plot.getRangeAxis();
 		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		yAxis.setRange(0.0, 100.0);
+		//yAxis.setRange(0.0, 100.0);
 
 		URLAndTooltipRenderer urlRenderer = new URLAndTooltipRenderer(this.project.getProject());
 		ColorPalette.apply(urlRenderer);

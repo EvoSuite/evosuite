@@ -25,9 +25,8 @@
       </div>
       <center>
         <div>
-          <img src="coverageGraph?width=400&amp;height=250&amp;" width="400" height="250" lazymap="coverageMap?width=400&amp;height=250&amp;"/>
-          <!-- FIXME this should be a timeGraph -->
-          <img src="coverageGraph?width=400&amp;height=250&amp;" width="400" height="250" lazymap="coverageMap?width=400&amp;height=250&amp;"/>
+          <img src="coverageGraph?width=475&amp;height=300&amp;" width="475" height="300" lazymap="coverageMap?width=475&amp;height=300&amp;"/>
+          <img src="timeGraph?width=475&amp;height=300&amp;" width="475" height="300" lazymap="timeMap?width=475&amp;height=300&amp;"/>
         </div>
       </center>
     </l:main-panel>

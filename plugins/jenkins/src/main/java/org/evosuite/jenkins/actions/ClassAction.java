@@ -32,6 +32,7 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.TestSuite;
@@ -130,7 +131,10 @@ public class ClassAction implements Action {
 			return 0;
 		}
 
-		return suite.getTotalEffortInSeconds().intValue();
+		int lastOne = this.suite.getCoverageTestSuites().size() - 1;
+		long effort = this.suite.getCoverageTestSuites().get(lastOne).getEffortInSeconds().longValue();
+
+		return (int) TimeUnit.SECONDS.toMinutes(effort);
 	}
 
 	/**
