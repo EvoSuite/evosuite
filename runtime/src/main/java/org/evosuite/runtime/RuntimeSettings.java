@@ -91,7 +91,7 @@ public class RuntimeSettings {
      * Should tests be executed in a separate instrumenting class loader
      * or with the standard classloader and instrumentation via an agent?
      */
-    public static boolean useSeparateClassLoader = true;
+    public static boolean useSeparateClassLoader = false;
 
     /**
      * If the class is serializable, then doing any change (adding hashCode, static reset, etc)

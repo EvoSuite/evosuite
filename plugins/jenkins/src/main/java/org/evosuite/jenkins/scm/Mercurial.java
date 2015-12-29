@@ -19,15 +19,11 @@
  */
 package org.evosuite.jenkins.scm;
 
-import hudson.Launcher;
-import hudson.maven.AbstractMavenProject;
-import hudson.model.BuildListener;
-import hudson.model.AbstractBuild;
-import hudson.plugins.mercurial.HgExe;
-import hudson.plugins.mercurial.MercurialInstallation;
-import hudson.plugins.mercurial.MercurialSCM;
-import hudson.tools.ToolInstallation;
-import hudson.util.ArgumentListBuilder;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
+
+import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -35,81 +31,95 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.maven.AbstractMavenProject;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
+import hudson.plugins.mercurial.HgExe;
+import hudson.plugins.mercurial.MercurialInstallation;
+import hudson.plugins.mercurial.MercurialSCM;
+import hudson.security.ACL;
+import hudson.util.ArgumentListBuilder;
 import jenkins.model.Jenkins;
 
-import com.cloudbees.plugins.credentials.Credentials;
-import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
-import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
-
+/**
+ * Mercurial wrapper to handle hg commands, such commit and push.
+ * 
+ * @author José Campos
+ */
 public class Mercurial implements SCM {
 
-	private final MercurialSCM mercurialSCM;
-	private final MercurialInstallation mercurialInstallation;
-	private final StandardUsernameCredentials credentials;
+	private final HgExe hgClient;
 
-	public Mercurial(MercurialSCM mercurialSCM, AbstractMavenProject<?, ?> project) {
-		this.mercurialSCM = mercurialSCM;
+	public Mercurial(MercurialSCM mercurialSCM, AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+			throws IOException, InterruptedException {
 
-		this.mercurialInstallation = (MercurialInstallation) this.findInstallation();
-		this.credentials = (StandardUsernameCredentials) this.getCredentials(project);
-	}
-
-	@Override
-	public ToolInstallation findInstallation() {
-		// FIXME issue between "Default" and "(Default)"
+		// TODO check whether there is an issue between "Default" and "(Default)"
+		MercurialInstallation mercurialInstallation = null;
 		for (MercurialInstallation inst : MercurialInstallation.allInstallations()) {
-			//if (inst.getName().equals(mercurialSCM.getInstallation())) {
-				return inst;
-			//}
-		}
-
-		return null;
-	}
-
-	@Override
-	public Credentials getCredentials(AbstractMavenProject<?, ?> project) {
-		// FIXME add support to private keys
-		for (StandardUsernameCredentials c : CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, project, null, URIRequirementBuilder.fromUri(this.mercurialSCM.getSource()).build()) ) {
-			if (c.getId().equals(this.mercurialSCM.getCredentialsId())) {
-				return c;
+			if (inst.getName().equals(mercurialSCM.getInstallation())) {
+				mercurialInstallation = inst;
+				break;
 			}
 		}
+		assert mercurialInstallation != null;
 
-		return null;
+		// get credentials (username-password, ssh key-passphrase
+		StandardUsernameCredentials credentials = this.getCredentials(mercurialSCM, project);
+		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Credentials " + credentials.getDescription());
+
+		// get a MercurialClient to handle hg commands
+		this.hgClient = new HgExe(mercurialInstallation, credentials, launcher, Jenkins.getInstance(), listener, build.getEnvironment(listener));
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-		// FIXME to keep it simple, just commit all new files at .../evosuite-tests
-
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
 		try {
-			HgExe hg = new HgExe(this.mercurialInstallation, this.credentials, launcher, /*this.workspaceToNode(build.getWorkspace())*/Jenkins.getInstance(), listener, build.getEnvironment(listener));
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
+
+			Set<String> branches = this.getBranches(build.getWorkspace(), listener);
+			if (!branches.contains(branchName)) {
+				// create a new branch called "evosuite-tests" to commit and
+				// push the new generated test suites
+				listener.getLogger()
+						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + branchName);
+				if (this.hgClient.run("branch", branchName).pwd(build.getWorkspace()).join() != 0) {
+					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to create a new branch called " + branchName);
+					return false;
+				}
+			}
+
+			// switch to EVOSUITE_BRANCH
+			if (this.hgClient.run("update", branchName).pwd(build.getWorkspace()).join() != 0) {
+				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to switch to branch " + branchName);
+				return false;
+			}
 
 			// start adding all removed files to commit
-			if (hg.run("remove", "--after").pwd(build.getWorkspace()).join() != 0) {
-				// TODO reset repository
+			if (this.hgClient.run("remove", "--after").pwd(build.getWorkspace()).join() != 0) {
+				this.rollback(build, listener);
 				return false;
 			}
 
 			// parse list of new and modified files
-			Set<String> setOfFiles = this.parseStatus(hg.popen(build.getWorkspace(), listener, false, new ArgumentListBuilder("status")));
+			Set<String> setOfFiles = this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener, true, new ArgumentListBuilder("status")));
 			for (String file : setOfFiles) {
-				if (hg.run("add", file).pwd(build.getWorkspace()).join() != 0) {
-					// TODO reset repository
+				if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
+					this.rollback(build, listener);
 					return false;
 				}
 			}
 
 			// commit
 			String commit_msg = "EvoSuite Jenkins Plugin #" + "evosuite-" + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + commit_msg);
 
-			if (hg.run("commit", "-m", commit_msg).pwd(build.getWorkspace()).join() != 0) {
-				// TODO reset repository
+			if (this.hgClient.run("commit", "--message", commit_msg).pwd(build.getWorkspace()).join() != 0) {
+				this.rollback(build, listener);
 				return false;
 			}
 
-			hg.close();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 			return false;
@@ -119,13 +129,13 @@ public class Mercurial implements SCM {
 	}
 
 	@Override
-	public boolean push(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
 		try {
-			HgExe hg = new HgExe(this.mercurialInstallation, this.credentials, launcher, /*this.workspaceToNode(build.getWorkspace())*/Jenkins.getInstance(), listener, build.getEnvironment(listener));
-			if (hg.run("push").pwd(build.getWorkspace()).join() != 0) {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Pushing new test cases");
+
+			if (this.hgClient.run("push").pwd(build.getWorkspace()).join() != 0) {
 				return false;
 			}
-			hg.close();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 			return false;
@@ -134,21 +144,11 @@ public class Mercurial implements SCM {
 		return true;
 	}
 
-	/*private Node workspaceToNode(FilePath workspace) {
-		Jenkins j = Jenkins.getInstance();
-		if (workspace.isRemote()) {
-			for (Computer c : j.getComputers()) {
-				if (c.getChannel() == workspace.getChannel()) {
-					Node n = c.getNode();
-					if (n != null) {
-						return n;
-					}
-				}
-			}
-		}
-
-		return j;
-	}*/
+	@Override
+    public void rollback(AbstractBuild<?, ?> build, BuildListener listener) {
+		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Rollback, cleaning up workspace");
+		// TODO
+	}
 
 	private Set<String> parseStatus(String status) {
 		Set<String> result = new LinkedHashSet<String>();
@@ -158,4 +158,21 @@ public class Mercurial implements SCM {
 		}
 		return result;
 	}
+
+	private StandardUsernameCredentials getCredentials(MercurialSCM mercurialSCM, AbstractMavenProject<?, ?> project) {
+		return CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, project, ACL.SYSTEM,
+						URIRequirementBuilder.fromUri(mercurialSCM.getSource()).build()).get(0);
+	}
+
+	private Set<String> getBranches(FilePath workspace, BuildListener listener) throws InterruptedException, IOException {
+        String rawBranches = this.hgClient.popen(workspace, listener, true, new ArgumentListBuilder("branches"));
+        Set<String> branches = new LinkedHashSet<String>();
+        for (String line: rawBranches.split("\n")) {
+            // line should contain: <branchName>                 <revision>:<hash>
+            String[] seperatedByWhitespace = line.split("\\s+");
+            String branchName = seperatedByWhitespace[0];
+            branches.add(branchName);
+        }
+        return branches;
+    }
 }

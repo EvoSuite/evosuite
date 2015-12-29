@@ -22,14 +22,35 @@ package org.evosuite.runtime;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.CallExit;
 
+import java.lang.*;
+import java.security.Permission;
+
+import static org.junit.Assert.assertFalse;
+
 public class SUTWithSystemExitSystemTest extends SystemTestBase {
 
+	@Before
+	public void setFlag(){
+		SafeExit.calledExit = false;
+	}
+
 	@Test
+	public void testSystemExit_noAssertions() {
+		Properties.ASSERTIONS = false;
+		testSystemExit();
+	}
+
+		@Test
 	public void testSystemExit() {
+
+		java.lang.System.setSecurityManager(new SafeExit());
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = CallExit.class.getCanonicalName();
@@ -40,6 +61,27 @@ public class SUTWithSystemExitSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		evosuite.parseCommandLine(command);
+
+		assertFalse(SafeExit.calledExit);
+	}
+
+	@After
+	public void removeSecurity(){
+		java.lang.System.setSecurityManager(null);
+	}
+
+	private static class SafeExit extends SecurityManager{
+
+		public static boolean calledExit = false;
+
+		public void checkPermission(Permission perm) throws SecurityException {
+
+			final String name = perm.getName().trim();
+			if (name.startsWith("exitVM")){
+				calledExit = true;
+				throw new RuntimeException("CALLED EXIT");
+			}
+		}
 	}
 
 }

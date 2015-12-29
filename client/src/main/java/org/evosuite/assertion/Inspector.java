@@ -27,6 +27,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.evosuite.TestGenerationContext;
+import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Type;
@@ -72,10 +74,23 @@ public class Inspector implements Serializable {
 	public Object getValue(Object object) throws IllegalArgumentException,
 	        IllegalAccessException, InvocationTargetException {
 
-		Object ret = this.method.invoke(object);
-		//if (ret instanceof String) {
-		//	ret = ((String) ret).replaceAll("@[abcdef\\d]+", "");
-		//}
+		Sandbox.goingToExecuteSUTCode();
+		TestGenerationContext.getInstance().goingToExecuteSUTCode();
+		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		boolean loopCounter = LoopCounter.getInstance().isActivated();
+		LoopCounter.getInstance().setActive(false);
+
+		Object ret = null;
+
+		try {
+			ret = this.method.invoke(object);
+		} finally {
+			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+			Sandbox.doneWithExecutingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			LoopCounter.getInstance().setActive(loopCounter);
+		}
+
 		return ret;
 	}
 
@@ -221,11 +236,9 @@ public class Inspector implements Serializable {
 			}
 			LoggingUtils.getEvoLogger().info("Method not found - keeping old class loader ");
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
-			                                 e);
+			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {
-			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
-			                                 e);
+			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",e);
 		}
 	}
 }

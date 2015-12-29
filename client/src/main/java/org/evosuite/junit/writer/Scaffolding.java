@@ -197,7 +197,15 @@ public class Scaffolding {
 		 * not much of the point to try to optimize it
 		 */
 
-        generateTimeoutRule(bd);
+
+        /*
+           As of JUnit 4.12, Timeout Rule is broken, as it does not execute @After methods.
+           TODO: put this back (and change @Test) once this issue is resolved, and new version of JUnit is released.
+           Issue is reported at:
+
+           https://github.com/junit-team/junit/issues/1231
+         */
+        //generateTimeoutRule(bd);
 
         generateFields(bd, wasSecurityException, results);
 
@@ -237,9 +245,7 @@ public class Scaffolding {
 
         boolean useNew = false;
         try {
-            /*
-                FIXME: this check does not seem to work properly :(
-             */
+            //   FIXME: this check does not seem to work properly :(
             Class<?> timeoutOfSUTJunit = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Timeout.class.getName());
             Constructor c = timeoutOfSUTJunit.getDeclaredConstructor(Long.TYPE, TimeUnit.class);
             useNew = true;
