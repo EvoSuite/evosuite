@@ -21,12 +21,10 @@ package org.evosuite.idNaming;
 
 import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,7 +55,7 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
         if (!varNames.containsKey(tc)) {
 	        VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
 	        tc.accept(visitor);
-	        varNames.put(tc, visitor.getAllVariableNames().get(tc));
+	        varNames.put(tc, visitor.getAllVariableNames());
         }
 	    return varNames.get(tc).get(var);
     }
