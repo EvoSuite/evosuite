@@ -96,4 +96,11 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 
 		return variableNames.get(var);
 	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		indices.clear();
+	}
+
 }

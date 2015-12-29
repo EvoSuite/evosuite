@@ -22,7 +22,11 @@ package org.evosuite.idNaming;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.*;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.ConstantValue;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericField;
 
 import java.util.HashMap;
@@ -95,4 +99,9 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
             return name;
 		}
 	}
+
+	public void reset() {
+		variableNames.clear();
+	}
+
 }

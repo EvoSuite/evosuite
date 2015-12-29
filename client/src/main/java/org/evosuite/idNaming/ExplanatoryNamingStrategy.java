@@ -24,7 +24,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,9 +31,6 @@ import java.util.Map;
  *
  */
 public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
-
-    // mapping from test case to variable names
-    protected Map<TestCase,Map<VariableReference,String>> varNames = new HashMap<>();
 
 	public ExplanatoryNamingStrategy(ImportsTestCodeVisitor itv) {
 		super(itv);
@@ -52,25 +48,22 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
      * @return a {@link String} object representing the variable reference name
      */
     public String getVariableName(TestCase tc, VariableReference var) {
-        if (!varNames.containsKey(tc)) {
-	        VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
-	        tc.accept(visitor);
-	        varNames.put(tc, visitor.getAllVariableNames());
+        if (variableNames.isEmpty()) {
+            VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
+            tc.accept(visitor);
+            variableNames = visitor.getAllVariableNames();
         }
-	    return varNames.get(tc).get(var);
+	    return variableNames.get(var);
     }
 
     private void printVarNames() {
         System.out.println("FINAL NAMES MAPPING");
-        String format = "%-5s| %-10s| %s\n";
-        System.out.printf(format, "test", "varRef", "name");
-        for (Map.Entry<TestCase,Map<VariableReference,String>> entry : varNames.entrySet()) {
-            TestCase t = entry.getKey();
-            for (Map.Entry<VariableReference,String> varEntry : entry.getValue().entrySet()) {
-                VariableReference var = varEntry.getKey();
-                System.out.printf(format, t.getID(), var, varEntry.getValue());
-            }
+        String format = "%-10s| %s\n";
+        System.out.printf(format, "varRef", "name");
 
+        for (Map.Entry<VariableReference,String> varEntry : variableNames.entrySet()) {
+            VariableReference var = varEntry.getKey();
+            System.out.printf(format, var, varEntry.getValue());
         }
     }
 }

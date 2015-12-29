@@ -35,7 +35,11 @@ import org.evosuite.assertion.NullAssertion;
 import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
-import org.evosuite.idNaming.*;
+import org.evosuite.idNaming.DefaultNamingStrategy;
+import org.evosuite.idNaming.DummyNamingStrategy;
+import org.evosuite.idNaming.ExplanatoryNamingStrategy;
+import org.evosuite.idNaming.MethodSignatureNamingStrategy;
+import org.evosuite.idNaming.VariableNamingStrategy;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.AbstractStatement;
 import org.evosuite.testcase.statements.ArrayStatement;
@@ -188,6 +192,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 	@Override
 	public void visitTestCase(TestCase test) {
 		super.visitTestCase(test);
+		strategy.reset();
 		this.test = test;
 		this.testCode = "";
 	}

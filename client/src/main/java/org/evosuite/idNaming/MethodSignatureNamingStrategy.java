@@ -89,4 +89,11 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
         }
 		return super.getVariableName(testCase, variableReference);
 	}
+
+    @Override
+    public void reset() {
+        super.reset();
+        usedNames.clear();
+    }
+
 }

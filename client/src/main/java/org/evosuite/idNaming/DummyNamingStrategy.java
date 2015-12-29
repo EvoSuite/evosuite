@@ -24,9 +24,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author Jose Rojas
  */
@@ -58,5 +55,11 @@ public class DummyNamingStrategy extends AbstractVariableNamingStrategy {
 
 	private String getNextVariableName() {
 		return PREFIX + index++;
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		index = 0;
 	}
 }
