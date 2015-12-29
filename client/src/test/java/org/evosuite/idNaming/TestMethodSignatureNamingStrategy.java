@@ -39,7 +39,6 @@ public class TestMethodSignatureNamingStrategy {
         test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var1, var2)));
 
         TestCodeVisitor tcv = new TestCodeVisitor();
-        tcv.visitTestCase(test);
         test.accept(tcv);
         assertEquals("x", tcv.getVariableName(var1));
         assertEquals("y", tcv.getVariableName(var2));
@@ -62,7 +61,7 @@ public class TestMethodSignatureNamingStrategy {
         test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var1, var2)));
 
         TestCodeVisitor tcv = new TestCodeVisitor();
-        tcv.visitTestCase(test);
+        test.accept(tcv);
         assertEquals("x", tcv.getVariableName(var1));
         assertEquals("y", tcv.getVariableName(var2));
     }
@@ -85,9 +84,10 @@ public class TestMethodSignatureNamingStrategy {
         test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var3, var4)));
 
         TestCodeVisitor tcv = new TestCodeVisitor();
-        tcv.visitTestCase(test);
-        assertEquals("x0", tcv.getVariableName(var1));
-        assertEquals("y0", tcv.getVariableName(var2));
+        test.accept(tcv);
+        System.out.println(tcv.getCode());
+        assertEquals("x", tcv.getVariableName(var1));
+        assertEquals("y", tcv.getVariableName(var2));
         assertEquals("x1", tcv.getVariableName(var3));
         assertEquals("y1", tcv.getVariableName(var4));
     }
@@ -108,7 +108,9 @@ public class TestMethodSignatureNamingStrategy {
         test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var2, var1)));
 
         TestCodeVisitor tcv = new TestCodeVisitor();
-        tcv.visitTestCase(test);
+        test.accept(tcv);
+        System.out.println(tcv.getCode());
+
         assertEquals("x", tcv.getVariableName(var1));
         assertEquals("y", tcv.getVariableName(var2));
     }

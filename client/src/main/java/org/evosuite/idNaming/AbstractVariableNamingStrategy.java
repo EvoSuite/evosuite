@@ -25,7 +25,9 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.generic.GenericField;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jose Rojas
@@ -34,7 +36,9 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	protected final ImportsTestCodeVisitor itv;
 
-	public AbstractVariableNamingStrategy(ImportsTestCodeVisitor itv) {
+    protected Map<VariableReference,String> variableNames = new HashMap<>();
+
+    public AbstractVariableNamingStrategy(ImportsTestCodeVisitor itv) {
 		this.itv = itv;
 	}
 
@@ -71,7 +75,9 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	@Override
 	public String getName(TestCase testCase, VariableReference var) {
-		if (var instanceof ConstantValue) {
+        if(variableNames.containsKey(var)) {
+            return variableNames.get(var);
+        } else if (var instanceof ConstantValue) {
 			return getConstantName((ConstantValue) var);
 		} else if (var instanceof InputVariable) {
 			return var.getName();
@@ -80,9 +86,13 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		} else if (var instanceof ArrayIndex) {
 			return getArrayIndexName(testCase, (ArrayIndex) var);
 		} else if (var instanceof ArrayReference) {
-			return getArrayReferenceName(testCase, (ArrayReference) var);
+			String name = getArrayReferenceName(testCase, (ArrayReference) var);
+            variableNames.put(var, name);
+            return name;
 		} else {
-			return getVariableName(testCase, var);
+			String name = getVariableName(testCase, var);
+            variableNames.put(var, name);
+            return name;
 		}
 	}
 }

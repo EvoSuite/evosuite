@@ -33,9 +33,7 @@ import java.util.Map;
  */
 public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 
-	private Map<TestCase, Map<VariableReference,String>> varNames = new HashMap<>();
-
-	protected final Map<TestCase, Map<String, Integer>> indices = new HashMap<>();
+	protected final Map<String, Integer> indices = new HashMap<>();
 
 	public DefaultNamingStrategy(ImportsTestCodeVisitor itv) {
 		super(itv);
@@ -54,43 +52,23 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 				+ className.substring(1) + "Array";
 		variableName = variableName.replace(".", "_").replace("[]", "");
 
-		if (!varNames.containsKey(testCase))
-			varNames.put(testCase, new HashMap<>());
-
-		if (!indices.containsKey(testCase))
-			indices.put(testCase, new HashMap<>());
-
-		Map<VariableReference, String> variableNames = varNames.get(testCase);
-		Map<String, Integer> nextIndices = indices.get(testCase);
-
 		if (!variableNames.containsKey(var)) {
-			if (!nextIndices.containsKey(variableName)) {
-				nextIndices.put(variableName, 0);
+			if (!indices.containsKey(variableName)) {
+				indices.put(variableName, 0);
 			}
 
-			int index = nextIndices.get(variableName);
-			nextIndices.put(variableName, index + 1);
+			int index = indices.get(variableName);
+			indices.put(variableName, index + 1);
 
 			variableName += index;
 
 			variableNames.put(var, variableName);
-
-			varNames.put(testCase, variableNames);
-			indices.put(testCase, nextIndices);
 		}
-		return varNames.get(testCase).get(var);
+		return variableNames.get(var);
 	}
 
 	@Override
 	public String getVariableName(TestCase testCase, VariableReference var) {
-		if (!varNames.containsKey(testCase))
-			varNames.put(testCase, new HashMap<>());
-
-		if (!indices.containsKey(testCase))
-			indices.put(testCase, new HashMap<>());
-
-		Map<VariableReference, String> variableNames = varNames.get(testCase);
-		Map<String, Integer> nextIndices = indices.get(testCase);
 		if (!variableNames.containsKey(var)) {
 			String className = var.getSimpleClassName();
 
@@ -104,21 +82,18 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
 				variableName += "_";
 
-			if (!nextIndices.containsKey(variableName)) {
-				nextIndices.put(variableName, 0);
+			if (!indices.containsKey(variableName)) {
+				indices.put(variableName, 0);
 			}
 
-			int index = nextIndices.get(variableName);
-			nextIndices.put(variableName, index + 1);
+			int index = indices.get(variableName);
+			indices.put(variableName, index + 1);
 
 			variableName += index;
 
 			variableNames.put(var, variableName);
-
-			varNames.put(testCase, variableNames);
-			indices.put(testCase, nextIndices);
 		}
 
-		return varNames.get(testCase).get(var);
+		return variableNames.get(var);
 	}
 }

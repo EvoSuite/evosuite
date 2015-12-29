@@ -32,8 +32,7 @@ import java.util.Map;
  */
 public class DummyNamingStrategy extends AbstractVariableNamingStrategy {
 
-	private Map<TestCase, Map<VariableReference,String>> varNames = new HashMap<>();
-	private Map<TestCase, Integer> varIndexes = new HashMap<>();
+	private int index = 0;
 
 	private final static String PREFIX = "var";
 
@@ -48,26 +47,16 @@ public class DummyNamingStrategy extends AbstractVariableNamingStrategy {
 
 	@Override
 	public String getVariableName(TestCase testCase, VariableReference var) {
-		Map<VariableReference, String> variableNames = varNames.get(testCase);
-		if (variableNames == null) {
-			variableNames = new HashMap<>();
-			varNames.put(testCase, variableNames);
-			varIndexes.put(testCase, 0);
-		}
 		String name = variableNames.get(var);
 		if (name == null) {
-			name = getNextVariableName(testCase);
+			name = getNextVariableName();
 			variableNames.put(var, name);
-			varNames.put(testCase, variableNames);
 		}
 		return name;
 
 	}
 
-	private String getNextVariableName(TestCase testCase) {
-		int index = varIndexes.get(testCase);
-		varIndexes.put(testCase, index + 1);
-		return PREFIX + index;
-
+	private String getNextVariableName() {
+		return PREFIX + index++;
 	}
 }

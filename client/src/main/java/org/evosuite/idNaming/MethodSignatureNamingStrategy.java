@@ -27,11 +27,16 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * @author Jose Rojas
  *
  */
 public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
+
+    private Set<String> usedNames = new LinkedHashSet<>();
 
     public MethodSignatureNamingStrategy(ImportsTestCodeVisitor itv) {
         super(itv);
@@ -56,8 +61,13 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
                     if(param == variableReference) {
                         if(VariableNameCollector.getInstance().hasParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam)) {
                             String name = VariableNameCollector.getInstance().getParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam);
-                            // TODO: How to check if a variable with that name already exists?
-                            //       We'll probably want to add numbers to all variables of that name
+                            if(usedNames.contains(name)) {
+                                int num = 1; // Starting at 1 because 0 is implicitly used by the first variable
+                                while(usedNames.contains(name+num))
+                                    num++;
+                                name = name + num;
+                            }
+                            usedNames.add(name);
                             return name;
                         }
                     }
