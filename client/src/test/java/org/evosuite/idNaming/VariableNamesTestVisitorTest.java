@@ -81,25 +81,26 @@ public class VariableNamesTestVisitorTest {
     public void testVariableNamesMethodCallExplanatoryStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
 
         Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
-//
-//        // test
-//        DefaultTestCase tc = createTestCaseWithPrimitiveStatements();
-//        List<TestCase> tcs = new LinkedList<>();
-//        tcs.add(tc);
-//
-//        // generate variable names
-//        ExplanatoryNamingStrategy.execute(tcs, null);
-//	    System.out.println(tc);
-//        // check variable names
-//        VariableReference var0 = tc.getStatement(0).getReturnValue();
-//        VariableReference var1 = tc.getStatement(1).getReturnValue();
-//        VariableReference var2 = tc.getStatement(2).getReturnValue();
-//        VariableReference var3 = tc.getStatement(3).getReturnValue();
-//
-//        Assert.assertEquals("Unexpected variable name", "const_5", ExplanatoryNamingStrategy.getInstance().getVariableName(tc, var0));
-//        Assert.assertEquals("Unexpected variable name", "const_3", ExplanatoryNamingStrategy.getInstance().getVariableName(tc, var1));
-//        Assert.assertEquals("Unexpected variable name", "foo0", ExplanatoryNamingStrategy.getInstance().getVariableName(tc, var2));
-//        Assert.assertEquals("Unexpected variable name", "resultFromAdd", ExplanatoryNamingStrategy.getInstance().getVariableName(tc, var3));
+
+        // test
+        DefaultTestCase tc = createTestCaseWithPrimitiveStatements();
+
+        // generate variable names
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
+
+        // check variable names
+        VariableReference var0 = tc.getStatement(0).getReturnValue();
+        VariableReference var1 = tc.getStatement(1).getReturnValue();
+        VariableReference var2 = tc.getStatement(2).getReturnValue();
+        VariableReference var3 = tc.getStatement(3).getReturnValue();
+
+        TestCodeVisitor tcv = new TestCodeVisitor();
+        tcv.visitTestCase(tc);
+        System.out.println(tc.toCode());
+        Assert.assertEquals("Unexpected variable name", "const_5", tcv.getVariableName(var0));
+        Assert.assertEquals("Unexpected variable name", "const_3", tcv.getVariableName(var1));
+        Assert.assertEquals("Unexpected variable name", "foo0", tcv.getVariableName(var2));
+        Assert.assertEquals("Unexpected variable name", "resultFromAdd", tcv.getVariableName(var3));
     }
 
     private DefaultTestCase createTestCaseWithPrimitiveStatements() throws NoSuchMethodException {
@@ -174,18 +175,4 @@ public class VariableNamesTestVisitorTest {
         test.accept(visitor);
         visitor.printAll();
     }
-
-    @Test
-    public void t() {
-        C c = new C();
-        c.fooA();
-    }
-    class A { protected int fooA() {return 0;}}
-    interface I { int fooI();}
-    class B extends A implements I { public int fooB() {return 0;}
-
-        @Override
-        public int fooI() { return 0; }
-    }
-    class C extends B { public int fooC() {return 0;}}
 }

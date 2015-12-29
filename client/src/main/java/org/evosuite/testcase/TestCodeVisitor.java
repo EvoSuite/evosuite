@@ -35,10 +35,7 @@ import org.evosuite.assertion.NullAssertion;
 import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
-import org.evosuite.idNaming.DefaultNamingStrategy;
-import org.evosuite.idNaming.DummyNamingStrategy;
-import org.evosuite.idNaming.MethodSignatureNamingStrategy;
-import org.evosuite.idNaming.VariableNamingStrategy;
+import org.evosuite.idNaming.*;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.AbstractStatement;
 import org.evosuite.testcase.statements.ArrayStatement;
@@ -95,9 +92,10 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		switch (Properties.VARIABLE_NAMING_STRATEGY) {
 			case DUMMY:
 				return new DummyNamingStrategy((ImportsTestCodeVisitor) this.tcv);
-			case DECLARATIONS:
-				return new MethodSignatureNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 			case EXPLANATORY:
+                return new ExplanatoryNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+            case DECLARATIONS:
+                return new MethodSignatureNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 			case NATURALIZE:
 				return null;
 			default:

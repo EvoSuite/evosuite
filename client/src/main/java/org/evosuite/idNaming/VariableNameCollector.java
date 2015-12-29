@@ -29,7 +29,6 @@ public class VariableNameCollector {
     }
 
     public boolean hasParameterName(String className, String methodName, int numParam) {
-        System.out.println("Parameters: "+parameterMap);
         if(!parameterMap.containsKey(className))
             return false;
         if(!parameterMap.get(className).containsKey(methodName))

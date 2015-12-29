@@ -40,8 +40,77 @@ public class TestMethodSignatureNamingStrategy {
 
         TestCodeVisitor tcv = new TestCodeVisitor();
         tcv.visitTestCase(test);
+        test.accept(tcv);
         assertEquals("x", tcv.getVariableName(var1));
         assertEquals("y", tcv.getVariableName(var2));
-        System.out.println("Code: "+tcv.getCode());
     }
+
+
+    @Test
+    public void testTwoCallsToSameMethodWithSameVariables() throws NoSuchMethodException {
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DECLARATIONS;
+        VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 0, "x");
+        VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 1, "y");
+
+        TestCase test = new DefaultTestCase();
+        VariableReference var1 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        VariableReference var2 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        GenericConstructor gc = new GenericConstructor(SimpleInteger.class.getConstructor(), SimpleInteger.class);
+        VariableReference callee = test.addStatement(new ConstructorStatement(test, gc, new ArrayList<>()));
+        GenericMethod gm = new GenericMethod(SimpleInteger.class.getMethod("testInt", new Class<?>[] {int.class, int.class}), SimpleInteger.class);
+        test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var1, var2)));
+        test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var1, var2)));
+
+        TestCodeVisitor tcv = new TestCodeVisitor();
+        tcv.visitTestCase(test);
+        assertEquals("x", tcv.getVariableName(var1));
+        assertEquals("y", tcv.getVariableName(var2));
+    }
+
+    @Test
+    public void testTwoCallsToSameMethodWithDifferentVariables() throws NoSuchMethodException {
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DECLARATIONS;
+        VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 0, "x");
+        VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 1, "y");
+
+        TestCase test = new DefaultTestCase();
+        VariableReference var1 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        VariableReference var2 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        VariableReference var3 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        VariableReference var4 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        GenericConstructor gc = new GenericConstructor(SimpleInteger.class.getConstructor(), SimpleInteger.class);
+        VariableReference callee = test.addStatement(new ConstructorStatement(test, gc, new ArrayList<>()));
+        GenericMethod gm = new GenericMethod(SimpleInteger.class.getMethod("testInt", new Class<?>[] {int.class, int.class}), SimpleInteger.class);
+        test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var1, var2)));
+        test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var3, var4)));
+
+        TestCodeVisitor tcv = new TestCodeVisitor();
+        tcv.visitTestCase(test);
+        assertEquals("x0", tcv.getVariableName(var1));
+        assertEquals("y0", tcv.getVariableName(var2));
+        assertEquals("x1", tcv.getVariableName(var3));
+        assertEquals("y1", tcv.getVariableName(var4));
+    }
+
+    @Test
+    public void testTwoDifferentCallsWithSameVariables() throws NoSuchMethodException {
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DECLARATIONS;
+        VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 0, "x");
+        VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 1, "y");
+
+        TestCase test = new DefaultTestCase();
+        VariableReference var1 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        VariableReference var2 = test.addStatement(new IntPrimitiveStatement(test, 0));
+        GenericConstructor gc = new GenericConstructor(SimpleInteger.class.getConstructor(), SimpleInteger.class);
+        VariableReference callee = test.addStatement(new ConstructorStatement(test, gc, new ArrayList<>()));
+        GenericMethod gm = new GenericMethod(SimpleInteger.class.getMethod("testInt", new Class<?>[] {int.class, int.class}), SimpleInteger.class);
+        test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var1, var2)));
+        test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var2, var1)));
+
+        TestCodeVisitor tcv = new TestCodeVisitor();
+        tcv.visitTestCase(test);
+        assertEquals("x", tcv.getVariableName(var1));
+        assertEquals("y", tcv.getVariableName(var2));
+    }
+
 }
