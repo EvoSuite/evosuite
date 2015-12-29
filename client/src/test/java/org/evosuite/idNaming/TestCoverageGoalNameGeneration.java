@@ -9,6 +9,7 @@ import org.evosuite.coverage.input.InputCoverageGoal;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
+import org.evosuite.coverage.output.OutputCoverageFactory;
 import org.evosuite.coverage.output.OutputCoverageGoal;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -583,6 +584,97 @@ public class TestCoverageGoalNameGeneration {
         assertEquals("testCreatesClassWithOverloadedConstructorWithoutArguments", generatedName1);
         assertEquals("testCreatesClassWithOverloadedConstructorWithString", generatedName2);
         assertEquals("testCreatesClassWithOverloadedConstructorWith2Arguments", generatedName3);
+    }
+
+    @Test
+    public void testBooleanOutputGoal() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "foo", "boolean", OutputCoverageFactory.goalString("FooClass", "foo", OutputCoverageFactory.BOOL_TRUE));
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        test.addCoveredGoal(goal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningTrue",    naming.getName(test));
+    }
+
+    @Test
+    public void testNumericOutputGoal() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "foo", "int", OutputCoverageFactory.goalString("FooClass", "foo", OutputCoverageFactory.NUM_POSITIVE));
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        test.addCoveredGoal(goal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningPositive", naming.getName(test));
+    }
+
+    @Test
+    public void testCharOutputGoal() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "foo", "char", OutputCoverageFactory.goalString("FooClass", "foo", OutputCoverageFactory.CHAR_ALPHA));
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        test.addCoveredGoal(goal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningAlpha", naming.getName(test));
+    }
+
+    @Test
+    public void testNullOutputGoal() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "foo", "Object", OutputCoverageFactory.goalString("FooClass", "foo", OutputCoverageFactory.REF_NULL));
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        test.addCoveredGoal(goal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningNull", naming.getName(test));
+    }
+
+    @Test
+    public void testEmptyArray() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "foo", "Object[]", OutputCoverageFactory.goalString("FooClass", "foo", OutputCoverageFactory.EMPTY));
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        test.addCoveredGoal(goal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningEmpty", naming.getName(test));
+    }
+
+    @Test
+    public void testStringOutputGoal() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "foo", "String", OutputCoverageFactory.goalString("FooClass", "foo", OutputCoverageFactory.REF_NONNULL + ":" + OutputCoverageFactory.NONEMPTY));
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        test.addCoveredGoal(goal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningNonempty", naming.getName(test));
+    }
+
+    @Test
+    public void testInspectorOutputGoal() {
+        TestCase test = new DefaultTestCase();
+        OutputCoverageGoal outputGoal1 = new OutputCoverageGoal("FooClass", "foo", "String", OutputCoverageFactory.goalString("FooClass", "foo", OutputCoverageFactory.REF_NONNULL + ":" + "Bar" + ":" + "isFoo" + ":" + OutputCoverageFactory.NUM_NEGATIVE));
+        OutputCoverageTestFitness goal1 = new OutputCoverageTestFitness(outputGoal1);
+        test.addCoveredGoal(goal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningBarIsFooNegative", naming.getName(test));
     }
 
 }

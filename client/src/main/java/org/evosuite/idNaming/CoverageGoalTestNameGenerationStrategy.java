@@ -295,11 +295,31 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     private String getGoalName(InputCoverageTestFitness goal) {
-        return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_WITH + capitalize(getShortClassName(goal.getValueDescriptor()));
+        String descriptor = goal.getValueDescriptor();
+        return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_WITH + formatValueDescriptor(descriptor);
     }
 
     private String getGoalName(OutputCoverageTestFitness goal) {
-        return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_RETURNS + capitalize(getShortClassName(goal.getValueDescriptor()));
+        String descriptor = goal.getValueDescriptor();
+        return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_RETURNS + formatValueDescriptor(descriptor);
+    }
+
+    private String formatValueDescriptor(String descriptor) {
+        String[] components = descriptor.split(":");
+        if(components.length == 1) {
+            return capitalize(descriptor);
+        } else if(components.length == 2) {
+            // Ignore classname
+            return capitalize(components[1]);
+        } else if(components.length == 3) {
+            // Second one is "non-null", we'll just ignore this
+            return capitalize(components[2]);
+        } else if(components.length == 5) {
+            // Inspector
+            return capitalize(getShortClassName(components[2])) + capitalize(components[3]) + capitalize(components[4]);
+        } else {
+            throw new RuntimeException("Unsupported value descriptor: "+descriptor);
+        }
     }
 
     private String getGoalPairName(TestFitnessFunction goal1, TestFitnessFunction goal2) {
@@ -333,11 +353,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     }
 
     private String getGoalPairName(InputCoverageTestFitness goal1, InputCoverageTestFitness goal2) {
-        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_WITH + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_WITH + formatValueDescriptor(goal1.getValueDescriptor()) + "And" + formatValueDescriptor(goal2.getValueDescriptor());
     }
 
     private String getGoalPairName(OutputCoverageTestFitness goal1, OutputCoverageTestFitness goal2 ) {
-        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_RETURNS + capitalize(getShortClassName(goal1.getValueDescriptor())) + "And" + capitalize(getShortClassName(goal2.getValueDescriptor()));
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_RETURNS + formatValueDescriptor(goal1.getValueDescriptor()) + "And" + formatValueDescriptor(goal2.getValueDescriptor());
     }
 
     private String getShortClassName(String className) {
