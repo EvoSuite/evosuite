@@ -70,7 +70,8 @@ public class VariableNamesTestVisitorTest {
         VariableReference var3 = tc.getStatement(3).getReturnValue();
 
 	    TestCodeVisitor tcv = new TestCodeVisitor();
-	    tcv.visitTestCase(tc);
+        tcv.initializeNamingStrategyFromProperties();
+        tcv.visitTestCase(tc);
         Assert.assertEquals("Unexpected variable name", "var0", tcv.getVariableName(var0));
         Assert.assertEquals("Unexpected variable name", "var1", tcv.getVariableName(var1));
         Assert.assertEquals("Unexpected variable name", "var2", tcv.getVariableName(var2));
@@ -95,8 +96,9 @@ public class VariableNamesTestVisitorTest {
         VariableReference var3 = tc.getStatement(3).getReturnValue();
 
         TestCodeVisitor tcv = new TestCodeVisitor();
+        tcv.initializeNamingStrategyFromProperties();
         tcv.visitTestCase(tc);
-        System.out.println(tc.toCode());
+
         Assert.assertEquals("Unexpected variable name", "const_5", tcv.getVariableName(var0));
         Assert.assertEquals("Unexpected variable name", "const_3", tcv.getVariableName(var1));
         Assert.assertEquals("Unexpected variable name", "foo0", tcv.getVariableName(var2));
@@ -168,7 +170,6 @@ public class VariableNamesTestVisitorTest {
         test.addStatement(new AssignmentStatement(test, boolStmt.getReturnValue(), call));
 
         (new SimpleMutationAssertionGenerator()).addAssertions(test);
-        System.out.println(test.toCode());
 
         //Visit the tests
         VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();

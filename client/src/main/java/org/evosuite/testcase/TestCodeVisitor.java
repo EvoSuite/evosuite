@@ -86,22 +86,29 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 
     protected static final String NEWLINE = System.getProperty("line.separator");
 
-	private VariableNamingStrategy strategy = initStrategy();
+	private VariableNamingStrategy strategy = new DefaultNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 
-	private VariableNamingStrategy initStrategy() {
+	public void initializeNamingStrategyFromProperties() {
 		switch (Properties.VARIABLE_NAMING_STRATEGY) {
 			case DUMMY:
-				return new DummyNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+				strategy = new DummyNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+                break;
 			case EXPLANATORY:
-                return new ExplanatoryNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+                strategy = new ExplanatoryNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+                break;
             case DECLARATIONS:
-                return new MethodSignatureNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+                strategy = new MethodSignatureNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+                break;
 			case NATURALIZE:
-				return null;
+                throw new RuntimeException("Not implemented yet");
 			default:
-				return new DefaultNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+                strategy = new DefaultNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 		}
 	}
+
+    public void setNamingStrategy(VariableNamingStrategy strategy) {
+        this.strategy = strategy;
+    }
 
 	public TestCodeVisitor(){
 		this.tcv = new ImportsTestCodeVisitor();

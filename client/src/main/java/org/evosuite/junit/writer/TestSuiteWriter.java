@@ -235,6 +235,8 @@ public class TestSuiteWriter implements Opcodes {
             throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
         }
 
+        visitor.initializeNamingStrategyFromProperties();
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             content = getUnitTestsAllInSameFile(name, results);
