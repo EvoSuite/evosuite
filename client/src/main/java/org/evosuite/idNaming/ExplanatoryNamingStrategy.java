@@ -19,6 +19,7 @@
  */
 package org.evosuite.idNaming;
 
+import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.variable.VariableReference;
@@ -31,58 +32,35 @@ import java.util.Map;
  * @author Jose Rojas
  *
  */
-public class ExplanatoryNamingStrategy implements VariableNamingStrategy{
-
-    private static ExplanatoryNamingStrategy instance = null;
+public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
 
     // mapping from test case to variable names
     protected Map<TestCase,Map<VariableReference,String>> varNames = new HashMap<>();
 
-    /**
-     * Getter for the field {@code instance}
-     *
-     * @return a {@link org.evosuite.idNaming.ExplanatoryNamingStrategy}
-     *         object.
-     */
-    public static synchronized ExplanatoryNamingStrategy getInstance() {
-        if (instance == null)
-            instance = new ExplanatoryNamingStrategy();
-        return instance;
-    }
+	public ExplanatoryNamingStrategy(ImportsTestCodeVisitor itv) {
+		super(itv);
+	}
 
-    /**
+	/**
      * Returns name for input variable reference {@code var} in test case {@code tc}
      * @param tc test case
      * @param var variable reference
      * @return a {@link String} object representing the variable reference name
      */
     public String getVariableName(TestCase tc, VariableReference var) {
-	    ExplanatoryNamingStrategy generator = getInstance();
-        if (generator.varNames.containsKey(tc))
-            return generator.varNames.get(tc).get(var);
-        else
-            return null;
-    }
-
-    public static void execute(List<TestCase> testCases, List<ExecutionResult> results) {
-	    ExplanatoryNamingStrategy generator = getInstance();
-
-        VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
-        for (int testIdx = 0; testIdx < testCases.size(); testIdx++) {
-            TestCase test = testCases.get(testIdx);
-            test.accept(visitor);
+        if (!varNames.containsKey(tc)) {
+	        VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
+	        tc.accept(visitor);
+	        varNames.put(tc, visitor.getAllVariableNames());
         }
-        generator.varNames = visitor.getAllVariableNames();
-        visitor.printAll();
-        printVarNames();
+	    return varNames.get(tc).get(var);
     }
 
-    private static void printVarNames() {
-	    ExplanatoryNamingStrategy generator = getInstance();
+    private void printVarNames() {
         System.out.println("FINAL NAMES MAPPING");
         String format = "%-5s| %-10s| %s\n";
         System.out.printf(format, "test", "varRef", "name");
-        for (Map.Entry<TestCase,Map<VariableReference,String>> entry : generator.varNames.entrySet()) {
+        for (Map.Entry<TestCase,Map<VariableReference,String>> entry : varNames.entrySet()) {
             TestCase t = entry.getKey();
             for (Map.Entry<VariableReference,String> varEntry : entry.getValue().entrySet()) {
                 VariableReference var = varEntry.getKey();

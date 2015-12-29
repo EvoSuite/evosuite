@@ -35,43 +35,27 @@ import java.util.Map;
 /**
  * @author Jose Rojas
  */
-public class DummyNamingStrategy implements VariableNamingStrategy {
-
-	private final ImportsTestCodeVisitor itv;
+public class DummyNamingStrategy extends AbstractVariableNamingStrategy {
 
 	private Map<TestCase, Map<VariableReference,String>> varNames = new HashMap<>();
 	private Map<TestCase, Integer> varIndexes = new HashMap<>();
 
+	private final static String PREFFIX = "var";
+
 	public DummyNamingStrategy(ImportsTestCodeVisitor itv) {
-		this.itv = itv;
+		super(itv);
 	}
 
 	@Override
 	public String getVariableName(TestCase testCase, VariableReference var) {
 		if (var instanceof ConstantValue) {
-			ConstantValue cval = (ConstantValue)var;
-			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
-				return this.itv.getClassNames().get((Class<?>)cval.getValue())+".class";
-			}
-			return var.getName();
+			return getConstantName((ConstantValue)var);
 		} else if (var instanceof InputVariable) {
 			return var.getName();
 		} else if (var instanceof FieldReference) {
-			VariableReference source = ((FieldReference) var).getSource();
-			GenericField field = ((FieldReference) var).getField();
-			if (source != null)
-				return getVariableName(testCase, source) + "." + field.getName();
-			else
-				return this.itv.getClassNames().get(field.getField().getDeclaringClass()) + "."
-						+ field.getName();
+			return getFieldReferenceName(testCase, (FieldReference)var);
 		} else if (var instanceof ArrayIndex) {
-			VariableReference array = ((ArrayIndex) var).getArray();
-			List<Integer> indices = ((ArrayIndex) var).getArrayIndices();
-			String result = getVariableName(testCase, array);
-			for (Integer index : indices) {
-				result += "[" + index + "]";
-			}
-			return result;
+			return getArrayIndexName(testCase, (ArrayIndex)var);
 		} else {
 			Map<VariableReference, String> variableNames = varNames.get(testCase);
 			if (variableNames == null) {
@@ -92,7 +76,7 @@ public class DummyNamingStrategy implements VariableNamingStrategy {
 	private String getNextVariableName(TestCase testCase) {
 		int index = varIndexes.get(testCase);
 		varIndexes.put(testCase, index + 1);
-		return "var" + index;
+		return PREFFIX + index;
 
 	}
 }

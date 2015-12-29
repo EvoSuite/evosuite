@@ -37,44 +37,26 @@ import java.util.Map;
 /**
  * @author Gordon Fraser, Jose Rojas
  */
-public class DefaultNamingStrategy implements VariableNamingStrategy {
-
-	private final ImportsTestCodeVisitor itv;
+public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 
 	private Map<TestCase, Map<VariableReference,String>> varNames = new HashMap<>();
 
 	protected final Map<TestCase, Map<String, Integer>> indices = new HashMap<>();
 
 	public DefaultNamingStrategy(ImportsTestCodeVisitor itv) {
-		this.itv = itv;
+		super(itv);
 	}
 
 	@Override
 	public String getVariableName(TestCase testCase, VariableReference var) {
 		if (var instanceof ConstantValue) {
-			ConstantValue cval = (ConstantValue)var;
-			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
-				return this.itv.getClassNames().get((Class<?>)cval.getValue())+".class";
-			}
-			return var.getName();
+			return getConstantName((ConstantValue)var);
 		} else if (var instanceof InputVariable) {
 			return var.getName();
 		} else if (var instanceof FieldReference) {
-			VariableReference source = ((FieldReference) var).getSource();
-			GenericField field = ((FieldReference) var).getField();
-			if (source != null)
-				return getVariableName(testCase, source) + "." + field.getName();
-			else
-				return this.itv.getClassNames().get(field.getField().getDeclaringClass()) + "."
-						+ field.getName();
+			return getFieldReferenceName(testCase, (FieldReference)var);
 		} else if (var instanceof ArrayIndex) {
-			VariableReference array = ((ArrayIndex) var).getArray();
-			List<Integer> indices = ((ArrayIndex) var).getArrayIndices();
-			String result = getVariableName(testCase, array);
-			for (Integer index : indices) {
-				result += "[" + index + "]";
-			}
-			return result;
+			return getArrayIndexName(testCase, (ArrayIndex)var);
 		} else if (var instanceof ArrayReference) {
 			String className = var.getSimpleClassName();
 			// int num = 0;
