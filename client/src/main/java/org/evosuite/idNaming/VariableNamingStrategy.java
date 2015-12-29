@@ -27,6 +27,6 @@ import org.evosuite.testcase.variable.VariableReference;
  */
 public interface VariableNamingStrategy {
 
-	String getVariableName(TestCase testCase, VariableReference variableReference);
+	String getName(TestCase testCase, VariableReference variableReference);
 
 }

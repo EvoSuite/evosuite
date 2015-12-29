@@ -22,6 +22,7 @@ package org.evosuite.idNaming;
 import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 
 import java.util.HashMap;
@@ -41,7 +42,12 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
 		super(itv);
 	}
 
-	/**
+    @Override
+    public String getArrayReferenceName(TestCase testCase, ArrayReference var) {
+        return getVariableName(testCase, var);
+    }
+
+    /**
      * Returns name for input variable reference {@code var} in test case {@code tc}
      * @param tc test case
      * @param var variable reference
@@ -51,7 +57,7 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
         if (!varNames.containsKey(tc)) {
 	        VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
 	        tc.accept(visitor);
-	        varNames.put(tc, visitor.getAllVariableNames());
+	        varNames.put(tc, visitor.getAllVariableNames().get(tc));
         }
 	    return varNames.get(tc).get(var);
     }

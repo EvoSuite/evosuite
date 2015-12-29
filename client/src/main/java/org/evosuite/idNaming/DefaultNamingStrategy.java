@@ -48,88 +48,83 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 	}
 
 	@Override
-	public String getVariableName(TestCase testCase, VariableReference var) {
-		if (var instanceof ConstantValue) {
-			return getConstantName((ConstantValue)var);
-		} else if (var instanceof InputVariable) {
-			return var.getName();
-		} else if (var instanceof FieldReference) {
-			return getFieldReferenceName(testCase, (FieldReference)var);
-		} else if (var instanceof ArrayIndex) {
-			return getArrayIndexName(testCase, (ArrayIndex)var);
-		} else if (var instanceof ArrayReference) {
-			String className = var.getSimpleClassName();
-			// int num = 0;
-			// for (VariableReference otherVar : variableNames.keySet()) {
-			// if (!otherVar.equals(var)
-			// && otherVar.getVariableClass().equals(var.getVariableClass()))
-			// num++;
-			// }
-			String variableName = className.substring(0, 1).toLowerCase()
-					+ className.substring(1) + "Array";
-			variableName = variableName.replace(".", "_").replace("[]", "");
+	public String getArrayReferenceName(TestCase testCase, ArrayReference var) {
+		String className = var.getSimpleClassName();
+		// int num = 0;
+		// for (VariableReference otherVar : variableNames.keySet()) {
+		// if (!otherVar.equals(var)
+		// && otherVar.getVariableClass().equals(var.getVariableClass()))
+		// num++;
+		// }
+		String variableName = className.substring(0, 1).toLowerCase()
+				+ className.substring(1) + "Array";
+		variableName = variableName.replace(".", "_").replace("[]", "");
 
-			if (!varNames.containsKey(testCase))
-				varNames.put(testCase, new HashMap<>());
+		if (!varNames.containsKey(testCase))
+			varNames.put(testCase, new HashMap<>());
 
-			if (!indices.containsKey(testCase))
-				indices.put(testCase, new HashMap<>());
+		if (!indices.containsKey(testCase))
+			indices.put(testCase, new HashMap<>());
 
-			Map<VariableReference, String> variableNames = varNames.get(testCase);
-			Map<String, Integer> nextIndices = indices.get(testCase);
+		Map<VariableReference, String> variableNames = varNames.get(testCase);
+		Map<String, Integer> nextIndices = indices.get(testCase);
 
-			if (!variableNames.containsKey(var)) {
-				if (!nextIndices.containsKey(variableName)) {
-					nextIndices.put(variableName, 0);
-				}
-
-				int index = nextIndices.get(variableName);
-				nextIndices.put(variableName, index + 1);
-
-				variableName += index;
-
-				variableNames.put(var, variableName);
-
-				varNames.put(testCase, variableNames);
-				indices.put(testCase, nextIndices);
+		if (!variableNames.containsKey(var)) {
+			if (!nextIndices.containsKey(variableName)) {
+				nextIndices.put(variableName, 0);
 			}
-		} else {
-			if (!varNames.containsKey(testCase))
-				varNames.put(testCase, new HashMap<>());
 
-			if (!indices.containsKey(testCase))
-				indices.put(testCase, new HashMap<>());
+			int index = nextIndices.get(variableName);
+			nextIndices.put(variableName, index + 1);
 
-			Map<VariableReference, String> variableNames = varNames.get(testCase);
-			Map<String, Integer> nextIndices = indices.get(testCase);
-			if (!variableNames.containsKey(var)) {
-				String className = var.getSimpleClassName();
+			variableName += index;
 
-				String variableName = className.substring(0, 1).toLowerCase()
-						+ className.substring(1);
-				if (variableName.contains("[]")) {
-					variableName = variableName.replace("[]", "Array");
-				}
-				variableName = variableName.replace(".", "_");
+			variableNames.put(var, variableName);
 
-				if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
-					variableName += "_";
-
-				if (!nextIndices.containsKey(variableName)) {
-					nextIndices.put(variableName, 0);
-				}
-
-				int index = nextIndices.get(variableName);
-				nextIndices.put(variableName, index + 1);
-
-				variableName += index;
-
-				variableNames.put(var, variableName);
-
-				varNames.put(testCase, variableNames);
-				indices.put(testCase, nextIndices);
-			}
+			varNames.put(testCase, variableNames);
+			indices.put(testCase, nextIndices);
 		}
+		return varNames.get(testCase).get(var);
+	}
+
+	@Override
+	public String getVariableName(TestCase testCase, VariableReference var) {
+		if (!varNames.containsKey(testCase))
+			varNames.put(testCase, new HashMap<>());
+
+		if (!indices.containsKey(testCase))
+			indices.put(testCase, new HashMap<>());
+
+		Map<VariableReference, String> variableNames = varNames.get(testCase);
+		Map<String, Integer> nextIndices = indices.get(testCase);
+		if (!variableNames.containsKey(var)) {
+			String className = var.getSimpleClassName();
+
+			String variableName = className.substring(0, 1).toLowerCase()
+					+ className.substring(1);
+			if (variableName.contains("[]")) {
+				variableName = variableName.replace("[]", "Array");
+			}
+			variableName = variableName.replace(".", "_");
+
+			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
+				variableName += "_";
+
+			if (!nextIndices.containsKey(variableName)) {
+				nextIndices.put(variableName, 0);
+			}
+
+			int index = nextIndices.get(variableName);
+			nextIndices.put(variableName, index + 1);
+
+			variableName += index;
+
+			variableNames.put(var, variableName);
+
+			varNames.put(testCase, variableNames);
+			indices.put(testCase, nextIndices);
+		}
+
 		return varNames.get(testCase).get(var);
 	}
 }

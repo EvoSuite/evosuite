@@ -19,12 +19,10 @@
  */
 package org.evosuite.idNaming;
 
+import org.evosuite.parameterize.InputVariable;
 import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.ArrayIndex;
-import org.evosuite.testcase.variable.ConstantValue;
-import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.variable.*;
 import org.evosuite.utils.generic.GenericField;
 
 import java.util.List;
@@ -40,15 +38,14 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		this.itv = itv;
 	}
 
-	String getConstantName(ConstantValue var) {
-		ConstantValue cval = var;
+	public String getConstantName(ConstantValue cval) {
 		if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
 			return this.itv.getClassNames().get((Class<?>)cval.getValue())+".class";
 		}
-		return var.getName();
+		return cval.getName();
 	}
 
-	String getFieldReferenceName(TestCase testCase, FieldReference var) {
+	public String getFieldReferenceName(TestCase testCase, FieldReference var) {
 		VariableReference source = var.getSource();
 		GenericField field = var.getField();
 		if (source != null)
@@ -58,7 +55,7 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 					+ field.getName();
 	}
 
-	String getArrayIndexName(TestCase testCase, ArrayIndex var) {
+	public String getArrayIndexName(TestCase testCase, ArrayIndex var) {
 		VariableReference array = var.getArray();
 		List<Integer> indices = var.getArrayIndices();
 		String result = getVariableName(testCase, array);
@@ -66,5 +63,26 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 			result += "[" + index + "]";
 		}
 		return result;
+	}
+
+	public abstract String getArrayReferenceName(TestCase testCase, ArrayReference var);
+
+	public abstract String getVariableName(TestCase testCase, VariableReference var);
+
+	@Override
+	public String getName(TestCase testCase, VariableReference var) {
+		if (var instanceof ConstantValue) {
+			return getConstantName((ConstantValue) var);
+		} else if (var instanceof InputVariable) {
+			return var.getName();
+		} else if (var instanceof FieldReference) {
+			return getFieldReferenceName(testCase, (FieldReference) var);
+		} else if (var instanceof ArrayIndex) {
+			return getArrayIndexName(testCase, (ArrayIndex) var);
+		} else if (var instanceof ArrayReference) {
+			return getArrayReferenceName(testCase, (ArrayReference) var);
+		} else {
+			return getVariableName(testCase, var);
+		}
 	}
 }
