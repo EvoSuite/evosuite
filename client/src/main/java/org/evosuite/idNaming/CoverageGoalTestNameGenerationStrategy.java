@@ -45,7 +45,13 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
 
     public static final String STR_WITH = "With";
 
-    public static final String STR_WITHOUT = "Without";
+    public static final String STR_WHERE = "Where";
+
+    public static final String STR_IS = "Is";
+
+    public static final String STR_TAKING = "Taking";
+
+    public static final String STR_WITHOUT = "TakingNo";
 
     public static final String STR_RETURNS = "Returning";
 
@@ -451,7 +457,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             return capitalize(components[2]);
         } else if(components.length == 4) {
             // Inspector
-            return capitalize(getShortClassName(components[1])) + capitalize(getMethodNameWithoutDescriptor(components[2])) + capitalize(components[3]);
+            return capitalize(getShortClassName(components[1])) + STR_WHERE + capitalize(getMethodNameWithoutDescriptor(components[2])) + STR_IS + capitalize(components[3]);
         } else {
             throw new RuntimeException("Unsupported value descriptor: "+descriptor);
         }
@@ -582,10 +588,10 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         if(argumentTypes.length == 0)
             return methodNameWithoutDescriptor + STR_WITHOUT + STR_ARGUMENTS;
         else if(argumentTypes.length == 1) {
-            return methodNameWithoutDescriptor + STR_WITH + capitalize(getShortClassName(argumentTypes[0].getClassName()));
+            return methodNameWithoutDescriptor + STR_TAKING + capitalize(getShortClassName(argumentTypes[0].getClassName()));
         }
         else
-            return methodNameWithoutDescriptor + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
+            return methodNameWithoutDescriptor + STR_TAKING + argumentTypes.length + STR_ARGUMENTS;
     }
 
     /**
@@ -609,10 +615,10 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         if(argumentTypes.length == 0)
             return getShortClassName(className) + STR_WITHOUT + STR_ARGUMENTS;
         else if(argumentTypes.length == 1) {
-            return getShortClassName(className) + STR_WITH + capitalize(getShortClassName(argumentTypes[0].getClassName()));
+            return getShortClassName(className) + STR_TAKING + capitalize(getShortClassName(argumentTypes[0].getClassName()));
         }
         else
-            return getShortClassName(className) + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
+            return getShortClassName(className) + STR_TAKING + argumentTypes.length + STR_ARGUMENTS;
     }
 
     /**

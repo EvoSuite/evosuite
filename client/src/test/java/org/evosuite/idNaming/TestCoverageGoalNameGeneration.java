@@ -296,9 +296,9 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test2);
         tests.add(test3);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooWithoutArguments",     naming.getName(test1));
-        assertEquals("testFooWithInt", naming.getName(test2));
-        assertEquals("testFooWith2Arguments", naming.getName(test3));
+        assertEquals("testFooTakingNoArguments",     naming.getName(test1));
+        assertEquals("testFooTakingInt", naming.getName(test2));
+        assertEquals("testFooTaking2Arguments", naming.getName(test3));
     }
 
     @Test
@@ -317,8 +317,8 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test1);
         tests.add(test2);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooWithoutArguments",     naming.getName(test1));
-        assertEquals("testFooWithList", naming.getName(test2));
+        assertEquals("testFooTakingNoArguments",     naming.getName(test1));
+        assertEquals("testFooTakingList", naming.getName(test2));
     }
 
     @Test
@@ -343,9 +343,9 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test2);
         tests.add(test3);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooWithInt",     naming.getName(test1));
-        assertEquals("testFooWithIntArray", naming.getName(test2));
-        assertEquals("testFooWithIntArrayArray", naming.getName(test3));
+        assertEquals("testFooTakingInt",     naming.getName(test1));
+        assertEquals("testFooTakingIntArray", naming.getName(test2));
+        assertEquals("testFooTakingIntArrayArray", naming.getName(test3));
     }
 
 
@@ -517,7 +517,7 @@ public class TestCoverageGoalNameGeneration {
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         String generatedName = naming.getName(test);
-        assertEquals("testCreatesFooClassWithoutArgumentsAndCreatesFooClassWithInt", generatedName);
+        assertEquals("testCreatesFooClassTakingNoArgumentsAndCreatesFooClassTakingInt", generatedName);
     }
 
     @Test
@@ -583,9 +583,9 @@ public class TestCoverageGoalNameGeneration {
         String generatedName1 = naming.getName(test1);
         String generatedName2 = naming.getName(test2);
         String generatedName3 = naming.getName(test3);
-        assertEquals("testCreatesClassWithOverloadedConstructorWithoutArguments", generatedName1);// TODO: I would remove the WithOverloadedConstructor
-        assertEquals("testCreatesClassWithOverloadedConstructorWithString", generatedName2);
-        assertEquals("testCreatesClassWithOverloadedConstructorWith2Arguments", generatedName3);
+        assertEquals("testCreatesClassWithOverloadedConstructorTakingNoArguments", generatedName1);// TODO: I would remove the WithOverloadedConstructor
+        assertEquals("testCreatesClassWithOverloadedConstructorTakingString", generatedName2);
+        assertEquals("testCreatesClassWithOverloadedConstructorTaking2Arguments", generatedName3);
     }
 
     @Test
@@ -612,9 +612,9 @@ public class TestCoverageGoalNameGeneration {
         String generatedName1 = naming.getName(test1);
         String generatedName2 = naming.getName(test2);
         String generatedName3 = naming.getName(test3);
-        assertEquals("testFailsToCreateClassWithOverloadedConstructorWithoutArgumentsThrowsNullPointerException", generatedName1);
-        assertEquals("testFailsToCreateClassWithOverloadedConstructorWithStringThrowsNullPointerException", generatedName2);
-        assertEquals("testFailsToCreateClassWithOverloadedConstructorWith2ArgumentsThrowsNullPointerException", generatedName3);
+        assertEquals("testFailsToCreateClassWithOverloadedConstructorTakingNoArgumentsThrowsNullPointerException", generatedName1);
+        assertEquals("testFailsToCreateClassWithOverloadedConstructorTakingStringThrowsNullPointerException", generatedName2);
+        assertEquals("testFailsToCreateClassWithOverloadedConstructorTaking2ArgumentsThrowsNullPointerException", generatedName3);
     }
 
     @Test
@@ -706,7 +706,7 @@ public class TestCoverageGoalNameGeneration {
         List<TestCase> tests = new ArrayList<>();
         tests.add(test);
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
-        assertEquals("testFooReturningBarIsFooNegative", naming.getName(test));
+        assertEquals("testFooReturningBarWhereIsFooIsNegative", naming.getName(test));
     }
 
 
