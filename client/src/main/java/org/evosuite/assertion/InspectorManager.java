@@ -202,8 +202,10 @@ public class InspectorManager {
 	}
 
 	private void determineInspectors(Class<?> clazz) {
-		if (!TestUsageChecker.canUse(clazz))
+		if (!TestUsageChecker.canUse(clazz)) {
+			inspectors.put(clazz, new ArrayList<>());
 			return;
+		}
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
 			if (isInspectorMethod(method)) { // FIXXME

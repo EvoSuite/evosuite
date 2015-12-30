@@ -21,6 +21,7 @@ package org.evosuite.coverage.output;
 
 import org.evosuite.Properties;
 import org.evosuite.assertion.Inspector;
+import org.evosuite.assertion.InspectorManager;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -132,14 +133,12 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                             of test execution, as they involve security manager checks, loop counter handling, etc.
                             Doing it as side effects of fitness evaluation could have many side effects
                             UPDATE: now ok to do these because security checks were added to inspectors.
+
+                            Note2: Re-enabled, as inspectors now properly check the security manager
                         */
-                        List<String> inspectors = OutputCoverageFactory.getInspectors(returnType.getClassName());
-                        for (String insp : inspectors) {
+                        for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnValue.getClass())) {
+                            String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
                             try {
-                                String inspName = insp.substring(0, insp.indexOf("("));
-                                Method m = returnValue.getClass().getDeclaredMethod(inspName);
-                                m.setAccessible(true);
-                                Inspector inspector = new Inspector(returnValue.getClass(), m);
                                 Object val = inspector.getValue(returnValue);
                                 if (val instanceof Boolean) {
                                     if ((boolean)val)
@@ -155,7 +154,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                                     else
                                         results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_POSITIVE));
                                 }
-                            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                            } catch (InvocationTargetException | IllegalAccessException e) {
                                 logger.warn(e.getMessage(), e);
                             }
                         }
