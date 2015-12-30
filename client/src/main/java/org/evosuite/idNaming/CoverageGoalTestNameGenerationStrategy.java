@@ -5,13 +5,17 @@ import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.input.InputCoverageTestFitness;
+import org.evosuite.coverage.input.InputObserver;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.output.OutputCoverageTestFitness;
+import org.evosuite.coverage.output.OutputObserver;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -53,13 +57,20 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         generateNames(testToGoals);
     }
 
+    /**
+     * This assumes all goals are already saved in the tests
+     * @param testCases
+     */
     public CoverageGoalTestNameGenerationStrategy(List<TestCase> testCases) {
-        // This assumes all goals are already saved in the tests
         Map<TestCase, Set<TestFitnessFunction>> testToGoals = initializeCoverageMapFromTests(testCases);
         generateNames(testToGoals);
     }
 
 
+    /**
+     * Helper method that does the bulk of the work
+     * @param testToGoals
+     */
     private void generateNames(Map<TestCase, Set<TestFitnessFunction>> testToGoals ) {
         initializeMethodCoverageCount(testToGoals);
         findUniqueGoals(testToGoals);
@@ -67,6 +78,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         fixAmbiguousTestNames();
     }
 
+    /**
+     * Builds the name map based on coverage goal stored as covered in each of the tests
+     * @param tests
+     * @return
+     */
     private Map<TestCase, Set<TestFitnessFunction>> initializeCoverageMapFromTests(List<TestCase> tests) {
         Map<TestCase, Set<TestFitnessFunction>> testToGoals = new HashMap<>();
         for(TestCase test : tests) {
@@ -75,6 +91,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return testToGoals;
     }
 
+    /**
+     * Builds the name map based on coverage goals stored as covered in the tests pointed to by results
+     * @param results
+     * @return
+     */
     private Map<TestCase, Set<TestFitnessFunction>> initializeCoverageMapFromResults(List<ExecutionResult> results) {
         Map<TestCase, Set<TestFitnessFunction>> testToGoals = new HashMap<>();
         for(ExecutionResult result : results) {
@@ -83,9 +104,16 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return testToGoals;
     }
 
+    /**
+     * Name generation assumes that certain coverage criteria are included. If we haven't targeted them yet,
+     * we need to determine the covered goals. This may require re-executing the tests with observers.
+     *
+     * @param results
+     */
     private void addGoalsNotIncludedInTargetCriteria(List<ExecutionResult> results) {
         List<Properties.Criterion> requiredCriteria = new ArrayList<>(Arrays.asList(new Properties.Criterion[] { Properties.Criterion.OUTPUT, Properties.Criterion.INPUT, Properties.Criterion.METHOD, Properties.Criterion.METHODNOEXCEPTION, Properties.Criterion.EXCEPTION}));
         requiredCriteria.removeAll(Arrays.asList(Properties.CRITERION));
+        results = getUpdatedResults(requiredCriteria, results);
         for(Properties.Criterion c : requiredCriteria) {
             TestFitnessFactory<? extends TestFitnessFunction> goalFactory = FitnessFunctions.getFitnessFactory(c);
             List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
@@ -98,13 +126,58 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * Some criteria require re-execution with observers. Make sure the results are up-to-date
+     *
+     * @param requiredCriteria
+     * @param origResults
+     * @return
+     */
+    private List<ExecutionResult> getUpdatedResults(List<Properties.Criterion> requiredCriteria, List<ExecutionResult> origResults) {
+        List<ExecutionObserver> newObservers = new ArrayList<ExecutionObserver>();
+        if(requiredCriteria.contains(Properties.Criterion.INPUT)) {
+            newObservers.add(new InputObserver());
+        }
+        if(requiredCriteria.contains(Properties.Criterion.OUTPUT)) {
+            newObservers.add(new OutputObserver());
+        }
+        if(newObservers.isEmpty()) {
+            return origResults;
+        }
+        for(ExecutionObserver observer : newObservers)
+            TestCaseExecutor.getInstance().addObserver(observer);
+
+        List<ExecutionResult> newResults = new ArrayList<ExecutionResult>();
+        for(ExecutionResult result : origResults) {
+            ExecutionResult newResult = TestCaseExecutor.getInstance().runTest(result.test);
+            newResults.add(newResult);
+        }
+
+        for(ExecutionObserver observer : newObservers)
+            TestCaseExecutor.getInstance().removeObserver(observer);
+
+        return newResults;
+    }
+
+    /** We use only a subset of the possible criteria to determine names */
     private List<Class<?>> supportedClasses = Arrays.asList(new Class<?> [] { MethodCoverageTestFitness.class, MethodNoExceptionCoverageTestFitness.class,
             ExceptionCoverageTestFitness.class, OutputCoverageTestFitness.class, InputCoverageTestFitness.class});
 
+    /**
+     * Remove any goals that are irrelevant for name generation
+     *
+     * @param goals
+     * @return
+     */
     private Set<TestFitnessFunction> filterSupportedGoals(Set<TestFitnessFunction> goals) {
         return goals.stream().filter(c -> supportedClasses.contains(c.getClass())).collect(Collectors.toSet());
     }
 
+    /**
+     * Determine if we have overloaded methods, which requires the use of signatures
+     *
+     * @param testToGoals
+     */
     private void initializeMethodCoverageCount(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
         for(Set<TestFitnessFunction> goals : testToGoals.values()) {
             for(TestFitnessFunction goal : goals) {
@@ -119,6 +192,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * Determine for each test the set of coverage goals uniquely covered by this test
+     *
+     * @param testToGoals
+     */
     private void findUniqueGoals(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
         // Could be optimised
         Map<TestCase, Set<TestFitnessFunction>> goalMapCopy = new HashMap<>();
@@ -135,6 +213,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         testToGoals.putAll(goalMapCopy);
     }
 
+    /**
+     * Store the name for that test based on the unique goals determined for that test.
+     *
+     * @param testToGoals
+     */
     private void selectGoalName(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
         for(Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
             if(entry.getValue().isEmpty()) {
@@ -148,6 +231,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * There may be tests with the same calculated name, in which case we add a number suffix
+     */
     private void fixAmbiguousTestNames() {
         Map<String, Integer> nameCount = new HashMap<>();
         Map<String, Integer> testCount = new HashMap<>();
@@ -168,12 +254,25 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * Make first letter upper case
+     *
+     * @param input
+     * @return
+     */
     private static String capitalize(String input) {
         final char[] buffer = input.toCharArray();
         buffer[0] = Character.toTitleCase(buffer[0]);
         return new String(buffer);
     }
 
+    /**
+     * Determine name for the given test
+     *
+     * @param test
+     * @param uniqueGoals
+     * @return
+     */
     private String getTestName(TestCase test, Set<TestFitnessFunction> uniqueGoals) {
         List<TestFitnessFunction> goalList = getTopGoals(uniqueGoals);
         String name = PREFIX;
@@ -255,6 +354,12 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return chosenGoal;
     }
 
+    /**
+     * Helper function to redirect name retrieval to the right method
+     *
+     * @param goal
+     * @return
+     */
     private String getGoalName(TestFitnessFunction goal) {
         if(goal instanceof MethodCoverageTestFitness) {
             return getGoalName((MethodCoverageTestFitness)goal);
@@ -273,14 +378,29 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * Get name for a single method goal
+     * @param goal
+     * @return
+     */
     private String getGoalName(MethodCoverageTestFitness goal) {
         return formatMethodName(goal.getClassName(), goal.getMethod());
     }
 
+    /**
+     * Get name for a single method without exception goal
+     * @param goal
+     * @return
+     */
     private String getGoalName(MethodNoExceptionCoverageTestFitness goal) {
         return formatMethodName(goal.getClassName(), goal.getMethod());
     }
 
+    /**
+     * Get name for a single exception goal
+     * @param goal
+     * @return
+     */
     private String getGoalName(ExceptionCoverageTestFitness goal) {
         Class<?> ex = goal.getExceptionClass();
         while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
@@ -294,16 +414,32 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + STR_THROWS + capitalize(ex.getSimpleName());
     }
 
+    /**
+     * Get name for a single input goal
+     * @param goal
+     * @return
+     */
     private String getGoalName(InputCoverageTestFitness goal) {
         String descriptor = goal.getValueDescriptor();
         return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_WITH + formatValueDescriptor(descriptor);
     }
 
+    /**
+     * Get name for a single output goal
+     * @param goal
+     * @return
+     */
     private String getGoalName(OutputCoverageTestFitness goal) {
         String descriptor = goal.getValueDescriptor();
         return formatMethodName(goal.getClassName(), goal.getMethod()) + STR_RETURNS + formatValueDescriptor(descriptor);
     }
 
+    /**
+     * Format the value descriptors used by input and output goals
+     *
+     * @param descriptor
+     * @return
+     */
     private String formatValueDescriptor(String descriptor) {
         String[] components = descriptor.split(":");
         if(components.length == 1) {
@@ -322,6 +458,12 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * Some goals require special treatment when combining two
+     * @param goal1
+     * @param goal2
+     * @return
+     */
     private String getGoalPairName(TestFitnessFunction goal1, TestFitnessFunction goal2) {
         if(goal1.getClass().equals(goal2.getClass())) {
             if(goal1 instanceof MethodCoverageTestFitness) {
@@ -338,6 +480,12 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return getGoalName(goal1) + "And" + getGoalName(goal2);
     }
 
+    /**
+     * Determine name for pair of method goals
+     * @param goal1
+     * @param goal2
+     * @return
+     */
     private String getGoalPairName(MethodCoverageTestFitness goal1, MethodCoverageTestFitness goal2) {
         boolean isConstructor1 = goal1.getTargetMethod().startsWith("<init>");
         boolean isConstructor2 = goal2.getTargetMethod().startsWith("<init>");
@@ -352,14 +500,33 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * Determine name for pair of input goals
+     *
+     * @param goal1
+     * @param goal2
+     * @return
+     */
     private String getGoalPairName(InputCoverageTestFitness goal1, InputCoverageTestFitness goal2) {
         return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_WITH + formatValueDescriptor(goal1.getValueDescriptor()) + "And" + formatValueDescriptor(goal2.getValueDescriptor());
     }
 
+    /**
+     * Determine name for pair of output goals
+     *
+     * @param goal1
+     * @param goal2
+     * @return
+     */
     private String getGoalPairName(OutputCoverageTestFitness goal1, OutputCoverageTestFitness goal2 ) {
         return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_RETURNS + formatValueDescriptor(goal1.getValueDescriptor()) + "And" + formatValueDescriptor(goal2.getValueDescriptor());
     }
 
+    /**
+     * Make sure package names are omitted and array brackets are not used in names
+     * @param className
+     * @return
+     */
     private String getShortClassName(String className) {
         int pos = className.lastIndexOf(".");
         if(pos >= 0)
@@ -368,6 +535,13 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             return className.replace("[]", "Array");
     }
 
+    /**
+     * Distinguish between constructors and methods in creating call goals
+     *
+     * @param className
+     * @param method
+     * @return
+     */
     private String formatMethodName(String className, String method) {
         if(method.startsWith("<init>")) {
             String methodWithoutDescriptor = getMethodNameWithoutDescriptor(method);
@@ -388,6 +562,12 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
     }
 
+    /**
+     * Get a unique method name, depending on whether it is unique or overloaded
+     * @param methodNameWithoutDescriptor
+     * @param methodName
+     * @return
+     */
     private String getUniqueMethodName(String methodNameWithoutDescriptor, String methodName) {
         if(!methodCount.containsKey(methodNameWithoutDescriptor))
             return methodNameWithoutDescriptor;
@@ -407,6 +587,12 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             return methodNameWithoutDescriptor + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
     }
 
+    /**
+     * Get a unique constructor name, depending on whether it is unique or overloaded
+     * @param className
+     * @param methodName
+     * @return
+     */
     private String getUniqueConstructorName(String className, String methodName) {
         if(!methodCount.containsKey("<init>"))
             return className;
@@ -426,7 +612,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             return className + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
     }
 
-
+    /**
+     * Cut off descriptor from method name
+     * @param methodName
+     * @return
+     */
     private String getMethodNameWithoutDescriptor(String methodName) {
         // Should have a descriptor
         int pos = methodName.indexOf('(');
