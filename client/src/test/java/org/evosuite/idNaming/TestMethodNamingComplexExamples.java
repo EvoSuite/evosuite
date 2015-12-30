@@ -230,8 +230,8 @@ public class TestMethodNamingComplexExamples {
         String nameTest1 = naming.getName(test1);
         String nameTest2 = naming.getName(test2);
 
-        assertEquals("Generated test name differs from expected", "testKeysReturningEmpty", nameTest1);
-        assertEquals("Generated test name differs from expected", "testKeysReturningNonempty", nameTest2);
+        assertEquals("Generated test name differs from expected", "testKeysWithoutArgumentsReturningEmpty", nameTest1);
+        assertEquals("Generated test name differs from expected", "testKeysWithoutArgumentsReturningNonempty", nameTest2);
     }
 
     @Test
@@ -423,7 +423,7 @@ public class TestMethodNamingComplexExamples {
         String nameTest2 = naming.getName(test2);
 
         assertEquals("Generated test name differs from expected", "testGetPublicID", nameTest1);
-        assertEquals("Generated test name differs from expected", "testCreatesDocTypeAndCallsSetPublicID", nameTest2);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeAndCallsSetPublicIDWithString", nameTest2);
     }
 
     @Test
