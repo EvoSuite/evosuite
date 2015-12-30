@@ -86,10 +86,10 @@ public class TestCaseMinimizer {
 	private static boolean isWorse(FitnessFunction<TestChromosome> fitness,
 	        TestChromosome oldChromosome, TestChromosome newChromosome) {
 		if (fitness.isMaximizationFunction()) {
-			if (oldChromosome.getFitness(fitness) > newChromosome.getFitness(fitness))
+			if (oldChromosome.getFitness(fitness) > fitness.getFitness(newChromosome))
 				return true;
 		} else {
-			if (newChromosome.getFitness(fitness) > oldChromosome.getFitness(fitness))
+			if (fitness.getFitness(newChromosome) > oldChromosome.getFitness(fitness))
 				return true;
 		}
 
@@ -180,11 +180,11 @@ public class TestCaseMinimizer {
 		}
 
 		//TODO: add back this check
-//		assert  (fitnessFunction.isMaximizationFunction() ?
-//				fitnessFunction.getFitness(c) >= fitness : fitnessFunction.getFitness(c) <= fitness)
-//				:
-//				"Minimization worsened " + fitnessFunction.getClass().getName()+" fitness from "+fitness+
-//						" to "+fitnessFunction.getFitness(c);
+		assert  (fitnessFunction.isMaximizationFunction() ?
+				fitnessFunction.getFitness(c) >= fitness : fitnessFunction.getFitness(c) <= fitness)
+				:
+				"Minimization worsened " + fitnessFunction.getClass().getName()+" fitness from "+fitness+
+						" to "+fitnessFunction.getFitness(c)+" on test "+c.getTestCase().toCode();
 
 
 		if (Properties.MINIMIZE_VALUES) {
