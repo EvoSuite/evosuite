@@ -221,7 +221,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             if(entry.getValue().isEmpty()) {
                 // If there is nothing unique about the test
                 // use the original goals
-                testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getKey().getCoveredGoals()));
+                testToName.put(entry.getKey(), getTestName(entry.getKey(), filterSupportedGoals(entry.getKey().getCoveredGoals())));
 
             } else {
                 testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
@@ -372,7 +372,8 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         } else if(goal instanceof OutputCoverageTestFitness) {
             return getGoalName((OutputCoverageTestFitness)goal);
         } else {
-            throw new RuntimeException("Not implemented yet: "+goal.getClass());
+            return formatMethodName(goal.getTargetClass(), goal.getTargetMethod());
+//            throw new RuntimeException("Not implemented yet: "+goal.getClass());
         }
     }
 
@@ -450,7 +451,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             return capitalize(components[2]);
         } else if(components.length == 4) {
             // Inspector
-            return capitalize(getShortClassName(components[1])) + capitalize(components[2]) + capitalize(components[3]);
+            return capitalize(getShortClassName(components[1])) + capitalize(getMethodNameWithoutDescriptor(components[2])) + capitalize(components[3]);
         } else {
             throw new RuntimeException("Unsupported value descriptor: "+descriptor);
         }

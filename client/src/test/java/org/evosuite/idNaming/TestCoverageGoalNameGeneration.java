@@ -14,6 +14,7 @@ import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.input.InputCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -707,6 +708,31 @@ public class TestCoverageGoalNameGeneration {
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         assertEquals("testFooReturningBarIsFooNegative", naming.getName(test));
     }
+
+
+    @Test
+    public void testLineCoverageIsExcluded() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("FooClass", "toString()");
+        test1.addCoveredGoal(methodGoal);
+        LineCoverageTestFitness lineGoal1 = new LineCoverageTestFitness("FooClass", "toString()", 0);
+        test1.addCoveredGoal(lineGoal1);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addCoveredGoal(methodGoal);
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        LineCoverageTestFitness lineGoal2 = new LineCoverageTestFitness("FooClass", "toString()", 10);
+        test2.addCoveredGoal(lineGoal2);
+
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testToString0", naming.getName(test1));
+        assertEquals("testToString1", naming.getName(test2));
+    }
+
 
     private Type stringType() {
         return Type.getType("Ljava.lang.String;");
