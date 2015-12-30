@@ -24,7 +24,7 @@ import org.evosuite.Properties.Algorithm;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
-import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
+import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Test;

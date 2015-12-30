@@ -141,6 +141,8 @@ public class OutputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String targetClass = MethodReturnsString.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.JUNIT_TESTS = true;
+		Properties.PRINT_MISSED_GOALS= true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);

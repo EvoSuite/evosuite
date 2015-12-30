@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.input;
+package org.evosuite.coverage.io.input;
+
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -38,18 +40,6 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
 
     private static final Logger logger = LoggerFactory.getLogger(InputCoverageFactory.class);
 
-    public static final String CHAR_ALPHA = "alpha";
-    public static final String CHAR_DIGIT = "digit";
-    public static final String CHAR_OTHER = "other";
-    public static final String BOOL_TRUE = "true";
-    public static final String BOOL_FALSE = "false";
-    public static final String NUM_POSITIVE = "positive";
-    public static final String NUM_ZERO = "zero";
-    public static final String NUM_NEGATIVE = "negative";
-    public static final String REF_NULL = "null";
-    public static final String REF_NONNULL = "nonnull";
-    public static final String EMPTY = "empty"; // used for arrays and strings
-    public static final String NONEMPTY = "nonempty"; // used for arrays and strings
     /*
 	 * (non-Javadoc)
 	 * 
@@ -81,13 +71,13 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                     Type argType = argumentTypes[i];
                     switch (argType.getSort()) {
                         case Type.BOOLEAN:
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), BOOL_TRUE)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), BOOL_FALSE)));
+                            goals.add(createGoal(className, methodName, i, argType, BOOL_TRUE));
+                            goals.add(createGoal(className, methodName, i, argType, BOOL_FALSE));
                             break;
                         case Type.CHAR:
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), CHAR_ALPHA)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), CHAR_DIGIT)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), CHAR_OTHER)));
+                            goals.add(createGoal(className, methodName, i, argType, CHAR_ALPHA));
+                            goals.add(createGoal(className, methodName, i, argType, CHAR_DIGIT));
+                            goals.add(createGoal(className, methodName, i, argType, CHAR_OTHER));
                             break;
                         case Type.BYTE:
                         case Type.SHORT:
@@ -95,22 +85,22 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                         case Type.FLOAT:
                         case Type.LONG:
                         case Type.DOUBLE:
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NUM_NEGATIVE)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NUM_ZERO)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NUM_POSITIVE)));
+                            goals.add(createGoal(className, methodName, i, argType, NUM_NEGATIVE));
+                            goals.add(createGoal(className, methodName, i, argType, NUM_ZERO));
+                            goals.add(createGoal(className, methodName, i, argType, NUM_POSITIVE));
                             break;
                         case Type.ARRAY:
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NULL)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), EMPTY)));
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NONEMPTY)));
+                            goals.add(createGoal(className, methodName, i, argType, REF_NULL));
+                            goals.add(createGoal(className, methodName, i, argType, ARRAY_EMPTY));
+                            goals.add(createGoal(className, methodName, i, argType, ARRAY_NONEMPTY));
                             break;
                         case Type.OBJECT:
-                            goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NULL)));
+                            goals.add(createGoal(className, methodName, i, argType, REF_NULL));
                             if (argType.getClassName().equals("java.lang.String")) {
-                                goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), EMPTY)));
-                                goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), NONEMPTY)));
+                                goals.add(createGoal(className, methodName, i, argType, STRING_EMPTY));
+                                goals.add(createGoal(className, methodName, i, argType, STRING_NONEMPTY));
                             } else
-                                goals.add(new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, i, argType.toString(), REF_NONNULL)));
+                                goals.add(createGoal(className, methodName, i, argType, REF_NONNULL));
                             break;
                         default:
                             break;
@@ -122,7 +112,7 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
         return goals;
     }
 
-    public static String goalString(String className, String methodName, int argIndex, String suffix) {
-        return new String(className + "." + methodName + "[" + argIndex + "]:" + suffix);
+    public static InputCoverageTestFitness createGoal(String className, String methodName, int argIndex, Type argType, String descriptor) {
+        return new InputCoverageTestFitness(new InputCoverageGoal(className, methodName, argIndex, argType, descriptor));
     }
 }

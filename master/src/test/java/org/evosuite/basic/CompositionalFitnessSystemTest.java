@@ -34,7 +34,7 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
-import org.evosuite.coverage.output.OutputCoverageSuiteFitness;
+import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;

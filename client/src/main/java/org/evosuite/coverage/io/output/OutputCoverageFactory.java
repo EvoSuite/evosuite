@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.output;
+package org.evosuite.coverage.io.output;
+
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -39,19 +41,6 @@ import java.util.List;
 public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverageTestFitness> {
 
     private static final Logger logger = LoggerFactory.getLogger(OutputCoverageFactory.class);
-
-    public static final String CHAR_ALPHA = "alpha";
-    public static final String CHAR_DIGIT = "digit";
-    public static final String CHAR_OTHER = "other";
-    public static final String BOOL_TRUE = "true";
-    public static final String BOOL_FALSE = "false";
-    public static final String NUM_POSITIVE = "positive";
-    public static final String NUM_ZERO = "zero";
-    public static final String NUM_NEGATIVE = "negative";
-    public static final String REF_NULL = "null";
-    public static final String REF_NONNULL = "nonnull";
-    public static final String EMPTY = "empty"; // used for arrays and strings
-    public static final String NONEMPTY = "nonempty"; // used for arrays and strings
 
     /*
 	 * (non-Javadoc)
@@ -81,13 +70,13 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                 Type returnType = Type.getReturnType(methodName);
                 switch (returnType.getSort()) {
                     case Type.BOOLEAN:
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), BOOL_TRUE)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), BOOL_FALSE)));
+                        goals.add(createGoal(className, methodName, returnType, BOOL_TRUE));
+                        goals.add(createGoal(className, methodName, returnType, BOOL_FALSE));
                         break;
                     case Type.CHAR:
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), CHAR_ALPHA)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), CHAR_DIGIT)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), CHAR_OTHER)));
+                        goals.add(createGoal(className, methodName, returnType, CHAR_ALPHA));
+                        goals.add(createGoal(className, methodName, returnType, CHAR_DIGIT));
+                        goals.add(createGoal(className, methodName, returnType, CHAR_OTHER));
                         break;
                     case Type.BYTE:
                     case Type.SHORT:
@@ -95,21 +84,21 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                     case Type.FLOAT:
                     case Type.LONG:
                     case Type.DOUBLE:
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NUM_NEGATIVE)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NUM_ZERO)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NUM_POSITIVE)));
+                        goals.add(createGoal(className, methodName, returnType, NUM_NEGATIVE));
+                        goals.add(createGoal(className, methodName, returnType, NUM_ZERO));
+                        goals.add(createGoal(className, methodName, returnType, NUM_POSITIVE));
                         break;
                     case Type.ARRAY:
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), EMPTY)));
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), NONEMPTY)));
+                        goals.add(createGoal(className, methodName, returnType, REF_NULL));
+                        goals.add(createGoal(className, methodName, returnType, ARRAY_EMPTY));
+                        goals.add(createGoal(className, methodName, returnType, ARRAY_NONEMPTY));
                         break;
                     case Type.OBJECT:
-                        goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NULL)));
+                        goals.add(createGoal(className, methodName, returnType, REF_NULL));
                         //goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
                         if (returnType.getClassName().equals("java.lang.String")) {
-                            goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + EMPTY)));
-                            goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + NONEMPTY)));
+                            goals.add(createGoal(className, methodName, returnType, STRING_EMPTY));
+                            goals.add(createGoal(className, methodName, returnType, STRING_NONEMPTY));
                             break;
                         }
                         boolean observerGoalsAdded = false;
@@ -117,18 +106,18 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                         for (String insp : inspectors) {
                             Type t = Type.getReturnType(insp);
                             if (t.getSort() == Type.BOOLEAN) {
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_TRUE)));
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_FALSE)));
+                                goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_TRUE));
+                                goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_FALSE));
                                 observerGoalsAdded = true;
                             } else if (Arrays.asList(new Integer[]{Type.BYTE, Type.SHORT, Type.INT, Type.FLOAT, Type.LONG, Type.DOUBLE}).contains(t.getSort())) {
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_NEGATIVE)));
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_ZERO)));
-                                goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_POSITIVE)));
+                                goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_NEGATIVE));
+                                goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_ZERO));
+                                goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + NUM_POSITIVE));
                                 observerGoalsAdded = true;
                             }
                         }
                         if (!observerGoalsAdded)
-                            goals.add(new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType.toString(), REF_NONNULL)));
+                            goals.add(createGoal(className, methodName, returnType, REF_NONNULL));
                         break;
                     default:
                         // Ignore
@@ -141,8 +130,8 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
         return goals;
     }
 
-    public static String goalString(String className, String methodName, String suffix) {
-        return new String(className + "." + methodName + ":" + suffix);
+    public static OutputCoverageTestFitness createGoal(String className, String methodName, Type returnType, String suffix) {
+        return new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType, suffix));
     }
 
     /**

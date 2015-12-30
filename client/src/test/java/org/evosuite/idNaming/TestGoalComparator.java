@@ -1,18 +1,20 @@
 package org.evosuite.idNaming;
 
+import static org.junit.Assert.assertEquals;
+
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
+import org.evosuite.coverage.io.IOCoverageConstants;
+import org.evosuite.coverage.io.output.OutputCoverageGoal;
+import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.coverage.output.OutputCoverageGoal;
-import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.junit.Test;
+import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by gordon on 28/12/2015.
@@ -41,7 +43,7 @@ public class TestGoalComparator {
         GoalComparator comparator = new GoalComparator();
         MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString()");
         ExceptionCoverageTestFitness goal2 = new ExceptionCoverageTestFitness("FooClass", "toString()", MockArithmeticException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
-        OutputCoverageGoal outputGoal = new OutputCoverageGoal("FooClass", "toString", "String", "NonNull");
+        OutputCoverageGoal outputGoal = new OutputCoverageGoal("FooClass", "toString", Type.getType("Ljava.lang.String;"), IOCoverageConstants.REF_NONNULL);
         OutputCoverageTestFitness goal3 = new OutputCoverageTestFitness(outputGoal);
 
         List<TestFitnessFunction> goals = new ArrayList<>();

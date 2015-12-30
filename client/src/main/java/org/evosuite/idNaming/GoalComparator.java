@@ -1,10 +1,10 @@
 package org.evosuite.idNaming;
 
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
-import org.evosuite.coverage.input.InputCoverageTestFitness;
+import org.evosuite.coverage.io.input.InputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
-import org.evosuite.coverage.output.OutputCoverageTestFitness;
+import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.testcase.TestFitnessFunction;
 
 import java.util.Comparator;

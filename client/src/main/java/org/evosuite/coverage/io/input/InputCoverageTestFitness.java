@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.input;
+package org.evosuite.coverage.io.input;
+
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -60,8 +62,8 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
         this.goal = goal;
     }
 
-    public static HashSet<String> listCoveredGoals(Map<EntityWithParametersStatement, List<Object>> argumentsValues) {
-        HashSet<String> results = new HashSet<String>();
+    public static HashSet<TestFitnessFunction> listCoveredGoals(Map<EntityWithParametersStatement, List<Object>> argumentsValues) {
+        HashSet<TestFitnessFunction> results = new HashSet<>();
 
         for (Entry<EntityWithParametersStatement, List<Object>> entry : argumentsValues.entrySet()) {
             String className, methodDesc, methodName;
@@ -83,22 +85,19 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             for (int i=0;i<argTypes.length;i++) {
                 Type argType = argTypes[i];
                 Object argValue = entry.getValue().get(i);
-                String goalSuffix = "";
+                String argValueDesc = "";
                 switch (argType.getSort()) {
                     case Type.BOOLEAN:
-                        if (((boolean) argValue))
-                            goalSuffix = InputCoverageFactory.BOOL_TRUE;
-                        else
-                            goalSuffix = InputCoverageFactory.BOOL_FALSE;
+                        argValueDesc = (((boolean) argValue)) ? BOOL_TRUE : BOOL_FALSE;
                         break;
                     case Type.CHAR:
                         char c = (char) argValue;
                         if (Character.isAlphabetic(c))
-                            goalSuffix = InputCoverageFactory.CHAR_ALPHA;
+                            argValueDesc = CHAR_ALPHA;
                         else if (Character.isDigit(c))
-                            goalSuffix = InputCoverageFactory.CHAR_DIGIT;
+                            argValueDesc = CHAR_DIGIT;
                         else
-                            goalSuffix = InputCoverageFactory.CHAR_OTHER;
+                            argValueDesc = CHAR_OTHER;
                         break;
                     case Type.BYTE:
                     case Type.SHORT:
@@ -115,38 +114,29 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
                             value = ((Number) argValue).doubleValue();
                         }
 
-                        if (value < 0)
-                            goalSuffix = InputCoverageFactory.NUM_NEGATIVE;
-                        else if (value == 0)
-                            goalSuffix = InputCoverageFactory.NUM_ZERO;
-                        else
-                            goalSuffix = InputCoverageFactory.NUM_POSITIVE;
+                        argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
                         break;
                     case Type.ARRAY:
                         if (argValue == null)
-                            goalSuffix = InputCoverageFactory.REF_NULL;
-                        else {
-                            if (Array.getLength(argValue) == 0)
-                                goalSuffix = InputCoverageFactory.EMPTY;
-                            else
-                                goalSuffix = InputCoverageFactory.NONEMPTY;
-                        }
+                            argValueDesc = REF_NULL;
+                        else
+                            argValueDesc = (Array.getLength(argValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
                         break;
                     case Type.OBJECT:
                         if (argValue == null)
-                            goalSuffix = InputCoverageFactory.REF_NULL;
+                            argValueDesc = REF_NULL;
                         else {
                             if (argType.getClassName().equals("java.lang.String"))
-                                goalSuffix = ((String)argValue).isEmpty() ? InputCoverageFactory.EMPTY : InputCoverageFactory.NONEMPTY;
+                                argValueDesc = ((String)argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
                             else
-                                goalSuffix = InputCoverageFactory.REF_NONNULL;
+                                argValueDesc = REF_NONNULL;
                         }
                         break;
                     default:
                         break;
                 }
-                if (!goalSuffix.isEmpty())
-                    results.add(InputCoverageFactory.goalString(className, methodName, i, goalSuffix));
+                if (!argValueDesc.isEmpty())
+                    results.add(InputCoverageFactory.createGoal(className, methodName, i, argType, argValueDesc));
             }
         }
         return results;
@@ -181,7 +171,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
      *
      * @return a {@link String} object.
      */
-    public String getType() {
+    public Type getType() {
         return goal.getType();
     }
 
@@ -209,9 +199,9 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        HashSet<String> strGoals = listCoveredGoals(result.getArgumentsValues());
-        for (String strGoal : strGoals) {
-            if (strGoal.equals(goal.toString())) {
+        HashSet<TestFitnessFunction> goals = listCoveredGoals(result.getArgumentsValues());
+        for (TestFitnessFunction goal : goals) {
+            if (this.toString().equals(goal.toString())) {
                 fitness = 0.0;
                 break;
             }

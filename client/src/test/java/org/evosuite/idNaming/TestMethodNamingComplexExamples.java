@@ -1,5 +1,15 @@
 package org.evosuite.idNaming;
 
+import static org.evosuite.coverage.io.IOCoverageConstants.ARRAY_EMPTY;
+import static org.evosuite.coverage.io.IOCoverageConstants.ARRAY_NONEMPTY;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
+import static org.evosuite.coverage.io.IOCoverageConstants.REF_NONNULL;
+import static org.evosuite.coverage.io.IOCoverageConstants.REF_NULL;
+import static org.evosuite.coverage.io.IOCoverageConstants.STRING_NONEMPTY;
+import static org.junit.Assert.assertEquals;
+
 import com.examples.with.different.packagename.generic.GenericClassTwoParameters;
 import com.googlecode.gentyref.TypeToken;
 import org.evosuite.TestGenerationContext;
@@ -11,11 +21,11 @@ import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
-import org.evosuite.coverage.input.InputCoverageGoal;
-import org.evosuite.coverage.input.InputCoverageTestFitness;
+import org.evosuite.coverage.io.input.InputCoverageGoal;
+import org.evosuite.coverage.io.input.InputCoverageTestFitness;
+import org.evosuite.coverage.io.output.OutputCoverageGoal;
+import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.coverage.output.OutputCoverageGoal;
-import org.evosuite.coverage.output.OutputCoverageTestFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.testcase.DefaultTestCase;
@@ -32,14 +42,13 @@ import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.JumpInsnNode;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jmr on 31/07/15.
@@ -64,9 +73,9 @@ public class TestMethodNamingComplexExamples {
         Branch br1 = new Branch(bcInst1, 1);
 
        
-         // Output goals for method isPositive(I)Z
-        TestFitnessFunction goal8 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()","I","empty"));
-        TestFitnessFunction goal9 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()","I","nonempty"));
+         // Output goals for method keys()I
+        TestFitnessFunction goal8 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()", Type.INT_TYPE, NUM_POSITIVE));
+        TestFitnessFunction goal9 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()", Type.INT_TYPE, NUM_NEGATIVE));
 
         // Method goals for all methods in the class
         TestFitnessFunction goal10 = new MethodCoverageTestFitness("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "<init>(Lcom/examples/with/different/packagename/idnaming/gnu/trove/map/TIntByteMap;)V");
@@ -79,7 +88,7 @@ public class TestMethodNamingComplexExamples {
        // TestFitnessFunction goal15 = new MethodCoverageTestFitness("com.examples.with.different.packagename.idnaming.SimpleIdNaming", "foo(Z)V");
        // TestFitnessFunction goal16 = new MethodCoverageTestFitness("com.examples.with.different.packagename.idnaming.SimpleIdNaming", "foo(IIII)V");
   //      TestFitnessFunction goal3 = new InputCoverageTestFitness(new InputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()",-1,"I","nonempty"));
-        TestFitnessFunction goal4 = new InputCoverageTestFitness(new InputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "<init>(Lcom/examples/with/different/packagename/idnaming/gnu/trove/map/TIntByteMap;)V",-1,"0","nonull"));
+        TestFitnessFunction goal4 = new InputCoverageTestFitness(new InputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "<init>(Lcom/examples/with/different/packagename/idnaming/gnu/trove/map/TIntByteMap;)V",0,Type.getType("Ljava.lang.Object;"), REF_NONNULL));
 
         
         DefaultTestCase test1 = new DefaultTestCase();
@@ -135,8 +144,8 @@ public class TestMethodNamingComplexExamples {
         BytecodeInstruction bcInst1 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","isPositive(I)Z",3,1,inst1,9,null);
         BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst1);
         Branch br1 = new Branch(bcInst1, 1);
-        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)","[B","empty"));
-        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([I)","[B","nonempty"));
+        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)",Type.getType("[B"), ARRAY_EMPTY));
+        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([I)",Type.getType("[B"),ARRAY_NONEMPTY));
 
 
         DefaultTestCase test1 = new DefaultTestCase();
@@ -171,8 +180,8 @@ public class TestMethodNamingComplexExamples {
         BytecodeInstruction bcInst1 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","isPositive(I)Z",3,1,inst1,9,null);
         BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst1);
         Branch br1 = new Branch(bcInst1, 1);
-        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)","[B","empty"));
-        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()","[B","nonempty"));
+        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)",Type.getType("[B"), ARRAY_EMPTY));
+        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()",Type.getType("[B"), ARRAY_NONEMPTY));
 
 
         DefaultTestCase test1 = new DefaultTestCase();
@@ -206,8 +215,8 @@ public class TestMethodNamingComplexExamples {
         BytecodeInstruction bcInst1 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","isPositive(I)Z",3,1,inst1,9,null);
         BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst1);
         Branch br1 = new Branch(bcInst1, 1);
-        TestFitnessFunction goal3 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()","I","empty"));
-        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()","I","nonempty"));
+        TestFitnessFunction goal3 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()",Type.INT_TYPE, NUM_NEGATIVE));
+        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "keys()",Type.INT_TYPE, NUM_POSITIVE));
 
         DefaultTestCase test1 = new DefaultTestCase();
         test1.addStatement(new IntPrimitiveStatement(test1,42)); // any statement to fool hashcode function
@@ -244,8 +253,8 @@ public class TestMethodNamingComplexExamples {
         BytecodeInstruction bcInst1 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","isPositive(I)Z",3,1,inst1,9,null);
         BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst1);
         Branch br1 = new Branch(bcInst1, 1);
-        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)","[B","empty"));
-        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()","[B","nonempty"));
+        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)",Type.getType("[B"), ARRAY_EMPTY));
+        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()",Type.getType("[B"), ARRAY_NONEMPTY));
 
 
         DefaultTestCase test1 = new DefaultTestCase();
@@ -278,8 +287,8 @@ public class TestMethodNamingComplexExamples {
         BytecodeInstruction bcInst1 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","isPositive(I)Z",3,1,inst1,9,null);
         BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst1);
         Branch br1 = new Branch(bcInst1, 1);
-        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)","[B","empty"));
-        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()","[B","nonempty"));
+        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)",Type.getType("[B"), ARRAY_EMPTY));
+        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()",Type.getType("[B"), ARRAY_NONEMPTY));
 
         DefaultTestCase test1 = new DefaultTestCase();
         test1.addStatement(new IntPrimitiveStatement(test1,11)); // any statement to fool hashcode function
@@ -347,8 +356,8 @@ public class TestMethodNamingComplexExamples {
         BytecodeInstruction bcInst1 = new BytecodeInstruction(null,"com.examples.with.different.packagename.idnaming.SimpleIdNaming","isPositive(I)Z",3,1,inst1,9,null);
         BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerAsBranch(bcInst1);
         Branch br1 = new Branch(bcInst1, 1);
-        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)","[B","empty"));
-        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()","[B","nonempty"));
+        TestFitnessFunction goal4 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values([B)",Type.getType("[B"), ARRAY_EMPTY));
+        TestFitnessFunction goal5 = new OutputCoverageTestFitness(new OutputCoverageGoal("com.examples.with.different.packagename.idnaming.gnu.trove.impl.unmodifiable.TUnmodifiableIntByteMap", "values()",Type.getType("[B"), ARRAY_NONEMPTY));
 
 
         DefaultTestCase test1 = new DefaultTestCase();
@@ -390,11 +399,11 @@ public class TestMethodNamingComplexExamples {
         TestFitnessFunction goal5 = new BranchCoverageTestFitness(new BranchCoverageGoal(br1,true,"org.jdom2.DocType","<init>()V", -1));
         TestFitnessFunction goal6 = new BranchCoverageTestFitness(new BranchCoverageGoal(null,true,"org.jdom2.DocType","setPublicID(Ljava/lang/String;)Lorg/jdom2/DocType;", -1));
 
-        TestFitnessFunction goal7 = new OutputCoverageTestFitness(new OutputCoverageGoal("org.jdom2.DocType", "getPublicID()","Ljava/lang/String;","nonnull"));
-        TestFitnessFunction goal8 = new OutputCoverageTestFitness(new OutputCoverageGoal("org.jdom2.DocType", "setPublicID(Ljava/lang/String;)","Lorg/jdom2/DocType;","nonnull"));
+        TestFitnessFunction goal7 = new OutputCoverageTestFitness(new OutputCoverageGoal("org.jdom2.DocType", "getPublicID()",Type.getType("Ljava.lang.String;"), REF_NONNULL));
+        TestFitnessFunction goal8 = new OutputCoverageTestFitness(new OutputCoverageGoal("org.jdom2.DocType", "setPublicID(Ljava/lang/String;)",Type.getType("Lorg/jdom2/DocType;"), REF_NONNULL));
 
-        TestFitnessFunction goal9 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "setPublicID(Ljava/lang/String;)",-1,"0","nonull"));
-        TestFitnessFunction goal10 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "setPublicID(Ljava/lang/String;)",-1,"0","null"));
+        TestFitnessFunction goal9 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "setPublicID(Ljava/lang/String;)", 0, Type.getType("Ljava.lang.String;"), STRING_NONEMPTY));
+        TestFitnessFunction goal10 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "setPublicID(Ljava/lang/String;)", 0, Type.getType("Ljava.lang.String;"), REF_NULL));
 
         DefaultTestCase test1 = new DefaultTestCase();
         test1.addStatement(new IntPrimitiveStatement(test1,42)); // any statement to fool hashcode function
@@ -437,13 +446,13 @@ public class TestMethodNamingComplexExamples {
         Branch br1 = new Branch(bcInst1, 1);
         TestFitnessFunction goal4 = new BranchCoverageTestFitness(new BranchCoverageGoal(null,true,"org.jdom2.DocType","<init>(Lorg/apache/commons/math/Field;II)V", -1));
 
-        TestFitnessFunction goal7 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)V",-1,"0","nonull"));
-        TestFitnessFunction goal8 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)V",-1,"1","zero"));
-        TestFitnessFunction goal9 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)V",-1,"2","zero"));
-        TestFitnessFunction goal3 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/linear/FieldMatrix;)",-1,"3","null"));
-        TestFitnessFunction goal10 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)",-1,"4","positive"));
-        TestFitnessFunction goal11 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)",-1,"5","positive"));
-        TestFitnessFunction goal12 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/linear/FieldMatrix;)",-1,"6","nonull"));
+        TestFitnessFunction goal7 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)V", 0, Type.getType("Ljava.lang.Object;"), REF_NONNULL));
+        TestFitnessFunction goal8 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)V", 1, Type.INT_TYPE, NUM_ZERO));
+        TestFitnessFunction goal9 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)V", 2, Type.INT_TYPE, NUM_ZERO));
+        TestFitnessFunction goal3 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/linear/FieldMatrix;)", 0, Type.getType("Ljava.lang.Object;"), REF_NULL));
+        TestFitnessFunction goal10 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)", 1, Type.INT_TYPE, NUM_NEGATIVE));
+        TestFitnessFunction goal11 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)", 2, Type.INT_TYPE, NUM_POSITIVE));
+        TestFitnessFunction goal12 = new InputCoverageTestFitness(new InputCoverageGoal("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/linear/FieldMatrix;)",0, Type.getType("Ljava.lang.Object;"), REF_NONNULL));
 
         TestFitnessFunction goal5 = new ExceptionCoverageTestFitness("org.jdom2.DocType", "<init>(Lorg/apache/commons/math/Field;II)V", ArrayIndexOutOfBoundsException.class ,ExceptionCoverageTestFitness.ExceptionType.IMPLICIT);
 

@@ -21,10 +21,10 @@ package com.examples.with.different.packagename.coverage;
 
 public class MethodReturnsString {
 
-	public String test(int x, int y) {
-		if (x == y)
+	public String test(int x) {
+		if (x == 0)
 			return null;
-		else if (x > y)
+		else if (x > 0)
 			return "";
 		else
 			return "non-empty string";

@@ -4,12 +4,12 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
-import org.evosuite.coverage.input.InputCoverageTestFitness;
-import org.evosuite.coverage.input.InputObserver;
+import org.evosuite.coverage.io.input.InputCoverageTestFitness;
+import org.evosuite.coverage.io.input.InputObserver;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
-import org.evosuite.coverage.output.OutputCoverageTestFitness;
-import org.evosuite.coverage.output.OutputObserver;
+import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
+import org.evosuite.coverage.io.output.OutputObserver;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -448,9 +448,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         } else if(components.length == 3) {
             // Second one is "non-null", we'll just ignore this
             return capitalize(components[2]);
-        } else if(components.length == 5) {
+        } else if(components.length == 4) {
             // Inspector
-            return capitalize(getShortClassName(components[2])) + capitalize(components[3]) + capitalize(components[4]);
+            return capitalize(getShortClassName(components[1])) + capitalize(components[2]) + capitalize(components[3]);
         } else {
             throw new RuntimeException("Unsupported value descriptor: "+descriptor);
         }

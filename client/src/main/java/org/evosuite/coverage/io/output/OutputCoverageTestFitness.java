@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.output;
+package org.evosuite.coverage.io.output;
+
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
 import org.evosuite.Properties;
 import org.evosuite.assertion.Inspector;
@@ -32,8 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -63,8 +65,8 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
         this.goal = goal;
     }
 
-    public static HashSet<String> listCoveredGoals(Map<MethodStatement, Object> returnValues) {
-        HashSet<String> results = new HashSet<String>();
+    public static HashSet<TestFitnessFunction> listCoveredGoals(Map<MethodStatement, Object> returnValues) {
+        HashSet<TestFitnessFunction> results = new HashSet<>();
 
         for (Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
             String className = entry.getKey().getMethod().getMethod().getDeclaringClass().getName();
@@ -77,19 +79,17 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
             Object returnValue = entry.getValue();
             switch (returnType.getSort()) {
                 case Type.BOOLEAN:
-                    if (((boolean) returnValue))
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.BOOL_TRUE));
-                    else
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.BOOL_FALSE));
+                    String desc = ((boolean) returnValue) ? BOOL_TRUE : BOOL_FALSE;
+                    results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, desc));
                     break;
                 case Type.CHAR:
                     char c = (char) returnValue;
                     if (Character.isAlphabetic(c))
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.CHAR_ALPHA));
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, CHAR_ALPHA));
                     else if (Character.isDigit(c))
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.CHAR_DIGIT));
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, CHAR_DIGIT));
                     else
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.CHAR_OTHER));
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, CHAR_OTHER));
                     break;
                 case Type.BYTE:
                 case Type.SHORT:
@@ -100,32 +100,26 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                     assert (returnValue instanceof Number);
                     if(isJavaNumber(returnValue)) {
                         double value = ((Number) returnValue).doubleValue();
-                        if (value < 0)
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_NEGATIVE));
-                        else if (value == 0)
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_ZERO));
-                        else
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NUM_POSITIVE));
+                        String numDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, numDesc));
                     }
                     break;
                 case Type.ARRAY:
                     if (returnValue == null)
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NULL));
                     else {
-                        if (Array.getLength(returnValue) == 0)
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.EMPTY));
-                        else
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.NONEMPTY));
+                        String arrDesc = (Array.getLength(returnValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, arrDesc));
                     }
                     break;
                 case Type.OBJECT:
                     if (returnValue == null)
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NULL));
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NULL));
                     else {
-                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL));
+                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NONNULL));
                         if (returnType.getClassName().equals("java.lang.String")) {
-                            String valStr = ((String)returnValue).isEmpty() ? OutputCoverageFactory.EMPTY : OutputCoverageFactory.NONEMPTY;
-                            results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + valStr));
+                            String valDesc = ((String)returnValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
+                            results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, valDesc));
                             break;
                         }
                         /*
@@ -141,18 +135,12 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                             try {
                                 Object val = inspector.getValue(returnValue);
                                 if (val instanceof Boolean) {
-                                    if ((boolean)val)
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.BOOL_TRUE));
-                                    else
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.BOOL_FALSE));
+                                    String valDesc = ((boolean)val) ? BOOL_TRUE : BOOL_FALSE;
+                                    results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + valDesc));
                                 } else if (isJavaNumber(val)) {
                                     double dv = ((Number) val).doubleValue();
-                                    if (dv < 0)
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_NEGATIVE));
-                                    else if (dv == 0)
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_ZERO));
-                                    else
-                                        results.add(OutputCoverageFactory.goalString(className, methodName, OutputCoverageFactory.REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + OutputCoverageFactory.NUM_POSITIVE));
+                                    String valDesc = (dv < 0) ? NUM_NEGATIVE : (dv == 0) ? NUM_ZERO : NUM_POSITIVE;
+                                    results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + valDesc));
                                 }
                             } catch (InvocationTargetException | IllegalAccessException e) {
                                 logger.warn(e.getMessage(), e);
@@ -211,7 +199,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
      *
      * @return a {@link java.lang.String} object.
      */
-    public String getType() {
+    public Type getType() {
         return goal.getType();
     }
 
@@ -239,9 +227,9 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        HashSet<String> strGoals = listCoveredGoals(result.getReturnValues());
-        for (String strGoal : strGoals) {
-            if (strGoal.equals(goal.toString())) {
+        HashSet<TestFitnessFunction> goals = listCoveredGoals(result.getReturnValues());
+        for (TestFitnessFunction goal : goals) {
+            if (this.toString().equals(goal.toString())) {
                 fitness = 0.0;
                 break;
             }

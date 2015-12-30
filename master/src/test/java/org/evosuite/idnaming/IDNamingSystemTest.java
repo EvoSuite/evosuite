@@ -20,46 +20,17 @@
 package org.evosuite.idnaming;
 
 import com.examples.with.different.packagename.Calculator;
-import com.examples.with.different.packagename.coverage.*;
-import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
-import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
-import com.examples.with.different.packagename.idnaming.BOMInputStream;
 import com.examples.with.different.packagename.sette.L4_Collections;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
 import com.examples.with.different.packagename.strings.Calc;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.coverage.output.OutputCoverageGoal;
-import org.evosuite.coverage.output.OutputCoverageTestFitness;
-import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testcarver.testcase.CarvedTestCase;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
-import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
-import org.objectweb.asm.tree.JumpInsnNode;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
 
