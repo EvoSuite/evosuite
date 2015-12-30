@@ -814,7 +814,7 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(Properties.getCoveredGoalsFile());
             for (int i = 0; i < testCases.size(); i++) {
                 TestCase test = testCases.get(i);
-                String generatedName = null; //TestNameGenerator.getNameGeneratedFor(test);
+                String generatedName = nameGenerator.getName(test);
                 String testName = (generatedName != null) ? generatedName : TestSuiteWriterUtils.getNameOfTest(testCases, i);
                 Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
                 for (TestFitnessFunction goal : coveredGoals) {
@@ -831,7 +831,7 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(Properties.getTestNamesFile());
             for (int i = 0; i < testCases.size(); i++) {
                 TestCase test = testCases.get(i);
-                String generatedName = null; //TestNameGenerator.getNameGeneratedFor(test);
+                String generatedName = nameGenerator.getName(test);
                 String carvedName = TestSuiteWriterUtils.getNameOfTest(testCases, i);
                 builder.append(generatedName + "," + carvedName + NEWLINE);
             }
