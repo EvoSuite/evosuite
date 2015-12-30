@@ -181,13 +181,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     private void initializeMethodCoverageCount(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
         for(Set<TestFitnessFunction> goals : testToGoals.values()) {
             for(TestFitnessFunction goal : goals) {
-                if(goal instanceof MethodCoverageTestFitness) {
-                    String methodName = getMethodNameWithoutDescriptor(goal.getTargetMethod());
-                    if(!methodCount.containsKey(methodName)) {
-                        methodCount.put(methodName, new HashSet<String>());
-                    }
-                    methodCount.get(methodName).add(goal.getTargetMethod());
+                String methodName = getMethodNameWithoutDescriptor(goal.getTargetMethod());
+                if(!methodCount.containsKey(methodName)) {
+                    methodCount.put(methodName, new HashSet<>());
                 }
+                methodCount.get(methodName).add(goal.getTargetMethod());
             }
         }
     }
@@ -409,7 +407,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         }
 
         if(goal.getTargetMethod().startsWith("<init>")) {
-            return STR_CREATE_EXCEPTION + capitalize(getShortClassName(goal.getTargetClass()))+ STR_THROWS + capitalize(ex.getSimpleName());
+            return STR_CREATE_EXCEPTION + capitalize(getUniqueConstructorName(goal.getTargetClass(), goal.getTargetMethod()))+ STR_THROWS + capitalize(ex.getSimpleName());
         }
         return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + STR_THROWS + capitalize(ex.getSimpleName());
     }
@@ -571,6 +569,8 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     private String getUniqueMethodName(String methodNameWithoutDescriptor, String methodName) {
         if(!methodCount.containsKey(methodNameWithoutDescriptor))
             return methodNameWithoutDescriptor;
+        if(methodCount.get(methodNameWithoutDescriptor).size() == 1)
+            return methodNameWithoutDescriptor;
         int pos = methodName.indexOf('(');
         if(pos < 0) {
             return methodName; // TODO: Should this really be possible?
@@ -595,21 +595,23 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      */
     private String getUniqueConstructorName(String className, String methodName) {
         if(!methodCount.containsKey("<init>"))
-            return className;
+            return getShortClassName(className);
+        if(methodCount.get("<init>").size() == 1)
+            return getShortClassName(className);
         int pos = methodName.indexOf('(');
         if(pos < 0) {
-            return className; // TODO: Should this really be possible?
+            return getShortClassName(className); // TODO: Should this really be possible?
         }
         String descriptor = methodName.substring(pos);
         Type[] argumentTypes = Type.getArgumentTypes(descriptor);
         // TODO: Dummy for now
         if(argumentTypes.length == 0)
-            return className + STR_WITHOUT + STR_ARGUMENTS;
+            return getShortClassName(className) + STR_WITHOUT + STR_ARGUMENTS;
         else if(argumentTypes.length == 1) {
-            return className + STR_WITH + capitalize(getShortClassName(argumentTypes[0].getClassName()));
+            return getShortClassName(className) + STR_WITH + capitalize(getShortClassName(argumentTypes[0].getClassName()));
         }
         else
-            return className + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
+            return getShortClassName(className) + STR_WITH + argumentTypes.length + STR_ARGUMENTS;
     }
 
     /**

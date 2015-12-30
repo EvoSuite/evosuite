@@ -106,9 +106,9 @@ public class TestCoverageGoalNameGeneration {
     @Test
     public void testMethodWithAndWithoutException() {
         TestCase test1 = new DefaultTestCase();
-        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString");
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString()");
         test1.addCoveredGoal(goal1);
-        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "toString");
+        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "toString()");
         test1.addCoveredGoal(goal1a);
 
         TestCase test2 = new DefaultTestCase();
@@ -129,9 +129,9 @@ public class TestCoverageGoalNameGeneration {
     @Test
     public void testMethodWithAndWithoutMockException() {
         TestCase test1 = new DefaultTestCase();
-        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString");
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "toString()");
         test1.addCoveredGoal(goal1);
-        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "toString");
+        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "toString()");
         test1.addCoveredGoal(goal1a);
 
         TestCase test2 = new DefaultTestCase();
@@ -177,9 +177,9 @@ public class TestCoverageGoalNameGeneration {
     @Test
     public void testConstructorWithAndWithoutException() {
         TestCase test1 = new DefaultTestCase();
-        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "<init>");
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "<init>()");
         test1.addCoveredGoal(goal1);
-        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "<init>");
+        MethodNoExceptionCoverageTestFitness goal1a = new MethodNoExceptionCoverageTestFitness("FooClass", "<init>()");
         test1.addCoveredGoal(goal1a);
 
         TestCase test2 = new DefaultTestCase();
@@ -584,6 +584,35 @@ public class TestCoverageGoalNameGeneration {
         assertEquals("testCreatesClassWithOverloadedConstructorWithoutArguments", generatedName1);
         assertEquals("testCreatesClassWithOverloadedConstructorWithString", generatedName2);
         assertEquals("testCreatesClassWithOverloadedConstructorWith2Arguments", generatedName3);
+    }
+
+    @Test
+    public void testExceptionInOverloadedConstructor() {
+        TestCase test1 = new DefaultTestCase();
+        ExceptionCoverageTestFitness goal1 = new ExceptionCoverageTestFitness(ClassWithOverloadedConstructor.class.getCanonicalName(), "<init>()", NullPointerException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test1.addCoveredGoal(goal1);
+
+        TestCase test2 = new DefaultTestCase();
+        ExceptionCoverageTestFitness goal2 = new ExceptionCoverageTestFitness(ClassWithOverloadedConstructor.class.getCanonicalName(), "<init>(Ljava/lang/String;)", NullPointerException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(goal2);
+
+        TestCase test3 = new DefaultTestCase();
+        ExceptionCoverageTestFitness goal3 = new ExceptionCoverageTestFitness(ClassWithOverloadedConstructor.class.getCanonicalName(), "<init>(II)", NullPointerException.class, ExceptionCoverageTestFitness.ExceptionType.EXPLICIT);
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(goal3);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName1 = naming.getName(test1);
+        String generatedName2 = naming.getName(test2);
+        String generatedName3 = naming.getName(test3);
+        assertEquals("testFailsToCreateClassWithOverloadedConstructorWithoutArgumentsThrowsNullPointerException", generatedName1);
+        assertEquals("testFailsToCreateClassWithOverloadedConstructorWithStringThrowsNullPointerException", generatedName2);
+        assertEquals("testFailsToCreateClassWithOverloadedConstructorWith2ArgumentsThrowsNullPointerException", generatedName3);
     }
 
     @Test
