@@ -20,8 +20,9 @@
 package org.evosuite.coverage.io.input;
 
 
-import java.io.Serializable;
 import org.objectweb.asm.Type;
+
+import java.io.Serializable;
 
 /**
  * A single input coverage goal.
@@ -175,7 +176,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
             int diff2 = methodName.compareTo(o.methodName);
             if (diff2 == 0) {
                 if (argIndex == o.argIndex) {
-                    int diff3 = type.toString().compareTo(o.type.toString());
+                    int diff3 = type.compareTo(o.type);
                     if (diff3 == 0)
                         return this.valueDescriptor.compareTo(o.valueDescriptor);
                     else
