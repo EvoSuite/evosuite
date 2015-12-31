@@ -21,6 +21,8 @@ public class MethodSignatureCollector extends MethodVisitor {
 
     private String methodName;
 
+    private String methodDesc;
+
     private int numParams;
 
     private int startIndex;
@@ -35,6 +37,7 @@ public class MethodSignatureCollector extends MethodVisitor {
         super(Opcodes.ASM5, mv);
         this.className = className;
         this.methodName = methodName;
+        this.methodDesc = desc;
         numParams = Type.getArgumentTypes(desc).length;
         this.isStatic = isStatic;
         if(!isStatic) {
@@ -51,7 +54,7 @@ public class MethodSignatureCollector extends MethodVisitor {
                                    Label start, Label end, int index) {
         if(index >= startIndex && index < endIndex) {
             logger.debug("Collecting name for parameter {} of method {}: {}", index, methodName, name);
-            VariableNameCollector.getInstance().addParameterName(className.replace('/', '.'), methodName+desc, index, name);
+            VariableNameCollector.getInstance().addParameterName(className.replace('/', '.'), methodName+methodDesc, index, name);
         }
 
         super.visitLocalVariable(name, desc, signature, start, end, index);
