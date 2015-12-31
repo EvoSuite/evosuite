@@ -126,70 +126,143 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 
 	/**
 	 * <p>
-	 * collectClassNames
+	 * getClassName
 	 * </p>
 	 *
 	 * @param var
-	 *            a {@link VariableReference} object.
-	 *
+	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
+	 * @return a {@link java.lang.String} object.
 	 */
-	public void collectClassNames(VariableReference var) {
-		if (var instanceof ConstantValue) {
-			ConstantValue cval = (ConstantValue)var;
-			if(cval.getValue() != null && cval.getVariableClass().equals(Class.class)) {
-				collectClassNames((Class<?>)cval.getValue());
-			}
-		} else if (var instanceof FieldReference) {
-			VariableReference source = ((FieldReference) var).getSource();
-			GenericField field = ((FieldReference) var).getField();
-			if (source != null)
-				collectClassNames(source);
-			else
-				collectClassNames(field.getField().getDeclaringClass());
-		} else if (var instanceof ArrayIndex) {
-			VariableReference array = ((ArrayIndex) var).getArray();
-			collectClassNames(array);
-		}
-		collectClassNames(var.getType());
+	public String getClassName(VariableReference var) {
+		return getTypeName(var.getType());
 	}
 
 	/**
 	 * <p>
-	 * collectClassNames
+	 * getTypeName
 	 * </p>
 	 *
 	 * @param type
-	 *            a {@link Type} object.
-	 *
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @return a {@link java.lang.String} object.
 	 */
-	private void collectClassNames(Type type) {
+	public String getTypeName(Type type) {
 		if (type instanceof Class<?>) {
-			collectClassNames((Class<?>) type);
+			return getClassName((Class<?>) type);
 		} else if (type instanceof ParameterizedType) {
-			collectClassNames((Class<?>) ((ParameterizedType)type).getRawType());
+			return getTypeName((ParameterizedType) type);
 		} else if (type instanceof WildcardType) {
+			String ret = "?";
+			boolean first = true;
 			for (Type bound : ((WildcardType) type).getLowerBounds()) {
 				// If there are lower bounds we need to state them, even if Object
 				if (bound == null) // || GenericTypeReflector.erase(bound).equals(Object.class))
 					continue;
 
-				collectClassNames(bound);
+				if (!first)
+					ret += ", ";
+				ret += " super " + getTypeName(bound);
+				first = false;
 			}
 			for (Type bound : ((WildcardType) type).getUpperBounds()) {
 				if (bound == null
 						|| (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
 					continue;
 
-				collectClassNames(bound);
+				if (!first)
+					ret += ", ";
+				ret += " extends " + getTypeName(bound);
+				first = false;
+			}
+			return ret;
+		} else if (type instanceof TypeVariable) {
+			return "?";
+		} else if (type instanceof CaptureType) {
+			CaptureType captureType = (CaptureType) type;
+			if (captureType.getLowerBounds().length == 0)
+				return "?";
+			else
+				return getTypeName(captureType.getLowerBounds()[0]);
+		} else if (type instanceof GenericArrayType) {
+			return getTypeName(((GenericArrayType) type).getGenericComponentType())
+					+ "[]";
+		} else {
+			throw new RuntimeException("Unsupported type:" + type + ", class"
+					+ type.getClass());
+		}
+	}
+
+	public String getTypeName(VariableReference var) {
+
+		GenericClass clazz = var.getGenericClass();
+		return getTypeName(clazz.getType());
+	}
+
+	private String getTypeName(ParameterizedType type) {
+		String name = getClassName((Class<?>) type.getRawType());
+		Type[] types = type.getActualTypeArguments();
+		boolean isDefined = false;
+		for(Type parameterType : types) {
+			if(parameterType instanceof Class<?> ||
+					parameterType instanceof ParameterizedType ||
+					parameterType instanceof WildcardType ||
+					parameterType instanceof GenericArrayType) {
+				isDefined = true;
+				break;
+			}
+		}
+		if(isDefined) {
+			if (types.length > 0) {
+				name += "<";
+				for (int i = 0; i < types.length; i++) {
+					if (i != 0)
+						name += ", ";
+
+					name += getTypeName(types[i]);
+				}
+				name += ">";
+			}
+		}
+		return name;
+	}
+
+	/**
+	 * <p>
+	 * getClassName
+	 * </p>
+	 *
+	 * @param type
+	 *            a {@link Type} object.
+	 *
+	 */
+	private void getClassName(Type type) {
+		if (type instanceof Class<?>) {
+			getClassName((Class<?>) type);
+		} else if (type instanceof ParameterizedType) {
+			getClassName((Class<?>) ((ParameterizedType)type).getRawType());
+		} else if (type instanceof WildcardType) {
+			for (Type bound : ((WildcardType) type).getLowerBounds()) {
+				// If there are lower bounds we need to state them, even if Object
+				if (bound == null) // || GenericTypeReflector.erase(bound).equals(Object.class))
+					continue;
+
+				getClassName(bound);
+			}
+			for (Type bound : ((WildcardType) type).getUpperBounds()) {
+				if (bound == null
+						|| (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
+					continue;
+
+				getClassName(bound);
 			}
 		} else if (type instanceof TypeVariable) {
 			// Do nothing
 		} else if (type instanceof CaptureType) {
 			CaptureType captureType = (CaptureType) type;
 			if (! (captureType.getLowerBounds().length == 0))
-				collectClassNames(captureType.getLowerBounds()[0]);
+				getClassName(captureType.getLowerBounds()[0]);
 		} else if (type instanceof GenericArrayType) {
-			collectClassNames(((GenericArrayType) type).getGenericComponentType());
+			getClassName(((GenericArrayType) type).getGenericComponentType());
 		} else {
 			throw new RuntimeException("Unsupported type:" + type + ", class"
 					+ type.getClass());
@@ -198,20 +271,19 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 
 	/**
 	 * <p>
-	 * collectClassNames
+	 * getClassName
 	 * </p>
 	 *
 	 * @param clazz
 	 *            a {@link Class} object.
 	 * @return a {@link String} object.
 	 */
-	public String collectClassNames(Class<?> clazz) {
+	public String getClassName(Class<?> clazz) {
 		if (classNames.containsKey(clazz))
 			return classNames.get(clazz);
 
 		if (clazz.isArray()) {
-			String arrayClassName = collectClassNames(clazz.getComponentType());
-			return arrayClassName + "[]";
+			return getClassName(clazz.getComponentType()) + "[]";
 		}
 
 		GenericClass c = new GenericClass(clazz);
@@ -240,7 +312,7 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		// Ensure outer classes are imported as well
 		Class<?> outerClass = clazz.getEnclosingClass();
 		if(outerClass != null) {
-			String enclosingName = collectClassNames(outerClass);
+			String enclosingName = getClassName(outerClass);
 			String simpleOuterName = outerClass.getSimpleName();
 			if(simpleOuterName.equals(enclosingName)) {
 				name = enclosingName + name.substring(simpleOuterName.length());
@@ -249,7 +321,7 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 
 		Class<?> declaringClass = clazz.getDeclaringClass();
 		if(declaringClass != null) {
-			collectClassNames(declaringClass);
+			getClassName(declaringClass);
 		}
 
 		// We can't use "Test" because of JUnit
@@ -284,11 +356,11 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 
-		collectClassNames(source);
+		getClassName(source);
 
 		if ((value != null) && value.getClass().isEnum()) {
 			// Make sure the enum is imported in the JUnit test
-			collectClassNames(value.getClass());
+			getClassName(value.getClass());
 		}
 	}
 
@@ -304,10 +376,10 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 	protected void visitArrayEqualsAssertion(ArrayEqualsAssertion assertion) {
 		VariableReference source = assertion.getSource();
 
-		collectClassNames(source);
+		getClassName(source);
 		if(source.getComponentClass().equals(Boolean.class) || source.getComponentClass().equals(boolean.class)) {
 			// Make sure that the Arrays class is imported
-			collectClassNames(Arrays.class);
+			getClassName(Arrays.class);
 		}
 	}
 
@@ -326,14 +398,14 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		Field field = assertion.getField();
 
 		if(Modifier.isStatic(field.getModifiers())) {
-			collectClassNames(field.getDeclaringClass());
+			getClassName(field.getDeclaringClass());
 		} else {
-			collectClassNames(source);
+			getClassName(source);
 		}
 
 		if (value != null && value.getClass().isEnum()) {
 			// Make sure the enum is imported in the JUnit test
-			collectClassNames(value.getClass());
+			getClassName(value.getClass());
 		}
 	}
 
@@ -349,10 +421,10 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference source = assertion.getSource();
 		Object value = assertion.getValue();
 
-		collectClassNames(source);
+		getClassName(source);
 		if ((value != null) && (value.getClass().isEnum() || value instanceof Enum)) {
 			// Make sure the enum is imported in the JUnit test
-			collectClassNames(value.getClass());
+			getClassName(value.getClass());
 		}
 	}
 
@@ -367,7 +439,7 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 	protected void visitNullAssertion(NullAssertion assertion) {
 		VariableReference source = assertion.getSource();
 
-		collectClassNames(source);
+		getClassName(source);
 	}
 
 	/**
@@ -382,8 +454,8 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference source = assertion.getSource();
 		VariableReference dest = assertion.getDest();
 
-		collectClassNames(source);
-		collectClassNames(dest);
+		getClassName(source);
+		getClassName(dest);
 	}
 
 	/**
@@ -398,11 +470,11 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference source = assertion.getSource();
 		VariableReference dest = assertion.getDest();
 
-		collectClassNames(source);
-		collectClassNames(dest);
+		getClassName(source);
+		getClassName(dest);
 
 		if (! (source.isPrimitive() && dest.isPrimitive()))
-			collectClassNames(Object.class);
+			getClassName(Object.class);
 	}
 
 	/**
@@ -417,8 +489,8 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference source = assertion.getSource();
 		VariableReference dest = assertion.getDest();
 
-		collectClassNames(source);
-		collectClassNames(dest);
+		getClassName(source);
+		getClassName(dest);
 	}
 
 	protected void visitAssertion(Assertion assertion) {
@@ -473,9 +545,9 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference retval = statement.getReturnValue();
 		Object value = statement.getValue();
 
-		collectClassNames(retval);
+		getClassName(retval);
 		if (statement instanceof ClassPrimitiveStatement)
-			collectClassNames(((Class<?>) value));
+			getClassName(((Class<?>) value));
 
 		visitAssertions(statement);
 	}
@@ -485,9 +557,9 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 	public void visitPrimitiveExpression(PrimitiveExpression statement) {
 		VariableReference retval = statement.getReturnValue();
 
-		collectClassNames(retval);
-		collectClassNames(statement.getLeftOperand());
-		collectClassNames(statement.getRightOperand());
+		getClassName(retval);
+		getClassName(statement.getLeftOperand());
+		getClassName(statement.getRightOperand());
 
 		visitAssertions(statement);
 	}
@@ -505,19 +577,19 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference retval = statement.getReturnValue();
 		GenericField field = statement.getField();
 
-		collectClassNames(retval);
+		getClassName(retval);
 
 		if (!field.isStatic()) {
 			VariableReference source = statement.getSource();
-			collectClassNames(source);
+			getClassName(source);
 		} else {
-			collectClassNames(field.getField().getDeclaringClass());
+			getClassName(field.getField().getDeclaringClass());
 		}
 		if (exception != null) {
 			Class<?> ex = exception.getClass();
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
-			collectClassNames(ex);
+			getClassName(ex);
 		}
 		visitAssertions(statement);
 	}
@@ -529,13 +601,13 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		for (int i = startPos; i < parameters.size(); i++) {
 			Type declaredParamType = parameterTypes[i];
 			Type actualParamType = parameters.get(i).getType();
-			collectClassNames(declaredParamType);
-			collectClassNames(parameters.get(i));
+			getClassName(declaredParamType);
+			getClassName(parameters.get(i));
 
 			Class<?> rawParamClass = declaredParamType instanceof WildcardType ? Object.class : GenericTypeReflector.erase(declaredParamType);
 			if (rawParamClass.isPrimitive()) {
-				collectClassNames(rawParamClass);
-				collectClassNames(ClassUtils.primitiveToWrapper(rawParamClass));
+				getClassName(rawParamClass);
+				getClassName(ClassUtils.primitiveToWrapper(rawParamClass));
 			} else if (isGenericMethod && !(declaredParamType instanceof WildcardType )) {
 
 			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)) {
@@ -548,13 +620,13 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 							// If we are assigning a generic array, then we don't need to cast
 						} else {
 							// If we are assigning a non-generic array, then we do need to cast
-							collectClassNames(declaredParamType);
+							getClassName(declaredParamType);
 						}
 					} else { //if (!GenericClass.isAssignable(GenericTypeReflector.getArrayComponentType(declaredParamType), GenericTypeReflector.getArrayComponentType(actualParamType))) {
-						collectClassNames(declaredParamType);
+						getClassName(declaredParamType);
 					}
 				} else if (!(actualParamType instanceof ParameterizedType)) {
-					collectClassNames(declaredParamType);
+					getClassName(declaredParamType);
 				}
 			} else {
 				// We have to cast between wrappers and primitives in case there
@@ -562,14 +634,14 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 				// if there actually is a problem of overloaded signatures
 				GenericClass parameterClass = new GenericClass(declaredParamType);
 				if (parameterClass.isWrapperType() && parameters.get(i).isPrimitive()) {
-					collectClassNames(declaredParamType);
+					getClassName(declaredParamType);
 				} else if (parameterClass.isPrimitive()
 				        && parameters.get(i).isWrapperType()) {
-					collectClassNames(declaredParamType);
+					getClassName(declaredParamType);
 				} else if (isOverloaded) {
 					// If there is an overloaded method, we need to cast to make sure we use the right version
 					if (!declaredParamType.equals(actualParamType)) {
-						collectClassNames(declaredParamType);
+						getClassName(declaredParamType);
 					}
 				}
 			}
@@ -590,8 +662,8 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		assert  rawClass.getName().equals(targetClass.getName()) :
 				"Mismatch between variable raw type "+rawClass+" and mocked "+targetClass;
 
-		collectClassNames(rawClass);
-		collectClassNames(retval);
+		getClassName(rawClass);
+		getClassName(retval);
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
@@ -611,7 +683,7 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 				collectFromParameters(types, params, false, false, 0);//TODO unsure of these parameters
 			} else {
 				for (int i = 0; i < params.size(); i++) {
-					collectClassNames(params.get(i));
+					getClassName(params.get(i));
 				}
 			}
 		}
@@ -641,10 +713,10 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		if (!retval.isVoid() && retval.getAdditionalVariableReference() == null && !unused) {
 			if (exception != null) {
 				if (!lastStatement || statement.hasAssertions()) {
-					collectClassNames(retval);
+					getClassName(retval);
 				}
 			} else {
-				collectClassNames(retval);
+				getClassName(retval);
 			}
 		}
 
@@ -656,30 +728,30 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		        && !retval.getVariableClass().isAnonymousClass()
 		        // Static generic methods are a special case where we shouldn't add a cast
 		        && !(isGenericMethod && method.getParameterTypes().length == 0 && method.isStatic())) {
-			collectClassNames(retval);
+			getClassName(retval);
 		}
 
 		if (method.isStatic()) {
-			collectClassNames(method.getMethod().getDeclaringClass());
+			getClassName(method.getMethod().getDeclaringClass());
 		} else {
 			VariableReference callee = statement.getCallee();
-			collectClassNames(callee);
+			getClassName(callee);
 			if (callee instanceof ConstantValue) {
-				collectClassNames(method.getMethod().getDeclaringClass());
+				getClassName(method.getMethod().getDeclaringClass());
 			} else {
 				if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
-					collectClassNames(method.getMethod().getDeclaringClass());
+					getClassName(method.getMethod().getDeclaringClass());
 				}
 			}
 		}
 
 		if (! retval.isVoid() && !unused) {
-			collectClassNames(retval);
+			getClassName(retval);
 		}
 
 		if (exception != null && !test.isFailing()) {
 			Class<?> ex = getExceptionClassToUse(exception);
-			collectClassNames(ex);
+			getClassName(ex);
 		}
 
 		visitAssertions(statement);
@@ -709,15 +781,15 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		        constructor.isOverloaded(parameters),
 				isNonStaticMemberClass ? 1 : 0);
 
-		collectClassNames(retval);
-		collectClassNames(constructor.getOwnerType());
+		getClassName(retval);
+		getClassName(constructor.getOwnerType());
 
 		if (isNonStaticMemberClass)
-			collectClassNames(parameters.get(0));
+			getClassName(parameters.get(0));
 
 		if (exception != null) {
 			Class<?> ex = getExceptionClassToUse(exception);
-			collectClassNames(ex);
+			getClassName(ex);
 		}
 
 		visitAssertions(statement);
@@ -733,10 +805,10 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 	public void visitArrayStatement(ArrayStatement statement) {
 		VariableReference retval = statement.getReturnValue();
 
-		collectClassNames(retval);
+		getClassName(retval);
 		if (retval.getGenericClass().isGenericArray()) {
-			collectClassNames(Array.class);
-			collectClassNames(retval.getComponentClass());
+			getClassName(Array.class);
+			getClassName(retval.getComponentClass());
 		}
 
 		visitAssertions(statement);
@@ -754,8 +826,8 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference retval = statement.getReturnValue();
 		VariableReference parameter = statement.getValue();
 
-		collectClassNames(retval);
-		collectClassNames(parameter);
+		getClassName(retval);
+		getClassName(parameter);
 
 		visitAssertions(statement);
 	}
@@ -769,7 +841,7 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 	@Override
 	public void visitNullStatement(NullStatement statement) {
 		VariableReference retval = statement.getReturnValue();
-		collectClassNames(retval);
+		getClassName(retval);
 	}
 
 	@Override
@@ -779,5 +851,9 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 
 	public Map<Class<?>, String> getClassNames() {
 		return classNames;
+	}
+
+	public Map<Integer, Throwable> getExceptions() {
+		return exceptions;
 	}
 }

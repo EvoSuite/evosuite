@@ -49,15 +49,16 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
      */
     public String getVariableName(TestCase tc, VariableReference var) {
         if (variableNames.isEmpty()) {
-            VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
+            VariableNamesTestVisitor visitor = new VariableNamesTestVisitor(itv);
             tc.accept(visitor);
             variableNames = visitor.getAllVariableNames();
+            System.out.println("[ExplanatoryNamingStrategy] Variable names generated");
+            printVarNames();
         }
 	    return variableNames.get(var);
     }
 
     private void printVarNames() {
-        System.out.println("FINAL NAMES MAPPING");
         String format = "%-10s| %s\n";
         System.out.printf(format, "varRef", "name");
 

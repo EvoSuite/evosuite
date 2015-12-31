@@ -140,27 +140,6 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 
 	/**
 	 * <p>
-	 * getClassName
-	 * </p>
-	 *
-	 * @param clazz
-	 *            a {@link java.lang.Class} object.
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getClassName(Class<?> clazz) {
-		if (((ImportsTestCodeVisitor)this.tcv).classNames.containsKey(clazz)) {
-			return ((ImportsTestCodeVisitor)this.tcv).classNames.get(clazz);
-		}
-
-		if (clazz.isArray()) {
-			return ((ImportsTestCodeVisitor)this.tcv).classNames.get(clazz.getComponentType()) + "[]";
-		}
-
-		return null; // should not occur
-	}
-
-	/**
-	 * <p>
 	 * getVariableName
 	 * </p>
 	 * 
@@ -172,15 +151,6 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 
         return strategy.getName(this.test, var);
 
-	}
-
-	/**
-	 * Retrieve the names of all known classes
-	 *
-	 * @return
-	 */
-	public Map<Class<?>, String> getClassNames() {
-		return ((ImportsTestCodeVisitor)this.tcv).classNames;
 	}
 
 	/*
@@ -1314,6 +1284,29 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		super.visitStatement(statement);
 	}
 
+
+	/**
+	 * Retrieve the names of all known classes
+	 *
+	 * @return
+	 */
+	public Map<Class<?>, String> getClassNames() {
+		return ((ImportsTestCodeVisitor)this.tcv).classNames;
+	}
+
+	/**
+	 * <p>
+	 * getClassName
+	 * </p>
+	 *
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
+	 * @return a {@link java.lang.String} object.
+	 */
+	private String getClassName(Class<?> clazz) {
+		return ((ImportsTestCodeVisitor)this.tcv).getClassName(clazz);
+	}
+
 	/**
 	 * <p>
 	 * getClassName
@@ -1323,81 +1316,34 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 	 *            a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getClassName(VariableReference var) {
-		return getTypeName(var.getType());
+	private String getClassName(VariableReference var) {
+		return ((ImportsTestCodeVisitor)this.tcv).getClassName(var);
 	}
 
-	private String getTypeName(ParameterizedType type) {
-		String name = ((ImportsTestCodeVisitor)this.tcv).classNames.get((Class<?>) type.getRawType());
-		Type[] types = type.getActualTypeArguments();
-		boolean isDefined = false;
-		for(Type parameterType : types) {
-			if(parameterType instanceof Class<?> ||
-					parameterType instanceof ParameterizedType ||
-					parameterType instanceof WildcardType ||
-					parameterType instanceof GenericArrayType) {
-				isDefined = true;
-				break;
-			}
-		}
-		if(isDefined) {
-			if (types.length > 0) {
-				name += "<";
-				for (int i = 0; i < types.length; i++) {
-					if (i != 0)
-						name += ", ";
-
-					name += getTypeName(types[i]);
-				}
-				name += ">";
-			}
-		}
-		return name;
+	/**
+	 * <p>
+	 * getTypeName
+	 * </p>
+	 *
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
+	 * @return a {@link java.lang.String} object.
+	 */
+	private String getTypeName(Class<?> clazz) {
+		return ((ImportsTestCodeVisitor)this.tcv).getTypeName(clazz);
 	}
 
-	public String getTypeName(Type type) {
-		if (type instanceof Class<?>) {
-			return getClassName((Class<?>) type);
-		} else if (type instanceof ParameterizedType) {
-			return getTypeName((ParameterizedType) type);
-		} else if (type instanceof WildcardType) {
-			String ret = "?";
-			boolean first = true;
-			for (Type bound : ((WildcardType) type).getLowerBounds()) {
-				// If there are lower bounds we need to state them, even if Object
-				if (bound == null) // || GenericTypeReflector.erase(bound).equals(Object.class))
-					continue;
-
-				if (!first)
-					ret += ", ";
-				ret += " super " + getTypeName(bound);
-				first = false;
-			}
-			for (Type bound : ((WildcardType) type).getUpperBounds()) {
-				if (bound == null
-						|| (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
-					continue;
-
-				if (!first)
-					ret += ", ";
-				ret += " extends " + getTypeName(bound);
-				first = false;
-			}
-			return ret;
-		} else if (type instanceof TypeVariable) {
-			return "?";
-		} else if (type instanceof CaptureType) {
-			CaptureType captureType = (CaptureType) type;
-			if (captureType.getLowerBounds().length == 0)
-				return "?";
-			else
-				return getTypeName(captureType.getLowerBounds()[0]);
-		} else if (type instanceof GenericArrayType) {
-			return getTypeName(((GenericArrayType) type).getGenericComponentType())
-					+ "[]";
-		} else {
-			throw new RuntimeException("Unsupported type:" + type + ", class"
-					+ type.getClass());
-		}
+	/**
+	 * <p>
+	 * getTypeName
+	 * </p>
+	 *
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @return a {@link java.lang.String} object.
+	 */
+	private String getTypeName(Type type) {
+		return ((ImportsTestCodeVisitor)this.tcv).getTypeName(type);
 	}
+
 }

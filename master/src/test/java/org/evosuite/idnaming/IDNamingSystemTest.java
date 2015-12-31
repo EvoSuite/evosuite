@@ -191,18 +191,6 @@ public class IDNamingSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
-		StringBuilder analysisCriteria = new StringBuilder();
-		analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
-		analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
-		analysisCriteria.append(Properties.Criterion.INPUT); analysisCriteria.append(",");
-		analysisCriteria.append(Properties.Criterion.BRANCH);
-		Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
-
-		Properties.CRITERION = new Properties.Criterion[4];
-		Properties.CRITERION[0] = Properties.Criterion.METHOD;
-		Properties.CRITERION[1] = Properties.Criterion.OUTPUT;
-		Properties.CRITERION[2] = Properties.Criterion.BRANCH;
-		Properties.CRITERION[3] = Properties.Criterion.INPUT;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -226,16 +214,6 @@ public class IDNamingSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
-		StringBuilder analysisCriteria = new StringBuilder();
-		analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
-		analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
-		analysisCriteria.append(Properties.Criterion.BRANCH);
-		Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
-
-		Properties.CRITERION = new Properties.Criterion[3];
-		Properties.CRITERION[0] = Properties.Criterion.METHOD;
-		Properties.CRITERION[1] = Properties.Criterion.OUTPUT;
-		Properties.CRITERION[2] = Properties.Criterion.BRANCH;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -259,11 +237,6 @@ public class IDNamingSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
-		StringBuilder analysisCriteria = new StringBuilder();
-		analysisCriteria.append(Properties.Criterion.METHODTRACE); analysisCriteria.append(",");
-		//  analysisCriteria.append(Properties.Criterion.METHOD); analysisCriteria.append(",");
-		//    analysisCriteria.append(Properties.Criterion.OUTPUT); analysisCriteria.append(",");
-		Properties.ANALYSIS_CRITERIA = analysisCriteria.toString();
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

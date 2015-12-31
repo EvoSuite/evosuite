@@ -24,8 +24,8 @@ import com.examples.with.different.packagename.junit.Foo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
@@ -45,22 +45,20 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author Jose Rojas
  *
  */
-public class VariableNamesTestVisitorTest {
+public class VariableNamingTest {
 
     @Test
     public void testVariableNamesMethodCallDummyStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
 
-        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DUMMY;
-
         // test
         DefaultTestCase tc = createTestCaseWithPrimitiveStatements();
+        DefaultTestCase tc2 = createTestCaseWithPrimitiveStatements2();
         System.out.println(tc);
 
         // check variable names
@@ -69,25 +67,27 @@ public class VariableNamesTestVisitorTest {
         VariableReference var2 = tc.getStatement(2).getReturnValue();
         VariableReference var3 = tc.getStatement(3).getReturnValue();
 
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DUMMY;
 	    TestCodeVisitor tcv = new TestCodeVisitor();
         tcv.initializeNamingStrategyFromProperties();
         tcv.visitTestCase(tc);
-        Assert.assertEquals("Unexpected variable name", "var0", tcv.getVariableName(var0));
+        /*Assert.assertEquals("Unexpected variable name", "var0", tcv.getVariableName(var0));
         Assert.assertEquals("Unexpected variable name", "var1", tcv.getVariableName(var1));
         Assert.assertEquals("Unexpected variable name", "var2", tcv.getVariableName(var2));
         Assert.assertEquals("Unexpected variable name", "var3", tcv.getVariableName(var3));
+*/
+        System.out.println(tc.toCode());
+        TestSuiteWriter tsw = new TestSuiteWriter();
+        tsw.insertTest(tc);
+        tsw.insertTest(tc2);
+        tsw.writeTestSuite("FooTest","/tmp/",true);
     }
 
     @Test
     public void testVariableNamesMethodCallExplanatoryStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
 
-        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
-
         // test
         DefaultTestCase tc = createTestCaseWithPrimitiveStatements();
-
-        // generate variable names
-        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
 
         // check variable names
         VariableReference var0 = tc.getStatement(0).getReturnValue();
@@ -95,6 +95,8 @@ public class VariableNamesTestVisitorTest {
         VariableReference var2 = tc.getStatement(2).getReturnValue();
         VariableReference var3 = tc.getStatement(3).getReturnValue();
 
+        // generate variable names
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
         TestCodeVisitor tcv = new TestCodeVisitor();
         tcv.initializeNamingStrategyFromProperties();
         tcv.visitTestCase(tc);
@@ -126,6 +128,28 @@ public class VariableNamesTestVisitorTest {
 
         // foo0.add(int0,int2);
         tc0.addStatement(new MethodStatement(tc0, incMethod, foo0, Arrays.asList(new VariableReference[] {int0, int2})));
+        return tc0;
+    }
+
+    private DefaultTestCase createTestCaseWithPrimitiveStatements2() throws NoSuchMethodException {
+        Class<?> sut = Foo.class;
+        DefaultTestCase tc0 = new DefaultTestCase();
+
+        // int int0 = 5;
+        VariableReference int0 = tc0.addStatement(new IntPrimitiveStatement(tc0, 42));
+        // int int1 = 3;
+        VariableReference int1 = tc0.addStatement(new IntPrimitiveStatement(tc0, 24));
+
+        // Foo foo0 = new Foo();
+        GenericConstructor fooConstructor = new GenericConstructor(sut.getConstructors()[0], sut);
+        ConstructorStatement fooConstructorStatement = new ConstructorStatement(tc0, fooConstructor, Arrays.asList(new VariableReference[] {}));
+        VariableReference foo0 = tc0.addStatement(fooConstructorStatement);
+
+        // int int2 = foo0.add(int0,int1);
+        Method fooIncMethod = sut.getMethod("add", new Class<?>[] { Integer.TYPE, Integer.TYPE});
+        GenericMethod incMethod = new GenericMethod(fooIncMethod, sut);
+        VariableReference int2 = tc0.addStatement(new MethodStatement(tc0, incMethod, foo0, Arrays.asList(new VariableReference[] {int0, int1})));
+
         return tc0;
     }
 
@@ -172,8 +196,14 @@ public class VariableNamesTestVisitorTest {
         (new SimpleMutationAssertionGenerator()).addAssertions(test);
 
         //Visit the tests
-        VariableNamesTestVisitor visitor = new VariableNamesTestVisitor();
-        test.accept(visitor);
-        visitor.printAll();
+        // generate variable names
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
+        TestCodeVisitor tcv = new TestCodeVisitor();
+        tcv.initializeNamingStrategyFromProperties();
+        tcv.visitTestCase(test);
+        System.out.println(test.toCode());
+        TestSuiteWriter tsw = new TestSuiteWriter();
+        tsw.insertTest(test);
+        tsw.writeTestSuite("FooTest","/tmp/",true);
     }
 }

@@ -39,6 +39,7 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestVisitor;
 import org.evosuite.testcase.fm.MethodDescriptor;
@@ -99,211 +100,21 @@ public class VariableNamesTestVisitor extends TestVisitor {
 
     protected TestCase test = null;
 
+    protected final ImportsTestCodeVisitor itv;
 
     // From TestCodeVisitor
     protected final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
-    protected final Map<Class<?>, String> classNames = new HashMap<Class<?>, String>();
     protected final Map<String, Integer> nextIndices = new HashMap<String, Integer>();
-    protected final Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
-    /**
-     * Returns name for input variable reference {@code var} in test case {@code tc}
-     * @param var variable reference
-     * @return a {@link String} object representing the variable reference name
-     */
-    public String getVariableName_(VariableReference var) {
-        if (varNamesCandidates.containsKey(var))
-            return varNamesCandidates.get(var).get(0).getName(); // TODO: Assume only one name
-        else
-            return null;
+    public VariableNamesTestVisitor(ImportsTestCodeVisitor itv) {
+        this.itv = itv;
     }
+
 
     private void addCandidateName(TestCase tc, VariableReference v, String explanation, String name) {
         if (!varNamesCandidates.containsKey(v))
             varNamesCandidates.put(v,new LinkedList<>());
         varNamesCandidates.get(v).add(new CandidateName(explanation, name));
-    }
-
-    /**
-     * <p>
-     * getException
-     * </p>
-     *
-     * @param statement
-     *            a {@link org.evosuite.testcase.statements.Statement} object.
-     * @return a {@link java.lang.Throwable} object.
-     */
-    protected Throwable getException(Statement statement) {
-        if (exceptions != null && exceptions.containsKey(statement.getPosition()))
-            return exceptions.get(statement.getPosition());
-
-        return null;
-    }
-
-    /**
-     * <p>
-     * getClassName
-     * </p>
-     *
-     * @param var
-     *            a {@link org.evosuite.testcase.variable.VariableReference} object.
-     * @return a {@link java.lang.String} object.
-     */
-    public String getClassName(VariableReference var) {
-        return getTypeName(var.getType());
-    }
-
-    private String getTypeName(ParameterizedType type) {
-        String name = getClassName((Class<?>) type.getRawType());
-        Type[] types = type.getActualTypeArguments();
-        boolean isDefined = false;
-        for(Type parameterType : types) {
-            if(parameterType instanceof Class<?> ||
-                    parameterType instanceof ParameterizedType ||
-                    parameterType instanceof WildcardType ||
-                    parameterType instanceof GenericArrayType) {
-                isDefined = true;
-                break;
-            }
-        }
-        if(isDefined) {
-            if (types.length > 0) {
-                name += "<";
-                for (int i = 0; i < types.length; i++) {
-                    if (i != 0)
-                        name += ", ";
-
-                    name += getTypeName(types[i]);
-                }
-                name += ">";
-            }
-        }
-        return name;
-    }
-
-    public String getTypeName(Type type) {
-        if (type instanceof Class<?>) {
-            return getClassName((Class<?>) type);
-        } else if (type instanceof ParameterizedType) {
-            return getTypeName((ParameterizedType) type);
-        } else if (type instanceof WildcardType) {
-            String ret = "?";
-            boolean first = true;
-            for (Type bound : ((WildcardType) type).getLowerBounds()) {
-                // If there are lower bounds we need to state them, even if Object
-                if (bound == null) // || GenericTypeReflector.erase(bound).equals(Object.class))
-                    continue;
-
-                if (!first)
-                    ret += ", ";
-                ret += " super " + getTypeName(bound);
-                first = false;
-            }
-            for (Type bound : ((WildcardType) type).getUpperBounds()) {
-                if (bound == null
-                        || (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
-                    continue;
-
-                if (!first)
-                    ret += ", ";
-                ret += " extends " + getTypeName(bound);
-                first = false;
-            }
-            return ret;
-        } else if (type instanceof TypeVariable) {
-            return "?";
-        } else if (type instanceof CaptureType) {
-            CaptureType captureType = (CaptureType) type;
-            if (captureType.getLowerBounds().length == 0)
-                return "?";
-            else
-                return getTypeName(captureType.getLowerBounds()[0]);
-        } else if (type instanceof GenericArrayType) {
-            return getTypeName(((GenericArrayType) type).getGenericComponentType())
-                    + "[]";
-        } else {
-            throw new RuntimeException("Unsupported type:" + type + ", class"
-                    + type.getClass());
-        }
-    }
-
-    public String getTypeName(VariableReference var) {
-
-        GenericClass clazz = var.getGenericClass();
-        return getTypeName(clazz.getType());
-    }
-
-    /**
-     * <p>
-     * getClassName
-     * </p>
-     *
-     * @param clazz
-     *            a {@link java.lang.Class} object.
-     * @return a {@link java.lang.String} object.
-     */
-    public String getClassName(Class<?> clazz) {
-        if (classNames.containsKey(clazz))
-            return classNames.get(clazz);
-
-        if (clazz.isArray()) {
-            return getClassName(clazz.getComponentType()) + "[]";
-        }
-
-        GenericClass c = new GenericClass(clazz);
-        String name = c.getSimpleName();
-        if (classNames.values().contains(name)) {
-            name = clazz.getCanonicalName();
-        } else {
-			/*
-			 * If e.g. there is a foo.bar.IllegalStateException with
-			 * foo.bar being the SUT package, then we need to use the
-			 * full package name for java.lang.IllegalStateException
-			 */
-            String fullName = Properties.CLASS_PREFIX +"."+name;
-            if(!fullName.equals(clazz.getCanonicalName())) {
-                try {
-                    if(ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).hasClass(fullName)) {
-                        name = clazz.getCanonicalName();
-                    }
-                } catch(IllegalArgumentException e) {
-                    // If the classpath is not correct, then we just don't check
-                    // because that cannot happen in regular EvoSuite use, only
-                    // from test cases
-                }
-            }
-        }
-        // Ensure outer classes are imported as well
-        Class<?> outerClass = clazz.getEnclosingClass();
-        if(outerClass != null) {
-            String enclosingName = getClassName(outerClass);
-            String simpleOuterName = outerClass.getSimpleName();
-            if(simpleOuterName.equals(enclosingName)) {
-                name = enclosingName + name.substring(simpleOuterName.length());
-            }
-        }
-
-        Class<?> declaringClass = clazz.getDeclaringClass();
-        if(declaringClass != null) {
-            getClassName(declaringClass);
-        }
-
-        // We can't use "Test" because of JUnit
-        if (name.equals("Test")) {
-            name = clazz.getCanonicalName();
-        }
-        classNames.put(clazz, name);
-
-        return name;
-    }
-
-    /**
-     * Retrieve the names of all known classes
-     *
-     * @return
-     */
-    public Collection<String> getClassNames() {
-        return classNames.values();
     }
 
 	/*
@@ -939,32 +750,6 @@ public class VariableNamesTestVisitor extends TestVisitor {
         visitAssertions(statement);
     }
 
-
-    private String getSourceClassName(Throwable exception){
-        if(exception.getStackTrace().length == 0){
-            return null;
-        }
-        return exception.getStackTrace()[0].getClassName();
-    }
-
-    private boolean isValidSource(String sourceClass){
-        return ! sourceClass.startsWith("org.evosuite.") ||
-                sourceClass.startsWith("org.evosuite.runtime.");
-    }
-
-    private Class<?> getExceptionClassToUse(Throwable exception){
-        /*
-            we can only catch a public class.
-            for "readability" of tests, it shouldn't be a mock one either
-          */
-        Class<?> ex = exception.getClass();
-        while (!Modifier.isPublic(ex.getModifiers()) || EvoSuiteMock.class.isAssignableFrom(ex) ||
-                ex.getCanonicalName().startsWith("com.sun.")) {
-            ex = ex.getSuperclass();
-        }
-        return ex;
-    }
-
     private String getSimpleTypeName(Type type) {
         String typeName = getTypeName(type);
         int dotIndex = typeName.lastIndexOf(".");
@@ -1187,35 +972,101 @@ public class VariableNamesTestVisitor extends TestVisitor {
 		return varNamesFinal;
 	}
 
-
-}
-
-class CandidateName {
-    private String explanation;
-    private String name;
-
-    public CandidateName(String explanation, String name) {
-        this.explanation = explanation;
-        this.name = name;
+    /**
+     * <p>
+     * getClassName
+     * </p>
+     *
+     * @param clazz
+     *            a {@link java.lang.Class} object.
+     * @return a {@link java.lang.String} object.
+     */
+    private String getClassName(Class<?> clazz) {
+        return ((ImportsTestCodeVisitor)this.itv).getClassName(clazz);
     }
 
-    public String getExplanation() {
-        return explanation;
+    /**
+     * <p>
+     * getClassName
+     * </p>
+     *
+     * @param var
+     *            a {@link org.evosuite.testcase.variable.VariableReference} object.
+     * @return a {@link java.lang.String} object.
+     */
+    private String getClassName(VariableReference var) {
+        return ((ImportsTestCodeVisitor)this.itv).getClassName(var);
     }
 
-    public String getName() {
-        return name;
+    /**
+     * <p>
+     * getTypeName
+     * </p>
+     *
+     * @param clazz
+     *            a {@link java.lang.Class} object.
+     * @return a {@link java.lang.String} object.
+     */
+    private String getTypeName(Class<?> clazz) {
+        return ((ImportsTestCodeVisitor)this.itv).getTypeName(clazz);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    /**
+     * <p>
+     * getTypeName
+     * </p>
+     *
+     * @param type
+     *            a {@link java.lang.reflect.Type} object.
+     * @return a {@link java.lang.String} object.
+     */
+    private String getTypeName(Type type) {
+        return ((ImportsTestCodeVisitor)this.itv).getTypeName(type);
     }
 
-    @Override
-    public String toString() {
-        return "Candidate{" +
-                "name='" + getName() + '\'' +
-                ", explanation='" + getExplanation() + '\'' +
-                '}';
+    /**
+     * <p>
+     * getException
+     * </p>
+     *
+     * @param statement
+     *            a {@link Statement} object.
+     * @return a {@link Throwable} object.
+     */
+    public Throwable getException(Statement statement) {
+        if (this.itv.getExceptions() != null && this.itv.getExceptions().containsKey(statement.getPosition()))
+            return this.itv.getExceptions().get(statement.getPosition());
+
+        return null;
+    }
+
+    class CandidateName {
+        private String explanation;
+        private String name;
+
+        public CandidateName(String explanation, String name) {
+            this.explanation = explanation;
+            this.name = name;
+        }
+
+        public String getExplanation() {
+            return explanation;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return "Candidate{" +
+                    "name='" + getName() + '\'' +
+                    ", explanation='" + getExplanation() + '\'' +
+                    '}';
+        }
     }
 }

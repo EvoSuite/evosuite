@@ -181,7 +181,7 @@ public class AbstractTestCodeVisitor extends TestVisitor {
 	 *            a {@link Statement} object.
 	 * @return a {@link Throwable} object.
 	 */
-	protected Throwable getException(Statement statement) {
+	public Throwable getException(Statement statement) {
 		if (exceptions != null && exceptions.containsKey(statement.getPosition()))
 			return exceptions.get(statement.getPosition());
 
