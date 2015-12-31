@@ -20,6 +20,7 @@
 package org.evosuite.jenkins.actions;
 
 import hudson.model.Action;
+import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.TestSuite;
 import org.evosuite.xsd.TestSuiteCoverage;
@@ -88,8 +90,10 @@ public class ClassAction implements Action {
 		return this.suite.getFullNameOfTestSuite();
 	}
 
-	public void highlightSource(final String javafile) {
+	public void highlightSource(final String javafile, BuildListener listener) {
 		try {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javafile);
+
 			InputStream file = new FileInputStream(new File(javafile));
 			JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
 
@@ -103,7 +107,9 @@ public class ClassAction implements Action {
 
 			this.testSourceCode = writer.toString();
 		} catch (IOException e) {
-			this.testSourceCode = "";
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage());
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Returning a empty source-code");
+			this.testSourceCode = e.getMessage();
 		}
 	}
 
@@ -153,9 +159,8 @@ public class ClassAction implements Action {
 	/**
 	 * 
 	 * @return
-	 * @throws IOException
 	 */
-	public String getTestSourceCode() throws IOException {
+	public String getTestSourceCode() {
 		return this.testSourceCode;
 	}
 
