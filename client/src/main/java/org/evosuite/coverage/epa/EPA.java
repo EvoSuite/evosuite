@@ -74,7 +74,7 @@ public class EPA {
 			final NodeList stateChilds = states.item(i).getChildNodes();
 			for (int j = 0; j < stateChilds.getLength(); j++) {
 				final Node stateChild = stateChilds.item(j);
-				if (stateChild.getNodeName() == "transition") {
+				if (Objects.equals(stateChild.getNodeName(), "transition")) {
 					final Element transition = (Element)stateChild;
 					final String transitionLabel = transition.getAttribute("label");
 					final String transitionDestination = transition.getAttribute("destination");
@@ -128,5 +128,13 @@ public class EPA {
 				.filter(state -> state.getName().equals(stateName))
 				.findFirst();
 		return epaStateOptional.orElse(null);
+	}
+
+	public EPAState temp_anyPossibleDestinationState(EPAState originState, String actionName) {
+		return map.get(originState).stream()
+				.filter(epaTransition -> epaTransition.getActionName().equals(actionName))
+				.map(EPATransition::getDestinationState)
+				.findFirst()
+				.orElse(null);
 	}
 }
