@@ -91,7 +91,9 @@ public class ProjectAction implements Action {
 		FilePath workspace = build.getWorkspace();
 
 		// FIXME should we also use module.getRelativePath() ?!
-		FilePath[] testsGenerated = workspace.list(build.getEnvironment(listener).expand(".evosuite/*/tests/**/*"));
+		FilePath[] testsGenerated = workspace.list(build.getEnvironment(listener).expand(
+				Properties.CTG_DIR + File.separator + "*" + File.separator +
+				Properties.CTG_TMP_TESTS_DIR_NAME + File.separator + "**" + File.separator + "*"));
 		for (FilePath testGenerated : testsGenerated) {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "From_testsGenerated: " + testGenerated.getRemote());
 
