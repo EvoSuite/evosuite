@@ -25,11 +25,14 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.setup.TestClusterUtils;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,12 +64,14 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
         for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
             if (!(targetClass.equals("") || className.endsWith(targetClass)))
                 continue;
-            for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
-                if (!matcher.methodMatches(methodName))
+
+            for (Method method : TestClusterUtils.getClass(className).getDeclaredMethods()) {
+                String methodName = method.getName() + Type.getMethodDescriptor(method);
+                if (!TestUsageChecker.canUse(method) || !matcher.methodMatches(methodName))
                     continue;
                 logger.info("Adding input goals for method " + className + "." + methodName);
 
-                Type[] argumentTypes = Type.getArgumentTypes(methodName.substring(methodName.indexOf('(')));
+                Type[] argumentTypes = Type.getArgumentTypes(method);
                 for (int i=0; i<argumentTypes.length;i++){
                     Type argType = argumentTypes[i];
                     switch (argType.getSort()) {

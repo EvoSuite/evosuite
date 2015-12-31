@@ -126,7 +126,6 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
                             NOTE: we cannot have this code. Calling SUT methods should only be done EXCLUSIVELY as part
                             of test execution, as they involve security manager checks, loop counter handling, etc.
                             Doing it as side effects of fitness evaluation could have many side effects
-                            UPDATE: now ok to do these because security checks were added to inspectors.
 
                             Note2: Re-enabled, as inspectors now properly check the security manager
                         */

@@ -53,7 +53,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     public int maxCoveredGoals = 0;
     public double bestFitness = Double.MAX_VALUE;
 
-    private final Set<TestFitnessFunction> outputCoverageMap = new LinkedHashSet<>();
+    private final Set<TestFitnessFunction> outputCoverageGoals = new LinkedHashSet<>();
 
     private Set<TestFitnessFunction> toRemoveGoals = new LinkedHashSet<>();
     private Set<TestFitnessFunction> removedGoals  = new LinkedHashSet<>();
@@ -68,7 +68,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
         determineCoverageGoals();
 
-        totalGoals = outputCoverageMap.size();
+        totalGoals = outputCoverageGoals.size();
     }
 
     /**
@@ -77,7 +77,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     private void determineCoverageGoals() {
         List<OutputCoverageTestFitness> goals = new OutputCoverageFactory().getCoverageGoals();
         for (OutputCoverageTestFitness goal : goals) {
-            outputCoverageMap.add(goal);
+            outputCoverageGoals.add(goal);
 			if(Properties.TEST_ARCHIVE)
 				TestsArchive.instance.addGoalToCover(this, goal);
         }
@@ -103,20 +103,20 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                HashSet<TestFitnessFunction> strCoveredGoals = OutputCoverageTestFitness.listCoveredGoals(result.getReturnValues());
-                for (TestFitnessFunction strGoal : strCoveredGoals) {
+                HashSet<TestFitnessFunction> coveredGoals = OutputCoverageTestFitness.listCoveredGoals(result.getReturnValues());
+                for (TestFitnessFunction goal : coveredGoals) {
                     // do nothing if it was already removed
-                    if(removedGoals.contains(strGoal)) continue;
-                    if (outputCoverageMap.contains(strGoal)) {
+                    if(removedGoals.contains(goal)) continue;
+                    if (outputCoverageGoals.contains(goal)) {
                         // update setOfCoveredGoals
-                        setOfCoveredGoals.add(strGoal);
+                        setOfCoveredGoals.add(goal);
                         // add covered goal to test
-                        result.test.addCoveredGoal(strGoal);
+                        result.test.addCoveredGoal(goal);
                         if(Properties.TEST_ARCHIVE) {
                             // add goal to archive
-                            TestsArchive.instance.putTest(this, strGoal, result);
+                            TestsArchive.instance.putTest(this, goal, result);
                             // mark goal to be removed for next generation
-                            toRemoveGoals.add(strGoal);
+                            toRemoveGoals.add(goal);
                         }
                         suite.isToBeUpdated(true);
                     }
@@ -157,9 +157,9 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         if(!Properties.TEST_ARCHIVE)
             return false;
 
-        for (TestFitnessFunction strGoal : toRemoveGoals) {
-            if (outputCoverageMap.remove(strGoal))
-                removedGoals.add(strGoal);
+        for (TestFitnessFunction goal : toRemoveGoals) {
+            if (outputCoverageGoals.remove(goal))
+                removedGoals.add(goal);
             else
                 throw new IllegalStateException("goal to remove not found");
         }
@@ -203,7 +203,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             }
         }
         double distance = 0.0;
-        for (TestFitnessFunction goal : outputCoverageMap) {
+        for (TestFitnessFunction goal : outputCoverageGoals) {
             if (!setOfCoveredGoals.contains(goal) && !removedGoals.contains(goal)) {
                 if (mapDistances.containsKey(goal)) {
                     distance += normalize(mapDistances.get(goal));

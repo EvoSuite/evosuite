@@ -19,18 +19,36 @@
  */
 package org.evosuite.coverage.io.output;
 
-import static org.evosuite.coverage.io.IOCoverageConstants.*;
+import static org.evosuite.coverage.io.IOCoverageConstants.ARRAY_EMPTY;
+import static org.evosuite.coverage.io.IOCoverageConstants.ARRAY_NONEMPTY;
+import static org.evosuite.coverage.io.IOCoverageConstants.BOOL_FALSE;
+import static org.evosuite.coverage.io.IOCoverageConstants.BOOL_TRUE;
+import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_ALPHA;
+import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_DIGIT;
+import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_OTHER;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
+import static org.evosuite.coverage.io.IOCoverageConstants.REF_NONNULL;
+import static org.evosuite.coverage.io.IOCoverageConstants.REF_NULL;
+import static org.evosuite.coverage.io.IOCoverageConstants.STRING_EMPTY;
+import static org.evosuite.coverage.io.IOCoverageConstants.STRING_NONEMPTY;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.CheapPurityAnalyzer;
+import org.evosuite.assertion.Inspector;
+import org.evosuite.assertion.InspectorManager;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.setup.TestClusterUtils;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,11 +81,14 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
         for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
             if (!(targetClass.equals("") || className.endsWith(targetClass)))
                 continue;
-            for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
-                if (!matcher.methodMatches(methodName) || methodName.equals("hashCode()I"))
+
+            for (Method method : TestClusterUtils.getClass(className).getDeclaredMethods()) {
+                String methodName = method.getName() + Type.getMethodDescriptor(method);
+                if (!TestUsageChecker.canUse(method) || !matcher.methodMatches(methodName) || methodName.equals("hashCode()I"))
                     continue;
                 logger.info("Adding goals for method " + className + "." + methodName);
-                Type returnType = Type.getReturnType(methodName);
+                Type returnType = Type.getReturnType(method);
+
                 switch (returnType.getSort()) {
                     case Type.BOOLEAN:
                         goals.add(createGoal(className, methodName, returnType, BOOL_TRUE));
@@ -102,8 +123,9 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                             break;
                         }
                         boolean observerGoalsAdded = false;
-                        List<String> inspectors = getInspectors(returnType.getClassName());
-                        for (String insp : inspectors) {
+                        Class<?> returnClazz = TestClusterUtils.getClass(returnType.getClassName());
+                        for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnClazz)) {
+                            String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
                             Type t = Type.getReturnType(insp);
                             if (t.getSort() == Type.BOOLEAN) {
                                 goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_TRUE));
