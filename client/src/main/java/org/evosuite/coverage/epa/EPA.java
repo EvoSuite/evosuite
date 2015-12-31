@@ -4,34 +4,57 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class EPA {
 
+	static EPA FIRST_EPA = null;
+
+	static {
+		try {
+			FIRST_EPA = new EPA(new FileInputStream("ListItr-contractor-net.xml"));
+		} catch (ParserConfigurationException | IOException | SAXException e) {
+			e.printStackTrace();
+		}
+	}
+
 	final private Map<EPAState, Set<EPATransition>> map;
 
-	final static EPA FIRST_EPA;
+	private EPAState initialState;
 
-	public EPA(Map<EPAState, Set<EPATransition>> map) {
+	public EPA(Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
 		this.map = map;
+		this.initialState = initialState;
 	}
 	
-	public EPA(InputStream xml) {
+	public EPA(InputStream xml) throws ParserConfigurationException, IOException, SAXException {
 		final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		final Document document = documentBuilder.parse(xml);
 		final Element abstraction = document.getDocumentElement();
+		final String initialStateName = abstraction.getAttribute("initial_state");
 		final NodeList states = abstraction.getElementsByTagName("state");
 		
 		// Populate a map of names to states
@@ -66,6 +89,7 @@ public class EPA {
 			}
 		}
 		
+		// Build map
 		final Map<EPAState, Set<EPATransition>> map = new HashMap<>();
 		epaStateMap.values().stream()
 				.forEach(epaState -> {
@@ -75,7 +99,34 @@ public class EPA {
 					map.put(epaState, epaStateTransitions);
 				});
 		this.map = map;
+		
+		this.initialState = epaStateMap.get(initialStateName);
+	}
+
+
+	public double getCoverage(List<EPATrace> epaTraces) {
+		final Set<EPATransition> epaTransitions = map.values().stream()
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
+		final int epaTransitionsSize = epaTransitions.size();
+		
+		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream()
+				.map(EPATrace::getEpaTransitions)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
+		
+		epaTransitions.removeAll(tracedEpaTransitions);
+		return 1 - epaTransitionsSize/epaTransitions.size(); 
+	}
+
+	public EPAState getInitialState() {
+		return initialState;
 	}
 	
-
+	public EPAState getStateByName(String stateName) {
+		final Optional<EPAState> epaStateOptional = map.keySet().stream()
+				.filter(state -> state.getName().equals(stateName))
+				.findFirst();
+		return epaStateOptional.orElse(null);
+	}
 }

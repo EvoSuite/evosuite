@@ -27,10 +27,10 @@ public class EPACoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> executionResults = runTestSuite(suite);
 		final List<EPATrace> epaTraces = executionResults.stream()
 				.map(ExecutionResult::getTrace)
-				.map(EPATrace::new)
+				.map(executionTrace -> new EPATrace(executionTrace, tempEPA))
 				.collect(Collectors.toList());
 		
-		return tempEPA.getCoverage(epaTraces)
+		return tempEPA.getCoverage(epaTraces);
 //		
 //		int i = 0;
 //		for (ExecutionResult executionResult : executionResults) {
