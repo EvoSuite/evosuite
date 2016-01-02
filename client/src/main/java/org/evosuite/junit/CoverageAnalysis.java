@@ -28,19 +28,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -57,6 +48,10 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.io.input.InputCoverageGoal;
+import org.evosuite.coverage.io.output.OutputCoverageGoal;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -82,6 +77,8 @@ import org.junit.runners.model.TestClass;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.persistence.criteria.CriteriaBuilder;
 
 /**
  * <p>
@@ -210,15 +207,26 @@ public class CoverageAnalysis {
 	    TestChromosome dummy = new TestChromosome();
         dummy.setChanged(false);
 
-        // Execution result of a dummy Test Case
-        ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
-
 		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 		List<JUnitResult> results = executeTests(testClass);
 		for (JUnitResult testResult : results) {
+			// Execution result of a dummy Test Case
+			ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+
 		    executionResult.setTrace(testResult.getExecutionTrace());
-            dummy.setLastExecutionResult(executionResult);
+
+            // As we cannot apply a regular Input/OutputObserver, we need to simulate this
+			Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
+			inputGoals.put(0, testResult.getInputGoals());
+			executionResult.setInputGoals(inputGoals);
+
+            // As we cannot apply a regular Input/OutputObserver, we need to simulate this
+			Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
+			outputGoals.put(0, testResult.getOutputGoals());
+			executionResult.setOutputGoals(outputGoals);
+
+			dummy.setLastExecutionResult(executionResult);
 
             for(TestFitnessFunction goal : allGoals) {
             	if(coveredGoals.contains(goal))
@@ -226,6 +234,10 @@ public class CoverageAnalysis {
             	else if (goal.isCovered(dummy))
                     coveredGoals.add(goal);
             }
+
+            // Method coverage requires an actual test, so we side-step this by setting the called methods directly
+            coveredGoals.addAll(testResult.getMethodCoverageGoals());
+            coveredGoals.addAll(testResult.getMethodNoExceptionCoverageGoals());
 		}
 
 		return coveredGoals;
@@ -468,6 +480,7 @@ public class CoverageAnalysis {
 		return testClasses;
 	}
 
+    // FIXME: This is an unacceptable mess.
 	private static void analyzeCoverageCriterion(List<JUnitResult> results, Properties.Criterion criterion) {
 
 		logger.info("analysing coverage of " + criterion);
@@ -490,8 +503,6 @@ public class CoverageAnalysis {
         TestChromosome dummy = new TestChromosome();
         dummy.setChanged(false);
 
-        // Execution result of a dummy Test Case
-        ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 
         // coverage matrix (each row represents the coverage of each test case
         // and each column represents the coverage of each component (e.g., line)
@@ -502,32 +513,69 @@ public class CoverageAnalysis {
         for (int index_test = 0; index_test < results.size(); index_test++) {
         	JUnitResult tR = results.get(index_test);
 
-        	ExecutionTrace trace = tR.getExecutionTrace();
+            // Execution result of a dummy Test Case
+            ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+
+            ExecutionTrace trace = tR.getExecutionTrace();
             executionResult.setTrace(trace);
             dummy.getTestCase().clearCoveredGoals();
             dummy.setLastExecutionResult(executionResult);
 
             if (criterion == Criterion.MUTATION
             		|| criterion ==  Criterion.STRONGMUTATION) {
-            	for (Integer mutationID : trace.getTouchedMutants()) {
-            		Mutation mutation = MutationPool.getMutant(mutationID);
+                for (Integer mutationID : trace.getTouchedMutants()) {
+                    Mutation mutation = MutationPool.getMutant(mutationID);
 
-            		if (goals.contains(mutation)) {
-            			MutationObserver.activateMutation(mutationID);
-            			List<JUnitResult> mutationResults = executeTests(tR.getJUnitClass());
-            			MutationObserver.deactivateMutation();
+                    if (goals.contains(mutation)) {
+                        MutationObserver.activateMutation(mutationID);
+                        List<JUnitResult> mutationResults = executeTests(tR.getJUnitClass());
+                        MutationObserver.deactivateMutation();
 
-            			for (JUnitResult mR : mutationResults) {
-            				if (mR.getFailureCount() != tR.getFailureCount()) {
-            					logger.info("Mutation killed: " + mutationID);
-            					covered.set(mutation.getId());
+                        for (JUnitResult mR : mutationResults) {
+                            if (mR.getFailureCount() != tR.getFailureCount()) {
+                                logger.info("Mutation killed: " + mutationID);
+                                covered.set(mutation.getId());
                                 coverage_matrix[index_test][mutationID.intValue()] = true;
                                 break;
-            				}
-            			}
-            		}
-            	}
+                            }
+                        }
+                    }
+                }
+            } else if(criterion == Criterion.METHOD) {
+                Set<MethodCoverageTestFitness> coveredMethodGoals = tR.getMethodCoverageGoals();
+                for (int index_component = 0; index_component < goals.size(); index_component++) {
+                    TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
+                    if(coveredMethodGoals.contains(goal)) {
+                        covered.set(index_component);
+                        coverage_matrix[index_test][index_component] = true;
+                    }
+                    else {
+                        coverage_matrix[index_test][index_component] = false;
+                    }
+                }
+
+            } else if(criterion == Criterion.METHODNOEXCEPTION) {
+                Set<MethodNoExceptionCoverageTestFitness> coveredMethodGoals = tR.getMethodNoExceptionCoverageGoals();
+                for (int index_component = 0; index_component < goals.size(); index_component++) {
+                    TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
+                    if(coveredMethodGoals.contains(goal)) {
+                        covered.set(index_component);
+                        coverage_matrix[index_test][index_component] = true;
+                    }
+                    else {
+                        coverage_matrix[index_test][index_component] = false;
+                    }
+                }
             } else {
+                if(criterion == Criterion.INPUT) {
+                    Map<Integer, Set<InputCoverageGoal>> goalMap = new LinkedHashMap<>();
+                    goalMap.put(0, tR.getInputGoals());
+                    executionResult.setInputGoals(goalMap);
+                } else if(criterion == Criterion.OUTPUT) {
+                    Map<Integer, Set<OutputCoverageGoal>> goalMap = new LinkedHashMap<>();
+                    goalMap.put(0, tR.getOutputGoals());
+                    executionResult.setOutputGoals(goalMap);
+                }
 	            for (int index_component = 0; index_component < goals.size(); index_component++) {
 	            	TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
 

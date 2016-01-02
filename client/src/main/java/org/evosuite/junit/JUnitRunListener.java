@@ -120,6 +120,10 @@ public class JUnitRunListener extends RunListener {
 
 		if(requiresMethodObserver) {
 			JUnitObserver.getInstance().setEnabled(false);
+            this.testResult.addInputGoals(JUnitObserver.getInstance().getInputCoverageGoals());
+            this.testResult.addOutputGoals(JUnitObserver.getInstance().getOutputCoverageGoals());
+            this.testResult.addMethodGoals(JUnitObserver.getInstance().getCoveredMethodGoals());
+            this.testResult.addMethodNoExceptionGoals(JUnitObserver.getInstance().getCoveredMethodNoExceptionGoals());
 			JUnitObserver.getInstance().reset();
 		}
 

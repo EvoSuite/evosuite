@@ -27,13 +27,8 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
 
 import java.util.*;
@@ -102,22 +97,25 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                HashSet<TestFitnessFunction> coveredGoals = InputCoverageTestFitness.listCoveredGoals(result.getArgumentsValues());
-                for (TestFitnessFunction goal : coveredGoals) {
-                    // do nothing if it was already removed
-                    if(removedGoals.contains(goal)) continue;
-                    if (inputCoverageMap.contains(goal)) {
-                        // update setOfCoveredGoals
-                        setOfCoveredGoals.add(goal);
-                        // add covered goal to test
-                        result.test.addCoveredGoal(goal);
-                        if(Properties.TEST_ARCHIVE) {
-                            // add goal to archive
-                            TestsArchive.instance.putTest(this, goal, result);
-                            // mark goal to be removed for next generation
-                            toRemoveGoals.add(goal);
+                for (Set<InputCoverageGoal> coveredGoals : result.getInputGoals().values()) {
+                    for (InputCoverageGoal goal : coveredGoals) {
+                        InputCoverageTestFitness testFitness = new InputCoverageTestFitness(goal);
+                        // do nothing if it was already removed
+                        if (removedGoals.contains(testFitness)) continue;
+                        if (inputCoverageMap.contains(testFitness)) {
+                            // update setOfCoveredGoals
+                            setOfCoveredGoals.add(testFitness);
+                            // add covered goal to test
+                            result.test.addCoveredGoal(testFitness);
+                            if (Properties.TEST_ARCHIVE) {
+                                // add goal to archive
+                                TestsArchive.instance.putTest(this, testFitness, result);
+                                // mark goal to be removed for next generation
+                                toRemoveGoals.add(testFitness);
+                            }
+                            suite.isToBeUpdated(true);
                         }
-                        suite.isToBeUpdated(true);
+
                     }
                 }
             }
@@ -174,18 +172,12 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
                 continue;
 
-            Map<EntityWithParametersStatement, List<Object>> argumentsValues = result.getArgumentsValues();
-
-            for (Map.Entry<EntityWithParametersStatement, List<Object>> entry : argumentsValues.entrySet()) {
-                String className  = entry.getKey().getDeclaringClassName();
-                String methodDesc = entry.getKey().getDescriptor();
-                String methodName = entry.getKey().getMethodName();
-
-                Type[] argumentTypes = Type.getArgumentTypes(methodDesc);
-
-                for (int i=0; i<argumentTypes.length; i++) {
-                    Type argType = argumentTypes[i];
-                    Object argValue = entry.getValue().get(i);
+            for (Set<InputCoverageGoal> coveredGoals : result.getInputGoals().values()) {
+                for (InputCoverageGoal goal : coveredGoals) {
+                    String className = goal.getClassName();
+                    String methodName = goal.getMethodName();
+                    Type argType = goal.getType();
+                    Number argValue = goal.getNumericValue();
                     switch (argType.getSort()) {
                         case Type.BYTE:
                         case Type.SHORT:
@@ -199,11 +191,12 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                             double value = ((Number) argValue).doubleValue();
                             if (Double.isNaN(value)) // EvoSuite generates Double.NaN
                                 continue;
-                            updateDistances(suite, mapDistances, className, methodName, i, argType, value);
+                            updateDistances(suite, mapDistances, className, methodName, goal.getArgIndex(), argType, value);
                             break;
                         default:
                             break;
                     }
+
                 }
             }
         }

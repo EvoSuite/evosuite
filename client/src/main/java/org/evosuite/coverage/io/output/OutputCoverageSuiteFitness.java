@@ -30,6 +30,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.hibernate.result.Output;
 import org.objectweb.asm.Type;
 
 import java.util.HashMap;
@@ -103,22 +104,24 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                HashSet<TestFitnessFunction> coveredGoals = OutputCoverageTestFitness.listCoveredGoals(result.getReturnValues());
-                for (TestFitnessFunction goal : coveredGoals) {
-                    // do nothing if it was already removed
-                    if(removedGoals.contains(goal)) continue;
-                    if (outputCoverageGoals.contains(goal)) {
-                        // update setOfCoveredGoals
-                        setOfCoveredGoals.add(goal);
-                        // add covered goal to test
-                        result.test.addCoveredGoal(goal);
-                        if(Properties.TEST_ARCHIVE) {
-                            // add goal to archive
-                            TestsArchive.instance.putTest(this, goal, result);
-                            // mark goal to be removed for next generation
-                            toRemoveGoals.add(goal);
+                for(Set<OutputCoverageGoal> coveredGoals : result.getOutputGoals().values()) {
+                    for (OutputCoverageGoal goal : coveredGoals) {
+                        OutputCoverageTestFitness testFitness = new OutputCoverageTestFitness(goal);
+                        // do nothing if it was already removed
+                        if (removedGoals.contains(testFitness)) continue;
+                        if (outputCoverageGoals.contains(testFitness)) {
+                            // update setOfCoveredGoals
+                            setOfCoveredGoals.add(testFitness);
+                            // add covered goal to test
+                            result.test.addCoveredGoal(testFitness);
+                            if (Properties.TEST_ARCHIVE) {
+                                // add goal to archive
+                                TestsArchive.instance.putTest(this, testFitness, result);
+                                // mark goal to be removed for next generation
+                                toRemoveGoals.add(testFitness);
+                            }
+                            suite.isToBeUpdated(true);
                         }
-                        suite.isToBeUpdated(true);
                     }
                 }
             }
@@ -175,32 +178,32 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
                 continue;
 
-            Map<MethodStatement, Object> returnValues = result.getReturnValues();
+            for (Set<OutputCoverageGoal> coveredGoals : result.getOutputGoals().values()) {
+                for(OutputCoverageGoal goal : coveredGoals) {
+                    String className  = goal.getClassName();
+                    String methodName = goal.getMethodName();
+                    Type returnType = goal.getType();
 
-            for (Map.Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
-                String className  = entry.getKey().getDeclaringClassName();
-                String methodDesc = entry.getKey().getDescriptor();
-                String methodName = entry.getKey().getMethodName() + methodDesc;
+                    Number returnValue = goal.getNumericValue();
+                    switch (returnType.getSort()) {
+                        case Type.BYTE:
+                        case Type.SHORT:
+                        case Type.INT:
+                        case Type.FLOAT:
+                        case Type.LONG:
+                        case Type.DOUBLE:
+                            assert (returnValue != null);
+                            assert (returnValue instanceof Number);
+                            // TODO: ideally we should be able to tell between Number as an object, and primitive numeric types
+                            double value = ((Number) returnValue).doubleValue();
+                            if (Double.isNaN(value)) // EvoSuite generates Double.NaN
+                                continue;
+                            updateDistances(suite, mapDistances, className, methodName, returnType, value);
+                            break;
+                        default:
+                            break;
+                    }
 
-                Type returnType = Type.getReturnType(methodDesc);
-                Object returnValue = entry.getValue();
-                switch (returnType.getSort()) {
-                    case Type.BYTE:
-                    case Type.SHORT:
-                    case Type.INT:
-                    case Type.FLOAT:
-                    case Type.LONG:
-                    case Type.DOUBLE:
-                        assert (returnValue != null);
-                        assert (returnValue instanceof Number);
-                        // TODO: ideally we should be able to tell between Number as an object, and primitive numeric types
-                        double value = ((Number) returnValue).doubleValue();
-                        if (Double.isNaN(value)) // EvoSuite generates Double.NaN
-                            continue;
-                        updateDistances(suite, mapDistances, className, methodName, returnType, value);
-                        break;
-                    default:
-                        break;
                 }
             }
         }

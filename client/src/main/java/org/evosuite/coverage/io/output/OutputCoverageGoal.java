@@ -54,6 +54,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
     private final String methodName;
     private final String type;
     private final String valueDescriptor;
+    private final Number numericValue;
 
     /**
      * Can be used to create an arbitrary {@code OutputCoverageGoal} trying to cover the
@@ -75,6 +76,10 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
      * @param valueDescriptor a value descriptor.
      */
     public OutputCoverageGoal(String className, String methodName, Type type, String valueDescriptor) {
+        this(className, methodName, type, valueDescriptor, null);
+    }
+
+    public OutputCoverageGoal(String className, String methodName, Type type, String valueDescriptor, Number numericValue) {
         if (className == null || methodName == null)
             throw new IllegalArgumentException("null given");
 
@@ -82,6 +87,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
         this.methodName = methodName;
         this.type = type.toString();
         this.valueDescriptor = valueDescriptor;
+        this.numericValue = numericValue;
     }
 
     /**
@@ -111,6 +117,8 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
     public String getValueDescriptor() {
         return valueDescriptor;
     }
+
+    public Number getNumericValue() { return numericValue; }
 
     // inherited from Object
 
@@ -188,7 +196,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
             return diff;
     }
 
-    public static Collection<OutputCoverageGoal> createGoalsFromObject(String className, String methodName, String methodDesc, Object returnValue) {
+    public static Set<OutputCoverageGoal> createGoalsFromObject(String className, String methodName, String methodDesc, Object returnValue) {
 
         Set<OutputCoverageGoal> goals = new LinkedHashSet<>();
 
@@ -202,7 +210,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
         switch (returnType.getSort()) {
             case Type.BOOLEAN:
                 String desc = ((boolean) returnValue) ? BOOL_TRUE : BOOL_FALSE;
-                goals.add(new OutputCoverageGoal(className, methodName, returnType, desc));
+                goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, desc));
                 break;
             case Type.CHAR:
                 char c = (char) returnValue;

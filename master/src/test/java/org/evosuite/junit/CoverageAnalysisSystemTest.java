@@ -115,4 +115,53 @@ public class CoverageAnalysisSystemTest extends SystemTestBase {
 		assertEquals(10, (Integer) variables.get("Total_Goals").getValue(), 0.0);
 		assertEquals(10, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
 	}
+
+	@Test
+	public void testMethodCoverage() {
+		SearchStatistics statistics = this.aux(new Properties.Criterion[] {
+				Criterion.METHOD
+		});
+
+		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+		assertEquals(2, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+		assertEquals(2, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+	}
+
+    @Test
+    public void testMethodNoExceptionCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[] {
+                Criterion.METHODNOEXCEPTION
+        });
+
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        assertEquals(2, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        assertEquals(2, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
+
+    @Test
+    public void testOutputCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[] {
+                Criterion.OUTPUT
+        });
+
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        // 3 goals for the string return value: null, empty, non-empty
+        assertEquals(3, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        // Method doesn't return null or empty
+        assertEquals(1, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
+
+    @Test
+    public void testInputCoverage() {
+        SearchStatistics statistics = this.aux(new Properties.Criterion[] {
+                Criterion.INPUT
+        });
+
+        Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
+        // < 0, 0, > 0 for 2 parameters = 6
+        assertEquals(6, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+        // < 0, > 0 param 1, > 0 param 2 = 3
+        assertEquals(3, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+    }
+
 }

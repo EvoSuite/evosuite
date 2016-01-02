@@ -21,6 +21,7 @@ package org.evosuite.coverage.io.input;
 
 import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
+import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -32,9 +33,7 @@ import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Array;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -60,21 +59,6 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             throw new IllegalArgumentException("goal cannot be null");
         }
         this.goal = goal;
-    }
-
-    public static HashSet<TestFitnessFunction> listCoveredGoals(Map<EntityWithParametersStatement, List<Object>> argumentsValues) {
-        HashSet<TestFitnessFunction> results = new HashSet<>();
-
-        for (Entry<EntityWithParametersStatement, List<Object>> entry : argumentsValues.entrySet()) {
-            String className  = entry.getKey().getDeclaringClassName();
-            String methodDesc = entry.getKey().getDescriptor();
-            String methodName = entry.getKey().getMethodName();
-
-            for(InputCoverageGoal goal : InputCoverageGoal.createCoveredGoalsFromParameters(className, methodName, methodDesc, entry.getValue())) {
-                results.add(new InputCoverageTestFitness(goal));
-            }
-        }
-        return results;
     }
 
     /**
@@ -134,13 +118,13 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        HashSet<TestFitnessFunction> goals = listCoveredGoals(result.getArgumentsValues());
-        for (TestFitnessFunction goal : goals) {
-            if (this.toString().equals(goal.toString())) {
+        for(Set<InputCoverageGoal> goals : result.getInputGoals().values()) {
+            if(goals.contains(goal)) {
                 fitness = 0.0;
                 break;
             }
         }
+
         updateIndividual(this, individual, fitness);
         return fitness;
     }

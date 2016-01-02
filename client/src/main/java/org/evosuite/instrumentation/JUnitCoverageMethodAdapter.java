@@ -77,7 +77,8 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
         }
         push(opcode);
         push(owner);
-        push(name+desc);
+        push(name);
+        push(desc);
         push(argumentTypes.length);
         Type objectType = Type.getObjectType("java/lang/Object");
         newArray(objectType);
@@ -92,7 +93,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                 PackageInfo.getNameWithSlash(JUnitObserver.class),
                 "methodCalled",
-                "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V", false);
+                "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V", false);
 
         for (int i = 0; i < argumentTypes.length; i++) {
             loadLocal(locals[i]);
@@ -115,7 +116,8 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
             box(Type.getReturnType(desc));
         }
         push(owner);
-        push(name+desc);
+        push(name);
+        push(desc);
 //        if ((opcode & Opcodes.INVOKESTATIC) > 0) {
 //            mv.visitInsn(Opcodes.ACONST_NULL);
 //        } else {
@@ -124,7 +126,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
                 PackageInfo.getNameWithSlash(JUnitObserver.class),
                 "methodReturned",
-                "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V", false);
+                "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
     }
 }

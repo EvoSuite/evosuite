@@ -95,8 +95,6 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 
         Set<Integer> exceptionPositions = result.getPositionsWhereExceptionsWereThrown();
         for (Statement stmt : result.test) {
-            if(exceptionPositions.contains(stmt.getPosition()))
-                break;
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {
                 EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
                 String className  = ps.getDeclaringClassName();
@@ -108,6 +106,8 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
                     break;
                 }
             }
+            if(exceptionPositions.contains(stmt.getPosition()))
+                break;
         }
         updateIndividual(this, individual, fitness);
         return fitness;

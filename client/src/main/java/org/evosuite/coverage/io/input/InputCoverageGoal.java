@@ -47,6 +47,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
     private final int    argIndex;
     private final String type;
     private final String valueDescriptor;
+    private final Number numericValue;
 
     /**
      * Can be used to create an arbitrary {@code InputCoverageGoal} trying to cover the
@@ -69,6 +70,10 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
      * @param valueDescriptor a value descriptor.
      */
     public InputCoverageGoal(String className, String methodName, int argIndex, Type type, String valueDescriptor) {
+        this(className, methodName, argIndex, type, valueDescriptor, null);
+    }
+
+    public InputCoverageGoal(String className, String methodName, int argIndex, Type type, String valueDescriptor, Number numericValue) {
         if (className == null || methodName == null)
             throw new IllegalArgumentException("null given");
 
@@ -77,7 +82,10 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
         this.argIndex = argIndex;
         this.type = type.toString();
         this.valueDescriptor = valueDescriptor;
+        this.numericValue = numericValue;
     }
+
+
 
     /**
      * @return the className
@@ -113,6 +121,8 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
     public String getValueDescriptor() {
         return valueDescriptor;
     }
+
+    public Number getNumericValue() { return numericValue; }
 
     // inherited from Object
 
@@ -197,7 +207,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
             return diff;
     }
 
-    public static Collection<InputCoverageGoal> createCoveredGoalsFromParameters(String className, String methodName, String methodDesc, List<Object> argumentsValues) {
+    public static Set<InputCoverageGoal> createCoveredGoalsFromParameters(String className, String methodName, String methodDesc, List<Object> argumentsValues) {
         Set<InputCoverageGoal> goals = new LinkedHashSet<>();
 
         Type[] argTypes = Type.getArgumentTypes(methodDesc);
@@ -256,7 +266,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     break;
             }
             if (!argValueDesc.isEmpty())
-                goals.add(new InputCoverageGoal(className, methodName, i, argType, argValueDesc));
+                goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc));
         }
 
         return goals;

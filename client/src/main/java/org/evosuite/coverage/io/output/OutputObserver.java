@@ -28,15 +28,14 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Jose Miguel Rojas
  */
 public class OutputObserver extends ExecutionObserver {
 
-    private Map<MethodStatement, Object> returnValues = new HashMap<MethodStatement, Object>();
+    private Map<Integer, Set<OutputCoverageGoal>> outputCoverage = new LinkedHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(OutputObserver.class);
 
@@ -69,7 +68,12 @@ public class OutputObserver extends ExecutionObserver {
             if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
                 // we don't save anything if there was an exception
                 // we are only interested in methods whose return type != void
-                returnValues.put(methodStmt, returnObject);
+
+                String className  = methodStmt.getDeclaringClassName();
+                String methodDesc = methodStmt.getDescriptor();
+                String methodName = methodStmt.getMethodName();
+
+                outputCoverage.put(statement.getPosition(), OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, returnObject));
             }
         }
     }
@@ -80,7 +84,7 @@ public class OutputObserver extends ExecutionObserver {
     @Override
     public void testExecutionFinished(ExecutionResult r, Scope s) {
         logger.debug("Adding returnValues map to ExecutionResult");
-        r.setReturnValues(returnValues);
+        r.setOutputGoals(outputCoverage);
     }
 
     /* (non-Javadoc)
@@ -88,10 +92,7 @@ public class OutputObserver extends ExecutionObserver {
      */
     @Override
     public void clear() {
-        returnValues = new HashMap<MethodStatement, Object>();
+        outputCoverage = new LinkedHashMap<>();
     }
 
-    public Map<MethodStatement, Object> getreturnValues() {
-        return returnValues;
-    }
 }

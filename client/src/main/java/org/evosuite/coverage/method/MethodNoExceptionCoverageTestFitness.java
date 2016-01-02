@@ -135,7 +135,7 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
         if (getClass() != obj.getClass())
             return false;
         MethodNoExceptionCoverageTestFitness other = (MethodNoExceptionCoverageTestFitness) obj;
-        if (className != other.className) {
+        if (!className.equals(other.className)) {
             return false;
         } else if (! methodName.equals(other.methodName))
             return false;

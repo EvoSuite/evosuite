@@ -28,15 +28,14 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.hibernate.result.Output;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -64,21 +63,6 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
             throw new IllegalArgumentException("goal cannot be null");
         }
         this.goal = goal;
-    }
-
-    public static HashSet<TestFitnessFunction> listCoveredGoals(Map<MethodStatement, Object> returnValues) {
-        HashSet<TestFitnessFunction> results = new HashSet<>();
-
-        for (Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
-            String className  = entry.getKey().getDeclaringClassName();
-            String methodDesc = entry.getKey().getDescriptor();
-            String methodName = entry.getKey().getMethodName();
-
-            for(OutputCoverageGoal goal : OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, entry.getValue())) {
-                results.add(new OutputCoverageTestFitness(goal));
-            }
-        }
-        return results;
     }
 
     /**
@@ -138,9 +122,8 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        HashSet<TestFitnessFunction> goals = listCoveredGoals(result.getReturnValues());
-        for (TestFitnessFunction goal : goals) {
-            if (this.toString().equals(goal.toString())) {
+        for(Set<OutputCoverageGoal> coveredGoals : result.getOutputGoals().values()) {
+            if(coveredGoals.contains(goal)) {
                 fitness = 0.0;
                 break;
             }
