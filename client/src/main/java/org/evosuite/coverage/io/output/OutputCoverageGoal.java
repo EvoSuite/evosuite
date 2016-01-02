@@ -231,7 +231,7 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
                 if(isJavaNumber(returnValue)) {
                     double value = ((Number) returnValue).doubleValue();
                     String numDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
-                    goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, numDesc));
+                    goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, numDesc, (Number)returnValue));
                 }
                 break;
             case Type.ARRAY:

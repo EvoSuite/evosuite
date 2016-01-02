@@ -216,6 +216,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
             Type argType = argTypes[i];
             Object argValue = argumentsValues.get(i);
             String argValueDesc = "";
+            Number numberValue = null;
             switch (argType.getSort()) {
                 case Type.BOOLEAN:
                     argValueDesc = (((boolean) argValue)) ? BOOL_TRUE : BOOL_FALSE;
@@ -243,7 +244,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     } else {
                         value = ((Number) argValue).doubleValue();
                     }
-
+                    numberValue = value;
                     argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
                     break;
                 case Type.ARRAY:
@@ -266,7 +267,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     break;
             }
             if (!argValueDesc.isEmpty())
-                goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc));
+                goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
         }
 
         return goals;
