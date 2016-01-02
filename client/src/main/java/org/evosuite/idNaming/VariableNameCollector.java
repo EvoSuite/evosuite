@@ -1,5 +1,8 @@
 package org.evosuite.idNaming;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,6 +12,9 @@ import java.util.Map;
  * Created by gordon on 23/12/2015.
  */
 public class VariableNameCollector {
+
+    private static final Logger logger = LoggerFactory.getLogger(VariableNameCollector.class);
+
     private static VariableNameCollector ourInstance = new VariableNameCollector();
 
     public static VariableNameCollector getInstance() {
@@ -29,12 +35,18 @@ public class VariableNameCollector {
     }
 
     public boolean hasParameterName(String className, String methodName, int numParam) {
-        if(!parameterMap.containsKey(className))
+        if(!parameterMap.containsKey(className)) {
+            logger.debug("Don't have class "+className +": "+parameterMap.keySet());
             return false;
-        if(!parameterMap.get(className).containsKey(methodName))
+        }
+        if(!parameterMap.get(className).containsKey(methodName)) {
+            logger.debug("Don't have method "+methodName +": "+parameterMap.get(className).keySet());
             return false;
-        if(parameterMap.get(className).get(methodName).size() <= numParam)
+        }
+        if(parameterMap.get(className).get(methodName).size() <= numParam) {
+            logger.debug("Don't have parameter "+numParam+": "+parameterMap.get(className).get(methodName));
             return false;
+        }
         return true;
     }
 

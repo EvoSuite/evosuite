@@ -26,6 +26,8 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -35,6 +37,8 @@ import java.util.Set;
  *
  */
 public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodSignatureNamingStrategy.class);
 
     private Set<String> usedNames = new LinkedHashSet<>();
 
@@ -51,14 +55,14 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
 	public String getVariableName(TestCase testCase, VariableReference variableReference) {
         for(VariableReference ref : testCase.getReferences(variableReference)) {
             Statement statement = testCase.getStatement(ref.getStPosition());
-
             if(statement instanceof MethodStatement) {
                 MethodStatement ms = (MethodStatement) statement;
-                if(ms.getCallee() == ref)
+                if(ms.getCallee() == ref) {
                     continue;
+                }
                 int numParam = 0;
                 for(VariableReference param: ms.getParameterReferences()) {
-                    if(param == variableReference) {
+                    if(param.equals(variableReference)) {
                         if(VariableNameCollector.getInstance().hasParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam)) {
                             String name = VariableNameCollector.getInstance().getParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam);
                             if(usedNames.contains(name)) {
@@ -77,7 +81,7 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
                 ConstructorStatement cs = (ConstructorStatement) statement;
                 int numParam = 0;
                 for(VariableReference param: cs.getParameterReferences()) {
-                    if(param == variableReference) {
+                    if(param.equals(variableReference)) {
                         if(VariableNameCollector.getInstance().hasParameterName(cs.getConstructor().getDeclaringClass().getCanonicalName(), cs.getConstructor().getNameWithDescriptor(), numParam)) {
                             String name = VariableNameCollector.getInstance().getParameterName(cs.getConstructor().getDeclaringClass().getCanonicalName(), cs.getConstructor().getNameWithDescriptor(), numParam);
                             return name;
