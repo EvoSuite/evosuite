@@ -77,8 +77,6 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param constructor
 	 *            a {@link java.lang.reflect.Constructor} object.
-	 * @param type
-	 *            a {@link java.lang.reflect.Type} object.
 	 * @param parameters
 	 *            a {@link java.util.List} object.
 	 */
@@ -457,8 +455,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * Go through parameters of constructor call and apply local search
 	 * 
 	 * @param test
-	 * @param statement
-	 * @param objective
+	 * @param factory
 	 */
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.AbstractStatement#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.TestFactory)
@@ -562,4 +559,18 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		return constructor.getName() + Type.getConstructorDescriptor(constructor.getConstructor());
 	}
 
+	@Override
+	public String getDescriptor() {
+		return constructor.getDescriptor();
+	}
+
+	@Override
+	public String getDeclaringClassName() {
+		return constructor.getDeclaringClass().getCanonicalName();
+	}
+
+	@Override
+	public String getMethodName() {
+		return "<init>";
+	}
 }

@@ -730,4 +730,19 @@ public class MethodStatement extends EntityWithParametersStatement {
 		method.changeClassLoader(loader);
 		super.changeClassLoader(loader);
 	}
+
+	@Override
+	public String getDescriptor() {
+		return method.getDescriptor();
+	}
+
+	@Override
+	public String getDeclaringClassName() {
+		return method.getDeclaringClass().getCanonicalName();
+	}
+
+	@Override
+	public String getMethodName() {
+		return method.getName();
+	}
 }

@@ -178,9 +178,11 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             Map<MethodStatement, Object> returnValues = result.getReturnValues();
 
             for (Map.Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
-                String className = entry.getKey().getMethod().getMethod().getDeclaringClass().getName();
-                String methodName = entry.getKey().getMethod().getName() + Type.getMethodDescriptor(entry.getKey().getMethod().getMethod());
-                Type returnType = Type.getReturnType(entry.getKey().getMethod().getMethod());
+                String className  = entry.getKey().getDeclaringClassName();
+                String methodDesc = entry.getKey().getDescriptor();
+                String methodName = entry.getKey().getMethodName() + methodDesc;
+
+                Type returnType = Type.getReturnType(methodDesc);
                 Object returnValue = entry.getValue();
                 switch (returnType.getSort()) {
                     case Type.BYTE:

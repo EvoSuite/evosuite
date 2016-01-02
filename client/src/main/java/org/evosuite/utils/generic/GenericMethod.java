@@ -318,6 +318,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
 	}
 
+	public String getDescriptor() {
+		return org.objectweb.asm.Type.getMethodDescriptor(method);
+	}
 
 	@Override
 	public String toString() {

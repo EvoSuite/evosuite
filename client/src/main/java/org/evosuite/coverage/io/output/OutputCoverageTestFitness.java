@@ -69,13 +69,17 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
         HashSet<TestFitnessFunction> results = new HashSet<>();
 
         for (Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
-            String className = entry.getKey().getMethod().getMethod().getDeclaringClass().getName();
+            String className  = entry.getKey().getDeclaringClassName();
+            String methodDesc = entry.getKey().getDescriptor();
+            String methodName = entry.getKey().getMethodName() + methodDesc;
+
+            // TODO: Wouldn't this exclude inner classes?
             if (! className.equals(Properties.TARGET_CLASS))
                 continue;
-            String methodName = entry.getKey().getMethod().getName() + Type.getMethodDescriptor(entry.getKey().getMethod().getMethod());
             if (methodName.equals("hashCode()I"))
                 continue;
-            Type returnType = Type.getReturnType(entry.getKey().getMethod().getMethod());
+
+            Type returnType = Type.getReturnType(methodDesc);
             Object returnValue = entry.getValue();
             switch (returnType.getSort()) {
                 case Type.BOOLEAN:

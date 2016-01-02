@@ -22,6 +22,7 @@ package org.evosuite.coverage.method;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.objectweb.asm.Type;
@@ -97,17 +98,10 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
             if(exceptionPositions.contains(stmt.getPosition()))
                 break;
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement) && ! exceptionPositions.contains(stmt.getPosition())) {
-                String className;
-                String methodName;
-                if (stmt instanceof MethodStatement) {
-                    MethodStatement m = (MethodStatement) stmt;
-                    className = m.getMethod().getMethod().getDeclaringClass().getName();
-                    methodName = m.toString();
-                } else { //stmt instanceof ConstructorStatement
-                    ConstructorStatement c = (ConstructorStatement)stmt;
-                    className = c.getConstructor().getDeclaringClass().getName();
-                    methodName = "<init>" + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
-                }
+                EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
+                String className  = ps.getDeclaringClassName();
+                String methodDesc = ps.getDescriptor();
+                String methodName = ps.getMethodName() + methodDesc;
                 if (this.className.equals(className) && this.methodName.equals(methodName)) {
                     fitness = 0.0;
                     break;

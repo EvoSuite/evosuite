@@ -66,19 +66,9 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
         HashSet<TestFitnessFunction> results = new HashSet<>();
 
         for (Entry<EntityWithParametersStatement, List<Object>> entry : argumentsValues.entrySet()) {
-            String className, methodDesc, methodName;
-            if (entry.getKey() instanceof MethodStatement) {
-                GenericMethod m = ((MethodStatement) entry.getKey()).getMethod();
-                className = m.getMethod().getDeclaringClass().getName();
-                methodDesc = Type.getMethodDescriptor(m.getMethod());
-                methodName = m.getName() + methodDesc;
-            } else if (entry.getKey() instanceof ConstructorStatement) {
-                GenericConstructor c = ((ConstructorStatement) entry.getKey()).getConstructor();
-                className = c.getName();
-                methodDesc = Type.getConstructorDescriptor(c.getConstructor());
-                methodName = "<init>" + methodDesc;
-            } else
-                continue; //TODO: Do something for Mocks or Privates?
+            String className  = entry.getKey().getDeclaringClassName();
+            String methodDesc = entry.getKey().getDescriptor();
+            String methodName = entry.getKey().getMethodName();
 
             Type[] argTypes = Type.getArgumentTypes(methodDesc);
 
