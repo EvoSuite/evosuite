@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -71,106 +72,13 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
         for (Entry<MethodStatement, Object> entry : returnValues.entrySet()) {
             String className  = entry.getKey().getDeclaringClassName();
             String methodDesc = entry.getKey().getDescriptor();
-            String methodName = entry.getKey().getMethodName() + methodDesc;
+            String methodName = entry.getKey().getMethodName();
 
-            // TODO: Wouldn't this exclude inner classes?
-            if (! className.equals(Properties.TARGET_CLASS))
-                continue;
-            if (methodName.equals("hashCode()I"))
-                continue;
-
-            Type returnType = Type.getReturnType(methodDesc);
-            Object returnValue = entry.getValue();
-            switch (returnType.getSort()) {
-                case Type.BOOLEAN:
-                    String desc = ((boolean) returnValue) ? BOOL_TRUE : BOOL_FALSE;
-                    results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, desc));
-                    break;
-                case Type.CHAR:
-                    char c = (char) returnValue;
-                    if (Character.isAlphabetic(c))
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, CHAR_ALPHA));
-                    else if (Character.isDigit(c))
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, CHAR_DIGIT));
-                    else
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, CHAR_OTHER));
-                    break;
-                case Type.BYTE:
-                case Type.SHORT:
-                case Type.INT:
-                case Type.FLOAT:
-                case Type.LONG:
-                case Type.DOUBLE:
-                    assert (returnValue instanceof Number);
-                    if(isJavaNumber(returnValue)) {
-                        double value = ((Number) returnValue).doubleValue();
-                        String numDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, numDesc));
-                    }
-                    break;
-                case Type.ARRAY:
-                    if (returnValue == null)
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NULL));
-                    else {
-                        String arrDesc = (Array.getLength(returnValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, arrDesc));
-                    }
-                    break;
-                case Type.OBJECT:
-                    if (returnValue == null)
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NULL));
-                    else {
-                        results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NONNULL));
-                        if (returnType.getClassName().equals("java.lang.String")) {
-                            String valDesc = ((String)returnValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
-                            results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, valDesc));
-                            break;
-                        }
-                        /*
-                            NOTE: we cannot have this code. Calling SUT methods should only be done EXCLUSIVELY as part
-                            of test execution, as they involve security manager checks, loop counter handling, etc.
-                            Doing it as side effects of fitness evaluation could have many side effects
-
-                            Note2: Re-enabled, as inspectors now properly check the security manager
-                        */
-                        for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnValue.getClass())) {
-                            String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
-                            try {
-                                Object val = inspector.getValue(returnValue);
-                                if (val instanceof Boolean) {
-                                    String valDesc = ((boolean)val) ? BOOL_TRUE : BOOL_FALSE;
-                                    results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + valDesc));
-                                } else if (isJavaNumber(val)) {
-                                    double dv = ((Number) val).doubleValue();
-                                    String valDesc = (dv < 0) ? NUM_NEGATIVE : (dv == 0) ? NUM_ZERO : NUM_POSITIVE;
-                                    results.add(OutputCoverageFactory.createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + valDesc));
-                                }
-                            } catch (InvocationTargetException | IllegalAccessException e) {
-                                logger.warn(e.getMessage(), e);
-                            }
-                        }
-
-                    }
-                    break;
-                default:
-                    // IGNORE
-                    // TODO: what to do with the sort for METHOD?
-                    break;
+            for(OutputCoverageGoal goal : OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, entry.getValue())) {
+                results.add(new OutputCoverageTestFitness(goal));
             }
         }
         return results;
-    }
-
-    /**
-     * The SUT could have classes extending Number. Calling doubleValue()
-     * on those would lead to many problems, like for example security and
-     * loop counter checks.
-     *
-     * @param val
-     * @return
-     */
-    private static boolean isJavaNumber(Object val){
-        return val instanceof Number && val.getClass().getName().startsWith("java.");
     }
 
     /**

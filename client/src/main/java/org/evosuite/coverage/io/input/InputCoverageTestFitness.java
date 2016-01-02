@@ -70,63 +70,8 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             String methodDesc = entry.getKey().getDescriptor();
             String methodName = entry.getKey().getMethodName();
 
-            Type[] argTypes = Type.getArgumentTypes(methodDesc);
-
-            for (int i=0;i<argTypes.length;i++) {
-                Type argType = argTypes[i];
-                Object argValue = entry.getValue().get(i);
-                String argValueDesc = "";
-                switch (argType.getSort()) {
-                    case Type.BOOLEAN:
-                        argValueDesc = (((boolean) argValue)) ? BOOL_TRUE : BOOL_FALSE;
-                        break;
-                    case Type.CHAR:
-                        char c = (char) argValue;
-                        if (Character.isAlphabetic(c))
-                            argValueDesc = CHAR_ALPHA;
-                        else if (Character.isDigit(c))
-                            argValueDesc = CHAR_DIGIT;
-                        else
-                            argValueDesc = CHAR_OTHER;
-                        break;
-                    case Type.BYTE:
-                    case Type.SHORT:
-                    case Type.INT:
-                    case Type.FLOAT:
-                    case Type.LONG:
-                    case Type.DOUBLE:
-                        // assert (argValue instanceof Number); // not always true: char can be assigned to integers
-                        double value;
-
-                        if (argValue instanceof Character) {
-                            value = ((Number) ((int) (char) argValue)).doubleValue();
-                        } else {
-                            value = ((Number) argValue).doubleValue();
-                        }
-
-                        argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
-                        break;
-                    case Type.ARRAY:
-                        if (argValue == null)
-                            argValueDesc = REF_NULL;
-                        else
-                            argValueDesc = (Array.getLength(argValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
-                        break;
-                    case Type.OBJECT:
-                        if (argValue == null)
-                            argValueDesc = REF_NULL;
-                        else {
-                            if (argType.getClassName().equals("java.lang.String"))
-                                argValueDesc = ((String)argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
-                            else
-                                argValueDesc = REF_NONNULL;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                if (!argValueDesc.isEmpty())
-                    results.add(InputCoverageFactory.createGoal(className, methodName, i, argType, argValueDesc));
+            for(InputCoverageGoal goal : InputCoverageGoal.createCoveredGoalsFromParameters(className, methodName, methodDesc, entry.getValue())) {
+                results.add(new InputCoverageTestFitness(goal));
             }
         }
         return results;
