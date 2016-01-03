@@ -4,13 +4,13 @@ import org.evosuite.PackageInfo;
 import org.evosuite.coverage.method.JUnitObserver;
 import org.evosuite.setup.DependencyAnalysis;
 import org.junit.Test;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by gordon on 01/01/2016.
@@ -59,6 +59,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
+        Label startLabel = mark();
         Type[] argumentTypes = Type.getArgumentTypes(desc);
         int[] locals = new int[argumentTypes.length];
         for (int i = argumentTypes.length - 1; i >= 0; i--) {
@@ -67,7 +68,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
             locals[i] = local;
         }
         if (opcode == Opcodes.INVOKESPECIAL) {
-            dup(); // for return value
+            // dup(); // for return value
             push((String)null);
         }
         else if (opcode == Opcodes.INVOKESTATIC) {
@@ -101,9 +102,31 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
 
         super.visitMethodInsn(opcode, owner, name, desc, itf);
 
+        Label l = newLabel();
+        goTo(l);
+        Label endLabel = mark();
+
+        TryCatchBlock block = new TryCatchBlock(startLabel, endLabel, endLabel, Type.getType(Throwable.class).getInternalName());
+        instrumentedTryCatchBlocks.add(block);
+
+//        catchException(startLabel, endLabel, Type.getType(Throwable.class));
+
+        dup(); // Exception
+        push(owner);
+        push(name);
+        push(desc);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                PackageInfo.getNameWithSlash(JUnitObserver.class),
+                "methodException",
+                "(Ljava/lang/Throwable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+
+        throwException(); // re-throw
+        mark(l);
+
         Type returnType = Type.getReturnType(desc);
         if(opcode == Opcodes.INVOKESPECIAL) {
-            dup();
+            // dup();
+            push((String)null);
         } else if (returnType == Type.VOID_TYPE) {
             push((String)null);
         } else {
@@ -128,5 +151,32 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
                 "methodReturned",
                 "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
 
+    }
+
+
+    private final List<TryCatchBlock> instrumentedTryCatchBlocks = new LinkedList<>();
+    private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<>();
+
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler,
+                                   String type) {
+        TryCatchBlock block = new TryCatchBlock(start, end, handler, type);
+        tryCatchBlocks.add(block);
+    }
+
+    @Override
+    public void visitEnd() {
+        // regenerate try-catch table
+        for (TryCatchBlock tryCatchBlock : instrumentedTryCatchBlocks) {
+            super.visitTryCatchBlock(tryCatchBlock.start,
+                    tryCatchBlock.end, tryCatchBlock.handler,
+                    tryCatchBlock.type);
+        }
+        for (TryCatchBlock tryCatchBlock : tryCatchBlocks) {
+            super.visitTryCatchBlock(tryCatchBlock.start,
+                    tryCatchBlock.end, tryCatchBlock.handler,
+                    tryCatchBlock.type);
+        }
+        super.visitEnd();
     }
 }

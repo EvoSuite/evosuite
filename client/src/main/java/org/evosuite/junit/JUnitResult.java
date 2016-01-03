@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
@@ -94,6 +95,8 @@ public class JUnitResult {
     private Set<MethodCoverageTestFitness> methodGoals = new LinkedHashSet<>();
 
     private Set<MethodNoExceptionCoverageTestFitness> methodNoExceptionGoals = new LinkedHashSet<>();
+
+    private Set<ExceptionCoverageTestFitness> exceptionGoals = new LinkedHashSet<>();
 
     private TestCase dummyTest = new DefaultTestCase() {
         private Object dummy = new Object();
@@ -294,6 +297,14 @@ public class JUnitResult {
 
     public void addMethodNoExceptionGoals(Set<MethodNoExceptionCoverageTestFitness> methodNoExceptionGoals) {
         this.methodNoExceptionGoals.addAll(methodNoExceptionGoals);
+    }
+
+    public Set<ExceptionCoverageTestFitness> getExceptionCoverageGoals() {
+        return exceptionGoals;
+    }
+
+    public void addExceptionGoals(Set<ExceptionCoverageTestFitness> exceptionGoals) {
+        this.exceptionGoals.addAll(exceptionGoals);
     }
 
     /**

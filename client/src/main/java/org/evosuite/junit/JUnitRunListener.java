@@ -71,7 +71,8 @@ public class JUnitRunListener extends RunListener {
 		if(criteria.contains(Properties.Criterion.INPUT) ||
 				criteria.contains(Properties.Criterion.OUTPUT) ||
 				criteria.contains(Properties.Criterion.METHOD) ||
-				criteria.contains(Properties.Criterion.METHODNOEXCEPTION))
+				criteria.contains(Properties.Criterion.METHODNOEXCEPTION) ||
+                criteria.contains(Properties.Criterion.EXCEPTION))
 			requiresMethodObserver = true;
 	}
 
@@ -122,6 +123,7 @@ public class JUnitRunListener extends RunListener {
             this.testResult.addOutputGoals(JUnitObserver.getInstance().getOutputCoverageGoals());
             this.testResult.addMethodGoals(JUnitObserver.getInstance().getCoveredMethodGoals());
             this.testResult.addMethodNoExceptionGoals(JUnitObserver.getInstance().getCoveredMethodNoExceptionGoals());
+			this.testResult.addExceptionGoals(JUnitObserver.getInstance().getExceptionGoals());
 			JUnitObserver.getInstance().reset();
 		}
 

@@ -1,9 +1,12 @@
 package org.evosuite.coverage.method;
 
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +30,8 @@ public class JUnitObserver {
     private Set<InputCoverageGoal> inputGoals = new LinkedHashSet<>();
 
     private Set<OutputCoverageGoal> outputGoals = new LinkedHashSet<>();
+
+    private Set<ExceptionCoverageTestFitness> exceptionGoals = new LinkedHashSet<>();
 
     private Set<MethodCoverageTestFitness> calledMethods = new LinkedHashSet<>();
 
@@ -52,6 +57,7 @@ public class JUnitObserver {
         outputGoals.clear();
         calledMethods.clear();
         calledMethodsNoException.clear();
+        exceptionGoals.clear();
     }
 
     public static void methodCalled(Object callee, int opcode, String className, String methodName, String methodDesc, Object[] arguments) {
@@ -71,9 +77,28 @@ public class JUnitObserver {
 
         logger.info("Method "+className+"."+methodName+" returned: "+retVal);
         getInstance().calledMethodsNoException.add(new MethodNoExceptionCoverageTestFitness(classNameWithDots, methodName+methodDesc));
-        getInstance().outputGoals.addAll(OutputCoverageGoal.createGoalsFromObject(classNameWithDots, methodName, methodDesc, retVal));
+
+        // Output goals are only collected for methods, not for constructors
+        if(!methodName.equals("<init>"))
+            getInstance().outputGoals.addAll(OutputCoverageGoal.createGoalsFromObject(classNameWithDots, methodName, methodDesc, retVal));
 
     }
+
+    public static void methodException(Throwable throwable, String className, String methodName, String methodDesc) {
+        if(!getInstance().isEnabled())
+            return;
+
+        String classNameWithDots = className.replace('/', '.');
+        Class<?> exceptionClass = throwable.getClass();
+        if(throwable instanceof OverrideMock){
+            exceptionClass = throwable.getClass().getSuperclass();
+        }
+
+        // TODO: Need to distinguish between explicit and implicit exceptions
+        logger.info("Method "+className+"."+methodName+" throwed exception of class "+exceptionClass.getSimpleName());
+        getInstance().exceptionGoals.add(new ExceptionCoverageTestFitness(classNameWithDots, methodName+methodDesc, exceptionClass, ExceptionCoverageTestFitness.ExceptionType.IMPLICIT));
+    }
+
 
     public Set<OutputCoverageGoal> getOutputCoverageGoals() {
         return outputGoals;
@@ -90,4 +115,9 @@ public class JUnitObserver {
     public Set<MethodNoExceptionCoverageTestFitness> getCoveredMethodNoExceptionGoals() {
         return calledMethodsNoException;
     }
+
+    public Set<ExceptionCoverageTestFitness> getExceptionGoals() {
+        return exceptionGoals;
+    }
+
 }

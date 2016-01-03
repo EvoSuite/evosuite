@@ -48,6 +48,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
@@ -505,7 +506,13 @@ public class CoverageAnalysis {
 
 		if (criterion == Criterion.MUTATION
 				|| criterion == Criterion.STRONGMUTATION) {
-			goals = MutationPool.getMutants();
+            goals = MutationPool.getMutants();
+        } else if(criterion == Criterion.EXCEPTION) {
+            Set<ExceptionCoverageTestFitness> exceptionGoals = new LinkedHashSet<>();
+            for(JUnitResult result : results) {
+                exceptionGoals.addAll(result.getExceptionCoverageGoals());
+            }
+            goals = new ArrayList<>(exceptionGoals);
 		} else {
 			goals = factory.getCoverageGoals();
 		}
@@ -580,6 +587,18 @@ public class CoverageAnalysis {
                         coverage_matrix[index_test][index_component] = true;
                     }
                     else {
+                        coverage_matrix[index_test][index_component] = false;
+                    }
+                }
+            } else if(criterion == Criterion.EXCEPTION) {
+                Set<ExceptionCoverageTestFitness> coveredExceptionGoals = tR.getExceptionCoverageGoals();
+                for (int index_component = 0; index_component < goals.size(); index_component++) {
+                    TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
+                    if(coveredExceptionGoals.contains(goal)) {
+                        tR.addCoveredGoalToDummyTest(goal);
+                        covered.set(index_component);
+                        coverage_matrix[index_test][index_component] = true;
+                    } else {
                         coverage_matrix[index_test][index_component] = false;
                     }
                 }
