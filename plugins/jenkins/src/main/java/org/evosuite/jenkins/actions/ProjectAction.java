@@ -259,6 +259,6 @@ public class ProjectAction implements Action {
 			effort += m.getTotalEffort();
 		}
 
-		return (int) Math.round( ((double) effort) / ((double) this.modules.size()) );
+		return effort;
 	}
 }

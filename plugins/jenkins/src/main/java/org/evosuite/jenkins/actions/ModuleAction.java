@@ -179,12 +179,17 @@ public class ModuleAction implements Action {
 			return 0;
 		}
 
-		int effort = 0;
+		int lastId = 0;
 		for (ClassAction c : this.classes) {
-			effort += c.getTotalEffort();
+			lastId = Math.max(lastId, c.getLastId());
 		}
 
-		return (int) Math.round( ((double) effort) / ((double) this.classes.size()) );
+		int effort = 0;
+		for (ClassAction c : this.classes) {
+			effort += c.getTotalEffort(lastId);
+		}
+
+		return effort;
 	}
 
 	/**
