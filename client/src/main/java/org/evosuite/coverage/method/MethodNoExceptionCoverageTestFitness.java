@@ -115,7 +115,7 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return className + "." + methodName;
+        return "[METHODNOEX] " + className + "." + methodName;
     }
 
     /** {@inheritDoc} */

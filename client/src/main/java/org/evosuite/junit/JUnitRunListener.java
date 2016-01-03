@@ -112,12 +112,10 @@ public class JUnitRunListener extends RunListener {
 	@Override
 	public void testFinished(Description description) {
 		LoggingUtils.getEvoLogger().info("* Finished: " + "ClassName: " + description.getClassName() + ", MethodName: " + description.getMethodName());
-
 		this.testResult.setRuntime(System.nanoTime() - this.start);
 		this.testResult.setExecutionTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		this.testResult.incrementRunCount();
 		ExecutionTracer.getExecutionTracer().clear();
-
 		if(requiresMethodObserver) {
 			JUnitObserver.getInstance().setEnabled(false);
             this.testResult.addInputGoals(JUnitObserver.getInstance().getInputCoverageGoals());
@@ -139,7 +137,6 @@ public class JUnitRunListener extends RunListener {
 		for (StackTraceElement s : failure.getException().getStackTrace()) {
 			LoggingUtils.getEvoLogger().info("   " + s.toString());
 		}
-
 		this.testResult.setSuccessful(false);
 		this.testResult.setTrace(failure.getTrace());
 		this.testResult.incrementFailureCount();

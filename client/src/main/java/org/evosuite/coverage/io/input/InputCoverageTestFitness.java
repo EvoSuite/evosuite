@@ -134,7 +134,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
      */
     @Override
     public String toString() {
-        return goal.toString();
+        return "[Input]: "+goal.toString();
     }
 
     /**

@@ -67,7 +67,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
         Properties.COVERAGE_MATRIX = false;
 
-        CoverageAnalysis.reset();
+//        CoverageAnalysis.reset();
 	}
 
 	@Test

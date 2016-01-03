@@ -137,7 +137,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
      */
     @Override
     public String toString() {
-        return goal.toString();
+        return "[Output]: "+goal.toString();
     }
 
     /**

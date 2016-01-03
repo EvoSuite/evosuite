@@ -79,7 +79,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
         Properties.COVERAGE_MATRIX = false;
 
         SearchStatistics.clearInstance();
-        CoverageAnalysis.reset();
+//        CoverageAnalysis.reset();
 	}
 
 	@After

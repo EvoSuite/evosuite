@@ -64,7 +64,7 @@ public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
         Properties.COVERAGE_MATRIX = false;
 
         SearchStatistics.clearInstance();
-        CoverageAnalysis.reset();
+//        CoverageAnalysis.reset();
 	}
 
 	@Test

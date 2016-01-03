@@ -402,7 +402,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				}
 
 				try {
-					CoverageAnalysis.analyzeCoverage();
+					CoverageAnalysis analysis = new CoverageAnalysis();
+					analysis.analyzeCoverage();
 
 				} catch (Throwable t) {
 					logger.error("Error when analysing coverage for: "

@@ -116,7 +116,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return className + "." + methodName;
+        return "[METHOD] " + className + "." + methodName;
     }
 
     /** {@inheritDoc} */
