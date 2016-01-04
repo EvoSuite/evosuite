@@ -264,7 +264,10 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
                                 String valDesc = (dv < 0) ? NUM_NEGATIVE : (dv == 0) ? NUM_ZERO : NUM_POSITIVE;
                                 goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + valDesc));
                             }
-                        } catch (InvocationTargetException | IllegalAccessException e) {
+                        } catch (InvocationTargetException e) {
+                            // Exceptions in inspectors can happen
+                            logger.debug(e.getMessage(), e);
+                        } catch(IllegalAccessException e) {
                             logger.warn(e.getMessage(), e);
                         }
                     }
