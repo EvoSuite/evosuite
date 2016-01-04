@@ -13,16 +13,19 @@ public class EPATrace {
 	public EPATrace(ExecutionTrace executionTrace, EPA epa) {
 		epaTransitions = new ArrayList<>();
 		EPAState originState = epa.getInitialState();
-		for (MethodCall methodCallexecution : executionTrace.getMethodCalls()) {
-			String actionName = getCleanMethodName(methodCallexecution.methodName);
-			if (actionName.equals("<init>"))
-				actionName = epa.getName();
+
+		for (MethodCall methodCallExecution : executionTrace.getMethodCalls()) {
+			String actionName = getCleanMethodName(methodCallExecution.methodName);
+			actionName = actionName.equals("<init>") ? epa.getName() : actionName;
+			if (!epa.isActionInEPA(actionName))
+				continue;
+			
 			//final EPAState destinationState = epa.getStateByName(methodCallexecution.endState);
 			// TODO: Remove this once MethodCall.endState is implemented
 			final EPAState destinationState = epa.temp_anyPossibleDestinationState(originState, actionName);
 			if (destinationState == null)
 				return;
-			
+
 			epaTransitions.add(new EPATransition(originState, actionName, destinationState));
 			originState = destinationState;
 		}

@@ -145,4 +145,12 @@ public class EPA {
 				.findFirst()
 				.orElse(null);
 	}
+
+	public boolean isActionInEPA(String actionName) {
+		return map.values().stream()
+				.flatMap(Collection::stream)
+				.filter(epaTransition -> epaTransition.getActionName().equals(actionName))
+				.findAny()
+				.isPresent();
+	}
 }
