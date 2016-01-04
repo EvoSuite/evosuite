@@ -53,8 +53,10 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
                 this.isJUnitTest = true;
         }
         InheritanceTree tree = DependencyAnalysis.getInheritanceTree();
-        if(tree != null)
-            subClasses.addAll(tree.getSubclasses(Properties.TARGET_CLASS));
+        if(tree != null) {
+            if(tree.hasClass(Properties.TARGET_CLASS))
+                subClasses.addAll(tree.getSubclasses(Properties.TARGET_CLASS));
+        }
     }
 
     @Override

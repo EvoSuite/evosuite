@@ -24,6 +24,7 @@ package org.evosuite.instrumentation;
 
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.InheritanceTree;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -57,8 +58,12 @@ public class NonTargetClassAdapter extends ClassVisitor {
 			RemoveFinalClassAdapter.finalClasses.add(name.replace('/', '.'));
 		}
 
-        if(DependencyAnalysis.getInheritanceTree().getSuperclasses(name.replace('/', '.')).contains(junit.framework.TestCase.class.getCanonicalName())) {
-            isJUnit3TestCase = true;
+        String classNameWithDots = name.replace('/', '.');
+        InheritanceTree inheritanceTree = DependencyAnalysis.getInheritanceTree();
+        if(inheritanceTree != null && inheritanceTree.hasClass(classNameWithDots)) {
+            if(inheritanceTree.getSuperclasses(classNameWithDots).contains(junit.framework.TestCase.class.getCanonicalName())) {
+                isJUnit3TestCase = true;
+            }
         }
 
 		// We are removing final access to allow mocking
