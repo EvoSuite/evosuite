@@ -1,16 +1,20 @@
 package org.evosuite.instrumentation;
 
 import org.evosuite.PackageInfo;
+import org.evosuite.Properties;
 import org.evosuite.coverage.method.JUnitObserver;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.InheritanceTree;
 import org.junit.Test;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by gordon on 01/01/2016.
@@ -26,6 +30,8 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
     private final String className;
 
     private boolean isJUnitTest = false;
+
+    private Set<String> subClasses = new LinkedHashSet<>();
 
     /**
      * <p>Constructor for LineNumberMethodAdapter.</p>
@@ -46,6 +52,9 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
             if(methodName.startsWith("test"))
                 this.isJUnitTest = true;
         }
+        InheritanceTree tree = DependencyAnalysis.getInheritanceTree();
+        if(tree != null)
+            subClasses.addAll(tree.getSubclasses(Properties.TARGET_CLASS));
     }
 
     @Override
@@ -57,12 +66,26 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
 
         return super.visitAnnotation(desc, visible);
     }
-    
+
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
         if(!isJUnitTest) {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
+        }
+
+        String classNameWithDots = owner.replace('/', '.');
+        String instrumentedOwner = owner;
+        if(!DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
+            if(subClasses.contains(classNameWithDots)) {
+                logger.info("Using target class instead of subclass");
+                // The reason for this hack is that manually written tests often use dummy-subclasses and then we would miss coverage
+                instrumentedOwner = Properties.TARGET_CLASS.replace('.', '/');
+            } else {
+                super.visitMethodInsn(opcode, owner, name, desc, itf);
+                return;
+            }
+
         }
         Label startLabel = mark();
         Type[] argumentTypes = Type.getArgumentTypes(desc);
@@ -82,7 +105,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
             dup(); // Callee
         }
         push(opcode);
-        push(owner);
+        push(instrumentedOwner);
         push(name);
         push(desc);
         push(argumentTypes.length);
@@ -117,7 +140,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
 //        catchException(startLabel, endLabel, Type.getType(Throwable.class));
 
         dup(); // Exception
-        push(owner);
+        push(instrumentedOwner);
         push(name);
         push(desc);
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
@@ -143,7 +166,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
                 assert(false); // Cannot happen
             box(Type.getReturnType(desc));
         }
-        push(owner);
+        push(instrumentedOwner);
         push(name);
         push(desc);
 //        if ((opcode & Opcodes.INVOKESTATIC) > 0) {

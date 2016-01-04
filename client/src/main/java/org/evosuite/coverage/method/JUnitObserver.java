@@ -4,9 +4,6 @@ import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.runtime.mock.OverrideMock;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.execution.ExecutionTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +20,8 @@ public class JUnitObserver {
 
     private static JUnitObserver instance = null;
 
-    private JUnitObserver() {}
+    private JUnitObserver() {
+    }
 
     private boolean enabled = false;
 
@@ -63,7 +61,9 @@ public class JUnitObserver {
     public static void methodCalled(Object callee, int opcode, String className, String methodName, String methodDesc, Object[] arguments) {
         if(!getInstance().isEnabled())
             return;
+
         String classNameWithDots = className.replace('/', '.');
+
         logger.info("Calling method "+className+"."+methodName+" with callee "+callee+" and arguments "+ Arrays.asList(arguments));
         getInstance().calledMethods.add(new MethodCoverageTestFitness(classNameWithDots, methodName+methodDesc));
         getInstance().inputGoals.addAll(InputCoverageGoal.createCoveredGoalsFromParameters(classNameWithDots, methodName, methodDesc, Arrays.asList(arguments)));
@@ -74,7 +74,6 @@ public class JUnitObserver {
             return;
 
         String classNameWithDots = className.replace('/', '.');
-
         logger.info("Method "+className+"."+methodName+" returned: "+retVal);
         getInstance().calledMethodsNoException.add(new MethodNoExceptionCoverageTestFitness(classNameWithDots, methodName+methodDesc));
 
