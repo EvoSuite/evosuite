@@ -198,9 +198,8 @@ public class TestSuiteWriter implements Opcodes {
      *
      * @param name      Name of the class
      * @param directory Output directory
-     * @param optimizeIDNaming Optimize identifier names or not
      */
-    public List<File> writeTestSuite(String name, String directory, boolean optimizeIDNaming) throws IllegalArgumentException {
+    public List<File> writeTestSuite(String name, String directory) throws IllegalArgumentException {
         // Argument optimizeIDNaming needed to ensure optimized names are only generated
         // in the last call to this method
 

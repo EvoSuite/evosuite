@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Jose Rojas
  *
  */
-public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
+public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy {
 
 	public ExplanatoryNamingStrategy(ImportsTestCodeVisitor itv) {
 		super(itv);
@@ -48,13 +48,9 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy{
      * @return a {@link String} object representing the variable reference name
      */
     public String getVariableName(TestCase tc, VariableReference var) {
-        if (variableNames.isEmpty()) {
-            VariableNamesTestVisitor visitor = new VariableNamesTestVisitor(itv);
-            tc.accept(visitor);
-            variableNames = visitor.getAllVariableNames();
-            System.out.println("[ExplanatoryNamingStrategy] Variable names generated");
-            printVarNames();
-        }
+        ExplanatoryNamingTestVisitor visitor = new ExplanatoryNamingTestVisitor(itv);
+        tc.accept(visitor);
+        variableNames = visitor.getAllVariableNames();
 	    return variableNames.get(var);
     }
 

@@ -333,7 +333,7 @@ public class JUnitAnalyzer {
 
 		try {
 			//now generate the JUnit test case
-			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath(), false);
+			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath());
 			for (File file : generated) {
 				if (!file.exists()) {
 					logger.error("Supposed to generate " + file

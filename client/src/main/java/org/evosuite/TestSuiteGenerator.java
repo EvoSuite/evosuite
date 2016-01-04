@@ -493,7 +493,7 @@ public class TestSuiteGenerator {
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 
-			suiteWriter.writeTestSuite(name + suffix, testDir, true);
+			suiteWriter.writeTestSuite(name + suffix, testDir);
 			
 			// If in regression mode, create a separate copy of the tests 
 			if (!RegressionSearchListener.statsID.equals("")) {
@@ -508,7 +508,7 @@ public class TestSuiteGenerator {
 					
 					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
 
-					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), false);
+					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
 				}
 			}
 		}
