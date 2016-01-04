@@ -51,6 +51,17 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
         return getVariableName(testCase, var) + "Array";
     }
 
+    private String getUniqueName(String name) {
+        if(usedNames.contains(name)) {
+            int num = 1; // Starting at 1 because 0 is implicitly used by the first variable
+            while(usedNames.contains(name+num))
+                num++;
+            name = name + num;
+        }
+        usedNames.add(name);
+        return name;
+    }
+
     @Override
 	public String getVariableName(TestCase testCase, VariableReference variableReference) {
         for(VariableReference ref : testCase.getReferences(variableReference)) {
@@ -64,14 +75,7 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
                 for(VariableReference param: ms.getParameterReferences()) {
                     if(param.equals(variableReference)) {
                         if(VariableNameCollector.getInstance().hasParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam)) {
-                            String name = VariableNameCollector.getInstance().getParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam);
-                            if(usedNames.contains(name)) {
-                                int num = 1; // Starting at 1 because 0 is implicitly used by the first variable
-                                while(usedNames.contains(name+num))
-                                    num++;
-                                name = name + num;
-                            }
-                            usedNames.add(name);
+                            String name = getUniqueName(VariableNameCollector.getInstance().getParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam));
                             return name;
                         }
                     }
@@ -83,7 +87,7 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
                 for(VariableReference param: cs.getParameterReferences()) {
                     if(param.equals(variableReference)) {
                         if(VariableNameCollector.getInstance().hasParameterName(cs.getConstructor().getDeclaringClass().getCanonicalName(), cs.getConstructor().getNameWithDescriptor(), numParam)) {
-                            String name = VariableNameCollector.getInstance().getParameterName(cs.getConstructor().getDeclaringClass().getCanonicalName(), cs.getConstructor().getNameWithDescriptor(), numParam);
+                            String name = getUniqueName(VariableNameCollector.getInstance().getParameterName(cs.getConstructor().getDeclaringClass().getCanonicalName(), cs.getConstructor().getNameWithDescriptor(), numParam));
                             return name;
                         }
                     }
