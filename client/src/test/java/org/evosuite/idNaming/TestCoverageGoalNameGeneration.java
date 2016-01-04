@@ -25,6 +25,7 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.Test;
@@ -731,6 +732,303 @@ public class TestCoverageGoalNameGeneration {
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
         assertEquals("testToString0", naming.getName(test1));
         assertEquals("testToString1", naming.getName(test2));
+    }
+
+    @Test
+    public void testResolveBasicConflict() {
+        // T1: A, B -> B
+        // T2: A, C -> C
+        // T3: A, C, B, D -> D
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("FooClass", "foo(I)I");
+        test1.addCoveredGoal(methodGoal);
+        OutputCoverageGoal outputGoalHelper = new OutputCoverageGoal("FooClass", "foo(I)I", Type.INT_TYPE, NUM_ZERO);
+        OutputCoverageTestFitness outputGoal1 = new OutputCoverageTestFitness(outputGoalHelper);
+        test1.addCoveredGoal(outputGoal1);
+
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addCoveredGoal(methodGoal);
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        InputCoverageGoal inputGoalHelper = new InputCoverageGoal("FooClass", "foo(I)I", 0, Type.INT_TYPE, NUM_POSITIVE);
+        InputCoverageTestFitness inputGoal1 = new InputCoverageTestFitness(inputGoalHelper);
+        test2.addCoveredGoal(inputGoal1);
+
+        TestCase test3 = new DefaultTestCase();
+        MethodCoverageTestFitness methodGoal2 = new MethodCoverageTestFitness("FooClass", "toString()L/java/lang/String;");
+        test3.addCoveredGoal(methodGoal2);
+
+        test3.addCoveredGoal(methodGoal);
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(outputGoal1);
+        test3.addCoveredGoal(inputGoal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningZero", naming.getName(test1));
+        assertEquals("testFooWithPositive", naming.getName(test2));
+        assertEquals("testToString", naming.getName(test3));
+    }
+
+    @Test
+    public void testResolveConflict2() {
+        // T1: A, B -> B
+        // T2: A, C -> C
+        // T3: A, B, C -> B & C
+
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("FooClass", "foo(I)I");
+        test1.addCoveredGoal(methodGoal);
+        OutputCoverageGoal outputGoalHelper = new OutputCoverageGoal("FooClass", "foo(I)I", Type.INT_TYPE, NUM_ZERO);
+        OutputCoverageTestFitness outputGoal1 = new OutputCoverageTestFitness(outputGoalHelper);
+        test1.addCoveredGoal(outputGoal1);
+
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addCoveredGoal(methodGoal);
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        InputCoverageGoal inputGoalHelper = new InputCoverageGoal("FooClass", "foo(I)I", 0, Type.INT_TYPE, NUM_POSITIVE);
+        InputCoverageTestFitness inputGoal1 = new InputCoverageTestFitness(inputGoalHelper);
+        test2.addCoveredGoal(inputGoal1);
+
+        TestCase test3 = new DefaultTestCase();
+        test3.addCoveredGoal(methodGoal);
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(outputGoal1);
+        test3.addCoveredGoal(inputGoal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningZero", naming.getName(test1));
+        assertEquals("testFooWithPositive", naming.getName(test2));
+        assertEquals("testFooReturningZeroAndFooWithPositive", naming.getName(test3));
+    }
+
+    @Test
+    public void testResolveConflict3() {
+        // T1: A, B
+        // T2: A, C
+        // T3: B, C
+
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("FooClass", "foo(I)I");
+        test1.addCoveredGoal(methodGoal);
+        OutputCoverageGoal outputGoalHelper = new OutputCoverageGoal("FooClass", "foo(I)I", Type.INT_TYPE, NUM_ZERO);
+        OutputCoverageTestFitness outputGoal1 = new OutputCoverageTestFitness(outputGoalHelper);
+        test1.addCoveredGoal(outputGoal1);
+
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addCoveredGoal(methodGoal);
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        InputCoverageGoal inputGoalHelper = new InputCoverageGoal("FooClass", "foo(I)I", 0, Type.INT_TYPE, NUM_POSITIVE);
+        InputCoverageTestFitness inputGoal1 = new InputCoverageTestFitness(inputGoalHelper);
+        test2.addCoveredGoal(inputGoal1);
+
+        TestCase test3 = new DefaultTestCase();
+        // test3.addCoveredGoal(methodGoal);
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(outputGoal1);
+        test3.addCoveredGoal(inputGoal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooAndFooReturningZero", naming.getName(test1));
+        assertEquals("testFooAndFooWithPositive", naming.getName(test2));
+        assertEquals("testFooReturningZero", naming.getName(test3)); // TODO: Is this acceptable? This happens because test 3 has no method goals
+    }
+
+    @Test
+    public void testResolveConflict3WithMethodGoals() {
+        // T1: A, B
+        // T2: A, C
+        // T3: B, C
+
+        MethodCoverageTestFitness methodGoal1 = new MethodCoverageTestFitness("FooClass", "foo(I)I");
+        MethodCoverageTestFitness methodGoal2 = new MethodCoverageTestFitness("FooClass", "bar(I)I");
+        MethodCoverageTestFitness methodGoal3 = new MethodCoverageTestFitness("FooClass", "zoo(I)I");
+
+        TestCase test1 = new DefaultTestCase();
+        test1.addCoveredGoal(methodGoal1);
+        test1.addCoveredGoal(methodGoal2);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(methodGoal1);
+        test2.addCoveredGoal(methodGoal3);
+
+        TestCase test3 = new DefaultTestCase();
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(methodGoal2);
+        test3.addCoveredGoal(methodGoal3);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testBarAndFoo", naming.getName(test1));
+        assertEquals("testFooAndZoo", naming.getName(test2));
+        assertEquals("testBarAndZoo", naming.getName(test3));
+    }
+
+    @Test
+    public void testResolveConflictWithManyTests() {
+        // T1: A, B
+        // T2: A, C
+        // T3: A, D
+        // T4: B, C
+        // T5: B, D
+        // T6: C, D
+
+        Randomness.setSeed(0);
+        MethodCoverageTestFitness methodGoal1 = new MethodCoverageTestFitness("FooClass", "foo(I)I");
+        MethodCoverageTestFitness methodGoal2 = new MethodCoverageTestFitness("FooClass", "bar(I)I");
+        MethodCoverageTestFitness methodGoal3 = new MethodCoverageTestFitness("FooClass", "zoo(I)I");
+        MethodCoverageTestFitness methodGoal4 = new MethodCoverageTestFitness("FooClass", "gnu(I)I");
+
+        TestCase test1 = new DefaultTestCase();
+        test1.addCoveredGoal(methodGoal1);
+        test1.addCoveredGoal(methodGoal2);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(methodGoal1);
+        test2.addCoveredGoal(methodGoal3);
+
+        TestCase test3 = new DefaultTestCase();
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(methodGoal1);
+        test3.addCoveredGoal(methodGoal4);
+
+        TestCase test4 = new DefaultTestCase();
+        test4.addStatement(new IntPrimitiveStatement(test4, 2)); // Need to add statements to change hashCode
+        test4.addCoveredGoal(methodGoal2);
+        test4.addCoveredGoal(methodGoal3);
+
+        TestCase test5 = new DefaultTestCase();
+        test5.addStatement(new IntPrimitiveStatement(test5, 3)); // Need to add statements to change hashCode
+        test5.addCoveredGoal(methodGoal2);
+        test5.addCoveredGoal(methodGoal4);
+
+        TestCase test6 = new DefaultTestCase();
+        test6.addStatement(new IntPrimitiveStatement(test6, 4)); // Need to add statements to change hashCode
+        test6.addCoveredGoal(methodGoal3);
+        test6.addCoveredGoal(methodGoal4);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        tests.add(test4);
+        tests.add(test5);
+        tests.add(test6);
+
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testBarAndFoo", naming.getName(test1));
+        assertEquals("testFooAndZoo", naming.getName(test2));
+        assertEquals("testFooAndGnu", naming.getName(test3));
+        assertEquals("testBarAndZoo", naming.getName(test4));
+        assertEquals("testBarAndGnu", naming.getName(test5));
+        assertEquals("testGnuAndZoo", naming.getName(test6));
+    }
+
+    @Test
+    public void testResolveConflictWithTwoMethods() {
+        // T1: A, B
+        // T2: A, C
+        // T3: A, B, C
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("FooClass", "foo(I)I");
+        test1.addCoveredGoal(methodGoal);
+        OutputCoverageGoal outputGoalHelper = new OutputCoverageGoal("FooClass", "foo(I)I", Type.INT_TYPE, NUM_ZERO);
+        OutputCoverageTestFitness outputGoal1 = new OutputCoverageTestFitness(outputGoalHelper);
+        test1.addCoveredGoal(outputGoal1);
+
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addCoveredGoal(methodGoal);
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        InputCoverageGoal inputGoalHelper = new InputCoverageGoal("FooClass", "foo(I)I", 0, Type.INT_TYPE, NUM_POSITIVE);
+        InputCoverageTestFitness inputGoal1 = new InputCoverageTestFitness(inputGoalHelper);
+        test2.addCoveredGoal(inputGoal1);
+
+        TestCase test3 = new DefaultTestCase();
+        test3.addCoveredGoal(methodGoal);
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(outputGoal1);
+        test3.addCoveredGoal(inputGoal1);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningZero", naming.getName(test1));
+        assertEquals("testFooWithPositive", naming.getName(test2));
+        assertEquals("testFooReturningZeroAndFooWithPositive", naming.getName(test3));
+    }
+
+    @Test
+    public void testResolveConflictInputsOutputs() {
+        // T1: A, I1, O1
+        // T2: A, I2, O2
+        // T3: A, I1, O2
+
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("FooClass", "foo(I)I");
+        OutputCoverageGoal outputGoalHelper1 = new OutputCoverageGoal("FooClass", "foo(I)I", Type.INT_TYPE, NUM_POSITIVE);
+        OutputCoverageTestFitness outputGoal1 = new OutputCoverageTestFitness(outputGoalHelper1);
+        OutputCoverageGoal outputGoalHelper2 = new OutputCoverageGoal("FooClass", "foo(I)I", Type.INT_TYPE, NUM_NEGATIVE);
+        OutputCoverageTestFitness outputGoal2 = new OutputCoverageTestFitness(outputGoalHelper2);
+        InputCoverageGoal inputGoalHelper1 = new InputCoverageGoal("FooClass", "foo(I)I", 0, Type.INT_TYPE, NUM_POSITIVE);
+        InputCoverageTestFitness inputGoal1 = new InputCoverageTestFitness(inputGoalHelper1);
+        InputCoverageGoal inputGoalHelper2 = new InputCoverageGoal("FooClass", "foo(I)I", 0, Type.INT_TYPE, NUM_NEGATIVE);
+        InputCoverageTestFitness inputGoal2 = new InputCoverageTestFitness(inputGoalHelper2);
+
+        TestCase test1 = new DefaultTestCase();
+        test1.addCoveredGoal(methodGoal);
+        test1.addCoveredGoal(inputGoal1);
+        test1.addCoveredGoal(outputGoal1);
+
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(methodGoal);
+        test2.addCoveredGoal(inputGoal2);
+        test2.addCoveredGoal(outputGoal2);
+
+        TestCase test3 = new DefaultTestCase();
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(methodGoal);
+        test3.addCoveredGoal(inputGoal2);
+        test3.addCoveredGoal(outputGoal1);
+
+        TestCase test4 = new DefaultTestCase();
+        test4.addStatement(new IntPrimitiveStatement(test4, 2)); // Need to add statements to change hashCode
+        test4.addCoveredGoal(methodGoal);
+        test4.addCoveredGoal(inputGoal1);
+        test4.addCoveredGoal(outputGoal2);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        tests.add(test4);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooReturningPositiveAndFooWithPositive", naming.getName(test1));
+        assertEquals("testFooReturningNegativeAndFooWithNegative", naming.getName(test2));
+        assertEquals("testFooReturningPositiveAndFooWithNegative", naming.getName(test3));
+        assertEquals("testFooReturningNegativeAndFooWithPositive", naming.getName(test4));
     }
 
 

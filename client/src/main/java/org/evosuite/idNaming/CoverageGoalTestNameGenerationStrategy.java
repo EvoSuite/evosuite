@@ -19,7 +19,6 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Modifier;
@@ -31,9 +30,9 @@ import java.util.stream.Collectors;
  */
 public class CoverageGoalTestNameGenerationStrategy implements TestNameGenerationStrategy {
 
-    private Map<TestCase, String> testToName = new HashMap<>();
+    private Map<TestCase, String> testToName = new LinkedHashMap<>();
 
-    private Map<String, Set<String>> methodCount = new HashMap<>();
+    private Map<String, Set<String>> methodCount = new LinkedHashMap<>();
 
     public static final String PREFIX = "test";
 
@@ -49,6 +48,8 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
 
     public static final String STR_IS = "Is";
 
+    public static final String STR_AND = "And";
+
     public static final String STR_TAKING = "Taking";
 
     public static final String STR_WITHOUT = "TakingNo";
@@ -56,6 +57,8 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     public static final String STR_RETURNS = "Returning";
 
     public static final String STR_ARGUMENTS = "Arguments";
+
+    public static final int MAX_SIMILAR_GOALS = 2;
 
     public CoverageGoalTestNameGenerationStrategy(List<TestCase> testCases, List<ExecutionResult> results) {
         addGoalsNotIncludedInTargetCriteria(results);
@@ -72,17 +75,123 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         generateNames(testToGoals);
     }
 
+    /**
+     * Initially, set to the top level goals
+     *
+     * @param testToGoals
+     */
+    private void initializeNameGoals(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
+        // Start off with only the top goals and then iteratively add more goals
+        for(Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
+            Set<TestFitnessFunction> goals = new LinkedHashSet<>();
+            List<TestFitnessFunction> topGoals = getTopGoals(entry.getValue());
+            if(topGoals.isEmpty()) {
+                // No goals
+            }
+            else if(topGoals.size() <= MAX_SIMILAR_GOALS) {
+                // We can take up to 2 goals explicitly
+                goals.addAll(topGoals);
+            } else {
+                // If there are more than 2 goals, we have to select something
+                goals.add(chooseRepresentativeGoal(entry.getKey(), topGoals));
+            }
+            testToGoals.put(entry.getKey(), goals);
+        }
+    }
+
+    /**
+     * Calculate the test names from the current goals
+     *
+     * @param testToGoals
+     */
+    private void setTestNames(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
+        for (Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
+            testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
+        }
+    }
 
     /**
      * Helper method that does the bulk of the work
      * @param testToGoals
      */
-    private void generateNames(Map<TestCase, Set<TestFitnessFunction>> testToGoals ) {
+    private void generateNames(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
         initializeMethodCoverageCount(testToGoals);
         findUniqueGoals(testToGoals);
-        selectGoalName(testToGoals);
+        initializeNameGoals(testToGoals);
+
+        // Iteratively add goals as long as there are resolvable ambiguities
+        boolean changed = true;
+        while(changed) {
+            setTestNames(testToGoals);
+            Map<String, Set<TestCase>> testNameMap = determineDuplicateNames();
+            // For each duplicate set, add new test goals
+            changed = false;
+            for (Map.Entry<String, Set<TestCase>> entry : testNameMap.entrySet()) {
+                // Try adding something unique for the given test set
+                if(resolveAmbiguity(testToGoals, entry.getValue(), true))
+                    changed = true;
+                else {
+                    // If there is nothing unique, try using something that reduces
+                    // the number of tests in this ambiguity group
+                    if(resolveAmbiguity(testToGoals, entry.getValue(), false))
+                        changed = true;
+                }
+            }
+        }
+
+        // If there is absolutely nothing unique, add the top goals so that the test at least has a name
+        for (Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
+            if(entry.getValue().isEmpty()) {
+                entry.getValue().addAll(getTopGoals(filterSupportedGoals(entry.getKey().getCoveredGoals())));
+                testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
+            }
+        }
+
+        // Add numbers to remaining duplicate names
         fixAmbiguousTestNames();
     }
+
+    /**
+     * Add additional goals for tests to testsToGoals to make them distinguishable
+     *
+     * @param testToGoals
+     * @param tests
+     * @param unique
+     * @return
+     */
+    private boolean resolveAmbiguity(Map<TestCase, Set<TestFitnessFunction>> testToGoals, Set<TestCase> tests, boolean unique) {
+
+        // Full list of goals for given tests
+        Map<TestCase, Set<TestFitnessFunction>> fullTestToGoals = new LinkedHashMap<>();
+        for(TestCase test : tests) {
+            Set<TestFitnessFunction> goals = filterSupportedGoals(new LinkedHashSet<>(test.getCoveredGoals()));
+            goals.removeAll(testToGoals.get(test)); // Remove those already used to name the test
+            fullTestToGoals.put(test, goals);
+        }
+
+        // Find out what is unique about each one, or at least helps reduce the number of ambiguous names
+        if(unique)
+            findUniqueGoals(fullTestToGoals);
+        else
+            findNonUbiquitousGoals(fullTestToGoals);
+
+        // Select the next best goal from the new unique goal sets
+        boolean added = false;
+        for(TestCase test : tests) {
+            List<TestFitnessFunction> topGoals = getTopGoals(fullTestToGoals.get(test));
+            if(topGoals.isEmpty()) {
+                continue;
+            } else if(topGoals.size() > MAX_SIMILAR_GOALS) {
+                TestFitnessFunction newGoal = chooseRepresentativeGoal(test, topGoals);
+                if (newGoal != null && testToGoals.get(test).add(newGoal))
+                    added = true;
+            } else {
+                added = testToGoals.get(test).addAll(topGoals);
+            }
+        }
+        return added;
+    }
+
 
     /**
      * Builds the name map based on coverage goal stored as covered in each of the tests
@@ -90,9 +199,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private Map<TestCase, Set<TestFitnessFunction>> initializeCoverageMapFromTests(List<TestCase> tests) {
-        Map<TestCase, Set<TestFitnessFunction>> testToGoals = new HashMap<>();
+        Map<TestCase, Set<TestFitnessFunction>> testToGoals = new LinkedHashMap<>();
         for(TestCase test : tests) {
-            testToGoals.put(test, filterSupportedGoals(new HashSet<>(test.getCoveredGoals())));
+            testToGoals.put(test, filterSupportedGoals(new LinkedHashSet<>(test.getCoveredGoals())));
         }
         return testToGoals;
     }
@@ -103,9 +212,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private Map<TestCase, Set<TestFitnessFunction>> initializeCoverageMapFromResults(List<ExecutionResult> results) {
-        Map<TestCase, Set<TestFitnessFunction>> testToGoals = new HashMap<>();
+        Map<TestCase, Set<TestFitnessFunction>> testToGoals = new LinkedHashMap<>();
         for(ExecutionResult result : results) {
-            testToGoals.put(result.test, filterSupportedGoals(new HashSet<>(result.test.getCoveredGoals())));
+            testToGoals.put(result.test, filterSupportedGoals(new LinkedHashSet<>(result.test.getCoveredGoals())));
         }
         return testToGoals;
     }
@@ -189,7 +298,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             for(TestFitnessFunction goal : goals) {
                 String methodName = getMethodNameWithoutDescriptor(goal.getTargetMethod());
                 if(!methodCount.containsKey(methodName)) {
-                    methodCount.put(methodName, new HashSet<>());
+                    methodCount.put(methodName, new LinkedHashSet<>());
                 }
                 methodCount.get(methodName).add(goal.getTargetMethod());
             }
@@ -201,46 +310,94 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      *
      * @param testToGoals
      */
-    private void findUniqueGoals(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
+    private static <T> void findUniqueGoals(Map<TestCase, Set<T>> testToGoals) {
         // Could be optimised
-        Map<TestCase, Set<TestFitnessFunction>> goalMapCopy = new HashMap<>();
+        Map<TestCase, Set<T>> goalMapCopy = new LinkedHashMap<>();
 
-        for(Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
-            Set<TestFitnessFunction> goalSet = new HashSet<>(entry.getValue());
-            for(Map.Entry<TestCase, Set<TestFitnessFunction>> otherEntry : testToGoals.entrySet()) {
+        for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
+            Set<T> goalSet = new LinkedHashSet<T>(entry.getValue());
+            for(Map.Entry<TestCase, Set<T>> otherEntry : testToGoals.entrySet()) {
                 if(entry == otherEntry)
                     continue;
                 goalSet.removeAll(otherEntry.getValue());
             }
             goalMapCopy.put(entry.getKey(), goalSet);
         }
+        testToGoals.clear();
         testToGoals.putAll(goalMapCopy);
     }
 
     /**
-     * Store the name for that test based on the unique goals determined for that test.
+     * Determine for each test the set of coverage goals that remain if we remove those that are covered by all tests
      *
      * @param testToGoals
      */
-    private void selectGoalName(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
-        for(Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
-            if(entry.getValue().isEmpty()) {
-                // If there is nothing unique about the test
-                // use the original goals
-                testToName.put(entry.getKey(), getTestName(entry.getKey(), filterSupportedGoals(entry.getKey().getCoveredGoals())));
+    private static <T> void findNonUbiquitousGoals(Map<TestCase, Set<T>> testToGoals) {
+        // Could be optimised
+        Map<TestCase, Set<T>> goalMapCopy = new LinkedHashMap<>();
+        Set<T> commonGoals = new LinkedHashSet<>();
 
-            } else {
-                testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
+        // Get the superset of goals
+        for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
+            commonGoals.addAll(entry.getValue());
+        }
+
+        // Now only keep stuff that every set has
+        for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
+            commonGoals.retainAll(entry.getValue());
+        }
+
+        for(Map.Entry<TestCase, Set<T>> entry : testToGoals.entrySet()) {
+            Set<T> goalSet = new LinkedHashSet<T>(entry.getValue());
+            goalSet.removeAll(commonGoals);
+            goalMapCopy.put(entry.getKey(), goalSet);
+        }
+        testToGoals.putAll(goalMapCopy);
+    }
+
+    /**
+     * Create a map of test name to all the tests that lead to it
+     * @return
+     */
+    private Map<String, Set<TestCase>> determineDuplicateNames() {
+        Map<String, Set<TestCase>> testMap = new LinkedHashMap<>();
+
+        // Count number of tests with same name
+        for(Map.Entry<TestCase, String> entry : testToName.entrySet()) {
+            String methodName = entry.getValue();
+            if(!testMap.containsKey(methodName)) {
+                Set<TestCase> tests = new LinkedHashSet<>();
+                tests.add(entry.getKey());
+                testMap.put(methodName, tests);
+            }
+            else {
+                testMap.get(methodName).add(entry.getKey());
             }
         }
+        testMap.entrySet().removeIf(p -> p.getValue().size() <= 1);
+        return testMap;
     }
+
+    private void resolveAmbiguity(Set<TestCase> tests) {
+
+        // Full list of goals for given tests
+        Map<TestCase, Set<TestFitnessFunction>> testToGoals = new LinkedHashMap<>();
+        for(TestCase test : tests) {
+            testToGoals.put(test, filterSupportedGoals(new LinkedHashSet<>(test.getCoveredGoals())));
+        }
+
+        // Find out what is unique about each one
+        findUniqueGoals(testToGoals);
+
+    }
+
 
     /**
      * There may be tests with the same calculated name, in which case we add a number suffix
      */
     private void fixAmbiguousTestNames() {
-        Map<String, Integer> nameCount = new HashMap<>();
-        Map<String, Integer> testCount = new HashMap<>();
+        Map<String, Integer> nameCount = new LinkedHashMap<>();
+        Map<String, Integer> testCount = new LinkedHashMap<>();
         for(String methodName : testToName.values()) {
             if(nameCount.containsKey(methodName))
                 nameCount.put(methodName, nameCount.get(methodName) + 1);
@@ -278,21 +435,19 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private String getTestName(TestCase test, Set<TestFitnessFunction> uniqueGoals) {
-        List<TestFitnessFunction> goalList = getTopGoals(uniqueGoals);
+        List<TestFitnessFunction> goalList = new ArrayList<>(uniqueGoals); // getTopGoals(uniqueGoals);
         String name = PREFIX;
         if(goalList.isEmpty()) {
-            // If there is nothing unique, we have to make do with what the test has
-            if(!test.getCoveredGoals().isEmpty()) {
-                return getTestName(test, test.getCoveredGoals());
-            } else {
-                // TODO - can this happen?
-            }
+            return name; // No goals - no name
         } else if(goalList.size() == 1) {
             name += capitalize(getGoalName(goalList.get(0)));
         } else if(goalList.size() == 2) {
             name += getGoalPairName(goalList.get(0), goalList.get(1));
         } else {
-            name += capitalize(getGoalName(chooseRepresentativeGoal(test, goalList)));
+            name += getGoalName(goalList.get(0));
+            for(int i = 1; i < goalList.size(); i++)
+                name += STR_AND + getGoalName(goalList.get(i));
+            // name += capitalize(getGoalName(chooseRepresentativeGoal(test, goalList)));
         }
         return name;
     }
@@ -332,19 +487,19 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private TestFitnessFunction chooseRepresentativeGoal(TestCase test, Collection<TestFitnessFunction> goals) {
-        Map<String, Integer> methodToPosition = new HashMap<>();
+        Map<String, Integer> methodToPosition = new LinkedHashMap<>();
         for(Statement st : test) {
             if(st instanceof MethodStatement) {
                 MethodStatement ms = (MethodStatement)st;
-                String name = ms.getMethod().getName() + Type.getMethodDescriptor(ms.getMethod().getMethod());
+                String name = ms.getMethodName() + ms.getDescriptor();
                 methodToPosition.put(name, st.getPosition());
             } else if (st instanceof ConstructorStatement) {
                 ConstructorStatement cs = (ConstructorStatement)st;
-                String name = "<init>" + Type.getConstructorDescriptor(cs.getConstructor().getConstructor());
+                String name = "<init>" + cs.getDescriptor();
                 methodToPosition.put(name, st.getPosition());
             }
         }
-        TestFitnessFunction chosenGoal = Randomness.choice(goals);
+        TestFitnessFunction chosenGoal = goals.iterator().next(); //Randomness.choice(goals);
         int chosenPosition = -1;
         for(TestFitnessFunction goal : goals) {
             if(methodToPosition.containsKey(goal.getTargetMethod())) {
@@ -482,7 +637,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
                 }
             }
         }
-        return getGoalName(goal1) + "And" + getGoalName(goal2);
+        return getGoalName(goal1) + STR_AND + getGoalName(goal2);
     }
 
     /**
@@ -501,7 +656,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             else
                 return getGoalName(goal2) + "AndCalls" + getGoalName(goal1);
         } else {
-            return getGoalName(goal1) + "And" + getGoalName(goal2);
+            return getGoalName(goal1) + STR_AND + getGoalName(goal2);
         }
     }
 
@@ -513,7 +668,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private String getGoalPairName(InputCoverageTestFitness goal1, InputCoverageTestFitness goal2) {
-        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_WITH + formatValueDescriptor(goal1.getValueDescriptor()) + "And" + formatValueDescriptor(goal2.getValueDescriptor());
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_WITH + formatValueDescriptor(goal1.getValueDescriptor()) + STR_AND + formatValueDescriptor(goal2.getValueDescriptor());
     }
 
     /**
@@ -524,7 +679,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private String getGoalPairName(OutputCoverageTestFitness goal1, OutputCoverageTestFitness goal2 ) {
-        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_RETURNS + formatValueDescriptor(goal1.getValueDescriptor()) + "And" + formatValueDescriptor(goal2.getValueDescriptor());
+        return formatMethodName(goal1.getClassName(), goal1.getMethod()) + STR_RETURNS + formatValueDescriptor(goal1.getValueDescriptor()) + STR_AND + formatValueDescriptor(goal2.getValueDescriptor());
     }
 
     /**
@@ -634,6 +789,15 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         else
             return methodName;
 
+    }
+
+    public Comparator<TestCase> getComparator() {
+        return new Comparator<TestCase>() {
+            @Override
+            public int compare(TestCase o1, TestCase o2) {
+                return 0;
+            }
+        };
     }
 
     @Override
