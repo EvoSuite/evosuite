@@ -19,7 +19,6 @@
  */
 package org.evosuite.assertion;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,9 +36,8 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -105,7 +103,6 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 			return;
 
 		logger.debug("Generating assertions");
-
 		int s1 = killed.size();
 
 		logger.debug("Running on original");
@@ -116,134 +113,35 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 			return;
 		}
 
-		Map<Mutation, List<OutputTrace<?>>> mutationTraces = new HashMap<Mutation, List<OutputTrace<?>>>();
 		List<Mutation> executedMutants = new ArrayList<Mutation>();
-
 		for (Integer mutationId : origResult.getTrace().getTouchedMutants()) {
-			if (!mutants.containsKey(mutationId)) {
-				//logger.warn("Mutation ID unknown: " + mutationId);
-				//logger.warn(mutants.keySet().toString());
-			} else
-				executedMutants.add(mutants.get(mutationId));
+			if (mutants.containsKey(mutationId)) {
+                executedMutants.add(mutants.get(mutationId));
+            }
 		}
 
 		Randomness.shuffle(executedMutants);
 		logger.debug("Executed mutants: "+origResult.getTrace().getTouchedMutants());
 
-		int numExecutedMutants = 0;
-		for (Mutation m : executedMutants) {
+        // Store all assertions in case we need to add some non-killing ones later
+        List<Assertion> allAssertions = getAllAssertions(origResult);
+        test.removeAssertions(); // But now start with a test without assertions
 
-			numExecutedMutants++;
-			if (! TimeController.getInstance().isThereStillTimeInThisPhase()) {
-				logger.info("Reached maximum time to generate assertions!");
-				break;
-			}
+        // Generate traces from execution on selected mutants
+        Map<Mutation, List<OutputTrace<?>>> mutationTraces = executeOnMutantsAndAddAssertions(executedMutants, origResult, killed);
 
-			assert (m != null);
-			if(MutationTimeoutStoppingCondition.isDisabled(m)) {
-				killed.add(m.getId());
-				continue;
-			}
-			if (timedOutMutations.containsKey(m)) {
-				if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
-					logger.debug("Skipping timed out mutant");
-					killed.add(m.getId());
-					continue;
-				}
-			}
-			if (exceptionMutations.containsKey(m)) {
-				if (exceptionMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
-					logger.debug("Skipping mutant with exceptions");
-					killed.add(m.getId());
-					continue;
-				}
-			}
-			if (Properties.MAX_MUTANTS_PER_TEST > 0
-			        && numExecutedMutants > Properties.MAX_MUTANTS_PER_TEST)
-				break;
+        // All assertions that kill mutants
+		List<Assertion> mutationAssertions = test.getAssertions();
+		logger.info("Got " + mutationAssertions.size() + " assertions");
 
-			/*
-			if (killed.contains(m.getId())) {
-				logger.info("Skipping dead mutant");
-				continue;
-			}
-			*/
-
-			logger.debug("Running test on mutation {}",  m.getMutationName());
-			ExecutionResult mutantResult = runTest(test, m);
-
-			int numKilled = 0;
-			for (Class<?> observerClass : observerClasses) {
-				if (mutantResult.getTrace(observerClass) == null
-				        || origResult.getTrace(observerClass) == null)
-					continue;
-				numKilled += origResult.getTrace(observerClass).getAssertions(test,
-				                                                              mutantResult.getTrace(observerClass));
-			}
-
-			List<OutputTrace<?>> traces = new ArrayList<OutputTrace<?>>(
-			        mutantResult.getTraces());
-			mutationTraces.put(m, traces);
-
-			if (mutantResult.hasTimeout()) {
-				logger.debug("Increasing timeout count!");
-				if (!timedOutMutations.containsKey(m)) {
-					timedOutMutations.put(m, 1);
-				} else {
-					timedOutMutations.put(m, timedOutMutations.get(m) + 1);
-				}
-				MutationTimeoutStoppingCondition.timeOut(m);
-				
-			} else if (!mutantResult.noThrownExceptions()
-			        && origResult.noThrownExceptions()) {
-				logger.debug("Increasing exception count.");
-				if (!exceptionMutations.containsKey(m)) {
-					exceptionMutations.put(m, 1);
-				} else {
-					exceptionMutations.put(m, exceptionMutations.get(m) + 1);
-				}
-				MutationTimeoutStoppingCondition.raisedException(m);
-			}
-
-			if (numKilled > 0
-			        || mutantResult.hasTimeout()
-			        || (!mutantResult.noThrownExceptions() && origResult.noThrownExceptions())) {
-				killed.add(m.getId());
-			}
-		}
-
-		List<Assertion> assertions = test.getAssertions();
-		logger.info("Got " + assertions.size() + " assertions");
-		Map<Integer, Set<Integer>> killMap = new HashMap<Integer, Set<Integer>>();
-		int num = 0;
-		for (Assertion assertion : assertions) {
-			Set<Integer> killedMutations = new HashSet<Integer>();
-			for (Mutation m : executedMutants) {
-
-				boolean isKilled = false;
-				if (mutationTraces.containsKey(m)) {
-					for (OutputTrace<?> trace : mutationTraces.get(m)) {
-						if (trace.isDetectedBy(assertion)) {
-							isKilled = true;
-							break;
-						}
-					}
-				}
-				if (isKilled) {
-					killedMutations.add(m.getId());
-					assertion.addKilledMutation(m);
-				}
-			}
-			killMap.put(num, killedMutations);
-			//logger.info("Assertion " + num + " kills mutants " + killedMutations);
-			num++;
-		}
+        // Map all assertions to the mutants they kill in preparation for minimisation
+		Map<Integer, Set<Integer>> killMap = getKillMap(mutationAssertions, executedMutants, mutationTraces);
 
 		int killedBefore = getNumKilledMutants(test, mutationTraces, executedMutants);
-
 		logger.debug("Need to kill mutants: " + killedBefore);
-		logger.debug(killMap.toString());
-		minimize(test, executedMutants, assertions, killMap);
+
+        // Do the actual minimisation of assertions
+		minimize(test, executedMutants, mutationAssertions, killMap);
 
 		int killedAfter = getNumKilledMutants(test, mutationTraces, executedMutants);
 
@@ -253,164 +151,233 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 		logger.info("Mutants killed before / after / should be: " + killedBefore + "/"
 		        + killedAfter + "/" + s2);
 
-		logger.info("Assertions in this test: " + test.getAssertions().size());
-		//TestCase clone = test.clone();
+		logger.info("Assertions in total    : " + allAssertions.size());
+        logger.info("Assertions killing mutants : " + mutationAssertions.size());
+        logger.info("Assertions in this test: " + test.getAssertions().size());
 
-	    if(primitiveWithoutAssertion(test.getStatement(test.size() - 1))) {
-			logger.info("Last statement has primitive return value but no assertions: " + test.toCode());
-			for (Assertion assertion : assertions) {
-				if (assertion instanceof PrimitiveAssertion) {
-					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
-						logger.debug("Adding a primitive assertion " + assertion);
-						test.getStatement(test.size() - 1).addAssertion(assertion);
-						break;
-					}
-				}
-			}
-			filterInspectorPrimitiveDuplication(test.getStatement(test.size() - 1));
-	    }
+        // We always want assertions at the end, even if they don't help killing mutants
+        ensureAssertionsOnLastStatement(test, origResult, mutationAssertions);
+        ensureAssertionsOnLastStatement(test, origResult, allAssertions);
 
-		// IF there are no mutant killing assertions on the last statement, still assert something
-		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
-		        || justNullAssertion(test.getStatement(test.size() - 1))) {
-			logger.info("Last statement has no assertions: " + test.toCode());
-			logger.info("Assertions to choose from: " + assertions.size());
+        // Remove inspectors that do the same as the last method statement
+        filterInspectorPrimitiveDuplication(test.getStatement(test.size() - 1));
 
-			if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
-				logger.debug("Last statement: "
-				        + test.getStatement(test.size() - 1).getCode());
-			}
-			if (origResult.isThereAnExceptionAtPosition(test.size() - 1))
-				logger.debug("Exception on last statement!");
-
-			if (justNullAssertion(test.getStatement(test.size() - 1)))
-				logger.debug("Just null assertions on last statement: " + test.toCode());
-
-			boolean haveAssertion = false;
-			for (Assertion assertion : assertions) {
-				if (assertion instanceof PrimitiveAssertion) {
-					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
-						logger.debug("Adding a primitive assertion " + assertion);
-						test.getStatement(test.size() - 1).addAssertion(assertion);
-						haveAssertion = true;
-						break;
-					}
-				}
-			}
-			if (!haveAssertion) {
-				logger.info("Could not find a primitive assertion, continuing search");
-
-				for (Assertion assertion : assertions) {
-					if (assertion instanceof NullAssertion)
-						continue;
-
-					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
-						logger.info("Adding an assertion: " + assertion);
-						test.getStatement(test.size() - 1).addAssertion(assertion);
-						haveAssertion = true;
-						break;
-					}
-				}
-			}
-
-			//if (!test.hasAssertions()) {
-			if (!haveAssertion) {
-				logger.info("After second round we still have no assertion");
-				Method inspectorMethod = null;
-				if (test.getStatement(test.size() - 1) instanceof MethodStatement) {
-					MethodStatement methodStatement = (MethodStatement) test.getStatement(test.size() - 1);
-					Method method = methodStatement.getMethod().getMethod();
-					if (method.getParameterTypes().length == 0) {
-						if (method.getReturnType().isPrimitive()
-						        && !method.getReturnType().equals(void.class)) {
-							inspectorMethod = method;
-						}
-					}
-				}
-				for (OutputTrace<?> trace : origResult.getTraces()) {
-					trace.getAllAssertions(test);
-				}
-
-				Set<Assertion> target = new HashSet<Assertion>(
-				        test.getStatement(test.size() - 1).getAssertions());
-				logger.debug("Found assertions: " + target.size());
-
-				test.removeAssertions();
-				//test.addAssertions(clone);
-				VariableReference targetVar = test.getStatement(test.size() - 1).getReturnValue();
-				if (!targetVar.isVoid()) {
-					logger.debug("Return value is non void: " + targetVar.getClassName());
-
-					int maxAssertions = 1;
-					int numAssertions = 0;
-					for (Assertion ass : target) {
-						if (ass.getReferencedVariables().contains(targetVar)
-						        && !(ass instanceof NullAssertion)) {
-
-							if (ass instanceof InspectorAssertion) {
-								if (((InspectorAssertion) ass).inspector.getMethod().equals(inspectorMethod)) {
-									continue;
-								}
-							}
-
-							test.getStatement(test.size() - 1).addAssertion(ass);
-							logger.debug("Adding assertion " + ass.getCode());
-							if (++numAssertions >= maxAssertions)
-								break;
-						} else {
-							logger.debug("Assertion does not contain target: "
-							        + ass.getCode());
-						}
-					}
-					if (numAssertions == 0) {
-						for (Assertion ass : target) {
-							if (ass.getReferencedVariables().contains(targetVar)) {
-
-								test.getStatement(test.size() - 1).addAssertion(ass);
-								logger.debug("Adding assertion " + ass.getCode());
-								if (++numAssertions >= maxAssertions)
-									break;
-							} else {
-								logger.debug("Assertion does not contain target: "
-								        + ass.getCode());
-							}
-						}
-					}
-				} else {
-					logger.debug("Return value is void");
-
-					Set<VariableReference> targetVars = test.getStatement(test.size() - 1).getVariableReferences();
-					int maxAssertions = 1;
-					int numAssertions = 0;
-					for (Assertion ass : target) {
-						Set<VariableReference> vars = ass.getReferencedVariables();
-						vars.retainAll(targetVars);
-						if (!vars.isEmpty()) {
-
-							test.getStatement(test.size() - 1).addAssertion(ass);
-							if (++numAssertions >= maxAssertions)
-								break;
-						}
-					}
-
-				}
-				logger.info("1. Done with assertions");
-
-			}
-			logger.info("2. Done with assertions");
-			filterInspectorPrimitiveDuplication(test.getStatement(test.size() - 1));
-		}
-
-		if (!origResult.noThrownExceptions()) {
-			if (!test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
-				logger.debug("Removing assertions after exception");
-				test.getStatement(test.size() - 1).removeAssertions();
-			}
-		}
-
+        // We always want at least one assertion on non-failing tests
+        assert(origResult.hasTestException() || !test.getStatement(test.size() - 1).getAssertions().isEmpty());
 	}
-	
-	/**
+
+    private List<Assertion> getAllAssertions(ExecutionResult result) {
+        TestCase test = result.test;
+        for (OutputTrace<?> trace : result.getTraces()) {
+            trace.getAllAssertions(test);
+        }
+        return test.getAssertions();
+    }
+
+    private Map<Mutation, List<OutputTrace<?>>> executeOnMutantsAndAddAssertions(List<Mutation> executedMutants, ExecutionResult origResult, Set<Integer> killed) {
+        int numExecutedMutants = 0;
+        TestCase test = origResult.test;
+        Map<Mutation, List<OutputTrace<?>>> mutationTraces = new HashMap<Mutation, List<OutputTrace<?>>>();
+
+        for (Mutation m : executedMutants) {
+
+            numExecutedMutants++;
+            if (! TimeController.getInstance().isThereStillTimeInThisPhase()) {
+                logger.info("Reached maximum time to generate assertions!");
+                break;
+            }
+
+            assert (m != null);
+            if(MutationTimeoutStoppingCondition.isDisabled(m)) {
+                killed.add(m.getId());
+                continue;
+            }
+            if (timedOutMutations.containsKey(m)) {
+                if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
+                    logger.debug("Skipping timed out mutant");
+                    killed.add(m.getId());
+                    continue;
+                }
+            }
+            if (exceptionMutations.containsKey(m)) {
+                if (exceptionMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
+                    logger.debug("Skipping mutant with exceptions");
+                    killed.add(m.getId());
+                    continue;
+                }
+            }
+            if (Properties.MAX_MUTANTS_PER_TEST > 0
+                    && numExecutedMutants > Properties.MAX_MUTANTS_PER_TEST)
+                break;
+
+			/*
+			if (killed.contains(m.getId())) {
+				logger.info("Skipping dead mutant");
+				continue;
+			}
+			*/
+
+            logger.debug("Running test on mutation {}",  m.getMutationName());
+            ExecutionResult mutantResult = runTest(test, m);
+
+            int numKilled = 0;
+            for (Class<?> observerClass : observerClasses) {
+                if (mutantResult.getTrace(observerClass) == null
+                        || origResult.getTrace(observerClass) == null)
+                    continue;
+                numKilled += origResult.getTrace(observerClass).getAssertions(test,
+                        mutantResult.getTrace(observerClass));
+            }
+
+            List<OutputTrace<?>> traces = new ArrayList<OutputTrace<?>>(
+                    mutantResult.getTraces());
+            mutationTraces.put(m, traces);
+
+            if (mutantResult.hasTimeout()) {
+                logger.debug("Increasing timeout count!");
+                if (!timedOutMutations.containsKey(m)) {
+                    timedOutMutations.put(m, 1);
+                } else {
+                    timedOutMutations.put(m, timedOutMutations.get(m) + 1);
+                }
+                MutationTimeoutStoppingCondition.timeOut(m);
+
+            } else if (!mutantResult.noThrownExceptions()
+                    && origResult.noThrownExceptions()) {
+                logger.debug("Increasing exception count.");
+                if (!exceptionMutations.containsKey(m)) {
+                    exceptionMutations.put(m, 1);
+                } else {
+                    exceptionMutations.put(m, exceptionMutations.get(m) + 1);
+                }
+                MutationTimeoutStoppingCondition.raisedException(m);
+            }
+
+            if (numKilled > 0
+                    || mutantResult.hasTimeout()
+                    || (!mutantResult.noThrownExceptions() && origResult.noThrownExceptions())) {
+                killed.add(m.getId());
+            }
+        }
+        return mutationTraces;
+    }
+
+    private Map<Integer, Set<Integer>> getKillMap(List<Assertion> mutationAssertions, List<Mutation> executedMutants, Map<Mutation, List<OutputTrace<?>>> mutationTraces) {
+        Map<Integer, Set<Integer>> killMap = new HashMap<Integer, Set<Integer>>();
+        int num = 0;
+        for (Assertion assertion : mutationAssertions) {
+            Set<Integer> killedMutations = new HashSet<Integer>();
+            for (Mutation m : executedMutants) {
+
+                boolean isKilled = false;
+                if (mutationTraces.containsKey(m)) {
+                    for (OutputTrace<?> trace : mutationTraces.get(m)) {
+                        if (trace.isDetectedBy(assertion)) {
+                            isKilled = true;
+                            break;
+                        }
+                    }
+                }
+                if (isKilled) {
+                    killedMutations.add(m.getId());
+                    assertion.addKilledMutation(m);
+                }
+            }
+            killMap.put(num, killedMutations);
+            //logger.info("Assertion " + num + " kills mutants " + killedMutations);
+            num++;
+        }
+        return killMap;
+    }
+
+    private void ensureAssertionsOnLastStatement(TestCase test, ExecutionResult origResult, List<Assertion> assertions) {
+        // No need to add assertion of the test ends with an exception
+        if(origResult.hasTestException()) {
+            if (!test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
+                logger.debug("Removing assertions after exception");
+                test.getStatement(test.size() - 1).removeAssertions();
+            }
+            return;
+        }
+
+        // If the last statement returns something non-void, attempt to assert on it
+        Statement lastStatement = test.getStatement(test.size() - 1);
+        if(!lastStatement.getReturnValue().isVoid()) {
+            boolean hasAssertion = hasAssertionOnReturnValue(lastStatement);
+            if(!hasAssertion) { // Assert return value directly
+                logger.debug("Trying to add assertion to last return value");
+                hasAssertion = attemptToAddAnyNonNullAssertionToReturnValue(lastStatement, assertions);
+            }
+            if(!hasAssertion) { // Allow null assertion on return value
+                logger.debug("Trying to add assertion to last return value, allowing null");
+                attemptToAddAnyAssertionToReturnValue(lastStatement, assertions);
+            }
+        }
+
+        // If we do not have an assertion at the end, select one
+        boolean hasAssertion = !lastStatement.getAssertions().isEmpty();
+        if(!hasAssertion) { // Any non-null assertion at the end would be good at this point
+            logger.debug("Trying to add assertion to last statement");
+            hasAssertion = attemptToAddAnyNonNullAssertionToStatement(lastStatement, assertions);
+        }
+        if(!hasAssertion) { // Any assertion at the end would be good at this point
+            logger.debug("Trying to add assertion to last statement, allowing null");
+            attemptToAddAnyAssertionToStatement(lastStatement, assertions);
+        }
+    }
+
+    private boolean attemptToAddAnyNonNullAssertionToReturnValue(Statement statement, List<Assertion> assertions) {
+        for (Assertion assertion : assertions) {
+            if (assertion instanceof NullAssertion)
+                continue;
+
+            if (assertion.getStatement().equals(statement) && assertion.getSource().equals(statement.getReturnValue())) {
+                logger.info("Adding an assertion: " + assertion);
+                statement.addAssertion(assertion);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean attemptToAddAnyAssertionToReturnValue(Statement statement, List<Assertion> assertions) {
+        for (Assertion assertion : assertions) {
+            logger.debug("Considering "+assertion+": "+(assertion.getStatement().equals(statement)) +", "+(assertion.getSource().equals(statement.getReturnValue())));
+            if (assertion.getStatement().equals(statement) && assertion.getSource().equals(statement.getReturnValue())) {
+                logger.info("Adding an assertion: " + assertion);
+                statement.addAssertion(assertion);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean attemptToAddAnyNonNullAssertionToStatement(Statement statement, List<Assertion> assertions) {
+        for (Assertion assertion : assertions) {
+            if (assertion instanceof NullAssertion)
+                continue;
+
+            if (assertion.getStatement().equals(statement)) {
+                logger.info("Adding an assertion: " + assertion);
+                statement.addAssertion(assertion);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean attemptToAddAnyAssertionToStatement(Statement statement, List<Assertion> assertions) {
+        for (Assertion assertion : assertions) {
+            if (assertion.getStatement().equals(statement)) {
+                logger.info("Adding an assertion: " + assertion);
+                statement.addAssertion(assertion);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
 	 * Return a minimal subset of the assertions that covers all killable
 	 * mutants
 	 * 

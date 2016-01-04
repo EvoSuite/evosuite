@@ -315,6 +315,41 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		}
 	}
 
+    protected boolean hasAssertionOnReturnValue(Statement statement) {
+        Set<Assertion> assertions = statement.getAssertions();
+        if (assertions.isEmpty())
+            return false;
+        else {
+            for(Assertion assertion : assertions) {
+                VariableReference ret = statement.getReturnValue();
+                if (assertion.getSource().equals(ret)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    protected boolean hasReturnValueWithoutAssertion(Statement statement) {
+		Set<Assertion> assertions = statement.getAssertions();
+		if (assertions.isEmpty())
+			return true;
+		else {
+			Iterator<Assertion> iterator = assertions.iterator();
+			VariableReference ret = statement.getReturnValue();
+			while (iterator.hasNext()) {
+				Assertion ass = iterator.next();
+				if (ass.getReferencedVariables().contains(ret)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+
 	/**
 	 * Returns true if the variable var is used as callee later on in the test
 	 * 
