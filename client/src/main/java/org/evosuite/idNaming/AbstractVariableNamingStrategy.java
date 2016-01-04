@@ -79,9 +79,7 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	@Override
 	public String getName(TestCase testCase, VariableReference var) {
-        if(variableNames.containsKey(var)) {
-            return variableNames.get(var);
-        } else if (var instanceof ConstantValue) {
+        if (var instanceof ConstantValue) {
 			return getConstantName((ConstantValue) var);
 		} else if (var instanceof InputVariable) {
 			return var.getName();
@@ -89,7 +87,9 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 			return getFieldReferenceName(testCase, (FieldReference) var);
 		} else if (var instanceof ArrayIndex) {
 			return getArrayIndexName(testCase, (ArrayIndex) var);
-		} else if (var instanceof ArrayReference) {
+		} else if(variableNames.containsKey(var)) {
+	        return variableNames.get(var);
+        } else if (var instanceof ArrayReference) {
 			String name = getArrayReferenceName(testCase, (ArrayReference) var);
             variableNames.put(var, name);
             return name;
