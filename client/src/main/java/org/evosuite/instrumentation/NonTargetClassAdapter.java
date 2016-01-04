@@ -23,6 +23,7 @@
 package org.evosuite.instrumentation;
 
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
+import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -36,6 +37,8 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
 public class NonTargetClassAdapter extends ClassVisitor {
 
 	private final String className;
+
+	private boolean isJUnit3TestCase = false;
 
 	/**
 	 * <p>Constructor for NonTargetClassAdapter.</p>
@@ -54,6 +57,10 @@ public class NonTargetClassAdapter extends ClassVisitor {
 			RemoveFinalClassAdapter.finalClasses.add(name.replace('/', '.'));
 		}
 
+        if(DependencyAnalysis.getInheritanceTree().getSuperclasses(name.replace('/', '.')).contains(junit.framework.TestCase.class.getCanonicalName())) {
+            isJUnit3TestCase = true;
+        }
+
 		// We are removing final access to allow mocking
 		super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
 	}
@@ -68,7 +75,7 @@ public class NonTargetClassAdapter extends ClassVisitor {
 		mv = new MethodSignatureCollector(mv, className, name, desc, (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC);
 		if(!"<clinit>".equals(name)) {
 			mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
-			mv = new JUnitCoverageMethodAdapter(mv, access, className, name, desc);
+			mv = new JUnitCoverageMethodAdapter(mv, access, className, name, desc, isJUnit3TestCase);
 		}
 		return mv; //new ArrayAllocationLimitMethodAdapter(mv, className, name, access, desc);
 	}

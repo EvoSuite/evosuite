@@ -36,11 +36,16 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
      * @param desc a {@link java.lang.String} object.
      */
     public JUnitCoverageMethodAdapter(MethodVisitor mv, int access, String className, String methodName,
-                                   String desc) {
+                                   String desc, boolean isTestClass) {
         super(Opcodes.ASM5, mv, access, methodName, desc);
         fullMethodName = methodName + desc;
         this.className = className;
         this.methodName = methodName;
+        if(isTestClass) {
+            // JUnit 3 test
+            if(methodName.startsWith("test"))
+                this.isJUnitTest = true;
+        }
     }
 
     @Override
@@ -52,10 +57,10 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
 
         return super.visitAnnotation(desc, visible);
     }
-
+    
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        if(!isJUnitTest || !DependencyAnalysis.shouldAnalyze(owner.replace('/', '.'))) {
+        if(!isJUnitTest) {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
