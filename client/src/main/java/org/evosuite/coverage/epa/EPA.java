@@ -42,19 +42,22 @@ public class EPA {
 
 	final private Map<EPAState, Set<EPATransition>> map;
 
-	private EPAState initialState;
+	private String name;
 
-	public EPA(Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
+	private EPAState initialState;
+	public EPA(String name, Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
+		this.name = name;
 		this.map = map;
 		this.initialState = initialState;
 	}
-	
+
 	public EPA(InputStream xml) throws ParserConfigurationException, IOException, SAXException {
 		final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		final Document document = documentBuilder.parse(xml);
 		final Element abstraction = document.getDocumentElement();
 		final String initialStateName = abstraction.getAttribute("initial_state");
+		final String epaName = abstraction.getAttribute("name");
 		final NodeList states = abstraction.getElementsByTagName("state");
 		
 		// Populate a map of names to states
@@ -101,8 +104,8 @@ public class EPA {
 		this.map = map;
 		
 		this.initialState = epaStateMap.get(initialStateName);
+		this.name = epaName;
 	}
-
 
 	public double getCoverage(List<EPATrace> epaTraces) {
 		final Set<EPATransition> epaTransitions = map.values().stream()
@@ -116,18 +119,23 @@ public class EPA {
 				.collect(Collectors.toSet());
 		
 		epaTransitions.removeAll(tracedEpaTransitions);
-		return 1 - epaTransitionsSize/epaTransitions.size(); 
+		return (double)epaTransitions.size() / epaTransitionsSize; 
 	}
+
 
 	public EPAState getInitialState() {
 		return initialState;
 	}
-	
+
 	public EPAState getStateByName(String stateName) {
 		final Optional<EPAState> epaStateOptional = map.keySet().stream()
 				.filter(state -> state.getName().equals(stateName))
 				.findFirst();
 		return epaStateOptional.orElse(null);
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public EPAState temp_anyPossibleDestinationState(EPAState originState, String actionName) {
