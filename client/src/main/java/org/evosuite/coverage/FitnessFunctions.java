@@ -157,8 +157,8 @@ public class FitnessFunctions {
 			return new DefUseCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
-		case EPA:
-			return new EPACoverageFactory();
+//		case EPA:
+//			return new EPACoverageFactory();
 		case CBRANCH:
 			return new CBranchFitnessFactory();
 		case IBRANCH:
