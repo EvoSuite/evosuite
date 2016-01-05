@@ -60,6 +60,8 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
 
     public static final int MAX_SIMILAR_GOALS = 2;
 
+    public static final int MAX_CHARS = 70;
+
     public CoverageGoalTestNameGenerationStrategy(List<TestCase> testCases, List<ExecutionResult> results) {
         addGoalsNotIncludedInTargetCriteria(results);
         Map<TestCase, Set<TestFitnessFunction>> testToGoals = initializeCoverageMapFromResults(results);
@@ -127,6 +129,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             // For each duplicate set, add new test goals
             changed = false;
             for (Map.Entry<String, Set<TestCase>> entry : testNameMap.entrySet()) {
+                if(entry.getKey().length() >= MAX_CHARS)
+                    continue;
+
                 // Try adding something unique for the given test set
                 if(resolveAmbiguity(testToGoals, entry.getValue(), true))
                     changed = true;
@@ -142,8 +147,13 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         // If there is absolutely nothing unique, add the top goals so that the test at least has a name
         for (Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
             if(entry.getValue().isEmpty()) {
-                entry.getValue().addAll(getTopGoals(filterSupportedGoals(entry.getKey().getCoveredGoals())));
-                testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
+                Set<TestFitnessFunction> goals = new LinkedHashSet<>();
+                for(TestFitnessFunction goal : getTopGoals(filterSupportedGoals(entry.getKey().getCoveredGoals()))) {
+                    entry.getValue().add(goal);
+                    testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
+                    if(testToName.get(entry.getKey()).length() > MAX_CHARS)
+                        break;
+                }
             }
         }
 
@@ -183,10 +193,24 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
                 continue;
             } else if(topGoals.size() > MAX_SIMILAR_GOALS) {
                 TestFitnessFunction newGoal = chooseRepresentativeGoal(test, topGoals);
-                if (newGoal != null && testToGoals.get(test).add(newGoal))
-                    added = true;
+                Set<TestFitnessFunction> newGoals = new LinkedHashSet<>(testToGoals.get(test));
+                newGoals.add(newGoal);
+                String newName = getTestName(test, newGoals);
+                if(newName.length() < MAX_CHARS) {
+                    if (testToGoals.get(test).add(newGoal))
+                        added = true;
+                }
             } else {
-                added = testToGoals.get(test).addAll(topGoals);
+                Set<TestFitnessFunction> newGoals = new LinkedHashSet<>(testToGoals.get(test));
+                Iterator<TestFitnessFunction> iterator = topGoals.iterator();
+                String newName = testToName.get(test); //getTestName(test, newGoals);
+                while(newName.length() < MAX_CHARS && iterator.hasNext()) {
+                    TestFitnessFunction newGoal = iterator.next();
+                    newGoals.add(newGoal);
+                    newName = getTestName(test, newGoals);
+                    if(testToGoals.get(test).add(newGoal))
+                        added = true;
+                }
             }
         }
         return added;
