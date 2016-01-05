@@ -38,4 +38,19 @@ public class EPATrace {
 	public List<EPATransition> getEpaTransitions() {
 		return epaTransitions;
 	}
+	@Override
+	public String toString() {
+		StringBuffer buff = new StringBuffer();
+		buff.append("EPATrace [");
+		for (int i=0; i<this.epaTransitions.size();i++) {
+			EPATransition epaTransition = epaTransitions.get(i);
+			String actionName = epaTransition.getActionName();
+			if (i>0) {
+				buff.append(",");
+			}
+			buff.append(actionName);
+		}
+		buff.append("]");
+		return buff.toString();
+	}
 }

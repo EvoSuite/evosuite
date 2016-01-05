@@ -1,32 +1,12 @@
 package org.evosuite.coverage.epa;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class EPA {
 
@@ -36,10 +16,16 @@ public class EPA {
 
 	private final EPAState initialState;
 	
+	private final int stateCount;
+
+	private final int transitionCount;
+
 	public EPA(String name, Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
 		this.name = name;
 		this.map = map;
 		this.initialState = initialState;
+		this.stateCount = calculateStateCount();
+		this.transitionCount = calculateTransitionCount();
 	}
 
 	public double getCoverage(List<EPATrace> epaTraces) {
@@ -88,4 +74,39 @@ public class EPA {
 				.findAny()
 				.isPresent();
 	}
+
+	public int getNumberOfStates() {
+		return stateCount;
+	}
+
+	public int getNumberOfTransitions() {
+		return transitionCount;
+	}
+	
+	private int calculateStateCount() {
+		Set<EPAState> states = new HashSet<EPAState>();
+		states.add(this.initialState);
+		for (EPAState transitionSource : this.map.keySet()) {
+			states.add(transitionSource);
+			Set<EPATransition> destinations = this.map.get(transitionSource);
+			for (EPATransition epaTransition : destinations) {
+				EPAState transitionDestination = epaTransition.getDestinationState();
+				states.add(transitionDestination);
+			}
+		}
+		return states.size();
+	}
+
+	private int calculateTransitionCount() {
+		int transitions =  0;
+		for (EPAState transitionSource : this.map.keySet()) {
+			Set<EPATransition> destinations = this.map.get(transitionSource);
+			for (EPATransition epaTransition : destinations) {
+				transitions++;
+			}
+		}
+		return transitions;
+	}
+
+	
 }

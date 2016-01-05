@@ -170,31 +170,31 @@ public class ListItr<E> implements ListIterator<E> {
 		return lastRet >= 0;
 	}
 
-	private boolean isState1() {
+	public boolean isState1() {
 		return isAddEnabled() && !isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isState2() {
+	public boolean isState2() {
 		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isState3() {
+	public boolean isState3() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isState4() {
+	public boolean isState4() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isState5() {
+	public boolean isState5() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
-	private boolean isState6() {
+	public boolean isState6() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
-	private boolean isState7() {
+	public boolean isState7() {
 		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 

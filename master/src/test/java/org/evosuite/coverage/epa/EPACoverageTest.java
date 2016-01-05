@@ -90,8 +90,8 @@ public class EPACoverageTest extends SystemTest {
 	@Test
 	public void testSomething() {
 		// check test case
-		String xmlFilename = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-				+ File.separator + "resources" + File.separator + "epas" + File.separator + "ListItr.xml";
+		String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test", "resources",
+				"epas", "ListItr.xml");
 		File epaXMLFile = new File(xmlFilename);
 		Assume.assumeTrue(epaXMLFile.exists());
 

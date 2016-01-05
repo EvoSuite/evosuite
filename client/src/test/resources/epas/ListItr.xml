@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<abstraction initial_state="0" input_format="code-with-pre" name="Examples.ICSE2011.ListItr">
+  <label name="add" />
+  <label name="ListItr" />
+  <label name="next" />
+  <label name="previous" />
+  <label name="remove" />
+  <label name="set" />
+  <state name="0">
+    <enabled_label name="ListItr" />
+    <transition destination="1" label="ListItr" uncertain="false" violates_invariant="false" />
+    <transition destination="2" label="ListItr" uncertain="false" violates_invariant="false" />
+    <transition destination="3" label="ListItr" uncertain="false" violates_invariant="false" />
+    <transition destination="4" label="ListItr" uncertain="false" violates_invariant="false" />
+  </state>
+  <state name="1">
+    <enabled_label name="add" />
+    <transition destination="3" label="add" uncertain="false" violates_invariant="false" />
+  </state>
+  <state name="2">
+    <enabled_label name="add" />
+    <enabled_label name="next" />
+    <transition destination="4" label="add" uncertain="false" violates_invariant="false" />
+    <transition destination="5" label="next" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="next" uncertain="false" violates_invariant="false" />
+  </state>
+  <state name="3">
+    <enabled_label name="add" />
+    <enabled_label name="previous" />
+    <transition destination="3" label="add" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="previous" uncertain="false" violates_invariant="false" />
+    <transition destination="7" label="previous" uncertain="false" violates_invariant="false" />
+  </state>
+  <state name="4">
+    <enabled_label name="add" />
+    <enabled_label name="next" />
+    <enabled_label name="previous" />
+    <transition destination="4" label="add" uncertain="false" violates_invariant="false" />
+    <transition destination="5" label="next" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="next" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="previous" uncertain="false" violates_invariant="false" />
+    <transition destination="7" label="previous" uncertain="false" violates_invariant="false" />
+  </state>
+  <state name="5">
+    <enabled_label name="add" />
+    <enabled_label name="previous" />
+    <enabled_label name="remove" />
+    <enabled_label name="set" />
+    <transition destination="1" label="remove" uncertain="false" violates_invariant="false" />
+    <transition destination="3" label="add" uncertain="false" violates_invariant="false" />
+    <transition destination="3" label="remove" uncertain="false" violates_invariant="false" />
+    <transition destination="5" label="set" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="previous" uncertain="false" violates_invariant="false" />
+    <transition destination="7" label="previous" uncertain="false" violates_invariant="false" />
+  </state>
+  <state name="6">
+    <enabled_label name="add" />
+    <enabled_label name="next" />
+    <enabled_label name="previous" />
+    <enabled_label name="remove" />
+    <enabled_label name="set" />
+    <transition destination="2" label="remove" uncertain="false" violates_invariant="false" />
+    <transition destination="3" label="remove" uncertain="false" violates_invariant="false" />
+    <transition destination="4" label="add" uncertain="false" violates_invariant="false" />
+    <transition destination="4" label="remove" uncertain="false" violates_invariant="false" />
+    <transition destination="5" label="next" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="next" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="previous" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="set" uncertain="false" violates_invariant="false" />
+    <transition destination="7" label="previous" uncertain="false" violates_invariant="false" />
+  </state>
+  <state name="7">
+    <enabled_label name="add" />
+    <enabled_label name="next" />
+    <enabled_label name="remove" />
+    <enabled_label name="set" />
+    <transition destination="1" label="remove" uncertain="false" violates_invariant="false" />
+    <transition destination="2" label="remove" uncertain="false" violates_invariant="false" />
+    <transition destination="4" label="add" uncertain="false" violates_invariant="false" />
+    <transition destination="5" label="next" uncertain="false" violates_invariant="false" />
+    <transition destination="6" label="next" uncertain="false" violates_invariant="false" />
+    <transition destination="7" label="set" uncertain="false" violates_invariant="false" />
+  </state>
+</abstraction>
