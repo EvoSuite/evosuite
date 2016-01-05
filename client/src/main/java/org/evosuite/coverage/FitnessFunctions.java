@@ -92,7 +92,7 @@ public class FitnessFunctions {
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
 		case EPA:
-			return new EPACoverageSuiteFitness();
+			return new EPACoverageSuiteFitness(Properties.EPA_XML_PATH);
 		case CBRANCH:
 			return new CBranchSuiteFitness();
 		case IBRANCH:
