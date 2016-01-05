@@ -692,6 +692,13 @@ public class Properties {
 	public static double EPSON = 0.01;
 
 	//----------------------------------------------------------------
+	// EPA Coverage
+	
+	@Parameter(key = "epa_xml_pat", group = "EPA", description = "Indicates the path to the EPA XML File")
+	public static String EPA_XML_PATH = null;
+
+	
+	//----------------------------------------------------------------
 	// Continuous Test Generation
 
 	@Parameter(key = "ctg_memory", group = "Continuous Test Generation", description = "Total Memory (in MB) that CTG will use")
