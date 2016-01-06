@@ -71,10 +71,14 @@ public class ResetExecutor {
 
 			long elapsed = System.currentTimeMillis() - start;
 
+                        /*
+                        TODO: Cancelling reset leaves the system in an inconsistent state
+                        
 			if(!className.equals(Properties.TARGET_CLASS) && (! TimeController.getInstance().isThereStillTimeInThisPhase() || elapsed > Properties.TIMEOUT_RESET)){
 				AtMostOnceLogger.warn(logger, "Stopped resetting of classes due to timeout");
-				continue; //do not "break", as need to be sure we still reset TARGET_CLASS
+				//continue; //do not "break", as need to be sure we still reset TARGET_CLASS
 			}
+			*/
 			resetClass(className);
 		}
 	}
