@@ -92,14 +92,14 @@ public class ProjectAction implements Action {
 
 		// FIXME should we also use module.getRelativePath() ?!
 		FilePath[] testsGenerated = workspace.list(build.getEnvironment(listener).expand(
-				Properties.CTG_DIR + File.separator + "*" + File.separator +
+				Properties.CTG_DIR + File.separator + "tmp_*" + File.separator +
 				Properties.CTG_TMP_TESTS_DIR_NAME + File.separator + "**" + File.separator + "*"));
 		for (FilePath testGenerated : testsGenerated) {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "From_testsGenerated: " + testGenerated.getRemote());
 
 			FilePath to = new FilePath(new File(
 					testGenerated.getRemote().replace(workspace.getRemote(),
-							build.getRootDir().getAbsolutePath() + File.separator + moduleName + File.separator)));
+							build.getRootDir().getAbsolutePath() + File.separator + ".." + File.separator + moduleName + File.separator)));
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "To_testsGenerated: " + to.getRemote());
 			testGenerated.copyTo(to);
 		}

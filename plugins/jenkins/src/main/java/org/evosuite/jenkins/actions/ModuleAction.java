@@ -126,7 +126,7 @@ public class ModuleAction implements Action {
 
 				String fullPathOfTestSuite = suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 ).getFullPathOfTestSuite();
 				c.highlightSource(fullPathOfTestSuite.replace(this.build.getWorkspace().getRemote(),
-						this.build.getRootDir().getAbsolutePath() + File.separator + this.name + File.separator), listener);
+						this.build.getRootDir().getAbsolutePath() + File.separator + ".." + File.separator + this.name + File.separator), listener);
 
 				this.classes.add(c);
 			}
