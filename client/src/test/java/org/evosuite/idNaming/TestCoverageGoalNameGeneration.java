@@ -391,6 +391,20 @@ public class TestCoverageGoalNameGeneration {
     }
 
     @Test
+    public void testTwoUniqueMethodsWithLongNames() {
+        TestCase test = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "loremIpsumDolorSitAmetConsectetuerAdipiscingElit()V");
+        test.addCoveredGoal(goal1);
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "sedDiamNonummNibhEuismodTinciduntUtLaoreetDoloreMagnaAliquamEratVolutpat()V");
+        test.addCoveredGoal(goal2);
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        String generatedName = naming.getName(test);
+        assertEquals("testLoremIpsumDolorSitAmetConsectetuerAdipiscingElit", generatedName);
+    }
+
+    @Test
     public void testMultipleMethods() throws NoSuchMethodException {
         TestCase test = new DefaultTestCase();
         GenericConstructor gc = new GenericConstructor(Object.class.getConstructor(), Object.class);
