@@ -26,7 +26,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by gordon on 22/12/2015.
+ * @author Gordon Fraser
+ * @author Ermira Daka
  */
 public class CoverageGoalTestNameGenerationStrategy implements TestNameGenerationStrategy {
 
