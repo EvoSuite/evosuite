@@ -19,35 +19,17 @@
  */
 package org.evosuite.coverage.epa;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.Properties.StatisticsBackend;
-import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.Properties.Strategy;
-import org.evosuite.Properties.TestFactory;
 import org.evosuite.SystemTest;
-import org.evosuite.coverage.rho.RhoCoverageFactory;
-import org.evosuite.statistics.RuntimeVariable;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.Compositional;
 import com.examples.with.different.packagename.epa.ListItr;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 public class EPACoverageTest extends SystemTest {
 
@@ -72,7 +54,7 @@ public class EPACoverageTest extends SystemTest {
 
 	@Before
 	public void prepare() {
-		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPA };
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPATRANSITION };
 		Properties.TIMEOUT = 15 * 60 * 1000; // test execution timeout 15 min
 		// Properties.STRATEGY = Strategy.ENTBUG;
 		// Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;

@@ -1,7 +1,9 @@
 package org.evosuite.coverage.epa;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -13,7 +15,15 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.xml.sax.SAXException;
 
-public class EPACoverageSuiteFitness extends TestSuiteFitnessFunction {
+/**
+ * This fitness function counts the degree of covered transitions. It is a
+ * minimization function (less is better). The value 0.0 means all transitions
+ * were covered.
+ * 
+ * @author galeotti
+ *
+ */
+public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * 
@@ -22,7 +32,7 @@ public class EPACoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final EPA epa;
 
-	public EPACoverageSuiteFitness(String epaXMLFilename) {
+	public EPATransitionCoverageSuiteFitness(String epaXMLFilename) {
 		if (epaXMLFilename == null) {
 			throw new IllegalArgumentException("epa XML Filename cannot be null");
 		}
@@ -33,13 +43,24 @@ public class EPACoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 	}
 
+	/**
+	 * Fitness value is the number of uncovered EPA transitions
+	 */
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		List<ExecutionResult> executionResults = runTestSuite(suite);
+
 		final List<EPATrace> epaTraces = executionResults.stream().map(ExecutionResult::getTrace)
 				.map(executionTrace -> new EPATrace(executionTrace, epa)).collect(Collectors.toList());
 
-		return epa.getCoverage(epaTraces);
+		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream().map(EPATrace::getEpaTransitions)
+				.flatMap(Collection::stream).collect(Collectors.toSet());
+
+		final int epaTransitionSize = epaTraces.size();
+		final int tracedEpaTransitionSize = tracedEpaTransitions.size();
+		final int uncoveredEpaTransitions = epaTransitionSize - tracedEpaTransitionSize;
+		final double fitness = uncoveredEpaTransitions;
+		return fitness;
 		//
 		// int i = 0;
 		// for (ExecutionResult executionResult : executionResults) {
