@@ -25,6 +25,7 @@
       <table id="evosuite-module-report" class="sortable pane bigtable">
         <tr>
           <td class="pane-header">Class</td>
+          <td class="pane-header">Overall Coverage</td>
           <td class="pane-header">Number of Tests</td>
           <td class="pane-header">Number of Statements</td>
           <td class="pane-header">Total Effort (minutes)</td>
@@ -33,6 +34,9 @@
           <tr>
          	<td>
               <a href="${testableClass.getName()}"><st:out value="${testableClass.getName()}"/></a>
+            </td>
+            <td>
+              <st:out value="${testableClass.getOverallCoverage()}%"/>
             </td>
             <td>
               <st:out value="${testableClass.getNumberOfTests()}"/>
