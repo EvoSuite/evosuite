@@ -13,23 +13,23 @@ import java.util.NoSuchElementException;
 // invariant = "(and " +
 // "(or (= lastRet -1) (>= lastRet 0)) " +
 // "(and (<= 0 cursor) (<= cursor (.size this$0))))")
-public class ListItr<E> implements ListIterator<E> {
+public class ListItr implements ListIterator<Object> {
 	/**
 	 * 
 	 */
-	private final ArrayList<E> arrayList;
+	private final ArrayList arrayList;
 	private int cursor; // index of next element to return
 	private int lastRet; // index of last element returned; -1 if no such
 	private int expectedModCount;
 
-	ListItr(ArrayList<E> arrayList, int index) {
+	ListItr(ArrayList arrayList, int index) {
 
 		if (index < 0 || index > arrayList.size())
 			throw new IndexOutOfBoundsException("Index: " + index);
 
 		this.arrayList = arrayList;
 		this.lastRet = -1;
-		this.expectedModCount = this.arrayList.modCount;
+		this.expectedModCount = this.arrayList.getModCount();
 		this.cursor = index;
 	}
 
@@ -53,7 +53,7 @@ public class ListItr<E> implements ListIterator<E> {
 
 	@Override
 	// @Pre("(< cursor (eval(.size this$0)))")
-	public E next() {
+	public Object next() {
 		return super_next();
 	}
 
@@ -65,7 +65,7 @@ public class ListItr<E> implements ListIterator<E> {
 
 	// @SuppressWarnings("unchecked")
 	// @Pre("(> cursor 0)")
-	public E previous() {
+	public Object previous() {
 		checkForComodification();
 		int i = cursor - 1;
 		if (i < 0)
@@ -74,15 +74,15 @@ public class ListItr<E> implements ListIterator<E> {
 		if (i >= elementData.length)
 			throw new ConcurrentModificationException();
 		cursor = i;
-		return (E) elementData[lastRet = i];
+		return (Object) elementData[lastRet = i];
 	}
 
 	// @Pre("(and (>= lastRet 0) (> p0 10))")
 	public void setNumber(Integer integer) {
-		set((E) integer);
+		set((Object) integer);
 	}
 
-	public void set(E e) {
+	public void set(Object e) {
 		if (lastRet < 0)
 			throw new IllegalStateException();
 		checkForComodification();
@@ -96,10 +96,10 @@ public class ListItr<E> implements ListIterator<E> {
 
 	// @Pre("(> p0 0)")
 	public void addNumber(Integer integer) {
-		add((E) integer);
+		add((Object) integer);
 	}
 
-	public void add(E e) {
+	public void add(Object e) {
 		checkForComodification();
 
 		try {
@@ -107,7 +107,7 @@ public class ListItr<E> implements ListIterator<E> {
 			arrayList.add(i, e);
 			cursor = i + 1;
 			lastRet = -1;
-			expectedModCount = this.arrayList.modCount;
+			expectedModCount = this.arrayList.getModCount();
 		} catch (IndexOutOfBoundsException ex) {
 			throw new ConcurrentModificationException();
 		}
@@ -117,7 +117,7 @@ public class ListItr<E> implements ListIterator<E> {
 		return cursor != this.arrayList.size;
 	}
 
-	private E super_next() {
+	private Object super_next() {
 		checkForComodification();
 		int i = cursor;
 		if (i >= this.arrayList.size)
@@ -126,7 +126,7 @@ public class ListItr<E> implements ListIterator<E> {
 		if (i >= elementData.length)
 			throw new ConcurrentModificationException();
 		cursor = i + 1;
-		return (E) elementData[lastRet = i];
+		return (Object) elementData[lastRet = i];
 	}
 
 	private void super_remove() {
@@ -138,14 +138,14 @@ public class ListItr<E> implements ListIterator<E> {
 			arrayList.remove(lastRet);
 			cursor = lastRet;
 			lastRet = -1;
-			expectedModCount = this.arrayList.modCount;
+			expectedModCount = this.arrayList.getModCount();
 		} catch (IndexOutOfBoundsException ex) {
 			throw new ConcurrentModificationException();
 		}
 	}
 
 	private final void checkForComodification() {
-		if (this.arrayList.modCount != expectedModCount)
+		if (this.arrayList.getModCount() != expectedModCount)
 			throw new ConcurrentModificationException();
 	}
 

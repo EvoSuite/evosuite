@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * This class is a Enabledness Preservation Automata (EPA). 
  * 
  * @author galeotti
  *

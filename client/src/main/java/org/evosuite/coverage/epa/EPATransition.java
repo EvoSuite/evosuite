@@ -1,5 +1,11 @@
 package org.evosuite.coverage.epa;
 
+/**
+ * A tuple <FROM_STATE, ACTION, TO_STATE>
+ * 
+ * @author galeotti
+ *
+ */
 public class EPATransition {
 	final private EPAState originState;
 	final private String actionName;

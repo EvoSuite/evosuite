@@ -5,6 +5,11 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 public class EPACoverageTestFitness extends TestFitnessFunction {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8090928123309618388L;
+
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		return 0;

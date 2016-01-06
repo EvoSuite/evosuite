@@ -515,10 +515,10 @@ public class ResourceList {
 		}		
 	}
 
-	private void addEntry(String classPathElement) throws IllegalArgumentException{
-		final File file = new File(classPathElement);
+	private void addEntry(String origClassPathElement) throws IllegalArgumentException{
+		final File file = new File(origClassPathElement);
 
-		classPathElement = file.getAbsolutePath();
+		final String classPathElement = file.getAbsolutePath();
 
 		if(getCache().mapCPtoClasses.containsKey(classPathElement)){
 			return; //this classpath entry has already been analyzed
