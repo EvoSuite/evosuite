@@ -1,5 +1,6 @@
 package org.evosuite.coverage.epa;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,27 +17,27 @@ import org.evosuite.utils.generic.GenericMethod;
 
 public class EPATestCaseBuilder {
 
-	private Map<Class<?>, GenericClass> classes = new HashMap<Class<?>, GenericClass>();
+	private final Map<Class<?>, GenericClass> genericClasses = new HashMap<Class<?>, GenericClass>();
 
 	private final DefaultTestCase tc = new DefaultTestCase();
 
-	public VariableReference addConstructorStatement(Class<?> clazz) throws NoSuchMethodException, SecurityException {
-		GenericClass genericClass = getGenericClass(clazz);
-		GenericConstructor arrayListGenericConstructor = new GenericConstructor(
-				genericClass.getRawClass().getConstructor(), genericClass);
-		ConstructorStatement stmt0 = new ConstructorStatement(tc, arrayListGenericConstructor,
+	public VariableReference addConstructorStatement(Constructor<?> constructor) throws NoSuchMethodException, SecurityException {
+		GenericClass genericClass = getGenericClass(constructor.getDeclaringClass());
+		GenericConstructor genericConstructor = new GenericConstructor(
+				constructor, genericClass);
+		ConstructorStatement stmt = new ConstructorStatement(tc, genericConstructor,
 				Collections.<VariableReference> emptyList());
-		VariableReference ret_val = tc.addStatement(stmt0);
+		VariableReference ret_val = tc.addStatement(stmt);
 		return ret_val;
 	}
-
+	
 	private GenericClass getGenericClass(Class<?> clazz) {
-		if (!classes.containsKey(clazz)) {
+		if (!genericClasses.containsKey(clazz)) {
 			GenericClass genericClass = new GenericClass(clazz);
-			classes.put(clazz, genericClass);
+			genericClasses.put(clazz, genericClass);
 			return genericClass;
 		} else {
-			return classes.get(clazz);
+			return genericClasses.get(clazz);
 		}
 	}
 

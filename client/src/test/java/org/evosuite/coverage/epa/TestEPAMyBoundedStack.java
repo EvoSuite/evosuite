@@ -14,46 +14,42 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assume;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.epa.ListItr;
-import com.examples.with.different.packagename.epa.MyArrayList;
+import com.examples.with.different.packagename.epa.MyBoundedStack;
 
-public class TestEPAListItr extends TestEPATransitionCoverage {
+public class TestEPAMyBoundedStack extends TestEPATransitionCoverage {
 
 	@Test
 	public void testSingleTrace() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
 		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
-				"resources", "epas", "ListItr.xml");
+				"resources", "epas", "MyBoundedStack.xml");
 		final File epaXMLFile = new File(xmlFilename);
 		Assume.assumeTrue(epaXMLFile.exists());
 
-		Properties.TARGET_CLASS = ListItr.class.getName();
+		Properties.TARGET_CLASS = MyBoundedStack.class.getName();
 
 		EPATestCaseBuilder builder = new EPATestCaseBuilder();
 
-		Class<?> listItrClass = TestGenerationContext.getInstance().getClassLoaderForSUT()
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT()
 				.loadClass(Properties.TARGET_CLASS);
-		Class<?> arrayListClass = TestGenerationContext.getInstance().getClassLoaderForSUT()
-				.loadClass(MyArrayList.class.getName());
 
-		// adds "MyArrayList list = new MyArrayList();"
-		Constructor<?> arrayListCtor = arrayListClass.getConstructor();
-		VariableReference arrayListVar = builder.addConstructorStatement(arrayListCtor);
-
-		// adds "ListItr itr = list.listIterator();"
-		Method m = arrayListClass.getMethod("listIterator");
-		VariableReference itrVar = builder.addMethodStatement(arrayListVar, m);
+		// adds "MyBoundedStack stack = new MyBoundedStack();"
+		Constructor<?> constructor = clazz.getConstructor();
+		VariableReference stackVar = builder.addConstructorStatement(constructor);
 
 		// adds "Object object0 = new Object();"
 		Constructor<Object> objectConstructor = Object.class.getConstructor();
 		VariableReference object0 = builder.addConstructorStatement(objectConstructor);
 
-		// adds "itr.add(object0);"
-		Method addMethod = listItrClass.getMethod("add", Object.class);
-		builder.addMethodStatement(itrVar, addMethod, object0);
+		// adds "stack.push(object0);"
+		Method pushMethod = clazz.getMethod("push", Object.class);
+		builder.addMethodStatement(stackVar, pushMethod, object0);
+
+		// adds "object1 = stack.pop();"
+		Method popMethod = clazz.getMethod("pop");
+		builder.addMethodStatement(stackVar, popMethod);
 
 		DefaultTestCase tc = builder.toTestCase();
-		// Expected Trace
-		// S0->ListItr()->S1->add()->S3
+		
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(tc);
 
