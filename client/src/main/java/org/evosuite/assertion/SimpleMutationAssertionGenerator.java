@@ -163,7 +163,7 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
         filterInspectorPrimitiveDuplication(test.getStatement(test.size() - 1));
 
         // We always want at least one assertion on non-failing tests
-        assert(origResult.hasTestException() || !test.getStatement(test.size() - 1).getAssertions().isEmpty());
+        assert(!origResult.noThrownExceptions() || !test.getStatement(test.size() - 1).getAssertions().isEmpty()) : "No assertion in test: "+test.toCode();
 	}
 
     private List<Assertion> getAllAssertions(ExecutionResult result) {
@@ -292,7 +292,7 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 
     private void ensureAssertionsOnLastStatement(TestCase test, ExecutionResult origResult, List<Assertion> assertions) {
         // No need to add assertion of the test ends with an exception
-        if(origResult.hasTestException()) {
+        if(!origResult.noThrownExceptions()) {
             if (!test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
                 logger.debug("Removing assertions after exception");
                 test.getStatement(test.size() - 1).removeAssertions();
