@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<abstraction initial_state="0" input_format="code-with-pre" name="Examples.ICSE2011.ListItr">
+<abstraction initial_state="0" input_format="code-with-pre" name="com.examples.with.different.packagename.epa.ListItr">
   <label name="add" />
   <label name="ListItr" />
   <label name="next" />

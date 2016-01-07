@@ -12,10 +12,12 @@ public abstract class EPATraceFactory {
 		EPAState originState = epa.getInitialState();
 
 		for (MethodCall methodCallExecution : executionTrace.getMethodCalls()) {
-			String actionName = getCleanMethodName(methodCallExecution.methodName);
+			String methodName = methodCallExecution.methodName;
+			String actionName = getCleanMethodName(methodName);
 			actionName = actionName.equals("<init>") ? epa.getName() : actionName;
-			if (!epa.isActionInEPA(actionName))
+			if (!epa.containsAction(actionName)) {
 				continue;
+			}
 			
 			//final EPAState destinationState = epa.getStateByName(methodCallexecution.endState);
 			// TODO: Remove this once MethodCall.endState is implemented

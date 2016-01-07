@@ -52,7 +52,7 @@ public class EPA {
 				.map(EPATransition::getDestinationState).findFirst().orElse(null);
 	}
 
-	public boolean isActionInEPA(String actionName) {
+	public boolean containsAction(String actionName) {
 		return map.values().stream().flatMap(Collection::stream)
 				.filter(epaTransition -> epaTransition.getActionName().equals(actionName)).findAny().isPresent();
 	}
