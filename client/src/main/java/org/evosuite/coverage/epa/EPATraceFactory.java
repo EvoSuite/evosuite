@@ -13,6 +13,11 @@ public abstract class EPATraceFactory {
 
 		for (MethodCall methodCallExecution : executionTrace.getMethodCalls()) {
 			String methodName = methodCallExecution.methodName;
+			int id = methodCallExecution.callingObjectID;
+			System.out.println(methodName);
+		}
+		for (MethodCall methodCallExecution : executionTrace.getMethodCalls()) {
+			String methodName = methodCallExecution.methodName;
 			String actionName = getCleanMethodName(methodName);
 			actionName = actionName.equals("<init>") ? epa.getName() : actionName;
 			if (!epa.containsAction(actionName)) {

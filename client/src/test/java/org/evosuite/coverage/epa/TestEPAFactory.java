@@ -12,7 +12,7 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-public class TestEPABuilder {
+public class TestEPAFactory {
 
 	@Test
 	public void testListItr() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
@@ -43,7 +43,7 @@ public class TestEPABuilder {
 		assertEquals(4, stateCount);
 
 		int transitionCount = epa.getNumberOfTransitions();
-		assertEquals(6, transitionCount);
+		assertEquals(7, transitionCount);
 	}
 	
 	
