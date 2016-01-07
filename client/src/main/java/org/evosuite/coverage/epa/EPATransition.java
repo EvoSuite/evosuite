@@ -1,12 +1,20 @@
 package org.evosuite.coverage.epa;
 
+import java.io.IOException;
+import java.io.Serializable;
+
 /**
  * A tuple <FROM_STATE, ACTION, TO_STATE>
  * 
  * @author galeotti
  *
  */
-public class EPATransition {
+public class EPATransition implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4868298136596868246L;
+	
 	final private EPAState originState;
 	final private String actionName;
 	final private EPAState destinationState;
@@ -57,5 +65,13 @@ public class EPATransition {
 		result = 31 * result + actionName.hashCode();
 		result = 31 * result + destinationState.hashCode();
 		return result;
+	}
+	
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+	}
+
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
 	}
 }

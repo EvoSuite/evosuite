@@ -358,7 +358,10 @@ public enum RuntimeVariable {
 	/** The total number of constraints during the execution of the Genetic Algorithm*/
 	/** This total should be the sum of all the other types of constraints */
 	TotalNumberOfConstraints,
+	/* -------------------------------------------------------------------- */
+	/** The coverage of an EPA */ 
 	
+	EpaTransitionCoverage,
 	/* -------------------------------------------------------------------- */
 	/** The number of SAT answers to Solver queries */ 
 	NumberOfSATQueries,

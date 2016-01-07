@@ -1,5 +1,7 @@
 package org.evosuite.coverage.epa;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,12 +10,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This class is a Enabledness Preservation Automata (EPA). 
+ * This class is a Enabledness Preservation Automata (EPA).
  * 
  * @author galeotti
  *
  */
-public class EPA {
+public class EPA implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7496754070047070624L;
 
 	final private Map<EPAState, Set<EPATransition>> map;
 
@@ -21,16 +28,10 @@ public class EPA {
 
 	private final EPAState initialState;
 
-	private final int stateCount;
-
-	private final int transitionCount;
-
 	public EPA(String name, Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
 		this.name = name;
 		this.map = map;
 		this.initialState = initialState;
-		this.stateCount = calculateStateCount(map, initialState);
-		this.transitionCount = calculateTransitionCount(map);
 	}
 
 	public EPAState getInitialState() {
@@ -57,29 +58,28 @@ public class EPA {
 				.filter(epaTransition -> epaTransition.getActionName().equals(actionName)).findAny().isPresent();
 	}
 
-	public int getNumberOfStates() {
-		return stateCount;
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
 	}
 
-	public int getNumberOfTransitions() {
-		return transitionCount;
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
 	}
 
-	private static int calculateStateCount(Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
-		Set<EPAState> states = new HashSet<EPAState>();
+	public Set<EPAState> getStates() {
+		final Set<EPAState> states = new HashSet<EPAState>();
 		states.add(initialState);
 		states.addAll(map.keySet());
-		Set<EPAState> destination_states = map.values().stream().flatMap(Set::stream).map(t -> t.getDestinationState())
-				.collect(Collectors.toSet());
+		final Set<EPAState> destination_states = map.values().stream().flatMap(Set::stream)
+				.map(t -> t.getDestinationState()).collect(Collectors.toSet());
 		states.addAll(destination_states);
-		return states.size();
+		return states;
 	}
 
-	private static int calculateTransitionCount(Map<EPAState, Set<EPATransition>> map) {
+	public Set<EPATransition> getTransitions() {
 		final Set<EPATransition> epaTransitions = map.values().stream().flatMap(Collection::stream)
 				.collect(Collectors.toSet());
-		final int epaTransitionsSize = epaTransitions.size();
-		return epaTransitionsSize;
+		return epaTransitions;
 	}
 
 }

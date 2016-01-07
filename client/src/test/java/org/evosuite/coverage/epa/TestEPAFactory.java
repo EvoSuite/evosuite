@@ -23,10 +23,10 @@ public class TestEPAFactory {
 
 		EPA epa = EPAFactory.buildEPA(xmlFilename);
 
-		int stateCount = epa.getNumberOfStates();
+		int stateCount = epa.getStates().size();
 		assertEquals(8, stateCount);
 
-		int transitionCount = epa.getNumberOfTransitions();
+		int transitionCount = epa.getTransitions().size();
 		assertEquals(37, transitionCount);
 	}
 	
@@ -39,10 +39,10 @@ public class TestEPAFactory {
 
 		EPA epa = EPAFactory.buildEPA(xmlFilename);
 
-		int stateCount = epa.getNumberOfStates();
+		int stateCount = epa.getStates().size();
 		assertEquals(4, stateCount);
 
-		int transitionCount = epa.getNumberOfTransitions();
+		int transitionCount = epa.getTransitions().size();
 		assertEquals(7, transitionCount);
 	}
 	

@@ -177,6 +177,8 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.IBranchCoverage;
             case REGRESSION:
                 return RuntimeVariable.BranchCoverage;
+            case EPATRANSITION:
+            	return RuntimeVariable.EpaTransitionCoverage;
             default:
                 throw new RuntimeException("Criterion not supported: " + criterion);
 
@@ -339,6 +341,8 @@ public class CoverageCriteriaAnalyzer {
             case REGRESSION:
             case REGRESSIONTESTS:
                 return null;
+            case EPATRANSITION:
+            	return RuntimeVariable.EpaTransitionCoverage;
             default:
                 logger.debug("Criterion not supported: " + criterion);
                 return null;
