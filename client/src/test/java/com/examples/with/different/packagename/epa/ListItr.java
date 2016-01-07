@@ -17,12 +17,12 @@ public class ListItr implements ListIterator<Object> {
 	/**
 	 * 
 	 */
-	private final ArrayList arrayList;
+	private final MyArrayList arrayList;
 	private int cursor; // index of next element to return
 	private int lastRet; // index of last element returned; -1 if no such
 	private int expectedModCount;
 
-	ListItr(ArrayList arrayList, int index) {
+	public ListItr(MyArrayList arrayList, int index) {
 
 		if (index < 0 || index > arrayList.size())
 			throw new IndexOutOfBoundsException("Index: " + index);

@@ -10,7 +10,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
-public class ArrayList extends AbstractList<Object>
+public class MyArrayList extends AbstractList<Object>
 		implements List<Object>, RandomAccess, Cloneable, java.io.Serializable {
 
 	public static final long serialVersionUID = 8683452581122892189L;
@@ -19,18 +19,18 @@ public class ArrayList extends AbstractList<Object>
 
 	public int size;
 
-	public ArrayList(int initialCapacity) {
+	public MyArrayList(int initialCapacity) {
 		super();
 		if (initialCapacity < 0)
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
 		this.elementData = new Object[initialCapacity];
 	}
 
-	public ArrayList() {
+	public MyArrayList() {
 		this(10);
 	}
 
-	public ArrayList(Collection c) {
+	public MyArrayList(Collection c) {
 		elementData = c.toArray();
 		size = elementData.length;
 		// c.toArray might (incorrectly) not return Object[] (see 6260652)
@@ -99,7 +99,7 @@ public class ArrayList extends AbstractList<Object>
 
 	public Object clone() {
 		try {
-			ArrayList v = (ArrayList) super.clone();
+			MyArrayList v = (MyArrayList) super.clone();
 			v.elementData = Arrays.copyOf(elementData, size);
 			v.modCount = 0;
 			return v;
@@ -348,7 +348,7 @@ public class ArrayList extends AbstractList<Object>
 			int i = cursor;
 			if (i >= size)
 				throw new NoSuchElementException();
-			Object[] elementData = ArrayList.this.elementData;
+			Object[] elementData = MyArrayList.this.elementData;
 			if (i >= elementData.length)
 				throw new ConcurrentModificationException();
 			cursor = i + 1;
@@ -361,7 +361,7 @@ public class ArrayList extends AbstractList<Object>
 			checkForComodification();
 
 			try {
-				ArrayList.this.remove(lastRet);
+				MyArrayList.this.remove(lastRet);
 				cursor = lastRet;
 				lastRet = -1;
 				expectedModCount = modCount;
@@ -409,14 +409,14 @@ public class ArrayList extends AbstractList<Object>
 			this.parentOffset = fromIndex;
 			this.offset = offset + fromIndex;
 			this.size = toIndex - fromIndex;
-			this.modCount = ArrayList.this.modCount;
+			this.modCount = MyArrayList.this.modCount;
 		}
 
 		public Object set(int index, Object e) {
 			rangeCheck(index);
 			checkForComodification();
-			Object oldValue = ArrayList.this.elementData(offset + index);
-			Object[] ed = ArrayList.this.elementData;
+			Object oldValue = MyArrayList.this.elementData(offset + index);
+			Object[] ed = MyArrayList.this.elementData;
 			ed[offset + index] = e;
 			return oldValue;
 		}
@@ -424,7 +424,7 @@ public class ArrayList extends AbstractList<Object>
 		public Object get(int index) {
 			rangeCheck(index);
 			checkForComodification();
-			return ArrayList.this.elementData(offset + index);
+			return MyArrayList.this.elementData(offset + index);
 		}
 
 		public int size() {
@@ -488,7 +488,7 @@ public class ArrayList extends AbstractList<Object>
 			return new ListIterator() {
 				int cursor = index;
 				int lastRet = -1;
-				int expectedModCount = ArrayList.this.modCount;
+				int expectedModCount = MyArrayList.this.modCount;
 
 				public boolean hasNext() {
 					return cursor != SubList.this.size;
@@ -499,7 +499,7 @@ public class ArrayList extends AbstractList<Object>
 					int i = cursor;
 					if (i >= SubList.this.size)
 						throw new NoSuchElementException();
-					Object[] elementData = ArrayList.this.elementData;
+					Object[] elementData = MyArrayList.this.elementData;
 					if (offset + i >= elementData.length)
 						throw new ConcurrentModificationException();
 					cursor = i + 1;
@@ -515,7 +515,7 @@ public class ArrayList extends AbstractList<Object>
 					int i = cursor - 1;
 					if (i < 0)
 						throw new NoSuchElementException();
-					Object[] elementData = ArrayList.this.elementData;
+					Object[] elementData = MyArrayList.this.elementData;
 					if (offset + i >= elementData.length)
 						throw new ConcurrentModificationException();
 					cursor = i;
@@ -539,7 +539,7 @@ public class ArrayList extends AbstractList<Object>
 						SubList.this.remove(lastRet);
 						cursor = lastRet;
 						lastRet = -1;
-						expectedModCount = ArrayList.this.modCount;
+						expectedModCount = MyArrayList.this.modCount;
 					} catch (IndexOutOfBoundsException ex) {
 						throw new ConcurrentModificationException();
 					}
@@ -551,7 +551,7 @@ public class ArrayList extends AbstractList<Object>
 					checkForComodification();
 
 					try {
-						ArrayList.this.set(offset + lastRet, e);
+						MyArrayList.this.set(offset + lastRet, e);
 					} catch (IndexOutOfBoundsException ex) {
 						throw new ConcurrentModificationException();
 					}
@@ -565,14 +565,14 @@ public class ArrayList extends AbstractList<Object>
 						SubList.this.add(i, e);
 						cursor = i + 1;
 						lastRet = -1;
-						expectedModCount = ArrayList.this.modCount;
+						expectedModCount = MyArrayList.this.modCount;
 					} catch (IndexOutOfBoundsException ex) {
 						throw new ConcurrentModificationException();
 					}
 				}
 
 				final void checkForComodification() {
-					if (expectedModCount != ArrayList.this.modCount)
+					if (expectedModCount != MyArrayList.this.modCount)
 						throw new ConcurrentModificationException();
 				}
 			};
@@ -598,7 +598,7 @@ public class ArrayList extends AbstractList<Object>
 		}
 
 		private void checkForComodification() {
-			if (ArrayList.this.modCount != this.modCount)
+			if (MyArrayList.this.modCount != this.modCount)
 				throw new ConcurrentModificationException();
 		}
 	}
