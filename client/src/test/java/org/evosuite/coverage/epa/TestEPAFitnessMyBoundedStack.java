@@ -199,4 +199,46 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
 	
 	}	
+	
+	@Test
+	public void testTwoStacks() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
+		Properties.TARGET_CLASS = MyBoundedStack.class.getName();
+		
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT()
+				.loadClass(Properties.TARGET_CLASS);
+		Constructor<?> constructor = clazz.getConstructor();
+		Method pushMethod = clazz.getMethod("push", Object.class);
+		Constructor<Object> objectConstructor = Object.class.getConstructor();
+	
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+
+		VariableReference stack0 = builder.addConstructorStatement(constructor);
+		VariableReference stack1 = builder.addConstructorStatement(constructor);
+		VariableReference object0 = builder.addConstructorStatement(objectConstructor);
+		builder.addMethodStatement(stack0, pushMethod, object0);
+		builder.addMethodStatement(stack1, pushMethod, object0);
+	
+		DefaultTestCase tc = builder.toTestCase();
+		
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(tc);
+	
+		EPATransitionCoverageSuiteFitness fitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
+	
+		suite.addFitness(fitness);
+		double fitnessValue = fitness.getFitness(suite);
+	
+		// There are 7 transitions in ListItr's EPA
+		int expectedTotalTransitions = 7;
+	
+		// There are only 2 transitions in the test case
+		int expectedCoveredTransitions = 2;
+	
+		// fitness is the number of uncovered EPA transitions
+		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
+	
+		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
+	
+	}	
+	
 }
