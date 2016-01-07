@@ -416,7 +416,7 @@ public class ExplanatoryNamingTestVisitor extends TestVisitor {
         }
 
         VariableReference callee = statement.getCallee();
-        if (!(callee instanceof ConstantValue)) {
+        if (callee != null && !( callee instanceof ConstantValue)) {
             String prefix = "invokes";
             if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
                 try {
@@ -577,7 +577,6 @@ public class ExplanatoryNamingTestVisitor extends TestVisitor {
             SortedSet<CandidateName> candidates = varEntry.getValue();
             variableNames.put(key, getFinalVariableName(candidates.first().getName())); // ordered list of candidates
 		}
-        printAll();
 		return variableNames;
 	}
 
