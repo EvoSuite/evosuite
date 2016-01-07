@@ -161,7 +161,23 @@
         </dependency>
         -->
         <!-- END ERMIRA -->
+        <!-- NATURALIZE -->
+        <dependency>
+            <groupId>naturalize</groupId>
+            <artifactId>naturalize</artifactId>
+            <version>1.1-SNAPSHOT</version>
+        </dependency>
+        <!---->
+
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>data-local</id>
+            <name>data</name>
+            <url>file://${project.basedir}/repo</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
