@@ -130,8 +130,8 @@ public class TestMethodNamingComplexExamples {
         String nameTest3 = naming.getName(test3);
 
         assertEquals("Generated test name differs from expected", "testMist", nameTest1);
-        assertEquals("Generated test name differs from expected", "testKeysReturningEmpty", nameTest2);
-        assertEquals("Generated test name differs from expected", "testKeysReturningNonempty", nameTest3);
+        assertEquals("Generated test name differs from expected", "testKeysReturningPositive", nameTest2);
+        assertEquals("Generated test name differs from expected", "testKeysReturningNegative", nameTest3);
     }
 
     @Test
@@ -166,8 +166,8 @@ public class TestMethodNamingComplexExamples {
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(testCases);
         String nameTest1 = naming.getName(test1);
         String nameTest2 = naming.getName(test2);
-        assertEquals("Generated test name differs from expected", "testValuesWithByteArray", nameTest1);
-        assertEquals("Generated test name differs from expected", "testValuesWithIntArray", nameTest2);
+        assertEquals("Generated test name differs from expected", "testValuesTakingByteArray", nameTest1);
+        assertEquals("Generated test name differs from expected", "testValuesTakingIntArray", nameTest2);
     }
 
     @Test
@@ -203,8 +203,8 @@ public class TestMethodNamingComplexExamples {
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(testCases);
         String nameTest1 = naming.getName(test1);
         String nameTest2 = naming.getName(test2);
-        assertEquals("Generated test name differs from expected", "testValuesWithByteArray", nameTest1);
-        assertEquals("Generated test name differs from expected", "testValuesWithoutArguments", nameTest2);
+        assertEquals("Generated test name differs from expected", "testValuesTakingByteArray", nameTest1);
+        assertEquals("Generated test name differs from expected", "testValuesTakingNoArguments", nameTest2);
     }
 
     @Test
@@ -239,8 +239,8 @@ public class TestMethodNamingComplexExamples {
         String nameTest1 = naming.getName(test1);
         String nameTest2 = naming.getName(test2);
 
-        assertEquals("Generated test name differs from expected", "testKeysWithoutArgumentsReturningEmpty", nameTest1);
-        assertEquals("Generated test name differs from expected", "testKeysWithoutArgumentsReturningNonempty", nameTest2);
+        assertEquals("Generated test name differs from expected", "testKeysTakingNoArgumentsReturningNegative", nameTest1);
+        assertEquals("Generated test name differs from expected", "testKeysTakingNoArgumentsReturningPositive", nameTest2);
     }
 
     @Test
@@ -432,7 +432,7 @@ public class TestMethodNamingComplexExamples {
         String nameTest2 = naming.getName(test2);
 
         assertEquals("Generated test name differs from expected", "testGetPublicID", nameTest1);
-        assertEquals("Generated test name differs from expected", "testCreatesDocTypeAndCallsSetPublicIDWithString", nameTest2);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeAndCallsSetPublicIDTakingString", nameTest2);
     }
 
     @Test
@@ -511,9 +511,9 @@ public class TestMethodNamingComplexExamples {
         String nameTest2 = naming.getName(test2);
         String nameTest3 = naming.getName(test3);
 
-        assertEquals("Generated test name differs from expected", "testCreatesDocTypeWith3ArgumentsWithZeroAndZero", nameTest1);
-        assertEquals("Generated test name differs from expected", "testCreatesDocTypeWithFieldMatrixWithNull", nameTest2);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeTaking3ArgumentsWithZeroAndZero", nameTest1);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeTakingFieldMatrixWithNull", nameTest2);
         // TODO: Why is Positive vs nonnull nondeterministically chosen?
-        assertEquals("Generated test name differs from expected", "testCreatesDocTypeWith3ArgumentsWithPositive", nameTest3);
+        assertEquals("Generated test name differs from expected", "testCreatesDocTypeTaking3ArgumentsWithNegative", nameTest3);
     }
 }

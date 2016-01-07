@@ -26,7 +26,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by gordon on 22/12/2015.
+ * @author Gordon Fraser
+ * @author Ermira Daka
  */
 public class CoverageGoalTestNameGenerationStrategy implements TestNameGenerationStrategy {
 
@@ -92,7 +93,14 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             }
             else if(topGoals.size() <= MAX_SIMILAR_GOALS) {
                 // We can take up to 2 goals explicitly
-                goals.addAll(topGoals);
+                for(TestFitnessFunction goal : topGoals) {
+                    goals.add(goal);
+                    String goalName = getTestName(entry.getKey(), goals);
+                    if(goalName.length() > MAX_CHARS) {
+                        goals.remove(goal);
+                        break;
+                    }
+                }
             } else {
                 // If there are more than 2 goals, we have to select something
                 goals.add(chooseRepresentativeGoal(entry.getKey(), topGoals));
@@ -129,8 +137,9 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             // For each duplicate set, add new test goals
             changed = false;
             for (Map.Entry<String, Set<TestCase>> entry : testNameMap.entrySet()) {
-                if(entry.getKey().length() >= MAX_CHARS)
+                if(entry.getKey().length() >= MAX_CHARS) {
                     continue;
+                }
 
                 // Try adding something unique for the given test set
                 if(resolveAmbiguity(testToGoals, entry.getValue(), true))
