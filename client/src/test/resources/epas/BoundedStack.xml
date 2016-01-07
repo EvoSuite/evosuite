@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<abstraction initial_state="0" input_format="code-with-pre" name="com.examples.with.different.packagename.epa.MyBoundedStack">
+  <label name="add" />
+  <label name="ListItr" />
+  <label name="next" />
+  <label name="previous" />
+  <label name="remove" />
+  <label name="set" />
+</abstraction>
