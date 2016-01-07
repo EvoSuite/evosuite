@@ -1399,6 +1399,9 @@ public class Properties {
 	@Parameter(key = "variable_naming_strategy", group = "Output", description = "What variable naming strategy to use")
 	public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.DEFAULT;
 
+	@Parameter(key = "variable_naming_training_data_dir", group = "Output", description = "Where to look for java files to train Naturalize model")
+	public static String VARIABLE_NAMING_TRAINING_DATA_DIR = null;
+
 	public enum TestNamingStrategy {
 		NUMBERED, COVERAGE
 	}
