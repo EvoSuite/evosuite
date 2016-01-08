@@ -123,7 +123,7 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                             break;
                         }
                         boolean observerGoalsAdded = false;
-                        Class<?> returnClazz = TestClusterUtils.getClass(returnType.getClassName());
+                        Class<?> returnClazz = method.getReturnType();
                         for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnClazz)) {
                             String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
                             Type t = Type.getReturnType(insp);
