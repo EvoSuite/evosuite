@@ -56,6 +56,7 @@ public class MethodSignatureCollector extends MethodVisitor {
             logger.debug("Collecting name for parameter {} of method {}: {}", index, methodName, name);
             VariableNameCollector.getInstance().addParameterName(className.replace('/', '.'), methodName+methodDesc, index, name);
         }
+        VariableNameCollector.getInstance().addVariableName(Type.getType(desc).getClassName().replace('/', '.'), name);
 
         super.visitLocalVariable(name, desc, signature, start, end, index);
     }
