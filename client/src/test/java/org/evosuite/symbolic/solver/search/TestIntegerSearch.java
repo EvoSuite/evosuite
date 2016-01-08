@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -46,6 +47,7 @@ import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -54,6 +56,13 @@ import org.junit.Test;
  */
 public class TestIntegerSearch extends RandomizedTC {
 
+	private static final int DEFAULT_DSE_VARIABLE_RESETS = Properties.DSE_VARIABLE_RESETS ;
+	
+	@After 
+	public void restoreDSEVariableResets() {
+		Properties.DSE_VARIABLE_RESETS = DEFAULT_DSE_VARIABLE_RESETS;
+	}
+	
 	@Test
 	public void testEQConstant() throws SolverEmptyQueryException {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
@@ -539,6 +548,9 @@ public class TestIntegerSearch extends RandomizedTC {
 
 	@Test
 	public void testEvosuiteExample3() throws SolverEmptyQueryException {
+		
+		Properties.DSE_VARIABLE_RESETS = 3;
+		
 		// (var42__SYM(25721) * (var22__SYM(-1043) - 6860)) == 8275
 		int var1 = 25721;
 		int var2 = -1043;
@@ -702,6 +714,9 @@ public class TestIntegerSearch extends RandomizedTC {
 
 	@Test
 	public void testEvosuiteExample6() throws SolverEmptyQueryException {
+		
+		Properties.DSE_VARIABLE_RESETS = 3;
+		
 		// Cnstr 0 : var2__SYM(1890) >= 0 dist: 682.3333333333334
 		// Cnstr 1 : var1__SYM(-157) <= 0 dist: 682.3333333333334
 		// Cnstr 2 : var2__SYM(1890) <= var1__SYM(-157) dist: 682.3333333333334
