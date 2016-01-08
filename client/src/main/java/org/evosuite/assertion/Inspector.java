@@ -54,6 +54,7 @@ public class Inspector implements Serializable {
 	public Inspector(Class<?> clazz, Method m) {
 		this.clazz = clazz;
 		method = m;
+        m.setAccessible(true);
 	}
 
 	/**
