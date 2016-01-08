@@ -1391,9 +1391,6 @@ public class Properties {
             //these are basic criteria that should be always on by default
             Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
-	/** Generate readable test names */
-	public static Boolean TEST_NAMING = true;
-
 	public enum VariableNamingStrategy {
 		DEFAULT, DUMMY, DECLARATIONS, EXPLANATORY, NATURALIZE
 	}
@@ -1402,13 +1399,15 @@ public class Properties {
 	@Parameter(key = "variable_naming_strategy", group = "Output", description = "What variable naming strategy to use")
 	public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.DEFAULT;
 
+	@Parameter(key = "variable_naming_training_data_dir", group = "Output", description = "Where to look for java files to train Naturalize model")
+	public static String VARIABLE_NAMING_TRAINING_DATA_DIR = null;
+
 	public enum TestNamingStrategy {
 		NUMBERED, COVERAGE
 	}
 
 	@Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
 	public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.COVERAGE;
-
 
 	/** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;

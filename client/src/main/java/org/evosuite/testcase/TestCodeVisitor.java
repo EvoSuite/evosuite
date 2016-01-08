@@ -39,6 +39,7 @@ import org.evosuite.idNaming.DefaultNamingStrategy;
 import org.evosuite.idNaming.DummyNamingStrategy;
 import org.evosuite.idNaming.ExplanatoryNamingStrategy;
 import org.evosuite.idNaming.MethodSignatureNamingStrategy;
+import org.evosuite.idNaming.NaturalizeNamingStrategy;
 import org.evosuite.idNaming.VariableNamingStrategy;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.statements.AbstractStatement;
@@ -104,7 +105,8 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
                 strategy = new MethodSignatureNamingStrategy((ImportsTestCodeVisitor) this.tcv);
                 break;
 			case NATURALIZE:
-                throw new RuntimeException("Not implemented yet");
+				strategy = new NaturalizeNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+				break;
 			default:
                 strategy = new DefaultNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 		}

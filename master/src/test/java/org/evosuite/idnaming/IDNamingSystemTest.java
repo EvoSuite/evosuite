@@ -20,6 +20,7 @@
 package org.evosuite.idnaming;
 
 import com.examples.with.different.packagename.Calculator;
+import com.examples.with.different.packagename.idnaming.BOMInputStream;
 import com.examples.with.different.packagename.sette.L4_Collections;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
 import com.examples.with.different.packagename.strings.Calc;
@@ -43,25 +44,13 @@ public class IDNamingSystemTest extends SystemTestBase {
 		String targetClass = Calc.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DUMMY;
-
-        Properties.CRITERION = new Properties.Criterion[5];
-        Properties.CRITERION[0] = Properties.Criterion.METHOD;
-        Properties.CRITERION[1] = Properties.Criterion.OUTPUT;
-        Properties.CRITERION[2] = Properties.Criterion.INPUT;
-        Properties.CRITERION[3] = Properties.Criterion.BRANCH;
-        Properties.CRITERION[4] = Properties.Criterion.EXCEPTION;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.145834);
 	}
 
 //	@Test
@@ -189,7 +178,6 @@ public class IDNamingSystemTest extends SystemTestBase {
 		String targetClass = Calculator.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -212,7 +200,6 @@ public class IDNamingSystemTest extends SystemTestBase {
 		String targetClass = L4_Collections.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -235,7 +222,6 @@ public class IDNamingSystemTest extends SystemTestBase {
 		String targetClass = SnippetInputContainer.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.TEST_NAMING = true;
 		Properties.JUNIT_TESTS = true;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
