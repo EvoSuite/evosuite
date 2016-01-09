@@ -33,7 +33,7 @@ import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
-import org.evosuite.coverage.epa.EPACoverageFactory;
+import org.evosuite.coverage.epa.EPATransitionCoverageFactory;
 import org.evosuite.coverage.epa.EPATransitionCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
@@ -91,8 +91,6 @@ public class FitnessFunctions {
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
-		case EPATRANSITION:
-			return new EPATransitionCoverageSuiteFitness(Properties.EPA_XML_PATH);
 		case CBRANCH:
 			return new CBranchSuiteFitness();
 		case IBRANCH:
@@ -127,6 +125,8 @@ public class FitnessFunctions {
 			return new OutputCoverageSuiteFitness();
 		case INPUT:
 			return new InputCoverageSuiteFitness();
+		case EPATRANSITION:
+			return new EPATransitionCoverageSuiteFitness(Properties.EPA_XML_PATH);
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -189,6 +189,8 @@ public class FitnessFunctions {
 			return new OutputCoverageFactory();
 		case INPUT:
 			return new InputCoverageFactory();
+		case EPATRANSITION:
+			return new EPATransitionCoverageFactory(Properties.TARGET_CLASS, Properties.EPA_XML_PATH);
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");

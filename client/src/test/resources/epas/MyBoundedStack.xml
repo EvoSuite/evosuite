@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<abstraction initial_state="S0" input_format="code-with-pre" name="com.examples.with.different.packagename.epa.MyBoundedStack">
+  <label name="&lt;init&gt;()V" />
+  <label name="push(Ljava/lang/Object;)V" />
+  <label name="pop()Ljava/lang/Object;" />
+  
+  <state name="S0">
+    <enabled_label name="&lt;init&gt;()V" />
+    <transition destination="S1" label="&lt;init&gt;()V" uncertain="false" violates_invariant="false" />
+  </state>
+  
+  <state name="S1">
+    <enabled_label name="push(Ljava/lang/Object;)V" />
+    <transition destination="S2" label="push(Ljava/lang/Object;)V" uncertain="false" violates_invariant="false" />
+  </state>
+  
+  <state name="S2">
+    <enabled_label name="push(Ljava/lang/Object;)V" />
+    <enabled_label name="pop()Ljava/lang/Object;" />
+    <transition destination="S2" label="push(Ljava/lang/Object;)V" uncertain="false" violates_invariant="false" />
+    <transition destination="S2" label="pop()Ljava/lang/Object;" uncertain="false" violates_invariant="false" />
+    <transition destination="S3" label="push(Ljava/lang/Object;)V" uncertain="false" violates_invariant="false" />
+    <transition destination="S1" label="pop()Ljava/lang/Object;" uncertain="false" violates_invariant="false" />
+  </state>
+
+  <state name="S3">
+    <enabled_label name="pop()Ljava/lang/Object;" />
+    <transition destination="S2" label="pop()Ljava/lang/Object;" uncertain="false" violates_invariant="false" />
+  </state>
+  
+</abstraction>

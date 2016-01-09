@@ -735,7 +735,7 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
 			break;
 		case EPATRANSITION:
-			LoggingUtils.getEvoLogger().info("  - EPA Coverage");
+			LoggingUtils.getEvoLogger().info("  - EPA Transition Coverage");
 			break;
 		case CBRANCH:
 		    LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
