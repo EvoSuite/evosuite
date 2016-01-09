@@ -31,36 +31,48 @@ public class ListItr implements ListIterator<Object> {
 		this.lastRet = -1;
 		this.expectedModCount = this.arrayList.getModCount();
 		this.cursor = index;
+		
+		reportState();
 	}
 
 	public boolean hasPrevious() {
-		return cursor != 0;
+		final boolean b = cursor != 0;
+		reportState();
+		return b;
 	}
 
 	public int nextIndex() {
+		reportState();
 		return cursor;
 	}
 
 	// @Pre("(> cursor 0)")
 	public int previousIndex() {
-		return cursor - 1;
+		final int i = cursor - 1;
+		reportState();
+		return i;
 	}
 
 	@Override
 	public boolean hasNext() {
-		return super_hasNext();
+		boolean superHasNext = super_hasNext();
+		reportState();
+		return superHasNext;
 	}
 
 	@Override
 	// @Pre("(< cursor (eval(.size this$0)))")
 	public Object next() {
-		return super_next();
+		final Object superNext = super_next();
+		reportState();
+		return superNext;
 	}
 
 	@Override
 	// @Pre("(>= lastRet 0)")
 	public void remove() {
 		super_remove();
+		reportState();
 	}
 
 	// @SuppressWarnings("unchecked")
@@ -74,11 +86,14 @@ public class ListItr implements ListIterator<Object> {
 		if (i >= elementData.length)
 			throw new ConcurrentModificationException();
 		cursor = i;
-		return (Object) elementData[lastRet = i];
+
+		Object object = (Object) elementData[lastRet = i];
+		reportState();
+		return object;
 	}
 
 	// @Pre("(and (>= lastRet 0) (> p0 10))")
-	public void setNumber(Integer integer) {
+	private void setNumber(Integer integer) {
 		set((Object) integer);
 	}
 
@@ -92,10 +107,11 @@ public class ListItr implements ListIterator<Object> {
 		} catch (IndexOutOfBoundsException ex) {
 			throw new ConcurrentModificationException();
 		}
+		reportState();
 	}
 
 	// @Pre("(> p0 0)")
-	public void addNumber(Integer integer) {
+	private void addNumber(Integer integer) {
 		add((Object) integer);
 	}
 
@@ -111,10 +127,12 @@ public class ListItr implements ListIterator<Object> {
 		} catch (IndexOutOfBoundsException ex) {
 			throw new ConcurrentModificationException();
 		}
+		reportState();
 	}
 
 	private boolean super_hasNext() {
-		return cursor != this.arrayList.size;
+		final boolean b = cursor != this.arrayList.size;
+		return b;
 	}
 
 	private Object super_next() {
@@ -126,7 +144,8 @@ public class ListItr implements ListIterator<Object> {
 		if (i >= elementData.length)
 			throw new ConcurrentModificationException();
 		cursor = i + 1;
-		return (Object) elementData[lastRet = i];
+		final Object o = (Object) elementData[lastRet = i];
+		return o;
 	}
 
 	private void super_remove() {
@@ -170,32 +189,76 @@ public class ListItr implements ListIterator<Object> {
 		return lastRet >= 0;
 	}
 
-	public boolean isState1() {
-		return isAddEnabled() && !isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
+	private boolean isStateS127() {
+		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
-
-	public boolean isState2() {
+	
+	private boolean isStateS95() {
 		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
-
-	public boolean isState3() {
+	
+	private boolean isStateS119() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	public boolean isState4() {
-		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
+	private boolean isStateS87() {
+		return isAddEnabled() && !isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	public boolean isState5() {
-		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
-	}
-
-	public boolean isState6() {
+	private boolean isStateS511() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
-	public boolean isState7() {
-		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
+	private boolean isStateS503() {
+		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
+	private boolean isStateS479() {
+		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
+	}
+	
+	private void reportState() {
+		if (isStateS127())
+			reportState127();
+		else if (isStateS95())
+			reportStateS95();
+		else if (isStateS119())
+			reportStateS119();
+		else if (isStateS87())
+			reportStateS87();
+		else if (isStateS511())
+			reportStateS511();
+		else if (isStateS503())
+			reportStateS503();
+		else if (isStateS479())
+			reportStateS479();
+	}
+
+	private void reportStateS479() {
+		
+	}
+
+	private void reportStateS503() {
+		
+	}
+
+	private void reportStateS511() {
+		
+	}
+
+	private void reportStateS87() {
+		
+	}
+
+	private void reportStateS119() {
+		
+	}
+
+	private void reportStateS95() {
+		
+	}
+
+	private void reportState127() {
+		
+	}
 }
