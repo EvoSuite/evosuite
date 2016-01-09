@@ -5,6 +5,8 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.method.JUnitObserver;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -49,7 +51,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
         this.methodName = methodName;
         if(isTestClass) {
             // JUnit 3 test
-            if(methodName.startsWith("test"))
+            if(methodName.startsWith("test") || methodName.equals("setUp") || methodName.equals("tearDown"))
                 this.isJUnitTest = true;
         }
         InheritanceTree tree = DependencyAnalysis.getInheritanceTree();
@@ -61,7 +63,10 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if(Type.getDescriptor(Test.class).equals(desc)) {
+        if(Type.getDescriptor(Test.class).equals(desc) ||
+                Type.getDescriptor(Before.class).equals(desc) ||
+                Type.getDescriptor(After.class).equals(desc)
+                ) {
             logger.debug("Method "+className+"."+fullMethodName+" has JUnit annotation: "+desc);
             isJUnitTest = true;
         }
