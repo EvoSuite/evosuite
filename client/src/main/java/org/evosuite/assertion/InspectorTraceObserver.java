@@ -81,7 +81,11 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 						// String literals may not be longer than 32767
 						if(((String)value).length() >= 32767)
 							continue;
+						// If we suspect an Object hashCode not use this, as it may lead to flaky tests
 						if(addressPattern.matcher((String)value).find())
+							continue;
+						// The word "hashCode" is also suspicious
+						if(((String)value).toLowerCase().contains("hashcode"))
 							continue;
 					}
 
