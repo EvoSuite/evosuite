@@ -56,13 +56,11 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	 * @return
 	 */
 	public double getDistance(ExecutionResult result) {
-		EPATrace epaTrace = EPATraceFactory.buildEPATrace(result.getTrace(), epa);
-		boolean isCovered = epaTrace.getEpaTransitions().contains(transition);
-		if (isCovered) {
-			return 0.0;
-		} else {
-			return 1.0;
-		}
+		final boolean covered = EPATraceFactory.buildEPATraces(result.getTrace(), epa).stream()
+				.filter(epaTrace -> epaTrace.getEpaTransitions().contains(transition))
+				.findAny()
+				.isPresent();
+		return covered ? 0.0 : 1.0;
 	}
 	
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
