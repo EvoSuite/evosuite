@@ -56,7 +56,7 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream().map(EPATrace::getEpaTransitions)
 				.flatMap(Collection::stream).collect(Collectors.toSet());
 
-		final int epaTransitionSize = epaTraces.size();
+		final int epaTransitionSize = epa.getTransitions().size();
 		final int tracedEpaTransitionSize = tracedEpaTransitions.size();
 		final int uncoveredEpaTransitions = epaTransitionSize - tracedEpaTransitionSize;
 		final double fitness = uncoveredEpaTransitions;
