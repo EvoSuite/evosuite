@@ -50,7 +50,8 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		List<ExecutionResult> executionResults = runTestSuite(suite);
 		final List<EPATrace> epaTraces = executionResults.stream().map(ExecutionResult::getTrace)
-				.map(executionTrace -> EPATraceFactory.buildEPATrace(executionTrace, epa)).collect(Collectors.toList());
+				.flatMap(executionTrace -> EPATraceFactory.buildEPATraces(executionTrace, epa).stream())
+				.collect(Collectors.toList());
 
 		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream().map(EPATrace::getEpaTransitions)
 				.flatMap(Collection::stream).collect(Collectors.toSet());
