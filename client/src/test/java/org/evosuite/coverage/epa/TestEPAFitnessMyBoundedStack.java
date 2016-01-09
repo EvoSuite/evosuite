@@ -63,10 +63,7 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 		suite.addFitness(fitness);
 		double fitnessValue = fitness.getFitness(suite);
 
-		// There are 7 transitions in ListItr's EPA
 		int expectedTotalTransitions = 7;
-
-		// There are only 2 transitions in the test case
 		int expectedCoveredTransitions = 3;
 
 		// fitness is the number of uncovered EPA transitions
