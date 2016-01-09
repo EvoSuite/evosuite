@@ -51,39 +51,39 @@ public class MyBoundedStack {
 		return index!=-1;
 	}
 	
-	private boolean isState1() {
+	private boolean isStateS1() {
 		return isPushEnabled() && !isPopEnabled();
 	}
 	
-	private boolean isState2() {
+	private boolean isStateS2() {
 		return isPushEnabled() && isPopEnabled();
 	}
 
-	private boolean isState3() {
+	private boolean isStateS3() {
 		return !isPushEnabled() && isPopEnabled();
 	}
 
 	private void reportState() {
-		if (isState1()) {
-			reportState1();
-		} else if (isState2()) {
-			reportState2();
-		} else if (isState3()) {
-			reportState3();
+		if (isStateS1()) {
+			reportStateS1();
+		} else if (isStateS2()) {
+			reportStateS2();
+		} else if (isStateS3()) {
+			reportStateS3();
 		}
 		
 	}
 
-	private void reportState1() {
+	private void reportStateS1() {
 		// dummy method
 	}
 
-	private void reportState2() {
+	private void reportStateS2() {
 		// dummy method
 		
 	}
 
-	private void reportState3() {
+	private void reportStateS3() {
 		// dummy method
 	}
 
