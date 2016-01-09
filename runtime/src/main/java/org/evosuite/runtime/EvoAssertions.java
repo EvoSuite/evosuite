@@ -19,8 +19,6 @@
  */
 package org.evosuite.runtime;
 
-import org.junit.Assert;
-
 import java.lang.annotation.Annotation;
 
 /**
@@ -67,6 +65,6 @@ public class EvoAssertions {
             }
         }
 
-        throw new AssertionError("Exception was not thrown in "+sourceClass);
+        throw new AssertionError("Exception was not thrown in "+sourceClass +" but in "+el+": "+t);
     }
 }
