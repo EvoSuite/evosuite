@@ -156,18 +156,43 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         // If there is absolutely nothing unique, add the top goals so that the test at least has a name
         for (Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
             if(entry.getValue().isEmpty()) {
-                Set<TestFitnessFunction> goals = new LinkedHashSet<>();
-                for(TestFitnessFunction goal : getTopGoals(filterSupportedGoals(entry.getKey().getCoveredGoals()))) {
+                List<TestFitnessFunction> goals = new ArrayList<>(getUniqueNonMethodGoals(entry.getKey(), testToGoals));
+                if(goals.isEmpty()) {
+                    goals.addAll(filterSupportedGoals(entry.getKey().getCoveredGoals()));
+                }
+                Collections.sort(goals, new GoalComparator());
+                if(!goals.isEmpty()) {
+                    TestFitnessFunction goal = goals.iterator().next();
                     entry.getValue().add(goal);
-                    testToName.put(entry.getKey(), getTestName(entry.getKey(), entry.getValue()));
-                    if(testToName.get(entry.getKey()).length() > MAX_CHARS)
-                        break;
+                    String name = getTestName(entry.getKey(), entry.getValue());
+                    testToName.put(entry.getKey(), name);
                 }
             }
         }
 
         // Add numbers to remaining duplicate names
         fixAmbiguousTestNames();
+    }
+
+    /**
+     * There is nothing unique about the test, so we have to add goals until we find a unique name
+     */
+    private Set<TestFitnessFunction> getUniqueNonMethodGoals(TestCase test, Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
+        Set<TestFitnessFunction> allGoals = new LinkedHashSet<>();
+        for (Set<TestFitnessFunction> goals : testToGoals.values()) {
+            allGoals.addAll(goals);
+        }
+        Set<TestFitnessFunction> goals = new LinkedHashSet<>();
+        for(TestFitnessFunction goal : filterSupportedGoals(test.getCoveredGoals())) {
+            if(goal instanceof MethodCoverageTestFitness)
+                continue;
+            if(goal instanceof MethodNoExceptionCoverageTestFitness)
+                continue;
+            if(!allGoals.contains(goal)) {
+                goals.add(goal);
+            }
+        }
+        return goals;
     }
 
     /**

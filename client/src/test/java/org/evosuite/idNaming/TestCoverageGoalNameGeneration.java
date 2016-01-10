@@ -1099,7 +1099,7 @@ public class TestCoverageGoalNameGeneration {
         CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
 
         assertEquals("testIsMemberWithEmptySet", naming.getName(test1));
-        assertEquals("testIsMember", naming.getName(test2));
+        assertEquals("testIsMemberReturningFalse", naming.getName(test2));
         assertEquals("testIsMemberReturningTrue", naming.getName(test3));
     }
 
