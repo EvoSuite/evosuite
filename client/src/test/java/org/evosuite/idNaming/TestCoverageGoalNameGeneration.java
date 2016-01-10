@@ -33,6 +33,7 @@ import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by gordon on 22/12/2015.
@@ -1043,6 +1044,63 @@ public class TestCoverageGoalNameGeneration {
         assertEquals("testFooReturningNegativeAndFooWithNegative", naming.getName(test2));
         assertEquals("testFooReturningPositiveAndFooWithNegative", naming.getName(test3));
         assertEquals("testFooReturningNegativeAndFooWithPositive", naming.getName(test4));
+    }
+
+    @Test
+    public void testResolveMethodNames() {
+
+        MethodCoverageTestFitness methodGoal = new MethodCoverageTestFitness("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z");
+        MethodNoExceptionCoverageTestFitness methodNoExGoal = new MethodNoExceptionCoverageTestFitness("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z");
+
+        OutputCoverageGoal outputGoalHelper1 = new OutputCoverageGoal("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z", Type.BOOLEAN_TYPE, BOOL_FALSE);
+        OutputCoverageTestFitness outputGoalFalse = new OutputCoverageTestFitness(outputGoalHelper1);
+        OutputCoverageGoal outputGoalHelper2 = new OutputCoverageGoal("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z", Type.BOOLEAN_TYPE, BOOL_TRUE);
+        OutputCoverageTestFitness outputGoalTrue = new OutputCoverageTestFitness(outputGoalHelper2);
+
+        InputCoverageGoal inputGoalHelper1 = new InputCoverageGoal("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z", 0, Type.getType(Set.class), SET_EMPTY);
+        InputCoverageTestFitness inputGoalEmptySet = new InputCoverageTestFitness(inputGoalHelper1);
+
+        InputCoverageGoal inputGoalHelper2 = new InputCoverageGoal("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z", 0, Type.getType(Set.class), SET_NONEMPTY);
+        InputCoverageTestFitness inputGoalNonEmptySet = new InputCoverageTestFitness(inputGoalHelper2);
+
+        InputCoverageGoal inputGoalHelper3 = new InputCoverageGoal("org.apache.commons.scxml.Builtin", "isMember(Ljava/util/Set;Ljava/lang/String;)Z", 1, Type.getType(String.class), STRING_NONEMPTY);
+        InputCoverageTestFitness inputGoalStringNonEmpty = new InputCoverageTestFitness(inputGoalHelper3);
+
+
+
+        TestCase test1 = new DefaultTestCase();
+        test1.addCoveredGoal(methodGoal);
+        test1.addCoveredGoal(methodNoExGoal);
+        test1.addCoveredGoal(inputGoalEmptySet);
+        test1.addCoveredGoal(inputGoalStringNonEmpty);
+        test1.addCoveredGoal(outputGoalFalse);
+
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(methodGoal);
+        test2.addCoveredGoal(methodNoExGoal);
+        test2.addCoveredGoal(inputGoalNonEmptySet);
+        test2.addCoveredGoal(inputGoalStringNonEmpty);
+        test2.addCoveredGoal(outputGoalFalse);
+
+        TestCase test3 = new DefaultTestCase();
+        test3.addStatement(new IntPrimitiveStatement(test3, 1)); // Need to add statements to change hashCode
+        test3.addCoveredGoal(methodGoal);
+        test3.addCoveredGoal(methodNoExGoal);
+        test3.addCoveredGoal(inputGoalNonEmptySet);
+        test3.addCoveredGoal(inputGoalStringNonEmpty);
+        test3.addCoveredGoal(outputGoalTrue);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        tests.add(test3);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+
+        assertEquals("testIsMemberWithEmptySet", naming.getName(test1));
+        assertEquals("testIsMember", naming.getName(test2));
+        assertEquals("testIsMemberReturningTrue", naming.getName(test3));
     }
 
 
