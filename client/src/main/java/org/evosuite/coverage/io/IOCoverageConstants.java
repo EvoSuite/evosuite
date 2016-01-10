@@ -37,4 +37,10 @@ public class IOCoverageConstants {
     public static final String ARRAY_NONEMPTY = "NonEmptyArray";
     public static final String STRING_EMPTY = "EmptyString";
     public static final String STRING_NONEMPTY = "NonEmptyString";
+    public static final String LIST_EMPTY = "EmptyList";
+    public static final String LIST_NONEMPTY = "NonEmptyList";
+    public static final String SET_EMPTY = "EmptySet";
+    public static final String SET_NONEMPTY = "NonEmptySet";
+    public static final String MAP_EMPTY = "EmptyMap";
+    public static final String MAP_NONEMPTY = "NonEmptyMap";
 }

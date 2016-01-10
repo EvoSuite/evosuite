@@ -257,8 +257,18 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     if (argValue == null)
                         argValueDesc = REF_NULL;
                     else {
-                        if (argType.getClassName().equals("java.lang.String"))
-                            argValueDesc = ((String)argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
+                        if (argType.getClassName().equals("java.lang.String")) {
+                            argValueDesc = ((String) argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
+                        }
+                        else if(argValue instanceof List) {
+                            argValueDesc = ((List) argValue).isEmpty() ? LIST_EMPTY : LIST_NONEMPTY;
+                        }
+                        else if(argValue instanceof Set) {
+                            argValueDesc = ((Set) argValue).isEmpty() ? SET_EMPTY : SET_NONEMPTY;
+                        }
+                        else if(argValue instanceof Map) {
+                            argValueDesc = ((Map) argValue).isEmpty() ? MAP_EMPTY : MAP_NONEMPTY;
+                        }
                         else
                             argValueDesc = REF_NONNULL;
                     }

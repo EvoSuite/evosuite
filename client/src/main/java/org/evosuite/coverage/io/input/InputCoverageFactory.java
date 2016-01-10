@@ -33,8 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Jose Miguel Rojas
@@ -72,6 +71,7 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                 logger.info("Adding input goals for method " + className + "." + methodName);
 
                 Type[] argumentTypes = Type.getArgumentTypes(method);
+                Class<?>[] argumentClasses = method.getParameterTypes();
                 for (int i=0; i<argumentTypes.length;i++){
                     Type argType = argumentTypes[i];
                     switch (argType.getSort()) {
@@ -104,6 +104,19 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                             if (argType.getClassName().equals("java.lang.String")) {
                                 goals.add(createGoal(className, methodName, i, argType, STRING_EMPTY));
                                 goals.add(createGoal(className, methodName, i, argType, STRING_NONEMPTY));
+
+                            } else if(List.class.isAssignableFrom(argumentClasses[i])) {
+                                goals.add(createGoal(className, methodName, i, argType, LIST_EMPTY));
+                                goals.add(createGoal(className, methodName, i, argType, LIST_NONEMPTY));
+
+                            } else if(Set.class.isAssignableFrom(argumentClasses[i])) {
+                                goals.add(createGoal(className, methodName, i, argType, SET_EMPTY));
+                                goals.add(createGoal(className, methodName, i, argType, SET_NONEMPTY));
+
+                            } else if(Map.class.isAssignableFrom(argumentClasses[i])) {
+                                goals.add(createGoal(className, methodName, i, argType, MAP_EMPTY));
+                                goals.add(createGoal(className, methodName, i, argType, MAP_NONEMPTY));
+                            // TODO: Collection.class?
                             } else
                                 goals.add(createGoal(className, methodName, i, argType, REF_NONNULL));
                             break;
