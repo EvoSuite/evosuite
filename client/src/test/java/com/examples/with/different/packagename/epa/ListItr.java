@@ -219,7 +219,7 @@ public class ListItr implements ListIterator<Object> {
 	
 	private void reportState() {
 		if (isStateS127())
-			reportState127();
+			reportStateS127();
 		else if (isStateS95())
 			reportStateS95();
 		else if (isStateS119())
@@ -258,7 +258,7 @@ public class ListItr implements ListIterator<Object> {
 		
 	}
 
-	private void reportState127() {
+	private void reportStateS127() {
 		
 	}
 }
