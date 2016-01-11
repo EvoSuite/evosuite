@@ -24,6 +24,8 @@ import java.io.File;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -31,7 +33,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.epa.ListItr;
 
-public class EPACoverageTest extends SystemTest {
+public class EPACoverageSystemTest extends SystemTest {
 
 	// private void writeMatrix(String MATRIX_CONTENT) {
 	// String path = Properties.REPORT_DIR + File.separator;
@@ -72,8 +74,8 @@ public class EPACoverageTest extends SystemTest {
 	@Test
 	public void testSomething() {
 		// check test case
-		String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), ".." , "client", "src", "test", "resources",
-				"epas", "ListItr.xml");
+		String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "..", "client", "src", "test",
+				"resources", "epas", "ListItr.xml");
 		File epaXMLFile = new File(xmlFilename);
 		Assume.assumeTrue(epaXMLFile.exists());
 
@@ -85,6 +87,10 @@ public class EPACoverageTest extends SystemTest {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		final Object results = evoSuite.parseCommandLine(command);
 		Assert.assertNotNull(results);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+
+		Chromosome bestIndividual = ga.getBestIndividual();
+		
 	}
 	//
 	// @Test

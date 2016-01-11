@@ -232,10 +232,8 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			lastBestFitness = 0.0;
 		}
 
-		int iter = 0;
 		while (!isFinished()) {
 			logger.info("Population size before: " + population.size());
-			System.out.println("iter " + ++iter);
 			// related to Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER;
 			// check the budget progress and activate a secondary criterion
 			// according to the property value.
