@@ -781,10 +781,8 @@ public class TestFactory {
 	 * Try to generate an object suitable for Object.class
 	 *
 	 * @param test
-	 * @param type
 	 * @param position
 	 * @param recursionDepth
-	 * @param constraint
 	 * @param allowNull
 	 * @return
 	 * @throws ConstructionFailedException
@@ -957,7 +955,6 @@ public class TestFactory {
 	 * Create a new array in a test case and return the reference
 	 *
 	 * @param test
-	 * @param type
 	 * @param position
 	 * @param recursionDepth
 	 * @return
@@ -1022,7 +1019,6 @@ public class TestFactory {
 	 * Create and return a new primitive variable
 	 *
 	 * @param test
-	 * @param type
 	 * @param position
 	 * @param recursionDepth
 	 * @return
@@ -1815,6 +1811,56 @@ public class TestFactory {
         return true;
     }
 
+	private boolean insertRandomReflectionCallOnObject(TestCase test, VariableReference callee, int position, int recursionDepth)
+			throws ConstructionFailedException {
+
+		logger.debug("Recursion depth: " + recursionDepth);
+		if (recursionDepth > Properties.MAX_RECURSION) {
+			logger.debug("Max recursion depth reached");
+			throw new ConstructionFailedException("Max recursion depth reached");
+		}
+
+        if(!reflectionFactory.getReflectedClass().isAssignableFrom(callee.getVariableClass())) {
+            logger.debug("Reflection not performed on class {}", callee.getVariableClass());
+            return false;
+        }
+
+		int length = test.size();
+		List<VariableReference> parameters = null;
+		Statement st = null;
+
+		if(reflectionFactory.nextUseField()){
+			Field field = reflectionFactory.nextField();
+			parameters = satisfyParameters(test, callee,
+					//we need a reference to the SUT, and one to a variable of same type of chosen field
+					Arrays.asList((Type)field.getType()), position, recursionDepth + 1, true, false);
+
+			try {
+				st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
+						callee, parameters.get(0));
+			} catch (NoSuchFieldException e) {
+				logger.error("Reflection problem: "+e,e);
+				throw new ConstructionFailedException("Reflection problem");
+			}
+		} else {
+			//method
+			Method method = reflectionFactory.nextMethod();
+			List<Type> list = new ArrayList<>();
+			list.addAll(Arrays.asList(method.getParameterTypes()));
+
+			parameters = satisfyParameters(test, callee, list,position, recursionDepth + 1, true, false);
+
+			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
+					callee,parameters);
+		}
+
+		int newLength = test.size();
+		position += (newLength - length);
+
+		test.addStatement(st, position);
+		return true;
+	}
+
 	/**
 	 *
 	 * @param test
@@ -1902,7 +1948,7 @@ public class TestFactory {
 
             if(reflectionFactory.hasPrivateFieldsOrMethods() &&
                     TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
-                    Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE){
+                    (Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE || TestCluster.getInstance().getNumTestCalls() == 0)){
                 return insertRandomReflectionCall(test,position, 0);
             }
 
@@ -2014,9 +2060,15 @@ public class TestFactory {
 			success = insertRandomCallOnObjectAt(test, var, position);
 		}
 
-		if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
-			logger.debug("Adding new call on UUT because var was null");
-			success = insertRandomCall(test, position);
+		if(!success) {
+            if(reflectionFactory==null){
+                reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+            }
+
+            if(TestCluster.getInstance().getNumTestCalls() > 0 || (reflectionFactory.hasPrivateFieldsOrMethods() && TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT)) {
+                logger.debug("Adding new call on UUT because var was null");
+                success = insertRandomCall(test, position);
+            }
 		}
 		return success;
 	}
@@ -2059,7 +2111,17 @@ public class TestFactory {
 		} else {
 			logger.debug("Getting calls for object " + var.toString());
 			try {
-				GenericAccessibleObject<?> call = TestCluster.getInstance().getRandomCallFor(var.getGenericClass(), test, position);
+                if(reflectionFactory==null){
+                    reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+                }
+
+                if(reflectionFactory.hasPrivateFieldsOrMethods() &&
+                        TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
+                        Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE){
+                    return insertRandomReflectionCallOnObject(test, var, position, 0);
+                }
+
+                GenericAccessibleObject<?> call = TestCluster.getInstance().getRandomCallFor(var.getGenericClass(), test, position);
 				logger.debug("Chosen call " + call);
 				return addCallFor(test, var, call, position);
 			} catch (ConstructionFailedException e) {
@@ -2083,7 +2145,6 @@ public class TestFactory {
 	 * @param parameterTypes
 	 * @param position
 	 * @param recursionDepth
-	 * @param constraints
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
