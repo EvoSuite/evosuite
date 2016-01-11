@@ -63,7 +63,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		double fitnessValue = fitness.getFitness(suite);
 
 		// There are 37 transitions in ListItr's EPA
-		int expectedTotalTransitions = 37;
+		int expectedTotalTransitions = 69;
 
 		// There are only 2 transitions in the test case
 		int expectedCoveredTransitions = 2;

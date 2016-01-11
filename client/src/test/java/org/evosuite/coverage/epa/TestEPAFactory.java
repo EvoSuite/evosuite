@@ -27,7 +27,7 @@ public class TestEPAFactory {
 		assertEquals(8, stateCount);
 
 		int transitionCount = epa.getTransitions().size();
-		assertEquals(37, transitionCount);
+		assertEquals(69, transitionCount);
 	}
 	
 	@Test
