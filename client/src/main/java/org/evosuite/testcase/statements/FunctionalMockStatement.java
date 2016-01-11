@@ -20,6 +20,7 @@
 package org.evosuite.testcase.statements;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
@@ -865,5 +866,20 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     @Override
     public String toString() {
     	return "mock(" + retval.getType() +")";
+    }
+
+    @Override
+    public String getDescriptor() {
+        return "()L"+ PackageInfo.getNameWithSlash(retval.getVariableClass()) + ";";
+    }
+
+    @Override
+    public String getDeclaringClassName() {
+        return retval.getClassName();
+    }
+
+    @Override
+    public String getMethodName() {
+        return "mock";
     }
 }
