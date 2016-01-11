@@ -82,4 +82,9 @@ public class EPA implements Serializable {
 		return epaTransitions;
 	}
 
+	public Set<EPATransition> getTransitions(EPAState originState) {
+		return getTransitions().stream().filter(t -> t.getOriginState().equals(originState))
+				.collect(Collectors.toSet());
+	}
+
 }

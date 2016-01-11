@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -50,7 +51,7 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		List<ExecutionResult> executionResults = runTestSuite(suite);
 		final List<EPATrace> epaTraces = executionResults.stream().map(ExecutionResult::getTrace)
-				.flatMap(executionTrace -> EPATraceFactory.buildEPATraces(executionTrace, epa).stream())
+				.flatMap(executionTrace -> EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS, executionTrace, epa).stream())
 				.collect(Collectors.toList());
 
 		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream().map(EPATrace::getEpaTransitions)

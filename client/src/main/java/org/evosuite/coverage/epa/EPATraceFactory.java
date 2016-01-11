@@ -11,12 +11,17 @@ import org.evosuite.testcase.execution.MethodCall;
 
 public abstract class EPATraceFactory {
 
-	public static List<EPATrace> buildEPATraces(ExecutionTrace executionTrace, EPA epa) {
+	public static List<EPATrace> buildEPATraces(String className, ExecutionTrace executionTrace, EPA epa) {
 
 		// Separate method call executions by `callingObjectID`
 		Map<Integer, List<String>> methodCallExecutionsByCallingObjectID = new HashMap<>();
 		for (MethodCall methodCallExecution : executionTrace.getMethodCalls()) {
 			final int callingObjectID = methodCallExecution.callingObjectID;
+			
+			if (!methodCallExecution.className.equals(className)) {
+				continue; // ignore method calls that do not match target class
+			}
+			
 			if (methodCallExecutionsByCallingObjectID.get(callingObjectID) == null) {
 				methodCallExecutionsByCallingObjectID.put(callingObjectID, new ArrayList<>());
 			}
