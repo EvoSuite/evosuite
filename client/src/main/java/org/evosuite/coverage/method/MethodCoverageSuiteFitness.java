@@ -82,12 +82,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     protected void determineMethods() {
         String className = Properties.TARGET_CLASS;
-        Class<?> clazz = null;
-        try {
-            clazz = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+		Class<?> clazz = Properties.getTargetClass();
         if (clazz != null) {
             Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
             for (Constructor<?> c : allConstructors) {
@@ -319,7 +314,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				removedMethods.add(method);
 				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
 			} else {
-				throw new IllegalStateException("goal to remove not found");
+				throw new IllegalStateException("Goal to remove not found: "+method+", candidates: "+methodCoverageMap.keySet());
 			}
 		}
 		toRemoveMethods.clear();
