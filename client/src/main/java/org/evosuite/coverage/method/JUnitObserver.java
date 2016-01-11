@@ -1,9 +1,12 @@
 package org.evosuite.coverage.method;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.InheritanceTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +38,8 @@ public class JUnitObserver {
 
     private Set<MethodNoExceptionCoverageTestFitness> calledMethodsNoException = new LinkedHashSet<>();
 
+    private boolean validCall = true;
+
     public static JUnitObserver getInstance() {
         if(instance == null)
             instance = new JUnitObserver();
@@ -56,11 +61,32 @@ public class JUnitObserver {
         calledMethods.clear();
         calledMethodsNoException.clear();
         exceptionGoals.clear();
+        validCall = true;
+    }
+
+    private static boolean isValidClass(Object callee, String className) {
+        if(callee != null) {
+            try {
+                Class<?> targetClass = Class.forName(className);
+                if(targetClass != null && !targetClass.isAssignableFrom(callee.getClass())) {
+                    return false;
+                }
+            } catch(ClassNotFoundException e) {
+
+            }
+        }
+        return true;
     }
 
     public static void methodCalled(Object callee, int opcode, String className, String methodName, String methodDesc, Object[] arguments) {
         if(!getInstance().isEnabled())
             return;
+
+        if(!isValidClass(callee, className)) {
+            getInstance().validCall = false;
+            return;
+        }
+        getInstance().validCall = true;
 
         String classNameWithDots = className.replace('/', '.');
 
@@ -72,6 +98,10 @@ public class JUnitObserver {
     public static void methodReturned(Object retVal, String className, String methodName, String methodDesc) {
         if(!getInstance().isEnabled())
             return;
+
+        if(!getInstance().validCall)
+            return;
+
 
         String classNameWithDots = className.replace('/', '.');
         logger.info("Method "+className+"."+methodName+" returned: "+retVal);
@@ -85,6 +115,9 @@ public class JUnitObserver {
 
     public static void methodException(Throwable throwable, String className, String methodName, String methodDesc) {
         if(!getInstance().isEnabled())
+            return;
+
+        if(!getInstance().validCall)
             return;
 
         String classNameWithDots = className.replace('/', '.');

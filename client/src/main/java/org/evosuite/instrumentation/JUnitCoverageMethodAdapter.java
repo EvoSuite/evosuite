@@ -35,6 +35,8 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
 
     private Set<String> subClasses = new LinkedHashSet<>();
 
+    private Set<String> superClasses = new LinkedHashSet<>();
+
     /**
      * <p>Constructor for LineNumberMethodAdapter.</p>
      *
@@ -56,8 +58,10 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
         }
         InheritanceTree tree = DependencyAnalysis.getInheritanceTree();
         if(tree != null) {
-            if(tree.hasClass(Properties.TARGET_CLASS))
+            if(tree.hasClass(Properties.TARGET_CLASS)) {
                 subClasses.addAll(tree.getSubclasses(Properties.TARGET_CLASS));
+                superClasses.addAll(tree.getSuperclasses(Properties.TARGET_CLASS));
+            }
         }
     }
 
@@ -88,6 +92,9 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
                 logger.info("Using target class instead of subclass");
                 // The reason for this hack is that manually written tests often use dummy-subclasses and then we would miss coverage
                 instrumentedOwner = Properties.TARGET_CLASS.replace('.', '/');
+            } else if(superClasses.contains(classNameWithDots)) {
+                // Can be a virtual call, so is ok
+                instrumentedOwner = Properties.TARGET_CLASS.replace('.', '/');
             } else {
                 super.visitMethodInsn(opcode, owner, name, desc, itf);
                 return;
@@ -97,6 +104,7 @@ public class JUnitCoverageMethodAdapter  extends GeneratorAdapter {
         Label startLabel = mark();
         Type[] argumentTypes = Type.getArgumentTypes(desc);
         int[] locals = new int[argumentTypes.length];
+
         for (int i = argumentTypes.length - 1; i >= 0; i--) {
             int local = newLocal(argumentTypes[i]);
             storeLocal(local, argumentTypes[i]);
