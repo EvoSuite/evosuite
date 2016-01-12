@@ -1353,7 +1353,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += "   //" + NEWLINE;
 		}
 
-		if(sourceClass!=null && isValidSource(sourceClass)) {
+		if(sourceClass!=null && isValidSource(sourceClass) && isExceptionToAssertThrownBy(ex)) {
 				/*
 					do not check source if it comes from a non-runtime evosuite
 					class. this could happen if source is an instrumentation done
@@ -1387,7 +1387,16 @@ public class TestCodeVisitor extends TestVisitor {
                 !sourceClass.startsWith(RegExp.class.getPackage().getName());
 	}
 
-    private Class<?> getExceptionClassToUse(Throwable exception){
+	private List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[] {
+			StackOverflowError.class, // Might be thrown at different places
+			AssertionError.class}     // Depends whether assertions are enabled or not
+	);
+
+	private boolean isExceptionToAssertThrownBy(Class<?> exceptionClass){
+		return !invalidExceptions.contains(exceptionClass);
+	}
+
+	private Class<?> getExceptionClassToUse(Throwable exception){
         /*
             we can only catch a public class.
             for "readability" of tests, it shouldn't be a mock one either
