@@ -34,6 +34,9 @@ import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 
+import javax.swing.*;
+import java.util.Locale;
+
 /**
  * <p>
  * Runtime class.
@@ -79,7 +82,8 @@ public class Runtime {
             ThreadCounter.getInstance().resetSingleton();
             MockTimeZone.reset();
             MockLocale.reset();
-        }
+			JComponent.setDefaultLocale(Locale.getDefault());
+		}
 
 		if (RuntimeSettings.useVFS) {
 			VirtualFileSystem.getInstance().resetSingleton();
