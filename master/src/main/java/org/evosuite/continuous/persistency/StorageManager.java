@@ -683,7 +683,6 @@ public class StorageManager {
 
         // if at least the coverage of one criterion was
         // improved accept the generated TestSuite
-        boolean worseCoverage = false;
         for (String variable : suite.csvData.getCoverageVariables()) {
         	String coverageVariable = CsvJUnitData.getValue(rowCUT, variable);
         	if (coverageVariable == null) {
@@ -697,19 +696,12 @@ public class StorageManager {
         	// this check is to avoid issues with double truncation
         	if (covDif > 0.0001) {
 				return true;
-			} else if (covDif < -0.0001) {
-				worseCoverage = true;
 			}
         }
 
-        if (worseCoverage) {
-        	// means that there isn't a coverage improvement
-        	return false;
-        }
-
-        // coverage seems the same, does the generated test suite cover
-        // different goals? if at least the coverage of one criterion has
-        // changed, accept the generated TestSuite
+        // coverage seems to be either the same or lower. does the generated
+        // test suite cover different goals? we accept the generate TestSuite
+        // if it covers at least one goal not covered by the previous test suite
         for (String variable : suite.csvData.getCoverageBitStringVariables()) {
         	String existingCoverage = CsvJUnitData.getValue(rowCUT, variable);
         	if (existingCoverage == null) {
@@ -720,8 +712,10 @@ public class StorageManager {
         	// both strings must have the same length
         	assert(generatedCoverage.length() == existingCoverage.length());
 
-        	if (!existingCoverage.equals(generatedCoverage)) {
-        		return true;
+        	for (int i = 0; i < generatedCoverage.length(); i++) {
+        		if (existingCoverage.charAt(i) == '0' && generatedCoverage.charAt(i) == '1') {
+        			return true;
+        		}
         	}
         }
 

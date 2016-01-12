@@ -19,22 +19,22 @@
  */
 package org.evosuite.jenkins.actions;
 
+import org.evosuite.Properties;
 import org.evosuite.jenkins.plot.CoveragePlot;
 import org.evosuite.jenkins.plot.TimePlot;
+import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.maven.AbstractMavenProject;
 import hudson.maven.MavenModule;
@@ -42,6 +42,7 @@ import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
+import hudson.model.BuildListener;
 
 public class ProjectAction implements Action {
 
@@ -83,19 +84,57 @@ public class ProjectAction implements Action {
 	public List<ModuleAction> getModules() {
 		return this.modules;
 	}
-	
-	public boolean perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build) {
+
+	private void saveTests(AbstractBuild<?, ?> build, BuildListener listener,
+			String moduleName) throws InterruptedException, IOException {
+
 		FilePath workspace = build.getWorkspace();
+
+		// FIXME should we also use module.getRelativePath() ?!
+		FilePath[] testsGenerated = workspace.list(build.getEnvironment(listener).expand(
+				Properties.CTG_DIR + File.separator + "tmp_*" + File.separator +
+				Properties.CTG_TMP_TESTS_DIR_NAME + File.separator + "**" + File.separator + "*"));
+		for (FilePath testGenerated : testsGenerated) {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "From_testsGenerated: " + testGenerated.getRemote());
+
+			FilePath to = new FilePath(new File(
+					testGenerated.getRemote().replace(workspace.getRemote(),
+							build.getRootDir().getAbsolutePath() + File.separator + ".." + File.separator + moduleName + File.separator)));
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "To_testsGenerated: " + to.getRemote());
+			testGenerated.copyTo(to);
+		}
+	}
+
+	private File saveProjectInfoXml(AbstractBuild<?, ?> build, BuildListener listener,
+			String moduleName) throws InterruptedException, IOException {
+
+		// FIXME should we also use module.getRelativePath() ?!
+		// FIXME check if this code does not return a null
+		FilePath from = build.getWorkspace().list(build.getEnvironment(listener).expand(Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO))[0];
+		FilePath to = new FilePath(new File(build.getRootDir(),
+				File.separator + moduleName + File.separator + Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO));
+		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "From: " + from.getRemote());
+		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "To: " + to.getRemote());
+
+		from.copyTo(to);
+		return new File(to.getRemote());
+	}
+
+	public boolean perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
+			BuildListener listener) throws InterruptedException, IOException {
+
+		EnvVars env = build.getEnvironment(listener);
+		env.overrideAll(build.getBuildVariables());
 
 		MavenModuleSet prj = (MavenModuleSet) this.project;
 		for (MavenModule module : prj.getModules()) {
-			Path project_info = Paths.get(workspace.getRemote()
-					+ File.separator + (module.getRelativePath() != "" ? module.getRelativePath() + File.separator : "")
-					+ ".evosuite" + File.separator + "project_info.xml");
+			this.saveTests(build, listener, module.getName());
+			File project_info = this.saveProjectInfoXml(build, listener, module.getName());
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "ProjectInfo: " + project_info.getAbsolutePath());
 
-			if (Files.exists(project_info)) {
+			if (project_info.exists()) {
 				ModuleAction m = new ModuleAction(build, module.getName());
-				if (!m.build(project_info)) {
+				if (!m.build(project_info, listener)) {
 					return false;
 				}
 				this.modules.add(m);
@@ -220,6 +259,6 @@ public class ProjectAction implements Action {
 			effort += m.getTotalEffort();
 		}
 
-		return (int) Math.round( ((double) effort) / ((double) this.modules.size()) );
+		return effort;
 	}
 }

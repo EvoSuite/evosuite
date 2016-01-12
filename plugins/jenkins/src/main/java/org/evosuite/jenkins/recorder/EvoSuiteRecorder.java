@@ -23,6 +23,7 @@ import org.evosuite.jenkins.actions.BuildAction;
 import org.evosuite.jenkins.actions.ProjectAction;
 import org.evosuite.jenkins.scm.Git;
 import org.evosuite.jenkins.scm.Mercurial;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
@@ -55,8 +56,11 @@ public class EvoSuiteRecorder extends Recorder {
 	private boolean disableAutoPush;
 	private String branchName;
 
-	public EvoSuiteRecorder() {
-		// empty
+	@DataBoundConstructor
+	public EvoSuiteRecorder(boolean disableAutoCommit, boolean disableAutoPush, String branchName) {
+		this.disableAutoCommit = disableAutoCommit;
+		this.disableAutoPush = disableAutoPush;
+		this.branchName = branchName;
 	}
 
 	public boolean getDisableAutoCommit() {
@@ -85,7 +89,7 @@ public class EvoSuiteRecorder extends Recorder {
 
 	@Override
 	public Action getProjectAction(AbstractProject<?, ?> project) {
-		if (!project.getBuilds().isEmpty() || !project.getActions().isEmpty()) {
+		if (!project.getBuilds().isEmpty() /*|| !project.getActions().isEmpty()*/) {
 			BuildAction buildAction = project.getLastBuild().getAction(BuildAction.class);
 			if (buildAction != null) {
 				ProjectAction lastProject = buildAction.getProjectAction();
@@ -105,13 +109,13 @@ public class EvoSuiteRecorder extends Recorder {
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 
 		if (build.getResult().isWorseThan(Result.SUCCESS)) {
-			listener.getLogger().println("Build did not succeed, so no test case generation by EvoSuite will occur.");
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Build did not succeed, so no test case generation by EvoSuite will occur.");
 			return true;
 		}
 
 		AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
 		ProjectAction projectAction = new ProjectAction(project);
-		if (!projectAction.perform(project, build)) {
+		if (!projectAction.perform(project, build, listener)) {
 			return false;
 		}
 
@@ -122,7 +126,7 @@ public class EvoSuiteRecorder extends Recorder {
 
 		SCM scm = project.getScm();
 		if (scm == null) {
-			listener.getLogger().println("Project '" + project.getName() + "' has no Source-Control-Management (SCM) defined.");
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Project '" + project.getName() + "' has no Source-Control-Management (SCM) defined.");
 			return true;
 		}
 
@@ -133,7 +137,7 @@ public class EvoSuiteRecorder extends Recorder {
 		} else if (scm instanceof GitSCM) {
 			scmWrapper = new Git((GitSCM) scm, build, listener);
 		} else {
-			listener.getLogger().println("SCM of type " + scm.getType() + " not supported!");
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "SCM of type " + scm.getType() + " not supported!");
 			return true;
 		}
 		assert scmWrapper != null;
@@ -199,9 +203,7 @@ public class EvoSuiteRecorder extends Recorder {
 		@Override
 		public Publisher newInstance(StaplerRequest req, JSONObject formData)
 				throws hudson.model.Descriptor.FormException {
-			EvoSuiteRecorder pub = new EvoSuiteRecorder();
-			req.bindJSON(pub, formData);
-			return pub;
+			return (EvoSuiteRecorder) super.newInstance(req, formData);
 		}
 	}
 }

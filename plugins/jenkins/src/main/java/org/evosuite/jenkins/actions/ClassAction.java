@@ -20,6 +20,7 @@
 package org.evosuite.jenkins.actions;
 
 import hudson.model.Action;
+import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.File;
@@ -32,8 +33,8 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
+import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.TestSuite;
 import org.evosuite.xsd.TestSuiteCoverage;
@@ -88,8 +89,10 @@ public class ClassAction implements Action {
 		return this.suite.getFullNameOfTestSuite();
 	}
 
-	public void highlightSource(final String javafile) {
+	public void highlightSource(final String javafile, BuildListener listener) {
 		try {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javafile);
+
 			InputStream file = new FileInputStream(new File(javafile));
 			JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
 
@@ -103,8 +106,23 @@ public class ClassAction implements Action {
 
 			this.testSourceCode = writer.toString();
 		} catch (IOException e) {
-			this.testSourceCode = "";
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage());
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Returning a empty source-code");
+			this.testSourceCode = e.getMessage();
 		}
+	}
+
+	public int getLastId() {
+		if (this.suite.getCoverageTestSuites().isEmpty()) {
+			return 0;
+		}
+
+		int lastId = 0;
+		for (TestSuiteCoverage suite : this.suite.getCoverageTestSuites()) {
+			lastId = Math.max(lastId, suite.getId().intValue());
+		}
+
+		return lastId;
 	}
 
 	// data for jelly template
@@ -131,10 +149,31 @@ public class ClassAction implements Action {
 			return 0;
 		}
 
-		int lastOne = this.suite.getCoverageTestSuites().size() - 1;
-		long effort = this.suite.getCoverageTestSuites().get(lastOne).getEffortInSeconds().longValue();
+		return this.getTotalEffort(this.suite.getCoverageTestSuites().size() - 1);
+	}
 
-		return (int) TimeUnit.SECONDS.toMinutes(effort);
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public int getTotalEffort(int id) {
+		if (this.suite.getCoverageTestSuites().isEmpty()) {
+			return 0;
+		}
+
+		if (id >= this.suite.getCoverageTestSuites().size()) {
+			// this could happen if, for example, EvoSuite stopped
+			// generating test cases to this particular class, or if
+			// something went wrong and we just have coverage to other
+			// classes but not to this particular one
+			return 0;
+		}
+
+		double effort = this.suite.getCoverageTestSuites().get(id).getEffortInSeconds().doubleValue();
+
+		effort = (effort / 60.0 + 1);
+		return (int) effort; // cast to int to truncate effort value
 	}
 
 	/**
@@ -153,9 +192,8 @@ public class ClassAction implements Action {
 	/**
 	 * 
 	 * @return
-	 * @throws IOException
 	 */
-	public String getTestSourceCode() throws IOException {
+	public String getTestSourceCode() {
 		return this.testSourceCode;
 	}
 

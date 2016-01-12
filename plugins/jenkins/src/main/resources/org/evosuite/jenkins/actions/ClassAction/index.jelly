@@ -27,7 +27,7 @@
           <td class="pane-header">Test Suite</td>
           <td class="pane-header">Number of Tests</td>
           <td class="pane-header">Number of Statements</td>
-          <td class="pane-header">Total Effort (seconds)</td>
+          <td class="pane-header">Total Effort (minutes)</td>
         </tr>
        	<tr>
           <td>

@@ -185,6 +185,7 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 
 		String targetClass = IndirectlyCoverableBranches.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.SEARCH_BUDGET = 35_000;
 
 		String[] command = new String[] {
 			"-class", targetClass,

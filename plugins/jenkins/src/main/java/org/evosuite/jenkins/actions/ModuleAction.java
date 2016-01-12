@@ -20,6 +20,7 @@
 package org.evosuite.jenkins.actions;
 
 import hudson.model.Action;
+import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.File;
@@ -106,10 +107,9 @@ public class ModuleAction implements Action {
 	 * @param project_info
 	 * @return
 	 */
-	public boolean build(Path project_info) {
+	public boolean build(File project_info, BuildListener listener) {
 		try {
-			File tempfile = new File(project_info.toString());
-			InputStream stream = new FileInputStream(tempfile);
+			InputStream stream = new FileInputStream(project_info);
 
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			// the following statement does not compile on Eclipse because of
@@ -125,7 +125,8 @@ public class ModuleAction implements Action {
 				ClassAction c = new ClassAction(suite, this.getBuild());
 
 				String fullPathOfTestSuite = suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 ).getFullPathOfTestSuite();
-				c.highlightSource(fullPathOfTestSuite);
+				c.highlightSource(fullPathOfTestSuite.replace(this.build.getWorkspace().getRemote(),
+						this.build.getRootDir().getAbsolutePath() + File.separator + ".." + File.separator + this.name + File.separator), listener);
 
 				this.classes.add(c);
 			}
@@ -178,12 +179,17 @@ public class ModuleAction implements Action {
 			return 0;
 		}
 
-		int effort = 0;
+		int lastId = 0;
 		for (ClassAction c : this.classes) {
-			effort += c.getTotalEffort();
+			lastId = Math.max(lastId, c.getLastId());
 		}
 
-		return (int) Math.round( ((double) effort) / ((double) this.classes.size()) );
+		int effort = 0;
+		for (ClassAction c : this.classes) {
+			effort += c.getTotalEffort(lastId);
+		}
+
+		return effort;
 	}
 
 	/**

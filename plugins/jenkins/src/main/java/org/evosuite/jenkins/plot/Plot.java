@@ -117,7 +117,7 @@ public abstract class Plot extends Graph {
 		@Override
 		public String generateURL(CategoryDataset dataset, int series, int category) {
 			int da = Integer.parseInt((String) dataset.getColumnKey(category).toString().substring(1));
-			return "/jenkins/" + project.getBuildByNumber(da).getUrl() + "evosuite-build/";
+			return "/" + project.getBuildByNumber(da).getUrl() + "evosuite-build/";
 		}
 
 		@Override
