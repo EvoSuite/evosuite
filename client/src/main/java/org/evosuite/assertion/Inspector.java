@@ -74,21 +74,22 @@ public class Inspector implements Serializable {
 	public Object getValue(Object object) throws IllegalArgumentException,
 	        IllegalAccessException, InvocationTargetException {
 
-		Sandbox.goingToExecuteSUTCode();
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
-		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
-		boolean loopCounter = LoopCounter.getInstance().isActivated();
-		LoopCounter.getInstance().setActive(false);
-
+		boolean needsSandbox = !Sandbox.isOnAndExecutingSUTCode();
+		if(needsSandbox) {
+			Sandbox.goingToExecuteSUTCode();
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		}
 		Object ret = null;
 
 		try {
 			ret = this.method.invoke(object);
 		} finally {
-			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-			Sandbox.doneWithExecutingSUTCode();
-			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
-			LoopCounter.getInstance().setActive(loopCounter);
+			if(needsSandbox) {
+				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+				Sandbox.doneWithExecutingSUTCode();
+				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			}
 		}
 
 		return ret;
