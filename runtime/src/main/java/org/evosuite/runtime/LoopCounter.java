@@ -110,10 +110,19 @@ public class LoopCounter {
         long value = counters.get(index) + 1l;
         counters.set(index , value);
 
-        if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop){
+        if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
             this.reset();
             throw new TooManyResourcesException("Loop has been executed more times than the allowed " +
                     RuntimeSettings.maxNumberOfIterationsPerLoop);
         }
+    }
+
+
+    private boolean isInStaticInit() {
+        for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+            if (elem.getMethodName().startsWith("<clinit>"))
+                return true;
+        }
+        return false;
     }
 }
