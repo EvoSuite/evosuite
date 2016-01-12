@@ -191,6 +191,14 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 		return constructor.getName();
 	}
 
+	public String getNameWithDescriptor() {
+		return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+	}
+
+	public String getDescriptor() {
+		return org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+	}
+
 	@Override
 	public int getNumParameters() {
 		return constructor.getGenericParameterTypes().length;

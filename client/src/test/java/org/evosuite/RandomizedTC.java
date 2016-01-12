@@ -1,12 +1,10 @@
 package org.evosuite;
 
-import org.evosuite.runtime.Random;
-import org.evosuite.utils.Randomness;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import org.evosuite.utils.Randomness;
+import org.junit.Before;
 
 /**
  * Specify that the given unit test is using some randomized component.

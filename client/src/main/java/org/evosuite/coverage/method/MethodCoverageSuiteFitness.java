@@ -26,6 +26,7 @@ import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
+import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -81,12 +82,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     protected void determineMethods() {
         String className = Properties.TARGET_CLASS;
-        Class<?> clazz = null;
-        try {
-            clazz = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+		Class<?> clazz = Properties.getTargetClass();
         if (clazz != null) {
             Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
             for (Constructor<?> c : allConstructors) {
@@ -179,17 +175,10 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 if (! isValidPosition(result, stmt.getPosition()))
                     break;
                 if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {
-                    String className;
-                    String methodName;
-                    if (stmt instanceof MethodStatement) {
-                        MethodStatement m = (MethodStatement) stmt;
-                        className = m.getMethod().getMethod().getDeclaringClass().getName();
-                        methodName = m.toString();
-                    } else { //stmt instanceof ConstructorStatement
-                        ConstructorStatement c = (ConstructorStatement)stmt;
-                        className = c.getConstructor().getDeclaringClass().getName();
-                        methodName = "<init>" + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
-                    }
+					EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
+					String className  = ps.getDeclaringClassName();
+					String methodDesc = ps.getDescriptor();
+					String methodName = ps.getMethodName() + methodDesc;
                     String fullName = className + "." + methodName;
     				if(!methods.contains(fullName)||removedMethods.contains(fullName)) continue;
                     if (methodCoverageMap.containsKey(fullName)) {
@@ -325,7 +314,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				removedMethods.add(method);
 				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
 			} else {
-				throw new IllegalStateException("goal to remove not found");
+				throw new IllegalStateException("Goal to remove not found: "+method+", candidates: "+methodCoverageMap.keySet());
 			}
 		}
 		toRemoveMethods.clear();

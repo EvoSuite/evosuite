@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dk.brics.automaton.RegExp;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -1381,8 +1382,9 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	private boolean isValidSource(String sourceClass){
-		return ! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
-				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.");
+		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
+				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
+                !sourceClass.startsWith(RegExp.class.getPackage().getName());
 	}
 
     private Class<?> getExceptionClassToUse(Throwable exception){

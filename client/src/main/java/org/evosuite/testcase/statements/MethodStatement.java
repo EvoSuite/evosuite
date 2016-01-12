@@ -342,7 +342,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 
 		}
 		m.getReturnValue().setType(retval.getType()); // Actual type may have changed, e.g. subtype
-		
+
 		// m.assertions = copyAssertions(newTestCase, offset);
 
 		return m;
@@ -729,5 +729,20 @@ public class MethodStatement extends EntityWithParametersStatement {
 	public void changeClassLoader(ClassLoader loader) {
 		method.changeClassLoader(loader);
 		super.changeClassLoader(loader);
+	}
+
+	@Override
+	public String getDescriptor() {
+		return method.getDescriptor();
+	}
+
+	@Override
+	public String getDeclaringClassName() {
+		return method.getDeclaringClass().getCanonicalName();
+	}
+
+	@Override
+	public String getMethodName() {
+		return method.getName();
 	}
 }
