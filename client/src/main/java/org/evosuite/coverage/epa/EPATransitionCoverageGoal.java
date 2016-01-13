@@ -2,6 +2,7 @@ package org.evosuite.coverage.epa;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -57,9 +58,8 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	 * @return
 	 */
 	public double getDistance(ExecutionResult result) {
-		boolean covered;
 		try {
-			covered = EPATraceFactory.buildEPATraces(className, result.getTrace(), epa).stream()
+			final boolean covered = EPATraceFactory.buildEPATraces(className, result.getTrace(), epa).stream()
 					.filter(epaTrace -> epaTrace.getEpaTransitions().contains(transition)).findAny().isPresent();
 			return covered ? 0.0 : 1.0;
 		} catch (MalformedEPATraceException e) {
@@ -75,4 +75,44 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 		in.defaultReadObject();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((className == null) ? 0 : className.hashCode());
+		result = prime * result + ((epa == null) ? 0 : epa.hashCode());
+		result = prime * result + ((transition == null) ? 0 : transition.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EPATransitionCoverageGoal other = (EPATransitionCoverageGoal) obj;
+		if (className == null) {
+			if (other.className != null)
+				return false;
+		} else if (!className.equals(other.className))
+			return false;
+		if (epa == null) {
+			if (other.epa != null)
+				return false;
+		} else if (!epa.equals(other.epa))
+			return false;
+		if (transition == null) {
+			if (other.transition != null)
+				return false;
+		} else if (!transition.equals(other.transition))
+			return false;
+		return true;
+	}
+
+	public String toString() {
+		return transition.toString();
+	}
 }

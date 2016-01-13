@@ -2,6 +2,7 @@ package org.evosuite.coverage.epa;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,11 +17,8 @@ public class EPATransitionCoverageFactory extends AbstractFitnessFactory<EPATran
 	private final String className;
 
 	public EPATransitionCoverageFactory(String className, String epaXMLFilename) {
+		Objects.requireNonNull(epaXMLFilename, "epa XML Filename cannot be null");
 		this.className = className;
-
-		if (epaXMLFilename == null) {
-			throw new IllegalArgumentException("epa XML Filename cannot be null");
-		}
 		try {
 			this.epa = EPAFactory.buildEPA(epaXMLFilename);
 		} catch (ParserConfigurationException | SAXException | IOException e) {

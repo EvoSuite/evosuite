@@ -43,8 +43,6 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 		DefaultTestCase tc = buildTestCase0();
 
-		// Expected Trace
-		// S0->ListItr()->S1->add()->S3
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(tc);
 
@@ -53,7 +51,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		suite.addFitness(fitness);
 		double fitnessValue = fitness.getFitness(suite);
 
-		// There are 37 transitions in ListItr's EPA
+		// There are 69 transitions in ListItr's EPA
 		int expectedTotalTransitions = 69;
 
 		// There are only 2 transitions in the test case
@@ -162,8 +160,6 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 		DefaultTestCase tc = buildTestCase0();
 
-		// Expected Trace
-		// S0->ListItr()->S1->add()->S3
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(tc);
 
@@ -289,4 +285,63 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		assertEquals(fitnessValue, suiteFitnessValue, 0.00000001);
 
 	}
+	
+	@Test
+	public void testStatesAgainstEPA() throws ClassNotFoundException, NoSuchMethodException, FileNotFoundException,
+			ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
+		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
+				"resources", "epas", "ListItr.xml");
+		final File epaXMLFile = new File(xmlFilename);
+		Assume.assumeTrue(epaXMLFile.exists());
+
+		EPA epa = EPAFactory.buildEPA(xmlFilename);
+
+		Properties.TARGET_CLASS = ListItr.class.getName();
+
+		DefaultTestCase tc = buildTestCase0();
+
+		// Expected Trace
+		// S0->ListItr()->S1->add()->S3
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(tc);
+
+		EPATransitionCoverageSuiteFitness fitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
+
+		List<ExecutionResult> results = new LinkedList<ExecutionResult>();
+		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
+			ExecutionResult result = chromosome.executeForFitnessFunction(fitness);
+			results.add(result);
+		}
+		assertEquals(1, results.size());
+
+		ExecutionResult executionResult = results.get(0);
+		List<EPATrace> traces = EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS, executionResult.getTrace(),
+				epa);
+
+		assertEquals(1, traces.size());
+
+		EPATrace trace = traces.get(0);
+		assertEquals(2, trace.getEpaTransitions().size());
+
+		EPATransition t1 = trace.getEpaTransitions().get(0);
+		EPATransition t2 = trace.getEpaTransitions().get(1);
+
+		EPAState sinit = new EPAState("Sinit");
+		EPAState s87 = new EPAState("S87");
+		EPAState s119 = new EPAState("S119");
+
+		assertEquals(sinit, t1.getOriginState());
+		assertEquals("<init>(Lcom/examples/with/different/packagename/epa/MyArrayList;I)V", t1.getActionName());
+		assertEquals(s87, t1.getDestinationState());
+
+		assertEquals(s87, t2.getOriginState());
+		assertEquals("add(Ljava/lang/Object;)V", t2.getActionName());
+		assertEquals(s119, t2.getDestinationState());
+
+		assertTrue(epa.containsAction("add(Ljava/lang/Object;)V"));
+		assertTrue(epa.containsAction("<init>(Lcom/examples/with/different/packagename/epa/MyArrayList;I)V"));
+		
+		
+	}
+
 }

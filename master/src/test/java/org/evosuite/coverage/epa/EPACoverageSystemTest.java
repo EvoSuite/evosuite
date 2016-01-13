@@ -27,7 +27,6 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTest;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
@@ -164,81 +163,40 @@ public class EPACoverageSystemTest extends SystemTest {
 		System.out.println("===========================");
 	}
 
-	//
-	// @Test
-	// public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException
-	// {
-	//
-	// EvoSuite evosuite = new EvoSuite();
-	//
-	// String targetClass = Compositional.class.getCanonicalName();
-	// Properties.TARGET_CLASS = targetClass;
-	//
-	// Properties.OUTPUT_VARIABLES = RuntimeVariable.RhoScore.name();
-	// Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
-	//
-	// String[] command = new String[] {
-	// "-class", targetClass,
-	// "-generateTests"
-	// };
-	//
-	// Object result = evosuite.parseCommandLine(command);
-	// Assert.assertNotNull(result);
-	//
-	// List<?> goals = RhoCoverageFactory.getGoals();
-	// assertEquals(11, goals.size());
-	//
-	// String statistics_file = System.getProperty("user.dir") + File.separator
-	// + Properties.REPORT_DIR + File.separator + "statistics.csv";
-	//
-	// CSVReader reader = new CSVReader(new FileReader(statistics_file));
-	// List<String[]> rows = reader.readAll();
-	// assertTrue(rows.size() == 2);
-	// reader.close();
-	//
-	// assertEquals("0.5", rows.get(1)[0]);
-	// }
-	//
-	// @Test
-	// public void testZeroRhoScoreWithPreviousCoverage() throws IOException {
-	//
-	// EvoSuite evosuite = new EvoSuite();
-	//
-	// String targetClass = Compositional.class.getCanonicalName();
-	// Properties.TARGET_CLASS = targetClass;
-	//
-	// String previous_tmp_coverage =
-	// "1 1 1 1 1 1 1 1 1 1 1 +\n" +
-	// "1 1 1 1 0 0 0 0 0 0 0 +\n";
-	// this.writeMatrix(previous_tmp_coverage);
-	// Properties.USE_EXISTING_COVERAGE = true;
-	//
-	// Properties.OUTPUT_VARIABLES = RuntimeVariable.RhoScore.name();
-	// Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
-	//
-	// String[] command = new String[] {
-	// "-class", targetClass,
-	// "-generateTests"
-	// };
-	//
-	// Object result = evosuite.parseCommandLine(command);
-	// Assert.assertNotNull(result);
-	//
-	// List<?> goals = RhoCoverageFactory.getGoals();
-	// assertEquals(11, goals.size());
-	// assertEquals(15, RhoCoverageFactory.getNumber_of_Ones());
-	// assertEquals(2, RhoCoverageFactory.getNumber_of_Test_Cases());
-	// assertEquals((15.0 / 11.0 / 2.0) - 0.5, RhoCoverageFactory.getRho(),
-	// 0.0001);
-	//
-	// String statistics_file = System.getProperty("user.dir") + File.separator
-	// + Properties.REPORT_DIR + File.separator + "statistics.csv";
-	//
-	// CSVReader reader = new CSVReader(new FileReader(statistics_file));
-	// List<String[]> rows = reader.readAll();
-	// assertTrue(rows.size() == 2);
-	// reader.close();
-	//
-	// assertEquals("0.5", rows.get(1)[0]);
-	// }
+	@Test
+	public void testOnlyEPACoverageWithMinimization() {
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+		Properties.SEARCH_BUDGET = 60;
+		Properties.MINIMIZE = true;
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPATRANSITION };
+
+		// check test case
+		String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "..", "client", "src", "test",
+				"resources", "epas", "ListItr.xml");
+		File epaXMLFile = new File(xmlFilename);
+		Assume.assumeTrue(epaXMLFile.exists());
+
+		final String targetClass = ListItr.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.EPA_XML_PATH = xmlFilename;
+
+		final EvoSuite evoSuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		final Object results = evoSuite.parseCommandLine(command);
+		Assert.assertNotNull(results);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+
+		TestSuiteChromosome bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+		assertTrue(!bestIndividual.getTests().isEmpty());
+
+		TestCase test = bestIndividual.getTests().get(0);
+		assertTrue(!test.isEmpty());
+
+		String individual = bestIndividual.toString();
+		System.out.println("===========================");
+		System.out.println("Best Individual:");
+		System.out.println(individual);
+		System.out.println("===========================");
+	}
+
 }

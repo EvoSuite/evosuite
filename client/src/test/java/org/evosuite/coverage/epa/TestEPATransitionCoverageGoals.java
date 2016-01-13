@@ -65,6 +65,7 @@ public class TestEPATransitionCoverageGoals extends TestEPATransitionCoverage {
 		assertEquals(6, uncovered);
 		assertEquals(6.0, totalFitness, 0.00000000001);
 
+		
 	}
 
 }

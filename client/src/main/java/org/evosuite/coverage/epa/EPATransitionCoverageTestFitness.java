@@ -73,4 +73,8 @@ public class EPATransitionCoverageTestFitness extends TestFitnessFunction {
 			return false;
 		return true;
 	}
+	
+	public String toString() {
+		return goal.toString();
+	}
 }
