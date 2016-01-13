@@ -50,8 +50,9 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		List<ExecutionResult> executionResults = runTestSuite(suite);
-		final List<EPATrace> epaTraces = executionResults.stream().map(ExecutionResult::getTrace)
-				.flatMap(executionTrace -> EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS, executionTrace, epa).stream())
+		final List<EPATrace> epaTraces = executionResults.stream()
+				.map(ExecutionResult::getTrace).flatMap(executionTrace -> EPATraceFactory
+						.buildEPATraces(Properties.TARGET_CLASS, executionTrace, epa).stream())
 				.collect(Collectors.toList());
 
 		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream().map(EPATrace::getEpaTransitions)
@@ -61,28 +62,10 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		final int tracedEpaTransitionSize = tracedEpaTransitions.size();
 		final int uncoveredEpaTransitions = epaTransitionSize - tracedEpaTransitionSize;
 		final double fitness = uncoveredEpaTransitions;
+
+		updateIndividual(this, suite, fitness);
+
 		return fitness;
-		//
-		// int i = 0;
-		// for (ExecutionResult executionResult : executionResults) {
-		//
-		// if (executionResult.getTrace().getMethodCalls().size() < 3)
-		// continue;
-		//
-		// System.out.println("=========================================");
-		// System.out.println("ExecutionResult #" + Integer.toString(i));
-		// System.out.println("Code:");
-		// System.out.println(executionResult.test);
-		// System.out.println("-----------------------------------------");
-		// for (MethodCall methodCallexecution :
-		// executionResult.getTrace().getMethodCalls()) {
-		// System.out.println("- " + methodCallexecution.className + "||" +
-		// cleanMethodName(methodCallexecution.methodName));
-		// }
-		// System.out.println();
-		// i++;
-		// }
-		// return 0;
 	}
 
 }

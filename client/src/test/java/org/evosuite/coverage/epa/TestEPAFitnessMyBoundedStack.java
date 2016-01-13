@@ -1,6 +1,7 @@
 package org.evosuite.coverage.epa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -70,6 +71,10 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
 
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
+		
+		double suiteFitness = suite.getFitness();
+		assertTrue(suiteFitness==fitnessValue);
+
 	}
 
 	@Test
@@ -125,6 +130,9 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
 
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
+		
+		double suiteFitness = suite.getFitness();
+		assertTrue(suiteFitness==fitnessValue);
 	}
 
 	@Test
@@ -161,6 +169,8 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
 
+		double suiteFitness = suite.getFitness();
+		assertTrue(suiteFitness==fitnessValue);
 	}
 
 	@Test
@@ -195,6 +205,9 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 	
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
 	
+		double suiteFitness = suite.getFitness();
+		assertTrue(suiteFitness==fitnessValue);
+
 	}	
 	
 	@Test
@@ -236,6 +249,8 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 	
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
 	
+		double suiteFitness = suite.getFitness();
+		assertTrue(fitnessValue==suiteFitness);
 	}	
 	
 }

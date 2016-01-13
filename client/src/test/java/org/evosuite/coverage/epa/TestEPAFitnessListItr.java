@@ -1,6 +1,7 @@
 package org.evosuite.coverage.epa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -61,6 +62,10 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
 
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
+		
+		double suiteFitness = suite.getFitness();
+		assertTrue(suiteFitness==fitnessValue);
+
 	}
 
 	private static DefaultTestCase buildTestCase(EPATestCaseBuilder builder)
@@ -144,5 +149,44 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		assertEquals("add(Ljava/lang/Object;)V", t2.getActionName());
 		assertEquals(s119, t2.getDestinationState());
 
+	}
+
+	@Test
+	public void testFitness() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
+		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
+				"resources", "epas", "ListItr.xml");
+		final File epaXMLFile = new File(xmlFilename);
+		Assume.assumeTrue(epaXMLFile.exists());
+	
+		Properties.TARGET_CLASS = ListItr.class.getName();
+	
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+	
+		DefaultTestCase tc = buildTestCase(builder);
+	
+		// Expected Trace
+		// S0->ListItr()->S1->add()->S3
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(tc);
+	
+		EPATransitionCoverageSuiteFitness epaTransitionFitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
+	
+		suite.addFitness(epaTransitionFitness);
+		double fitnessValue = epaTransitionFitness.getFitness(suite);
+	
+		
+		// There are 37 transitions in ListItr's EPA
+		int expectedTotalTransitions = 69;
+	
+		// There are only 2 transitions in the test case
+		int expectedCoveredTransitions = 2;
+	
+		// fitness is the number of uncovered EPA transitions
+		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
+	
+		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
+		
+		double suiteFitnessValue = suite.getFitness();
+		assertEquals(fitnessValue, suiteFitnessValue, 0.00000001);
 	}
 }

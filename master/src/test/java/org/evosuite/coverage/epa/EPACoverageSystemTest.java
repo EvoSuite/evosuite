@@ -19,13 +19,19 @@
  */
 package org.evosuite.coverage.epa;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -35,28 +41,8 @@ import com.examples.with.different.packagename.epa.ListItr;
 
 public class EPACoverageSystemTest extends SystemTest {
 
-	// private void writeMatrix(String MATRIX_CONTENT) {
-	// String path = Properties.REPORT_DIR + File.separator;
-	// final File tmp = new File(path);
-	// tmp.mkdirs();
-	//
-	// try {
-	// final File matrix = new File(path + File.separator +
-	// Properties.TARGET_CLASS + ".matrix");
-	// matrix.createNewFile();
-	//
-	// FileWriter fw = new FileWriter(matrix.getAbsoluteFile());
-	// BufferedWriter bw = new BufferedWriter(fw);
-	// bw.write(MATRIX_CONTENT);
-	// bw.close();
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	// }
-
 	@Before
 	public void prepare() {
-		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPATRANSITION };
 		Properties.TIMEOUT = 15 * 60 * 1000; // test execution timeout 15 min
 		// Properties.STRATEGY = Strategy.ENTBUG;
 		// Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
@@ -64,15 +50,20 @@ public class EPACoverageSystemTest extends SystemTest {
 		//
 		// Properties.TEST_ARCHIVE = false;
 		// Properties.TEST_FACTORY = TestFactory.RANDOM;
-		// Properties.MINIMIZE = false;
+		Properties.MINIMIZE = false;
 		// Properties.MINIMIZE_VALUES = false;
 		// Properties.INLINE = false;
-		// Properties.ASSERTIONS = false;
+		Properties.ASSERTIONS = false;
 		// Properties.USE_EXISTING_COVERAGE = false;
 	}
 
 	@Test
-	public void testSomething() {
+	public void testOnlyEPACoverage() {
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
+		Properties.SEARCH_BUDGET = 60;
+		
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPATRANSITION };
+
 		// check test case
 		String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "..", "client", "src", "test",
 				"resources", "epas", "ListItr.xml");
@@ -89,9 +80,90 @@ public class EPACoverageSystemTest extends SystemTest {
 		Assert.assertNotNull(results);
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
 
-		Chromosome bestIndividual = ga.getBestIndividual();
-		
+		TestSuiteChromosome bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+		assertTrue(!bestIndividual.getTests().isEmpty());
+
+		TestCase test = bestIndividual.getTests().get(0);
+		assertTrue(!test.isEmpty());
+
+		String individual = bestIndividual.toString();
+		System.out.println("===========================");
+		System.out.println("Best Individual:");
+		System.out.println(individual);
+		System.out.println("===========================");
 	}
+
+	@Test
+	public void testBranchAndEPACoverage() {
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH,
+				Properties.Criterion.EPATRANSITION };
+
+		// check test case
+		String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "..", "client", "src", "test",
+				"resources", "epas", "ListItr.xml");
+		File epaXMLFile = new File(xmlFilename);
+		Assume.assumeTrue(epaXMLFile.exists());
+
+		final String targetClass = ListItr.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		Properties.EPA_XML_PATH = xmlFilename;
+
+		final EvoSuite evoSuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		final Object results = evoSuite.parseCommandLine(command);
+		Assert.assertNotNull(results);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+
+		TestSuiteChromosome bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+		assertTrue(!bestIndividual.getTests().isEmpty());
+
+		for (FitnessFunction<?> ff : ga.getFitnessFunctions()) {
+			int coveredGoals = bestIndividual.getNumOfCoveredGoals(ff);
+			int notCoveredGoals = bestIndividual.getNumOfNotCoveredGoals(ff);
+			System.out.println(ff.toString());
+			System.out.println("Covered_Goals " + coveredGoals);
+			System.out.println("Not_Covered_Goals " +  notCoveredGoals);
+		}
+		
+		
+
+		TestCase test = bestIndividual.getTests().get(0);
+		assertTrue(!test.isEmpty());
+
+		String individual = bestIndividual.toString();
+		System.out.println("===========================");
+		System.out.println("Best Individual:");
+		System.out.println(individual);
+		System.out.println("===========================");
+	}
+
+	@Test
+	public void testBranchOnlyCoverage() {
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+	
+		// check test case
+		final String targetClass = ListItr.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+	
+		final EvoSuite evoSuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		final Object results = evoSuite.parseCommandLine(command);
+		Assert.assertNotNull(results);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+	
+		TestSuiteChromosome bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+		assertTrue(!bestIndividual.getTests().isEmpty());
+	
+		TestCase test = bestIndividual.getTests().get(0);
+		assertTrue(!test.isEmpty());
+	
+		String individual = bestIndividual.toString();
+		System.out.println("===========================");
+		System.out.println("Best Individual:");
+		System.out.println(individual);
+		System.out.println("===========================");
+	}
+
 	//
 	// @Test
 	// public void testZeroRhoScoreWithoutPreviousCoverage() throws IOException
