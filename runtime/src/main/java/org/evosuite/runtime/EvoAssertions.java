@@ -27,7 +27,13 @@ import java.lang.annotation.Annotation;
 public class EvoAssertions {
 
     public static void assertThrownBy(String sourceClass, Throwable t) throws AssertionError{
-        StackTraceElement el = t.getStackTrace()[0];
+        StackTraceElement[] stackTrace = t.getStackTrace();
+
+        // TODO: Force mocked exceptions to always have stack trace
+        if(stackTrace.length == 0)
+            return;
+
+        StackTraceElement el = stackTrace[0];
 
         if(sourceClass==null){
             return; //can this even happen?
