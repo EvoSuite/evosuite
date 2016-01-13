@@ -19,6 +19,7 @@
  */
 package org.evosuite.assertion;
 
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
@@ -87,6 +88,11 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 						// The word "hashCode" is also suspicious
 						if(((String)value).toLowerCase().contains("hashcode"))
 							continue;
+						if(target instanceof URL) {
+							// Absolute paths may be different between executions
+							if(((String) value).startsWith("/") || ((String) value).startsWith("file:/"))
+								continue;
+						}
 					}
 
 					entry.addValue(i, value);
