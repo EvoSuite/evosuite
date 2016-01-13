@@ -10,6 +10,8 @@ import java.util.Map;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -21,16 +23,15 @@ public class EPATestCaseBuilder {
 
 	private final DefaultTestCase tc = new DefaultTestCase();
 
-	public VariableReference addConstructorStatement(Constructor<?> constructor) throws NoSuchMethodException, SecurityException {
+	public VariableReference addConstructorStatement(Constructor<?> constructor, VariableReference... parameters)
+			throws NoSuchMethodException, SecurityException {
 		GenericClass genericClass = getGenericClass(constructor.getDeclaringClass());
-		GenericConstructor genericConstructor = new GenericConstructor(
-				constructor, genericClass);
-		ConstructorStatement stmt = new ConstructorStatement(tc, genericConstructor,
-				Collections.<VariableReference> emptyList());
+		GenericConstructor genericConstructor = new GenericConstructor(constructor, genericClass);
+		ConstructorStatement stmt = new ConstructorStatement(tc, genericConstructor, Arrays.asList(parameters));
 		VariableReference ret_val = tc.addStatement(stmt);
 		return ret_val;
 	}
-	
+
 	private GenericClass getGenericClass(Class<?> clazz) {
 		if (!genericClasses.containsKey(clazz)) {
 			GenericClass genericClass = new GenericClass(clazz);
@@ -74,6 +75,18 @@ public class EPATestCaseBuilder {
 			throw new IllegalArgumentException("Method should be static!");
 		}
 		MethodStatement stmt = new MethodStatement(tc, genericMethod, null, Arrays.asList(parameters));
+		VariableReference ret_val = tc.addStatement(stmt);
+		return ret_val;
+	}
+
+	public VariableReference addIntegerStatement(int value) {
+		IntPrimitiveStatement stmt = new IntPrimitiveStatement(tc, value);
+		VariableReference ret_val = tc.addStatement(stmt);
+		return ret_val;
+	}
+	
+	public VariableReference addNullStatement(Class<?> clazz) {
+		NullStatement stmt = new NullStatement(tc, clazz);
 		VariableReference ret_val = tc.addStatement(stmt);
 		return ret_val;
 	}

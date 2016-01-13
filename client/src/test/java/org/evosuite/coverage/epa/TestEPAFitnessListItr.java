@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assume;
@@ -38,9 +41,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 		Properties.TARGET_CLASS = ListItr.class.getName();
 
-		EPATestCaseBuilder builder = new EPATestCaseBuilder();
-
-		DefaultTestCase tc = buildTestCase(builder);
+		DefaultTestCase tc = buildTestCase0();
 
 		// Expected Trace
 		// S0->ListItr()->S1->add()->S3
@@ -62,18 +63,19 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
 
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
-		
+
 		double suiteFitness = suite.getFitness();
-		assertTrue(suiteFitness==fitnessValue);
+		assertTrue(suiteFitness == fitnessValue);
 
 	}
 
-	private static DefaultTestCase buildTestCase(EPATestCaseBuilder builder)
-			throws ClassNotFoundException, NoSuchMethodException {
+	private static DefaultTestCase buildTestCase0() throws ClassNotFoundException, NoSuchMethodException {
 		Class<?> listItrClass = TestGenerationContext.getInstance().getClassLoaderForSUT()
-				.loadClass(Properties.TARGET_CLASS);
+				.loadClass(ListItr.class.getName());
 		Class<?> arrayListClass = TestGenerationContext.getInstance().getClassLoaderForSUT()
 				.loadClass(MyArrayList.class.getName());
+
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
 
 		// adds "MyArrayList list = new MyArrayList();"
 		Constructor<?> arrayListCtor = arrayListClass.getConstructor();
@@ -97,7 +99,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 	@Test
 	public void testEPAStates() throws ClassNotFoundException, NoSuchMethodException, FileNotFoundException,
-			ParserConfigurationException, SAXException, IOException {
+			ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
 		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
 				"resources", "epas", "ListItr.xml");
 		final File epaXMLFile = new File(xmlFilename);
@@ -107,9 +109,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 		Properties.TARGET_CLASS = ListItr.class.getName();
 
-		EPATestCaseBuilder builder = new EPATestCaseBuilder();
-
-		DefaultTestCase tc = buildTestCase(builder);
+		DefaultTestCase tc = buildTestCase0();
 
 		// Expected Trace
 		// S0->ListItr()->S1->add()->S3
@@ -157,36 +157,136 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 				"resources", "epas", "ListItr.xml");
 		final File epaXMLFile = new File(xmlFilename);
 		Assume.assumeTrue(epaXMLFile.exists());
-	
+
 		Properties.TARGET_CLASS = ListItr.class.getName();
-	
-		EPATestCaseBuilder builder = new EPATestCaseBuilder();
-	
-		DefaultTestCase tc = buildTestCase(builder);
-	
+
+		DefaultTestCase tc = buildTestCase0();
+
 		// Expected Trace
 		// S0->ListItr()->S1->add()->S3
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(tc);
-	
+
 		EPATransitionCoverageSuiteFitness epaTransitionFitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
-	
+
 		suite.addFitness(epaTransitionFitness);
 		double fitnessValue = epaTransitionFitness.getFitness(suite);
-	
-		
-		// There are 37 transitions in ListItr's EPA
+
 		int expectedTotalTransitions = 69;
-	
-		// There are only 2 transitions in the test case
 		int expectedCoveredTransitions = 2;
-	
+
 		// fitness is the number of uncovered EPA transitions
 		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
-	
+
 		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
-		
+
 		double suiteFitnessValue = suite.getFitness();
 		assertEquals(fitnessValue, suiteFitnessValue, 0.00000001);
+	}
+
+	@Test
+	public void testExceptionOnConstructor() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
+		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
+				"resources", "epas", "ListItr.xml");
+		final File epaXMLFile = new File(xmlFilename);
+		Assume.assumeTrue(epaXMLFile.exists());
+
+		Properties.TARGET_CLASS = ListItr.class.getName();
+
+		DefaultTestCase tc = buildTestCase1();
+
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(tc);
+
+		EPATransitionCoverageSuiteFitness epaTransitionFitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
+
+		suite.addFitness(epaTransitionFitness);
+		double fitnessValue = epaTransitionFitness.getFitness(suite);
+
+		int expectedTotalTransitions = 69;
+		int expectedCoveredTransitions = 0;
+
+		// fitness is the number of uncovered EPA transitions
+		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
+
+		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
+
+		double suiteFitnessValue = suite.getFitness();
+		assertEquals(fitnessValue, suiteFitnessValue, 0.00000001);
+
+	}
+
+	private static DefaultTestCase buildTestCase1() throws ClassNotFoundException, NoSuchMethodException {
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(ListItr.class.getName());
+		Class<?> arrayListClass = TestGenerationContext.getInstance().getClassLoaderForSUT()
+				.loadClass(MyArrayList.class.getName());
+		VariableReference nullArrayList = builder.addNullStatement(arrayListClass);
+		VariableReference int0 = builder.addIntegerStatement(0);
+		Constructor<?> constructor = clazz.getConstructor(arrayListClass, int.class);
+		builder.addConstructorStatement(constructor, nullArrayList, int0);
+		DefaultTestCase tc = builder.toTestCase();
+		return tc;
+	}
+
+	private static DefaultTestCase buildTestCase2() throws ClassNotFoundException, NoSuchMethodException {
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+		Class<?> arrayListClass = TestGenerationContext.getInstance().getClassLoaderForSUT()
+				.loadClass(MyArrayList.class.getName());
+
+		Constructor<?> constructor = arrayListClass.getConstructor();
+		VariableReference arrayList0Var = builder.addConstructorStatement(constructor);
+		VariableReference arrayList1Var = builder.addConstructorStatement(constructor);
+
+		Method addMethod = arrayListClass.getMethod("add", Object.class);
+		builder.addMethodStatement(arrayList0Var, addMethod, arrayList1Var);
+		builder.addMethodStatement(arrayList1Var, addMethod, arrayList0Var);
+
+		Method retainAllMehtod = arrayListClass.getMethod("retainAll", Collection.class);
+		builder.addMethodStatement(arrayList1Var, retainAllMehtod, arrayList0Var);
+
+		DefaultTestCase tc = builder.toTestCase();
+		return tc;
+	}
+
+	@Test
+	public void testStackOverflow() throws ClassNotFoundException, NoSuchMethodException {
+		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
+				"resources", "epas", "ListItr.xml");
+		final File epaXMLFile = new File(xmlFilename);
+		Assume.assumeTrue(epaXMLFile.exists());
+
+		Properties.TARGET_CLASS = ListItr.class.getName();
+
+		DefaultTestCase tc = buildTestCase2();
+
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(tc);
+
+		EPATransitionCoverageSuiteFitness epaTransitionFitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
+
+		int expectedTotalTransitions = 69;
+		int expectedCoveredTransitions = 2;
+
+		List<ExecutionResult> results = new LinkedList<ExecutionResult>();
+		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
+			ExecutionResult result = chromosome.executeForFitnessFunction(epaTransitionFitness);
+			results.add(result);
+		}
+		assertEquals(1, results.size());
+		ExecutionResult execResult = results.get(0);
+		ExecutionTrace execTrace = execResult.getTrace();
+		Collection<Throwable> thrownExceptions = execResult.getAllThrownExceptions();
+
+		suite.addFitness(epaTransitionFitness);
+		double fitnessValue = epaTransitionFitness.getFitness(suite);
+
+		// fitness is the number of uncovered EPA transitions
+		double expectedUncoveredTransitions = (double) expectedTotalTransitions - expectedCoveredTransitions;
+		assertEquals(expectedUncoveredTransitions, fitnessValue, 0.00000001);
+
+		double suiteFitnessValue = suite.getFitness();
+		assertEquals(fitnessValue, suiteFitnessValue, 0.00000001);
+
 	}
 }

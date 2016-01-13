@@ -1,7 +1,9 @@
 package org.evosuite.coverage.epa;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,11 +51,18 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	 */
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+
 		List<ExecutionResult> executionResults = runTestSuite(suite);
-		final List<EPATrace> epaTraces = executionResults.stream()
-				.map(ExecutionResult::getTrace).flatMap(executionTrace -> EPATraceFactory
-						.buildEPATraces(Properties.TARGET_CLASS, executionTrace, epa).stream())
-				.collect(Collectors.toList());
+		List<EPATrace> epaTraces = new ArrayList<EPATrace>();
+		for (ExecutionResult executionResult : executionResults) {
+			try {
+				List<EPATrace> newEpaTraces = EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS,
+						executionResult.getTrace(), epa);
+				epaTraces.addAll(newEpaTraces);
+			} catch (MalformedEPATraceException e) {
+				throw new EvosuiteError(e);
+			}
+		}
 
 		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream().map(EPATrace::getEpaTransitions)
 				.flatMap(Collection::stream).collect(Collectors.toSet());

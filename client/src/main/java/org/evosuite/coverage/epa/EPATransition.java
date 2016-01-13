@@ -2,6 +2,7 @@ package org.evosuite.coverage.epa;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * A tuple <FROM_STATE, ACTION, TO_STATE>
@@ -32,6 +33,9 @@ public class EPATransition implements Serializable {
 	}
 
 	public EPATransition(EPAState originState, String actionName, EPAState destinationState) {
+		Objects.requireNonNull(originState, "Origin State cannot be null");
+		Objects.requireNonNull(actionName, "action Name cannot be null");
+		Objects.requireNonNull(destinationState, "destination State  cannot be null");
 		this.originState = originState;
 		this.actionName = actionName;
 		this.destinationState = destinationState;

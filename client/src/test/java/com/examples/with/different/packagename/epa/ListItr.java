@@ -27,11 +27,11 @@ public class ListItr implements ListIterator<Object> {
 		if (index < 0 || index > arrayList.size())
 			throw new IndexOutOfBoundsException("Index: " + index);
 
-		this.arrayList = arrayList;
+		this.arrayList = new MyArrayList(arrayList);
 		this.lastRet = -1;
 		this.expectedModCount = this.arrayList.getModCount();
 		this.cursor = index;
-		
+
 		reportState();
 	}
 
@@ -82,7 +82,7 @@ public class ListItr implements ListIterator<Object> {
 		int i = cursor - 1;
 		if (i < 0)
 			throw new NoSuchElementException();
-		Object[] elementData = arrayList.elementData;
+		Object[] elementData = arrayList.getElementData();
 		if (i >= elementData.length)
 			throw new ConcurrentModificationException();
 		cursor = i;
@@ -131,16 +131,16 @@ public class ListItr implements ListIterator<Object> {
 	}
 
 	private boolean super_hasNext() {
-		final boolean b = cursor != this.arrayList.size;
+		final boolean b = cursor != this.arrayList.size();
 		return b;
 	}
 
 	private Object super_next() {
 		checkForComodification();
 		int i = cursor;
-		if (i >= this.arrayList.size)
+		if (i >= this.arrayList.size())
 			throw new NoSuchElementException();
-		Object[] elementData = arrayList.elementData;
+		Object[] elementData = arrayList.getElementData();
 		if (i >= elementData.length)
 			throw new ConcurrentModificationException();
 		cursor = i + 1;
@@ -174,7 +174,7 @@ public class ListItr implements ListIterator<Object> {
 	}
 
 	private boolean isNextEnabled() {
-		return cursor < this.arrayList.size;
+		return cursor < this.arrayList.size();
 	}
 
 	private boolean isPreviousEnabled() {
@@ -192,11 +192,11 @@ public class ListItr implements ListIterator<Object> {
 	private boolean isStateS127() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
-	
+
 	private boolean isStateS95() {
-		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
+		return isNextEnabled() && isAddEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
-	
+
 	private boolean isStateS119() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
@@ -216,49 +216,67 @@ public class ListItr implements ListIterator<Object> {
 	private boolean isStateS479() {
 		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
-	
+
 	private void reportState() {
-		if (isStateS127())
-			reportStateS127();
-		else if (isStateS95())
-			reportStateS95();
-		else if (isStateS119())
-			reportStateS119();
-		else if (isStateS87())
-			reportStateS87();
-		else if (isStateS511())
-			reportStateS511();
-		else if (isStateS503())
-			reportStateS503();
-		else if (isStateS479())
-			reportStateS479();
+		try {
+			if (isStateS127())
+				reportStateS127();
+			else if (isStateS95())
+				reportStateS95();
+			else if (isStateS119())
+				reportStateS119();
+			else if (isStateS87())
+				reportStateS87();
+			else if (isStateS511())
+				reportStateS511();
+			else if (isStateS503())
+				reportStateS503();
+			else if (isStateS479())
+				reportStateS479();
+			else {
+				reportStateUnknown();
+			}
+		} catch (Exception t) {
+			if (t.getClass().getName().equals("org.evosuite.runtime.TooManyResourcesException")) {
+				reportStateTooManyResourcesException();
+			}
+			throw t;
+		}
+	}
+
+	private void reportStateTooManyResourcesException() {
+
+	}
+
+	private void reportStateUnknown() {
+
 	}
 
 	private void reportStateS479() {
-		
+
 	}
 
 	private void reportStateS503() {
-		
+
 	}
 
 	private void reportStateS511() {
-		
+
 	}
 
 	private void reportStateS87() {
-		
+
 	}
 
 	private void reportStateS119() {
-		
+
 	}
 
 	private void reportStateS95() {
-		
+
 	}
 
 	private void reportStateS127() {
-		
+
 	}
 }

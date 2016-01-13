@@ -3,6 +3,7 @@ package org.evosuite.coverage.epa;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATransitionCoverageGoal> {
@@ -56,13 +57,16 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	 * @return
 	 */
 	public double getDistance(ExecutionResult result) {
-		final boolean covered = EPATraceFactory.buildEPATraces(className, result.getTrace(), epa).stream()
-				.filter(epaTrace -> epaTrace.getEpaTransitions().contains(transition))
-				.findAny()
-				.isPresent();
-		return covered ? 0.0 : 1.0;
+		boolean covered;
+		try {
+			covered = EPATraceFactory.buildEPATraces(className, result.getTrace(), epa).stream()
+					.filter(epaTrace -> epaTrace.getEpaTransitions().contains(transition)).findAny().isPresent();
+			return covered ? 0.0 : 1.0;
+		} catch (MalformedEPATraceException e) {
+			throw new EvosuiteError("A mistmatch has occurred between an execution and its EPA");
+		}
 	}
-	
+
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}

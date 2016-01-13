@@ -11,17 +11,18 @@ import org.evosuite.testcase.execution.MethodCall;
 
 public abstract class EPATraceFactory {
 
-	public static List<EPATrace> buildEPATraces(String className, ExecutionTrace executionTrace, EPA epa) {
+	public static List<EPATrace> buildEPATraces(String className, ExecutionTrace executionTrace, EPA epa)
+			throws MalformedEPATraceException {
 
 		// Separate method call executions by `callingObjectID`
 		Map<Integer, List<String>> methodCallExecutionsByCallingObjectID = new HashMap<>();
 		for (MethodCall methodCallExecution : executionTrace.getMethodCalls()) {
 			final int callingObjectID = methodCallExecution.callingObjectID;
-			
+
 			if (!methodCallExecution.className.equals(className)) {
 				continue; // ignore method calls that do not match target class
 			}
-			
+
 			if (methodCallExecutionsByCallingObjectID.get(callingObjectID) == null) {
 				methodCallExecutionsByCallingObjectID.put(callingObjectID, new ArrayList<>());
 			}
@@ -29,25 +30,29 @@ public abstract class EPATraceFactory {
 			String methodName = methodCallExecution.methodName;
 			methodCallExecutionsByCallingObjectID.get(callingObjectID).add(methodName);
 		}
-		
+
 		// Transform each list of calls into a trace
-		final List<EPATrace> collect = methodCallExecutionsByCallingObjectID.values().stream()
-				.map(methodCallExecutions -> buildEPATrace(methodCallExecutions, epa))
-				.collect(Collectors.toList());
+		List<EPATrace> collect = new ArrayList<EPATrace>();
+		for (List<String> methodCallExecutions : methodCallExecutionsByCallingObjectID.values()) {
+			EPATrace epaTrace = buildEPATrace(methodCallExecutions, epa);
+			collect.add(epaTrace);
+		}
 		return collect;
 	}
 
-	private static EPATrace buildEPATrace(List<String> methodCallExecutions, EPA epa) {
+	private static EPATrace buildEPATrace(List<String> methodCallExecutions, EPA epa)
+			throws MalformedEPATraceException {
 		List<String> methodCallExecutionsLeft = new ArrayList<>(methodCallExecutions);
 		final List<EPATransition> epaTransitions = new ArrayList<>();
-		
-		EPAState originState = epa.getInitialState();
+
+		EPAState currentOriginState = epa.getInitialState();
 		int firstIdx = 0;
 		while (true) {
-			// Break conditions: a) End of the method call executions list, or b) No `reportState()` calls remaining 
+			// Break conditions: a) End of the method call executions list, or
+			// b) No `reportState()` calls remaining
 			if (firstIdx >= methodCallExecutionsLeft.size())
 				break;
-			
+
 			methodCallExecutionsLeft = methodCallExecutionsLeft.subList(firstIdx, methodCallExecutionsLeft.size());
 
 			final int reportStateIdx = methodCallExecutionsLeft.indexOf("reportState()V");
@@ -59,10 +64,22 @@ public abstract class EPATraceFactory {
 
 			final String reportStateMethodName = methodCallExecutionsLeft.get(reportStateIdx - 1);
 			final String destinationStateName = getStateNameFromReportStateMethodName(reportStateMethodName);
-			final EPAState destinationState = epa.getStateByName(destinationStateName);
-			epaTransitions.add(new EPATransition(originState, actionName, destinationState));
 
-			originState = destinationState;
+			if (destinationStateName.equals("TooManyResourcesException")) { 
+				// Execution of reportState() method was interrupted by EvoSuite 
+				// We cannot consider the last transition
+				break;
+			}
+			
+			final EPAState destinationState = epa.getStateByName(destinationStateName);
+
+			if (destinationState == null) {
+				throw new MalformedEPATraceException("State \"" + destinationStateName + "\" does not belong to EPA");
+			}
+
+			epaTransitions.add(new EPATransition(currentOriginState, actionName, destinationState));
+
+			currentOriginState = destinationState;
 			firstIdx = reportStateIdx + 2;
 		}
 		return new EPATrace(epaTransitions);

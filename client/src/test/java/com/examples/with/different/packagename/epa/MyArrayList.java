@@ -15,9 +15,9 @@ public class MyArrayList extends AbstractList<Object>
 
 	public static final long serialVersionUID = 8683452581122892189L;
 
-	public transient Object[] elementData;
+	private transient Object[] elementData;
 
-	public int size;
+	private int size;
 
 	public MyArrayList(int initialCapacity) {
 		super();
@@ -605,5 +605,11 @@ public class MyArrayList extends AbstractList<Object>
 
 	public int getModCount() {
 		return modCount;
+	}
+
+	public Object[] getElementData() {
+		Object[] elemData = new Object[elementData.length];
+		System.arraycopy(elementData, 0, elemData, 0, elementData.length);
+		return elemData;
 	}
 }
