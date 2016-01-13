@@ -306,20 +306,18 @@ public class TestCodeVisitor extends TestVisitor {
 				}
 			}
 		}
-		// Ensure outer classes are imported as well
-		Class<?> outerClass = clazz.getEnclosingClass();
-		if(outerClass != null) {
-			String enclosingName = getClassName(outerClass);
-			String simpleOuterName = outerClass.getSimpleName();
-			if(simpleOuterName.equals(enclosingName)) {
-				name = enclosingName + name.substring(simpleOuterName.length());
-			}
-		}
+        // Ensure outer classes are imported as well
+        Class<?> outerClass = clazz.getEnclosingClass();
+        if(outerClass != null) {
+            String enclosingName = getClassName(outerClass);
+            String simpleOuterName = outerClass.getSimpleName();
+            name = enclosingName + name.substring(simpleOuterName.length());
+        }
 
 		Class<?> declaringClass = clazz.getDeclaringClass();
 		if(declaringClass != null) {
 			getClassName(declaringClass);
-		}
+        }
 
 		// We can't use "Test" because of JUnit 
 		if (name.equals("Test")) {
