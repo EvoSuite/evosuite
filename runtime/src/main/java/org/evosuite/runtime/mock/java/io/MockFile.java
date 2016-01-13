@@ -60,15 +60,51 @@ public class MockFile extends File implements OverrideMock {
 	}
 
 	public MockFile(String parent, String child) {
-		super(parent,child);
+		this(combine(parent,child));
 	}
 
 	public MockFile(File parent, String child) {
-		this(parent.getPath(),child);
+		this(parent == null ? (String) null : parent.getAbsolutePath()
+				, child);
 	}
 
 	public MockFile(URI uri) {
 		super(uri);
+	}
+
+	private static String combine(String parent, String child){
+		if (child == null) {
+			throw new NullPointerException();
+		}
+		if(parent == null){
+			return child;
+		}
+		if(parent.equals("")){
+			return VirtualFileSystem.getDefaultParent()+child;
+		}
+		return makeAbsolute(parent) + "/" + child;
+	}
+
+	private static String makeAbsolute(String path){
+
+		String base = VirtualFileSystem.getWorkingDirPath();
+		if(base.startsWith("/")){
+			//Mac/Linux
+			if(path.startsWith("/")){
+				return path;
+			} else {
+				return base + "/" + path;
+			}
+		} else {
+			//Windows
+			//TODO: tmp, nasty hack, but anyway this class ll need refactoring when fully handling Java 8
+			String root = base.substring(0, 3); //eg, C:\
+			if(path.startsWith(root)){
+				return path;
+			} else{
+				return base + "/" + path;
+			}
+		}
 	}
 
 	/*
@@ -96,7 +132,8 @@ public class MockFile extends File implements OverrideMock {
 		if(! MockFramework.isEnabled()){
 			return File.listRoots();
 		}
-		
+
+		//FIXME: this is not going to work if tests are executed on different machine
 		File[] roots = File.listRoots();
 		MockFile[] mocks = new MockFile[roots.length];
 		for(int i=0; i<roots.length; i++){
@@ -127,6 +164,16 @@ public class MockFile extends File implements OverrideMock {
 
 
 	// -------- modified methods ----------------
+
+	@Override
+	public String getAbsolutePath() {
+		if(! MockFramework.isEnabled()){
+			return super.getAbsolutePath();
+		}
+		String absolute = makeAbsolute(getPath());
+		File tmp = new File(absolute); //be sure to force actual resolution
+		return tmp.getAbsolutePath();
+	}
 
 	@Override
 	public int compareTo(File pathname) {
@@ -534,12 +581,6 @@ public class MockFile extends File implements OverrideMock {
 	public boolean isAbsolute() {
 		return super.isAbsolute();
 	}
-
-	@Override
-	public String getAbsolutePath() {
-		return super.getAbsolutePath();
-	}
-
 
 	@Override
 	public URI toURI() {
