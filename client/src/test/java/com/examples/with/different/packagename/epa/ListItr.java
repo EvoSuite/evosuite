@@ -268,6 +268,10 @@ public class ListItr implements ListIterator<Object> {
 
 	}
 
+	private void reportStateSinit() {
+
+	}
+	
 	private void reportStateS119() {
 
 	}

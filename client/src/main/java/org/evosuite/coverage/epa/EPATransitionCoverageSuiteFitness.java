@@ -1,9 +1,10 @@
 package org.evosuite.coverage.epa;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,11 +12,13 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.objectweb.asm.Type;
 import org.xml.sax.SAXException;
 
 /**
@@ -41,9 +44,65 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		}
 		try {
 			this.epa = EPAFactory.buildEPA(epaXMLFilename);
+
+			checkEPAStates(Properties.TARGET_CLASS);
+			checkEPAActionNames(Properties.TARGET_CLASS);
+
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
 		}
+	}
+
+	private void checkEPAStates(String className) {
+		try {
+			for (EPAState epaState : this.epa.getStates()) {
+				boolean found;
+				found = hasMethodOrConstructor(className, "reportState" + epaState.getName(), "()V");
+				if (!found) {
+					throw new EvosuiteError("Report method for EPA State " + epaState.getName()
+							+ " was not found in target class " + className);
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			throw new EvosuiteError(e);
+		}
+	}
+
+	private void checkEPAActionNames(String className) {
+		try {
+			for (EPATransition transition : this.epa.getTransitions()) {
+				final String actionName = transition.getActionName();
+				String[] parts = actionName.split("\\(");
+				final String methodName = parts[0];
+				final String methodSignature = "(" + parts[1];
+
+				boolean found = hasMethodOrConstructor(className, methodName, methodSignature);
+				if (!found) {
+					throw new EvosuiteError(
+							"EPA Action Name " + actionName + "was not found in target class " + className);
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			throw new EvosuiteError(e);
+		}
+	}
+
+	private static boolean hasMethodOrConstructor(String className, final String methodName,
+			final String methodSignature) throws ClassNotFoundException {
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
+		for (Method method : clazz.getDeclaredMethods()) {
+			String methodDescriptor = Type.getMethodDescriptor(method);
+			if ((methodDescriptor.equals(methodSignature)) && method.getName().equals(methodName)) {
+				return true;
+			}
+		}
+		for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+			String constructorDescriptor = Type.getConstructorDescriptor(constructor);
+			if ((constructorDescriptor.equals(methodSignature)) && "<init>".equals(methodName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

@@ -73,6 +73,10 @@ public class MyBoundedStack {
 		}
 		
 	}
+	
+	private void reportStateS0() {
+		// dummy method
+	}
 
 	private void reportStateS1() {
 		// dummy method

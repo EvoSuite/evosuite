@@ -70,7 +70,7 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 	@Test
 	public void testGoalsCovered() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			FileNotFoundException, ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
-		Properties.TARGET_CLASS = MyBoundedStack.class.getName();
+		Properties.TARGET_CLASS = ListItr.class.getName();
 		Properties.EPA_XML_PATH = LIST_ITR_EPA_XML;
 
 		EPA epa = EPAFactory.buildEPA(LIST_ITR_EPA_XML);
@@ -116,7 +116,7 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 		assertEquals(69, covered + uncovered);
 		assertEquals(2, covered);
 		assertEquals(67, uncovered);
-		assertEquals(6.0, totalFitness, 0.00000000001);
+		assertEquals(67.0, totalFitness, 0.00000000001);
 
 	}
 
