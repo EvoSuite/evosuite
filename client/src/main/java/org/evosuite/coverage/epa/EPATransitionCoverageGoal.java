@@ -115,4 +115,8 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	public String toString() {
 		return transition.toString();
 	}
+
+	public EPATransition getEPATransition() {
+		return transition;
+	}
 }

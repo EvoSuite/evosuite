@@ -77,4 +77,9 @@ public class EPATransitionCoverageTestFitness extends TestFitnessFunction {
 	public String toString() {
 		return goal.toString();
 	}
+	
+	public String getGoalName() {
+		final EPATransition t = goal.getEPATransition();
+		return t.getTransitionName();
+	}
 }

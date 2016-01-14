@@ -78,4 +78,13 @@ public class EPATransition implements Serializable {
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 	}
+	
+	public String getTransitionName() {
+		final String originStateName= this.getOriginState().getName();
+		final String actionName = this.getActionName();
+		final String destStateName= this.getDestinationState().getName();
+		String transitionName = String.format("[%s,%s,%s]", originStateName, actionName, destStateName);
+		return transitionName;
+	}
+
 }

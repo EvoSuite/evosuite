@@ -5,7 +5,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,24 +40,37 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 
 	private final EPA epa;
 
+	private final Map<String, EPATransitionCoverageTestFitness> coverage_goal_map;
+
 	public EPATransitionCoverageSuiteFitness(String epaXMLFilename) {
 		if (epaXMLFilename == null) {
 			throw new IllegalArgumentException("epa XML Filename cannot be null");
 		}
 		try {
-			this.epa = EPAFactory.buildEPA(epaXMLFilename);
+			EPA target_epa = EPAFactory.buildEPA(epaXMLFilename);
+			checkEPAStates(target_epa, Properties.TARGET_CLASS);
+			checkEPAActionNames(target_epa, Properties.TARGET_CLASS);
 
-			checkEPAStates(Properties.TARGET_CLASS);
-			checkEPAActionNames(Properties.TARGET_CLASS);
-
+			this.epa = target_epa;
+			this.coverage_goal_map = buildCoverageGoalMap(epaXMLFilename);
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
 		}
 	}
 
-	private void checkEPAStates(String className) {
+	private static Map<String, EPATransitionCoverageTestFitness> buildCoverageGoalMap(String epaXMLFilename) {
+		EPATransitionCoverageFactory goalFactory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
+				epaXMLFilename);
+		Map<String, EPATransitionCoverageTestFitness> coverage_goal_map = new HashMap<String, EPATransitionCoverageTestFitness>();
+		for (EPATransitionCoverageTestFitness goal : goalFactory.getCoverageGoals()) {
+			coverage_goal_map.put(goal.getGoalName(), goal);
+		}
+		return coverage_goal_map;
+	}
+
+	private static void checkEPAStates(EPA epa, String className) {
 		try {
-			for (EPAState epaState : this.epa.getStates()) {
+			for (EPAState epaState : epa.getStates()) {
 				boolean found;
 				found = hasMethodOrConstructor(className, "reportState" + epaState.getName(), "()V");
 				if (!found) {
@@ -68,9 +83,9 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		}
 	}
 
-	private void checkEPAActionNames(String className) {
+	private static void checkEPAActionNames(EPA epa, String className) {
 		try {
-			for (EPATransition transition : this.epa.getTransitions()) {
+			for (EPATransition transition : epa.getTransitions()) {
 				final String actionName = transition.getActionName();
 				String[] parts = actionName.split("\\(");
 				final String methodName = parts[0];
@@ -113,11 +128,20 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 
 		List<ExecutionResult> executionResults = runTestSuite(suite);
 		List<EPATrace> epaTraces = new ArrayList<EPATrace>();
-		for (ExecutionResult executionResult : executionResults) {
+		for (ExecutionResult result : executionResults) {
 			try {
-				List<EPATrace> newEpaTraces = EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS,
-						executionResult.getTrace(), epa);
+				List<EPATrace> newEpaTraces = EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS, result.getTrace(),
+						epa);
 				epaTraces.addAll(newEpaTraces);
+
+				for (EPATrace trace : newEpaTraces) {
+					for (EPATransition transition : trace.getEpaTransitions()) {
+						String transitionName = transition.getTransitionName();
+						EPATransitionCoverageTestFitness goal = this.coverage_goal_map.get(transitionName);
+						result.test.addCoveredGoal(goal);
+					}
+				}
+
 			} catch (MalformedEPATraceException e) {
 				throw new EvosuiteError(e);
 			}
@@ -127,12 +151,14 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				.flatMap(Collection::stream).collect(Collectors.toSet());
 
 		final int epaTransitionSize = epa.getTransitions().size();
-		final int tracedEpaTransitionSize = tracedEpaTransitions.size();
-		final int uncoveredEpaTransitions = epaTransitionSize - tracedEpaTransitionSize;
-		final double fitness = uncoveredEpaTransitions;
+		final int covered_transitions = tracedEpaTransitions.size();
+		final int uncovered_transitions = epaTransitionSize - covered_transitions;
+		final double fitness = uncovered_transitions;
 
 		updateIndividual(this, suite, fitness);
-
+		suite.setCoverage(this, covered_transitions);
+		suite.setNumOfCoveredGoals(this, covered_transitions);
+		suite.setNumOfNotCoveredGoals(this, uncovered_transitions);
 		return fitness;
 	}
 

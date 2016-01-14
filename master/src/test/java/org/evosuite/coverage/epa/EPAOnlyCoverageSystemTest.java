@@ -78,6 +78,16 @@ public class EPAOnlyCoverageSystemTest extends SystemTest {
 		System.out.println("Best Individual:");
 		System.out.println(individual);
 		System.out.println("===========================");
+		
+		double numOfCoveredGoals = bestIndividual.getNumOfCoveredGoals();
+		assertTrue(numOfCoveredGoals>0);
+		
+	
+		double coverage = bestIndividual.getCoverage();
+		assertTrue(coverage>0);
+
+//		int sizeOfCoveredGoals = bestIndividual.getCoveredGoals().size();
+//		assertTrue(sizeOfCoveredGoals>0);
 	}
 
 }
