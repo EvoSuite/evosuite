@@ -25,7 +25,7 @@ import java.io.File;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -38,7 +38,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.epa.ListItr;
 
-public class BranchAndEPACoverageSystemTest extends SystemTest {
+public class BranchAndEPACoverageSystemTest extends SystemTestBase {
 
 	@Before
 	public void prepare() {
