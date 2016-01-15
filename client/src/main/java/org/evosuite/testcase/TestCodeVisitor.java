@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dk.brics.automaton.RegExp;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -305,20 +306,18 @@ public class TestCodeVisitor extends TestVisitor {
 				}
 			}
 		}
-		// Ensure outer classes are imported as well
-		Class<?> outerClass = clazz.getEnclosingClass();
-		if(outerClass != null) {
-			String enclosingName = getClassName(outerClass);
-			String simpleOuterName = outerClass.getSimpleName();
-			if(simpleOuterName.equals(enclosingName)) {
-				name = enclosingName + name.substring(simpleOuterName.length());
-			}
-		}
+        // Ensure outer classes are imported as well
+        Class<?> outerClass = clazz.getEnclosingClass();
+        if(outerClass != null) {
+            String enclosingName = getClassName(outerClass);
+            String simpleOuterName = outerClass.getSimpleName();
+            name = enclosingName + name.substring(simpleOuterName.length());
+        }
 
 		Class<?> declaringClass = clazz.getDeclaringClass();
 		if(declaringClass != null) {
 			getClassName(declaringClass);
-		}
+        }
 
 		// We can't use "Test" because of JUnit 
 		if (name.equals("Test")) {
@@ -1122,7 +1121,7 @@ public class TestCodeVisitor extends TestVisitor {
 			if(! returnType.isPrimitive()) {
 				Type[] types = new Type[params.size()];
 				for (int i = 0; i < types.length; i++) {
-					types[i] = md.getMethod().getReturnType();
+					types[i] = params.get(i).getType();
 				}
 
 				parameter_string = getParameterString(types, params, false, false, 0);//TODO unsure of these parameters
@@ -1161,21 +1160,21 @@ public class TestCodeVisitor extends TestVisitor {
 
 				boolean isRightWrapper = false;
 
-				if(Integer.class.equals(parameterClass)) {
+				if(Integer.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Integer.TYPE);
-				} else if(Character.class.equals(parameterClass)) {
+				} else if(Character.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Character.TYPE);
-				} else if(Boolean.class.equals(parameterClass)) {
+				} else if(Boolean.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Boolean.TYPE);
-				} else if(Float.class.equals(parameterClass)) {
+				} else if(Float.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Float.TYPE);
-				} else if(Double.class.equals(parameterClass)) {
+				} else if(Double.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Double.TYPE);
-				} else if(Long.class.equals(parameterClass)) {
+				} else if(Long.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Long.TYPE);
-				} else if(Short.class.equals(parameterClass)) {
+				} else if(Short.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Short.TYPE);
-				} else if(Byte.class.equals(parameterClass)) {
+				} else if(Byte.class.equals(parameterClass.getRawClass())) {
 					isRightWrapper = returnType.equals(Byte.TYPE);
 				}
 
@@ -1189,21 +1188,21 @@ public class TestCodeVisitor extends TestVisitor {
 			parameterString += "(" + returnType.getName() +")" + name;
 
 			if (parameterClass.isWrapperType()){
-				if(Integer.class.equals(parameterClass)) {
+				if(Integer.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".intValue()";
-				} else if(Character.class.equals(parameterClass)) {
+				} else if(Character.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".charValue()";
-				} else if(Boolean.class.equals(parameterClass)) {
+				} else if(Boolean.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".booleanValue()";
-				} else if(Float.class.equals(parameterClass)) {
+				} else if(Float.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".floatValue()";
-				} else if(Double.class.equals(parameterClass)) {
+				} else if(Double.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".doubleValue()";
-				} else if(Long.class.equals(parameterClass)) {
+				} else if(Long.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".longValue()";
-				} else if(Short.class.equals(parameterClass)) {
+				} else if(Short.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".shortValue()";
-				} else if(Byte.class.equals(parameterClass)) {
+				} else if(Byte.class.equals(parameterClass.getRawClass())) {
 					parameterString += ".byteValue()";
 				}
 			}
@@ -1352,7 +1351,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += "   //" + NEWLINE;
 		}
 
-		if(sourceClass!=null && isValidSource(sourceClass)) {
+		if(sourceClass!=null && isValidSource(sourceClass) && isExceptionToAssertThrownBy(ex)) {
 				/*
 					do not check source if it comes from a non-runtime evosuite
 					class. this could happen if source is an instrumentation done
@@ -1381,11 +1380,21 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	private boolean isValidSource(String sourceClass){
-		return ! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
-				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.");
+		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
+				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
+                !sourceClass.startsWith(RegExp.class.getPackage().getName());
 	}
 
-    private Class<?> getExceptionClassToUse(Throwable exception){
+	private List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[] {
+			StackOverflowError.class, // Might be thrown at different places
+			AssertionError.class}     // Depends whether assertions are enabled or not
+	);
+
+	private boolean isExceptionToAssertThrownBy(Class<?> exceptionClass){
+		return !invalidExceptions.contains(exceptionClass);
+	}
+
+	private Class<?> getExceptionClassToUse(Throwable exception){
         /*
             we can only catch a public class.
             for "readability" of tests, it shouldn't be a mock one either

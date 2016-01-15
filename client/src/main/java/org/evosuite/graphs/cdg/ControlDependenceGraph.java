@@ -40,6 +40,7 @@
 package org.evosuite.graphs.cdg;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.coverage.branch.Branch;
@@ -183,7 +184,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 			return insBlock.getControlDependencies();
 
 		Set<ControlDependency> r = retrieveControlDependencies(insBlock,
-		                                                       new HashSet<ControlFlowEdge>());
+		                                                       new LinkedHashSet<>());
 
 		return r;
 	}
@@ -191,7 +192,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	private Set<ControlDependency> retrieveControlDependencies(BasicBlock insBlock,
 	        Set<ControlFlowEdge> handled) {
 
-		Set<ControlDependency> r = new HashSet<ControlDependency>();
+		Set<ControlDependency> r = new LinkedHashSet<>();
 
 		for (ControlFlowEdge e : incomingEdgesOf(insBlock)) {
 			if (handled.contains(e))
@@ -245,7 +246,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 		Set<ControlDependency> dependentBranches = getControlDependentBranches(ins);
 
-		Set<Integer> r = new HashSet<Integer>();
+		Set<Integer> r = new LinkedHashSet<>();
 
 		for (ControlDependency cd : dependentBranches) {
 			if (cd == null)

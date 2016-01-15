@@ -24,7 +24,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assume;
@@ -36,7 +36,7 @@ import com.examples.with.different.packagename.concolic.PostCodeValidator;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class PostCodeValidatorSystemTest extends SystemTest {
+public class PostCodeValidatorSystemTest extends SystemTestBase {
 
 	
 	@Before

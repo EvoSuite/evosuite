@@ -61,6 +61,10 @@ public class LoopCounter {
     	this.activated = active;
     }
 
+    public boolean isActivated() {
+        return activated;
+    }
+
     /**
      * This is called during bytecode instrumentation to determine which index
      * to assign to a new parsed loop
@@ -106,10 +110,19 @@ public class LoopCounter {
         long value = counters.get(index) + 1l;
         counters.set(index , value);
 
-        if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop){
+        if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
             this.reset();
             throw new TooManyResourcesException("Loop has been executed more times than the allowed " +
                     RuntimeSettings.maxNumberOfIterationsPerLoop);
         }
+    }
+
+
+    private boolean isInStaticInit() {
+        for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+            if (elem.getMethodName().startsWith("<clinit>"))
+                return true;
+        }
+        return false;
     }
 }

@@ -237,11 +237,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 		
 		if (improvement) {
-			DSEStats.reportNewIncrease();
+			DSEStats.getInstance().reportNewIncrease();
 			updateProbability(-Properties.LOCAL_SEARCH_ADAPTATION_RATE);
 			logger.debug("Increasing probability of applying LS to " + localSearchProbability);
 		} else {
-			DSEStats.reportNewDecrease();
+			DSEStats.getInstance().reportNewDecrease();
 			updateProbability(Properties.LOCAL_SEARCH_ADAPTATION_RATE);
 			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
 		}

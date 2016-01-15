@@ -35,6 +35,6 @@ public class BytecodeInstructionIdComparator implements Comparator<BytecodeInstr
 	@Override
 	public int compare(BytecodeInstruction arg0, BytecodeInstruction arg1) {
 
-		return Integer.valueOf(arg0.getInstructionId()).compareTo(arg1.getInstructionId());
+		return Integer.compare(arg0.getInstructionId(), arg1.getInstructionId());
 	}
 }

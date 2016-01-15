@@ -29,9 +29,13 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
 import org.evosuite.runtime.mock.java.util.MockLocale;
 import org.evosuite.runtime.mock.java.util.MockTimeZone;
+import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.VirtualNetwork;
+
+import javax.swing.*;
+import java.util.Locale;
 
 /**
  * <p>
@@ -78,7 +82,8 @@ public class Runtime {
             ThreadCounter.getInstance().resetSingleton();
             MockTimeZone.reset();
             MockLocale.reset();
-        }
+			JComponent.setDefaultLocale(Locale.getDefault());
+		}
 
 		if (RuntimeSettings.useVFS) {
 			VirtualFileSystem.getInstance().resetSingleton();
@@ -92,6 +97,8 @@ public class Runtime {
 
 		if(RuntimeSettings.useJEE){
 			TestDataJavaEE.getInstance().reset();
+
+			EvoNamingContext.getInstance().reset();
 
 			//TODO Tmp removed due to not using Servlets and having to configure standalone-runtime to include its packages
 			//EvoServletState.reset();

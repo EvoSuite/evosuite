@@ -75,7 +75,7 @@ public abstract class Plot extends Graph {
 
 		ValueAxis yAxis = plot.getRangeAxis();
 		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		yAxis.setRange(0.0, 100.0);
+		//yAxis.setRange(0.0, 100.0);
 
 		URLAndTooltipRenderer urlRenderer = new URLAndTooltipRenderer(this.project.getProject());
 		ColorPalette.apply(urlRenderer);
@@ -117,7 +117,7 @@ public abstract class Plot extends Graph {
 		@Override
 		public String generateURL(CategoryDataset dataset, int series, int category) {
 			int da = Integer.parseInt((String) dataset.getColumnKey(category).toString().substring(1));
-			return "/jenkins/" + project.getBuildByNumber(da).getUrl() + "evosuite-build/";
+			return "/" + project.getBuildByNumber(da).getUrl() + "evosuite-build/";
 		}
 
 		@Override

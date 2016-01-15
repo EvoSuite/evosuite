@@ -139,7 +139,6 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
     public Set<VariableReference> getVariableReferences() {
         Set<VariableReference> references = new LinkedHashSet<>();
         references.add(retval);
-        references.addAll(parameters);
         for (VariableReference param : parameters) {
             if(param == null){
                 /*
@@ -148,6 +147,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
                  */
                 continue;
             }
+            references.add(param);
             if (param.getAdditionalVariableReference() != null)
                 references.add(param.getAdditionalVariableReference());
         }
@@ -285,4 +285,11 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         replaceParameterReference(replacement, numParameter);
         return true;
     }
+
+    public abstract String getDeclaringClassName();
+
+    public abstract String getMethodName();
+
+    public abstract String getDescriptor();
+
 }

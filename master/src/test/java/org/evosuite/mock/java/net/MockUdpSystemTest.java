@@ -23,7 +23,7 @@ import com.examples.with.different.packagename.mock.java.net.ReceiveUdp;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -34,7 +34,7 @@ import org.junit.Test;
 /**
  * Created by arcuri on 12/17/14.
  */
-public class MockUdpSystemTest extends SystemTest {
+public class MockUdpSystemTest extends SystemTestBase {
 
     private static final boolean VNET = Properties.VIRTUAL_NET;
 

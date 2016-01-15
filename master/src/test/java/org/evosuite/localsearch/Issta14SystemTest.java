@@ -21,7 +21,7 @@ package org.evosuite.localsearch;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -33,7 +33,7 @@ import com.examples.with.different.packagename.localsearch.IsstaFoo;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class Issta14SystemTest extends SystemTest {
+public class Issta14SystemTest extends SystemTestBase {
 
 	@Before
 	public void init() {

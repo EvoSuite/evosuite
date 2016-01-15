@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
@@ -341,7 +342,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 
 		}
 		m.getReturnValue().setType(retval.getType()); // Actual type may have changed, e.g. subtype
-		
+
 		// m.assertions = copyAssertions(newTestCase, offset);
 
 		return m;
@@ -687,6 +688,9 @@ public class MethodStatement extends EntityWithParametersStatement {
 			List<VariableReference> objects = test.getObjects(callee.getType(),
 			                                                  getPosition());
 			objects.remove(callee);
+			objects = objects.stream().filter(var -> ! (test.getStatement(var.getStPosition()) instanceof FunctionalMockStatement))
+					.collect(Collectors.toList());
+
 			if (!objects.isEmpty()) {
 				VariableReference replacement = Randomness.choice(objects);
 				setCallee(replacement);
@@ -725,5 +729,20 @@ public class MethodStatement extends EntityWithParametersStatement {
 	public void changeClassLoader(ClassLoader loader) {
 		method.changeClassLoader(loader);
 		super.changeClassLoader(loader);
+	}
+
+	@Override
+	public String getDescriptor() {
+		return method.getDescriptor();
+	}
+
+	@Override
+	public String getDeclaringClassName() {
+		return method.getDeclaringClass().getCanonicalName();
+	}
+
+	@Override
+	public String getMethodName() {
+		return method.getName();
 	}
 }

@@ -51,6 +51,7 @@ import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.SpawnProcessKeepAliveChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,6 +224,11 @@ public class EvoSuite {
                 MSecurityManager.setRunningClientOnThread(true);
             }
 
+            if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
+                SpawnProcessKeepAliveChecker.getInstance().registerToRemoteServerAndDieIfFails(
+                        Properties.SPAWN_PROCESS_MANAGER_PORT
+                );
+            }
 
 			/*
 			 * Following "options" are the actual (mutually exclusive) execution modes of EvoSuite

@@ -35,7 +35,7 @@ public class TestAccessMethod {
 	}
 
 	protected Method getMethod(Class<?> clazz, String name) {
-		Set<Method> methods = TestClusterGenerator.getMethods(clazz);
+		Set<Method> methods = TestClusterUtils.getMethods(clazz);
 		for (Method m : methods) {
 			if (m.getName().equals(name))
 				return m;

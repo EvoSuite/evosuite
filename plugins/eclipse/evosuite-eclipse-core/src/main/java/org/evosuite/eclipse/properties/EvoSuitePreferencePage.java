@@ -121,7 +121,7 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		getPreferenceStore().setDefault(REMOVED_MARKER, false);
 		getPreferenceStore().setDefault(AUTOMATIC_TEST_ON_SAVE, false);
 		getPreferenceStore().setDefault(ORGANIZE_IMPORTS, true);
-		getPreferenceStore().setDefault(TEST_COMMENTS, true);
+		getPreferenceStore().setDefault(TEST_COMMENTS, false);
 		
 		storeDefaults();
 		//getPreferenceStore().
@@ -157,7 +157,7 @@ public class EvoSuitePreferencePage extends FieldEditorPreferencePage implements
 		}
 
 		if (!getPreferenceStore().contains(TEST_COMMENTS)){
-			getPreferenceStore().setValue(TEST_COMMENTS, true);
+			getPreferenceStore().setValue(TEST_COMMENTS, false);
 		}
 		
 		try {

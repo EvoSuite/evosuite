@@ -79,7 +79,7 @@ public class OutputObserver extends ExecutionObserver {
      */
     @Override
     public void testExecutionFinished(ExecutionResult r, Scope s) {
-        logger.info("Adding returnValues map to ExecutionResult");
+        logger.debug("Adding returnValues map to ExecutionResult");
         r.setReturnValues(returnValues);
     }
 

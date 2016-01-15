@@ -22,6 +22,7 @@ package com.examples.with.different.packagename.testcarver.joda;
 import org.junit.Test;
 
 import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by jmr on 10/11/2015.
@@ -29,12 +30,17 @@ import static junit.framework.TestCase.fail;
  */
 public class TestScaledDurationField {
 
+	public static class DummyDurationField extends DurationField {
+		@Override
+		public boolean isSupported() {
+			return true;
+		}
+	}
+
 	@Test
 	public void test_constructor() {
-		try {
-			new ScaledDurationField(null, 10);
-			fail();
-		} catch (IllegalArgumentException ex) {}
+	    ScaledDurationField sdf = new ScaledDurationField(new DummyDurationField(), 10);
+		assertNotNull(sdf);
 	}
 
 }

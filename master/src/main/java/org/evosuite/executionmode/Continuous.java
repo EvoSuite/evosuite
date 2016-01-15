@@ -33,6 +33,7 @@ import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.ContinuousTestGeneration;
 import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.SpawnProcessKeepAliveChecker;
 
 public class Continuous {
 
@@ -120,6 +121,13 @@ public class Continuous {
 		 * Based on command line option, execute one of the different CTG command
 		 */
 		if(command.equals(Command.EXECUTE)){
+
+			if(Properties.SPAWN_PROCESS_MANAGER_PORT == null){
+				//CTG can be very risky to keep running without a spawn process manager
+				int port = SpawnProcessKeepAliveChecker.getInstance().startServer();
+				Properties.SPAWN_PROCESS_MANAGER_PORT = port;
+			}
+
 			String result = ctg.execute();
 			LoggingUtils.getEvoLogger().info(result);
 		} else if(command.equals(Command.CLEAN)){

@@ -60,7 +60,11 @@ public class IntegerLocalSearch<T> extends StatementLocalSearch {
 		TestCase oldTest = test.getTestCase();
 		test.setTestCase(slice);
 		test.setChanged(true);
-		objective = ((TestSuiteLocalSearchObjective)objective).getCopyForTest(test);
+		/**
+		 * Commenting the call to getCopyForTest(). It seems unusual that fitness
+		 * should be considered on a new test suite instead of the original objective
+		 */
+//		objective = ((TestSuiteLocalSearchObjective)objective).getCopyForTest(test);
 		int oldStatement = statement;
 		statement = newPos;
 

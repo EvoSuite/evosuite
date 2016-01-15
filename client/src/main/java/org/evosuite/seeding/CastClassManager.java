@@ -37,11 +37,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.setup.InheritanceTree;
-import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.setup.TestUsageChecker;
+import org.evosuite.setup.*;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -128,13 +124,20 @@ public class CastClassManager {
 			assert (false);
 		}
 		if (clazz.isAbstract()) {
-			for (Class<?> concreteClass : TestClusterGenerator.getConcreteClasses(clazz.getRawClass(),
+			for (Class<?> concreteClass : ConcreteClassAnalyzer.getConcreteClasses(clazz.getRawClass(),
 			                                                                      TestCluster.getInheritanceTree())) {
 				GenericClass c = new GenericClass(concreteClass);
-				if(TestUsageChecker.canUse(c.getRawClass()))
+				if(TestUsageChecker.canUse(c.getRawClass())) {
 					classMap.put(c, depth);
+				}
 			}
-		} else {
+
+			if(Properties.P_FUNCTIONAL_MOCKING > 0.0) {
+				if (TestUsageChecker.canUse(clazz.getRawClass()))
+					classMap.put(clazz, depth);
+			}
+
+		}  else {
 			if(TestUsageChecker.canUse(clazz.getRawClass()))
 				classMap.put(clazz, depth);
 		}
@@ -333,7 +336,7 @@ public class CastClassManager {
 				Class<?> rawBound = GenericTypeReflector.erase(bound);
 				boundCandidates.add(rawBound);
 				logger.debug("Getting concrete classes for " + rawBound);
-				boundCandidates.addAll(TestClusterGenerator.getConcreteClasses(rawBound,
+				boundCandidates.addAll(ConcreteClassAnalyzer.getConcreteClasses(rawBound,
 				                                                               inheritanceTree));
 			}
 			for (Class<?> clazz : boundCandidates) {

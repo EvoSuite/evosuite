@@ -88,7 +88,7 @@ public final class StringMultipleExpression extends AbstractExpression<String> i
 		this.other_v = _other;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.reportConstraintTooLong(getSize());
+			DSEStats.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

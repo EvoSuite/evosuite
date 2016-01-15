@@ -24,10 +24,8 @@ package org.evosuite.testsuite.localsearch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.ga.Chromosome;
@@ -55,8 +53,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 
 	private final TestSuiteChromosome suite;
 	
-	private Set<TestChromosome> partialSolutions = new HashSet<TestChromosome>();
-
 	private final int testIndex;
 
 	// TODO: This assumes we are not doing NSGA-II
@@ -122,6 +118,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		}
 	}
 
+	/**
+	 * Returns a new TestSuiteLocalSearchObjective. This fresh objective has a 
+	 * fresh test suite with only two duplicates of the passed test
+	 * 
+	 * @param test the test used to create the fresh TestSuiteChromosome
+	 * @return
+	 */
 	public TestSuiteLocalSearchObjective getCopyForTest(TestChromosome test) {
 		TestSuiteChromosome s = new TestSuiteChromosome();
 		s.addTest(test);
@@ -172,7 +175,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 			return newFitness > oldFitness;
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)
 	 */
@@ -217,14 +220,6 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 		// return (List<FitnessFunction<? extends Chromosome>>) fitnessFunctions;
 	}
 
-	public Set<TestChromosome> getPartialSolutions() {
-		return partialSolutions;
-	}
-	
-	@Override
-	public void retainPartialSolution(TestChromosome individual) {
-		partialSolutions.add(individual);
-	}
 
 	@Override
 	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness) {
@@ -234,5 +229,24 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestC
 	@Override
 	public boolean isMaximizationObjective() {
 		return isMaximization;
+	}
+
+	/**
+	 * This method returns the stored suite fitness value. 
+	 * @return
+	 */
+	@Deprecated
+	public double getSuiteFitness() {
+		return suite.getFitness();
+	}
+	
+	/**
+	 * This method updates the fitness values using the list of fitness functions.
+	 */
+	@Deprecated
+	public void updateSuiteFitness() {
+		for(TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
+			fitnessFunction.getFitness(suite);
+		}
 	}
 }

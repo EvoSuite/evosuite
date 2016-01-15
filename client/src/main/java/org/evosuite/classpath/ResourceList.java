@@ -167,6 +167,10 @@ public class ResourceList {
 		}
 		cache = null;
 	}
+	
+	public static void resetAllCaches() {
+		instanceMap.clear();
+	}
 
 
 	/**

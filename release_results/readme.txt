@@ -3,4 +3,3 @@ It is used to keep scripts (Python and R) to run experiments and analyze their r
 These experiments are run on the default version of EvoSuite, at each new release.
 Results are then exported in HTML format which will be accessible from www.evosuite.org
 
-Maybe best to show data like in http://www.jqueryrain.com/?QstMzi9b, plus some graphs like in TOSEM paper

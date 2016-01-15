@@ -42,7 +42,8 @@ import com.examples.with.different.packagename.sandbox.OpenStream;
 public class JUnitAnalyzerTest {
 
 	//we use carver to simplify the creation of test case chromosomes
-	
+
+	private static final Properties.Criterion[] defaultCriterion = Properties.CRITERION;
 	private static final String defaultSelectedJUnit = Properties.SELECTED_JUNIT;
 	private static final int defaultSeedMutations = Properties.SEED_MUTATIONS;
 	private static final double defaultSeedClone = Properties.SEED_CLONE;
@@ -67,6 +68,7 @@ public class JUnitAnalyzerTest {
 
 	@After
 	public void reset(){
+		Properties.CRITERION = defaultCriterion;
 		Properties.SELECTED_JUNIT = defaultSelectedJUnit;
 		Properties.SEED_MUTATIONS = defaultSeedMutations;
 		Properties.SEED_CLONE = defaultSeedClone;
@@ -84,6 +86,7 @@ public class JUnitAnalyzerTest {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.sandbox.OpenStreamInATryCatch_FakeTestToCarve.class.getCanonicalName();
 		Properties.TARGET_CLASS = com.examples.with.different.packagename.sandbox.OpenStreamInATryCatch.class.getCanonicalName();
 
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
 		Properties.SEED_MUTATIONS = 0;
 		Properties.SEED_CLONE = 1;
 		Properties.VIRTUAL_FS = false;		

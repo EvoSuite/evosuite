@@ -115,7 +115,7 @@ public class DSELocalSearch extends StatementLocalSearch {
 				logger.info("  " + c);
 			}
 
-			DSEStats.reportNewConstraints(constraints);
+			DSEStats.getInstance().reportNewConstraints(constraints);
 
 			// Get solution
 			Solver solver = SolverFactory.getInstance().buildNewSolver();
@@ -124,17 +124,17 @@ public class DSELocalSearch extends StatementLocalSearch {
 			SolverCache solverCache = SolverCache.getInstance();
 			SolverResult solverResult = solverCache.solve(solver, constraints);
 			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
-			DSEStats.reportNewSolvingTime(estimatedSolvingTime);
+			DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 
 			if (solverResult == null) {
 				logger.info("Found no result");
 
 			} else if (solverResult.isUNSAT()) {
 				logger.info("Found UNSAT result");
-				DSEStats.reportNewUNSAT();
+				DSEStats.getInstance().reportNewUNSAT();
 			} else {
 				logger.info("Found SAT result");
-				DSEStats.reportNewSAT();
+				DSEStats.getInstance().reportNewSAT();
 				Map<String, Object> model = solverResult.getModel();
 				TestCase oldTest = test.getTestCase();
 				ExecutionResult oldResult = test.getLastExecutionResult().clone();
@@ -145,16 +145,11 @@ public class DSELocalSearch extends StatementLocalSearch {
 				test.clearCachedResults();
 
 				if (objective.hasImproved(test)) {
-					DSEStats.reportNewTestUseful();
+					DSEStats.getInstance().reportNewTestUseful();
 					logger.info("Solution improves fitness, finishing DSE");
 					return true;
 				} else {
-					DSEStats.reportNewTestUnuseful();
-					if (Properties.DSE_KEEP_ALL_TESTS) {
-						logger.info("Solution does not improve fitness, keeping solution");
-						objective.retainPartialSolution((TestChromosome) test.clone());
-					}
-
+					DSEStats.getInstance().reportNewTestUnuseful();
 					test.setTestCase(oldTest);
 					// FIXXME: How can this be null?
 					if (oldResult != null)

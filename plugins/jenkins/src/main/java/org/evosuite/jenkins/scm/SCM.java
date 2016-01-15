@@ -19,23 +19,18 @@
  */
 package org.evosuite.jenkins.scm;
 
-import com.cloudbees.plugins.credentials.Credentials;
+import java.io.File;
 
-import hudson.Launcher;
-import hudson.maven.AbstractMavenProject;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import hudson.tools.ToolInstallation;
 
 public interface SCM {
 
-	public static String TESTS_DIR_TO_COMMIT = "evosuite-tests";
+	public static String TESTS_DIR_TO_COMMIT = ".evosuite" + File.separator + "best-tests";
 
-	public ToolInstallation findInstallation();
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 
-	public Credentials getCredentials(AbstractMavenProject<?, ?> project);
+	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 
-	public boolean commit(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener);
-
-	public boolean push(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener);
+	public void rollback(AbstractBuild<?, ?> build, BuildListener listener);
 }

@@ -24,7 +24,7 @@ import com.examples.with.different.packagename.mock.java.net.ReadFromURL;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
@@ -41,7 +41,7 @@ import java.lang.reflect.Method;
 /**
  * Created by arcuri on 12/19/14.
  */
-public class MockUrlSystemTest extends SystemTest{
+public class MockUrlSystemTest extends SystemTestBase {
 
     @Test(timeout = 5000)
     public void testLoading_ReadFromURL() throws Exception{

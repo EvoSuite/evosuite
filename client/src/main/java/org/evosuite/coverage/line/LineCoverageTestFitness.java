@@ -50,6 +50,9 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	private final String methodName;
 	private final Integer line;
 
+	protected transient BytecodeInstruction goalInstruction;
+	protected transient List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<>();
+
 	/**
 	 * Constructor - fitness is specific to a method
 	 * @param className the class name
@@ -99,8 +102,6 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 		return line;
 	}
 	
-	protected transient BytecodeInstruction goalInstruction;
-	protected transient List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
 
 	private void setupDependencies() {
 		goalInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getFirstInstructionAtLineNumber(className, methodName, line);
@@ -128,6 +129,8 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			throw new IllegalStateException(
 			        "an instruction is at least on the root branch of it's method");
 
+
+		branchFitnesses.sort((a,b) -> a.compareTo(b));
 	}
 	
 	@Override
@@ -227,7 +230,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 				else
 					return line.compareTo(otherLineFitness.getLine());
 		}
-		return 0;
+		return compareClassName(other);
 	}
 
 	/* (non-Javadoc)

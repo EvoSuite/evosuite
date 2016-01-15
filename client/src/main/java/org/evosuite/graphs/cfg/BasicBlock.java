@@ -20,10 +20,9 @@
 package org.evosuite.graphs.cfg;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cdg.ControlDependenceGraph;
@@ -164,9 +163,12 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 		ControlDependenceGraph myDependence = getCDG();
 
-		if (controlDependentBranchIDs == null)
+		if (controlDependentBranchIDs == null) {
 			controlDependentBranchIDs = myDependence.getControlDependentBranchIds(this);
-
+			//be sure we can iterate over it deterministically
+			controlDependentBranchIDs =
+					controlDependentBranchIDs.stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+		}
 		return controlDependentBranchIDs;
 	}
 

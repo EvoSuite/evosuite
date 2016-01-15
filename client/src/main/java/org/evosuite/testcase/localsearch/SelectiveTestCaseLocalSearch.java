@@ -37,8 +37,9 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 	public boolean doSearch(TestChromosome individual,
 			LocalSearchObjective<TestChromosome> objective) {
 
-		double oldFitness = individual.getFitness();
 		logger.info("Applying local search on test case");
+
+		boolean improved = false;
 
 		// Only apply local search up to the point where an exception was thrown
 		int lastPosition = individual.size() - 1;
@@ -83,7 +84,9 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
                 } else {
 					StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(mutation.getStatement());
 					if (search != null) {
-						search.doSearch(individual, mutation.getStatement().getPosition(), (LocalSearchObjective<TestChromosome>) objective);
+						if (search.doSearch(individual, mutation.getStatement().getPosition(), (LocalSearchObjective<TestChromosome>) objective)) {
+							improved = true;
+						}
 						// i += search.getPositionDelta();
 					}
 				}
@@ -96,18 +99,18 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
 			DSELocalSearch dse = new DSELocalSearch();
-			boolean dseWasSuccessfull = dse.doSearch(individual, targetPositions,
+			assert improved==false;
+			improved = dse.doSearch(individual, targetPositions,
 			             (LocalSearchObjective<TestChromosome>) objective);
 		}
 		individual.getMutationHistory().clear();
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
-		assert individual.getFitness() <= oldFitness;
-		// Return true if fitness has improved
-		return objective.isMaximizationObjective() ? oldFitness < individual.getFitness(): oldFitness > individual.getFitness();
-
 		//logger.info("Test after local search: " + test.toCode());
+
+		// Return true iif search was successful
+		return improved;
 
 		// TODO: Handle arrays in local search
 		// TODO: mutating an int might have an effect on array lengths

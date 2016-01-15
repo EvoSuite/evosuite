@@ -72,6 +72,7 @@ public class StringLocalSearch extends StatementLocalSearch {
 	        LocalSearchObjective<TestChromosome> objective) {
 		StringPrimitiveStatement p = (StringPrimitiveStatement) test.getTestCase().getStatement(statement);
 		backup(test, p);
+
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
 		boolean affected = false;

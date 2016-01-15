@@ -3,10 +3,10 @@
   <grid id="cbd77" binding="contentPane" layout-manager="FormLayout">
     <rowspec value="center:193px:noGrow"/>
     <rowspec value="center:44px:grow"/>
-    <rowspec value="center:39px:noGrow"/>
+    <rowspec value="center:40px:noGrow"/>
     <colspec value="fill:391px:grow"/>
     <constraints>
-      <xy x="48" y="54" width="651" height="338"/>
+      <xy x="48" y="54" width="651" height="333"/>
     </constraints>
     <properties>
       <minimumSize width="540" height="300"/>
@@ -236,7 +236,7 @@
         </children>
       </grid>
       <grid id="94766" layout-manager="FormLayout">
-        <rowspec value="center:29px:noGrow"/>
+        <rowspec value="center:20px:grow"/>
         <colspec value="fill:max(d;4px):noGrow"/>
         <colspec value="left:161dlu:grow"/>
         <colspec value="fill:100px:noGrow"/>
@@ -244,20 +244,11 @@
         <colspec value="fill:100px:noGrow"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-          <forms defaultalign-vert="false"/>
+          <forms top="5" left="5" bottom="5" right="5" defaultalign-vert="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <component id="e7465" class="javax.swing.JButton" binding="buttonOK">
-            <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-              <forms defaultalign-vert="false"/>
-            </constraints>
-            <properties>
-              <text value="OK"/>
-            </properties>
-          </component>
           <component id="5723f" class="javax.swing.JButton" binding="buttonCancel">
             <constraints>
               <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -265,6 +256,20 @@
             </constraints>
             <properties>
               <text value="Cancel"/>
+            </properties>
+          </component>
+          <component id="e7465" class="javax.swing.JButton" binding="buttonOK">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <forms defaultalign-vert="false"/>
+            </constraints>
+            <properties>
+              <maximumSize width="66" height="27"/>
+              <minimumSize width="66" height="27"/>
+              <preferredSize width="66" height="27"/>
+              <text value="OK"/>
+              <verticalAlignment value="0"/>
+              <verticalTextPosition value="0"/>
             </properties>
           </component>
         </children>

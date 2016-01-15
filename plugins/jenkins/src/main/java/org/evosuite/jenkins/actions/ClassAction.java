@@ -20,6 +20,7 @@
 package org.evosuite.jenkins.actions;
 
 import hudson.model.Action;
+import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.File;
@@ -30,10 +31,10 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.evosuite.xsd.CriterionCoverage;
 import org.evosuite.xsd.TestSuite;
 import org.evosuite.xsd.TestSuiteCoverage;
@@ -88,19 +89,40 @@ public class ClassAction implements Action {
 		return this.suite.getFullNameOfTestSuite();
 	}
 
-	public void highlightSource(final String javafile) throws IOException {
-		InputStream file = new FileInputStream(new File(javafile));
-		JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
+	public void highlightSource(final String javafile, BuildListener listener) {
+		try {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javafile);
 
-		JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
-		options.setShowLineNumbers(true);
-		options.setAddLineAnchors(true);
+			InputStream file = new FileInputStream(new File(javafile));
+			JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
 
-		JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
-		StringWriter writer = new StringWriter();
-		converter.convert(source, options, writer);
+			JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
+			options.setShowLineNumbers(true);
+			options.setAddLineAnchors(true);
 
-		this.testSourceCode = writer.toString();
+			JavaSource2HTMLConverter converter = new JavaSource2HTMLConverter();
+			StringWriter writer = new StringWriter();
+			converter.convert(source, options, writer);
+
+			this.testSourceCode = writer.toString();
+		} catch (IOException e) {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage());
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Returning a empty source-code");
+			this.testSourceCode = e.getMessage();
+		}
+	}
+
+	public int getLastId() {
+		if (this.suite.getCoverageTestSuites().isEmpty()) {
+			return 0;
+		}
+
+		int lastId = 0;
+		for (TestSuiteCoverage suite : this.suite.getCoverageTestSuites()) {
+			lastId = Math.max(lastId, suite.getId().intValue());
+		}
+
+		return lastId;
 	}
 
 	// data for jelly template
@@ -127,7 +149,31 @@ public class ClassAction implements Action {
 			return 0;
 		}
 
-		return suite.getTotalEffortInSeconds().intValue();
+		return this.getTotalEffort(this.suite.getCoverageTestSuites().size() - 1);
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public int getTotalEffort(int id) {
+		if (this.suite.getCoverageTestSuites().isEmpty()) {
+			return 0;
+		}
+
+		if (id >= this.suite.getCoverageTestSuites().size()) {
+			// this could happen if, for example, EvoSuite stopped
+			// generating test cases to this particular class, or if
+			// something went wrong and we just have coverage to other
+			// classes but not to this particular one
+			return 0;
+		}
+
+		double effort = this.suite.getCoverageTestSuites().get(id).getEffortInSeconds().doubleValue();
+
+		effort = (effort / 60.0 + 1);
+		return (int) effort; // cast to int to truncate effort value
 	}
 
 	/**
@@ -146,9 +192,8 @@ public class ClassAction implements Action {
 	/**
 	 * 
 	 * @return
-	 * @throws IOException
 	 */
-	public String getTestSourceCode() throws IOException {
+	public String getTestSourceCode() {
 		return this.testSourceCode;
 	}
 
@@ -188,9 +233,8 @@ public class ClassAction implements Action {
 			coverage += criterionCoverage.getCoverageValue();
 		}
 
-		NumberFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = new DecimalFormat("#0.00");
 		return Double.parseDouble(formatter.format(coverage / suiteCoverage.getCoverage().size() * 100.0));
-		//return coverage / suiteCoverage.getCoverage().size() * 100.0;
 	}
 
 	/**
@@ -207,9 +251,8 @@ public class ClassAction implements Action {
 		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterionCoverage : suiteCoverage.getCoverage()) {
 			if (criterionCoverage.getCriterion().equals(criterionName)) {
-				NumberFormat formatter = new DecimalFormat("#0.00");
+				DecimalFormat formatter = new DecimalFormat("#0.00");
 				return Double.parseDouble(formatter.format(criterionCoverage.getCoverageValue() * 100.0));
-				//return criterionCoverage.getCoverageValue() * 100.0;
 			}
 		}
 

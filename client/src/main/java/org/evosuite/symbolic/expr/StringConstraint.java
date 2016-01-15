@@ -38,7 +38,7 @@ public final class StringConstraint extends Constraint<String> {
 		this.cmp = comp;
 		this.right = right;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.reportConstraintTooLong(getSize());
+			DSEStats.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

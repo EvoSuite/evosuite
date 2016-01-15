@@ -21,7 +21,7 @@ package org.evosuite.utils;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.ReadFromSystemIn;
 
-public class SystemInUtilSystemTest extends SystemTest{
+public class SystemInUtilSystemTest extends SystemTestBase {
 
 	private static final boolean defaultSystemIn = Properties.REPLACE_SYSTEM_IN;
 	

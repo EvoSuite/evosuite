@@ -19,13 +19,16 @@
  */
 package org.evosuite.runtime.javaee.javax.persistence;
 
+import org.hibernate.dialect.HSQLDialect;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,25 +54,39 @@ public class EvoEntityManagerFactory implements EntityManagerFactory{
     private EntityManagerFactory createEMFWithSpring(){
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
+        dataSource.setDriverClassName(org.hsqldb.jdbcDriver.class.getName());
         dataSource.setUrl("jdbc:hsqldb:mem:.");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("**.*"); //search everything on classpath
+        em.setPackagesToScan(""); //search everything on classpath
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+
+
+        try {
+            /*
+                The code in this class works fine on Mac, but somehow it crashes on Debian (Lux cluster).
+                So, the following is just a workaround, although not fully understood while on Debian
+                it was behaving differently
+             */
+            Field f = LocalContainerEntityManagerFactoryBean.class.getDeclaredField("internalPersistenceUnitManager");
+            f.setAccessible(true);
+            DefaultPersistenceUnitManager m = (DefaultPersistenceUnitManager)f.get(em);
+            m.setDefaultPersistenceUnitRootLocation(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Properties properties = new Properties();
         properties.setProperty("hibernate.show_sql", "true");
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+        properties.setProperty("hibernate.dialect", HSQLDialect.class.getName());
         properties.setProperty("hibernate.connection.shutdown", "true");
         properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-
         properties.setProperty("hibernate.classloading.use_current_tccl_as_parent", "false");
-
         em.setJpaProperties(properties);
+
 
         em.afterPropertiesSet();
 

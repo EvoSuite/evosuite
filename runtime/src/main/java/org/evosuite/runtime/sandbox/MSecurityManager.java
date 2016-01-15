@@ -207,7 +207,7 @@ public class MSecurityManager extends SecurityManager {
      */
     public static void setupMasterNodeRemoteHandling(Class<?> remoteNode){
         Method[] methods = remoteNode.getMethods();
-        Set<String> names = new HashSet<String>();
+        Set<String> names = new HashSet<>();
         for(Method m : methods){
             names.add(m.getName());
         }
@@ -215,7 +215,7 @@ public class MSecurityManager extends SecurityManager {
     }
 
 	public Set<Thread> getPrivilegedThreads(){
-		Set<Thread> set = new LinkedHashSet<Thread>();
+		Set<Thread> set = new LinkedHashSet<>();
 		set.addAll(privilegedThreads);
 		return set;
 	}
@@ -1038,7 +1038,7 @@ public class MSecurityManager extends SecurityManager {
 		/*
 		 * Note: this actually should never be called, as the instrumenting class loader should replace System.exit
 		 */
-		if (name.startsWith("exitVM")){
+		if (name.startsWith("exitVM")) {
 			return false;
 		}
 		
@@ -1129,7 +1129,7 @@ public class MSecurityManager extends SecurityManager {
 					|| library.equals("management") || library.equals("kcms")
 					|| library.startsWith("jaybird") || library.equals("instrument")
 					|| library.startsWith("osxui") || library.contains("libawt_lwawt")
-					|| library.contains("libawt_headless")
+					|| library.contains("libawt_headless") || library.contains("libawt_xawt")
 					) {
 				return true;
 			}

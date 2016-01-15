@@ -22,7 +22,7 @@ package org.evosuite.jee;
 import com.examples.with.different.packagename.jee.injection.*;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -31,7 +31,7 @@ import org.junit.Test;
 /**
  * Created by Andrea Arcuri on 29/06/15.
  */
-public class InjectionSystemTest extends SystemTest{
+public class InjectionSystemTest extends SystemTestBase {
 
     private void doTest(Class<?> target){
         EvoSuite evosuite = new EvoSuite();

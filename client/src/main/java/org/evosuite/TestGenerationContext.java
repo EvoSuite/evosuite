@@ -48,6 +48,7 @@ import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -196,9 +197,8 @@ public class TestGenerationContext {
 				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 //				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.CBRANCH)) {
 			try {
-				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
-				clusterGenerator.generateCluster(Properties.TARGET_CLASS,
-				                                 DependencyAnalysis.getInheritanceTree(),  DependencyAnalysis.getCallGraph());
+				TestClusterGenerator clusterGenerator = new TestClusterGenerator(DependencyAnalysis.getInheritanceTree());
+				clusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
@@ -216,5 +216,7 @@ public class TestGenerationContext {
         MethodCallReplacementCache.resetSingleton();
 
 		Injector.reset();
+		
+		DSEStats.clear();
 	}
 }

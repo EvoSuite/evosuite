@@ -20,6 +20,7 @@
 package org.evosuite.runtime.javaee.db;
 
 import org.evosuite.runtime.javaee.javax.persistence.EvoEntityManagerFactory;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.hibernate.internal.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,7 +131,7 @@ public class DBManager {
             s.close();
             return true;
         } catch (Exception e){
-            logger.error("Failed to clear database: "+e.toString(),e);
+            AtMostOnceLogger.error(logger, "Failed to clear database: "+e);
             return false;
         }
     }

@@ -44,7 +44,12 @@ public class RegexDistance {
 	}
 
 	public static int getDistance(String arg, String regex) {
-		return RegexDistanceUtils.getStandardDistance(arg, regex);
+		try {
+			return RegexDistanceUtils.getStandardDistance(arg, regex);
+		} catch(IllegalArgumentException e) {
+			// Make sure assertThrowBy has the right source
+			return arg.matches(regex) ? 0 : 1;
+		}
 	}
 
 }

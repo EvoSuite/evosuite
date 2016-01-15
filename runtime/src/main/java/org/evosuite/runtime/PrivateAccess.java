@@ -270,9 +270,105 @@ public class PrivateAccess {
                 new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9});
     }
 
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12,Object i13, Class<?> t13)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12,Object i13, Class<?> t13,Object i14, Class<?> t14
+            )
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12,Object i13, Class<?> t13,Object i14, Class<?> t14
+            , Object i15, Class<?> t15)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12,Object i13, Class<?> t13,Object i14, Class<?> t14
+            , Object i15, Class<?> t15,Object i16, Class<?> t16)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12,Object i13, Class<?> t13,Object i14, Class<?> t14
+            , Object i15, Class<?> t15,Object i16, Class<?> t16,Object i17, Class<?> t17)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12,Object i13, Class<?> t13,Object i14, Class<?> t14
+            , Object i15, Class<?> t15,Object i16, Class<?> t16,Object i17, Class<?> t17,Object i18, Class<?> t18)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18});
+    }
+
+    public static <T> Object callMethod(Class<T> klass, T instance, String methodName
+            , Object i0,  Class<?> t0, Object i1,  Class<?> t1, Object i2,  Class<?> t2, Object i3,  Class<?> t3, Object i4,  Class<?> t4
+            , Object i5,  Class<?> t5, Object i6,  Class<?> t6, Object i7,  Class<?> t7, Object i8,  Class<?> t8, Object i9,  Class<?> t9
+            , Object i10, Class<?> t10,Object i11, Class<?> t11,Object i12, Class<?> t12,Object i13, Class<?> t13,Object i14, Class<?> t14
+            , Object i15, Class<?> t15,Object i16, Class<?> t16,Object i17, Class<?> t17,Object i18, Class<?> t18,Object i19, Class<?> t19)
+            throws  Throwable {
+        return callMethod(klass,instance,methodName,new Object[]{i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18,i19},
+                new Class<?>[]{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19});
+    }
+
 
     public static Method getCallMethod(int nParameters){
-        int max = 10; //TODO might consider have more
+        int max = 20; //TODO might consider have more
         if(nParameters<0 || nParameters>max){
             logger.error("Cannot handle reflection on methods with more than {} parameters: asked for {}", max, nParameters);
             return null;

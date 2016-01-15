@@ -75,7 +75,11 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 */
 	@Override
 	public abstract int compareTo(TestFitnessFunction other);
-	
+
+	protected final int compareClassName(TestFitnessFunction other){
+		return this.getClass().getName().compareTo(other.getClass().getName());
+	}
+
 	@Override
 	public abstract int hashCode();
 	

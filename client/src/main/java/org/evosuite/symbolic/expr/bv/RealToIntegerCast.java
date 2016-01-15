@@ -53,7 +53,7 @@ public final class RealToIntegerCast extends AbstractExpression<Long> implements
 		this.expr = _expr;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
-			DSEStats.reportConstraintTooLong(getSize());
+			DSEStats.getInstance().reportConstraintTooLong(getSize());
 			throw new ConstraintTooLongException(getSize());
 		}
 	}

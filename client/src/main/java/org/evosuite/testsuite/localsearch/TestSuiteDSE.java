@@ -318,13 +318,13 @@ public class TestSuiteDSE {
 
 		logger.info("Applying local search");
 		Solver solver = SolverFactory.getInstance().buildNewSolver();
-		DSEStats.reportNewConstraints(constraints);
+		DSEStats.getInstance().reportNewConstraints(constraints);
 
 		long startSolvingTime = System.currentTimeMillis();
 		SolverCache solverCache = SolverCache.getInstance();
 		SolverResult solverResult = solverCache.solve(solver, constraints);
 		long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
-		DSEStats.reportNewSolvingTime(estimatedSolvingTime);
+		DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 
 		if (solverResult == null) {
 			logger.info("Found no solution");
@@ -334,13 +334,13 @@ public class TestSuiteDSE {
 		} else if (solverResult.isUNSAT()) {
 
 			logger.info("Found UNSAT solution");
-			DSEStats.reportNewUNSAT();
+			DSEStats.getInstance().reportNewUNSAT();
 			return null;
 
 		} else {
 
 			Map<String, Object> model = solverResult.getModel();
-			DSEStats.reportNewSAT();
+			DSEStats.getInstance().reportNewSAT();
 
 			TestCase newTest = test.clone();
 
@@ -532,7 +532,7 @@ public class TestSuiteDSE {
 
 					if (getFitness(expandedTests) < originalFitness) {
 						logger.info("New test improves fitness to {}", getFitness(expandedTests));
-						DSEStats.reportNewTestUseful();
+						DSEStats.getInstance().reportNewTestUseful();
 						wasSuccess = true;
 
 						// no need to clone so we can keep executionresult
@@ -544,7 +544,7 @@ public class TestSuiteDSE {
 						// ZeroFitness is a stopping condition
 					} else {
 						logger.info("New test does not improve fitness");
-						DSEStats.reportNewTestUnuseful();
+						DSEStats.getInstance().reportNewTestUnuseful();
 						expandedTests.deleteTest(newTest);
 					}
 				}

@@ -19,21 +19,21 @@
  */
 package org.evosuite.testcarver.extraction;
 
-import java.io.InputStream;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.evosuite.PackageInfo;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.runtime.instrumentation.JSRInlinerClassVisitor;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
+import org.evosuite.testcarver.instrument.Instrumenter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gordon Fraser
@@ -55,48 +55,10 @@ public class CarvingClassLoader extends ClassLoader {
 
 
 
-	/**
-	 * Check if we can instrument the given class
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @return a boolean.
-	 */
-	public static boolean checkIfCanInstrument(String className) {
-		for (String s : getPackagesShouldNotBeInstrumented()) {
-			if (className.startsWith(s)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * <p>
-	 * getPackagesShouldNotBeInstrumented
-	 * </p>
-	 * 
-	 * @return the names of class packages EvoSuite is not going to instrument
-	 */
-	public static String[] getPackagesShouldNotBeInstrumented() {
-		//explicitly blocking client projects such as specmate is only a
-		//temporary solution, TODO allow the user to specify 
-		//packages that should not be instrumented
-		return new String[] { "java.", "javax.", "sun.", PackageInfo.getEvoSuitePackage(), "org.exsyst",
-				"de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
-				"de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-				"testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
-				// Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-				"apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
-				"org.apache.xerces.dom3", "de.unisl.cs.st.bugex", 
-				"corina.cross.Single" // I really don't know what is wrong with this class, but we need to exclude it 
-		};
-	}
-
 	/** {@inheritDoc} */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		if (!checkIfCanInstrument(name)) {
+		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
@@ -104,29 +66,23 @@ public class CarvingClassLoader extends ClassLoader {
 			result = classLoader.loadClass(name);
 			return result;
 
+		}
+
+		Class<?> result = classes.get(name);
+		if (result != null) {
+			return result;
 		} else {
-			Class<?> result = findLoadedClass(name);
-			if (result != null) {
-				return result;
-			} else {
-
-				result = classes.get(name);
-				if (result != null) {
-					return result;
-				} else {
-					logger.info("Seeing class for first time: " + name);
-					Class<?> instrumentedClass = instrumentClass(name);
-					return instrumentedClass;
-				}
-			}
-
+			logger.info("Seeing class for first time: " + name);
+			Class<?> instrumentedClass = instrumentClass(name);
+			return instrumentedClass;
 		}
 	}
 
 
+
 	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
 			throws ClassNotFoundException {
-		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
+		logger.warn("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');

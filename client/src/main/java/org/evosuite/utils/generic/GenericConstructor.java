@@ -33,7 +33,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.variable.VariableReference;
 
@@ -71,7 +71,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 		try {
 			Class<?> oldClass = constructor.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Constructor<?> newConstructor : TestClusterGenerator.getConstructors(newClass)) {
+			for (Constructor<?> newConstructor : TestClusterUtils.getConstructors(newClass)) {
 				boolean equals = true;
 				Class<?>[] oldParameters = this.constructor.getParameterTypes();
 				Class<?>[] newParameters = newConstructor.getParameterTypes();
@@ -189,6 +189,14 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	@Override
 	public String getName() {
 		return constructor.getName();
+	}
+
+	public String getNameWithDescriptor() {
+		return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+	}
+
+	public String getDescriptor() {
+		return org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 	}
 
 	@Override

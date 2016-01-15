@@ -68,10 +68,13 @@ public class StringAVMLocalSearch extends StatementLocalSearch {
 	        LocalSearchObjective<TestChromosome> objective) {
 		StringPrimitiveStatement p = (StringPrimitiveStatement) test.getTestCase().getStatement(statement);
 		backup(test, p);
+		
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
 		boolean affected = false;
 		String oldValue = p.getValue();
+		
+		
 		for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
 			if (Randomness.nextDouble() > 0.5)
 				p.increment();

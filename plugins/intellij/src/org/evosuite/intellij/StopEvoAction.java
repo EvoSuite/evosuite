@@ -42,6 +42,6 @@ public class StopEvoAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         EvoSuiteExecutor.getInstance().stopRun();
-        notifier.printOnConsole("\n\n\nEvoSuite run has been cancelled\n");
+        //notifier.printOnConsole("\n\n\nEvoSuite run has been cancelled\n"); //done in the Task
     }
 }

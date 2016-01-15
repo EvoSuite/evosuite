@@ -21,7 +21,7 @@ package org.evosuite.mock.java.lang;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -31,7 +31,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.mock.java.lang.HookWithBranch;
 import com.examples.with.different.packagename.mock.java.lang.MemorySum;
 
-public class MockRuntimeSystemTest extends SystemTest{
+public class MockRuntimeSystemTest extends SystemTestBase {
 
 	@Test
 	public void testMockMemoryCheck(){

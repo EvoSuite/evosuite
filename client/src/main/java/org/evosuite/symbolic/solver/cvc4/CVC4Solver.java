@@ -80,8 +80,8 @@ public final class CVC4Solver extends SubProcessSolver {
 	}
 
 	@Override
-	public SolverResult solve(Collection<Constraint<?>> constraints)
-			throws SolverTimeoutException, SolverEmptyQueryException, SolverErrorException, SolverParseException, IOException {
+	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException,
+			SolverEmptyQueryException, SolverErrorException, SolverParseException, IOException {
 
 		if (Properties.CVC4_PATH == null) {
 			String errMsg = "Property CVC4_PATH should be setted in order to use the CVC4 Solver!";
@@ -131,6 +131,13 @@ public final class CVC4Solver extends SubProcessSolver {
 
 			String cvc4ResultStr = stdout.toString("UTF-8");
 
+			if (cvc4ResultStr.startsWith("unsat") && cvc4ResultStr.contains(
+					"(error \"Cannot get the current model unless immediately preceded by SAT/INVALID or UNKNOWN response.\")")) {
+				// UNSAT
+				SolverResult unsatResult = SolverResult.newUNSAT();
+				return unsatResult;
+			}
+
 			if (cvc4ResultStr.contains("error")) {
 				String errMsg = "An error occurred while executing CVC4!";
 				logger.error(errMsg);
@@ -173,7 +180,7 @@ public final class CVC4Solver extends SubProcessSolver {
 
 	private static SmtCheckSatQuery buildSmtCheckSatQuery(Collection<Constraint<?>> constraints) {
 
-		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor();
+		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor(true);
 		SmtVariableCollector varCollector = new SmtVariableCollector();
 		SmtOperatorCollector funCollector = new SmtOperatorCollector();
 
@@ -255,7 +262,6 @@ public final class CVC4Solver extends SubProcessSolver {
 		}
 		return false;
 	}
-
 
 	// private final static int ASCII_TABLE_LENGTH = 256;
 	private final static int ASCII_TABLE_LENGTH = 256;

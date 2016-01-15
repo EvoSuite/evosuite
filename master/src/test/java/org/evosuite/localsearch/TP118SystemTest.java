@@ -21,12 +21,11 @@ package org.evosuite.localsearch;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assume;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.concolic.TP118;
@@ -34,7 +33,7 @@ import com.examples.with.different.packagename.concolic.TP118;
 /**
  * Created by Andrea Arcuri on 19/03/15.
  */
-public class TP118SystemTest extends SystemTest {
+public class TP118SystemTest extends SystemTestBase {
 
 	@Test
 	public void testZ3() {

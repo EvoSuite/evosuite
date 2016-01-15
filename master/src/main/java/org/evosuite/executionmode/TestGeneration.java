@@ -225,6 +225,10 @@ public class TestGeneration {
 
 		handleClassPath(cmdLine);
 
+		if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
+			cmdLine.add("-Dspawn_process_manager_port="+Properties.SPAWN_PROCESS_MANAGER_PORT);
+		}
+
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		int port = handler.openServer();
 		if (port <= 0) {
@@ -270,6 +274,18 @@ public class TestGeneration {
 			                                         + Properties.PORT + "..."); // TODO find the right
 			// place for this
 		}
+
+		if (!Properties.PROFILE.isEmpty()) {
+			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
+			File agentFile = new File(Properties.PROFILE);
+			if(!agentFile.exists()) {
+				LoggingUtils.getEvoLogger().info("* Error: "+Properties.PROFILE+" not found");
+			} else {
+				cmdLine.add("-agentpath:" + Properties.PROFILE);
+				LoggingUtils.getEvoLogger().info("* Using profiling agent " + Properties.PROFILE);
+			}
+		}
+
 
 		if(Properties.JMC){
 			//FIXME: does not seem to work, at least on Mac. Looks like some RMI conflict

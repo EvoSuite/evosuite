@@ -21,13 +21,13 @@ package org.evosuite.jee;
 
 import com.examples.with.different.packagename.jee.db.SimpleDBInteraction;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.junit.Test;
 
 /**
  * Created by Andrea Arcuri on 17/08/15.
  */
-public class DBSystemTest extends SystemTest {
+public class DBSystemTest extends SystemTestBase {
 
     @Test
     public void testSimpleDBInteraction(){

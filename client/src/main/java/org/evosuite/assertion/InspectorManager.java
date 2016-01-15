@@ -90,6 +90,9 @@ public class InspectorManager {
 		blackList.put("java.util.AbstractCollection",
 				Arrays.asList(new String[] { "toString" }));
 
+		blackList.put("java.util.logging.Logger",
+				Arrays.asList(new String[] { "getUseParentHandlers" }));
+
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel",
 				Arrays.asList(new String[] { "toString" }));

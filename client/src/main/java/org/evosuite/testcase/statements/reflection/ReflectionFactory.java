@@ -55,7 +55,7 @@ public class ReflectionFactory {
         methods = new ArrayList<>();
 
         for(Method m : target.getDeclaredMethods()){
-            if(Modifier.isPrivate(m.getModifiers())){
+            if(Modifier.isPrivate(m.getModifiers()) && !m.isBridge() && !m.isSynthetic()){
                 //only interested in private methods, as the others can be called directly
                 methods.add(m);
             }
@@ -68,7 +68,7 @@ public class ReflectionFactory {
         }
 
         for(Field f : target.getDeclaredFields()){
-            if(Modifier.isPrivate(f.getModifiers()) && (toSkip==null || ! toSkip.contains(f)) && !f.getName().equals("serialVersionUID")){
+            if(Modifier.isPrivate(f.getModifiers()) && !f.isSynthetic() && (toSkip==null || ! toSkip.contains(f)) && !f.getName().equals("serialVersionUID")){
                 fields.add(f);
             }
         }

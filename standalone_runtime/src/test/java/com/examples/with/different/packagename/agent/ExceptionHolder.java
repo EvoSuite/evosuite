@@ -19,7 +19,7 @@
  */
 package com.examples.with.different.packagename.agent;
 
-import org.evosuite.runtime.agent.InstrumentingAgent_exceptionsIT;
+import org.evosuite.runtime.agent.InstrumentingAgent_exceptionsIntTest;
 
 public class ExceptionHolder extends Exception{
 
@@ -37,7 +37,7 @@ public class ExceptionHolder extends Exception{
 	
 	
 	public NullPointerException getNonMockedNPE(){
-		return InstrumentingAgent_exceptionsIT.getNPE();
+		return InstrumentingAgent_exceptionsIntTest.getNPE();
 	}
 	
 	

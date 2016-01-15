@@ -38,6 +38,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
@@ -137,7 +138,7 @@ public class JobHandler extends Thread {
 				logger.debug("Base directory: " + baseDir);
 				if(logger.isDebugEnabled()) {
 					String commandString = String.join(" ", parsedCommand);
-					commandString.replace("\\","\\\\"); //needed for nice print in bash shell on Windows (eg Cygwin and GitBash)
+					commandString = commandString.replace("\\","\\\\"); //needed for nice print in bash shell on Windows (eg Cygwin and GitBash)
 					logger.debug("Commands: " + commandString);
 				}
 				process = builder.start();
@@ -152,6 +153,14 @@ public class JobHandler extends Thread {
 			} catch (InterruptedException e) {
 				this.interrupt();
 				if (process != null) {
+					try {
+						//be sure streamers are closed, otherwise process might hang on Windows
+						process.getOutputStream().close();
+						process.getInputStream().close();
+						process.getErrorStream().close();
+					} catch (Exception t){
+						logger.error("Failed to close process stream: "+t.toString());
+					}
 					process.destroy();
 				}
 			} catch (Exception e) {
@@ -265,6 +274,11 @@ public class JobHandler extends Thread {
 		commands.add(""+clientMB);
 		commands.add("-class");
 		commands.add(job.cut);
+
+		if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
+			commands.add("-Dspawn_process_manager_port="+Properties.SPAWN_PROCESS_MANAGER_PORT);
+		}
+
 
 		//commands.add("-projectCP");
 		//commands.add(executor.getProjectClassPath()); might be too long and fail on Windows
@@ -425,25 +439,24 @@ public class JobHandler extends Thread {
 			//cmd.append("," + RuntimeVariable.NumberOfInputPoolObjects);
 			cmd.append("," + RuntimeVariable.Size);
 			cmd.append("," + RuntimeVariable.Length);
-			cmd.append("," + RuntimeVariable.Statements_Executed);
 			cmd.append("," + RuntimeVariable.Total_Time);
 			cmd.append("," + RuntimeVariable.Random_Seed);
-			cmd.append("," + RuntimeVariable.Explicit_MethodExceptions + "," +  RuntimeVariable.Explicit_TypeExceptions);
-			cmd.append("," + RuntimeVariable.Implicit_MethodExceptions + "," +  RuntimeVariable.Implicit_TypeExceptions);
 
-			// coverage/score
-			cmd.append("," + RuntimeVariable.LineCoverage + "," + RuntimeVariable.StatementCoverage + "," +
-					RuntimeVariable.BranchCoverage + "," + RuntimeVariable.OnlyBranchCoverage + "," + RuntimeVariable.CBranchCoverage + "," + RuntimeVariable.IBranchCoverage + "," +
-					RuntimeVariable.ExceptionCoverage + "," + RuntimeVariable.WeakMutationScore + "," + RuntimeVariable.OnlyMutationScore + "," + RuntimeVariable.MutationScore + "," +
-					RuntimeVariable.OutputCoverage + "," + RuntimeVariable.InputCoverage + "," +
-					RuntimeVariable.MethodCoverage + "," + RuntimeVariable.MethodTraceCoverage + "," + RuntimeVariable.MethodNoExceptionCoverage);
 
-			// coverage bit string
-			cmd.append("," + RuntimeVariable.LineCoverageBitString + "," + RuntimeVariable.StatementCoverageBitString + "," +
-					RuntimeVariable.BranchCoverageBitString + "," + RuntimeVariable.OnlyBranchCoverageBitString + "," + RuntimeVariable.CBranchCoverageBitString + "," + RuntimeVariable.IBranchCoverageBitString + "," +
-					RuntimeVariable.ExceptionCoverageBitString + "," + RuntimeVariable.WeakMutationCoverageBitString + "," + RuntimeVariable.OnlyMutationCoverageBitString + "," + RuntimeVariable.MutationCoverageBitString + "," +
-					RuntimeVariable.OutputCoverageBitString + "," + RuntimeVariable.InputCoverageBitString + "," +
-					RuntimeVariable.MethodCoverageBitString + "," + RuntimeVariable.MethodTraceCoverageBitString + "," + RuntimeVariable.MethodNoExceptionCoverageBitString);
+			for(Properties.Criterion criterion : Properties.CRITERION){
+				// coverage/score
+				cmd.append("," + CoverageCriteriaAnalyzer.getCoverageVariable(criterion));
+				// coverage bit string
+				cmd.append("," + CoverageCriteriaAnalyzer.getBitStringVariable(criterion));
+
+				//special cases
+				if(criterion.equals(Properties.Criterion.EXCEPTION)){
+					cmd.append("," + RuntimeVariable.Explicit_MethodExceptions + "," +  RuntimeVariable.Explicit_TypeExceptions);
+					cmd.append("," + RuntimeVariable.Implicit_MethodExceptions + "," +  RuntimeVariable.Implicit_TypeExceptions);
+				} else if(criterion.equals(Properties.Criterion.STATEMENT)){
+					cmd.append("," + RuntimeVariable.Statements_Executed);
+				}
+			}
 
 			commands.add("-Doutput_variables=" + cmd.toString());
 		} else {

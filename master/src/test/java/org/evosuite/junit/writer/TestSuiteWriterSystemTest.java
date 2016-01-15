@@ -21,7 +21,7 @@ package org.evosuite.junit.writer;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTest;
+import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
@@ -34,7 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class TestSuiteWriterSystemTest extends SystemTest {
+public class TestSuiteWriterSystemTest extends SystemTestBase {
 
 	
 	@Test

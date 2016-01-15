@@ -96,8 +96,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 			return fitnessValues.isEmpty() ? 0.0 : fitnessValues.get(fitnessValues.keySet().iterator().next());
 	}
 
-	public double getFitness(FitnessFunction<?> ff) {
-		return fitnessValues.containsKey(ff) ? fitnessValues.get(ff) : 0.0;
+	public <T extends Chromosome> double getFitness(FitnessFunction<T> ff) {
+		return fitnessValues.containsKey(ff) ? fitnessValues.get(ff) : ff.getFitness((T)this); // Calculate new value if non is cached
 	}
 
 	public Map<FitnessFunction<?>, Double> getFitnessValues() {
