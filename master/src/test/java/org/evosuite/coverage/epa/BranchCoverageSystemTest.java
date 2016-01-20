@@ -44,6 +44,8 @@ public class BranchCoverageSystemTest extends SystemTestBase {
 
 	@Test
 	public void testBranchOnlyCoverage() {
+		Properties.PRINT_TO_SYSTEM = true;
+		
 		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 60;
