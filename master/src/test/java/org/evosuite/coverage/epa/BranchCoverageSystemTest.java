@@ -38,18 +38,8 @@ public class BranchCoverageSystemTest extends SystemTestBase {
 
 	@Before
 	public void prepare() {
-		Properties.TIMEOUT = 15 * 60 * 1000; // test execution timeout 15 min
-		// Properties.STRATEGY = Strategy.ENTBUG;
-		// Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		// Properties.SEARCH_BUDGET = 60;
-		//
-		// Properties.TEST_ARCHIVE = false;
-		// Properties.TEST_FACTORY = TestFactory.RANDOM;
 		Properties.MINIMIZE = false;
-		// Properties.MINIMIZE_VALUES = false;
-		// Properties.INLINE = false;
 		Properties.ASSERTIONS = false;
-		// Properties.USE_EXISTING_COVERAGE = false;
 	}
 
 	@Test
