@@ -35,6 +35,7 @@ import org.evosuite.runtime.mock.java.io.MockPrintWriter;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.evosuite.runtime.mock.java.lang.*;
 import org.evosuite.runtime.mock.java.net.*;
+import org.evosuite.runtime.mock.java.text.MockSimpleDateFormat;
 import org.evosuite.runtime.mock.java.util.*;
 import org.evosuite.runtime.mock.java.util.logging.MockFileHandler;
 import org.evosuite.runtime.mock.java.util.logging.MockLogRecord;
@@ -98,6 +99,7 @@ public class MockList {
 			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);
             list.add(MockCalendar.class);
+			list.add(MockSimpleDateFormat.class);
             //MockTimeZone, MockLocale are not actual mocks
 
             //thread related
