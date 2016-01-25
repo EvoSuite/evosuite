@@ -671,6 +671,9 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int EXTRA_TIMEOUT = 60;
 
+	@Parameter(key = "reuse_leftover_time", group = "Search Algorithm", description = "If a phase is ended before its timeout, allow the next phase to run over its timeout")
+	public static boolean REUSE_LEFTOVER_TIME = false;
+
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
 

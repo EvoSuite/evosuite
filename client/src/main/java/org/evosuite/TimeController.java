@@ -63,6 +63,11 @@ public class TimeController {
 	private volatile long currentPhaseStartTime;
 
 	/**
+	 * Leftover time
+	 */
+	private volatile long timeLeftFromPreviousPhases;
+
+	/**
 	 * Map from ClientState phase (key), to timeout (key)
 	 * in milliseconds for that phase
 	 */
@@ -85,6 +90,7 @@ public class TimeController {
 	private void init() {
 		state = ClientState.NOT_STARTED;
 		clientStartTime = 0;
+        timeLeftFromPreviousPhases = 0;
 		initializePhaseTimeouts();
 	}
 
@@ -177,7 +183,11 @@ public class TimeController {
 					//just check if phase went over by more than 10%...
 					logger.warn("Phase "+state + " lasted too long, "+ (-left/1000) + " seconds more than allowed.");
 				}
-			}
+                if(Properties.REUSE_LEFTOVER_TIME) {
+                    timeLeftFromPreviousPhases += left;
+                    logger.debug("Time left from previous phases: {}/{} -> {}", left, timeoutInMs, timeLeftFromPreviousPhases);
+                }
+            }
 
 		}
 
@@ -268,7 +278,7 @@ public class TimeController {
 		if(currentPhaseHasTimeout()){
 			long timeoutInMs = getCurrentPhaseTimeout();
 			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
-			long phaseLeft = timeoutInMs - timeSincePhaseStarted;
+			long phaseLeft = timeoutInMs - timeSincePhaseStarted + timeLeftFromPreviousPhases;
 			logger.debug("Time left for current phase {}: {}", state, phaseLeft);
 			if(ms > phaseLeft){
 				return false;
