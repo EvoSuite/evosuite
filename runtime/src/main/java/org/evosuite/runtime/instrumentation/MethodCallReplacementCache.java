@@ -32,10 +32,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author gordon
@@ -476,6 +473,19 @@ public class MethodCallReplacementCache {
             If not, we could just skip them.
             If other methods are not mocked, should throw an exception?
              */
+            Class<?>[] parameters = new Class<?>[m.getParameterCount() + 1];
+            parameters[0] = target;
+            int numParam = 1;
+            for(Class<?> paramClass : m.getParameterTypes()) {
+                parameters[numParam++] = paramClass;
+            }
+
+            try {
+                mockClass.getMethod(m.getName(), parameters);
+            } catch(NoSuchMethodException e) {
+                logger.info("Skipping method "+m.getName());
+                continue;
+            }
 
             String desc = Type.getMethodDescriptor(m);
             Type[] argumentTypes = Type.getArgumentTypes(m);

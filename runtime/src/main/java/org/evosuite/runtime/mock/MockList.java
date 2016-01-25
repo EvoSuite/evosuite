@@ -36,6 +36,8 @@ import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.evosuite.runtime.mock.java.lang.*;
 import org.evosuite.runtime.mock.java.net.*;
 import org.evosuite.runtime.mock.java.text.MockSimpleDateFormat;
+import org.evosuite.runtime.mock.java.time.*;
+import org.evosuite.runtime.mock.java.time.chrono.*;
 import org.evosuite.runtime.mock.java.util.*;
 import org.evosuite.runtime.mock.java.util.logging.MockFileHandler;
 import org.evosuite.runtime.mock.java.util.logging.MockLogRecord;
@@ -101,6 +103,28 @@ public class MockList {
             list.add(MockCalendar.class);
 			list.add(MockSimpleDateFormat.class);
             //MockTimeZone, MockLocale are not actual mocks
+
+			// java.time
+			list.add(MockClock.class);
+			list.add(MockInstant.class);
+			list.add(MockLocalDate.class);
+			list.add(MockLocalDateTime.class);
+			list.add(MockLocalTime.class);
+			list.add(MockMonthDay.class);
+			list.add(MockOffsetDateTime.class);
+			list.add(MockOffsetTime.class);
+			list.add(MockYear.class);
+			list.add(MockYearMonth.class);
+			list.add(MockZonedDateTime.class);
+			list.add(MockHijrahChronology.class);
+			list.add(MockHijrahDate.class);
+			list.add(MockIsoChronology.class);
+			list.add(MockJapaneseChronology.class);
+			list.add(MockJapaneseDate.class);
+			list.add(MockMinguoDate.class);
+			list.add(MockMinguoChronology.class);
+			list.add(MockThaiBuddhistChronology.class);
+			list.add(MockThaiBuddhistDate.class);
 
             //thread related
             list.add(MockTimer.class);
