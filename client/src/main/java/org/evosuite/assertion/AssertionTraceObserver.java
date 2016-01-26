@@ -24,6 +24,7 @@ package org.evosuite.assertion;
 
 import java.util.Set;
 
+import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -195,13 +196,18 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 		// No assertions are created for mock statements
 		if(statement instanceof FunctionalMockStatement)
 			return;
-		
+
 		// By default, no assertions are created for statements that threw exceptions
 		if(exception != null)
 			return;
-		
-		//visitReturnValue(statement, scope);
-		visitDependencies(statement, scope);
+
+		if(statement instanceof FieldStatement) {
+			// Only need to check returnvalue here, nothing else can have changed
+			visitReturnValue(statement, scope);
+		}
+		else {
+			visitDependencies(statement, scope);
+		}
 	}
 
 	/* (non-Javadoc)
