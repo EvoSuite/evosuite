@@ -236,7 +236,7 @@ public class System {
 		if(o == null)
 			throw new NullPointerException();
 
-        return o.getClass().getName() + "@" + String.format("%10i", identityHashCode(o));
+        return o.getClass().getName() + "@" + String.format("%010d", identityHashCode(o));
 	}
 
 	/**
