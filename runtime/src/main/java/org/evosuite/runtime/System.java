@@ -232,6 +232,13 @@ public class System {
 		}
 	}
 
+	public static String toString(Object o) {
+		if(o == null)
+			throw new NullPointerException();
+
+        return o.getClass().getName() + "@" + String.format("%10i", identityHashCode(o));
+	}
+
 	/**
 	 * Replacement function for System.currentTimeMillis
 	 * 
