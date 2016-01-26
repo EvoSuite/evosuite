@@ -22,9 +22,7 @@
  */
 package org.evosuite.junit.writer;
 
-import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
-import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
@@ -86,8 +84,7 @@ public class TestSuiteWriter implements Opcodes {
 
     private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
-    private TestCodeVisitor visitor = Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED ? visitor = new StructuredTestCodeVisitor()
-            : new TestCodeVisitor();
+    private TestCodeVisitor visitor = new TestCodeVisitor();
 
     private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
 
@@ -580,26 +577,8 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(NEWLINE);
         }
         String methodName;
-        if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-            StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
-            String targetMethod = structuredTest.getTargetMethods().iterator().next();
-            targetMethod = targetMethod.replace("<init>", "Constructor");
-            if (targetMethod.indexOf('(') != -1)
-                targetMethod = targetMethod.substring(0, targetMethod.indexOf('('));
-            targetMethod = StringUtils.capitalize(targetMethod);
-            int num = 0;
-            if (testMethodNumber.containsKey(targetMethod)) {
-                num = testMethodNumber.get(targetMethod);
-                testMethodNumber.put(targetMethod, num + 1);
-            } else {
-                testMethodNumber.put(targetMethod, 1);
-            }
-            methodName = "test" + targetMethod + num;
-            builder.append(adapter.getMethodDefinition(methodName));
-        } else {
-            methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
-            builder.append(adapter.getMethodDefinition(methodName));
-        }
+        methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+        builder.append(adapter.getMethodDefinition(methodName));
 
 		/*
 		 * A test case might throw a lot of different kinds of exceptions. 

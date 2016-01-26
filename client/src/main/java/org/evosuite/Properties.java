@@ -987,7 +987,7 @@ public class Properties {
 	public static boolean ASSERTIONS = true;
 
 	public enum AssertionStrategy {
-		ALL, MUTATION, UNIT, STRUCTURED
+		ALL, MUTATION, UNIT
 	}
 
 	/** Constant <code>ASSERTION_STRATEGY</code> */

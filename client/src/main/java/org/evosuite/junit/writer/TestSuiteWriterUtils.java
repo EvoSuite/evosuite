@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
-import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.junit.JUnit3TestAdapter;
 import org.evosuite.junit.JUnit4TestAdapter;
@@ -83,10 +82,6 @@ public class TestSuiteWriterUtils {
 
 	public static String getNameOfTest(List<TestCase> tests, int position) {
 
-		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
-			throw new IllegalStateException(
-			        "For the moment, structured tests are not supported");
-		}
 		TestCase test = tests.get(position);
 		String testName = null;
 		if (test instanceof CarvedTestCase) {
