@@ -40,6 +40,7 @@ import org.evosuite.TimeController;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.variable.FieldReference;
@@ -522,7 +523,13 @@ public class TestCaseExecutor implements ThreadFactory {
 					logger.info(elem.toString());
 				}
 				logger.info(tc.toCode());
+				boolean loopCounter = LoopCounter.getInstance().isActivated();
 				while (isInStaticInit()) {
+					// LoopCounter and killswitch check the stacktrace often
+					// and that is costly - to speed things up we deactivate it
+					// until we're outside the static constructor
+					LoopCounter.getInstance().setActive(false);
+					ExecutionTracer.setKillSwitch(false);
 					logger.info("Run still not finished, but awaiting for static initializer to finish.");
 
 					try {
@@ -533,6 +540,8 @@ public class TestCaseExecutor implements ThreadFactory {
 						e.printStackTrace();
 					}
 				}
+				LoopCounter.getInstance().setActive(loopCounter);
+				ExecutionTracer.setKillSwitch(true);
 
 				if (!callable.isRunFinished()) {
 					handler.getLastTask().cancel(true);
