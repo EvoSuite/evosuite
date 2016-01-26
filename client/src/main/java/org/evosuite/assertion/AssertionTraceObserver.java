@@ -24,8 +24,7 @@ package org.evosuite.assertion;
 
 import java.util.Set;
 
-import org.evosuite.testcase.statements.FieldStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
@@ -34,8 +33,6 @@ import org.evosuite.testcase.execution.Scope;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.testcase.statements.FunctionalMockStatement;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,7 +194,12 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 		if(statement instanceof FunctionalMockStatement)
 			return;
 
-		// By default, no assertions are created for statements that threw exceptions
+        // No assertions for primitives
+        if(statement instanceof PrimitiveStatement<?>)
+            return;
+
+
+        // By default, no assertions are created for statements that threw exceptions
 		if(exception != null)
 			return;
 

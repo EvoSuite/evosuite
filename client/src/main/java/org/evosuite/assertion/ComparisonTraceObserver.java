@@ -45,6 +45,8 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 
 			if(statement instanceof AssignmentStatement)
 				return;
+            if(statement instanceof PrimitiveStatement<?>)
+                return;
 
 			ComparisonTraceEntry entry = new ComparisonTraceEntry(var);
 			int position = statement.getPosition();
