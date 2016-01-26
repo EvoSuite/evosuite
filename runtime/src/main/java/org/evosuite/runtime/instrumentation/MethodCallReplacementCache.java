@@ -487,7 +487,7 @@ public class MethodCallReplacementCache {
             try {
                 mockClass.getMethod(m.getName(), parameters);
             } catch(NoSuchMethodException e) {
-                logger.info("Skipping method "+m.getName());
+                logger.debug("Skipping method "+m.getName());
                 continue;
             }
 
