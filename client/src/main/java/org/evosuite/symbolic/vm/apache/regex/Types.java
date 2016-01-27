@@ -33,6 +33,6 @@ public interface Types {
 			Type.BOOLEAN_TYPE, STR_TYPE, PATTERN_TYPE);
 
 	public static final String ORG_APACHE_ORO_TEXT_REGEX_PERL5MATCHER = Perl5Matcher.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 
 }

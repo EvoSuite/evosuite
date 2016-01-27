@@ -29,9 +29,9 @@ import org.objectweb.asm.Type;
 public interface Types {
 
 	public static final String JAVA_UTIL_REGEX_MATCHER = Matcher.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 	public static final String JAVA_UTIL_REGEX_PATTERN = Pattern.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 
 	public static final Type STR_TYPE = Type.getType(String.class);
 
@@ -47,8 +47,8 @@ public interface Types {
 			.getMethodDescriptor(BOOLEAN_TYPE, STR_TYPE, CHARSEQ_TYPE);
 
 	public static final String JAVA_LANG_STRING = String.class.getName()
-			.replace(".", "/");
+			.replace('.', '/');
 	public static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 
 }

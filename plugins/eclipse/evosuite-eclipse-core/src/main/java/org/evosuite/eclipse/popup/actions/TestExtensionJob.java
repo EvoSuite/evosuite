@@ -133,7 +133,7 @@ public class TestExtensionJob extends TestGenerationJob {
 	protected String getTestClassName() {
 		String path = tempDir.getAbsolutePath();
 		path += File.separator;
-		path += targetClass.replace(".", "/");
+		path += targetClass.replace('.', '/');
 		// int pos = path.lastIndexOf(File.separator);
 		// path = path.substring(0, pos+1) + "Test" + path.substring(pos+1);
 		path += Properties.JUNIT_SUFFIX;

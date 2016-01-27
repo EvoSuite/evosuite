@@ -336,7 +336,7 @@ public class TestClusterGenerator {
 		addDeclaredClasses(targetClasses, targetClass);
 		if (Modifier.isAbstract(targetClass.getModifiers())) {
 			logger.info("SUT is an abstract class");
-			Set<Class<?>> subclasses = ConcreteClassAnalyzer.getConcreteClasses(targetClass, inheritanceTree);
+			Set<Class<?>> subclasses = ConcreteClassAnalyzer.getInstance().getConcreteClasses(targetClass, inheritanceTree);
 			logger.info("Found " + subclasses.size() + " concrete subclasses");
 			targetClasses.addAll(subclasses);
 		}
@@ -763,7 +763,7 @@ public class TestClusterGenerator {
 		logger.debug("Getting concrete classes for " + clazz.getClassName());
 		ConstantPoolManager.getInstance().addNonSUTConstant(Type.getType(clazz.getRawClass()));
 		List<Class<?>> actualClasses = new ArrayList<>(
-		        ConcreteClassAnalyzer.getConcreteClasses(clazz.getRawClass(), inheritanceTree));
+		        ConcreteClassAnalyzer.getInstance().getConcreteClasses(clazz.getRawClass(), inheritanceTree));
 		// Randomness.shuffle(actualClasses);
 		logger.debug("Concrete classes for " + clazz.getClassName() + ": "
 		        + actualClasses.size());

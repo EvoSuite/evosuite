@@ -749,7 +749,7 @@ public class TestGenerationJob extends Job {
 				folder = project.getFolder("evosuite-tests/data");
 			} else {
 				folder = project.getFolder("evosuite-tests/data/"
-						+ filePackage.replace(".", "/"));
+						+ filePackage.replace('.', '/'));
 			}
 			if (!folder.exists()) {
 				try {
@@ -809,7 +809,7 @@ public class TestGenerationJob extends Job {
 				folder = project.getFolder("evosuite-tests/data");
 			} else {
 				folder = project.getFolder("evosuite-tests/data/"
-						+ filePackage.replace(".", "/"));
+						+ filePackage.replace('.', '/'));
 			}
 			IFile file = folder.getFile(target.getName() + ".gadata");
 			return file.getLocation().toOSString();

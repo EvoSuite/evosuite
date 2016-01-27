@@ -402,10 +402,10 @@ public class TestCluster {
 		} else {
 			logger.debug("2. Target class is not object: " + clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
-				logger.debug("3. Considering original generator: " + generatorClazz + " for " + clazz);
+				// logger.debug("3. Considering original generator: " + generatorClazz + " for " + clazz);
 
 				if (generatorClazz.canBeInstantiatedTo(clazz)) {
-					logger.debug("4. generator " + generatorClazz + " can be instantiated to " + clazz);
+					//logger.debug("4. generator " + generatorClazz + " can be instantiated to " + clazz);
 					GenericClass instantiatedGeneratorClazz = generatorClazz.getWithParametersFromSuperclass(clazz);
 					logger.debug("Instantiated type: " + instantiatedGeneratorClazz
 					        + " for " + generatorClazz + " and superclass " + clazz);
@@ -472,7 +472,7 @@ public class TestCluster {
 						}
 					}
 				} else {
-					logger.debug("4. generator " + generatorClazz + " CANNOT be instantiated to " + clazz);
+					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz.toString(), clazz);
 					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
 						CastClassManager.getInstance().addCastClass(boundClass, 0);
 					}
@@ -481,10 +481,10 @@ public class TestCluster {
 			logger.debug("Found generators for " + clazz + ": " + targetGenerators.size());
 		}
 
-		for (GenericAccessibleObject<?> targetGenerator : targetGenerators) {
-			logger.debug("XXX Setting generator cache " + clazz + ": "
-			        + String.valueOf(targetGenerator));
-		}
+//		for (GenericAccessibleObject<?> targetGenerator : targetGenerators) {
+//			logger.debug("XXX Setting generator cache " + clazz + ": "
+//			        + String.valueOf(targetGenerator));
+//		}
 		logger.debug("]");
 		generatorCache.put(clazz, targetGenerators);
 	}

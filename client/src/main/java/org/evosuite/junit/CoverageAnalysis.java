@@ -330,7 +330,7 @@ public class CoverageAnalysis {
 				String className = reader.getClassName();
 
 				// Use default classLoader
-				Class<?> clazz = Class.forName(className.replace("/", "."), true,
+				Class<?> clazz = Class.forName(className.replace('/', '.'), true,
 				                               TestGenerationContext.getInstance().getClassLoaderForSUT());
 				LoggingUtils.restorePreviousOutAndErrStream();
 

@@ -376,7 +376,7 @@ public class TestCodeVisitor extends TestVisitor {
 			// }
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1) + "Array";
-			variableName = variableName.replace(".", "_").replace("[]", "");
+			variableName = variableName.replace('.', '_').replace("[]", "");
 			if (!variableNames.containsKey(var)) {
 				if (!nextIndices.containsKey(variableName)) {
 					nextIndices.put(variableName, 0);

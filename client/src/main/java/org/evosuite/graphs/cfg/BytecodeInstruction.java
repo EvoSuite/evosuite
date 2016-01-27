@@ -999,7 +999,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 				//e.g. System.out
 				if (srcInstruction.asmNode instanceof FieldInsnNode) {
 					String classNameField = ((FieldInsnNode) srcInstruction.asmNode).owner;
-					classNameField = classNameField.replace("/", ".");
+					classNameField = classNameField.replace('/', '.');
 					if (classNameField.equals(className)) {
 						return true;
 					}

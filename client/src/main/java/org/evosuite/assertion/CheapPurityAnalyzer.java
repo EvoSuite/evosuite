@@ -424,7 +424,7 @@ public class CheapPurityAnalyzer {
 
 	public void addUpdatesFieldMethod(String className, String methodName,
 			String descriptor) {
-		String classNameWithDots = className.replace("/", ".");
+		String classNameWithDots = className.replace('/', '.');
 		MethodEntry entry = new MethodEntry(classNameWithDots, methodName,
 				descriptor);
 		updateFieldMethodList.add(entry);

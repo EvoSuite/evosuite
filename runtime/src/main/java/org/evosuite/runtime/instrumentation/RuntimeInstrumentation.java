@@ -161,7 +161,7 @@ public class RuntimeInstrumentation {
 	public byte[] transformBytes(ClassLoader classLoader, String className,
 			ClassReader reader) {
 
-		String classNameWithDots = className.replace("/", ".");
+		String classNameWithDots = className.replace('/', '.');
 
 		if (!checkIfCanInstrument(classNameWithDots)) {
 			throw new IllegalArgumentException("Should not transform a shared class ("

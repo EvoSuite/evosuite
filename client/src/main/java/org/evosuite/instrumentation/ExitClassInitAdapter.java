@@ -114,11 +114,11 @@ public class ExitClassInitAdapter extends ClassVisitor {
 		mv.visitCode();
 
 		String executionTracerClassName = ResetManager.class.getName()
-				.replace(".", "/");
+				.replace('.', '/');
 		String executionTracerDescriptor = Type.getMethodDescriptor(
 				Type.VOID_TYPE, Type.getType(String.class));
 
-		String classNameWithDots = className.replace("/", ".");
+		String classNameWithDots = className.replace('/', '.');
 		mv.visitLdcInsn(classNameWithDots);
 		mv.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
 				EXIT_CLASS_INIT, executionTracerDescriptor, false);
