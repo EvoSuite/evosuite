@@ -134,14 +134,17 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		case Opcodes.LXOR:
 			return "^";
 		case Opcodes.ISHR:
+			return ">> I";
 		case Opcodes.LSHR:
-			return ">>";
+			return ">> L";
 		case Opcodes.ISHL:
+			return "<< I";
 		case Opcodes.LSHL:
-			return "<<";
+			return "<< L";
 		case Opcodes.IUSHR:
+			return ">>> I";
 		case Opcodes.LUSHR:
-			return ">>>";
+			return ">>> L";
 		}
 		throw new RuntimeException("Unknown opcode: " + opcode);
 	}
@@ -223,7 +226,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 				return 0.0;
 			} else
 				// TODO x >= 0?
-				return y != 0 && x > 0 ? x + 1 : 1.0;
+				return y != 0 && x > 0 ? x + 1.0 : 1.0;
 		}
 		int origValue = calculate(x, y, opcodeOrig);
 		int newValue = calculate(x, y, opcodeNew);
@@ -249,7 +252,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 
 				return 0.0;
 			} else
-				return y != 0 && x > 0 ? x + 1 : 1.0;
+				return y != 0 && x > 0 ? x + 1.0 : 1.0;
 		}
 		long origValue = calculate(x, y, opcodeOrig);
 		long newValue = calculate(x, y, opcodeNew);
