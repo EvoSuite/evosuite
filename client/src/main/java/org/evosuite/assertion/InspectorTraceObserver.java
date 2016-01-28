@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -82,6 +83,11 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 						// String literals may not be longer than 32767
 						if(((String)value).length() >= 32767)
 							continue;
+
+						// Maximum length of strings we look at
+						if(((String)value).length() > Properties.MAX_STRING)
+							continue;
+
 						// If we suspect an Object hashCode not use this, as it may lead to flaky tests
 						if(addressPattern.matcher((String)value).find())
 							continue;
