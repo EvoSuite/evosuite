@@ -22,8 +22,11 @@ package org.evosuite.runtime.instrumentation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.evosuite.runtime.util.Inputs;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +40,7 @@ public class EvoClassLoader extends ClassLoader {
 	private final RuntimeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<>();
-
+	private final Set<String> skipInstrumentationForPrefix = new HashSet<>();
 
 	public EvoClassLoader() {
 		this(new RuntimeInstrumentation());
@@ -58,6 +61,10 @@ public class EvoClassLoader extends ClassLoader {
 		this.instrumentation = instrumentation;
 	}
 
+	public void skipInstrumentation(String prefix) throws IllegalArgumentException{
+		Inputs.checkNull(prefix);
+		skipInstrumentationForPrefix.add(prefix);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -67,8 +74,10 @@ public class EvoClassLoader extends ClassLoader {
 		if ("<evosuite>".equals(name))
 			throw new ClassNotFoundException();
 
+		boolean shouldSkip = skipInstrumentationForPrefix.stream().anyMatch(s -> name.startsWith(s));
+
 		//first check if already loaded
-		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
+		if (shouldSkip || !RuntimeInstrumentation.checkIfCanInstrument(name)) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;

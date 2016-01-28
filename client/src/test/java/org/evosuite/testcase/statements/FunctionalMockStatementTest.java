@@ -218,6 +218,7 @@ public class FunctionalMockStatementTest {
 
         ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
         EvoClassLoader loader = new EvoClassLoader();
+        loader.skipInstrumentation(IssueWithNumber.class.getName());
         org.evosuite.runtime.Runtime.getInstance().resetRuntime();
         Class<?> klass = loader.loadClass(IssueWithNumber.class.getName());
         Method m = klass.getDeclaredMethod("getResult");
