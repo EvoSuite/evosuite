@@ -43,6 +43,7 @@ import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
@@ -93,6 +94,10 @@ public class JUnitAnalyzer {
 		Iterator<TestCase> iter = tests.iterator();
 
 		while (iter.hasNext()) {
+			if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+				break;
+			}
+
 			TestCase test = iter.next();
 
 			File dir = createNewTmpDir();
@@ -164,7 +169,12 @@ public class JUnitAnalyzer {
 				return numUnstable;
 			}
 
-			Class<?>[] testClasses = loadTests(generated);
+            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                logger.error("Ran out of time while checking tests");
+                return numUnstable;
+            }
+
+            Class<?>[] testClasses = loadTests(generated);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
