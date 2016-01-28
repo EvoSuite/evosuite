@@ -185,7 +185,7 @@ public class TimeController {
 				}
                 if(Properties.REUSE_LEFTOVER_TIME) {
                     timeLeftFromPreviousPhases += left;
-                    logger.debug("Time left from previous phases: {}/{} -> {}", left, timeoutInMs, timeLeftFromPreviousPhases);
+                    logger.info("Time left from previous phases: {}/{} -> {}, {}", left, timeoutInMs, timeLeftFromPreviousPhases, getLeftTimeBeforeEnd());
                 }
             }
 
@@ -200,7 +200,7 @@ public class TimeController {
 
 		if(currentPhaseHasTimeout()) {
 			long left = getLeftTimeBeforeEnd();
-			long timeout = getCurrentPhaseTimeout();
+			long timeout = getCurrentPhaseTimeout() + timeLeftFromPreviousPhases;
 			if(left < timeout){
 				logger.warn("Current phase {} could run up to {}s, but only {}s are left",
 						state, (int)(timeout/1000), (int)(left/1000));
