@@ -698,7 +698,7 @@ public class Properties {
 	//----------------------------------------------------------------
 	// EPA Coverage
 	
-	@Parameter(key = "epa_xml_pat", group = "EPA", description = "Indicates the path to the EPA XML File")
+	@Parameter(key = "epa_xml_path", group = "EPA", description = "Indicates the path to the EPA XML File")
 	public static String EPA_XML_PATH = null;
 
 	

@@ -156,7 +156,9 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		final double fitness = uncovered_transitions;
 
 		updateIndividual(this, suite, fitness);
-		suite.setCoverage(this, covered_transitions);
+		double coverage = (double) covered_transitions / (double) epaTransitionSize;
+		suite.setCoverage(this, coverage);
+		
 		suite.setNumOfCoveredGoals(this, covered_transitions);
 		suite.setNumOfNotCoveredGoals(this, uncovered_transitions);
 		return fitness;

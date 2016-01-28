@@ -352,12 +352,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
-		List<ExecutionResult> executionResults = runTestSuite(suite);
-		for (ExecutionResult executionResult : executionResults) {
-			for (MethodCall methodCallexecution : executionResult.getTrace().getMethodCalls()) {
-				LoggingUtils.getEvoLogger().info(Integer.toString(methodCallexecution.methodId));
-			}
-		}
 
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;

@@ -98,6 +98,8 @@ public class TestEPAFitnessListItr2 extends TestEPATransitionCoverage {
 		assertEquals(2, covered);
 		assertEquals(67, uncovered);
 
+		double coverage = (double) 2 / (double) 69;
+		assertEquals(coverage, suite.getCoverage(),0.000001);
 	}
 
 	private static DefaultTestCase buildTestCase0() throws ClassNotFoundException, NoSuchMethodException {
