@@ -20,12 +20,16 @@
 package org.evosuite.testcase.statements;
 
 
+import com.examples.with.different.packagename.fm.IssueWithNumber;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.instrumentation.EvoClassLoader;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -54,6 +58,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Andrea Arcuri on 06/08/15.
@@ -130,6 +135,26 @@ public class FunctionalMockStatementTest {
         }
     }
 
+    public static class OverrideToString{
+        @Override
+        public String toString(){
+            return "foo";
+        }
+    }
+
+    public static abstract class OverrideToStringAbstract  implements java.io.Serializable {
+        @Override
+        public String toString(){
+            return "foo";
+        }
+
+        public abstract double foo();
+
+        public int bar(){return 1;}
+
+        private static final long serialVersionUID = -8742448824652078965L;
+    }
+
     //----------------------------------------------------------------------------------
 
 
@@ -139,6 +164,55 @@ public class FunctionalMockStatementTest {
         //FIXME once we support it
         assertFalse(FunctionalMockStatement.canBeFunctionalMocked(AClassWithPLMethod.class));
     }
+
+    @Test
+    public void testConfirmToString(){
+        String res = new OverrideToString().toString();
+        String diff = res + " a different string";
+
+        OverrideToString obj = mock(OverrideToString.class);
+        when(obj.toString()).thenReturn(diff);
+
+        assertEquals(diff, obj.toString());
+    }
+
+    @Test
+    public void testConfirmToStringAbstract(){
+
+        String diff = " a different string";
+
+        OverrideToStringAbstract obj = mock(OverrideToStringAbstract.class);
+        when(obj.toString()).thenReturn(diff);
+
+        assertEquals(diff, obj.toString());
+    }
+
+    @Test
+    public void testConfirmNumber(){
+        String foo = "foo";
+        Number number = mock(Number.class);
+        when(number.toString()).thenReturn(foo);
+
+        assertEquals(foo, number.toString());
+    }
+
+    @Test
+    public void testConfirmNumberExternal() throws Exception{
+        assertEquals(IssueWithNumber.RESULT, IssueWithNumber.getResult());
+
+        RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
+
+        ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
+        EvoClassLoader loader = new EvoClassLoader();
+        org.evosuite.runtime.Runtime.getInstance().resetRuntime();
+        Class<?> klass = loader.loadClass(IssueWithNumber.class.getName());
+        Method m = klass.getDeclaredMethod("getResult");
+        String res = (String) m.invoke(null);
+
+        assertEquals(IssueWithNumber.RESULT, res);
+    }
+
+
 
     @Test
     public void testConfirmPackageLevel() throws Exception{
