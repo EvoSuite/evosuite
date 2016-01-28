@@ -587,6 +587,12 @@ public class TestCaseExecutor implements ThreadFactory {
 			}
 			ExecutionTracer.disable();
 
+            // TODO: If this is true, is this problematic?
+			if(Sandbox.isOnAndExecutingSUTCode()) {
+				Sandbox.doneWithExecutingSUTCode();
+				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			}
+
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.reportNewThrownException(tc.size(),
