@@ -189,9 +189,15 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.MINIMIZE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			// progressMonitor.setCurrentPhase("Minimizing test cases");
-			if(Properties.isRegression()){
+            ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
+            // progressMonitor.setCurrentPhase("Minimizing test cases");
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
+            } else if(Properties.isRegression()){
 				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
 				minimizer.minimize(testSuite);
 			} else {
@@ -209,7 +215,11 @@ public class TestSuiteGenerator {
 				}
 			}
 		} else {
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
+            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
+            }
+
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
             ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
@@ -276,10 +286,14 @@ public class TestSuiteGenerator {
 		}
 		
 		if (Properties.ASSERTIONS && !Properties.isRegression()) {
-			LoggingUtils.getEvoLogger().info("* Generating assertions");
-			// progressMonitor.setCurrentPhase("Generating assertions");
-			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
-			addAssertions(testSuite);
+            LoggingUtils.getEvoLogger().info("* Generating assertions");
+            // progressMonitor.setCurrentPhase("Generating assertions");
+            ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
+            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* Skipping assertion generation because not enough time is left");
+            } else {
+                addAssertions(testSuite);
+            }
 			StatisticsSender.sendIndividualToMaster(testSuite); // FIXME: can we pass the list of testsuitechromosomes?
 		}
 
@@ -328,6 +342,7 @@ public class TestSuiteGenerator {
 
         //note: compiling and running JUnit tests can be very time consuming
         if(!TimeController.getInstance().isThereStillTimeInThisPhase()) {
+			Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
         	return;
         }
 
