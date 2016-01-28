@@ -196,11 +196,25 @@ public class FunctionalMockStatementTest {
         assertEquals(foo, number.toString());
     }
 
+
     @Test
-    public void testConfirmNumberExternal() throws Exception{
+    public void testConfirmNumberExternalNoMockJVMNonDeterminism() throws Exception{
+        RuntimeSettings.mockJVMNonDeterminism = false;
+        testConfirmNumberExternal();
+    }
+
+    @Test
+    public void testConfirmNumberExternalWithMockJVMNonDeterminism() throws Exception{
+        RuntimeSettings.mockJVMNonDeterminism = true;
+        testConfirmNumberExternal();
+    }
+
+
+    private void testConfirmNumberExternal() throws Exception{
         assertEquals(IssueWithNumber.RESULT, IssueWithNumber.getResult());
 
         RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
+
 
         ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
         EvoClassLoader loader = new EvoClassLoader();
