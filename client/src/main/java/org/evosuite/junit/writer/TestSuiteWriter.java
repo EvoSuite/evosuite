@@ -25,6 +25,7 @@ package org.evosuite.junit.writer;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
+import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -178,14 +179,13 @@ public class TestSuiteWriter implements Opcodes {
         return testCases;
     }
 
-
     /**
      * Create JUnit test suite for class
      *
      * @param name      Name of the class
      * @param directory Output directory
      */
-    public List<File> writeTestSuite(String name, String directory) throws IllegalArgumentException {
+    public List<File> writeTestSuite(String name, String directory, List<ExecutionResult> cachedResults) throws IllegalArgumentException {
 
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Empty test class name");
@@ -203,11 +203,26 @@ public class TestSuiteWriter implements Opcodes {
 
         // Execute all tests
         executor.newObservers();
+        LoopCounter.getInstance().setActive(true); //be sure it is active here, as JUnit checks might have left it to false
+
         List<ExecutionResult> results = new ArrayList<>();
         for (int i = 0; i < testCases.size(); i++) {
-            LoopCounter.getInstance().setActive(true); //be sure it is active here, as JUnit checks might have left it to false
-            ExecutionResult result = runTest(testCases.get(i));
-            results.add(result);
+            TestCase test = testCases.get(i);
+            boolean added = false;
+            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                logger.warn("Using cached result");
+                for(ExecutionResult result : cachedResults) {
+                    if(result != null && result.test == test) {
+                        results.add(result);
+                        added = true;
+                        break;
+                    }
+                }
+            }
+            if(!added) {
+                ExecutionResult result = runTest(test);
+                results.add(result);
+            }
         }
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {

@@ -22,15 +22,7 @@ package org.evosuite.junit;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -343,7 +335,7 @@ public class JUnitAnalyzer {
 
 		try {
 			//now generate the JUnit test case
-			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath());
+			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath(), Collections.EMPTY_LIST);
 			for (File file : generated) {
 				if (!file.exists()) {
 					logger.error("Supposed to generate " + file

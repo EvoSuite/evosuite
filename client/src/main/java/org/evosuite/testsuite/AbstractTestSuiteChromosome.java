@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -51,6 +52,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -296,6 +298,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 */
 	public List<T> getTestChromosomes() {
 		return tests;
+	}
+
+	public List<ExecutionResult> getLastExecutionResults() {
+		return tests.stream().map(t -> t.getLastExecutionResult()).collect(Collectors.toList());
 	}
 
 	/**

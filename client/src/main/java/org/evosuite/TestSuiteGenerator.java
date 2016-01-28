@@ -484,10 +484,11 @@ public class TestSuiteGenerator {
 	 * The name of the test will be equal to the SUT followed by the given
 	 * suffix
 	 * 
-	 * @param tests
-	 *            a {@link java.util.List} object.
+	 * @param testSuite
+	 *            a test suite.
 	 */
-	public static TestGenerationResult writeJUnitTestsAndCreateResult(List<TestCase> tests, String suffix) {
+	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite, String suffix) {
+		List<TestCase> tests = testSuite.getTests();
 		if (Properties.JUNIT_TESTS) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_TESTS);
 
@@ -504,7 +505,7 @@ public class TestSuiteGenerator {
 			String testDir = Properties.TEST_DIR;
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
-			suiteWriter.writeTestSuite(name + suffix, testDir);
+			suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
 
 			// If in regression mode, create a separate copy of the tests 
 			if (!RegressionSearchListener.statsID.equals("")) {
@@ -519,7 +520,7 @@ public class TestSuiteGenerator {
 					
 					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
 	
-					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), Collections.EMPTY_LIST);
 				}
 			}
 		}
@@ -532,7 +533,7 @@ public class TestSuiteGenerator {
 	 *            the test cases which should be written to file
 	 */
 	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite) {
-		return writeJUnitTestsAndCreateResult(testSuite.getTests(), Properties.JUNIT_SUFFIX);	    
+		return writeJUnitTestsAndCreateResult(testSuite, Properties.JUNIT_SUFFIX);
 	}
 
 	private void addAssertions(TestSuiteChromosome tests) {
