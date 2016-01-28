@@ -76,7 +76,7 @@ public class TransformerForTests implements ClassFileTransformer {
 
             logger.debug("Going to instrument: "+classWithDots);
 
-			return instrumenter.transformBytes(loader, className, reader); 
+			return instrumenter.transformBytes(loader, className, reader, false); // TODO: Need to set skip instrumentation for test class
 		}
 	}
 	

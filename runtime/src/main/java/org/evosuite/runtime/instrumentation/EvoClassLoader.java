@@ -74,10 +74,8 @@ public class EvoClassLoader extends ClassLoader {
 		if ("<evosuite>".equals(name))
 			throw new ClassNotFoundException();
 
-		boolean shouldSkip = skipInstrumentationForPrefix.stream().anyMatch(s -> name.startsWith(s));
-
 		//first check if already loaded
-		if (shouldSkip || !RuntimeInstrumentation.checkIfCanInstrument(name)) {
+		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
@@ -111,9 +109,9 @@ public class EvoClassLoader extends ClassLoader {
 				throw new ClassNotFoundException("Class '" + className + ".class"
 						+ "' should be in target project, but could not be found!");
 			}
-			
+			boolean shouldSkip = skipInstrumentationForPrefix.stream().anyMatch(s -> fullyQualifiedTargetClass.startsWith(s));
 			byte[] byteBuffer = instrumentation.transformBytes(this, className,
-			                                                   new ClassReader(is));
+			                                                   new ClassReader(is), shouldSkip);
 			createPackageDefinition(fullyQualifiedTargetClass);
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);
