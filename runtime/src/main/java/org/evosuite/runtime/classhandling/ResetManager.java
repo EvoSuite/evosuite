@@ -63,7 +63,7 @@ public class ResetManager {
 	 * @param className
 	 */
 	public static void exitClassInit(String className) {
-		String classNameWithDots = className.replace("/", ".");
+		String classNameWithDots = className.replace('/', '.');
 
 		if (getInstance().isTracingEnabled()) {
 			getInstance().addClassInitialization(classNameWithDots);

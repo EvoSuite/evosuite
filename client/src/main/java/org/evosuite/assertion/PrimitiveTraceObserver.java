@@ -22,6 +22,7 @@ package org.evosuite.assertion;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -88,12 +89,17 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 			if (object.getClass().isPrimitive() || object.getClass().isEnum()
 			        || isWrapperType(object.getClass()) || object instanceof String) {
 				if(object instanceof String) {
-					// Check if there is a reference that would make the test fail
-					if(addressPattern.matcher((String)object).find()) {
+					int length = ((String) object).length();
+					// Maximum length of strings we look at
+					if(length > Properties.MAX_STRING) {
 						return;
 					}
 					// String literals may not be longer than 32767
-					if(((String)object).length() >= 32767) {
+					if(length >= 32767) {
+						return;
+					}
+					// Check if there is a reference that would make the test fail
+					if(addressPattern.matcher((String)object).find()) {
 						return;
 					}
 				}

@@ -21,12 +21,7 @@ package org.evosuite.assertion;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.mock.MockList;
@@ -205,6 +200,9 @@ public class InspectorManager {
 	}
 
 	private void determineInspectors(Class<?> clazz) {
+		if (!TestUsageChecker.canUse(clazz)) {
+			inspectors.put(clazz, Collections.EMPTY_LIST);
+		}
 		if (!TestUsageChecker.canUse(clazz))
 			return;
 		List<Inspector> inspectorList = new ArrayList<Inspector>();

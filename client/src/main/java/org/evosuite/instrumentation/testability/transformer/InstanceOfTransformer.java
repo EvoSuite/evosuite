@@ -47,7 +47,7 @@ public class InstanceOfTransformer extends MethodNodeTransformer {
 			//ClassReader reader;
 			int version = 48;
 			/*
-			String name = typeNode.desc.replace("/", ".");
+			String name = typeNode.desc.replace('/', '.');
 			try {
 				reader = new ClassReader(name);
 				ClassNode parent = new ClassNode();
@@ -68,7 +68,7 @@ public class InstanceOfTransformer extends MethodNodeTransformer {
 					mn.instructions.insertBefore(typeNode, lin);
 				}
 			} else {
-				LdcInsnNode lin = new LdcInsnNode(typeNode.desc.replace("/", "."));
+				LdcInsnNode lin = new LdcInsnNode(typeNode.desc.replace('/', '.'));
 				mn.instructions.insertBefore(typeNode, lin);
 				MethodInsnNode n = new MethodInsnNode(
 				        Opcodes.INVOKESTATIC,

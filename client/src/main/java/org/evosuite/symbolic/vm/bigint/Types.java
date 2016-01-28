@@ -26,12 +26,12 @@ import org.objectweb.asm.Type;
 public interface Types {
 
 	public final static String JAVA_MATH_BIG_INTEGER = BigInteger.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 
 	public static final String INIT = "<init>";
 
 	public static final String JAVA_LANG_STRING = String.class.getName()
-			.replace(".", "/");
+			.replace('.', '/');
 
 	public static final Type BIG_INTEGER = Type.getType(BigInteger.class);
 

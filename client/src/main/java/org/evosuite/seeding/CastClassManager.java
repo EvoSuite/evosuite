@@ -124,7 +124,7 @@ public class CastClassManager {
 			assert (false);
 		}
 		if (clazz.isAbstract()) {
-			for (Class<?> concreteClass : ConcreteClassAnalyzer.getConcreteClasses(clazz.getRawClass(),
+			for (Class<?> concreteClass : ConcreteClassAnalyzer.getInstance().getConcreteClasses(clazz.getRawClass(),
 			                                                                      TestCluster.getInheritanceTree())) {
 				GenericClass c = new GenericClass(concreteClass);
 				if(TestUsageChecker.canUse(c.getRawClass())) {
@@ -336,7 +336,7 @@ public class CastClassManager {
 				Class<?> rawBound = GenericTypeReflector.erase(bound);
 				boundCandidates.add(rawBound);
 				logger.debug("Getting concrete classes for " + rawBound);
-				boundCandidates.addAll(ConcreteClassAnalyzer.getConcreteClasses(rawBound,
+				boundCandidates.addAll(ConcreteClassAnalyzer.getInstance().getConcreteClasses(rawBound,
 				                                                               inheritanceTree));
 			}
 			for (Class<?> clazz : boundCandidates) {

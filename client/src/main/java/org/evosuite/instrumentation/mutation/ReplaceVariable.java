@@ -345,7 +345,7 @@ public class ReplaceVariable implements MutationOperator {
 			}
 		} else if (node instanceof FieldInsnNode) {
 			FieldInsnNode field = (FieldInsnNode) node;
-			if (field.owner.replace("/", ".").equals(className)) {
+			if (field.owner.replace('/', '.').equals(className)) {
 				logger.info("Looking for replacements for static field " + field.name
 				        + " of type " + field.desc);
 				variables.putAll(getLocalReplacements(mn, field.desc, node, frame));
@@ -528,12 +528,12 @@ public class ReplaceVariable implements MutationOperator {
 					// new fieldinsnnode
 					if (Modifier.isStatic(field.getModifiers()))
 						list.add(new FieldInsnNode(Opcodes.GETSTATIC,
-						        className.replace(".", "/"), field.getName(),
+						        className.replace('.', '/'), field.getName(),
 						        type.getDescriptor()));
 					else {
 						list.add(new VarInsnNode(Opcodes.ALOAD, 0)); // this
 						list.add(new FieldInsnNode(Opcodes.GETFIELD,
-						        className.replace(".", "/"), field.getName(),
+						        className.replace('.', '/'), field.getName(),
 						        type.getDescriptor()));
 					}
 					alternatives.put(field.getName(), list);

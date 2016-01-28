@@ -190,7 +190,12 @@ public class Properties {
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")
 	public static int STRING_LENGTH = 20;
 
-	/** Constant <code>EPSILON=0.001</code> */
+    @Parameter(key = "max_string", group = "Test Creation", description = "Maximum length of strings in assertions")
+    @IntValue(min = 1, max = 32767) // String literals may not be longer than 32767
+    public static int MAX_STRING = 1000;
+
+
+    /** Constant <code>EPSILON=0.001</code> */
 	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
 	@Deprecated
 	// does not seem to be used anywhere
@@ -216,7 +221,7 @@ public class Properties {
 	@Parameter(key = "max_array", group = "Test Creation", description = "Maximum length of randomly generated arrays")
 	public static int MAX_ARRAY = 10;
 
-	/** Constant <code>MAX_ATTEMPTS=1000</code> */
+    /** Constant <code>MAX_ATTEMPTS=1000</code> */
 	@Parameter(key = "max_attempts", group = "Test Creation", description = "Number of attempts when generating an object before giving up")
 	public static int MAX_ATTEMPTS = 1000;
 
@@ -671,6 +676,9 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int EXTRA_TIMEOUT = 60;
 
+	@Parameter(key = "reuse_leftover_time", group = "Search Algorithm", description = "If a phase is ended before its timeout, allow the next phase to run over its timeout")
+	public static boolean REUSE_LEFTOVER_TIME = false;
+
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
 
@@ -991,7 +999,7 @@ public class Properties {
 	public static boolean ASSERTIONS = true;
 
 	public enum AssertionStrategy {
-		ALL, MUTATION, UNIT, STRUCTURED
+		ALL, MUTATION, UNIT
 	}
 
 	/** Constant <code>ASSERTION_STRATEGY</code> */

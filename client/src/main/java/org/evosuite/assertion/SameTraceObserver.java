@@ -78,8 +78,7 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 					continue;
 				
 				try {
-					logger.debug("Comparison of " + var + " with " + other + " is: "
-					        + object.equals(otherObject) +" ==> "+(object == otherObject));
+					logger.debug("Comparison of {} with {}", var, other);
 					entry.addEntry(other, object == otherObject);
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);

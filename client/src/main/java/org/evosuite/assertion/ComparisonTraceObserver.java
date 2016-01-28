@@ -45,8 +45,11 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 
 			if(statement instanceof AssignmentStatement)
 				return;
+            if(statement instanceof PrimitiveStatement<?>)
+                return;
 
 			ComparisonTraceEntry entry = new ComparisonTraceEntry(var);
+			int position = statement.getPosition();
 
 			for (VariableReference other : scope.getElements(var.getType())) {
 				Object otherObject = other.getObject(scope);
@@ -56,6 +59,10 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 
 				if (object == otherObject)
 					continue; // Don't compare with self?
+
+                int otherPos = other.getStPosition();
+                if(otherPos >= position)
+                    continue; // Don't compare with variables that are not defined - may happen with primitives?
 
 				if (statement instanceof PrimitiveStatement
 				        && currentTest.getStatement(other.getStPosition()) instanceof PrimitiveStatement)

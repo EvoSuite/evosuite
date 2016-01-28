@@ -144,10 +144,10 @@ public interface Types {
 			"/");
 
 	static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 
 	static final String JAVA_UTIL_STRING_TOKENIZER = StringTokenizer.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 
 	public static final String STR_STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
 			VOID_TYPE, STRING_TYPE, STRING_TYPE);
@@ -158,7 +158,7 @@ public interface Types {
 			BOOLEAN_TYPE, INT_TYPE, STRING_TYPE, INT_TYPE, INT_TYPE);
 
 	static final String JAVA_IO_STRING_READER = StringReader.class.getName()
-			.replace(".", "/");
+			.replace('.', '/');
 
 	public static final String JAVA_IO_READER = Reader.class.getName().replace(
 			".", "/");

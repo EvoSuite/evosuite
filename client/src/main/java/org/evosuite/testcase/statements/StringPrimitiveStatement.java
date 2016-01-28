@@ -213,13 +213,18 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 		try {
 			if(value == null)
 				retval.setObject(scope, null);
-			else
-			// In the JUnit code we produce, strings are generated as
-			// String foo = "bar";
-			// That means any reference comparison will behave different
-			// as internally value is created as String foo = new String("bar").
-			// Therefore we have to use the string object in the constant pool
-			retval.setObject(scope, value.intern());
+			else {
+				// String literals may not be longer than 32767
+				if(((String)value).length() >= 32767)
+					throw new CodeUnderTestException(new IllegalArgumentException("Maximum string length exceeded"));
+
+				// In the JUnit code we produce, strings are generated as
+				// String foo = "bar";
+				// That means any reference comparison will behave different
+				// as internally value is created as String foo = new String("bar").
+				// Therefore we have to use the string object in the constant pool
+				retval.setObject(scope, value.intern());
+			}
 		} catch (CodeUnderTestException e) {
 			exceptionThrown = e;
 		}

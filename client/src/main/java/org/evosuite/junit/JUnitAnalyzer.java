@@ -22,15 +22,7 @@ package org.evosuite.junit;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -43,6 +35,7 @@ import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
 import org.evosuite.junit.writer.TestSuiteWriter;
@@ -93,6 +86,10 @@ public class JUnitAnalyzer {
 		Iterator<TestCase> iter = tests.iterator();
 
 		while (iter.hasNext()) {
+			if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+				break;
+			}
+
 			TestCase test = iter.next();
 
 			File dir = createNewTmpDir();
@@ -164,7 +161,12 @@ public class JUnitAnalyzer {
 				return numUnstable;
 			}
 
-			Class<?>[] testClasses = loadTests(generated);
+            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                logger.error("Ran out of time while checking tests");
+                return numUnstable;
+            }
+
+            Class<?>[] testClasses = loadTests(generated);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
@@ -333,7 +335,7 @@ public class JUnitAnalyzer {
 
 		try {
 			//now generate the JUnit test case
-			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath());
+			List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath(), Collections.EMPTY_LIST);
 			for (File file : generated) {
 				if (!file.exists()) {
 					logger.error("Supposed to generate " + file

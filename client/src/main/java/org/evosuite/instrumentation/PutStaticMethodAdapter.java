@@ -69,12 +69,12 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 				&& !(className.equals(owner) && methodName.equals("<clinit>"))
 				&& !(className.equals(owner) && methodName.equals(ClassResetter.STATIC_RESET))) {
 			String executionTracerClassName = ExecutionTracer.class.getName()
-					.replace(".", "/");
+					.replace('.', '/');
 			String executionTracerDescriptor = Type.getMethodDescriptor(
 					Type.VOID_TYPE, Type.getType(String.class),
 					Type.getType(String.class));
 
-			String classNameWithDots = owner.replace("/", ".");
+			String classNameWithDots = owner.replace('/', '.');
 			super.visitLdcInsn(classNameWithDots);
 			super.visitLdcInsn(name);
 			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,

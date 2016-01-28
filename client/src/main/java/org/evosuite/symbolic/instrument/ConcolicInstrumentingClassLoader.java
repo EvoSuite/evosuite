@@ -146,7 +146,7 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 		notNull(className);
 	
 		Class<?> res = null;
-		String classNameDot = className.replace("/", ".");
+		String classNameDot = className.replace('/', '.');
 		try {
 			res = this.loadClass(classNameDot);
 		} catch (ClassNotFoundException cnfe) {

@@ -29,10 +29,7 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.evosuite.ClientProcess;
-import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
+import org.evosuite.*;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
@@ -48,13 +45,13 @@ import org.slf4j.LoggerFactory;
 public class MeasureCoverage {
 
 	private static Logger logger = LoggerFactory.getLogger(MeasureCoverage.class);
-	
+
 	public static final String NAME = "measureCoverage";
-	
+
 	public static Option getOption(){
 		return new Option(NAME, "measure coverage on existing test cases");
 	}
-	
+
 	public static Object execute(Options options, List<String> javaOpts,
 			CommandLine line) {
 		if (line.hasOption("class")) {
@@ -184,9 +181,8 @@ public class MeasureCoverage {
 						logger.error("Error in starting clients", e);
 					}
 				}
-
-				handler.waitForResult((Properties.GLOBAL_TIMEOUT
-				        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search
+				int time = TimeController.getInstance().calculateForHowLongClientWillRunInSeconds();
+				handler.waitForResult(time * 1000);
 			}
 			// timeout plus
 			// 100 seconds?
@@ -199,12 +195,12 @@ public class MeasureCoverage {
 					logger.error("Cannot write results as RMI master node is not running");
 				} else {
 					LoggingUtils.getEvoLogger().info("* Writing statistics");
-					
+
 					SearchStatistics.getInstance().writeStatisticsForAnalysis();
 				}
 			}
 			handler.killProcess();
-			
+
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}

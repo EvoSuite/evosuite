@@ -47,7 +47,7 @@ public final class ConcolicConfig
 	 * Class whose methods the instrumentation code will call 
 	 */
 
-  public static final String VM_FQ    	= VM.class.getName().replace(".", "/"); //$NON-NLS-1$
+  public static final String VM_FQ    	= VM.class.getName().replace('.', '/'); //$NON-NLS-1$
 
   public static final String VOID     = "V"; //$NON-NLS-1$
   public static final String INT      = "I"; //$NON-NLS-1$

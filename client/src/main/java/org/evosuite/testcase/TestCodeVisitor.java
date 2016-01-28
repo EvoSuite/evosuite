@@ -376,7 +376,7 @@ public class TestCodeVisitor extends TestVisitor {
 			// }
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1) + "Array";
-			variableName = variableName.replace(".", "_").replace("[]", "");
+			variableName = variableName.replace('.', '_').replace("[]", "");
 			if (!variableNames.containsKey(var)) {
 				if (!nextIndices.containsKey(variableName)) {
 					nextIndices.put(variableName, 0);
@@ -725,12 +725,28 @@ public class TestCodeVisitor extends TestVisitor {
 		Object value = assertion.getValue();
 
 		if (source.isPrimitive() && dest.isPrimitive()) {
-			if (((Boolean) value).booleanValue())
-				testCode += "assertTrue(" + getVariableName(source) + " == "
-				        + getVariableName(dest) + ");";
-			else
-				testCode += "assertFalse(" + getVariableName(source) + " == "
-				        + getVariableName(dest) + ");";
+			if (source.getVariableClass().equals(float.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals(" + getVariableName(source) + ", "
+							+ getVariableName(dest) + ", 0.01F);";
+				else
+					testCode += "assertNotEquals(" + getVariableName(source) + ", "
+							+ getVariableName(dest) + ", 0.01F);";
+			} else if (source.getVariableClass().equals(double.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals(" + getVariableName(source) + ", "
+							+ getVariableName(dest) + ", 0.01D);";
+				else
+					testCode += "assertNotEquals(" + getVariableName(source) + ", "
+							+ getVariableName(dest) + ", 0.01D);";
+			} else {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertTrue(" + getVariableName(source) + " == "
+							+ getVariableName(dest) + ");";
+				else
+					testCode += "assertFalse(" + getVariableName(source) + " == "
+							+ getVariableName(dest) + ");";
+			}
 		} else {
 			if (((Boolean) value).booleanValue())
 				testCode += "assertTrue(" + getVariableName(source) + ".equals((" + this.getClassName(Object.class) +")"
