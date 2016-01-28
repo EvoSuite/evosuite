@@ -43,6 +43,7 @@ import org.evosuite.runtime.mock.java.util.logging.MockFileHandler;
 import org.evosuite.runtime.mock.java.util.logging.MockLogRecord;
 import org.evosuite.runtime.mock.javax.naming.MockInitialContext;
 import org.evosuite.runtime.mock.javax.persistence.MockPersistence;
+import org.evosuite.runtime.mock.javax.swing.MockDefaultListSelectionModel;
 import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
 import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
 import org.slf4j.Logger;
@@ -95,6 +96,9 @@ public class MockList {
 
             list.add(MockRuntime.class);
             list.add(MockLogRecord.class);
+
+			// Uses Object.hashCode
+			list.add(MockDefaultListSelectionModel.class);
 
             //CPU time related
 			list.add(MockDate.class);

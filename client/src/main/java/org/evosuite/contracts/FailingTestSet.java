@@ -23,6 +23,7 @@
 package org.evosuite.contracts;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -161,7 +162,7 @@ public class FailingTestSet {
 		writeJUnitTestSuite(writer);
 		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 		String testDir = Properties.TEST_DIR;
-		writer.writeTestSuite("Failures" + name, testDir);
+		writer.writeTestSuite("Failures" + name, testDir, Collections.emptyList());
 	}
 
 	/**
