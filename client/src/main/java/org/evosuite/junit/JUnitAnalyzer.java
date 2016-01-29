@@ -375,10 +375,6 @@ public class JUnitAnalyzer {
 
 			optionList.addAll(Arrays.asList("-classpath", classpath));
 
-			if (Properties.JUNIT_ALLOW_RESTRICTED_LIBRARIES) {
-				optionList.add("-XDignore.symbol.file");
-			}
-			
 			CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
 			                                        optionList, null, compilationUnits);
 			boolean compiled = task.call();
