@@ -864,6 +864,10 @@ public class Properties {
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite (if any was created)")
 	public static boolean JUNIT_CHECK = true;
 
+	@Parameter(key = "junit_allow_restricted_libraries", group = "Output", description = "Compile and run resulting JUnit test suite using the -XDignore.symbol.file option")
+	public static boolean JUNIT_ALLOW_RESTRICTED_LIBRARIES = false;
+
+	
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
 	//this gives quite a few issues. and hopefully the problems it was aimed to fix are no longer
