@@ -22,8 +22,11 @@ package org.evosuite.runtime.instrumentation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.evosuite.runtime.util.Inputs;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +40,7 @@ public class EvoClassLoader extends ClassLoader {
 	private final RuntimeInstrumentation instrumentation;
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<>();
-
+	private final Set<String> skipInstrumentationForPrefix = new HashSet<>();
 
 	public EvoClassLoader() {
 		this(new RuntimeInstrumentation());
@@ -58,6 +61,10 @@ public class EvoClassLoader extends ClassLoader {
 		this.instrumentation = instrumentation;
 	}
 
+	public void skipInstrumentation(String prefix) throws IllegalArgumentException{
+		Inputs.checkNull(prefix);
+		skipInstrumentationForPrefix.add(prefix);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -102,9 +109,9 @@ public class EvoClassLoader extends ClassLoader {
 				throw new ClassNotFoundException("Class '" + className + ".class"
 						+ "' should be in target project, but could not be found!");
 			}
-			
+			boolean shouldSkip = skipInstrumentationForPrefix.stream().anyMatch(s -> fullyQualifiedTargetClass.startsWith(s));
 			byte[] byteBuffer = instrumentation.transformBytes(this, className,
-			                                                   new ClassReader(is));
+			                                                   new ClassReader(is), shouldSkip);
 			createPackageDefinition(fullyQualifiedTargetClass);
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);

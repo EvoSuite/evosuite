@@ -134,6 +134,7 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
 	    	 */
 
             EvoClassLoader classLoader = new EvoClassLoader();
+            classLoader.skipInstrumentation(clazz.getName());
             Thread.currentThread().setContextClassLoader(classLoader);
             return Class.forName(clazz.getName(), true, classLoader);
         } catch (ClassNotFoundException e) {
