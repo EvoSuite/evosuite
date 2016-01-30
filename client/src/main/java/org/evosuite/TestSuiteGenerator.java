@@ -172,6 +172,11 @@ public class TestSuiteGenerator {
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
 
+        // If overall time is short, the search might not have had enough time
+        // to come up with a suite without timeouts. However, they will slow down
+        // the rest of the process, and may lead to invalid tests
+        testSuite.getTestChromosomes().removeIf(t -> t.getLastExecutionResult() != null && t.getLastExecutionResult().hasTimeout());
+
         if (Properties.CTG_SEEDS_FILE_OUT != null) {
             TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
         } else if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
@@ -312,7 +317,7 @@ public class TestSuiteGenerator {
 			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
 		}
 	}
-	
+
 	 /**
      * Compile and run the given tests. Remove from input list all tests that do not compile, and handle the
      * cases of instability (either remove tests or comment out failing assertions)
