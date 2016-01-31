@@ -1,10 +1,7 @@
 package org.evosuite.runtime.mock.java.text;
 
-import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.evosuite.runtime.mock.java.util.MockCalendar;
-import org.evosuite.runtime.mock.java.util.MockLocale;
-import sun.util.locale.provider.LocaleServiceProviderPool;
 
 import java.text.DateFormat;
 import java.text.spi.DateFormatProvider;
@@ -82,10 +79,7 @@ public abstract class MockDateFormat implements StaticReplacementMock {
         return getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
     }
 
-    public static Locale[] getAvailableLocales()
-    {
-        LocaleServiceProviderPool pool =
-                LocaleServiceProviderPool.getPool(DateFormatProvider.class);
-        return pool.getAvailableLocales();
+    public static Locale[] getAvailableLocales() {
+        return DateFormat.getAvailableLocales();
     }
 }
