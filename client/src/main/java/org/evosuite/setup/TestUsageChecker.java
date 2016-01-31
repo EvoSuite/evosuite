@@ -100,7 +100,12 @@ public class TestUsageChecker {
 			return true;
 		}
 
-		// If default access rights, then check if this class is in the same package as the target class
+        for(java.lang.reflect.Type paramType : c.getGenericParameterTypes()) {
+            if(!canUse(paramType))
+                return false;
+        }
+
+        // If default access rights, then check if this class is in the same package as the target class
 		if (!Modifier.isPrivate(c.getModifiers())) {
 			//		        && !Modifier.isProtected(c.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(c.getDeclaringClass());
