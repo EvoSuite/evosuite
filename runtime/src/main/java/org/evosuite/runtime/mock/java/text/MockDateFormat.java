@@ -10,7 +10,7 @@ import java.util.Locale;
 /**
  * Created by gordon on 31/01/2016.
  */
-public abstract class MockDateFormat implements StaticReplacementMock {
+public class MockDateFormat implements StaticReplacementMock {
 
     @Override
     public String getMockedClassName() {
