@@ -449,6 +449,14 @@ public class TestUsageChecker {
 				return true;
 		}
 
+        if(m.getDeclaringClass().equals(ClassLoader.class)) {
+            String name = m.getName();
+            if(name.startsWith("getSystemResource"))
+                return true;
+            else if(name.startsWith("getResource"))
+                return true;
+        }
+
 		return false;
 	}
 
