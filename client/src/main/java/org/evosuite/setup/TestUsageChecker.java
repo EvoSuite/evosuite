@@ -314,6 +314,11 @@ public class TestUsageChecker {
             return false;
         }
 
+        for(java.lang.reflect.Type paramType : m.getGenericParameterTypes()) {
+            if(!canUse(paramType))
+                return false;
+        }
+
         if (m.getDeclaringClass().equals(Enum.class)) {
             return false;
 			/*
