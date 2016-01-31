@@ -22,6 +22,7 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
@@ -62,6 +63,8 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 				return;
 			if(var.isPrimitive())
 				return;
+			if(var.isString() && Properties.INLINE)
+				return; // After inlining the value of assertions would be different
 
 			SameTraceEntry entry = new SameTraceEntry(var);
 
