@@ -21,6 +21,7 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1800,8 +1801,8 @@ public class TestFactory {
             parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false);
             VariableReference callee = parameters.remove(0);
 
-			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
-                        callee,parameters);
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+                        callee, parameters, Modifier.isStatic(method.getModifiers()));
         }
 
         int newLength = test.size();
@@ -1850,8 +1851,8 @@ public class TestFactory {
 
 			parameters = satisfyParameters(test, callee, list,position, recursionDepth + 1, true, false);
 
-			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
-					callee,parameters);
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+					callee, parameters, Modifier.isStatic(method.getModifiers()));
 		}
 
 		int newLength = test.size();

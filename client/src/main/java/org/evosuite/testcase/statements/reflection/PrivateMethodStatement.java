@@ -22,6 +22,8 @@ package org.evosuite.testcase.statements.reflection;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.execution.CodeUnderTestException;
+import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
@@ -29,6 +31,8 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
 
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,13 +49,16 @@ public class PrivateMethodStatement extends MethodStatement {
 
     private String methodName;
 
-	public PrivateMethodStatement(TestCase tc, Class<?> klass , String methodName, VariableReference callee, List<VariableReference> params) {
+    private boolean isStaticMethod = false;
+
+	public PrivateMethodStatement(TestCase tc, Class<?> klass , String methodName, VariableReference callee, List<VariableReference> params, boolean isStatic) {
         super(
                 tc,
                 new GenericMethod(PrivateAccess.getCallMethod(params.size()),PrivateAccess.class),
                 null, //it is static
                 getReflectionParams(tc,klass,methodName,callee,params)
         );
+        isStaticMethod = isStatic;
         List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
         this.method.setTypeParameters(parameterTypes);
@@ -93,13 +100,30 @@ public class PrivateMethodStatement extends MethodStatement {
         VariableReference newCallee = parameters.get(1).copy(newTestCase, offset);
         Class<?> klass = (Class<?>)((ConstantValue)parameters.get(0)).getValue(); // TODO: Make this nice
 
-        pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams);
+        pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams, isStaticMethod);
 
         assert pm.parameters.size() == this.parameters.size();
 
         return pm;
     }
 
+    @Override
+    public Throwable execute(final Scope scope, PrintStream out)
+            throws InvocationTargetException, IllegalArgumentException,
+            IllegalAccessException, InstantiationException {
+        if(!isStaticMethod) {
+            // If the callee is null, then reflection will only lead to a NPE.
+            VariableReference callee = parameters.get(1);
+            try {
+                Object calleeObject = callee.getObject(scope);
+                if(calleeObject == null)
+                    return new CodeUnderTestException(new NullPointerException());
+            } catch (CodeUnderTestException e) {
+                return e;
+            }
+        }
+        return super.execute(scope, out);
+    }
 
     @Override
 	public boolean isReflectionStatement() {
