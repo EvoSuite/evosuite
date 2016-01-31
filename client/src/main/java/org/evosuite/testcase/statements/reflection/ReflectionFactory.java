@@ -67,9 +67,16 @@ public class ReflectionFactory {
             toSkip = Injector.getAllFieldsToInject(target);
         }
 
-        // TODO: For final fields, skip primitive and string
         for(Field f : target.getDeclaredFields()){
-            if(Modifier.isPrivate(f.getModifiers()) && !f.isSynthetic() && (toSkip==null || ! toSkip.contains(f)) && !f.getName().equals("serialVersionUID")){
+            if(Modifier.isPrivate(f.getModifiers()) &&
+                    !f.isSynthetic() &&
+                    (toSkip==null || ! toSkip.contains(f)) &&
+                    !f.getName().equals("serialVersionUID") &&
+                    // final primitives cannot be changed
+                    !(Modifier.isFinal(f.getModifiers()) && f.getType().isPrimitive()) &&
+                    // changing final strings also doesn't make much sense
+                    !(Modifier.isFinal(f.getModifiers()) && f.getType().equals(String.class))
+                    ) {
                 fields.add(f);
             }
         }
