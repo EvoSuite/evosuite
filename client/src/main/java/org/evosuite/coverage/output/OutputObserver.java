@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.output;
 
+import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
@@ -65,11 +66,15 @@ public class OutputObserver extends ExecutionObserver {
         if (statement instanceof MethodStatement) {
             MethodStatement methodStmt = (MethodStatement) statement;
             VariableReference varRef = methodStmt.getReturnValue();
-            Object returnObject = scope.getObject(varRef);
-            if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
-                // we don't save anything if there was an exception
-                // we are only interested in methods whose return type != void
-                returnValues.put(methodStmt, returnObject);
+            try {
+                Object returnObject = varRef.getObject(scope);
+                if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
+                    // we don't save anything if there was an exception
+                    // we are only interested in methods whose return type != void
+                    returnValues.put(methodStmt, returnObject);
+                }
+            } catch(CodeUnderTestException e) {
+                // ignore?
             }
         }
     }

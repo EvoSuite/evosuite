@@ -144,9 +144,14 @@ public class PrivateFieldStatement extends MethodStatement {
     @Override
     public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException, IllegalAccessException, InstantiationException {
         if(!isStaticField) {
-            Object receiver = scope.getObject(parameters.get(1));
-            if(receiver == null)
-                return new CodeUnderTestException(new NullPointerException());
+            try {
+                Object receiver = parameters.get(1).getObject(scope);
+                if (receiver == null)
+                    return new CodeUnderTestException(new NullPointerException());
+            } catch (CodeUnderTestException e) {
+                return e;
+            }
+
         }
         return super.execute(scope, out);
     }

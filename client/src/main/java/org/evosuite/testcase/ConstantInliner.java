@@ -170,7 +170,7 @@ public class ConstantInliner extends ExecutionObserver {
 					// If this is an array index and there is an object outside the array
 					// then replace the array index with that object
 					for(VariableReference otherVar : scope.getElements(var.getType())) {
-						Object otherObject = scope.getObject(otherVar);
+						Object otherObject = otherVar.getObject(scope);
 						if(otherObject == object && !otherVar.isArrayIndex() && otherVar.getStPosition() < statement.getPosition()) {
 							statement.replace(var, otherVar);
 							break;

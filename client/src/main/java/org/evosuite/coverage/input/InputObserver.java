@@ -80,7 +80,7 @@ public class InputObserver extends ExecutionObserver {
                     } else if (parRef instanceof ConstantValue) {
                         parObject = ((ConstantValue) parRef).getValue();
                     } else {
-                        parObject = scope.getObject(parRef);
+                        parObject = parRef.getObject(scope);
                     }
                 } catch (CodeUnderTestException e) {
                     e.printStackTrace();

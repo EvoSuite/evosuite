@@ -207,7 +207,7 @@ public class FieldReference extends VariableReferenceImpl {
 					 *  var1.someAttribute = test;
 					 *  and the testcase will execute in evosuite, executing it with junit will however lead to a nullpointer exception
 					 */
-					return;
+                    throw new CodeUnderTestException(new NullPointerException());
 				}
 
 				// TODO: It seems this is unavoidable based on the search operators
@@ -220,7 +220,8 @@ public class FieldReference extends VariableReferenceImpl {
 				}
 			}
             Reflection.setField(field.getField(), sourceObject, value);
-		} catch (IllegalArgumentException e) {
+
+        } catch (IllegalArgumentException e) {
 			logger.error("Error while assigning field: " + getName() + " with value "
 			        + value + " on object " + sourceObject + ": " + e, e);
 			throw e;
