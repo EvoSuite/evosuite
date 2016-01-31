@@ -130,7 +130,7 @@ public class PrivateAccess {
         }
 
         try {
-            field.set(instance,value);
+            Reflection.setField(field, instance, value);
         } catch (IllegalAccessException e) {
             //should never happen, due to setAccessible(true);
             throw new FalsePositiveException("Failed to set field "+fieldName+": "+e.toString());

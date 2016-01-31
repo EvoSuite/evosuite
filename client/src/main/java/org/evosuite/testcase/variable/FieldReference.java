@@ -25,7 +25,7 @@ package org.evosuite.testcase.variable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.evosuite.Properties;
+import org.evosuite.runtime.Reflection;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
@@ -187,51 +187,6 @@ public class FieldReference extends VariableReferenceImpl {
 		}
 	}
 
-	private int getIntValue(Object object) {
-		if (object instanceof Number) {
-			return ((Number) object).intValue();
-		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
-		} else
-			return 0;
-	}
-
-	private long getLongValue(Object object) {
-		if (object instanceof Number) {
-			return ((Number) object).longValue();
-		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
-		} else
-			return 0L;
-	}
-
-	private float getFloatValue(Object object) {
-		if (object instanceof Number) {
-			return ((Number) object).floatValue();
-		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
-		} else
-			return 0F;
-	}
-
-	private double getDoubleValue(Object object) {
-		if (object instanceof Number) {
-			return ((Number) object).doubleValue();
-		} else if (object instanceof Character) {
-			return ((Character) object).charValue();
-		} else
-			return 0.0;
-	}
-
-	private char getCharValue(Object object) {
-		if (object instanceof Character) {
-			return ((Character) object).charValue();
-		} else if (object instanceof Number) {
-			return (char) ((Number) object).intValue();
-		} else
-			return '0';
-	}
-
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -264,45 +219,7 @@ public class FieldReference extends VariableReferenceImpl {
 					                + " of variable " + source));
 				}
 			}
-			if (field.getField().getType().equals(int.class))
-				field.getField().setInt(sourceObject, getIntValue(value));
-			else if (field.getField().getType().equals(boolean.class))
-				field.getField().setBoolean(sourceObject, (Boolean) value);
-			else if (field.getField().getType().equals(byte.class))
-				field.getField().setByte(sourceObject, (byte) getIntValue(value));
-			else if (field.getField().getType().equals(char.class))
-				field.getField().setChar(sourceObject, getCharValue(value));
-			else if (field.getField().getType().equals(double.class))
-				field.getField().setDouble(sourceObject, getDoubleValue(value));
-			else if (field.getField().getType().equals(float.class))
-				field.getField().setFloat(sourceObject, getFloatValue(value));
-			else if (field.getField().getType().equals(long.class))
-				field.getField().setLong(sourceObject, getLongValue(value));
-			else if (field.getField().getType().equals(short.class))
-				field.getField().setShort(sourceObject, (short) getIntValue(value));
-			else {
-				if (value != null
-				        && !field.getField().getType().isAssignableFrom(value.getClass())) {
-					logger.error("Not assignable: " + value + " of class "
-					        + value.getClass() + " to field " + field + " of variable "
-					        + source);
-				}
-				// FIXXME: isAssignableFrom does not work with autoboxing
-				// assert (value==null || field.getType().isAssignableFrom(value.getClass()));
-				if (sourceObject != null
-				        && !field.getField().getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
-
-					String msg = "Field " + field + " defined in class "
-					        + field.getField().getDeclaringClass() + ". Source object "
-					        + sourceObject + " has class " + sourceObject.getClass()
-					        + ". Value object " + value + " has class "
-					        + value.getClass();
-					logger.error("Class " + Properties.TARGET_CLASS + ". " + msg);
-					//FIXME: is it correct to throw an exception here? if yes, which kind?						
-				}
-				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
-				field.getField().set(sourceObject, value);
-			}
+            Reflection.setField(field.getField(), sourceObject, value);
 		} catch (IllegalArgumentException e) {
 			logger.error("Error while assigning field: " + getName() + " with value "
 			        + value + " on object " + sourceObject + ": " + e, e);

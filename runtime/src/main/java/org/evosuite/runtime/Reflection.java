@@ -106,4 +106,71 @@ public class Reflection {
 		return modifier;
 	}
 
+	public static void setField(Field field, Object sourceObject, Object value) throws IllegalAccessException {
+		if (field.getType().equals(int.class))
+			field.setInt(sourceObject, getIntValue(value));
+		else if (field.getType().equals(boolean.class))
+			field.setBoolean(sourceObject, (Boolean) value);
+		else if (field.getType().equals(byte.class))
+			field.setByte(sourceObject, (byte) getIntValue(value));
+		else if (field.getType().equals(char.class))
+			field.setChar(sourceObject, getCharValue(value));
+		else if (field.getType().equals(double.class))
+			field.setDouble(sourceObject, getDoubleValue(value));
+		else if (field.getType().equals(float.class))
+			field.setFloat(sourceObject, getFloatValue(value));
+		else if (field.getType().equals(long.class))
+			field.setLong(sourceObject, getLongValue(value));
+		else if (field.getType().equals(short.class))
+			field.setShort(sourceObject, (short) getIntValue(value));
+		else {
+			field.set(sourceObject, value);
+		}
+	}
+
+	private static int getIntValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).intValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0;
+	}
+
+	private static long getLongValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).longValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0L;
+	}
+
+	private static float getFloatValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).floatValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0F;
+	}
+
+	private static double getDoubleValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).doubleValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0.0;
+	}
+
+	private static char getCharValue(Object object) {
+		if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else if (object instanceof Number) {
+			return (char) ((Number) object).intValue();
+		} else
+			return '0';
+	}
+
 }
