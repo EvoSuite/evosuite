@@ -46,6 +46,7 @@ import org.evosuite.runtime.mock.javax.naming.MockInitialContext;
 import org.evosuite.runtime.mock.javax.persistence.MockPersistence;
 import org.evosuite.runtime.mock.javax.swing.MockDefaultListSelectionModel;
 import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
+import org.evosuite.runtime.mock.javax.swing.MockSpinnerDateModel;
 import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,7 @@ public class MockList {
             list.add(MockCalendar.class);
 			list.add(MockDateFormat.class);
 			list.add(MockSimpleDateFormat.class);
+			list.add(MockSpinnerDateModel.class);
             //MockTimeZone, MockLocale are not actual mocks
 
 			// java.time
