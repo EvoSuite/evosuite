@@ -1037,6 +1037,12 @@ public class Properties {
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
 
+	@Parameter(key = "float_precision", group = "Output", description = "Precision to use in float comparisons and assertions")
+	public static float FLOAT_PRECISION = 0.01F;
+
+	@Parameter(key = "double_precision", group = "Output", description = "Precision to use in double comparisons and assertions")
+	public static double DOUBLE_PRECISION = 0.01;
+
 	//@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
 	//public static boolean OLD_STATISTICS = false;
 

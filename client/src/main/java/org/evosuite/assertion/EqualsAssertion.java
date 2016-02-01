@@ -107,12 +107,12 @@ public class EqualsAssertion extends Assertion {
 				if (source.getObject(scope) == null)
 					return dest.getObject(scope) == null;
 				else
-					return source.getObject(scope).equals(dest.getObject(scope));
+					return ComparisonTraceEntry.equals(source.getObject(scope), dest.getObject(scope));
 			} else {
 				if (source.getObject(scope) == null)
 					return dest.getObject(scope) != null;
 				else
-					return !source.getObject(scope).equals(dest.getObject(scope));
+					return !ComparisonTraceEntry.equals(source.getObject(scope), dest.getObject(scope));
 			}
 		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();

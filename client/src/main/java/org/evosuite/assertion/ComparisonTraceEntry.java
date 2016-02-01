@@ -78,7 +78,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 				if (!otherEntry.equalityMap.containsKey(otherVar))
 					continue;
 
-				if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar)))
+				if (!equals(otherEntry.equalityMap.get(otherVar), equalityMap.get(otherVar)))
 					return true;
 			}
 
@@ -93,7 +93,6 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
 		Set<Assertion> assertions = new HashSet<Assertion>();
-
 		if (other instanceof ComparisonTraceEntry) {
 			ComparisonTraceEntry otherEntry = (ComparisonTraceEntry) other;
 			for (Integer otherVar : equalityMapIntVar.keySet()) {
@@ -102,8 +101,9 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 
 				if (otherVar == null)
 					continue;
+				if (!equals(otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)),
+						equalityMap.get(equalityMapIntVar.get(otherVar)))) {
 
-				if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)).equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
 					EqualsAssertion assertion = new EqualsAssertion();
 					assertion.source = var;
 					assertion.dest = equalityMapIntVar.get(otherVar);
@@ -148,8 +148,9 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof EqualsAssertion) {
 			EqualsAssertion ass = (EqualsAssertion) assertion;
-			if (ass.source.equals(var) && equalityMap.containsKey(ass.dest))
-				return !equalityMap.get(ass.dest).equals(ass.value);
+			if (ass.source.equals(var) && equalityMap.containsKey(ass.dest)) {
+				return !equals(equalityMap.get(ass.dest), ass.value);
+			}
 		}
 		return false;
 	}
@@ -164,6 +165,23 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 		copy.equalityMap.putAll(equalityMap);
 		copy.equalityMapIntVar.putAll(equalityMapIntVar);
 		return copy;
+	}
+
+	public static boolean equals(Object a, Object b) {
+		if (a == null) {
+			return b == null;
+		}
+		else if (b == null) {
+			return false;
+		}
+
+		if(a.getClass().equals(Double.class)) {
+			return Math.abs((Double)a - (Double)b) < Properties.DOUBLE_PRECISION;
+		} else if(a.getClass().equals(Float.class)) {
+			return Math.abs((Float)a - (Float)b) < Properties.FLOAT_PRECISION;
+		} else {
+			return a.equals(b);
+		}
 	}
 
 }

@@ -73,6 +73,8 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 					continue;
 				if(other.isPrimitive())
 					continue;
+                if(other.isWrapperType())
+                    continue; // Issues with inlining resulting in unstable assertions
 
 				Object otherObject = other.getObject(scope);
 				if (otherObject == null)
