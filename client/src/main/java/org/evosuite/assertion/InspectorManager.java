@@ -95,6 +95,8 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.awt.Component",
 				Arrays.asList(new String[] { "toString", "isVisible" }));
+		blackList.put("java.awt.Container",
+				Arrays.asList(new String[] { "countComponents", "getComponentCount", "isForegroundSet", "isBackgroundSet", "isFontSet" }));
 		blackList.put("java.awt.event.MouseWheelEvent",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("javax.swing.DefaultListSelectionModel",
