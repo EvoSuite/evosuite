@@ -109,7 +109,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 					assertion.dest = equalityMapIntVar.get(otherVar);
 					assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
 					if(Properties.isRegression())
-						assertion.setcomment("// (Comp) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar)) +" | Regression Value: " + otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
+						assertion.setComment("// (Comp) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar)) +" | Regression Value: " + otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
 					assertions.add(assertion);
 					assert (assertion.isValid());
 				}
