@@ -19,6 +19,8 @@
  */
 package org.evosuite.idNaming;
 
+import static javax.lang.model.SourceVersion.isName;
+
 import codemining.java.tokenizers.JavaTokenizer;
 import codemining.languagetools.Scope;
 import org.evosuite.Properties;
@@ -65,7 +67,7 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 		if (! trainingFiles.isEmpty())
 			renamer.buildRenamingModel(trainingFiles);
 		else
-			logger.error("Training data directory \"{}\" does not contain any .java file.", Properties.VARIABLE_NAMING_TRAINING_DATA_DIR);
+			logger.warn("Training data directory \"{}\" does not contain any .java file.", Properties.VARIABLE_NAMING_TRAINING_DATA_DIR);
 		return renamer;
 	}
 
@@ -83,9 +85,11 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 			testToCodeMap.put(testCase, code);
 		}
 		String dummyName = super.getVariableName(testCase, var);
-		String name = getNaturalizeRenaming(testToCodeMap.get(testCase), dummyName);
-		variableNames.put(var, name);
-		return name;
+		if (! variableNames.containsKey(var)) {
+			String name = getNaturalizeRenaming(testToCodeMap.get(testCase), dummyName);
+			put(var, name);
+		}
+		return variableNames.get(var).name;
 	}
 
 	private String getNaturalizeRenaming(String code, String id){
@@ -95,7 +99,16 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 			logger.debug("Calling Naturalize for variable {0}:", id);
 			final SortedSet<Renaming> renamings = renamer.getRenamings(scope, id);
 			logger.debug("Renamings for variable {}: {}", id, renamings);
-			String newId = renamings.first().name;
+			Renaming[] renamingsArray = (Renaming[]) renamings.toArray();
+
+			String newId = renamingsArray[0].name;
+			int i = 1;
+			while (!isValidVariableName(newId) && i < renamingsArray.length) {
+				newId = renamingsArray[i].name;
+				i++;
+			}
+
+
 			return newId.equals("UNK_SYMBOL") ? id : newId;
 		} catch (NullPointerException e) {
 			// swallow exception
@@ -105,6 +118,9 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 
 	}
 
+	private boolean isValidVariableName(String id) {
+		return isName(id) && !id.equals("UNK_SYMBOL");
+	}
 	@Override
 	public void reset() {
 		super.reset();
@@ -113,12 +129,12 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 
 	private Collection<File> getTrainingFiles() {
 		if (Properties.VARIABLE_NAMING_TRAINING_DATA_DIR == null) {
-			logger.error("Nonexisting or empty training data directory.");
+			logger.warn("Nonexisting or empty training data directory.");
 			return new LinkedList<>();
 		}
 		File folder = new File(Properties.VARIABLE_NAMING_TRAINING_DATA_DIR);
 		if (! folder.exists()) {
-			logger.error("Training data directory \"{}\" does not exist.", Properties.VARIABLE_NAMING_TRAINING_DATA_DIR);
+			logger.warn("Training data directory \"{}\" does not exist.", Properties.VARIABLE_NAMING_TRAINING_DATA_DIR);
 			return new LinkedList<>();
 		}
 		Collection<File> listOfFiles = listFiles(folder, (dir, name) -> { return name.endsWith(".java"); });

@@ -44,13 +44,14 @@ public class DummyNamingStrategy extends AbstractVariableNamingStrategy {
 
 	@Override
 	public String getVariableName(TestCase testCase, VariableReference var) {
-		String name = variableNames.get(var);
-		if (name == null) {
+		VariableNamePair namePair = variableNames.get(var);
+		String name;
+		if (namePair == null) {
 			name = getNextVariableName();
-			variableNames.put(var, name);
-		}
+			put(var, name);
+		} else
+			name = namePair.name;
 		return name;
-
 	}
 
 	private String getNextVariableName() {

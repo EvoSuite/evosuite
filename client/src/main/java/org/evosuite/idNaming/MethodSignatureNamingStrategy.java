@@ -76,6 +76,7 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
                     if(param.equals(variableReference)) {
                         if(VariableNameCollector.getInstance().hasParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam)) {
                             String name = getUniqueName(VariableNameCollector.getInstance().getParameterName(ms.getMethod().getDeclaringClass().getCanonicalName(), ms.getMethod().getNameWithDescriptor(), numParam));
+	                        put(variableReference, name);
                             return name;
                         }
                     }
@@ -88,6 +89,7 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
                     if(param.equals(variableReference)) {
                         if(VariableNameCollector.getInstance().hasParameterName(cs.getConstructor().getDeclaringClass().getCanonicalName(), cs.getConstructor().getNameWithDescriptor(), numParam)) {
                             String name = getUniqueName(VariableNameCollector.getInstance().getParameterName(cs.getConstructor().getDeclaringClass().getCanonicalName(), cs.getConstructor().getNameWithDescriptor(), numParam));
+	                        put(variableReference, name);
                             return name;
                         }
                     }

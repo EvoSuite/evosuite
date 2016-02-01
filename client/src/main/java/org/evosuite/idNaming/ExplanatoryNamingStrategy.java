@@ -50,17 +50,14 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy {
     public String getVariableName(TestCase tc, VariableReference var) {
         ExplanatoryNamingTestVisitor visitor = new ExplanatoryNamingTestVisitor(itv);
         tc.accept(visitor);
-        variableNames = visitor.getAllVariableNames();
-	    return variableNames.get(var);
+        setVariableNames(visitor.getAllVariableNames());
+	    return variableNames.get(var).name;
     }
 
-    private void printVarNames() {
-        String format = "%-10s| %s\n";
-        System.out.printf(format, "varRef", "name");
-
-        for (Map.Entry<VariableReference,String> varEntry : variableNames.entrySet()) {
-            VariableReference var = varEntry.getKey();
-            System.out.printf(format, var, varEntry.getValue());
-        }
-    }
+	protected void setVariableNames(Map<VariableReference, String> variableNames) {
+		super.reset();
+		for (Map.Entry<VariableReference, String> entry : variableNames.entrySet()) {
+			put(entry.getKey(), entry.getValue());
+		}
+	}
 }

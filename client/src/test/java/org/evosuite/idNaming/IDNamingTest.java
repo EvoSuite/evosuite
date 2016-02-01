@@ -63,29 +63,32 @@ import java.util.TreeSet;
 public class IDNamingTest {
 
     @Test
-    public void testVariableNamesMethodCallDummyStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
-
-        // test
-        DefaultTestCase tc = createTestCaseWithPrimitiveStatements();
-
-        // check variable names
-        VariableReference var0 = tc.getStatement(0).getReturnValue();
-        VariableReference var1 = tc.getStatement(1).getReturnValue();
-
-        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DUMMY;
-        TestCodeVisitor tcv = new TestCodeVisitor();
-        tcv.initializeNamingStrategyFromProperties();
-        tcv.visitTestCase(tc);
-
-        Assert.assertEquals("Unexpected variable name", "var0", tcv.getVariableName(var0));
-        Assert.assertEquals("Unexpected variable name", "var1", tcv.getVariableName(var1));
-
-        //writeTestSuite(tc,"FooDummyNamingTest");
+    public void testSimpleVariableNamesWithDummyStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
+	    Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DUMMY;
+	    testWithTwoVariables(new String[]{"var0", "var1"});
     }
 
-    @Test
-    public void testVariableNamesMethodCallExplanatoryStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
+	@Test
+	public void testSimpleVariableNamesWithDefaultStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DEFAULT;
+		testWithTwoVariables(new String[]{"foo", "int0"});
+	}
 
+	@Test
+	public void testSimpleVariableNamesWithExplanatoryStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
+		testWithTwoVariables(new String[]{"invokesAdd", "resultFromAdd"});
+	}
+
+	@Test
+	public void testSimpleVariableNamesWithNaturalizeStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.NATURALIZE;
+		Properties.VARIABLE_NAMING_TRAINING_DATA_DIR = null; // should set this to something
+		// because there's no training data, we expect default names
+		testWithTwoVariables(new String[]{"foo", "int0"});
+	}
+
+	private void testWithTwoVariables(String[] expectedNames) throws NoSuchMethodException, ClassNotFoundException {
         // test
         DefaultTestCase tc = createTestCaseWithPrimitiveStatements();
 
@@ -93,15 +96,14 @@ public class IDNamingTest {
         VariableReference var0 = tc.getStatement(0).getReturnValue();
         VariableReference var1 = tc.getStatement(1).getReturnValue();
 
-        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
         TestCodeVisitor tcv = new TestCodeVisitor();
         tcv.initializeNamingStrategyFromProperties();
-        tcv.visitTestCase(tc);
+	    tc.accept(tcv);
 
-        Assert.assertEquals("Unexpected variable name", "invokesAdd", tcv.getVariableName(var0));
-        Assert.assertEquals("Unexpected variable name", "resultFromAdd", tcv.getVariableName(var1));
+        System.out.println(tcv.getCode()); // Force execution of strategy.finalize()
+        Assert.assertEquals("Unexpected variable name", expectedNames[0], tcv.getVariableName(var0));
+        Assert.assertEquals("Unexpected variable name", expectedNames[1], tcv.getVariableName(var1));
 
-        //writeTestSuite(tc, "FooExplanatoryNamingTest");
     }
 
     private DefaultTestCase createTestCaseWithPrimitiveStatements() throws NoSuchMethodException, ClassNotFoundException {

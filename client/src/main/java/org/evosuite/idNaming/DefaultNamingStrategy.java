@@ -62,14 +62,14 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 
 			variableName += index;
 
-			variableNames.put(var, variableName);
+			put(var, variableName);
 		}
-		return variableNames.get(var);
+		return variableNames.get(var).name;
 	}
 
 	@Override
 	public String getVariableName(TestCase testCase, VariableReference var) {
-		if (!variableNames.containsKey(var)) {
+		if (! variableNames.containsKey(var)) {
 			String className = var.getSimpleClassName();
 
 			String variableName = className.substring(0, 1).toLowerCase()
@@ -91,10 +91,10 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 
 			variableName += index;
 
-			variableNames.put(var, variableName);
+			put(var, variableName);
 		}
 
-		return variableNames.get(var);
+		return variableNames.get(var).name;
 	}
 
 	@Override

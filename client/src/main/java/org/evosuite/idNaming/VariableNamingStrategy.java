@@ -29,6 +29,9 @@ public interface VariableNamingStrategy {
 
 	String getName(TestCase testCase, VariableReference variableReference);
 
+	String getPlaceholder(TestCase test, VariableReference variableReference);
+
 	void reset();
 
+	String finalize(String testCode);
 }
