@@ -62,6 +62,7 @@ public class Reflection {
 		return sortArrayInPlace(clazz.getClasses());
 	}
 
+	// TODO: Should return mocked methods?
 	public static Method[] getMethods(Class<?> clazz) throws SecurityException {
 		return sortArrayInPlace(clazz.getMethods());
 	}
