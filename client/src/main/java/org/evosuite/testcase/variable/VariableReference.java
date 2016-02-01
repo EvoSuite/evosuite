@@ -176,6 +176,13 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	public boolean isArrayIndex();
 
 	/**
+	 * Return true if this is a reference to a public field
+	 *
+	 * @return a boolean
+	 */
+	public boolean isFieldReference();
+
+	/**
 	 * Return true if variable is a string
 	 * 
 	 * @return a boolean.

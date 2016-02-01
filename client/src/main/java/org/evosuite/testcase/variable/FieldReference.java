@@ -396,7 +396,12 @@ public class FieldReference extends VariableReferenceImpl {
 		return field.isStatic();
 	}
 
-	/* (non-Javadoc)
+    @Override
+    public boolean isFieldReference() {
+        return true;
+    }
+
+    /* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReferenceImpl#loadBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map)
 	 */
 	@Override
