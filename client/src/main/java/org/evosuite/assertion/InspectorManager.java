@@ -99,6 +99,10 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("javax.swing.DefaultListSelectionModel",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("javax.swing.JPopupMenu",
+				Arrays.asList(new String[] { "isFontSet", "getComponentCount", "isForegroundSet" }));
+		blackList.put("javax.swing.JInternalFrame",
+				Arrays.asList(new String[] {"getComponentCount", "countComponents"}));
 		blackList.put("javax.swing.text.StyleContext",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.rmi.server.ObjID",
