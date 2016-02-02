@@ -20,6 +20,7 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -64,9 +65,16 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
                 if(otherPos >= position)
                     continue; // Don't compare with variables that are not defined - may happen with primitives?
 
-				if (statement instanceof PrimitiveStatement
-				        && currentTest.getStatement(other.getStPosition()) instanceof PrimitiveStatement)
+				Statement otherStatement = currentTest.getStatement(otherPos);
+
+				if (statement instanceof PrimitiveStatement && otherStatement instanceof PrimitiveStatement)
 					continue; // Don't compare two primitives
+
+				if(otherStatement instanceof MethodStatement) {
+					if(((MethodStatement)otherStatement).getMethodName().equals("hashCode"))
+						continue; // No comparison against hashCode, as the hashCode return value will not be in the test
+				}
+
 
 				if (Properties.PURE_EQUALS) {
 					String className = object.getClass().getCanonicalName();
