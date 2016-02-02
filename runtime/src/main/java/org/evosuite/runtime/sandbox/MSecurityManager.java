@@ -510,7 +510,7 @@ public class MSecurityManager extends SecurityManager {
 
 			//it is an EvoSuite thread but, in special occasions, we might want to ignore its privileged status 
 
-			if(privilegedThreadToIgnore == null || !privilegedThreadToIgnore.equals(Thread.currentThread())){
+			if(privilegedThreadToIgnore == null || !Thread.currentThread().equals(privilegedThreadToIgnore)){
 
 				if (defaultManager == null) {
 					return true; // no security manager, so allow it
