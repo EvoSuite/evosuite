@@ -80,7 +80,7 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 				try {
 					logger.debug("Comparison of " + var + " with " + other + " is: "
 					        + object.equals(otherObject));
-					entry.addEntry(other, object.equals(otherObject));
+					entry.addEntry(other, ComparisonTraceEntry.equals(object, otherObject));
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);
 					// ignore?
