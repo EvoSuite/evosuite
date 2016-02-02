@@ -67,6 +67,15 @@ public class TestComparisonAssertion {
     }
 
     @Test
+    public void testDoubleNaN() {
+        double x = Double.NaN;
+        double y = Double.NaN;
+        double z = 43.0;
+        assertTrue(ComparisonTraceEntry.equals(x, y));
+        assertFalse(ComparisonTraceEntry.equals(x, z));
+    }
+
+    @Test
     public void testDoubleEpsilon() {
         double x = 42.0001;
         double y = 42.0002;

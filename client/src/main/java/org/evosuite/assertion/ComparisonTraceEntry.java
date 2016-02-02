@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.variable.VariableReference;
+import org.junit.Assert;
 
 /**
  * <p>ComparisonTraceEntry class.</p>
@@ -176,9 +177,21 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 		}
 
 		if(a.getClass().equals(Double.class)) {
-			return Math.abs((Double)a - (Double)b) < Properties.DOUBLE_PRECISION;
+			if (Double.compare((Double)a, (Double)b) == 0) {
+				return true;
+			}
+			if ((Math.abs((Double)a- (Double)b) <= Properties.DOUBLE_PRECISION)) {
+				return true;
+			}
+			return false;
 		} else if(a.getClass().equals(Float.class)) {
-			return Math.abs((Float)a - (Float)b) < Properties.FLOAT_PRECISION;
+			if (Float.compare((Float)a, (Float)b) == 0) {
+				return true;
+			}
+			if ((Math.abs((Float)a- (Float)b) <= Properties.FLOAT_PRECISION)) {
+				return true;
+			}
+			return false;
 		} else {
 			return a.equals(b);
 		}
