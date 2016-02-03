@@ -93,8 +93,11 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.awt.event.ActionEvent",
 				Arrays.asList(new String[] { "toString" }));
+		// TODO: Figure out how to make AWT/Swing component status deterministic between headless/non-headless
 		blackList.put("java.awt.Component",
-				Arrays.asList(new String[] { "toString", "isVisible" }));
+				Arrays.asList(new String[] { "toString", "isVisible", "isForegroundSet", "isBackgroundSet", "isFontSet", "isCursorSet",
+						"isDisplayable", "isEnabled", "isFocusable", "isFocusOwner", "isFocusTraversable", "isLightweight",
+						"isMaximumSizeSet", "isMinimumSizeSet", "isPreferredSizeSet", "isShowing", "isValid", "isVisible"}));
 		blackList.put("java.awt.Container",
 				Arrays.asList(new String[] { "countComponents", "getComponentCount", "isForegroundSet", "isBackgroundSet", "isFontSet" }));
 		blackList.put("java.awt.event.MouseWheelEvent",
@@ -102,9 +105,9 @@ public class InspectorManager {
 		blackList.put("javax.swing.DefaultListSelectionModel",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("javax.swing.JPopupMenu",
-				Arrays.asList(new String[] { "isFontSet", "getComponentCount", "isForegroundSet" }));
+				Arrays.asList(new String[] { "isFontSet", "getComponentCount", "isForegroundSet", "isBackgroundSet", "isFontSet" }));
 		blackList.put("javax.swing.JInternalFrame",
-				Arrays.asList(new String[] {"getComponentCount", "countComponents"}));
+				Arrays.asList(new String[] {"getComponentCount", "countComponents", "isForegroundSet", "isBackgroundSet", "isFontSet"}));
 		blackList.put("javax.swing.text.StyleContext",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.rmi.server.ObjID",
