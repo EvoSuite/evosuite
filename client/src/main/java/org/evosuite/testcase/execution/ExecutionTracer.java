@@ -468,10 +468,8 @@ public class ExecutionTracer {
 
 		checkTimeout();
 
-		if (Properties.DYNAMIC_SEEDING) {
-			ConstantPoolManager.getInstance().addDynamicConstant(val);
-		};
-		
+		ConstantPoolManager.getInstance().addDynamicConstant(val);
+
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true = 0.0;
 		double distance_false = 0.0;
@@ -558,10 +556,8 @@ public class ExecutionTracer {
 
 		checkTimeout();
 		
-		if (Properties.DYNAMIC_SEEDING) {
-			ConstantPoolManager.getInstance().addDynamicConstant(val1);
-			ConstantPoolManager.getInstance().addDynamicConstant(val2);
-		};
+		ConstantPoolManager.getInstance().addDynamicConstant(val1);
+		ConstantPoolManager.getInstance().addDynamicConstant(val2);
 
 		/* logger.trace("Called passedBranch2 with opcode "
 		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2

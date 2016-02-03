@@ -158,6 +158,7 @@ public class Properties {
 	public static double DYNAMIC_POOL = 0.5;
 
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
+	@Deprecated
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
 	public static boolean DYNAMIC_SEEDING = true;
 
