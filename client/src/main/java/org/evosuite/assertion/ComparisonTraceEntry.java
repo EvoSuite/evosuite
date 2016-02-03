@@ -176,7 +176,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 			return false;
 		}
 
-		if(a.getClass().equals(Double.class)) {
+		if(a.getClass().equals(Double.class) || a.getClass().equals(double.class)) {
 			if (Double.compare((Double)a, (Double)b) == 0) {
 				return true;
 			}
@@ -184,7 +184,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 				return true;
 			}
 			return false;
-		} else if(a.getClass().equals(Float.class)) {
+		} else if(a.getClass().equals(Float.class) || a.getClass().equals(float.class)) {
 			if (Float.compare((Float)a, (Float)b) == 0) {
 				return true;
 			}
