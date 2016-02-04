@@ -32,7 +32,7 @@ import org.junit.Test;
 
 
 
-public class TestShouldNotWork {
+public class TestShouldNotWorkSystemTest extends SystemTestBase {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testShouldNotWorkOnEvoSuitePackage(){
