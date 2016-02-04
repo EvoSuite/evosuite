@@ -221,7 +221,8 @@ public class ProjectAction implements Action {
 			coverage += m.getOverallCoverage();
 		}
 
-		DecimalFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
 		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
 	}
 
@@ -240,7 +241,8 @@ public class ProjectAction implements Action {
 			coverage += m.getCriterionCoverage(criterionName);
 		}
 
-		DecimalFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
 		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
 	}
 

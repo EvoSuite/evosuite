@@ -27,6 +27,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import hudson.Extension;
 import hudson.Launcher;
@@ -48,6 +51,8 @@ import net.sf.json.JSONObject;
 public class EvoSuiteRecorder extends Recorder {
 
 	public static final String LOG_PREFIX = "[EvoSuite] ";
+
+	public static final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ENGLISH);
 
 	@Extension
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();

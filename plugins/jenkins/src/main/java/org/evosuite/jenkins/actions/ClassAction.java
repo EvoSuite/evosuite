@@ -233,7 +233,8 @@ public class ClassAction implements Action {
 			coverage += criterionCoverage.getCoverageValue();
 		}
 
-		DecimalFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
 		return Double.parseDouble(formatter.format(coverage / suiteCoverage.getCoverage().size() * 100.0));
 	}
 
@@ -248,10 +249,12 @@ public class ClassAction implements Action {
 			return 0.0;
 		}
 
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
+
 		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
 		for (CriterionCoverage criterionCoverage : suiteCoverage.getCoverage()) {
 			if (criterionCoverage.getCriterion().equals(criterionName)) {
-				DecimalFormat formatter = new DecimalFormat("#0.00");
 				return Double.parseDouble(formatter.format(criterionCoverage.getCoverageValue() * 100.0));
 			}
 		}

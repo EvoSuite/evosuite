@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 import javax.xml.XMLConstants;
@@ -73,8 +74,11 @@ public class StorageManager {
 
 	private boolean isStorageOk = false;
 
+	private DecimalFormat df = null;
+
 	public StorageManager() {
 		this.isStorageOk = this.openForWriting();
+		this.df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ENGLISH);
 	}
 
 	/**
@@ -495,7 +499,8 @@ public class StorageManager {
 		}
 
 		coverage = coverage / (double) n;
-		db.setOverallCoverage(Double.parseDouble(new DecimalFormat("#0.00").format(coverage)));
+		this.df.applyPattern("#0.00");
+		db.setOverallCoverage(Double.parseDouble(this.df.format(coverage)));
 	}
 
 	/**
@@ -540,10 +545,12 @@ public class StorageManager {
 		new_coverage_test_suite.setFullPathOfTestSuite(ondisk.testSuite.getAbsolutePath());
 
 		List<CriterionCoverage> coverageValues = new ArrayList<CriterionCoverage>();
+		this.df.applyPattern("#0.00");
+
 		for (String criterion : csv.getCoverageVariables()) {
 			CriterionCoverage coverage = new CriterionCoverage();
 			coverage.setCriterion(criterion);
-			coverage.setCoverageValue(Double.parseDouble(new DecimalFormat("#0.00").format(csv.getCoverage(criterion))));
+			coverage.setCoverageValue(Double.parseDouble(this.df.format(csv.getCoverage(criterion))));
 
 			coverageValues.add(coverage);
 		}

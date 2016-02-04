@@ -27,9 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,6 +41,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.evosuite.continuous.ContinuousTestGeneration;
+import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
 
@@ -240,7 +239,8 @@ public class ModuleAction implements Action {
 			coverage += c.getOverallCoverage();
 		}
 
-		DecimalFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
 		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
 	}
 
@@ -259,7 +259,8 @@ public class ModuleAction implements Action {
 			coverage += c.getCriterionCoverage(criterionName);
 		}
 
-		DecimalFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
 		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
 	}
 
