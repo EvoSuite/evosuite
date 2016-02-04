@@ -1080,6 +1080,13 @@ public class Properties {
 	@Parameter(key = "max_coverage_depth", group = "Output", description = "Maximum depth in the calltree to count a branch as covered")
 	public static int MAX_COVERAGE_DEPTH = -1;
 
+	public enum TestNamingStrategy {
+		NUMBERED, COVERAGE
+	}
+
+	@Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
+	public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
+
 	// ---------------------------------------------------------------
 	// Sandbox
 	/** Constant <code>SANDBOX=false</code> */

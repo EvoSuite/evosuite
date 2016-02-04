@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.output;
+package org.evosuite.coverage.io.output;
 
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
@@ -29,15 +29,14 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Jose Miguel Rojas
  */
 public class OutputObserver extends ExecutionObserver {
 
-    private Map<MethodStatement, Object> returnValues = new HashMap<MethodStatement, Object>();
+    private Map<Integer, Set<OutputCoverageGoal>> outputCoverage = new LinkedHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(OutputObserver.class);
 
@@ -66,16 +65,22 @@ public class OutputObserver extends ExecutionObserver {
         if (statement instanceof MethodStatement) {
             MethodStatement methodStmt = (MethodStatement) statement;
             VariableReference varRef = methodStmt.getReturnValue();
-            try {
-                Object returnObject = varRef.getObject(scope);
-                if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
-                    // we don't save anything if there was an exception
-                    // we are only interested in methods whose return type != void
-                    returnValues.put(methodStmt, returnObject);
-                }
-            } catch(CodeUnderTestException e) {
-                // ignore?
-            }
+
+	        try {
+		        Object returnObject = varRef.getObject(scope);
+		        if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
+			        // we don't save anything if there was an exception
+			        // we are only interested in methods whose return type != void
+
+			        String className  = methodStmt.getDeclaringClassName();
+			        String methodDesc = methodStmt.getDescriptor();
+			        String methodName = methodStmt.getMethodName();
+
+			        outputCoverage.put(statement.getPosition(), OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, returnObject));
+		        }
+	        } catch (CodeUnderTestException e) {
+		        // ignore?
+	        }
         }
     }
 
@@ -85,7 +90,7 @@ public class OutputObserver extends ExecutionObserver {
     @Override
     public void testExecutionFinished(ExecutionResult r, Scope s) {
         logger.debug("Adding returnValues map to ExecutionResult");
-        r.setReturnValues(returnValues);
+        r.setOutputGoals(outputCoverage);
     }
 
     /* (non-Javadoc)
@@ -93,10 +98,7 @@ public class OutputObserver extends ExecutionObserver {
      */
     @Override
     public void clear() {
-        returnValues = new HashMap<MethodStatement, Object>();
+        outputCoverage = new LinkedHashMap<>();
     }
 
-    public Map<MethodStatement, Object> getreturnValues() {
-        return returnValues;
-    }
 }

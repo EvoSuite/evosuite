@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.input;
+package org.evosuite.coverage.io.input;
+
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
@@ -25,13 +27,8 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
 
 import java.util.*;
@@ -49,11 +46,10 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     public int maxCoveredGoals = 0;
     public double bestFitness = Double.MAX_VALUE;
 
-    // Each test gets a set of distinct covered goals, these are mapped by goal string
-    private final Map<String, TestFitnessFunction> inputCoverageMap = new HashMap<String, TestFitnessFunction>();
+    private final Set<TestFitnessFunction> inputCoverageMap = new LinkedHashSet<>();
 
-    private Set<String> toRemoveGoals = new LinkedHashSet<>();
-    private Set<String> removedGoals  = new LinkedHashSet<>();
+    private Set<TestFitnessFunction> toRemoveGoals = new LinkedHashSet<>();
+    private Set<TestFitnessFunction> removedGoals  = new LinkedHashSet<>();
 
     
     public InputCoverageSuiteFitness() {
@@ -74,7 +70,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     private void determineCoverageGoals() {
         List<InputCoverageTestFitness> goals = new InputCoverageFactory().getCoverageGoals();
         for (InputCoverageTestFitness goal : goals) {
-            inputCoverageMap.put(goal.toString(), goal);
+            inputCoverageMap.add(goal);
 			if(Properties.TEST_ARCHIVE)
 				TestsArchive.instance.addGoalToCover(this, goal);
 
@@ -93,7 +89,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
         List<ExecutionResult> results = runTestSuite(suite);
 
-        HashSet<String> setOfCoveredGoals = new HashSet<String>();
+        HashSet<TestFitnessFunction> setOfCoveredGoals = new HashSet<>();
 
         boolean hasTimeoutOrTestException = false;
 
@@ -101,22 +97,25 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             if (result.hasTimeout() || result.hasTestException()) {
                 hasTimeoutOrTestException = true;
             } else {
-                HashSet<String> strCoveredGoals = InputCoverageTestFitness.listCoveredGoals(result.getArgumentsValues());
-                for (String strGoal : strCoveredGoals) {
-                    // do nothing if it was already removed
-                    if(removedGoals.contains(strGoal)) continue;
-                    if (inputCoverageMap.containsKey(strGoal)) {
-                        // update setOfCoveredGoals
-                        setOfCoveredGoals.add(strGoal);
-                        // add covered goal to test
-                        result.test.addCoveredGoal(inputCoverageMap.get(strGoal));
-                        if(Properties.TEST_ARCHIVE) {
-                            // add goal to archive
-                            TestsArchive.instance.putTest(this, inputCoverageMap.get(strGoal), result);
-                            // mark goal to be removed for next generation
-                            toRemoveGoals.add(strGoal);
+                for (Set<InputCoverageGoal> coveredGoals : result.getInputGoals().values()) {
+                    for (InputCoverageGoal goal : coveredGoals) {
+                        InputCoverageTestFitness testFitness = new InputCoverageTestFitness(goal);
+                        // do nothing if it was already removed
+                        if (removedGoals.contains(testFitness)) continue;
+                        if (inputCoverageMap.contains(testFitness)) {
+                            // update setOfCoveredGoals
+                            setOfCoveredGoals.add(testFitness);
+                            // add covered goal to test
+                            result.test.addCoveredGoal(testFitness);
+                            if (Properties.TEST_ARCHIVE) {
+                                // add goal to archive
+                                TestsArchive.instance.putTest(this, testFitness, result);
+                                // mark goal to be removed for next generation
+                                toRemoveGoals.add(testFitness);
+                            }
+                            suite.isToBeUpdated(true);
                         }
-                        suite.isToBeUpdated(true);
+
                     }
                 }
             }
@@ -155,10 +154,9 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         if(!Properties.TEST_ARCHIVE)
             return false;
 
-        for (String strGoal : toRemoveGoals) {
-            TestFitnessFunction f = inputCoverageMap.remove(strGoal);
-            if (f != null)
-                removedGoals.add(strGoal);
+        for (TestFitnessFunction goal : toRemoveGoals) {
+            if (inputCoverageMap.remove(goal))
+                removedGoals.add(goal);
             else
                 throw new IllegalStateException("goal to remove not found");
         }
@@ -168,34 +166,18 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
     }
 
     public double computeDistance(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
-                                  List<ExecutionResult> results, HashSet<String> setOfCoveredGoals) {
-        Map<String, Double> mapDistances = new HashMap<String, Double>();
+                                  List<ExecutionResult> results, HashSet<TestFitnessFunction> setOfCoveredGoals) {
+        Map<TestFitnessFunction, Double> mapDistances = new HashMap<>();
         for (ExecutionResult result : results) {
             if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
                 continue;
 
-            Map<EntityWithParametersStatement, List<Object>> argumentsValues = result.getArgumentsValues();
-
-            for (Map.Entry<EntityWithParametersStatement, List<Object>> entry : argumentsValues.entrySet()) {
-                String className, methodDesc, methodName;
-                if (entry.getKey() instanceof MethodStatement) {
-                    GenericMethod m = ((MethodStatement) entry.getKey()).getMethod();
-                    className = m.getMethod().getDeclaringClass().getName();
-                    methodDesc = Type.getMethodDescriptor(m.getMethod());
-                    methodName = m.getName() + methodDesc;
-                } else if (entry.getKey() instanceof ConstructorStatement) {
-                    GenericConstructor c = ((ConstructorStatement) entry.getKey()).getConstructor();
-                    className = c.getName();
-                    methodDesc = Type.getConstructorDescriptor(c.getConstructor());
-                    methodName = "<init>" + methodDesc;
-                } else
-                    continue; //TODO: Do something for Mocks or Privates?
-
-                Type[] argumentTypes = Type.getArgumentTypes(methodDesc);
-
-                for (int i=0; i<argumentTypes.length; i++) {
-                    Type argType = argumentTypes[i];
-                    Object argValue = entry.getValue().get(i);
+            for (Set<InputCoverageGoal> coveredGoals : result.getInputGoals().values()) {
+                for (InputCoverageGoal goal : coveredGoals) {
+                    String className = goal.getClassName();
+                    String methodName = goal.getMethodName();
+                    Type argType = goal.getType();
+                    Number argValue = goal.getNumericValue();
                     switch (argType.getSort()) {
                         case Type.BYTE:
                         case Type.SHORT:
@@ -209,19 +191,20 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                             double value = ((Number) argValue).doubleValue();
                             if (Double.isNaN(value)) // EvoSuite generates Double.NaN
                                 continue;
-                            updateDistances(suite, mapDistances, className, methodName, i, value);
+                            updateDistances(suite, mapDistances, className, methodName, goal.getArgIndex(), argType, value);
                             break;
                         default:
                             break;
                     }
+
                 }
             }
         }
         double distance = 0.0;
-        for (String strG : inputCoverageMap.keySet()) {
-            if (!setOfCoveredGoals.contains(strG) && !removedGoals.contains(strG)) {
-                if (mapDistances.containsKey(strG)) {
-                    distance += normalize(mapDistances.get(strG));
+        for (TestFitnessFunction goal : inputCoverageMap) {
+            if (!setOfCoveredGoals.contains(goal) && !removedGoals.contains(goal)) {
+                if (mapDistances.containsKey(goal)) {
+                    distance += normalize(mapDistances.get(goal));
                 } else
                     distance += 1.0;
             }
@@ -229,10 +212,10 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         return distance;
     }
 
-    private void updateDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, Map<String, Double> mapDistances, String className, String methodName, int argIndex, double value) {
-        String goalNegative = InputCoverageFactory.goalString(className, methodName, argIndex, InputCoverageFactory.NUM_NEGATIVE);
-        String goalZero = InputCoverageFactory.goalString(className, methodName, argIndex, InputCoverageFactory.NUM_ZERO);
-        String goalPositive = InputCoverageFactory.goalString(className, methodName, argIndex, InputCoverageFactory.NUM_POSITIVE);
+    private void updateDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, Map<TestFitnessFunction, Double> mapDistances, String className, String methodName, int argIndex, Type argType, double value) {
+        TestFitnessFunction goalNegative = InputCoverageFactory.createGoal(className, methodName, argIndex, argType, NUM_NEGATIVE);
+        TestFitnessFunction goalZero = InputCoverageFactory.createGoal(className, methodName, argIndex, argType, NUM_ZERO);
+        TestFitnessFunction goalPositive = InputCoverageFactory.createGoal(className, methodName, argIndex, argType, NUM_POSITIVE);
         double distanceToNegative = 0.0;
         double distanceToZero = 0.0;
         double distanceToPositive = 0.0;

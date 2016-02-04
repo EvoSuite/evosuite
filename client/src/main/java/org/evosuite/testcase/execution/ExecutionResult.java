@@ -20,10 +20,10 @@
 package org.evosuite.testcase.execution;
 
 import org.evosuite.assertion.OutputTrace;
+import org.evosuite.coverage.io.input.InputCoverageGoal;
+import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +92,9 @@ public class ExecutionResult implements Cloneable {
 	/** Output traces produced by observers */
 	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
-	/** Mapping of method statements to actual return values */
-	private Map<MethodStatement, Object> returnValues;
+    private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
 
-	/** Mapping of method statements to actual argument values */
-	private Map<EntityWithParametersStatement, List<Object>> argumentsValues;
+    private Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
 
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
@@ -416,10 +414,8 @@ public class ExecutionResult implements Cloneable {
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
 		copy.regressionObjectDistance = regressionObjectDistance;
-		if(returnValues != null)
-			copy.returnValues = new HashMap<MethodStatement, Object>(returnValues);
-		if(argumentsValues != null)
-			copy.argumentsValues = new HashMap<EntityWithParametersStatement, List<Object>>(argumentsValues);
+		copy.inputGoals = new LinkedHashMap<>(inputGoals);
+		copy.outputGoals = new LinkedHashMap<>(outputGoals);
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
@@ -457,27 +453,24 @@ public class ExecutionResult implements Cloneable {
 		this.wasAnyPropertyWritten = wasAnyPropertyWritten;
 	}
 
-	public Map<MethodStatement, Object> getReturnValues() {
-		if (this.returnValues == null)
-			this.returnValues = new HashMap<MethodStatement, Object>(); 
-		return this.returnValues;
-	}
-
-	public void setReturnValues(Map<MethodStatement, Object> returnValues) {
-		this.returnValues = returnValues;		
-	}
-
 	public void setTest(TestCase tc) {
 		this.test = tc;
 	}
 
-	public Map<EntityWithParametersStatement, List<Object>> getArgumentsValues() {
-		if (this.argumentsValues == null)
-			this.argumentsValues = new HashMap<EntityWithParametersStatement, List<Object>>();
-		return this.argumentsValues;
+	public void setInputGoals(Map<Integer, Set<InputCoverageGoal>> coveredGoals) {
+		inputGoals.putAll(coveredGoals);
 	}
 
-	public void setArgumentsValues(Map<EntityWithParametersStatement, List<Object>> argumentsValues) {
-		this.argumentsValues = argumentsValues;
-	}	
+	public void setOutputGoals(Map<Integer, Set<OutputCoverageGoal>> coveredGoals) {
+        outputGoals.putAll(coveredGoals);
+	}
+
+	public Map<Integer, Set<InputCoverageGoal>> getInputGoals() {
+        return inputGoals;
+	}
+
+	public Map<Integer, Set<OutputCoverageGoal>> getOutputGoals() {
+		return outputGoals;
+	}
+
 }

@@ -27,6 +27,9 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
+import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
+import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.runtime.EvoAssertions;
@@ -90,6 +93,8 @@ public class TestSuiteWriter implements Opcodes {
     private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
 
     private final static String NEWLINE = System.getProperty("line.separator");
+
+    private TestNameGenerationStrategy nameGenerator = null;
 
     /**
      * Add test to suite. If the test is a prefix of an existing test, just keep
@@ -223,6 +228,14 @@ public class TestSuiteWriter implements Opcodes {
                 ExecutionResult result = runTest(test);
                 results.add(result);
             }
+        }
+
+        if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.NUMBERED) {
+            nameGenerator = new NumberedTestNameGenerationStrategy(testCases, results);
+        } else if(Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
+            nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
+        } else {
+            throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
         }
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
@@ -591,8 +604,13 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(testInfo);
             builder.append(NEWLINE);
         }
-        String methodName;
-        methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+
+        // Get the test method name generated in TestNameGenerator
+        String methodName = nameGenerator.getName(testCases.get(id));
+        if (methodName == null) {
+            // if TestNameGenerator did not generate a name, fall back to original naming
+            methodName = TestSuiteWriterUtils.getNameOfTest(testCases, number);
+        }
         builder.append(adapter.getMethodDefinition(methodName));
 
 		/*
@@ -748,7 +766,8 @@ public class TestSuiteWriter implements Opcodes {
             File file = new File(Properties.COVERED_GOALS_FILE);
             for (int i = 0; i < testCases.size(); i++) {
                 TestCase test = testCases.get(i);
-                String testName = TestSuiteWriterUtils.getNameOfTest(testCases, i);
+                String generatedName = nameGenerator.getName(test);
+                String testName = (generatedName != null) ? generatedName : TestSuiteWriterUtils.getNameOfTest(testCases, i);
                 Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
                 for (TestFitnessFunction goal : coveredGoals) {
                     builder.append(testName + "," + goal.toString() + NEWLINE);

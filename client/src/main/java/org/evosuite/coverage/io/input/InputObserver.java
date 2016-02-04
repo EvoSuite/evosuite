@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.input;
+package org.evosuite.coverage.io.input;
 
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
@@ -32,17 +32,14 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Jose Miguel Rojas
  */
 public class InputObserver extends ExecutionObserver {
 
-    private Map<EntityWithParametersStatement, List<Object>> argumentsValues = new HashMap<>();
+    private Map<Integer, Set<InputCoverageGoal>> inputCoverage = new LinkedHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(InputObserver.class);
 
@@ -69,7 +66,8 @@ public class InputObserver extends ExecutionObserver {
     public void afterStatement(Statement statement, Scope scope,
                                Throwable exception) {
         if (statement instanceof EntityWithParametersStatement) {
-            List<VariableReference> parRefs = ((EntityWithParametersStatement)statement).getParameterReferences();
+            EntityWithParametersStatement parameterisedStatement = (EntityWithParametersStatement)statement;
+            List<VariableReference> parRefs = parameterisedStatement.getParameterReferences();
 
             List<Object> argObjects = new ArrayList<>(parRefs.size());
             for (VariableReference parRef : parRefs) {
@@ -85,11 +83,15 @@ public class InputObserver extends ExecutionObserver {
                 } catch (CodeUnderTestException e) {
                     e.printStackTrace();
                 }
-
                 argObjects.add(parObject);
             }
             assert parRefs.size() == argObjects.size();
-            argumentsValues.put((EntityWithParametersStatement) statement, argObjects);
+            String className  = parameterisedStatement.getDeclaringClassName();
+            String methodDesc = parameterisedStatement.getDescriptor();
+            String methodName = parameterisedStatement.getMethodName();
+
+            inputCoverage.put(statement.getPosition(), InputCoverageGoal.createCoveredGoalsFromParameters(className, methodName, methodDesc, argObjects));
+            // argumentsValues.put((EntityWithParametersStatement) statement, argObjects);
         }
     }
 
@@ -99,7 +101,7 @@ public class InputObserver extends ExecutionObserver {
     @Override
     public void testExecutionFinished(ExecutionResult r, Scope s) {
         logger.info("Attaching argumentsValues map to ExecutionResult");
-        r.setArgumentsValues(argumentsValues);
+        r.setInputGoals(inputCoverage);
     }
 
     /* (non-Javadoc)
@@ -108,7 +110,7 @@ public class InputObserver extends ExecutionObserver {
     @Override
     public void clear() {
         logger.info("Clearing InputObserver data");
-        argumentsValues = new HashMap<EntityWithParametersStatement, List<Object>>();
+        inputCoverage = new LinkedHashMap<>();
     }
 
 }
