@@ -24,10 +24,13 @@ package org.evosuite.assertion;
 
 import com.examples.with.different.packagename.*;
 import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -116,7 +119,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] {
 				"-generateSuite", "-class", targetClass,
-				"-criterion=OUTPUT",
+				"-criterion=INPUT",
 				"-Dhtml=false", "-Djunit_tests=false", "-Dshow_progress=false",
 				"-Dassertions=true", "-Dassertion_strategy=mutation" };
 
@@ -132,7 +135,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 						test.hasAssertions());
 		}
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
-		Assert.assertEquals("Wrong number of goals: ", 2, goals);
+		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, suite.getCoverage(), 0.05);
 	}
 }
