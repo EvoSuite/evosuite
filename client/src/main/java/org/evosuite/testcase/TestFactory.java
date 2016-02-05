@@ -745,7 +745,12 @@ public class TestFactory {
 
 		} else if (clazz.isArray()) {
 
-			return createArray(test, clazz, position, recursionDepth);
+			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
+				logger.debug("Using a null reference to satisfy the type: " + type);
+				return createNull(test, type, position, recursionDepth);
+			} else {
+				return createArray(test, clazz, position, recursionDepth);
+			}
 
 		} else {
 
