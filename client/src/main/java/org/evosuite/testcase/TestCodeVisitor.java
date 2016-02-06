@@ -57,6 +57,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
+import org.evosuite.runtime.ViolatedAssumptionAnswer;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
 import org.evosuite.testcase.variable.*;
@@ -1124,6 +1125,7 @@ public class TestCodeVisitor extends TestVisitor {
 				"Mismatch between variable raw type "+rawClass+" and mocked "+targetClass;
 		String rawClassName = getClassName(rawClass);
 
+
 		//Foo foo = mock(Foo.class);
 		String variableType = getClassName(retval);
 		result += variableType + " " + getVariableName(retval);
@@ -1135,16 +1137,15 @@ public class TestCodeVisitor extends TestVisitor {
 			result += "(" + variableType+") ";
 		}
 
-		result += "mock(" + rawClassName+".class);" + NEWLINE;
+		//result += "mock(" + rawClassName+".class);" + NEWLINE;
+		result += "mock(" + rawClassName+".class, new "+ ViolatedAssumptionAnswer.class.getSimpleName()+"());" + NEWLINE;
+
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
 			if(!md.shouldBeMocked()){
 				continue;
 			}
-
-			result += "when("+getVariableName(retval)+"."+md.getMethodName()+"("+md.getInputParameterMatchers()+"))";
-			result += ".thenReturn( ";
 
 			List<VariableReference> params = st.getParameters(md.getID());
 
@@ -1166,7 +1167,14 @@ public class TestCodeVisitor extends TestVisitor {
 				parameter_string = getParameterStringForFMthatReturnPrimitive(returnType, params);
 			}
 
-			result += parameter_string + " );"+NEWLINE;
+			//this does not work when throwing exception as default answer
+//			result += "when("+getVariableName(retval)+"."+md.getMethodName()+"("+md.getInputParameterMatchers()+"))";
+//			result += ".thenReturn( ";
+//			result += parameter_string + " );"+NEWLINE;
+
+			result += "doReturn("+parameter_string+").when("+getVariableName(retval)+")";
+			result += "."+md.getMethodName()+"("+md.getInputParameterMatchers()+");";
+			result += NEWLINE;
 		}
 
 		testCode += result;

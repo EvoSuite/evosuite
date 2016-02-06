@@ -41,6 +41,7 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.runtime.ViolatedAssumptionAnswer;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
@@ -404,6 +405,7 @@ public class TestSuiteWriter implements Opcodes {
         if(doesUseMocks(results)){
             String mockito = Mockito.class.getCanonicalName();
             builder.append("import static "+mockito+".*;"+NEWLINE);
+            imports.add(ViolatedAssumptionAnswer.class);
         }
 
         if(hasException) {
@@ -459,7 +461,7 @@ public class TestSuiteWriter implements Opcodes {
             importNames.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
         }
 
-        List<String> importsSorted = new ArrayList<String>(importNames);
+        List<String> importsSorted = new ArrayList<>(importNames);
 
         Collections.sort(importsSorted);
         for (String imp : importsSorted) {
