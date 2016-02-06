@@ -714,7 +714,7 @@ public class Properties {
 	public static int CTG_CORES = 1;
 
 	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
-	public static int CTG_TIME = 1;
+	public static int CTG_TIME = 3;
 
 	@Parameter(key = "ctg_time_per_class", group = "Continuous Test Generation", description = "How many minutes to allocate for each class. If this parameter is set, then ctg_time is going to be ignored. This parameter is mainly meant for debugging purposes.")
 	public static Integer CTG_TIME_PER_CLASS = null;
