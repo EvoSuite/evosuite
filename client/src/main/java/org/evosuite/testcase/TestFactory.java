@@ -1837,9 +1837,18 @@ public class TestFactory {
 
 		if(reflectionFactory.nextUseField()){
 			Field field = reflectionFactory.nextField();
+
+			/*
+				In theory, there might be cases in which using null in PA might help increasing
+				coverage. However, likely most of the time we ll end up in useless tests throwing
+				NPE on the private fields. As we maximize the number of methods throwing exceptions,
+				we could end up with a lot of useless tests
+			 */
+			boolean allowNull = false;
+
 			parameters = satisfyParameters(test, callee,
 					//we need a reference to the SUT, and one to a variable of same type of chosen field
-					Arrays.asList((Type)field.getType()), position, recursionDepth + 1, true, false);
+					Arrays.asList((Type)field.getType()), position, recursionDepth + 1, allowNull, false);
 
 			try {
 				st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
