@@ -281,8 +281,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				assignment = new AssignmentStatement(testCase, targetFieldRef,
 				        this.oidToVarRefMap.get(arg));
 			}
-			logger.debug("Adding assignment statement: "+assignment.getCode());
 			final VariableReference varRef = testCase.addStatement(assignment);
+			logger.debug("Adding assignment statement: "+assignment.getCode());
 			if (arg != null) {
 				this.oidToVarRefMap.put(arg, varRef);
 			}
