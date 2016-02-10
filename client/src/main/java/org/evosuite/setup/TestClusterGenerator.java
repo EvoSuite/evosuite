@@ -164,7 +164,7 @@ public class TestClusterGenerator {
 			} catch (NoSuchMethodException e) {
 			}
 
-			if(constructor != null && Modifier.isPrivate(constructor.getModifiers())){
+			if(constructor != null && Modifier.isPrivate(constructor.getModifiers()) && target.getDeclaredConstructors().length==1){
 
 				Method m = null;
 				try {
