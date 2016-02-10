@@ -193,6 +193,24 @@ public class TestSuiteGenerator {
 			inliner.inline(testSuite);
 		}
 
+		/*
+		 * Remove covered goals that are not part of the minimization targets, as they
+		 * might screw up coverage analysis when a minimization timeout occurs.
+		 * This may happen e.g. when MutationSuiteFitness calls BranchCoverageSuiteFitness
+		 * which adds branch goals.
+		 */
+		// TODO: This creates an inconsistency between suite.getCoveredGoals().size() and suite.getNumCoveredGoals()
+		//       but it is not clear how to update numcoveredgoals
+		List<TestFitnessFunction> goals = new ArrayList<>();
+		for (TestFitnessFactory<?> ff : getFitnessFactories()) {
+			goals.addAll(ff.getCoverageGoals());
+		}
+		for(TestFitnessFunction f : testSuite.getCoveredGoals()) {
+			if(!goals.contains(f)) {
+				testSuite.removeCoveredGoal(f);
+			}
+		}
+
 		if (Properties.MINIMIZE) {
             ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
             // progressMonitor.setCurrentPhase("Minimizing test cases");
