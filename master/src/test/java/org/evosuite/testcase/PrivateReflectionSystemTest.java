@@ -19,29 +19,57 @@
  */
 package org.evosuite.testcase;
 
-import com.examples.with.different.packagename.reflection.CoverageIssue;
-import com.examples.with.different.packagename.reflection.OnlyPrivateMethods;
-import com.examples.with.different.packagename.reflection.PrivateFieldInPrivateMethod;
-import com.examples.with.different.packagename.reflection.PrivateFieldInPublicMethod;
+import com.examples.with.different.packagename.reflection.*;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodCoverageFitnessFunctionSystemTest;
+import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Andrea Arcuri on 02/03/15.
  */
 public class PrivateReflectionSystemTest extends SystemTestBase {
+
+    @Test
+    public void testPrivateConstructor(){
+
+        Properties.P_REFLECTION_ON_PRIVATE = 0.9;
+        Properties.REFLECTION_START_PERCENT = 0.0;
+
+        GeneticAlgorithm ga = do100percentLineTestOnStandardCriteria(PrivateConstructor.class);
+
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        assertTrue(! best.getTests().isEmpty());
+
+        double cov = best.getCoverageInstanceOf(MethodCoverageSuiteFitness.class);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, cov, 0.001);
+
+        Optional<FitnessFunction<?>> ff = ga.getFitnessFunctions().stream()
+                .filter(m -> m instanceof MethodCoverageSuiteFitness)
+                .findAny();
+
+
+        assertEquals(1, best.getNumOfCoveredGoals(ff.get()));
+    }
 
 
     @Test
