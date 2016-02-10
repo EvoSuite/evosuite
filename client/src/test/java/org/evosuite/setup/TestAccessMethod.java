@@ -236,4 +236,39 @@ public class TestAccessMethod {
 		}
 	}
 
+	@Test
+	public void testMethodReturnsUnaccessibleClass() {
+        Properties.CLASS_PREFIX = "some.package";
+        Properties.TARGET_CLASS = "some.package.Foo";
+
+		Method m = getMethod(com.examples.with.different.packagename.otherpackage.ExampleWithStaticPackagePrivateInnerClass.class,
+				"getFoo");
+		boolean result = TestUsageChecker.canUse(m,
+				com.examples.with.different.packagename.otherpackage.ExampleWithStaticPackagePrivateInnerClass.class);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testMethodUnaccessibleClassParameter() {
+        Properties.CLASS_PREFIX = "some.package";
+        Properties.TARGET_CLASS = "some.package.Foo";
+
+		Method m = getMethod(com.examples.with.different.packagename.otherpackage.ExampleWithStaticPackagePrivateInnerClass.class,
+				"setFoo");
+		boolean result = TestUsageChecker.canUse(m,
+				com.examples.with.different.packagename.otherpackage.ExampleWithStaticPackagePrivateInnerClass.class);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testAccessibleMethodInClassWithUnaccessibleClassParameterMethod() {
+        Properties.CLASS_PREFIX = "some.package";
+        Properties.TARGET_CLASS = "some.package.Foo";
+
+		Method m = getMethod(com.examples.with.different.packagename.otherpackage.ExampleWithStaticPackagePrivateInnerClass.class,
+				"bar");
+		boolean result = TestUsageChecker.canUse(m,
+				com.examples.with.different.packagename.otherpackage.ExampleWithStaticPackagePrivateInnerClass.class);
+		Assert.assertTrue(result);
+	}
 }

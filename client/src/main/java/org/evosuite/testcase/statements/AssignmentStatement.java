@@ -458,4 +458,15 @@ public class AssignmentStatement extends AbstractStatement {
 	public boolean isAssignmentStatement() {
 		return true;
 	}
+
+    @Override
+    public int getPosition() {
+        int pos = 0;
+        for(Statement s : getTestCase()) {
+            if(this == s)
+                return pos;
+            pos++;
+        }
+        throw new RuntimeException("Could not find position of assignment statement");
+    }
 }

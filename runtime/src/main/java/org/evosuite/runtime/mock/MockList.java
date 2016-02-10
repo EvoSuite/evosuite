@@ -35,6 +35,7 @@ import org.evosuite.runtime.mock.java.io.MockPrintWriter;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.evosuite.runtime.mock.java.lang.*;
 import org.evosuite.runtime.mock.java.net.*;
+import org.evosuite.runtime.mock.java.text.MockDateFormat;
 import org.evosuite.runtime.mock.java.text.MockSimpleDateFormat;
 import org.evosuite.runtime.mock.java.time.*;
 import org.evosuite.runtime.mock.java.time.chrono.*;
@@ -45,6 +46,7 @@ import org.evosuite.runtime.mock.javax.naming.MockInitialContext;
 import org.evosuite.runtime.mock.javax.persistence.MockPersistence;
 import org.evosuite.runtime.mock.javax.swing.MockDefaultListSelectionModel;
 import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
+import org.evosuite.runtime.mock.javax.swing.MockSpinnerDateModel;
 import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +107,9 @@ public class MockList {
 			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);
             list.add(MockCalendar.class);
+			list.add(MockDateFormat.class);
 			list.add(MockSimpleDateFormat.class);
+			list.add(MockSpinnerDateModel.class);
             //MockTimeZone, MockLocale are not actual mocks
 
 			// java.time

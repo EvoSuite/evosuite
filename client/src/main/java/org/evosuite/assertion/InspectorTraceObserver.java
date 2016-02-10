@@ -75,6 +75,11 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 			try {
 				Object target = var.getObject(scope);
 				if (target != null) {
+
+					// Don't call inspector methods on mock objects
+					if(target.getClass().getCanonicalName().contains("EnhancerByMockito"))
+						return;
+
 					Object value = i.getValue(target);
 					logger.debug("Inspector " + i.getMethodCall() + " is: " + value);
 

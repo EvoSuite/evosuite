@@ -21,6 +21,7 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -744,7 +745,12 @@ public class TestFactory {
 
 		} else if (clazz.isArray()) {
 
-			return createArray(test, clazz, position, recursionDepth);
+			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
+				logger.debug("Using a null reference to satisfy the type: " + type);
+				return createNull(test, type, position, recursionDepth);
+			} else {
+				return createArray(test, clazz, position, recursionDepth);
+			}
 
 		} else {
 
@@ -1800,8 +1806,8 @@ public class TestFactory {
             parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false);
             VariableReference callee = parameters.remove(0);
 
-			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
-                        callee,parameters);
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+                        callee, parameters, Modifier.isStatic(method.getModifiers()));
         }
 
         int newLength = test.size();
@@ -1831,9 +1837,18 @@ public class TestFactory {
 
 		if(reflectionFactory.nextUseField()){
 			Field field = reflectionFactory.nextField();
+
+			/*
+				In theory, there might be cases in which using null in PA might help increasing
+				coverage. However, likely most of the time we ll end up in useless tests throwing
+				NPE on the private fields. As we maximize the number of methods throwing exceptions,
+				we could end up with a lot of useless tests
+			 */
+			boolean allowNull = false;
+
 			parameters = satisfyParameters(test, callee,
 					//we need a reference to the SUT, and one to a variable of same type of chosen field
-					Arrays.asList((Type)field.getType()), position, recursionDepth + 1, true, false);
+					Arrays.asList((Type)field.getType()), position, recursionDepth + 1, allowNull, false);
 
 			try {
 				st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
@@ -1850,8 +1865,8 @@ public class TestFactory {
 
 			parameters = satisfyParameters(test, callee, list,position, recursionDepth + 1, true, false);
 
-			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
-					callee,parameters);
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+					callee, parameters, Modifier.isStatic(method.getModifiers()));
 		}
 
 		int newLength = test.size();

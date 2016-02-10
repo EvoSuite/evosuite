@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.Scope;
@@ -139,18 +140,22 @@ public class PrimitiveExpression extends AbstractStatement {
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
-		Object o1 = scope.getObject(leftOperand);
-		Object o2 = scope.getObject(rightOperand);
-		switch (operator) {
-		case EQUALS:
-			if (o1 == o2) {
-				scope.setObject(retval, true);
-			} else {
-				scope.setObject(retval, true);
+		try {
+			Object o1 = leftOperand.getObject(scope);
+			Object o2 = rightOperand.getObject(scope);
+			switch (operator) {
+				case EQUALS:
+					if (o1 == o2) {
+						scope.setObject(retval, true);
+					} else {
+						scope.setObject(retval, true);
+					}
+					break;
+				default:
+					throw new UnsupportedOperationException("Method execute not implemented!");
 			}
-			break;
-		default:
-			throw new UnsupportedOperationException("Method execute not implemented!");
+		} catch(CodeUnderTestException e) {
+			return e;
 		}
 		return null;
 	}

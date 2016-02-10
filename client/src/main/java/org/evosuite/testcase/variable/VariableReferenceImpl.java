@@ -219,6 +219,11 @@ public class VariableReferenceImpl implements VariableReference {
 		return false;
 	}
 
+	@Override
+	public boolean isFieldReference() {
+		return false;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 

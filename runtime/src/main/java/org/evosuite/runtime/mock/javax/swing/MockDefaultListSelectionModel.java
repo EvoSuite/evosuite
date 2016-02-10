@@ -22,7 +22,8 @@ public class MockDefaultListSelectionModel extends DefaultListSelectionModel imp
         } catch (Throwable t) {
            // ignore
         }
-        return DefaultListSelectionModel.class.getName() + " " + Integer.toString(System.identityHashCode(this)) + " " + s;
+        // Integer.toString(System.identityHashCode(this))  -- Ignoring hash code in string
+        return DefaultListSelectionModel.class.getName() + " " +  s;
     }
 
 }

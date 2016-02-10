@@ -183,7 +183,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     /*
                      * Add goal to ExceptionCoverageFactory
                      */
-                    ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(methodIdentifier, exceptionClass, type);
+                    ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(Properties.TARGET_CLASS, methodIdentifier, exceptionClass, type);
                     String key = goal.getKey();
                     if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);

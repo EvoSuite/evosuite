@@ -17,8 +17,11 @@
  * You should have received a copy of the GNU Lesser Public License along
  * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.input;
+package org.evosuite.coverage.io.input;
 
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
+
+import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -30,9 +33,7 @@ import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Array;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -58,94 +59,6 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             throw new IllegalArgumentException("goal cannot be null");
         }
         this.goal = goal;
-    }
-
-    public static HashSet<String> listCoveredGoals(Map<EntityWithParametersStatement, List<Object>> argumentsValues) {
-        HashSet<String> results = new HashSet<String>();
-
-        for (Entry<EntityWithParametersStatement, List<Object>> entry : argumentsValues.entrySet()) {
-            String className, methodDesc, methodName;
-            if (entry.getKey() instanceof MethodStatement) {
-                GenericMethod m = ((MethodStatement) entry.getKey()).getMethod();
-                className = m.getMethod().getDeclaringClass().getName();
-                methodDesc = Type.getMethodDescriptor(m.getMethod());
-                methodName = m.getName() + methodDesc;
-            } else if (entry.getKey() instanceof ConstructorStatement) {
-                GenericConstructor c = ((ConstructorStatement) entry.getKey()).getConstructor();
-                className = c.getName();
-                methodDesc = Type.getConstructorDescriptor(c.getConstructor());
-                methodName = "<init>" + methodDesc;
-            } else
-                continue; //TODO: Do something for Mocks or Privates?
-
-            Type[] argTypes = Type.getArgumentTypes(methodDesc);
-
-            for (int i=0;i<argTypes.length;i++) {
-                Type argType = argTypes[i];
-                Object argValue = entry.getValue().get(i);
-                String goalSuffix = "";
-                switch (argType.getSort()) {
-                    case Type.BOOLEAN:
-                        if (((boolean) argValue))
-                            goalSuffix = InputCoverageFactory.BOOL_TRUE;
-                        else
-                            goalSuffix = InputCoverageFactory.BOOL_FALSE;
-                        break;
-                    case Type.CHAR:
-                        char c = (char) argValue;
-                        if (Character.isAlphabetic(c))
-                            goalSuffix = InputCoverageFactory.CHAR_ALPHA;
-                        else if (Character.isDigit(c))
-                            goalSuffix = InputCoverageFactory.CHAR_DIGIT;
-                        else
-                            goalSuffix = InputCoverageFactory.CHAR_OTHER;
-                        break;
-                    case Type.BYTE:
-                    case Type.SHORT:
-                    case Type.INT:
-                    case Type.FLOAT:
-                    case Type.LONG:
-                    case Type.DOUBLE:
-                        // assert (argValue instanceof Number); // not always true: char can be assigned to integers
-                        double value;
-
-                        if (argValue instanceof Character) {
-                            value = ((Number) ((int) (char) argValue)).doubleValue();
-                        } else {
-                            value = ((Number) argValue).doubleValue();
-                        }
-
-                        if (value < 0)
-                            goalSuffix = InputCoverageFactory.NUM_NEGATIVE;
-                        else if (value == 0)
-                            goalSuffix = InputCoverageFactory.NUM_ZERO;
-                        else
-                            goalSuffix = InputCoverageFactory.NUM_POSITIVE;
-                        break;
-                    case Type.ARRAY:
-                        if (argValue == null)
-                            goalSuffix = InputCoverageFactory.REF_NULL;
-                        else {
-                            if (Array.getLength(argValue) == 0)
-                                goalSuffix = InputCoverageFactory.EMPTY_ARRAY;
-                            else
-                                goalSuffix = InputCoverageFactory.NONEMPTY_ARRAY;
-                        }
-                        break;
-                    case Type.OBJECT:
-                        if (argValue == null)
-                            goalSuffix = InputCoverageFactory.REF_NULL;
-                        else
-                            goalSuffix = InputCoverageFactory.REF_NONNULL;
-                        break;
-                    default:
-                        break;
-                }
-                if (!goalSuffix.isEmpty())
-                    results.add(InputCoverageFactory.goalString(className, methodName, i, goalSuffix));
-            }
-        }
-        return results;
     }
 
     /**
@@ -177,7 +90,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
      *
      * @return a {@link String} object.
      */
-    public String getType() {
+    public Type getType() {
         return goal.getType();
     }
 
@@ -205,13 +118,13 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        HashSet<String> strGoals = listCoveredGoals(result.getArgumentsValues());
-        for (String strGoal : strGoals) {
-            if (strGoal.equals(goal.toString())) {
+        for(Set<InputCoverageGoal> goals : result.getInputGoals().values()) {
+            if(goals.contains(goal)) {
                 fitness = 0.0;
                 break;
             }
         }
+
         updateIndividual(this, individual, fitness);
         return fitness;
     }
@@ -221,7 +134,7 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
      */
     @Override
     public String toString() {
-        return goal.toString();
+        return "[Input]: "+goal.toString();
     }
 
     /**

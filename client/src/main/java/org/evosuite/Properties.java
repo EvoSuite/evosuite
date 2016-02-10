@@ -158,6 +158,7 @@ public class Properties {
 	public static double DYNAMIC_POOL = 0.5;
 
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
+	@Deprecated
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
 	public static boolean DYNAMIC_SEEDING = true;
 
@@ -720,7 +721,7 @@ public class Properties {
 	public static int CTG_CORES = 1;
 
 	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
-	public static int CTG_TIME = 1;
+	public static int CTG_TIME = 3;
 
 	@Parameter(key = "ctg_time_per_class", group = "Continuous Test Generation", description = "How many minutes to allocate for each class. If this parameter is set, then ctg_time is going to be ignored. This parameter is mainly meant for debugging purposes.")
 	public static Integer CTG_TIME_PER_CLASS = null;
@@ -1047,6 +1048,12 @@ public class Properties {
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
 
+	@Parameter(key = "float_precision", group = "Output", description = "Precision to use in float comparisons and assertions")
+	public static float FLOAT_PRECISION = 0.01F;
+
+	@Parameter(key = "double_precision", group = "Output", description = "Precision to use in double comparisons and assertions")
+	public static double DOUBLE_PRECISION = 0.01;
+
 	//@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
 	//public static boolean OLD_STATISTICS = false;
 
@@ -1082,6 +1089,13 @@ public class Properties {
 	/** Constant <code>MAX_COVERAGE_DEPTH=-1</code> */
 	@Parameter(key = "max_coverage_depth", group = "Output", description = "Maximum depth in the calltree to count a branch as covered")
 	public static int MAX_COVERAGE_DEPTH = -1;
+
+	public enum TestNamingStrategy {
+		NUMBERED, COVERAGE
+	}
+
+	@Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
+	public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
 
 	// ---------------------------------------------------------------
 	// Sandbox

@@ -172,6 +172,11 @@ public class TestSuiteGenerator {
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
 
+        // If overall time is short, the search might not have had enough time
+        // to come up with a suite without timeouts. However, they will slow down
+        // the rest of the process, and may lead to invalid tests
+        testSuite.getTestChromosomes().removeIf(t -> t.getLastExecutionResult() != null && t.getLastExecutionResult().hasTimeout());
+
         if (Properties.CTG_SEEDS_FILE_OUT != null) {
             TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
         } else if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
@@ -186,6 +191,24 @@ public class TestSuiteGenerator {
 			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
 
 			inliner.inline(testSuite);
+		}
+
+		/*
+		 * Remove covered goals that are not part of the minimization targets, as they
+		 * might screw up coverage analysis when a minimization timeout occurs.
+		 * This may happen e.g. when MutationSuiteFitness calls BranchCoverageSuiteFitness
+		 * which adds branch goals.
+		 */
+		// TODO: This creates an inconsistency between suite.getCoveredGoals().size() and suite.getNumCoveredGoals()
+		//       but it is not clear how to update numcoveredgoals
+		List<TestFitnessFunction> goals = new ArrayList<>();
+		for (TestFitnessFactory<?> ff : getFitnessFactories()) {
+			goals.addAll(ff.getCoverageGoals());
+		}
+		for(TestFitnessFunction f : testSuite.getCoveredGoals()) {
+			if(!goals.contains(f)) {
+				testSuite.removeCoveredGoal(f);
+			}
 		}
 
 		if (Properties.MINIMIZE) {
@@ -312,7 +335,7 @@ public class TestSuiteGenerator {
 			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
 		}
 	}
-	
+
 	 /**
      * Compile and run the given tests. Remove from input list all tests that do not compile, and handle the
      * cases of instability (either remove tests or comment out failing assertions)

@@ -136,29 +136,52 @@ public class BooleanHelper {
 	 *            a double.
 	 * @return a int.
 	 */
-	public static int doubleSub(double d1, double d2) {
+	public static int doubleSubG(double d1, double d2) {
 		if (d1 == d2) {
-			if (Properties.DYNAMIC_SEEDING) {
-				ConstantPoolManager.getInstance().addDynamicConstant(d1);
-			};
+			ConstantPoolManager.getInstance().addDynamicConstant(d1);
 			return 0;
 		} else {
-			double diff = d1 - d2;
-			double diff2 = diff / (1.0 + Math.abs(diff));
-			if(Double.isNaN(d1) || Double.isNaN(d2) || Double.isInfinite(d1)  || Double.isInfinite(d2)) {
-				return Double.compare(d1, d2);
+			// Bytecode spec: If either number is NaN, the integer 1 is pushed onto the stack
+			if(Double.isNaN(d1) || Double.isNaN(d2)) {
+				return 1;
 			}
-			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
-			int d3 = (int) (diff2 < 0 ? Math.floor(Integer.MAX_VALUE * diff2)
-			        : Math.ceil(Integer.MAX_VALUE * diff2));
-			if (Properties.DYNAMIC_SEEDING) {
-				ConstantPoolManager.getInstance().addDynamicConstant(d1);
-				ConstantPoolManager.getInstance().addDynamicConstant(d2);
-			};
-			return d3;
+
+			return doubleSubHelper(d1, d2);
 		}
 	}
 
+	public static int doubleSubL(double d1, double d2) {
+		if (d1 == d2) {
+			ConstantPoolManager.getInstance().addDynamicConstant(d1);
+			return 0;
+		} else {
+			// Bytecode spec: If either number is NaN, the integer -1 is pushed onto the stack
+			if(Double.isNaN(d1) || Double.isNaN(d2)) {
+				return -1;
+			}
+
+			return doubleSubHelper(d1, d2);
+		}
+	}
+
+
+	private static int doubleSubHelper(double d1, double d2) {
+		if(Double.isInfinite(d1) || Double.isInfinite(d2)) {
+			return Double.compare(d1, d2);
+		}
+
+		double diff = d1 - d2;
+		double diff2 = diff / (1.0 + Math.abs(diff));
+		//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+		int d3 = (int) (diff2 < 0 ? Math.floor(Integer.MAX_VALUE * diff2)
+				: Math.ceil(Integer.MAX_VALUE * diff2));
+		if(d3 == 0)
+			d3 = (int)Math.signum(diff);
+
+		ConstantPoolManager.getInstance().addDynamicConstant(d1);
+		ConstantPoolManager.getInstance().addDynamicConstant(d2);
+		return d3;
+	}
 	/**
 	 * Replacement function for float comparison
 	 * 
@@ -168,26 +191,48 @@ public class BooleanHelper {
 	 *            a float.
 	 * @return a int.
 	 */
-	public static int floatSub(float f1, float f2) {
+	public static int floatSubG(float f1, float f2) {
 		if (f1 == f2) {
-			if (Properties.DYNAMIC_SEEDING) {
-				ConstantPoolManager.getInstance().addDynamicConstant(f1);
-			};
+			ConstantPoolManager.getInstance().addDynamicConstant(f1);
 			return 0;
 		} else {
-			double diff = f1 - f2;
-			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
-			if(Float.isNaN(f1) || Float.isNaN(f2) || Float.isInfinite(f1) || Float.isInfinite(f2)) {
-				return Float.compare(f1, f2);
+			// Bytecode spec: If either number is NaN, the integer 1 is pushed onto the stack
+			if(Float.isNaN(f1) || Float.isNaN(f2)) {
+				return 1;
 			}
-			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
-			if (Properties.DYNAMIC_SEEDING) {
-				ConstantPoolManager.getInstance().addDynamicConstant(f1);
-				ConstantPoolManager.getInstance().addDynamicConstant(f2);
-			};
-			return d3;
+
+			return floatSubHelper(f1, f2);
 		}
 	}
+
+	public static int floatSubL(float f1, float f2) {
+		if (f1 == f2) {
+			ConstantPoolManager.getInstance().addDynamicConstant(f1);
+			return 0;
+		} else {
+			// Bytecode spec: If either number is NaN, the integer -1 is pushed onto the stack
+			if(Float.isNaN(f1) || Float.isNaN(f2)) {
+				return -1;
+			}
+			return floatSubHelper(f1, f2);
+		}
+	}
+
+	private static int floatSubHelper(float f1, float f2) {
+
+		if(Float.isInfinite(f1) || Float.isInfinite(f2)) {
+			return Float.compare(f1, f2);
+		}
+		double diff = (double)f1 - (double)f2;
+		double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+		int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+		if(d3 == 0)
+			d3 = (int)Math.signum(diff);
+		ConstantPoolManager.getInstance().addDynamicConstant(f1);
+		ConstantPoolManager.getInstance().addDynamicConstant(f2);
+		return d3;
+	}
+
 
 	/**
 	 * <p>
@@ -220,18 +265,14 @@ public class BooleanHelper {
 	 */
 	public static int longSub(long l1, long l2) {
 		if (l1 == l2) {
-			if (Properties.DYNAMIC_SEEDING) {
-				ConstantPoolManager.getInstance().addDynamicConstant(l1);
-			};
+			ConstantPoolManager.getInstance().addDynamicConstant(l1);
 			return 0;
 		} else {
-			double diff = l1 - l2;
+			double diff = (double)l1 - (double)l2;
 			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
-			if (Properties.DYNAMIC_SEEDING) {
-				ConstantPoolManager.getInstance().addDynamicConstant(l1);
-				ConstantPoolManager.getInstance().addDynamicConstant(l2);
-			};
+			ConstantPoolManager.getInstance().addDynamicConstant(l1);
+			ConstantPoolManager.getInstance().addDynamicConstant(l2);
 			return d3;
 		}
 	}

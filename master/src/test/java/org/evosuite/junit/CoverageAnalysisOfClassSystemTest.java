@@ -179,7 +179,7 @@ public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
 		OutputVariable<?> outputCoverage = (OutputVariable<?>) result.getOutputVariables().get(RuntimeVariable.OutputCoverage.name());
 
 		Assert.assertEquals("Unexpected method coverage value", 1d, (Double) methodCoverage.getValue(), 0.01);
-		Assert.assertEquals("Unexpected input coverage value", 0.73d, (Double) inputCoverage.getValue(), 0.01);
+		Assert.assertEquals("Unexpected input coverage value", 0.67d, (Double) inputCoverage.getValue(), 0.01);
 		Assert.assertEquals("Unexpected output coverage value", 0.33d, (Double) outputCoverage.getValue(), 0.01);
 	}
 }
