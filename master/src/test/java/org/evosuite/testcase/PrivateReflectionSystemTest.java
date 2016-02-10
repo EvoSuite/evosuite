@@ -48,7 +48,19 @@ import static org.junit.Assert.assertTrue;
 public class PrivateReflectionSystemTest extends SystemTestBase {
 
     @Test
-    public void testPrivateConstructor(){
+    public void testPrivateConstructorNoMinimize() {
+        Properties.MINIMIZE = false;
+        testPrivateConstructor();
+    }
+
+    @Test
+    public void testPrivateConstructorWithMinimize() {
+        Properties.MINIMIZE = true;
+        testPrivateConstructor();
+    }
+
+
+    private void testPrivateConstructor(){
 
         Properties.P_REFLECTION_ON_PRIVATE = 0.9;
         Properties.REFLECTION_START_PERCENT = 0.0;
@@ -68,7 +80,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
                 .findAny();
 
 
-        assertEquals(1, best.getNumOfCoveredGoals(ff.get()));
+        assertEquals(2, best.getNumOfCoveredGoals(ff.get()));
     }
 
 

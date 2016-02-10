@@ -47,6 +47,7 @@ import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassAnalyzer;
@@ -136,6 +137,8 @@ public class TestClusterGenerator {
 		logger.info("Resolving dependencies");
 		resolveDependencies(blackList);
 
+		handleSpecialCases();
+
 		logger.info("Removing unusable generators");
 		TestCluster.getInstance().removeUnusableGenerators();
 
@@ -146,6 +149,39 @@ public class TestClusterGenerator {
 		gatherStatistics();
 	}
 
+
+	private void handleSpecialCases(){
+
+		if(Properties.P_REFLECTION_ON_PRIVATE > 0 && Properties.REFLECTION_START_PERCENT < 1){
+
+			//Check if we should add PrivateAccess.callDefaultConstructorOfTheClassUnderTest()
+
+			Class<?> target = Properties.getTargetClass();
+
+			Constructor<?> constructor = null;
+			try {
+				constructor = target.getDeclaredConstructor();
+			} catch (NoSuchMethodException e) {
+			}
+
+			if(constructor != null && Modifier.isPrivate(constructor.getModifiers())){
+
+				Method m = null;
+				try {
+					m = PrivateAccess.class.getDeclaredMethod("callDefaultConstructorOfTheClassUnderTest");
+				} catch (NoSuchMethodException e) {
+					logger.error("Missing method: "+e.toString());
+					return;
+				}
+
+				GenericMethod gm = new GenericMethod(m, PrivateAccess.class);
+
+				//It is not really an environment method, but not sure how else to handle it...
+				TestCluster.getInstance().addEnvironmentTestCall(gm);
+			}
+		}
+
+	}
 
 	public void addNewDependencies(List<Class<?>> rawTypes){
 

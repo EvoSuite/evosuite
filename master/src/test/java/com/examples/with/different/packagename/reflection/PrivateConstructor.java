@@ -1,7 +1,9 @@
 package com.examples.with.different.packagename.reflection;
 
-public class PrivateConstructor {
+public final class PrivateConstructor {
 
     private PrivateConstructor(){
     }
+
+    public static void doNothing(){}
 }
