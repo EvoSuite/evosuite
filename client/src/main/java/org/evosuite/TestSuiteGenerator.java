@@ -37,6 +37,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSearchListener;
@@ -441,12 +442,6 @@ public class TestSuiteGenerator {
 	private TestSuiteChromosome generateTests() {
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
-
-		if (TestCluster.getInstance().getNumTestCalls() == 0) {
-			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
-			                                         + Properties.TARGET_CLASS);
-			return new TestSuiteChromosome();
-		}
 
 		ContractChecker checker = null;
 		if (Properties.CHECK_CONTRACTS) {

@@ -19,11 +19,13 @@
  */
 package org.evosuite.runtime;
 
+import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.InjectionList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -137,6 +139,69 @@ public class PrivateAccess {
         }
     }
 
+    /**
+     * Call the default constructor of the class under test.
+     * This is useful to avoid low coverage due to private constructors in final
+     * classes used to prevent instantiating them (eg those classes only have
+     * static methods)
+     *
+     * @param klass
+     * @param <T>
+     * @throws Throwable
+     */
+    @Constraints(atMostOnce = true, notMutable = true)
+    public static  void callDefaultConstructorOfTheClassUnderTest() throws Throwable{
+
+        //FIXME likely this is wrong
+        Class<?> cut = PrivateAccess.class.getClassLoader().loadClass(RuntimeSettings.className);
+        callDefaultConstructor(cut);
+    }
+
+    /**
+     * Call the default constructor of the given klass.
+     * This is useful to avoid low coverage due to private constructors in final
+     * classes used to prevent instantiating them (eg those classes only have
+     * static methods)
+     *
+     * @param klass
+     * @param <T>
+     * @throws Throwable
+     */
+    @Constraints(atMostOnce = true, noNullInputs = true, notMutable = true)
+    public static <T> void callDefaultConstructor(Class<T> klass) throws Throwable{
+
+        //TODO: not only should be atMostOnce in a test, but in the whole suite/archive
+
+        if(klass == null){
+            throw new IllegalArgumentException("No specified class");
+        }
+
+        //RuntimeSettings
+
+        Constructor<T> constructor;
+        try {
+            constructor = klass.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            String message = "Default constructor does not exist anymore";
+            if(shouldNotFailTest){
+                throw new FalsePositiveException(message);
+            } else {
+                throw new IllegalArgumentException(message);
+            }
+        }
+
+        assert constructor != null;
+        constructor.setAccessible(true);
+
+        try {
+            constructor.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new FalsePositiveException("Failed to call the default constructor of "+klass.getName()+": "+e.toString());
+        } catch (InvocationTargetException e) {
+            //we need to propagate the real cause to the test
+            throw e.getTargetException();
+        }
+    }
 
     /**
      * Use reflection to call the given method
