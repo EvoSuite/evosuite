@@ -86,6 +86,14 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
                     + " " + goalFactory.getCoverageGoals().size());
         }
 
+		if(!canGenerateTestsForSUT()) {
+			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
+					+ Properties.TARGET_CLASS);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+
+			return new TestSuiteChromosome();
+		}
+
 		// Need to shuffle goals because the order may make a difference
 		if (Properties.SHUFFLE_GOALS) {
 			// LoggingUtils.getEvoLogger().info("* Shuffling goals");
