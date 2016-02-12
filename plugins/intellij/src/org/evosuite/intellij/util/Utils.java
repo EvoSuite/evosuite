@@ -71,8 +71,14 @@ public class Utils {
     }
 
     public static String getFullClassPath(Module m){
+
+
         String cp = "";
-        cp += CompilerPaths.getModuleOutputPath(m,false);
+
+        String moduleOutputPath = CompilerPaths.getModuleOutputPath(m,false);
+        if(moduleOutputPath != null && new File(moduleOutputPath).exists()) {
+            cp += moduleOutputPath;
+        }
 
         for(VirtualFile vf : OrderEnumerator.orderEntries(m).recursively().getClassesRoots()){
             String entry = new File(vf.getPath()).getAbsolutePath();
@@ -88,7 +94,15 @@ public class Utils {
                 continue;
             }
 
-            cp += File.pathSeparator + entry;
+            if(! new File(entry).exists()){
+                continue;
+            }
+
+            if(cp==null || cp.isEmpty()){
+                cp = entry;
+            } else {
+                cp += File.pathSeparator + entry;
+            }
         }
         return cp;
     }
