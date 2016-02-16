@@ -21,12 +21,12 @@
 
 
 # How to run EvoSuite
-EVOSUITE="$HOME/java8/jdk1.8.0_45/bin/java  -Xmx400M  -jar $HOME/evosuite/evosuite-master-1.0.1-SNAPSHOT.jar"
+EVOSUITE="$HOME/java8/jdk1.8.0_45/bin/java  -Xmx400M  -jar $HOME/evosuite/evosuite-master-1.0.3-SNAPSHOT.jar"
 
 # Location of SF110
 CASESTUDY_DIR="$HOME/SF110/dist"
 
-CONFIG_NAME = "1.0.1"
+CONFIG_NAME = "1.0.3"
 
 EXPERIMENT_NAME="EvoSuite"
 
