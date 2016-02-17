@@ -112,7 +112,7 @@ public class ProcessRunner {
         Module module = null;
         for(Module m : ModuleManager.getInstance(project).getModules()){
             String modulePath = Utils.getFolderLocation(m);
-            if(modulePath.equals(folderPath)){
+            if(folderPath.equals(modulePath)){
                 module = m;
                 break;
             }

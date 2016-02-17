@@ -29,6 +29,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Arrays;
@@ -55,15 +56,21 @@ public class Utils {
         return pom.exists();
     }
 
+    @Nullable
     public static String getFolderLocation(Module module){
         ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
         VirtualFile[] contentRoots = rootManager.getContentRoots(); //TODO check why IntelliJ does return an array here
+
+        if(contentRoots==null || contentRoots.length==0){
+            return null;
+        }
+
         return new File(contentRoots[0].getCanonicalPath()).getAbsolutePath();
     }
 
     public static Module getModule(Project project, String folderLocation){
         for(Module m : ModuleManager.getInstance(project).getModules()){
-            if(getFolderLocation(m).equals(folderLocation)){
+            if(folderLocation.equals(getFolderLocation(m))){
                 return m;
             }
         }

@@ -31,16 +31,12 @@ public class ModulesInfo {
             for(VirtualFile sourceRoot : ModuleRootManager.getInstance(module).getSourceRoots()){
                 String path = new File(sourceRoot.getCanonicalPath()).getAbsolutePath();
                 roots.add(path);
-                /*
-                if(getModuleFolder(projectDir, path) != null) {
-                    roots.add(path);
-                } else {
-                    //should never happen? above code comes from when we were only supporting Maven. maybe now deprecated/convoluted?
-                }
-                */
             }
 
-            modulePaths.add(Utils.getFolderLocation(module));
+            String mp = Utils.getFolderLocation(module);
+            if(mp != null) {
+                modulePaths.add(mp);
+            }
         }
 
         projectDir = new File(project.getBaseDir().getCanonicalPath()).getAbsolutePath(); //note: need "File" to avoid issues in Windows
