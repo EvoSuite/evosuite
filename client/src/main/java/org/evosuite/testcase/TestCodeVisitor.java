@@ -1289,8 +1289,10 @@ public class TestCodeVisitor extends TestVisitor {
 				result += getClassName(retval) + " ";
 			}
 		}
-		if (exception != null && !test.isFailing())
+		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
 			result += "try { " + NEWLINE + "  ";
+		}
+
 
 		String parameter_string = getParameterString(method.getParameterTypes(),
 		                                             parameters, isGenericMethod,
@@ -1343,7 +1345,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 
-		if (exception != null && !test.isFailing()) {
+		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
@@ -1487,9 +1489,7 @@ public class TestCodeVisitor extends TestVisitor {
 		                                            constructor.isOverloaded(parameters),
 		                                            startPos);
 
-		// String result = ((Class<?>) retval.getType()).getSimpleName()
-		// +" "+getVariableName(retval)+ " = null;\n";
-		if (exception != null) {
+		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
 			String className = getClassName(retval);
 
 			// FIXXME: Workaround for primitives:
@@ -1503,28 +1503,20 @@ public class TestCodeVisitor extends TestVisitor {
 		} else {
 			result += getClassName(retval) + " ";
 		}
-		if (isNonStaticMemberClass) {
 
+		if (isNonStaticMemberClass) {
 			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
-			        // + new GenericClass(
-			        // constructor.getDeclaringClass().getEnclosingClass()).getSimpleName()
 			        + ".new "
-			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-			        // + getTypeName(constructor.getOwnerType()) + "("
 			        + getSimpleTypeName(constructor.getOwnerType()) + "("
-			        // + getClassName(constructor.getDeclaringClass()) + "("
 			        + parameterString + ");";
-
 		} else {
-
 			result += getVariableName(retval) + " = new "
 			        + getTypeName(constructor.getOwnerType())
-			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
 			        + "(" + parameterString + ");";
 		}
 
-		if (exception != null) {
+		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
