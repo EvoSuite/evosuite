@@ -56,7 +56,7 @@ public class SystemTestBase {
 
 	private static java.util.Properties currentProperties;
 
-	private static Criterion[] standardCriteria = Properties.CRITERION;
+	protected static Criterion[] standardCriteria = Properties.CRITERION;
 
 	static {
 		String s = System.getProperty(ALREADY_SETUP);
@@ -134,6 +134,7 @@ public class SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = standardCriteria;
+
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

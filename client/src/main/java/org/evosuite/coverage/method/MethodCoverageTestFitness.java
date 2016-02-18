@@ -25,7 +25,6 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-import org.objectweb.asm.Type;
 
 import java.util.Set;
 

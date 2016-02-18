@@ -145,16 +145,13 @@ public class PrivateAccess {
      * classes used to prevent instantiating them (eg those classes only have
      * static methods)
      *
-     * @param klass
-     * @param <T>
      * @throws Throwable
      */
     @Constraints(atMostOnce = true, notMutable = true)
-    public static  void callDefaultConstructorOfTheClassUnderTest() throws Throwable{
+    public static Object callDefaultConstructorOfTheClassUnderTest() throws Throwable{
 
-        //FIXME likely this is wrong
-        Class<?> cut = PrivateAccess.class.getClassLoader().loadClass(RuntimeSettings.className);
-        callDefaultConstructor(cut);
+        Class<?> cut = Thread.currentThread().getContextClassLoader().loadClass(RuntimeSettings.className);
+        return callDefaultConstructor(cut);
     }
 
     /**
@@ -168,7 +165,7 @@ public class PrivateAccess {
      * @throws Throwable
      */
     @Constraints(atMostOnce = true, noNullInputs = true, notMutable = true)
-    public static <T> void callDefaultConstructor(Class<T> klass) throws Throwable{
+    public static <T> T callDefaultConstructor(Class<T> klass) throws Throwable{
 
         //TODO: not only should be atMostOnce in a test, but in the whole suite/archive
 
@@ -194,7 +191,7 @@ public class PrivateAccess {
         constructor.setAccessible(true);
 
         try {
-            constructor.newInstance();
+            return constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new FalsePositiveException("Failed to call the default constructor of "+klass.getName()+": "+e.toString());
         } catch (InvocationTargetException e) {
@@ -450,7 +447,7 @@ public class PrivateAccess {
         }
 
         try {
-            return PrivateAccess.class.getDeclaredMethod("callMethod",types.toArray(new Class[0]));
+            return PrivateAccess.class.getDeclaredMethod("callMethod", types.toArray(new Class[0]));
         } catch (NoSuchMethodException e) {
             logger.error(""+e.getMessage());
             return null;
