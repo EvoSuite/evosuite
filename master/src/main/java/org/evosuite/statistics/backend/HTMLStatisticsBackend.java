@@ -58,8 +58,6 @@ public class HTMLStatisticsBackend implements StatisticsBackend {
 
 	@Override
 	public void writeData(Chromosome result, Map<String, OutputVariable<?>> data) {
-		if (!Properties.HTML)
-			return;
 
 		new File(getReportDir().getAbsolutePath() + "/img").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/html/files/").mkdirs();

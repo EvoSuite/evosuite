@@ -93,7 +93,6 @@ public class SystemTestBase {
 		Properties.IS_RUNNING_A_SYSTEM_TEST = true;
 		RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
 
-		Properties.HTML = false;
 		Properties.SHOW_PROGRESS = false;
 		Properties.SERIALIZE_RESULT = false;
 		Properties.JUNIT_TESTS = false;
