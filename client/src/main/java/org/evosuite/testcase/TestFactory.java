@@ -926,6 +926,15 @@ public class TestFactory {
 			//do not use FM as possible callees
 			if(test.getStatement(ref.getStPosition()) instanceof FunctionalMockStatement){
 				iter.remove();
+				continue;
+			}
+
+			int boundPosition = ConstraintHelper.getLastPositionOfBounded(ref, test);
+			if(boundPosition >= 0 && boundPosition >= statement.getPosition()){
+				// if bounded variable, cannot add methods before its initialization, and so cannot be
+				// used as a callee
+				iter.remove();
+				continue;
 			}
 		}
 
