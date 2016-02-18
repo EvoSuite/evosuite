@@ -1026,8 +1026,9 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 				result += getClassName(retval) + " ";
 			}
 		}
-		if (exception != null && !test.isFailing())
+		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
 			result += "try " + BRACE_OPEN + NEWLINE + "  ";
+		}
 
 		String parameter_string = getParameterString(method.getParameterTypes(),
 				parameters, isGenericMethod,
@@ -1080,7 +1081,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 
-		if (exception != null && !test.isFailing()) {
+		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
@@ -1190,9 +1191,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 				constructor.isOverloaded(parameters),
 				startPos);
 
-		// String result = ((Class<?>) retval.getType()).getSimpleName()
-		// +" "+getVariablePlaceholder(retval)+ " = null;\n";
-		if (exception != null) {
+		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
 			String className = getClassName(retval);
 
 			// FIXXME: Workaround for primitives:
@@ -1206,28 +1205,20 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		} else {
 			result += getClassName(retval) + " ";
 		}
+
 		if (isNonStaticMemberClass) {
-
 			result += getVariablePlaceholder(retval) + " = "
-					+ getVariablePlaceholder(parameters.get(0))
-					// + new GenericClass(
-					// constructor.getDeclaringClass().getEnclosingClass()).getSimpleName()
-					+ ".new "
-					// + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-					// + getTypeName(constructor.getOwnerType()) + "("
-					+ getSimpleTypeName(constructor.getOwnerType()) + "("
-					// + getClassName(constructor.getDeclaringClass()) + "("
-					+ parameterString + ");";
-
+			        + getVariablePlaceholder(parameters.get(0))
+			        + ".new "
+			        + getSimpleTypeName(constructor.getOwnerType()) + "("
+			        + parameterString + ");";
 		} else {
-
 			result += getVariablePlaceholder(retval) + " = new "
-					+ getTypeName(constructor.getOwnerType())
-					// + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-					+ "(" + parameterString + ");";
+			        + getTypeName(constructor.getOwnerType())
+			        + "(" + parameterString + ");";
 		}
 
-		if (exception != null) {
+		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
