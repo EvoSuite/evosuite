@@ -79,6 +79,12 @@ public class InjectionSystemTest extends SystemTestBase {
         doTest(InjectionWithInheritance.class);
     }
 
+
+    @Test
+    public void testInjectionWithSimpleMethods(){
+        doTest(InjectionWithSimpleMethods.class);
+    }
+
     @Test
     public void testCombination(){
         doTest(InjectionWithInheritance.class);

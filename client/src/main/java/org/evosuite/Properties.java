@@ -850,10 +850,6 @@ public class Properties {
 	@Parameter(key = "plot", group = "Output", description = "Create plots of size and fitness")
 	public static boolean PLOT = false;
 
-	/** Constant <code>HTML=true</code> */
-	@Parameter(key = "html", group = "Output", description = "Create html reports")
-	public static boolean HTML = true;
-
 	/** Constant <code>COVERAGE_MATRIX=false</code> */
 	@Parameter(key = "coverage_matrix", group = "Output", description = "Create a coverage matrix (each row represents the coverage a test case, and each column represents one goal")
 	public static boolean COVERAGE_MATRIX = false;
