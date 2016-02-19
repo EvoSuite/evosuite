@@ -249,6 +249,17 @@ public class TestAccessMethod {
 	}
 
 	@Test
+	public void testMethodReturnsUnaccessibleClass2() throws ClassNotFoundException {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.ClassWithPrivateInnerClass";
+
+		Class<?> clazz = Class.forName("com.examples.with.different.packagename.ClassWithPrivateInnerClass");
+		Method m = getMethod(clazz, "getProperty");
+		boolean result = TestUsageChecker.canUse(m, clazz);
+		Assert.assertFalse(result);
+	}
+
+	@Test
 	public void testMethodUnaccessibleClassParameter() {
         Properties.CLASS_PREFIX = "some.package";
         Properties.TARGET_CLASS = "some.package.Foo";
