@@ -1173,7 +1173,10 @@ public class TestCodeVisitor extends TestVisitor {
 //			result += ".thenReturn( ";
 //			result += parameter_string + " );"+NEWLINE;
 
-			result += "doReturn("+parameter_string+").when("+getVariableName(retval)+")";
+			// TODO: This is a workaround - doReturn only takes single arguments
+			parameter_string = "doReturn(" + parameter_string.replaceAll(", ", ").doReturn(") + ")";
+			// result += "doReturn("+parameter_string+").when("+getVariableName(retval)+")";
+			result += parameter_string+".when("+getVariableName(retval)+")";
 			result += "."+md.getMethodName()+"("+md.getInputParameterMatchers()+");";
 			result += NEWLINE;
 		}
