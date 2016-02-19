@@ -51,7 +51,7 @@ public class AllAssertionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] {
 		        //EvoSuite.JAVA_CMD,
-		        "-generateTests", "-class", targetClass, "-Dhtml=false", "-Dplot=false",
+		        "-generateTests", "-class", targetClass, "-Dplot=false",
 		        "-Djunit_tests=false", "-Dshow_progress=false",
 		        "-Dgenerations=" + generations, "-assertions",
 		        "-Dassertion_strategy=all", "-Dserialize_result=true" };

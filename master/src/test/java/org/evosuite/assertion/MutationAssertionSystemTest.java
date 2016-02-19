@@ -50,7 +50,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] {
 		        //EvoSuite.JAVA_CMD,
-		        "-generateTests", "-class", targetClass, "-Dhtml=false", "-Dplot=false",
+		        "-generateTests", "-class", targetClass, "-Dplot=false",
 		        "-Djunit_tests=false", "-Dshow_progress=false",
 		        "-Dgenerations=" + generations, "-assertions",
 		        "-Dassertion_strategy=mutation", "-Dserialize_result=true" };
@@ -120,7 +120,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 		String[] command = new String[] {
 				"-generateSuite", "-class", targetClass,
 				"-criterion=INPUT",
-				"-Dhtml=false", "-Djunit_tests=false", "-Dshow_progress=false",
+				"-Djunit_tests=false", "-Dshow_progress=false",
 				"-Dassertions=true", "-Dassertion_strategy=mutation" };
 
 		Object result = evosuite.parseCommandLine(command);
