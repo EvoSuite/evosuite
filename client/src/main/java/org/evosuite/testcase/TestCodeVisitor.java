@@ -727,20 +727,34 @@ public class TestCodeVisitor extends TestVisitor {
 		Object value = assertion.getValue();
 
 		if (source.isPrimitive() || source.isWrapperType()) {
-			if (source.getVariableClass().equals(float.class) || source.getVariableClass().equals(Float.class)) {
+			if (source.getVariableClass().equals(float.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariableName(source) + ", "
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
 				else
 					testCode += "assertNotEquals(" + getVariableName(source) + ", "
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
-			} else if (source.getVariableClass().equals(double.class) || source.getVariableClass().equals(Double.class)) {
+			} else if (source.getVariableClass().equals(Float.class)) {
+					if (((Boolean) value).booleanValue())
+						testCode += "assertEquals((float) " + getVariableName(source) + ", "
+								+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
+					else
+						testCode += "assertNotEquals((float) " + getVariableName(source) + ", "
+								+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
+			} else if (source.getVariableClass().equals(double.class)) {
                 if (((Boolean) value).booleanValue())
                     testCode += "assertEquals(" + getVariableName(source) + ", "
                             + getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
                 else
                     testCode += "assertNotEquals(" + getVariableName(source) + ", "
                             + getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
+			} else if (source.getVariableClass().equals(Double.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals((double) " + getVariableName(source) + ", "
+							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
+				else
+					testCode += "assertNotEquals((double) " + getVariableName(source) + ", "
+							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
             } else if(source.isWrapperType()) {
                 if (((Boolean) value).booleanValue())
                     testCode += "assertTrue(" + getVariableName(source) + ".equals((" + this.getClassName(Object.class) +")"
