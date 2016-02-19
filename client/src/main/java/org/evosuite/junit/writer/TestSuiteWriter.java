@@ -216,7 +216,7 @@ public class TestSuiteWriter implements Opcodes {
             TestCase test = testCases.get(i);
             boolean added = false;
             if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
-                logger.warn("Using cached result");
+                logger.info("Using cached result");
                 for(ExecutionResult result : cachedResults) {
                     if(result != null && result.test == test) {
                         results.add(result);
