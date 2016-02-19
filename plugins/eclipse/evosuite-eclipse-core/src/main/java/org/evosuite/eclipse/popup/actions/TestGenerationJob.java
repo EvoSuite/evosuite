@@ -641,7 +641,6 @@ public class TestGenerationJob extends Job {
 
 //		if (!"true".equals(target.getProject().getPersistentProperty(
 //				EvoSuitePropertyPage.REPORT_PROP_KEY))) {
-//			commands.add("-Dhtml=false");
 //			//commands.add("-Dstatistics_backend=none");
 //		} else {
 //			if ("true".equals(target.getProject().getPersistentProperty(
