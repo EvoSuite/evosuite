@@ -79,7 +79,7 @@ public class Inspector implements Serializable {
 		if(needsSandbox) {
 			Sandbox.goingToExecuteSUTCode();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+			// Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		}
 		Object ret = null;
 
@@ -87,7 +87,7 @@ public class Inspector implements Serializable {
 			ret = this.method.invoke(object);
 		} finally {
 			if(needsSandbox) {
-				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+				// Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				Sandbox.doneWithExecutingSUTCode();
 				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			}
