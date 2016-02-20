@@ -315,7 +315,7 @@ public class TestUsageChecker {
             return false;
         }
 
-        if (!m.getReturnType().equals(String.class) && !canUse(m.getReturnType())) {
+        if (!m.getReturnType().equals(String.class) && (!canUse(m.getReturnType()) || !canUse(m.getGenericReturnType()))) {
             return false;
         }
 
