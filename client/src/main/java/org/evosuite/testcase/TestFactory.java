@@ -779,7 +779,7 @@ public class TestFactory {
 				return test.getStatement(returnPos).getReturnValue();
 			}
 
-			return createObject(test, type, position, recursionDepth, generatorRefToExclude, canUseMocks);
+			return createObject(test, type, position, recursionDepth, generatorRefToExclude, allowNull, canUseMocks);
 		}
 	}
 
@@ -1093,7 +1093,7 @@ public class TestFactory {
 
 	public VariableReference createObject(TestCase test, Type type, int position,
 										  int recursionDepth, VariableReference generatorRefToExclude) throws ConstructionFailedException {
-		return createObject(test,type,position,recursionDepth,generatorRefToExclude,true);
+		return createObject(test,type,position,recursionDepth,generatorRefToExclude,true,true);
 	}
 
 		/**
@@ -1107,7 +1107,7 @@ public class TestFactory {
          * @throws ConstructionFailedException
          */
 	public VariableReference createObject(TestCase test, Type type, int position,
-	        int recursionDepth, VariableReference generatorRefToExclude, boolean canUseFunctionalMocks) throws ConstructionFailedException {
+	        int recursionDepth, VariableReference generatorRefToExclude, boolean allowNull, boolean canUseFunctionalMocks) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
 		VariableReference ret;
@@ -1142,6 +1142,11 @@ public class TestFactory {
 				for(int i=position-1; i>=0; i--) {
 					Statement statement = test.getStatement(i);
 					VariableReference var = statement.getReturnValue();
+
+					if(!allowNull && ConstraintHelper.isNull(var,test)){
+						continue;
+					}
+
 					if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
 						return var;
 					}
@@ -1255,6 +1260,7 @@ public class TestFactory {
 				                                                position, recursionDepth,
 				                                                allowNull, generatorRefToExclude, canUseMocks);
 
+				assert ! (! allowNull && ConstraintHelper.isNull(reference,test));
 				assert canUseMocks || ! (test.getStatement(reference.getStPosition()) instanceof FunctionalMockStatement);
 				return reference;
 
@@ -2008,7 +2014,7 @@ public class TestFactory {
 					//}
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0, null, false); //no FM for SUT
+						callee = createObject(test, target, position, 0, null, true, false); //no FM for SUT
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {
@@ -2200,6 +2206,7 @@ public class TestFactory {
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
 			                                              recursionDepth, callee, allowNull, excludeCalleeGenerators, true);
+			assert ! (! allowNull && ConstraintHelper.isNull(var,test));
 
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {
