@@ -115,8 +115,11 @@ public class Properties {
 	public static boolean STRING_REPLACEMENT = true;
 
 	/** Constant <code>RESET_STATIC_FIELDS =false</code> */
-	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each a static field was modified")
+	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each static field was modified")
 	public static boolean RESET_STATIC_FIELDS = true;
+
+	@Parameter(key = "reset_static_field_gets", group = "Test Creation", description = "Call static constructors also after each static field was read")
+	public static boolean RESET_STATIC_FIELD_GETS = false;
 
 	/** Constant <code>RESET_STANDARD_STREAMS =false</code> */
 	@Parameter(key = "reset_standard_streams", group = "Test Creation", description = "Restore System.out, System.in and DebugGraphics.logStream after test execution")

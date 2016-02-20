@@ -590,6 +590,14 @@ public interface ExecutionTrace {
 	public void putStaticPassed(String classNameWithDots, String fieldName);
 
 	/**
+	 * Record a GETSTATIC statement
+	 *
+	 * @param classNameWithDots
+	 * @param fieldName
+	 */
+	public void getStaticPassed(String classNameWithDots, String fieldName);
+
+	/**
 	 * Retrieve if a given class's static fields were referred using PUTSTATIC.
 	 *
 	 * @return

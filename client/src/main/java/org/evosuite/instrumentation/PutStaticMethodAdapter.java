@@ -40,6 +40,8 @@ import org.objectweb.asm.Type;
 public class PutStaticMethodAdapter extends MethodVisitor {
 
 	private static final String PASSED_PUT_STATIC = "passedPutStatic";
+	private static final String PASSED_GET_STATIC = "passedGetStatic";
+
 	private final String className;
 	private final String methodName;
 
@@ -48,7 +50,6 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 	 *
 	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
 	 * @param className a {@link java.lang.String} object.
-	 * @param finalFields a {@link java.util.List} object.
 	 */
 	public PutStaticMethodAdapter(String className, String methodName,
 			MethodVisitor mv) {
@@ -65,7 +66,7 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 	public void visitFieldInsn(int opcode, String owner, String name,
 			String desc) {
 
-		if (opcode == Opcodes.PUTSTATIC
+		if ((opcode == Opcodes.PUTSTATIC || opcode == Opcodes.GETSTATIC)
 				&& !(className.equals(owner) && methodName.equals("<clinit>"))
 				&& !(className.equals(owner) && methodName.equals(ClassResetter.STATIC_RESET))) {
 			String executionTracerClassName = ExecutionTracer.class.getName()
@@ -77,8 +78,12 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 			String classNameWithDots = owner.replace('/', '.');
 			super.visitLdcInsn(classNameWithDots);
 			super.visitLdcInsn(name);
-			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-					PASSED_PUT_STATIC, executionTracerDescriptor, false);
+			if(opcode == Opcodes.PUTSTATIC)
+				super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
+						PASSED_PUT_STATIC, executionTracerDescriptor, false);
+			else
+				super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
+						PASSED_GET_STATIC, executionTracerDescriptor, false);
 		}
 		super.visitFieldInsn(opcode, owner, name, desc);
 	}

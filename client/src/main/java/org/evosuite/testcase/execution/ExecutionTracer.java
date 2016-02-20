@@ -531,6 +531,21 @@ public class ExecutionTracer {
 		
 		tracer.trace.putStaticPassed(classNameWithDots, fieldName);
 	}
+
+	public static void passedGetStatic(String classNameWithDots, String fieldName) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
+			return;
+
+		checkTimeout();
+
+		tracer.trace.getStaticPassed(classNameWithDots, fieldName);
+	}
+
+
 	/**
 	 * Called by the instrumented code each time a new branch is taken
 	 * 

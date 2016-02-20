@@ -594,6 +594,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	}
 
 	@Override
+	public void getStaticPassed(String classNameWithDots, String fieldName) {
+		trace.getStaticPassed(classNameWithDots, fieldName);
+	}
+
+	@Override
 	public Set<String> getClassesForStaticReset() {
 		return trace.getClassesForStaticReset();
 	}
