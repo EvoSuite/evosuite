@@ -27,6 +27,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationHistory;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
@@ -376,7 +377,7 @@ public class TestChromosome extends ExecutableChromosome {
 			} catch (Exception e){
 				//shouldn't really happen because, in the worst case, we could create mocks for missing parameters
 				String msg = "Functional mock problem: "+e.toString();
-				LoggingUtils.logWarnAtMostOnce(logger, msg);
+				AtMostOnceLogger.warn(logger, msg);
 				fms.fillWithNullRefs();
 				return changed;
 			}

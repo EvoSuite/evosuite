@@ -1146,15 +1146,33 @@ public class TestCodeVisitor extends TestVisitor {
 		result += variableType + " " + getVariableName(retval);
 
 		result += " = ";
-		if(! variableType.equals(rawClassName)){
+		if (!variableType.equals(rawClassName)) {
 			//this can happen in case of generics, eg
 			//Foo<String> foo = (Foo<String>) mock(Foo.class);
-			result += "(" + variableType+") ";
+			result += "(" + variableType + ") ";
 		}
 
-		//result += "mock(" + rawClassName+".class);" + NEWLINE;
-		result += "mock(" + rawClassName+".class, new "+ ViolatedAssumptionAnswer.class.getSimpleName()+"());" + NEWLINE;
+			/*
+				Tricky situation. Ideally, we would want to throw assumption error if a non-mocked method
+				is called, as to avoid false-positives when SUTs evolve.
+				However, it might well be that a test case is not updated, leaving mocks using the default
+				"null" return values. This would crash the JUnit check. Activating the  ViolatedAssumptionAnswer
+				during the search would just make things worse, as negatively effecting the search.
+				So we could just skip it, but this would effect false-positive preventions
+			 */
+		if (st.doesNeedToUpdateInputs()) {
+			try{
+				st.updateMockedMethods();
+			} catch (Exception e){
+			}
+			st.fillWithNullRefs();
 
+			//result += "mock(" + rawClassName + ".class);" + NEWLINE;
+		} else {
+			//result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+		}
+
+		result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
