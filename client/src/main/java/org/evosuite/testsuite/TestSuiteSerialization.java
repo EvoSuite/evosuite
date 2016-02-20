@@ -19,7 +19,9 @@
  */
 package org.evosuite.testsuite;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.DebuggingObjectOutputStream;
 import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
@@ -118,6 +120,10 @@ public class TestSuiteSerialization {
                     if(obj instanceof TestChromosome){
                         //this check might fail if old version is used, and EvoSuite got updated
                         TestChromosome tc = (TestChromosome) obj;
+                        for(Statement st : tc.getTestCase()){
+                            st.changeClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
+                        }
+
                         list.add(tc);
                     }
                     obj = in.readObject();
