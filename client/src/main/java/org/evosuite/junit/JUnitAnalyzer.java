@@ -286,14 +286,23 @@ public class JUnitAnalyzer {
 		if(wasSandboxOn){
 			privileged = Sandbox.resetDefaultSecurityManager();
 		}
-		
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
 
-		JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
-		Result result = runner.run(testClasses);
+		Result result = null;
+		ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
 
-		TestGenerationContext.getInstance().doneWithExecutingSUTCode();
-		
+		try {
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Thread.currentThread().setContextClassLoader(testClasses[0].getClassLoader());
+
+			JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
+			result = runner.run(testClasses);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentLoader);
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+		}
+
+
+
 		if(wasSandboxOn){
 			//only activate Sandbox if it was already active before
 			Sandbox.initializeSecurityManagerForSUT(privileged);
