@@ -32,16 +32,12 @@ import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.runtime.EvoAssertions;
-import org.evosuite.runtime.EvoRunner;
-import org.evosuite.runtime.EvoRunnerParameters;
-import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.*;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.runtime.ViolatedAssumptionAnswer;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
@@ -91,9 +87,7 @@ public class TestSuiteWriter implements Opcodes {
 
     private TestCodeVisitor visitor = new TestCodeVisitor();
 
-    private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
-
-    private final static String NEWLINE = System.getProperty("line.separator");
+    private final static String NEWLINE = java.lang.System.getProperty("line.separator");
 
     private TestNameGenerationStrategy nameGenerator = null;
 
@@ -404,7 +398,9 @@ public class TestSuiteWriter implements Opcodes {
 
         if(doesUseMocks(results)){
             String mockito = Mockito.class.getCanonicalName();
+            String extension = MockitoExtension.class.getCanonicalName();
             builder.append("import static "+mockito+".*;"+NEWLINE);
+            builder.append("import static "+extension+".*;"+NEWLINE);
             imports.add(ViolatedAssumptionAnswer.class);
         }
 

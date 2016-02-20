@@ -36,7 +36,7 @@ public class ViolatedAssumptionAnswerTest {
     @Test
     public void test(){
 
-        Foo foo = mock(Foo.class, new ViolatedAssumptionAnswer<>());
+        Foo foo = mock(Foo.class, new ViolatedAssumptionAnswer());
 
         int y = 5;
         int bar = 9;

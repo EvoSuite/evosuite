@@ -27,6 +27,7 @@ import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
+import org.evosuite.runtime.MockitoExtension;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
@@ -57,6 +58,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -156,6 +158,8 @@ public class FunctionalMockStatementTest {
     }
 
     //----------------------------------------------------------------------------------
+
+
 
 
     @Test
