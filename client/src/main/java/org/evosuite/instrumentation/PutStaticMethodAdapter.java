@@ -25,6 +25,7 @@ package org.evosuite.instrumentation;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 import org.evosuite.runtime.classhandling.ClassResetter;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -69,21 +70,26 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 		if ((opcode == Opcodes.PUTSTATIC || opcode == Opcodes.GETSTATIC)
 				&& !(className.equals(owner) && methodName.equals("<clinit>"))
 				&& !(className.equals(owner) && methodName.equals(ClassResetter.STATIC_RESET))) {
-			String executionTracerClassName = ExecutionTracer.class.getName()
-					.replace('.', '/');
-			String executionTracerDescriptor = Type.getMethodDescriptor(
-					Type.VOID_TYPE, Type.getType(String.class),
-					Type.getType(String.class));
 
 			String classNameWithDots = owner.replace('/', '.');
-			super.visitLdcInsn(classNameWithDots);
-			super.visitLdcInsn(name);
-			if(opcode == Opcodes.PUTSTATIC)
-				super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-						PASSED_PUT_STATIC, executionTracerDescriptor, false);
-			else
-				super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-						PASSED_GET_STATIC, executionTracerDescriptor, false);
+			if(RuntimeInstrumentation.checkIfCanInstrument(classNameWithDots)) {
+
+				String executionTracerClassName = ExecutionTracer.class.getName()
+						.replace('.', '/');
+				String executionTracerDescriptor = Type.getMethodDescriptor(
+						Type.VOID_TYPE, Type.getType(String.class),
+						Type.getType(String.class));
+
+
+				super.visitLdcInsn(classNameWithDots);
+				super.visitLdcInsn(name);
+				if (opcode == Opcodes.PUTSTATIC)
+					super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
+							PASSED_PUT_STATIC, executionTracerDescriptor, false);
+				else
+					super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
+							PASSED_GET_STATIC, executionTracerDescriptor, false);
+			}
 		}
 		super.visitFieldInsn(opcode, owner, name, desc);
 	}
