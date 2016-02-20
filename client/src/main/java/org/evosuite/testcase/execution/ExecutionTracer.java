@@ -287,11 +287,11 @@ public class ExecutionTracer {
 	 *            a {@link java.lang.String} object.
 	 */
 	public static void returnValue(int value, String className, String methodName) {
-		if (isThreadNeqCurrentThread())
-			return;
-
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
 			return;
 
 		//logger.trace("Return value: " + value);
