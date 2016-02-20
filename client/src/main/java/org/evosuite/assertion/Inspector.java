@@ -76,10 +76,13 @@ public class Inspector implements Serializable {
 	        IllegalAccessException, InvocationTargetException {
 
 		boolean needsSandbox = !Sandbox.isOnAndExecutingSUTCode();
+		boolean safe = Sandbox.isSafeToExecuteSUTCode();
+
 		if(needsSandbox) {
 			Sandbox.goingToExecuteSUTCode();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			// Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+			if(!safe)
+				 Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		}
 		Object ret = null;
 
@@ -87,7 +90,8 @@ public class Inspector implements Serializable {
 			ret = this.method.invoke(object);
 		} finally {
 			if(needsSandbox) {
-				// Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+				if(!safe)
+					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				Sandbox.doneWithExecutingSUTCode();
 				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			}
