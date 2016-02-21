@@ -292,15 +292,15 @@ public class Properties {
 
     @Parameter(key = "p_reflection_on_private", group = "Test Creation", description = "Probability [0,1] of using reflection to set private fields or call private methods")
     @DoubleValue(min = 0.0, max = 1.0)
-    public static double P_REFLECTION_ON_PRIVATE = 0.0; // TODO off by default. likely need something like 0.5
+    public static double P_REFLECTION_ON_PRIVATE = 0.5;
 
     @Parameter(key = "reflection_start_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which reflection fields/methods handling is activated")
     @DoubleValue(min = 0.0, max = 1.0)
-    public static double REFLECTION_START_PERCENT = 0.5;
+    public static double REFLECTION_START_PERCENT = 0.8;
 
 	@Parameter(key = "p_functional_mocking", group = "Test Creation", description = "Probability [0,1] of using functional mocking (eg Mockito) when creating object instances")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double P_FUNCTIONAL_MOCKING = 0.0; // TODO to put on once finalized
+	public static double P_FUNCTIONAL_MOCKING = 0.8;
 
 	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
 	@DoubleValue(min = 0.0, max = 1.0)

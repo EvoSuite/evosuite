@@ -28,23 +28,16 @@ import org.junit.Test;
 
 public class PAFM_SystemTest extends SystemTestBase {
 
-    @Before
-    public void init(){
-        //TODO to remove once PAFM is activated by default
-        Properties.P_REFLECTION_ON_PRIVATE = 0.5;
-        Properties.REFLECTION_START_PERCENT = 0.0;
-        Properties.P_FUNCTIONAL_MOCKING = 0.5;
-        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.3;
-    }
-
     @Test
     public void testPAFM_old(){
+        Properties.SEARCH_BUDGET = 100_000;
         do100percentLineTest(PAFM_old.class);
     }
 
 
     @Test
     public void testPAFM(){
+        Properties.SEARCH_BUDGET = 100_000;
         do100percentLineTest(PAFM.class);
     }
 }
