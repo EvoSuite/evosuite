@@ -387,30 +387,34 @@ public class TestCluster {
 	 * @throws ConstructionFailedException
 	 */
 	private void cacheGenerators(GenericClass clazz) throws ConstructionFailedException {
-		if (generatorCache.containsKey(clazz))
+
+		if (generatorCache.containsKey(clazz)) {
 			return;
-		logger.debug("1. Caching generators for " + clazz);
+		}
+
+		logger.debug("1. Caching generators for {}", clazz);
 
 		Set<GenericAccessibleObject<?>> targetGenerators = new LinkedHashSet<>();
 		if (clazz.isObject()) {
-			logger.debug("2. Target class is object: " + clazz);
+			logger.debug("2. Target class is object: {}", clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
 				if (generatorClazz.isObject()) {
 					targetGenerators.addAll(generators.get(generatorClazz));
 				}
 			}
 		} else {
-			logger.debug("2. Target class is not object: " + clazz);
+			logger.debug("2. Target class is not object: {}", clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
 				// logger.debug("3. Considering original generator: " + generatorClazz + " for " + clazz);
 
 				if (generatorClazz.canBeInstantiatedTo(clazz)) {
 					//logger.debug("4. generator " + generatorClazz + " can be instantiated to " + clazz);
 					GenericClass instantiatedGeneratorClazz = generatorClazz.getWithParametersFromSuperclass(clazz);
-					logger.debug("Instantiated type: " + instantiatedGeneratorClazz
-					        + " for " + generatorClazz + " and superclass " + clazz);
+					logger.debug("Instantiated type: {} for {} and superclass {}",
+							instantiatedGeneratorClazz,generatorClazz,  clazz);
+
 					for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
-						logger.debug("5. current instantiated generator: " + generator);
+						logger.debug("5. current instantiated generator: {}", generator);
 						try {
 							// Set owner type parameters from new return type
 							GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
@@ -419,9 +423,9 @@ public class TestCluster {
 
 							// Instantiate potential further type variables based on type variables of return type
 							if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
-								logger.debug("Instantiating type parameters of owner type: "
-								        + newGenerator.getOwnerClass());
-								GenericClass concreteClass = newGenerator.getOwnerClass().getGenericInstantiation(clazz.getTypeVariableMap());
+								logger.debug("Instantiating type parameters of owner type: {}",newGenerator.getOwnerClass());
+								GenericClass concreteClass = newGenerator.getOwnerClass()
+										.getGenericInstantiation(clazz.getTypeVariableMap());
 								newGenerator = newGenerator.copyWithNewOwner(concreteClass);
 								hadTypeParameters = true;
 							}
@@ -445,46 +449,41 @@ public class TestCluster {
 								// newGenerator = newGenerator.getGenericInstantiation(clazz);
 							}
 
-							logger.debug("Current generator: " + newGenerator);
+							logger.debug("Current generator: {}", newGenerator);
 							if ((!hadTypeParameters && generatorClazz.equals(clazz))
 							        || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
-								logger.debug("Got new generator: " + newGenerator
-								        + " which generated: "
-								        + newGenerator.getGeneratedClass());
+								logger.debug("Got new generator: {} which generated: {}",
+								         newGenerator, newGenerator.getGeneratedClass());
 								targetGenerators.add(newGenerator);
+
 							} else if (logger.isDebugEnabled()) {
-								logger.debug("New generator not assignable: "
-								        + newGenerator);
-								logger.debug("Had type parameters: " + hadTypeParameters);
-								logger.debug("generatorClazz.equals(clazz): "
-								        + generatorClazz.equals(clazz));
+
+								logger.debug("New generator not assignable: {}", newGenerator);
+								logger.debug("Had type parameters: {}", hadTypeParameters);
+								logger.debug("generatorClazz.equals(clazz): {}", generatorClazz.equals(clazz));
 								try {
-									logger.debug("clazz.isAssignableFrom("
-									        + newGenerator.getGeneratedType() + "): ");
-									logger.debug("                        "
-									        + clazz.isAssignableFrom(newGenerator.getGeneratedType()));
+									logger.debug("clazz.isAssignableFrom({}): ",newGenerator.getGeneratedType());
+									logger.debug("                        {}",
+											clazz.isAssignableFrom(newGenerator.getGeneratedType()));
 								} catch (Throwable t) {
-									logger.debug("Error: " + t);
+									logger.debug("Error",t);
 								}
 							}
 						} catch (ConstructionFailedException e) {
-							logger.debug("5. ERROR: " + e);
+							logger.debug("5. ERROR", e);
 						}
 					}
 				} else {
-					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz.toString(), clazz);
+					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz, clazz);
 					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
 						CastClassManager.getInstance().addCastClass(boundClass, 0);
 					}
 				}
 			}
-			logger.debug("Found generators for " + clazz + ": " + targetGenerators.size());
+			logger.debug("Found generators for {}: {}",clazz, targetGenerators.size());
 		}
 
-//		for (GenericAccessibleObject<?> targetGenerator : targetGenerators) {
-//			logger.debug("XXX Setting generator cache " + clazz + ": "
-//			        + String.valueOf(targetGenerator));
-//		}
+
 		logger.debug("]");
 		generatorCache.put(clazz, targetGenerators);
 	}
