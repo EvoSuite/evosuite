@@ -44,7 +44,7 @@ import org.evosuite.maven.util.ProjectUtils;
  * 
  * @author José Campos
  */
-@Mojo( name = "coverage", requiresProject = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME )
+@Mojo( name = "coverage", requiresProject = true, requiresDependencyResolution = ResolutionScope.TEST, requiresDependencyCollection = ResolutionScope.TEST )
 public class CoverageMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
