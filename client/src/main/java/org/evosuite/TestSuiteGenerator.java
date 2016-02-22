@@ -184,16 +184,6 @@ public class TestSuiteGenerator {
         	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
 
-		if (Properties.INLINE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
-			ConstantInliner inliner = new ConstantInliner();
-			// progressMonitor.setCurrentPhase("Inlining constants");
-
-			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
-
-			inliner.inline(testSuite);
-		}
-
 		/*
 		 * Remove covered goals that are not part of the minimization targets, as they
 		 * might screw up coverage analysis when a minimization timeout occurs.
@@ -247,6 +237,16 @@ public class TestSuiteGenerator {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
             ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
+		}
+
+		if (Properties.INLINE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
+			ConstantInliner inliner = new ConstantInliner();
+			// progressMonitor.setCurrentPhase("Inlining constants");
+
+			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
+
+			inliner.inline(testSuite);
 		}
 
 		if (Properties.COVERAGE) {

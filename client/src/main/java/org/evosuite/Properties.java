@@ -20,6 +20,7 @@
 package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.lm.MutationType;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
@@ -930,6 +931,26 @@ public class Properties {
 	/** Constant <code>MINIMIZE_VALUES=false</code> */
 	@Parameter(key = "minimize_values", group = "Output", description = "Minimize constants and method calls")
 	public static boolean MINIMIZE_VALUES = false;
+
+	/** Constant <code>LM_STRINGS=false</code> */
+	@Parameter(key = "lm_strings", group = "Output", description = "Use language model on strings.  The parameter minimize_values must also be true.")
+	public static boolean LM_STRINGS = false;
+
+	/** Constant <code>MINIMIZE_STRINGS=true</code> */
+	@Parameter(key = "minimize_strings", group="Output", description = "Try to minimise strings by deleting non-printables. The parameter minimize_values must also be true,")
+	public static boolean MINIMIZE_STRINGS = true;
+
+	/** Constant <code>LM_SRC=false</code> */
+	@Parameter(key = "lm_src", description = "Text file for the language model.")
+	public static String LM_SRC = "ukwac_char_lm";
+
+	/** Constant <code>LM_ITERATIONS = 1000</code> */
+	@Parameter(key = "lm_iterations", description = "Number of 1+1EA generations PER STRING PRIMITIVE for language model optimiser.")
+	public static int LM_ITERATIONS = 1000;
+
+	/** Constant <code>LM_ITERATIONS = MutationType.LANGMODEL</code> */
+	@Parameter(key = "lm_mutation_type", description = "Type of mutation to use in language model string optimiser.")
+	public static MutationType LM_MUTATION_TYPE = MutationType.EVOSUITE;
 
 	/** Constant <code>COVERAGE=true</code> */
 	@Parameter(key = "coverage", group = "Output", description = "Calculate coverage after test suite generation")

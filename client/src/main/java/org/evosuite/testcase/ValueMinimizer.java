@@ -22,6 +22,8 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.Properties;
+import org.evosuite.lm.StringLMOptimizer;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
@@ -42,7 +44,7 @@ public class ValueMinimizer extends TestVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
 
-	private static interface Minimization {
+	public static interface Minimization {
 		public boolean isNotWorse();
 	}
 
@@ -93,7 +95,7 @@ public class ValueMinimizer extends TestVisitor {
 		private double lastCoverage;
 
 		public SuiteMinimization(TestSuiteFitnessFunction fitness,
-		        TestSuiteChromosome suite, int index) {
+								 TestSuiteChromosome suite, int index) {
 			this.fitness = fitness;
 			this.suite = suite;
 			this.individual = suite.getTestChromosome(index);
@@ -133,11 +135,9 @@ public class ValueMinimizer extends TestVisitor {
 	 * <p>
 	 * minimize
 	 * </p>
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @param objective
-	 *            a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 *
+	 * @param test      a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param objective a {@link org.evosuite.testcase.TestFitnessFunction} object.
 	 */
 	public void minimize(TestChromosome test, TestFitnessFunction objective) {
 		this.objective = new TestMinimization(objective, test);
@@ -148,12 +148,10 @@ public class ValueMinimizer extends TestVisitor {
 	 * <p>
 	 * minimize
 	 * </p>
-	 * 
-	 * @param suite
-	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 * @param objective
-	 *            a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
-	 *            object.
+	 *
+	 * @param suite     a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * @param objective a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
+	 *                  object.
 	 */
 	public void minimize(TestSuiteChromosome suite, TestSuiteFitnessFunction objective) {
 		int i = 0;
@@ -169,7 +167,7 @@ public class ValueMinimizer extends TestVisitor {
 	@SuppressWarnings("unchecked")
 	private <T> void binarySearch(NumericalPrimitiveStatement<T> statement) {
 		PrimitiveStatement<T> zero = (PrimitiveStatement<T>) PrimitiveStatement.getPrimitiveStatement(statement.getTestCase(),
-		                                                                                              statement.getReturnValue().getGenericClass());
+				statement.getReturnValue().getGenericClass());
 		T max = statement.getValue();
 		T min = zero.getValue();
 		boolean positive = statement.isPositive();
@@ -210,10 +208,10 @@ public class ValueMinimizer extends TestVisitor {
 
 			lastValue = newValue;
 			logger.info("Trying " + statement.getValue() + " " + min + "/" + max + " - "
-			        + statement.getClass());
+					+ statement.getClass());
 
 			if (min.equals(max) || statement.getValue().equals(min)
-			        || statement.getValue().equals(max)) {
+					|| statement.getValue().equals(max)) {
 				done = true;
 				logger.info("Fixpoint.");
 				//assert (objective.isNotWorse());
@@ -235,6 +233,11 @@ public class ValueMinimizer extends TestVisitor {
 		}
 	}
 
+	/**
+	 * Shorten the string as much as possible, until the objective value is affected.
+	 *
+	 * @param p StringPrimitiveStatement containing a string to be minimised.
+	 */
 	private void removeCharacters(StringPrimitiveStatement p) {
 
 		String oldString = p.getValue();
@@ -254,13 +257,19 @@ public class ValueMinimizer extends TestVisitor {
 
 	/**
 	 * Try to remove non-ASCII characters
-	 * 
-	 * @param statement
+	 * <p/>
+	 * Try to shorten the string.
+	 * Performs several transformations on the string:
+	 * 1. Strip ASCII and control characters
+	 * 2. Strip any non-alphanumerics
+	 * <p/>
+	 * If any transformation negatively impacts the objective function value, then
+	 * the transformation is reversed and the next one tried.
 	 */
 	private void cleanString(StringPrimitiveStatement statement) {
 		String oldString = statement.getValue();
 		String newString = oldString.replaceAll("[^\\p{ASCII}]", "").replaceAll("\\p{Cntrl}",
-		                                                                        "");
+				"");
 		statement.setValue(newString);
 		if (!objective.isNotWorse()) {
 			statement.setValue(oldString);
@@ -273,8 +282,23 @@ public class ValueMinimizer extends TestVisitor {
 		if (!objective.isNotWorse()) {
 			statement.setValue(oldString);
 		}
+	}
 
-		removeCharacters(statement);
+	/**
+	 * Attempt to use the language model to improve the string constant.
+	 * If a better string is found that doesn't negatively impact the fitness value,
+	 * statement will be overwritten to use the new improved value.
+	 *
+	 * @param statement
+	 */
+	private void replaceWithLanguageModel(StringPrimitiveStatement statement) {
+		String oldString = statement.getValue();
+		StringLMOptimizer slmo = new StringLMOptimizer(statement, objective);
+		String newString = slmo.optimize();
+		statement.setValue(newString);
+		if (!objective.isNotWorse()) {
+			statement.setValue(oldString);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -299,7 +323,13 @@ public class ValueMinimizer extends TestVisitor {
 			logger.info("Statement after minimization: " + statement.getCode());
 		} else if (statement instanceof StringPrimitiveStatement) {
 			logger.info("Statement before minimization: " + statement.getCode());
+
 			cleanString((StringPrimitiveStatement) statement);
+			removeCharacters((StringPrimitiveStatement) statement);
+
+			if(Properties.LM_STRINGS) {
+				replaceWithLanguageModel((StringPrimitiveStatement) statement);
+			}
 			logger.info("Statement after minimization: " + statement.getCode());
 			// TODO: Try to delete characters, or at least replace non-ascii characters with ascii characters
 		}
