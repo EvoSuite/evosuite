@@ -40,7 +40,7 @@ public abstract class EPATraceFactory {
 		return collect;
 	}
 
-	private static EPATrace buildEPATrace(List<String> methodCallExecutions, EPA epa)
+	public static EPATrace buildEPATrace(List<String> methodCallExecutions, EPA epa)
 			throws MalformedEPATraceException {
 		List<String> methodCallExecutionsLeft = new ArrayList<>(methodCallExecutions);
 		final List<EPATransition> epaTransitions = new ArrayList<>();
