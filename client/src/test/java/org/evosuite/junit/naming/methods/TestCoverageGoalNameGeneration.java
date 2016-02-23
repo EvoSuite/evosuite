@@ -37,7 +37,6 @@ import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
 import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;

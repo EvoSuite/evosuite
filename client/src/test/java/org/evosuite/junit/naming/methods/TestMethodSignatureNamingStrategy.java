@@ -17,10 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.idNaming;
+package org.evosuite.junit.naming.methods;
 
 import com.examples.with.different.packagename.SimpleInteger;
 import org.evosuite.Properties;
+import org.evosuite.junit.naming.variables.VariableNameCollector;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;

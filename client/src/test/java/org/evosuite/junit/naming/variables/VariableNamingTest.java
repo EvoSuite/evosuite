@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.idNaming;
+package org.evosuite.junit.naming.variables;
 
 import com.examples.with.different.packagename.NullString;
 import com.examples.with.different.packagename.junit.Foo;
@@ -27,10 +27,9 @@ import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.junit.writer.TestSuiteWriter;
+import org.evosuite.junit.naming.variables.ExplanatoryNamingTestVisitor;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
@@ -60,7 +59,7 @@ import java.util.TreeSet;
  * @author Jose Rojas
  *
  */
-public class IDNamingTest {
+public class VariableNamingTest {
 
     @Test
     public void testSimpleVariableNamesWithDummyStrategy() throws NoSuchMethodException, ConstructionFailedException, ClassNotFoundException {
@@ -144,12 +143,6 @@ public class IDNamingTest {
         methodStmt.addAssertion(assertion);
     }
 
-    private void writeTestSuite(TestCase tc, String suiteName) {
-        TestSuiteWriter tsw = new TestSuiteWriter();
-        tsw.insertTest(tc);
-        tsw.writeTestSuite(suiteName, Properties.TEST_DIR);
-    }
-
     @Test
     public void testVariableNamesArray() throws NoSuchMethodException {
         DefaultTestCase tc = new DefaultTestCase();
@@ -202,8 +195,6 @@ public class IDNamingTest {
         Assert.assertEquals("Unexpected variable name", "newString"     , tcv.getVariableName(objectVar));
         Assert.assertEquals("Unexpected variable name", "invokesIsNull" , tcv.getVariableName(sut));
         Assert.assertEquals("Unexpected variable name", "stringArray[1]", tcv.getVariableName(ai1));
-
-        //writeTestSuite(tc, "FooExplanatoryArrayTest");
     }
 
     @Test
