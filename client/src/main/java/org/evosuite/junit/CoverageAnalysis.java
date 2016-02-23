@@ -355,7 +355,7 @@ public class CoverageAnalysis {
 				String className = reader.getClassName();
 
 				// Use default classLoader
-				Class<?> clazz = Class.forName(className.replace("/", "."), true,
+				Class<?> clazz = Class.forName(className.replace('/', '.'), true,
 				                               TestGenerationContext.getInstance().getClassLoaderForSUT());
 				LoggingUtils.restorePreviousOutAndErrStream();
 
@@ -445,8 +445,7 @@ public class CoverageAnalysis {
 			//System.setErr(outStream);
 
 			try {
-				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
-				                                                                      "."),
+				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace('/', '.'),
 				                               true,
 				                               TestGenerationContext.getInstance().getClassLoaderForSUT());
 

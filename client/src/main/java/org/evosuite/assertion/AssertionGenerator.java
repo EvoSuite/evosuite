@@ -24,6 +24,7 @@ package org.evosuite.assertion;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
@@ -115,6 +116,9 @@ public abstract class AssertionGenerator {
 		setupClassLoader(suite);
 
 		for(TestChromosome test : suite.getTestChromosomes()) {
+			if(!TimeController.getInstance().hasTimeToExecuteATestCase())
+				break;
+			
 			addAssertions(test.getTestCase());
 		}
 	}

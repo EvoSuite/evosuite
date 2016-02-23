@@ -133,7 +133,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 					assertion.inspector = methodInspectorMap.get(inspector);
 					assertion.source = var;
 					if(Properties.isRegression())
-						assertion.setcomment("// (Inspector) Original Value: "
+						assertion.setComment("// (Inspector) Original Value: "
 					        + inspectorMap.get(methodInspectorMap.get(inspector)) + " | Regression Value: "
 					        + otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
 					assertions.add(assertion);

@@ -19,6 +19,9 @@
  */
 package org.evosuite.runtime.mock.java.util;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -71,4 +74,18 @@ public class MockGregorianCalendar extends GregorianCalendar  implements Overrid
     public long getTimeInMillis() {
         return time;
     }
+
+	public static GregorianCalendar from(ZonedDateTime zdt) {
+		GregorianCalendar cal = new MockGregorianCalendar(MockTimeZone.getTimeZone(zdt.getZone()));
+		cal.setGregorianChange(new MockDate(Long.MIN_VALUE));
+		cal.setFirstDayOfWeek(MONDAY);
+		cal.setMinimalDaysInFirstWeek(4);
+		try {
+			cal.setTimeInMillis(Math.addExact(Math.multiplyExact(zdt.toEpochSecond(), 1000),
+					zdt.get(ChronoField.MILLI_OF_SECOND)));
+		} catch (ArithmeticException ex) {
+			throw new IllegalArgumentException(ex);
+		}
+		return cal;
+	}
 }

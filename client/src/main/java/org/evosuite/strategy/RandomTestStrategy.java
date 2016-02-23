@@ -76,7 +76,11 @@ public class RandomTestStrategy extends TestGenerationStrategy {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
 				goals.size());
 
-	
+		if(!canGenerateTestsForSUT()) {
+			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
+					+ Properties.TARGET_CLASS);
+			return new TestSuiteChromosome();
+		}
 		ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
 
 		StoppingCondition stoppingCondition = getStoppingCondition();

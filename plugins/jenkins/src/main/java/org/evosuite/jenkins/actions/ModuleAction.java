@@ -20,15 +20,14 @@
 package org.evosuite.jenkins.actions;
 
 import hudson.model.Action;
+import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,6 +41,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.evosuite.continuous.ContinuousTestGeneration;
+import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
 
@@ -106,10 +106,9 @@ public class ModuleAction implements Action {
 	 * @param project_info
 	 * @return
 	 */
-	public boolean build(Path project_info) {
+	public boolean build(File project_info, BuildListener listener) {
 		try {
-			File tempfile = new File(project_info.toString());
-			InputStream stream = new FileInputStream(tempfile);
+			InputStream stream = new FileInputStream(project_info);
 
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			// the following statement does not compile on Eclipse because of
@@ -125,7 +124,8 @@ public class ModuleAction implements Action {
 				ClassAction c = new ClassAction(suite, this.getBuild());
 
 				String fullPathOfTestSuite = suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 ).getFullPathOfTestSuite();
-				c.highlightSource(fullPathOfTestSuite);
+				c.highlightSource(fullPathOfTestSuite.replace(this.build.getWorkspace().getRemote(),
+						this.build.getRootDir().getAbsolutePath() + File.separator + ".." + File.separator + this.name + File.separator), listener);
 
 				this.classes.add(c);
 			}
@@ -178,12 +178,17 @@ public class ModuleAction implements Action {
 			return 0;
 		}
 
-		int effort = 0;
+		int lastId = 0;
 		for (ClassAction c : this.classes) {
-			effort += c.getTotalEffort();
+			lastId = Math.max(lastId, c.getLastId());
 		}
 
-		return (int) Math.round( ((double) effort) / ((double) this.classes.size()) );
+		int effort = 0;
+		for (ClassAction c : this.classes) {
+			effort += c.getTotalEffort(lastId);
+		}
+
+		return effort;
 	}
 
 	/**
@@ -234,7 +239,8 @@ public class ModuleAction implements Action {
 			coverage += c.getOverallCoverage();
 		}
 
-		DecimalFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
 		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
 	}
 
@@ -253,7 +259,8 @@ public class ModuleAction implements Action {
 			coverage += c.getCriterionCoverage(criterionName);
 		}
 
-		DecimalFormat formatter = new DecimalFormat("#0.00");
+		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+		formatter.applyPattern("#0.00");
 		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
 	}
 

@@ -185,7 +185,7 @@ public class MainConfig {
 	 * @return if we omit typeName from instrumentation
 	 */
 	public boolean isIgnored(String type) {
-		String typeName = type.replace("/", "."); //$NON-NLS-1$ //$NON-NLS-2$
+		String typeName = type.replace('/', '.'); //$NON-NLS-1$ //$NON-NLS-2$
 
 		for (String prefix : DO_INSTRUMENT_PREFIXES)
 			// positive list overrides exclusions

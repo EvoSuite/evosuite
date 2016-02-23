@@ -414,8 +414,8 @@ public class ExecutionResult implements Cloneable {
 		copy.explicitExceptions.putAll(explicitExceptions);
 		copy.executionTime = executionTime;
 		copy.regressionObjectDistance = regressionObjectDistance;
-        copy.inputGoals = new LinkedHashMap<>(inputGoals);
-        copy.outputGoals = new LinkedHashMap<>(outputGoals);
+		copy.inputGoals = new LinkedHashMap<>(inputGoals);
+		copy.outputGoals = new LinkedHashMap<>(outputGoals);
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}

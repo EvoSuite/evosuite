@@ -160,10 +160,10 @@ public class GetStaticGraph {
 	public Set<String> getSourceClasses() {
 		Set<String> sourceClasses = new HashSet<String>();
 		for (StaticFieldReadEntry entry : staticFieldReads) {
-			sourceClasses.add(entry.getSourceClass().replace("/", "."));
+			sourceClasses.add(entry.getSourceClass().replace('/', '.'));
 		}
 		for (StaticMethodCallEntry entry : staticMethodCalls) {
-			sourceClasses.add(entry.getSourceClass().replace("/", "."));
+			sourceClasses.add(entry.getSourceClass().replace('/', '.'));
 		}
 		return sourceClasses;
 	}
@@ -178,10 +178,10 @@ public class GetStaticGraph {
 	public Set<String> getTargetClasses() {
 		Set<String> targetClasses = new HashSet<String>();
 		for (StaticFieldReadEntry entry : staticFieldReads) {
-			targetClasses.add(entry.getTargetClass().replace("/", "."));
+			targetClasses.add(entry.getTargetClass().replace('/', '.'));
 		}
 		for (StaticMethodCallEntry entry : staticMethodCalls) {
-			targetClasses.add(entry.getTargetClass().replace("/", "."));
+			targetClasses.add(entry.getTargetClass().replace('/', '.'));
 		}
 		return targetClasses;
 	}
@@ -195,7 +195,7 @@ public class GetStaticGraph {
 	public Map<String, Set<String>> getStaticFields() {
 		Map<String, Set<String>> staticFields = new HashMap<String, Set<String>>();
 		for (StaticFieldReadEntry read : this.staticFieldReads) {
-			String className = read.getTargetClass().replace("/", ".");
+			String className = read.getTargetClass().replace('/', '.');
 			if (!staticFields.containsKey(className)) {
 				staticFields.put(className, new HashSet<String>());
 			}

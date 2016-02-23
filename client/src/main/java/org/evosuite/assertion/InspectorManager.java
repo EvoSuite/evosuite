@@ -21,12 +21,7 @@ package org.evosuite.assertion;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.mock.MockList;
@@ -90,17 +85,29 @@ public class InspectorManager {
 		blackList.put("java.util.AbstractCollection",
 				Arrays.asList(new String[] { "toString" }));
 
+		blackList.put("java.util.logging.Logger",
+				Arrays.asList(new String[] { "getUseParentHandlers" }));
+
 		// AWT identifiers are different with every run
 		blackList.put("java.awt.Panel",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.awt.event.ActionEvent",
 				Arrays.asList(new String[] { "toString" }));
+		// TODO: Figure out how to make AWT/Swing component status deterministic between headless/non-headless
 		blackList.put("java.awt.Component",
-				Arrays.asList(new String[] { "toString", "isVisible" }));
+				Arrays.asList(new String[] { "toString", "isVisible", "isForegroundSet", "isBackgroundSet", "isFontSet", "isCursorSet",
+						"isDisplayable", "isEnabled", "isFocusable", "isFocusOwner", "isFocusTraversable", "isLightweight",
+						"isMaximumSizeSet", "isMinimumSizeSet", "isPreferredSizeSet", "isShowing", "isValid", "isVisible"}));
+		blackList.put("java.awt.Container",
+				Arrays.asList(new String[] { "countComponents", "getComponentCount", "isForegroundSet", "isBackgroundSet", "isFontSet" }));
 		blackList.put("java.awt.event.MouseWheelEvent",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("javax.swing.DefaultListSelectionModel",
 				Arrays.asList(new String[] { "toString" }));
+		blackList.put("javax.swing.JPopupMenu",
+				Arrays.asList(new String[] { "isFontSet", "getComponentCount", "isForegroundSet", "isBackgroundSet", "isFontSet" }));
+		blackList.put("javax.swing.JInternalFrame",
+				Arrays.asList(new String[] {"getComponentCount", "countComponents", "isForegroundSet", "isBackgroundSet", "isFontSet"}));
 		blackList.put("javax.swing.text.StyleContext",
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.rmi.server.ObjID",
@@ -203,9 +210,10 @@ public class InspectorManager {
 
 	private void determineInspectors(Class<?> clazz) {
 		if (!TestUsageChecker.canUse(clazz)) {
-			inspectors.put(clazz, new ArrayList<>());
-			return;
+			inspectors.put(clazz, Collections.EMPTY_LIST);
 		}
+		if (!TestUsageChecker.canUse(clazz))
+			return;
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
 			if (isInspectorMethod(method)) { // FIXXME

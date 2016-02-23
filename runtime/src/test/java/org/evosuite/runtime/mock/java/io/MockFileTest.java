@@ -26,6 +26,9 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class MockFileTest {
 
 	@Test
@@ -35,7 +38,45 @@ public class MockFileTest {
 		File real = new File(name);
 		MockFile mock = new MockFile(name);
 		
-		Assert.assertEquals(real.toString(), mock.toString());
-		Assert.assertEquals(real.getPath(), mock.getPath());
+		assertEquals(real.toString(), mock.toString());
+		assertEquals(real.getPath(), mock.getPath());
 	}
+
+
+	@Test
+	public void testAssumptionOnConstructors_Real(){
+
+		String name = "base";
+
+		File base = new File(name);
+		File emptyParent = new File("",name);
+		File nullParent = new File((String)null,name);
+
+		assertEquals(base.getAbsolutePath(), nullParent.getAbsolutePath());
+		assertTrue(base.getAbsolutePath().length() > (name.length()+1));
+
+		if(emptyParent.getAbsolutePath().startsWith("/")) {
+			//Mac/Linux
+			assertEquals("/" + name, emptyParent.getAbsolutePath());
+		}
+	}
+
+	@Test
+	public void testAssumptionOnConstructors_Mock(){
+
+		String name = "base";
+
+		MockFile base = new MockFile(name);
+		MockFile emptyParent = new MockFile("",name);
+		MockFile nullParent = new MockFile((String)null,name);
+
+		assertEquals(base.getAbsolutePath(), nullParent.getAbsolutePath());
+		assertTrue(base.getAbsolutePath().length() > (name.length()+1));
+
+		if(emptyParent.getAbsolutePath().startsWith("/")) {
+			//Mac/Linux
+			assertEquals("/" + name, emptyParent.getAbsolutePath());
+		}
+	}
+
 }

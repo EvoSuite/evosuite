@@ -1,6 +1,6 @@
 source("util.R")
 
-VERSION = "1_0_2"
+VERSION = "1_0_3"
 
 GENERATED_FILES = paste("../generated_files","/",VERSION,sep="")
 SELECTION_FILE = paste("../generated_files","/","selection.txt",sep="")

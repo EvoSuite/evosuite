@@ -25,14 +25,18 @@
       <table id="evosuite-module-report" class="sortable pane bigtable">
         <tr>
           <td class="pane-header">Class</td>
+          <td class="pane-header">Overall Coverage</td>
           <td class="pane-header">Number of Tests</td>
           <td class="pane-header">Number of Statements</td>
-          <td class="pane-header">Total Effort (seconds)</td>
+          <td class="pane-header">Total Effort (minutes)</td>
         </tr>
         <j:forEach var="testableClass" items="${it.getClasses()}">
           <tr>
          	<td>
               <a href="${testableClass.getName()}"><st:out value="${testableClass.getName()}"/></a>
+            </td>
+            <td>
+              <st:out value="${testableClass.getOverallCoverage()}%"/>
             </td>
             <td>
               <st:out value="${testableClass.getNumberOfTests()}"/>

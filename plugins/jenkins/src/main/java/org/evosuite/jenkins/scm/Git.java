@@ -25,11 +25,13 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 
 import org.eclipse.jgit.transport.URIish;
+import org.evosuite.Properties;
 import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.jenkinsci.plugins.gitclient.CliGitAPIImpl;
 import org.jenkinsci.plugins.gitclient.GitClient;
 import org.jenkinsci.plugins.gitclient.PushCommand;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.LinkedHashSet;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 import hudson.EnvVars;
+import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.plugins.git.Branch;
@@ -103,20 +106,42 @@ public class Git implements SCM {
 			this.gitClient.setCommitter("jenkins", "jenkins@localhost.com");
 			this.gitClient.checkoutBranch(branchName, "HEAD");
 
-			// parse list of new and modified files
-			String status = ((CliGitAPIImpl) this.gitClient).launchCommand("ls-files", "--deleted", "--modified",
-					"--others", SCM.TESTS_DIR_TO_COMMIT);
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Status (" + status.length() + "):\n" + status);
+			EnvVars env = build.getEnvironment(listener);
+			env.overrideAll(build.getBuildVariables());
 
-			if (status.isEmpty()) {
-				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
-				return true;
-			}
-
-			for (String toCommit : status.split("\\R")) {
-				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "commit: " + toCommit);
-				// TODO check whether toCommit (which is a path of a file) exists
-				this.gitClient.add(toCommit);
+			try {
+				// parse list of new and modified files
+				String status = ((CliGitAPIImpl) this.gitClient).launchCommand("ls-files", "--deleted", "--modified",
+						"--others", SCM.TESTS_DIR_TO_COMMIT);
+				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Status (" + status.length() + "):\n" + status);
+	
+				if (status.isEmpty()) {
+					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
+					return true;
+				}
+	
+				for (String toCommit : status.split("\\R")) {
+					if (new File(toCommit).exists()) {
+						listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "commit: " + toCommit);
+						this.gitClient.add(toCommit);
+					}
+				}
+			} catch (ClassCastException e) {
+				// FIXME when building a project remotely, we just have access to a GitClient of type
+				// RemoteGitImpl, which cannot be cast to CliGitAPIImpl. and therefore, we cannot use
+				// launchCommand method. as a workaround, we can simple add all files under .evosuite/best-tests
+				// and hopefully git will take care of the rest. GitClient already supports the creation
+				// of a new branch, checkout some branch, add files to be committed, commmit, push, etc.
+				// there must be a way of getting the list of modified / new / deleted files just using
+				// GitClient, however we still do not know how to get that.
+				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage() + "\nTrying a different approach!");
+				FilePath[] filesToCommit = build.getWorkspace().list(build.getEnvironment(listener).expand(
+						Properties.CTG_DIR + File.separator + Properties.CTG_BESTS_DIR_NAME + File.separator +
+						"**" + File.separator + "*"));
+				for (FilePath fileToCommit : filesToCommit) {
+					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "commit: " + fileToCommit.getRemote());
+					this.gitClient.add(fileToCommit.getRemote());
+				}
 			}
 
 			// commit
@@ -126,6 +151,11 @@ public class Git implements SCM {
 			this.gitClient.commit(commit_msg);
 
 		} catch (InterruptedException e) {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commit failed " + e.getMessage());
+			e.printStackTrace();
+			this.rollback(build, listener);
+			return false;
+		} catch (IOException e) {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commit failed " + e.getMessage());
 			e.printStackTrace();
 			this.rollback(build, listener);

@@ -24,10 +24,13 @@ package org.evosuite.assertion;
 
 import com.examples.with.different.packagename.*;
 import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +50,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] {
 		        //EvoSuite.JAVA_CMD,
-		        "-generateTests", "-class", targetClass, "-Dhtml=false", "-Dplot=false",
+		        "-generateTests", "-class", targetClass, "-Dplot=false",
 		        "-Djunit_tests=false", "-Dshow_progress=false",
 		        "-Dgenerations=" + generations, "-assertions",
 		        "-Dassertion_strategy=mutation", "-Dserialize_result=true" };
@@ -116,8 +119,8 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] {
 				"-generateSuite", "-class", targetClass,
-				"-criterion=OUTPUT",
-				"-Dhtml=false", "-Djunit_tests=false", "-Dshow_progress=false",
+				"-criterion=INPUT",
+				"-Djunit_tests=false", "-Dshow_progress=false",
 				"-Dassertions=true", "-Dassertion_strategy=mutation" };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -132,7 +135,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 						test.hasAssertions());
 		}
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
-		Assert.assertEquals("Wrong number of goals: ", 2, goals);
+		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, suite.getCoverage(), 0.05);
 	}
 }

@@ -42,8 +42,14 @@ public class PrimitiveFieldTraceObserver extends
 			if (var == null)
 				return;
 
-			if(statement.isAssignmentStatement() && statement.getReturnValue().isArrayIndex())
-				return;
+			if(statement.isAssignmentStatement()) {
+				if(statement.getReturnValue().isArrayIndex()) {
+					return;
+				}
+				if(statement.getReturnValue().isFieldReference()) {
+					return;
+				}
+			}
 
 
 			Object object = var.getObject(scope);

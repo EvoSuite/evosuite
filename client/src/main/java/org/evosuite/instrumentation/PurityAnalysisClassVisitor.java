@@ -97,13 +97,13 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 
 
 		if (visitingInterface == true) {
-			purityAnalyzer.addInterfaceMethod(className.replace("/", "."),
+			purityAnalyzer.addInterfaceMethod(className.replace('/', '.'),
 					name, descriptor);
 		} else {
-			purityAnalyzer.addMethod(className.replace("/", "."), name,
+			purityAnalyzer.addMethod(className.replace('/', '.'), name,
 					descriptor);
 			if ((methodAccess & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT) {
-				purityAnalyzer.addMethodWithBody(className.replace("/", "."), name,
+				purityAnalyzer.addMethodWithBody(className.replace('/', '.'), name,
 					descriptor);
 			} else {
 				// The declaration of this method is abstract. So 

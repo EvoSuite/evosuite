@@ -80,7 +80,8 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		
 		String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-
+		Properties.MAX_ARRAY = 2;
+		Properties.NULL_PROBABILITY = 0.2;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -88,7 +89,7 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(12, goals.size());
-		//Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
 	@Test

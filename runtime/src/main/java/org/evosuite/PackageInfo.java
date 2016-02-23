@@ -34,7 +34,7 @@ public class PackageInfo {
     }
 
     public static String getEvoSuitePackageWithSlash(){
-        return getEvoSuitePackage().replace(".", "/");
+        return getEvoSuitePackage().replace('.', '/');
     }
 
     /**
@@ -46,7 +46,7 @@ public class PackageInfo {
     }
 
     public static String getNameWithSlash(Class<?> klass){
-        return klass.getName().replace(".","/");
+        return klass.getName().replace('.', '/');
     }
 
 

@@ -510,7 +510,7 @@ public class MSecurityManager extends SecurityManager {
 
 			//it is an EvoSuite thread but, in special occasions, we might want to ignore its privileged status 
 
-			if(privilegedThreadToIgnore == null || !privilegedThreadToIgnore.equals(Thread.currentThread())){
+			if(privilegedThreadToIgnore == null || !Thread.currentThread().equals(privilegedThreadToIgnore)){
 
 				if (defaultManager == null) {
 					return true; // no security manager, so allow it
@@ -1127,6 +1127,7 @@ public class MSecurityManager extends SecurityManager {
 					|| library.equals("cmm") || library.equals("t2k") 
 					|| library.equals("jawt") || library.equals("sunec")  
 					|| library.equals("management") || library.equals("kcms")
+					|| library.equals("dcpr") || library.equals("mlib_image")
 					|| library.startsWith("jaybird") || library.equals("instrument")
 					|| library.startsWith("osxui") || library.contains("libawt_lwawt")
 					|| library.contains("libawt_headless") || library.contains("libawt_xawt")

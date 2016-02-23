@@ -25,6 +25,7 @@ package org.evosuite.testcase;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
@@ -79,8 +80,12 @@ public class ConcreteValueObserver extends ExecutionObserver {
 			// Don't need to collect primitive statement values
 			return;
 		}
-		Object object = scope.getObject(statement.getReturnValue());
-		concreteValues.put(numStatement, object);
+		try {
+			Object object = statement.getReturnValue().getObject(scope);
+			concreteValues.put(numStatement, object);
+		} catch(CodeUnderTestException e) {
+			// Ignore
+		}
 	}
 
 	/* (non-Javadoc)

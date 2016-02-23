@@ -40,6 +40,7 @@ import org.evosuite.TimeController;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import org.evosuite.runtime.LoopCounter;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.variable.FieldReference;
@@ -320,6 +321,19 @@ public class TestCaseExecutor implements ThreadFactory {
 		HashSet<String> moreClassesForStaticReset = new HashSet<String>();
 		for (int position = 0; position < result.getExecutedStatements(); position++) {
 			Statement statement = tc.getStatement(position);
+
+			// If we reset also after reads, get all fields
+			if(Properties.RESET_STATIC_FIELD_GETS) {
+				for(VariableReference var : statement.getVariableReferences()) {
+					if(var.isFieldReference()) {
+						FieldReference fieldReference = (FieldReference) var;
+						moreClassesForStaticReset.add(fieldReference.getField()
+								.getOwnerClass().getClassName());
+					}
+				}
+			}
+
+			// Check for explicit assignments to static fields
 			if (statement.isAssignmentStatement()) {
 				if (statement.getReturnValue() instanceof FieldReference) {
 					FieldReference fieldReference = (FieldReference) statement
@@ -336,23 +350,32 @@ public class TestCaseExecutor implements ThreadFactory {
 				if (fieldStatement.getField().isStatic()) {
 					VariableReference fieldReference = fieldStatement
 							.getReturnValue();
-					for (int i = fieldStatement.getPosition() + 1; i < result
-							.getExecutedStatements(); i++) {
-						Statement invokedStatement = tc.getStatement(i);
-						if (invokedStatement.references(fieldReference)) {
-							if (invokedStatement instanceof MethodStatement) {
-								if (fieldReference
-										.equals(((MethodStatement) invokedStatement)
-												.getCallee())) {
-									if (!CheapPurityAnalyzer
-											.getInstance()
-											.isPure(((MethodStatement) invokedStatement)
-													.getMethod().getMethod())) {
-										moreClassesForStaticReset
-												.add(fieldStatement.getField()
-														.getOwnerClass()
-														.getClassName());
-										break;
+					if(Properties.RESET_STATIC_FIELD_GETS) {
+						moreClassesForStaticReset
+								.add(fieldStatement.getField()
+										.getOwnerClass()
+										.getClassName());
+
+					} else {
+						// Check if the field was passed to a non-pure method
+						for (int i = fieldStatement.getPosition() + 1; i < result
+								.getExecutedStatements(); i++) {
+							Statement invokedStatement = tc.getStatement(i);
+							if (invokedStatement.references(fieldReference)) {
+								if (invokedStatement instanceof MethodStatement) {
+									if (fieldReference
+											.equals(((MethodStatement) invokedStatement)
+													.getCallee())) {
+										if (!CheapPurityAnalyzer
+												.getInstance()
+												.isPure(((MethodStatement) invokedStatement)
+														.getMethod().getMethod())) {
+											moreClassesForStaticReset
+													.add(fieldStatement.getField()
+															.getOwnerClass()
+															.getClassName());
+											break;
+										}
 									}
 								}
 							}
@@ -522,7 +545,13 @@ public class TestCaseExecutor implements ThreadFactory {
 					logger.info(elem.toString());
 				}
 				logger.info(tc.toCode());
+				boolean loopCounter = LoopCounter.getInstance().isActivated();
 				while (isInStaticInit()) {
+					// LoopCounter and killswitch check the stacktrace often
+					// and that is costly - to speed things up we deactivate it
+					// until we're outside the static constructor
+					LoopCounter.getInstance().setActive(false);
+					ExecutionTracer.setKillSwitch(false);
 					logger.info("Run still not finished, but awaiting for static initializer to finish.");
 
 					try {
@@ -533,6 +562,8 @@ public class TestCaseExecutor implements ThreadFactory {
 						e.printStackTrace();
 					}
 				}
+				LoopCounter.getInstance().setActive(loopCounter);
+				ExecutionTracer.setKillSwitch(true);
 
 				if (!callable.isRunFinished()) {
 					handler.getLastTask().cancel(true);
@@ -577,6 +608,12 @@ public class TestCaseExecutor implements ThreadFactory {
 
 			}
 			ExecutionTracer.disable();
+
+            // TODO: If this is true, is this problematic?
+			if(Sandbox.isOnAndExecutingSUTCode()) {
+				Sandbox.doneWithExecutingSUTCode();
+				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			}
 
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.setThrownExceptions(callable.getExceptionsThrown());

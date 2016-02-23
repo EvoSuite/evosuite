@@ -159,9 +159,9 @@ public class RuntimeInstrumentation {
 	}
 
 	public byte[] transformBytes(ClassLoader classLoader, String className,
-			ClassReader reader) {
+			ClassReader reader, boolean skipInstrumentation) {
 
-		String classNameWithDots = className.replace("/", ".");
+		String classNameWithDots = className.replace('/', '.');
 
 		if (!checkIfCanInstrument(classNameWithDots)) {
 			throw new IllegalArgumentException("Should not transform a shared class ("
@@ -173,28 +173,29 @@ public class RuntimeInstrumentation {
 
 		ClassVisitor cv = writer;
 
-		if(RuntimeSettings.resetStaticState && !retransformingMode) {
+		if(!skipInstrumentation) {
+			if (RuntimeSettings.resetStaticState && !retransformingMode) {
 			/*
 			 * FIXME: currently reset does add a new method, but that does no work
 			 * when retransformingMode :(
 			 */
-			CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
-			resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
-			cv = resetClassAdapter;
+				CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
+				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
+				cv = resetClassAdapter;
+			}
+
+			if (RuntimeSettings.isUsingAnyMocking()) {
+				cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
+			}
+
+			cv = new KillSwitchClassAdapter(cv);
+
+			cv = new RemoveFinalClassAdapter(cv);
+
+			if (RuntimeSettings.maxNumberOfIterationsPerLoop >= 0) {
+				cv = new LoopCounterClassAdapter(cv);
+			}
 		}
-
-		if(RuntimeSettings.isUsingAnyMocking()) {
-			cv = new MethodCallReplacementClassAdapter(cv, className, !retransformingMode);
-		}
-
-		cv = new KillSwitchClassAdapter(cv);
-
-		cv = new RemoveFinalClassAdapter(cv);
-
-		if(RuntimeSettings.maxNumberOfIterationsPerLoop >= 0){
-			cv = new LoopCounterClassAdapter(cv);
-		}
-
 		ClassNode cn = new AnnotatedClassNode();
 
 		int readFlags = ClassReader.SKIP_FRAMES;

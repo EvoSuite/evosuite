@@ -24,6 +24,8 @@ import org.junit.*;
 
 import java.io.Serializable;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by Andrea on 20/02/15.
  */
@@ -38,6 +40,18 @@ public class PrivateAccessTest {
     public void tearDown(){
         PrivateAccess.setShouldNotFailTest(true);
     }
+
+
+    @Test
+    public void testPrivateConstructor() throws Throwable{
+
+        FooConstructor.counter = 0;
+
+        PrivateAccess.callDefaultConstructor(FooConstructor.class);
+
+        assertTrue(FooConstructor.counter > 0);
+    }
+
 
     @Test
     public void testSetField_serialVersionUID(){
@@ -157,6 +171,17 @@ public class PrivateAccessTest {
         } catch (NullPointerException e){
             //OK
         }
+    }
+
+}
+
+
+class FooConstructor{
+
+    public static int counter = 0;
+
+    private FooConstructor(){
+        counter++;
     }
 
 }

@@ -35,12 +35,18 @@ import org.evosuite.runtime.mock.java.io.MockPrintWriter;
 import org.evosuite.runtime.mock.java.io.MockRandomAccessFile;
 import org.evosuite.runtime.mock.java.lang.*;
 import org.evosuite.runtime.mock.java.net.*;
+import org.evosuite.runtime.mock.java.text.MockDateFormat;
+import org.evosuite.runtime.mock.java.text.MockSimpleDateFormat;
+import org.evosuite.runtime.mock.java.time.*;
+import org.evosuite.runtime.mock.java.time.chrono.*;
 import org.evosuite.runtime.mock.java.util.*;
 import org.evosuite.runtime.mock.java.util.logging.MockFileHandler;
 import org.evosuite.runtime.mock.java.util.logging.MockLogRecord;
 import org.evosuite.runtime.mock.javax.naming.MockInitialContext;
 import org.evosuite.runtime.mock.javax.persistence.MockPersistence;
+import org.evosuite.runtime.mock.javax.swing.MockDefaultListSelectionModel;
 import org.evosuite.runtime.mock.javax.swing.MockJFileChooser;
+import org.evosuite.runtime.mock.javax.swing.MockSpinnerDateModel;
 import org.evosuite.runtime.mock.javax.swing.filechooser.MockFileSystemView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,12 +99,40 @@ public class MockList {
             list.add(MockRuntime.class);
             list.add(MockLogRecord.class);
 
+			// Uses Object.hashCode
+			list.add(MockDefaultListSelectionModel.class);
+
             //CPU time related
 			list.add(MockDate.class);
 			list.add(MockRandom.class);
 			list.add(MockGregorianCalendar.class);
             list.add(MockCalendar.class);
+			list.add(MockDateFormat.class);
+			list.add(MockSimpleDateFormat.class);
+			list.add(MockSpinnerDateModel.class);
             //MockTimeZone, MockLocale are not actual mocks
+
+			// java.time
+			list.add(MockClock.class);
+			list.add(MockInstant.class);
+			list.add(MockLocalDate.class);
+			list.add(MockLocalDateTime.class);
+			list.add(MockLocalTime.class);
+			list.add(MockMonthDay.class);
+			list.add(MockOffsetDateTime.class);
+			list.add(MockOffsetTime.class);
+			list.add(MockYear.class);
+			list.add(MockYearMonth.class);
+			list.add(MockZonedDateTime.class);
+			list.add(MockHijrahChronology.class);
+			list.add(MockHijrahDate.class);
+			list.add(MockIsoChronology.class);
+			list.add(MockJapaneseChronology.class);
+			list.add(MockJapaneseDate.class);
+			list.add(MockMinguoDate.class);
+			list.add(MockMinguoChronology.class);
+			list.add(MockThaiBuddhistChronology.class);
+			list.add(MockThaiBuddhistDate.class);
 
             //thread related
             list.add(MockTimer.class);

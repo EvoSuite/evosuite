@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.evosuite</groupId>
         <artifactId>evosuite</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>evosuite-master</artifactId>
@@ -67,12 +67,7 @@
             <artifactId>cdi-api</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
-            <scope>test</scope>
-        </dependency>
+
 
 
     </dependencies>

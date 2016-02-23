@@ -287,11 +287,11 @@ public class ExecutionTracer {
 	 *            a {@link java.lang.String} object.
 	 */
 	public static void returnValue(int value, String className, String methodName) {
-		if (isThreadNeqCurrentThread())
-			return;
-
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
 			return;
 
 		//logger.trace("Return value: " + value);
@@ -468,10 +468,8 @@ public class ExecutionTracer {
 
 		checkTimeout();
 
-		if (Properties.DYNAMIC_SEEDING) {
-			ConstantPoolManager.getInstance().addDynamicConstant(val);
-		};
-		
+		ConstantPoolManager.getInstance().addDynamicConstant(val);
+
 		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
 		double distance_true = 0.0;
 		double distance_false = 0.0;
@@ -533,6 +531,21 @@ public class ExecutionTracer {
 		
 		tracer.trace.putStaticPassed(classNameWithDots, fieldName);
 	}
+
+	public static void passedGetStatic(String classNameWithDots, String fieldName) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
+			return;
+
+		checkTimeout();
+
+		tracer.trace.getStaticPassed(classNameWithDots, fieldName);
+	}
+
+
 	/**
 	 * Called by the instrumented code each time a new branch is taken
 	 * 
@@ -558,10 +571,8 @@ public class ExecutionTracer {
 
 		checkTimeout();
 		
-		if (Properties.DYNAMIC_SEEDING) {
-			ConstantPoolManager.getInstance().addDynamicConstant(val1);
-			ConstantPoolManager.getInstance().addDynamicConstant(val2);
-		};
+		ConstantPoolManager.getInstance().addDynamicConstant(val1);
+		ConstantPoolManager.getInstance().addDynamicConstant(val2);
 
 		/* logger.trace("Called passedBranch2 with opcode "
 		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2

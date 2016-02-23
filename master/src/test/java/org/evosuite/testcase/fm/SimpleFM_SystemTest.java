@@ -77,8 +77,8 @@ public class SimpleFM_SystemTest extends SystemTestBase {
         GeneticAlgorithm<?> ga = do100percentLineTest(SimpleFM_returnString.class);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         String code = best.toString();
+        Assert.assertTrue(code, code.contains("doReturn"));
         Assert.assertTrue(code, code.contains("when"));
-        Assert.assertTrue(code, code.contains("thenReturn"));
         Assert.assertTrue(code, code.contains("true"));
         Assert.assertTrue(code, code.contains("false"));
     }

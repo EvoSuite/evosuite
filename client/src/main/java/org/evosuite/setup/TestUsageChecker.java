@@ -100,7 +100,12 @@ public class TestUsageChecker {
 			return true;
 		}
 
-		// If default access rights, then check if this class is in the same package as the target class
+        for(java.lang.reflect.Type paramType : c.getGenericParameterTypes()) {
+            if(!canUse(paramType))
+                return false;
+        }
+
+        // If default access rights, then check if this class is in the same package as the target class
 		if (!Modifier.isPrivate(c.getModifiers())) {
 			//		        && !Modifier.isProtected(c.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(c.getDeclaringClass());
@@ -310,8 +315,13 @@ public class TestUsageChecker {
             return false;
         }
 
-        if (!m.getReturnType().equals(String.class) && !canUse(m.getGenericReturnType())) {
+        if (!m.getReturnType().equals(String.class) && (!canUse(m.getReturnType()) || !canUse(m.getGenericReturnType()))) {
             return false;
+        }
+
+        for(java.lang.reflect.Type paramType : m.getGenericParameterTypes()) {
+            if(!canUse(paramType))
+                return false;
         }
 
         if (m.getDeclaringClass().equals(Enum.class)) {
@@ -438,6 +448,14 @@ public class TestUsageChecker {
 			if (m.getName().equals("toLocaleString"))
 				return true;
 		}
+
+        if(m.getDeclaringClass().equals(ClassLoader.class)) {
+            String name = m.getName();
+            if(name.startsWith("getSystemResource"))
+                return true;
+            else if(name.startsWith("getResource"))
+                return true;
+        }
 
 		return false;
 	}

@@ -54,7 +54,7 @@ public class Inspector implements Serializable {
 	public Inspector(Class<?> clazz, Method m) {
 		this.clazz = clazz;
 		method = m;
-        m.setAccessible(true);
+		method.setAccessible(true);
 	}
 
 	/**
@@ -76,12 +76,13 @@ public class Inspector implements Serializable {
 	        IllegalAccessException, InvocationTargetException {
 
 		boolean needsSandbox = !Sandbox.isOnAndExecutingSUTCode();
-		boolean loopCounter = LoopCounter.getInstance().isActivated();
+		boolean safe = Sandbox.isSafeToExecuteSUTCode();
+
 		if(needsSandbox) {
 			Sandbox.goingToExecuteSUTCode();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
-			LoopCounter.getInstance().setActive(false);
+			if(!safe)
+				 Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		}
 		Object ret = null;
 
@@ -89,10 +90,10 @@ public class Inspector implements Serializable {
 			ret = this.method.invoke(object);
 		} finally {
 			if(needsSandbox) {
-				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+				if(!safe)
+					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				Sandbox.doneWithExecutingSUTCode();
 				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
-				LoopCounter.getInstance().setActive(loopCounter);
 			}
 		}
 

@@ -24,7 +24,7 @@ import org.objectweb.asm.Type;
 public interface Types {
 
 	public static final String JAVA_LANG_STRING_BUFFER = StringBuffer.class
-			.getName().replace(".", "/");
+			.getName().replace('.', '/');
 
 	public static final Type STRING_TYPE = Type.getType(String.class);
 
@@ -32,7 +32,7 @@ public interface Types {
 			.getMethodDescriptor(Type.VOID_TYPE, STRING_TYPE);
 
 	public static final String JAVA_LANG_STRING = String.class.getName()
-			.replace(".", "/");
+			.replace('.', '/');
 
 	public static final String TO_STR_DESCRIPTOR = Type
 			.getMethodDescriptor(STRING_TYPE);

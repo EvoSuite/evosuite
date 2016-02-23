@@ -104,7 +104,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		String desc = Type.getConstructorDescriptor(stmt.getConstructor()
 				.getConstructor());
 		pushParameterList(stmt.getParameterReferences(), scope, desc);
-		String owner = className.replace(".", "/");
+		String owner = className.replace('.', '/');
 		/* indicates if the following code is instrumented or not */
 		VM.INVOKESPECIAL(owner, INIT, desc);
 		boolean needThis = true;
@@ -117,7 +117,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				.getConstructor());
 		/* pops operands if previous code was not instrumented */
 		// constructor return type is always VOID
-		String onwer = className.replace(".", "/");
+		String onwer = className.replace('.', '/');
 		VM.CALL_RESULT(onwer, INIT, desc);
 		VariableReference varRef = stmt.getReturnValue();
 
@@ -268,7 +268,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				} else {
 					// push arguments
 					String componentTypeName = component_class.getName()
-							.replace(".", "/");
+							.replace('.', '/');
 					VM.ANEWARRAY(length, componentTypeName);
 				}
 			} else {
@@ -479,7 +479,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	private ReferenceExpressionPair readStaticField(Field field) {
 
-		String owner = field.getDeclaringClass().getName().replace(".", "/");
+		String owner = field.getDeclaringClass().getName().replace('.', '/');
 		String name = field.getName();
 
 		Class<?> fieldClazz = field.getType();
@@ -579,7 +579,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	private ReferenceExpressionPair readInstanceField(VariableReference source,
 			Field field, Scope scope) {
 
-		String owner = field.getDeclaringClass().getName().replace(".", "/");
+		String owner = field.getDeclaringClass().getName().replace('.', '/');
 		String name = field.getName();
 
 		Class<?> fieldClazz = field.getType();
@@ -745,7 +745,7 @@ public class SymbolicObserver extends ExecutionObserver {
 			ReferenceExpressionPair readResult, Scope scope) {
 		Field field = lhs.getField().getField();
 		String className = field.getDeclaringClass().getName()
-				.replace(".", "/");
+				.replace('.', '/');
 		String fieldName = field.getName();
 
 		Class<?> fieldClass = field.getType();
@@ -812,7 +812,7 @@ public class SymbolicObserver extends ExecutionObserver {
 	private void before(MethodStatement statement, Scope scope) {
 		Method method = statement.getMethod().getMethod();
 
-		String owner = method.getDeclaringClass().getName().replace(".", "/");
+		String owner = method.getDeclaringClass().getName().replace('.', '/');
 		String name = method.getName();
 		String desc = Type.getMethodDescriptor(method);
 
@@ -1744,7 +1744,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	private void after(MethodStatement statement, Scope scope) {
 		String owner = statement.getMethod().getDeclaringClass().getName()
-				.replace(".", "/");
+				.replace('.', '/');
 		String name = statement.getMethod().getName();
 		String desc = Type.getMethodDescriptor(statement.getMethod()
 				.getMethod());

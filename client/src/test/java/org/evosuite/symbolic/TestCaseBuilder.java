@@ -24,7 +24,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.testcase.variable.ArrayIndex;
@@ -57,6 +59,7 @@ import org.evosuite.utils.generic.GenericMethod;
 public class TestCaseBuilder {
 
 	private final DefaultTestCase tc = new DefaultTestCase();
+	private final Map<Integer,Throwable> exceptions = new HashMap<Integer,Throwable>();
 
 	public VariableReference appendConstructor(Constructor<?> constructor,
 			VariableReference... parameters) {
@@ -258,5 +261,51 @@ public class TestCaseBuilder {
 		FileNamePrimitiveStatement stmt = new FileNamePrimitiveStatement(tc, evosuiteFile);
 		tc.addStatement(stmt);
 		return stmt.getReturnValue();
+	}
+
+	
+	/**
+	 * x.f1 := y.f2
+	 *  
+	 * @param var
+	 * @param array
+	 * @param index
+	 */
+	public void appendAssignment(VariableReference receiver, Field field,
+			VariableReference src, Field fieldSrc) {
+		FieldReference dstFieldReference;
+		if (receiver == null) {
+			dstFieldReference = new FieldReference(tc, new GenericField(field,
+					field.getDeclaringClass()));
+		} else {
+			dstFieldReference = new FieldReference(tc, new GenericField(field,
+					receiver.getType()), receiver);
+		}
+		
+		FieldReference srcFieldReference;
+		if (src == null) {
+			srcFieldReference = new FieldReference(tc, new GenericField(fieldSrc,
+					fieldSrc.getDeclaringClass()));
+		} else {
+			srcFieldReference = new FieldReference(tc, new GenericField(fieldSrc,
+					src.getType()), src);
+		}
+		AssignmentStatement stmt = new AssignmentStatement(tc, dstFieldReference,
+				srcFieldReference);
+		tc.addStatement(stmt);
+	}
+
+
+
+	public void addException(Throwable exception) {
+		int currentPos = this.tc.size()-1;
+		if (currentPos<0)
+			throw new IllegalStateException("Cannot add exception to empty test case");
+		
+		if (exceptions.containsKey(currentPos)) {
+			throw new IllegalStateException("Statement already contains an exception!");
+		}
+		
+		exceptions.put(currentPos, exception);
 	}
 }

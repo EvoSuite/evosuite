@@ -161,6 +161,8 @@ public class StaticConstantPool implements ConstantPool {
 
 		if (object instanceof String) {
 			String string = (String) object;
+			if(string.length() > Properties.MAX_STRING)
+				return;
 			// String literals are constrained to 65535 bytes 
 			// as they are stored in the constant pool
 			if (string.length() > 65535)

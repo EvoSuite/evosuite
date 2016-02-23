@@ -37,6 +37,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSearchListener;
@@ -57,7 +58,6 @@ import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.*;
-import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -173,26 +173,45 @@ public class TestSuiteGenerator {
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
 
+        // If overall time is short, the search might not have had enough time
+        // to come up with a suite without timeouts. However, they will slow down
+        // the rest of the process, and may lead to invalid tests
+        testSuite.getTestChromosomes().removeIf(t -> t.getLastExecutionResult() != null && t.getLastExecutionResult().hasTimeout());
+
         if (Properties.CTG_SEEDS_FILE_OUT != null) {
             TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
         } else if (Properties.TEST_FACTORY == TestFactory.SERIALIZATION) {
         	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
 
-		if (Properties.INLINE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
-			ConstantInliner inliner = new ConstantInliner();
-			// progressMonitor.setCurrentPhase("Inlining constants");
-
-			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
-
-			inliner.inline(testSuite);
+		/*
+		 * Remove covered goals that are not part of the minimization targets, as they
+		 * might screw up coverage analysis when a minimization timeout occurs.
+		 * This may happen e.g. when MutationSuiteFitness calls BranchCoverageSuiteFitness
+		 * which adds branch goals.
+		 */
+		// TODO: This creates an inconsistency between suite.getCoveredGoals().size() and suite.getNumCoveredGoals()
+		//       but it is not clear how to update numcoveredgoals
+		List<TestFitnessFunction> goals = new ArrayList<>();
+		for (TestFitnessFactory<?> ff : getFitnessFactories()) {
+			goals.addAll(ff.getCoverageGoals());
+		}
+		for(TestFitnessFunction f : testSuite.getCoveredGoals()) {
+			if(!goals.contains(f)) {
+				testSuite.removeCoveredGoal(f);
+			}
 		}
 
 		if (Properties.MINIMIZE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
-			// progressMonitor.setCurrentPhase("Minimizing test cases");
-			if(Properties.isRegression()){
+            ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
+            // progressMonitor.setCurrentPhase("Minimizing test cases");
+            if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
+                ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
+            } else if(Properties.isRegression()){
 				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
 				minimizer.minimize(testSuite);
 			} else {
@@ -202,7 +221,7 @@ public class TestSuiteGenerator {
 				TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
 
 				LoggingUtils.getEvoLogger().info("* Minimizing test suite");
-				minimizer.minimize(testSuite, true);
+			    minimizer.minimize(testSuite, true);
 
 				double after = testSuite.getFitness();
 				if(after > before + 0.01d) { //assume minimization
@@ -210,10 +229,24 @@ public class TestSuiteGenerator {
 				}
 			}
 		} else {
-		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
+            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
+            }
+
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
             ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
+		}
+
+		if (Properties.INLINE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
+			ConstantInliner inliner = new ConstantInliner();
+			// progressMonitor.setCurrentPhase("Inlining constants");
+
+			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
+
+			inliner.inline(testSuite);
 		}
 
 		if (Properties.COVERAGE) {
@@ -277,10 +310,14 @@ public class TestSuiteGenerator {
 		}
 		
 		if (Properties.ASSERTIONS && !Properties.isRegression()) {
-			LoggingUtils.getEvoLogger().info("* Generating assertions");
-			// progressMonitor.setCurrentPhase("Generating assertions");
-			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
-			addAssertions(testSuite);
+            LoggingUtils.getEvoLogger().info("* Generating assertions");
+            // progressMonitor.setCurrentPhase("Generating assertions");
+            ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
+            if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
+                LoggingUtils.getEvoLogger().info("* Skipping assertion generation because not enough time is left");
+            } else {
+                addAssertions(testSuite);
+            }
 			StatisticsSender.sendIndividualToMaster(testSuite); // FIXME: can we pass the list of testsuitechromosomes?
 		}
 
@@ -299,7 +336,7 @@ public class TestSuiteGenerator {
 			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
 		}
 	}
-	
+
 	 /**
      * Compile and run the given tests. Remove from input list all tests that do not compile, and handle the
      * cases of instability (either remove tests or comment out failing assertions)
@@ -319,6 +356,7 @@ public class TestSuiteGenerator {
 
         ClientServices.getInstance().getClientNode().changeState(ClientState.JUNIT_CHECK);
 
+
         // Store this value; if this option is true then the JUnit check
         // would not succeed, as the JUnit classloader wouldn't find the class
         boolean junitSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
@@ -328,6 +366,7 @@ public class TestSuiteGenerator {
 
         //note: compiling and running JUnit tests can be very time consuming
         if(!TimeController.getInstance().isThereStillTimeInThisPhase()) {
+			Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
         	return;
         }
 
@@ -404,12 +443,6 @@ public class TestSuiteGenerator {
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
 
-		if (TestCluster.getInstance().getNumTestCalls() == 0) {
-			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
-			                                         + Properties.TARGET_CLASS);
-			return new TestSuiteChromosome();
-		}
-
 		ContractChecker checker = null;
 		if (Properties.CHECK_CONTRACTS) {
 			checker = new ContractChecker();
@@ -469,18 +502,16 @@ public class TestSuiteGenerator {
 	 * The name of the test will be equal to the SUT followed by the given
 	 * suffix
 	 * 
-	 * @param tests
-	 *            a {@link java.util.List} object.
+	 * @param testSuite
+	 *            a test suite.
 	 */
-	public static TestGenerationResult writeJUnitTestsAndCreateResult(List<TestCase> tests, String suffix) {
+	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite, String suffix) {
+		List<TestCase> tests = testSuite.getTests();
 		if (Properties.JUNIT_TESTS) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_TESTS);
 
 			TestSuiteWriter suiteWriter = new TestSuiteWriter();
-			if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED)
-				suiteWriter.insertAllTests(tests);
-			else
-				suiteWriter.insertTests(tests);
+			suiteWriter.insertTests(tests);
 
 			if (Properties.CHECK_CONTRACTS) {
 				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
@@ -492,9 +523,8 @@ public class TestSuiteGenerator {
 			String testDir = Properties.TEST_DIR;
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
+			suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
 
-			suiteWriter.writeTestSuite(name + suffix, testDir);
-			
 			// If in regression mode, create a separate copy of the tests 
 			if (!RegressionSearchListener.statsID.equals("")) {
 				File evosuiterTestDir = new File("evosuiter-stats");
@@ -507,8 +537,8 @@ public class TestSuiteGenerator {
 					String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
 					
 					LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
-
-					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName());
+	
+					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), Collections.EMPTY_LIST);
 				}
 			}
 		}
@@ -521,7 +551,7 @@ public class TestSuiteGenerator {
 	 *            the test cases which should be written to file
 	 */
 	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite) {
-		return writeJUnitTestsAndCreateResult(testSuite.getTests(), Properties.JUNIT_SUFFIX);	    
+		return writeJUnitTestsAndCreateResult(testSuite, Properties.JUNIT_SUFFIX);
 	}
 
 	private void addAssertions(TestSuiteChromosome tests) {

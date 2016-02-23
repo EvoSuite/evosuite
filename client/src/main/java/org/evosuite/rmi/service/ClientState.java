@@ -37,8 +37,8 @@ public enum ClientState {
 	CARVING("Carving", "Carving JUnit tests", 3),
 	SEARCH("Search", "Generating test cases", 4),
 	MINIMIZING_VALUES("Minimizing values", "Minimizing primitive values in the tests", 5),
-	INLINING("Inlining", "Inlining constants", 6),
-	MINIMIZATION("Minimizing", "Minimizing size/length of test cases", 7),
+	MINIMIZATION("Minimizing", "Minimizing size/length of test cases", 6),
+	INLINING("Inlining", "Inlining constants", 7),
 	//TODO, question: why is it before ASSERTION?
 	COVERAGE_ANALYSIS("Coverage Analysis","Compute and the different coverage criteria of the generated test suite",8),
 	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 9),

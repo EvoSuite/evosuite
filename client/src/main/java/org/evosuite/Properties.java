@@ -20,6 +20,7 @@
 package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.lm.MutationType;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
@@ -118,6 +119,9 @@ public class Properties {
 	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each a static field was modified")
 	public static boolean RESET_STATIC_FIELDS = true;
 
+	@Parameter(key = "reset_static_field_gets", group = "Test Creation", description = "Call static constructors also after each static field was read")
+	public static boolean RESET_STATIC_FIELD_GETS = false;
+
 	/** Constant <code>RESET_STANDARD_STREAMS =false</code> */
 	@Parameter(key = "reset_standard_streams", group = "Test Creation", description = "Restore System.out, System.in and DebugGraphics.logStream after test execution")
 	public static boolean RESET_STANDARD_STREAMS = false;
@@ -158,6 +162,7 @@ public class Properties {
 	public static double DYNAMIC_POOL = 0.5;
 
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
+	@Deprecated
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
 	public static boolean DYNAMIC_SEEDING = true;
 
@@ -190,7 +195,12 @@ public class Properties {
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")
 	public static int STRING_LENGTH = 20;
 
-	/** Constant <code>EPSILON=0.001</code> */
+    @Parameter(key = "max_string", group = "Test Creation", description = "Maximum length of strings in assertions")
+    @IntValue(min = 1, max = 32767) // String literals may not be longer than 32767
+    public static int MAX_STRING = 1000;
+
+
+    /** Constant <code>EPSILON=0.001</code> */
 	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
 	@Deprecated
 	// does not seem to be used anywhere
@@ -283,15 +293,15 @@ public class Properties {
 
     @Parameter(key = "p_reflection_on_private", group = "Test Creation", description = "Probability [0,1] of using reflection to set private fields or call private methods")
     @DoubleValue(min = 0.0, max = 1.0)
-    public static double P_REFLECTION_ON_PRIVATE = 0.0; // TODO off by default. likely need something like 0.5
+    public static double P_REFLECTION_ON_PRIVATE = 0.5;
 
     @Parameter(key = "reflection_start_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which reflection fields/methods handling is activated")
     @DoubleValue(min = 0.0, max = 1.0)
-    public static double REFLECTION_START_PERCENT = 0.5;
+    public static double REFLECTION_START_PERCENT = 0.8;
 
 	@Parameter(key = "p_functional_mocking", group = "Test Creation", description = "Probability [0,1] of using functional mocking (eg Mockito) when creating object instances")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double P_FUNCTIONAL_MOCKING = 0.0; // TODO to put on once finalized
+	public static double P_FUNCTIONAL_MOCKING = 0.8;
 
 	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -671,6 +681,9 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int EXTRA_TIMEOUT = 60;
 
+	@Parameter(key = "reuse_leftover_time", group = "Search Algorithm", description = "If a phase is ended before its timeout, allow the next phase to run over its timeout")
+	public static boolean REUSE_LEFTOVER_TIME = false;
+
 	@Parameter(key = "track_boolean_branches", group = "Search Algorithm", description = "Track branches that have a distance of either 0 or 1")
 	public static boolean TRACK_BOOLEAN_BRANCHES = false;
 
@@ -821,7 +834,7 @@ public class Properties {
 	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
 
 	@Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
-	public static boolean TEST_COMMENTS = true;
+	public static boolean TEST_COMMENTS = false;
 
 	@Parameter(key = "test_scaffolding", group = "Output", description = "Generate all the scaffolding needed to run EvoSuite JUnit tests in a separate file")
 	public static boolean TEST_SCAFFOLDING = true;
@@ -840,10 +853,6 @@ public class Properties {
 	/** Constant <code>PLOT=false</code> */
 	@Parameter(key = "plot", group = "Output", description = "Create plots of size and fitness")
 	public static boolean PLOT = false;
-
-	/** Constant <code>HTML=true</code> */
-	@Parameter(key = "html", group = "Output", description = "Create html reports")
-	public static boolean HTML = true;
 
 	/** Constant <code>COVERAGE_MATRIX=false</code> */
 	@Parameter(key = "coverage_matrix", group = "Output", description = "Create a coverage matrix (each row represents the coverage a test case, and each column represents one goal")
@@ -923,6 +932,26 @@ public class Properties {
 	@Parameter(key = "minimize_values", group = "Output", description = "Minimize constants and method calls")
 	public static boolean MINIMIZE_VALUES = false;
 
+	/** Constant <code>LM_STRINGS=false</code> */
+	@Parameter(key = "lm_strings", group = "Output", description = "Use language model on strings.  The parameter minimize_values must also be true.")
+	public static boolean LM_STRINGS = false;
+
+	/** Constant <code>MINIMIZE_STRINGS=true</code> */
+	@Parameter(key = "minimize_strings", group="Output", description = "Try to minimise strings by deleting non-printables. The parameter minimize_values must also be true,")
+	public static boolean MINIMIZE_STRINGS = true;
+
+	/** Constant <code>LM_SRC=false</code> */
+	@Parameter(key = "lm_src", description = "Text file for the language model.")
+	public static String LM_SRC = "ukwac_char_lm";
+
+	/** Constant <code>LM_ITERATIONS = 1000</code> */
+	@Parameter(key = "lm_iterations", description = "Number of 1+1EA generations PER STRING PRIMITIVE for language model optimiser.")
+	public static int LM_ITERATIONS = 1000;
+
+	/** Constant <code>LM_ITERATIONS = MutationType.LANGMODEL</code> */
+	@Parameter(key = "lm_mutation_type", description = "Type of mutation to use in language model string optimiser.")
+	public static MutationType LM_MUTATION_TYPE = MutationType.EVOSUITE;
+
 	/** Constant <code>COVERAGE=true</code> */
 	@Parameter(key = "coverage", group = "Output", description = "Calculate coverage after test suite generation")
 	public static boolean COVERAGE = true;
@@ -979,12 +1008,12 @@ public class Properties {
 	@Parameter(key = "covered_goals_file", group = "Output", description = "File with relation of tests and covered goals")
 	public static String COVERED_GOALS_FILE = "covered.goals";
 
-	/** Constant <code>WRITE_COVERED_GOALS_FILE=false</code> */
+	/** Constant <code>WRITE_TEST_NAMES_FILE=false</code> */
 	@Parameter(key = "write_test_names_file", group = "Output", description = "Write test names file")
 	public static boolean WRITE_TEST_NAMES_FILE = false;
 
-	/** Constant <code>COVERED_GOALS_FILE="covered.goals"</code> */
-	@Parameter(key = "TEST_NAMES_FILE", group = "Output", description = "File with relation of tests names")
+	/** Constant <code>TEST_NAMES_FILE="test.names"</code> */
+	@Parameter(key = "test_names_file", group = "Output", description = "File with relation of tests names")
 	public static String TEST_NAMES_FILE = "test.names";
 
 	/** Constant <code>ASSERTIONS=false</code> */
@@ -992,7 +1021,7 @@ public class Properties {
 	public static boolean ASSERTIONS = true;
 
 	public enum AssertionStrategy {
-		ALL, MUTATION, UNIT, STRUCTURED
+		ALL, MUTATION, UNIT
 	}
 
 	/** Constant <code>ASSERTION_STRATEGY</code> */
@@ -1037,6 +1066,12 @@ public class Properties {
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
 
+	@Parameter(key = "float_precision", group = "Output", description = "Precision to use in float comparisons and assertions")
+	public static float FLOAT_PRECISION = 0.01F;
+
+	@Parameter(key = "double_precision", group = "Output", description = "Precision to use in double comparisons and assertions")
+	public static double DOUBLE_PRECISION = 0.01;
+
 	//@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
 	//public static boolean OLD_STATISTICS = false;
 
@@ -1072,6 +1107,13 @@ public class Properties {
 	/** Constant <code>MAX_COVERAGE_DEPTH=-1</code> */
 	@Parameter(key = "max_coverage_depth", group = "Output", description = "Maximum depth in the calltree to count a branch as covered")
 	public static int MAX_COVERAGE_DEPTH = -1;
+
+	public enum TestNamingStrategy {
+		NUMBERED, COVERAGE
+	}
+
+	@Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
+	public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
 
 	// ---------------------------------------------------------------
 	// Sandbox

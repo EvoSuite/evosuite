@@ -20,6 +20,8 @@
 package org.evosuite.strategy;
 
 import org.evosuite.Properties;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -47,7 +49,12 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 		LoggingUtils.getEvoLogger().info("* Generating fixed number of random tests");
 		RandomLengthTestFactory factory = new org.evosuite.testcase.factories.RandomLengthTestFactory();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-
+		if(!canGenerateTestsForSUT()) {
+			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
+					+ Properties.TARGET_CLASS);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, 0);
+			return suite;
+		}
 		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
 			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
 			TestChromosome test = factory.getChromosome();

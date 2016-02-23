@@ -94,6 +94,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			MethodCallReplacement replacement = MethodCallReplacementCache.getInstance().getReplacementCall(owner, name+desc);
 			isReplaced = true;
 			replacement.insertMethodCall(this, Opcodes.INVOKESTATIC);
+			hasBeenInstrumented = true;
 		}
 
 		// for constructors

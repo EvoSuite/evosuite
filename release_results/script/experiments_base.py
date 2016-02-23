@@ -198,7 +198,6 @@ TIMEOUT="10m"
 
 # Fixed set of parameters to use in all jobs
 FIXED = " -mem 2500 \
-  -Dhtml=false \
   -Dplot=false \
   -Dtest_comments=false \
   -Dshow_progress=false \

@@ -45,7 +45,7 @@ public interface Types {
 
 	// wrapper types
 	public static String JAVA_LANG_LONG = Long.class.getName()
-			.replace(".", "/");
+			.replace('.', '/');
 	public static String JAVA_LANG_FLOAT = Float.class.getName().replace(".",
 			"/");
 	public static String JAVA_LANG_DOUBLE = Double.class.getName().replace(".",
@@ -53,9 +53,9 @@ public interface Types {
 	public static String JAVA_LANG_SHORT = Short.class.getName().replace(".",
 			"/");
 	public static String JAVA_LANG_BYTE = Byte.class.getName()
-			.replace(".", "/");
+			.replace('.', '/');
 	public static String JAVA_LANG_CHARACTER = Character.class.getName()
-			.replace(".", "/");
+			.replace('.', '/');
 	public static String JAVA_LANG_BOOLEAN = Boolean.class.getName().replace(
 			".", "/");
 	static final String JAVA_LANG_INTEGER = Integer.class.getName().replace(

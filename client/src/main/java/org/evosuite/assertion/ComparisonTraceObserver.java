@@ -20,6 +20,7 @@
 package org.evosuite.assertion;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -45,8 +46,11 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 
 			if(statement instanceof AssignmentStatement)
 				return;
+            if(statement instanceof PrimitiveStatement<?>)
+                return;
 
 			ComparisonTraceEntry entry = new ComparisonTraceEntry(var);
+			int position = statement.getPosition();
 
 			for (VariableReference other : scope.getElements(var.getType())) {
 				Object otherObject = other.getObject(scope);
@@ -57,9 +61,20 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 				if (object == otherObject)
 					continue; // Don't compare with self?
 
-				if (statement instanceof PrimitiveStatement
-				        && currentTest.getStatement(other.getStPosition()) instanceof PrimitiveStatement)
+                int otherPos = other.getStPosition();
+                if(otherPos >= position)
+                    continue; // Don't compare with variables that are not defined - may happen with primitives?
+
+				Statement otherStatement = currentTest.getStatement(otherPos);
+
+				if (statement instanceof PrimitiveStatement && otherStatement instanceof PrimitiveStatement)
 					continue; // Don't compare two primitives
+
+				if(otherStatement instanceof MethodStatement) {
+					if(((MethodStatement)otherStatement).getMethodName().equals("hashCode"))
+						continue; // No comparison against hashCode, as the hashCode return value will not be in the test
+				}
+
 
 				if (Properties.PURE_EQUALS) {
 					String className = object.getClass().getCanonicalName();
@@ -73,7 +88,7 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 				try {
 					logger.debug("Comparison of " + var + " with " + other + " is: "
 					        + object.equals(otherObject));
-					entry.addEntry(other, object.equals(otherObject));
+					entry.addEntry(other, ComparisonTraceEntry.equals(object, otherObject));
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);
 					// ignore?

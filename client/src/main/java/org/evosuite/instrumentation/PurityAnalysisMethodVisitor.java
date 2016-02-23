@@ -64,7 +64,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 		super(Opcodes.ASM5, mv);
 		this.updatesField = false;
 		this.purityAnalyzer = purityAnalyzer;
-		this.classNameWithDots = className.replace("/", ".");
+		this.classNameWithDots = className.replace('/', '.');
 		this.methodName = methodName;
 		this.descriptor = descriptor;
 	}
@@ -90,7 +90,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc, boolean itf) {
 
-		String targetClassName = owner.replace("/", ".");
+		String targetClassName = owner.replace('/', '.');
 		if (targetClassName.equals(org.evosuite.runtime.Random.class.getCanonicalName()) || !BytecodeInstrumentation.checkIfEvoSuitePackage(targetClassName)) {
 			//Only ignore EvoSuite callbacks
 			if (opcode == Opcodes.INVOKESTATIC) {

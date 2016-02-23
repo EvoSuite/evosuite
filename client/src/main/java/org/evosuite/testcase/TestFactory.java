@@ -21,6 +21,7 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -744,7 +745,12 @@ public class TestFactory {
 
 		} else if (clazz.isArray()) {
 
-			return createArray(test, clazz, position, recursionDepth);
+			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
+				logger.debug("Using a null reference to satisfy the type: " + type);
+				return createNull(test, type, position, recursionDepth);
+			} else {
+				return createArray(test, clazz, position, recursionDepth);
+			}
 
 		} else {
 
@@ -773,7 +779,7 @@ public class TestFactory {
 				return test.getStatement(returnPos).getReturnValue();
 			}
 
-			return createObject(test, type, position, recursionDepth, generatorRefToExclude, canUseMocks);
+			return createObject(test, type, position, recursionDepth, generatorRefToExclude, allowNull, canUseMocks);
 		}
 	}
 
@@ -781,10 +787,8 @@ public class TestFactory {
 	 * Try to generate an object suitable for Object.class
 	 *
 	 * @param test
-	 * @param type
 	 * @param position
 	 * @param recursionDepth
-	 * @param constraint
 	 * @param allowNull
 	 * @return
 	 * @throws ConstructionFailedException
@@ -922,6 +926,15 @@ public class TestFactory {
 			//do not use FM as possible callees
 			if(test.getStatement(ref.getStPosition()) instanceof FunctionalMockStatement){
 				iter.remove();
+				continue;
+			}
+
+			int boundPosition = ConstraintHelper.getLastPositionOfBounded(ref, test);
+			if(boundPosition >= 0 && boundPosition >= statement.getPosition()){
+				// if bounded variable, cannot add methods before its initialization, and so cannot be
+				// used as a callee
+				iter.remove();
+				continue;
 			}
 		}
 
@@ -957,7 +970,6 @@ public class TestFactory {
 	 * Create a new array in a test case and return the reference
 	 *
 	 * @param test
-	 * @param type
 	 * @param position
 	 * @param recursionDepth
 	 * @return
@@ -1022,7 +1034,6 @@ public class TestFactory {
 	 * Create and return a new primitive variable
 	 *
 	 * @param test
-	 * @param type
 	 * @param position
 	 * @param recursionDepth
 	 * @return
@@ -1082,7 +1093,7 @@ public class TestFactory {
 
 	public VariableReference createObject(TestCase test, Type type, int position,
 										  int recursionDepth, VariableReference generatorRefToExclude) throws ConstructionFailedException {
-		return createObject(test,type,position,recursionDepth,generatorRefToExclude,true);
+		return createObject(test,type,position,recursionDepth,generatorRefToExclude,true,true);
 	}
 
 		/**
@@ -1096,7 +1107,7 @@ public class TestFactory {
          * @throws ConstructionFailedException
          */
 	public VariableReference createObject(TestCase test, Type type, int position,
-	        int recursionDepth, VariableReference generatorRefToExclude, boolean canUseFunctionalMocks) throws ConstructionFailedException {
+	        int recursionDepth, VariableReference generatorRefToExclude, boolean allowNull, boolean canUseFunctionalMocks) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
 		VariableReference ret;
@@ -1131,6 +1142,11 @@ public class TestFactory {
 				for(int i=position-1; i>=0; i--) {
 					Statement statement = test.getStatement(i);
 					VariableReference var = statement.getReturnValue();
+
+					if(!allowNull && ConstraintHelper.isNull(var,test)){
+						continue;
+					}
+
 					if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
 						return var;
 					}
@@ -1244,6 +1260,7 @@ public class TestFactory {
 				                                                position, recursionDepth,
 				                                                allowNull, generatorRefToExclude, canUseMocks);
 
+				assert ! (! allowNull && ConstraintHelper.isNull(reference,test));
 				assert canUseMocks || ! (test.getStatement(reference.getStPosition()) instanceof FunctionalMockStatement);
 				return reference;
 
@@ -1804,8 +1821,8 @@ public class TestFactory {
             parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false);
             VariableReference callee = parameters.remove(0);
 
-			st = new PrivateMethodStatement(test,reflectionFactory.getReflectedClass(),method.getName(),
-                        callee,parameters);
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+                        callee, parameters, Modifier.isStatic(method.getModifiers()));
         }
 
         int newLength = test.size();
@@ -1814,6 +1831,65 @@ public class TestFactory {
         test.addStatement(st, position);
         return true;
     }
+
+	private boolean insertRandomReflectionCallOnObject(TestCase test, VariableReference callee, int position, int recursionDepth)
+			throws ConstructionFailedException {
+
+		logger.debug("Recursion depth: " + recursionDepth);
+		if (recursionDepth > Properties.MAX_RECURSION) {
+			logger.debug("Max recursion depth reached");
+			throw new ConstructionFailedException("Max recursion depth reached");
+		}
+
+        if(!reflectionFactory.getReflectedClass().isAssignableFrom(callee.getVariableClass())) {
+            logger.debug("Reflection not performed on class {}", callee.getVariableClass());
+            return false;
+        }
+
+		int length = test.size();
+		List<VariableReference> parameters = null;
+		Statement st = null;
+
+		if(reflectionFactory.nextUseField()){
+			Field field = reflectionFactory.nextField();
+
+			/*
+				In theory, there might be cases in which using null in PA might help increasing
+				coverage. However, likely most of the time we ll end up in useless tests throwing
+				NPE on the private fields. As we maximize the number of methods throwing exceptions,
+				we could end up with a lot of useless tests
+			 */
+			boolean allowNull = false;
+
+			parameters = satisfyParameters(test, callee,
+					//we need a reference to the SUT, and one to a variable of same type of chosen field
+					Arrays.asList((Type)field.getType()), position, recursionDepth + 1, allowNull, false);
+
+			try {
+				st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
+						callee, parameters.get(0));
+			} catch (NoSuchFieldException e) {
+				logger.error("Reflection problem: "+e,e);
+				throw new ConstructionFailedException("Reflection problem");
+			}
+		} else {
+			//method
+			Method method = reflectionFactory.nextMethod();
+			List<Type> list = new ArrayList<>();
+			list.addAll(Arrays.asList(method.getParameterTypes()));
+
+			parameters = satisfyParameters(test, callee, list,position, recursionDepth + 1, true, false);
+
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+					callee, parameters, Modifier.isStatic(method.getModifiers()));
+		}
+
+		int newLength = test.size();
+		position += (newLength - length);
+
+		test.addStatement(st, position);
+		return true;
+	}
 
 	/**
 	 *
@@ -1902,7 +1978,7 @@ public class TestFactory {
 
             if(reflectionFactory.hasPrivateFieldsOrMethods() &&
                     TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
-                    Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE){
+                    (Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE || TestCluster.getInstance().getNumTestCalls() == 0)){
                 return insertRandomReflectionCall(test,position, 0);
             }
 
@@ -1938,7 +2014,7 @@ public class TestFactory {
 					//}
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0, null, false); //no FM for SUT
+						callee = createObject(test, target, position, 0, null, true, false); //no FM for SUT
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {
@@ -2014,9 +2090,15 @@ public class TestFactory {
 			success = insertRandomCallOnObjectAt(test, var, position);
 		}
 
-		if(!success && TestCluster.getInstance().getNumTestCalls() > 0) {
-			logger.debug("Adding new call on UUT because var was null");
-			success = insertRandomCall(test, position);
+		if(!success) {
+            if(reflectionFactory==null){
+                reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+            }
+
+            if(TestCluster.getInstance().getNumTestCalls() > 0 || (reflectionFactory.hasPrivateFieldsOrMethods() && TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT)) {
+                logger.debug("Adding new call on UUT because var was null");
+                success = insertRandomCall(test, position);
+            }
 		}
 		return success;
 	}
@@ -2059,7 +2141,17 @@ public class TestFactory {
 		} else {
 			logger.debug("Getting calls for object " + var.toString());
 			try {
-				GenericAccessibleObject<?> call = TestCluster.getInstance().getRandomCallFor(var.getGenericClass(), test, position);
+                if(reflectionFactory==null){
+                    reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+                }
+
+                if(reflectionFactory.hasPrivateFieldsOrMethods() &&
+                        TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
+                        Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE){
+                    return insertRandomReflectionCallOnObject(test, var, position, 0);
+                }
+
+                GenericAccessibleObject<?> call = TestCluster.getInstance().getRandomCallFor(var.getGenericClass(), test, position);
 				logger.debug("Chosen call " + call);
 				return addCallFor(test, var, call, position);
 			} catch (ConstructionFailedException e) {
@@ -2083,7 +2175,6 @@ public class TestFactory {
 	 * @param parameterTypes
 	 * @param position
 	 * @param recursionDepth
-	 * @param constraints
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -2115,6 +2206,7 @@ public class TestFactory {
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
 			                                              recursionDepth, callee, allowNull, excludeCalleeGenerators, true);
+			assert ! (! allowNull && ConstraintHelper.isNull(var,test));
 
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {

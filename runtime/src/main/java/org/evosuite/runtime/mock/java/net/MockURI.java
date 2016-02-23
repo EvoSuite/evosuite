@@ -207,4 +207,7 @@ public class MockURI implements StaticReplacementMock {
         return instance.toASCIIString();
     }
 
+    public static String toString(URI instance) {
+        return instance.toString();
+    }
 }

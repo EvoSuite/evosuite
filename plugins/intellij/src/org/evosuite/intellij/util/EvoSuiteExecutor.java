@@ -145,6 +145,21 @@ public class EvoSuiteExecutor {
 
         thread = Thread.currentThread();
 
+        int modules = suts.keySet().size();
+        int total = suts.values().stream().mapToInt(Set::size).sum();
+        String msg = "Going to generate tests in "+modules+" module(s) for a total of "+total+ " classes";
+        System.out.println(msg);
+        notifier.printOnConsole(msg+"\n");
+
+        if(modules > 1) {
+
+            for(Map.Entry<String,Set<String>> entry : suts.entrySet()){
+                notifier.printOnConsole("Module "+entry.getKey()+" -> to test "+entry.getValue().size()+" class(es) \n");
+            }
+
+            notifier.success(msg);
+        }
+
         for (String modulePath : suts.keySet()) {
 
             if(Thread.currentThread().isInterrupted()){

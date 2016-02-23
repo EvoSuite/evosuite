@@ -82,18 +82,17 @@ public class ComparisonTransformation {
 					insertLongComparison(in, mn.instructions);
 					TransformationStatistics.transformedComparison();
 				} else if (in.getOpcode() == Opcodes.DCMPG) {
-					// TODO: Check treatment of NaN
 					TransformationStatistics.transformedComparison();
-					insertDoubleComparison(in, mn.instructions);
+					insertDoubleComparisonG(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.DCMPL) {
 					TransformationStatistics.transformedComparison();
-					insertDoubleComparison(in, mn.instructions);
+					insertDoubleComparisonL(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.FCMPG) {
 					TransformationStatistics.transformedComparison();
-					insertFloatComparison(in, mn.instructions);
+					insertFloatComparisonG(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.FCMPL) {
 					TransformationStatistics.transformedComparison();
-					insertFloatComparison(in, mn.instructions);
+					insertFloatComparisonL(in, mn.instructions);
 				}
 			}
 			node = next;
@@ -109,21 +108,40 @@ public class ComparisonTransformation {
 		list.remove(position);
 	}
 
-	private void insertFloatComparison(AbstractInsnNode position, InsnList list) {
+	private void insertFloatComparisonG(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(BooleanHelper.class), "floatSub",
+		        Type.getInternalName(BooleanHelper.class), "floatSubG",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE,
 		                Type.FLOAT_TYPE }), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
 
-	private void insertDoubleComparison(AbstractInsnNode position, InsnList list) {
+	private void insertFloatComparisonL(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        Type.getInternalName(BooleanHelper.class), "doubleSub",
+				Type.getInternalName(BooleanHelper.class), "floatSubL",
+				Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE,
+						Type.FLOAT_TYPE }), false);
+		list.insert(position, get);
+		list.remove(position);
+	}
+
+	private void insertDoubleComparisonG(AbstractInsnNode position, InsnList list) {
+		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        Type.getInternalName(BooleanHelper.class), "doubleSubG",
 		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE,
 		                Type.DOUBLE_TYPE }), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
+
+	private void insertDoubleComparisonL(AbstractInsnNode position, InsnList list) {
+		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
+				Type.getInternalName(BooleanHelper.class), "doubleSubL",
+				Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE,
+						Type.DOUBLE_TYPE }), false);
+		list.insert(position, get);
+		list.remove(position);
+	}
+
 }

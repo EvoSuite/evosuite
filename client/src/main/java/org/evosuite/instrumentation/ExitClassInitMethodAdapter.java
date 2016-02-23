@@ -66,11 +66,11 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 		if (opcode == Opcodes.RETURN && (methodName.equals("<clinit>"))) {
 
 			String executionTracerClassName = ResetManager.class.getName()
-					.replace(".", "/");
+					.replace('.', '/');
 			String executionTracerDescriptor = Type.getMethodDescriptor(
 					Type.VOID_TYPE, Type.getType(String.class));
 
-			String classNameWithDots = className.replace("/", ".");
+			String classNameWithDots = className.replace('/', '.');
 			super.visitLdcInsn(classNameWithDots);
 			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
 					EXIT_CLASS_INIT, executionTracerDescriptor, false);
@@ -95,11 +95,11 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 		if (methodName.equals("<clinit>")) {
 			super.visitLabel(endingTryLabel);
 			String executionTracerClassName = ResetManager.class.getName()
-					.replace(".", "/");
+					.replace('.', '/');
 			String executionTracerDescriptor = Type.getMethodDescriptor(
 					Type.VOID_TYPE, Type.getType(String.class));
 
-			String classNameWithDots = className.replace("/", ".");
+			String classNameWithDots = className.replace('/', '.');
 			super.visitLdcInsn(classNameWithDots);
 			super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
 					EXIT_CLASS_INIT, executionTracerDescriptor, false);
@@ -116,6 +116,20 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 					endingTryLabel, null);
 		}
 		super.visitEnd();
+	}
+
+	private static class TryCatchBlock {
+		public TryCatchBlock(Label start, Label end, Label handler, String type) {
+			this.start = start;
+			this.end = end;
+			this.handler = handler;
+			this.type = type;
+		}
+
+		Label start;
+		Label end;
+		Label handler;
+		String type;
 	}
 
 	private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();

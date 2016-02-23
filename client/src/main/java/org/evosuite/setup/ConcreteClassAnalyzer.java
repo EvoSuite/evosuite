@@ -27,16 +27,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ConcreteClassAnalyzer {
 
     private static Logger logger = LoggerFactory.getLogger(ConcreteClassAnalyzer.class);
 
-    public static Set<Class<?>> getConcreteClasses(Class<?> clazz,
+    private static ConcreteClassAnalyzer instance;
+
+    private ConcreteClassAnalyzer() {
+
+    }
+
+    public static ConcreteClassAnalyzer getInstance() {
+        if(instance == null)
+            instance = new ConcreteClassAnalyzer();
+
+        return instance;
+    }
+
+
+    private Map<Class<?>, Set<Class<?>>> cache = new LinkedHashMap<>();
+
+    public void clear() {
+        cache.clear();
+    }
+
+    public Set<Class<?>> getConcreteClasses(Class<?> clazz,
+                                            InheritanceTree inheritanceTree) {
+        if(cache.containsKey(clazz))
+            return cache.get(clazz);
+
+        Set<Class<?>> classes = getConcreteClassesImpl(clazz, inheritanceTree);
+        cache.put(clazz, classes);
+        return classes;
+    }
+
+    private Set<Class<?>> getConcreteClassesImpl(Class<?> clazz,
                                                    InheritanceTree inheritanceTree) {
 
         // Some special cases
@@ -151,7 +178,7 @@ public class ConcreteClassAnalyzer {
         return actualClasses;
     }
 
-    private static Set<Class<?>> getConcreteClassesMap() {
+    private Set<Class<?>> getConcreteClassesMap() {
         Set<Class<?>> mapClasses = new LinkedHashSet<>();
         Class<?> mapClazz;
         try {
@@ -165,7 +192,7 @@ public class ConcreteClassAnalyzer {
         return mapClasses;
     }
 
-    private static Set<Class<?>> getConcreteClassesList() {
+    private Set<Class<?>> getConcreteClassesList() {
         Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
         Class<?> mapClazz;
         try {
@@ -179,7 +206,7 @@ public class ConcreteClassAnalyzer {
         return mapClasses;
     }
 
-    private static Set<Class<?>> getConcreteClassesSet() {
+    private Set<Class<?>> getConcreteClassesSet() {
         Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
         Class<?> setClazz;
         try {
@@ -193,7 +220,7 @@ public class ConcreteClassAnalyzer {
         return mapClasses;
     }
 
-    private static Set<Class<?>> getConcreteClassesComparable() {
+    private Set<Class<?>> getConcreteClassesComparable() {
         Set<Class<?>> comparableClasses = new LinkedHashSet<Class<?>>();
         Class<?> comparableClazz;
         try {

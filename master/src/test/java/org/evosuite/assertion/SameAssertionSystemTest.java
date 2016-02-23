@@ -26,10 +26,7 @@ import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import com.examples.with.different.packagename.assertion.ArrayObjects;
 import com.examples.with.different.packagename.assertion.ArrayPrimitiveWrapper;
@@ -120,7 +117,10 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		Assert.assertTrue(hasSameAssertion);
 
 	}
-	
+
+	// TODO: Same assertions are excluding wrapper classes for now, as there are issues
+	//       when the values are inlined
+	@Ignore
 	@Test
 	public void testWrapper() {
 		EvoSuite evosuite = new EvoSuite();
@@ -158,7 +158,10 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		Assert.assertTrue(hasSameAssertion);
 
 	}
-	
+
+	// TODO: Same assertions are excluding wrapper classes for now, as there are issues
+	//       when the values are inlined
+	@Ignore
 	@Test
 	public void testWrapperCopy() {
 		EvoSuite evosuite = new EvoSuite();

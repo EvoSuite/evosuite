@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 import javax.xml.XMLConstants;
@@ -73,8 +74,11 @@ public class StorageManager {
 
 	private boolean isStorageOk = false;
 
+	private DecimalFormat df = null;
+
 	public StorageManager() {
 		this.isStorageOk = this.openForWriting();
+		this.df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ENGLISH);
 	}
 
 	/**
@@ -495,7 +499,8 @@ public class StorageManager {
 		}
 
 		coverage = coverage / (double) n;
-		db.setOverallCoverage(Double.parseDouble(new DecimalFormat("#0.00").format(coverage)));
+		this.df.applyPattern("#0.00");
+		db.setOverallCoverage(Double.parseDouble(this.df.format(coverage)));
 	}
 
 	/**
@@ -540,10 +545,12 @@ public class StorageManager {
 		new_coverage_test_suite.setFullPathOfTestSuite(ondisk.testSuite.getAbsolutePath());
 
 		List<CriterionCoverage> coverageValues = new ArrayList<CriterionCoverage>();
+		this.df.applyPattern("#0.00");
+
 		for (String criterion : csv.getCoverageVariables()) {
 			CriterionCoverage coverage = new CriterionCoverage();
 			coverage.setCriterion(criterion);
-			coverage.setCoverageValue(Double.parseDouble(new DecimalFormat("#0.00").format(csv.getCoverage(criterion))));
+			coverage.setCoverageValue(Double.parseDouble(this.df.format(csv.getCoverage(criterion))));
 
 			coverageValues.add(coverage);
 		}
@@ -683,7 +690,6 @@ public class StorageManager {
 
         // if at least the coverage of one criterion was
         // improved accept the generated TestSuite
-        boolean worseCoverage = false;
         for (String variable : suite.csvData.getCoverageVariables()) {
         	String coverageVariable = CsvJUnitData.getValue(rowCUT, variable);
         	if (coverageVariable == null) {
@@ -697,19 +703,12 @@ public class StorageManager {
         	// this check is to avoid issues with double truncation
         	if (covDif > 0.0001) {
 				return true;
-			} else if (covDif < -0.0001) {
-				worseCoverage = true;
 			}
         }
 
-        if (worseCoverage) {
-        	// means that there isn't a coverage improvement
-        	return false;
-        }
-
-        // coverage seems the same, does the generated test suite cover
-        // different goals? if at least the coverage of one criterion has
-        // changed, accept the generated TestSuite
+        // coverage seems to be either the same or lower. does the generated
+        // test suite cover different goals? we accept the generate TestSuite
+        // if it covers at least one goal not covered by the previous test suite
         for (String variable : suite.csvData.getCoverageBitStringVariables()) {
         	String existingCoverage = CsvJUnitData.getValue(rowCUT, variable);
         	if (existingCoverage == null) {
@@ -720,8 +719,10 @@ public class StorageManager {
         	// both strings must have the same length
         	assert(generatedCoverage.length() == existingCoverage.length());
 
-        	if (!existingCoverage.equals(generatedCoverage)) {
-        		return true;
+        	for (int i = 0; i < generatedCoverage.length(); i++) {
+        		if (existingCoverage.charAt(i) == '0' && generatedCoverage.charAt(i) == '1') {
+        			return true;
+        		}
         	}
         }
 

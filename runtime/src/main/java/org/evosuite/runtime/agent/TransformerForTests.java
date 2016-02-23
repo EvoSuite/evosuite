@@ -63,7 +63,7 @@ public class TransformerForTests implements ClassFileTransformer {
 			ProtectionDomain protectionDomain, byte[] classfileBuffer)
 					throws IllegalClassFormatException {
 		
-		String classWithDots = className.replace("/", ".");
+		String classWithDots = className.replace('/', '.');
 		if(!active || !RuntimeInstrumentation.checkIfCanInstrument(classWithDots) || classWithDots.startsWith(PackageInfo.getEvoSuitePackage())){
 			return classfileBuffer;
 		} else {
@@ -76,7 +76,7 @@ public class TransformerForTests implements ClassFileTransformer {
 
             logger.debug("Going to instrument: "+classWithDots);
 
-			return instrumenter.transformBytes(loader, className, reader); 
+			return instrumenter.transformBytes(loader, className, reader, false); // TODO: Need to set skip instrumentation for test class
 		}
 	}
 	

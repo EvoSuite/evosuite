@@ -20,7 +20,6 @@
 package org.evosuite.graphs.cfg;
 
 import org.evosuite.classpath.ResourceList;
-import org.evosuite.instrumentation.MethodSignatureCollector;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -92,7 +91,6 @@ public class CFGClassAdapter extends ClassVisitor {
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
 		                                     exceptions);
 		mv = new JSRInlinerAdapter(mv, methodAccess, name, descriptor, signature, exceptions);
-		mv = new MethodSignatureCollector(mv, className, name, descriptor, (methodAccess & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC);
 
 
 		if ((methodAccess & Opcodes.ACC_SYNTHETIC) != 0

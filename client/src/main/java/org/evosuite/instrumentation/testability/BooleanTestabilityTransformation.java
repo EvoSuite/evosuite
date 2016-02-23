@@ -103,7 +103,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	public BooleanTestabilityTransformation(ClassNode cn, ClassLoader classLoader) {
 		this.cn = cn;
-		this.className = cn.name.replace("/", ".");
+		this.className = cn.name.replace('/', '.');
 		this.classLoader = classLoader;
 	}
 
@@ -190,7 +190,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	public static String getOriginalNameDesc(String className, String methodName,
 	        String desc) {
-		String key = className.replace(".", "/") + "/" + methodName + desc;
+		String key = className.replace('.', '/') + "/" + methodName + desc;
 		if (DescriptorMapping.getInstance().originalDesc.containsKey(key)) {
 			logger.debug("Descriptor mapping contains original for " + key);
 			return DescriptorMapping.getInstance().getOriginalName(className, methodName,
@@ -216,7 +216,7 @@ public class BooleanTestabilityTransformation {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getOriginalDesc(String className, String methodName, String desc) {
-		String key = className.replace(".", "/") + "/" + methodName + desc;
+		String key = className.replace('.', '/') + "/" + methodName + desc;
 		if (DescriptorMapping.getInstance().originalDesc.containsKey(key)) {
 			logger.debug("Descriptor mapping contains original for " + key);
 			return DescriptorMapping.getInstance().originalDesc.get(key);
@@ -241,7 +241,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	public static boolean hasTransformedParameters(String className, String methodName,
 	        String desc) {
-		String key = className.replace(".", "/") + "/" + methodName + desc;
+		String key = className.replace('.', '/') + "/" + methodName + desc;
 		if (DescriptorMapping.getInstance().originalDesc.containsKey(key)) {
 			for (Type type : Type.getArgumentTypes(DescriptorMapping.getInstance().originalDesc.get(key))) {
 				if (type.equals(Type.BOOLEAN_TYPE))

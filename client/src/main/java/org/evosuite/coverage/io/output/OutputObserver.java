@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.io.output;
 
+import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
@@ -64,17 +65,22 @@ public class OutputObserver extends ExecutionObserver {
         if (statement instanceof MethodStatement) {
             MethodStatement methodStmt = (MethodStatement) statement;
             VariableReference varRef = methodStmt.getReturnValue();
-            Object returnObject = scope.getObject(varRef);
-            if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
-                // we don't save anything if there was an exception
-                // we are only interested in methods whose return type != void
 
-                String className  = methodStmt.getDeclaringClassName();
-                String methodDesc = methodStmt.getDescriptor();
-                String methodName = methodStmt.getMethodName();
+	        try {
+		        Object returnObject = varRef.getObject(scope);
+		        if (exception == null && !methodStmt.getReturnType().equals(Void.TYPE)) {
+			        // we don't save anything if there was an exception
+			        // we are only interested in methods whose return type != void
 
-                outputCoverage.put(statement.getPosition(), OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, returnObject));
-            }
+			        String className  = methodStmt.getDeclaringClassName();
+			        String methodDesc = methodStmt.getDescriptor();
+			        String methodName = methodStmt.getMethodName();
+
+			        outputCoverage.put(statement.getPosition(), OutputCoverageGoal.createGoalsFromObject(className, methodName, methodDesc, returnObject));
+		        }
+	        } catch (CodeUnderTestException e) {
+		        // ignore?
+	        }
         }
     }
 

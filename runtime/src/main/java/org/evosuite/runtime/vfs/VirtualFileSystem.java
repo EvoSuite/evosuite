@@ -108,9 +108,9 @@ public final class VirtualFileSystem {
 	 */
 	private VirtualFileSystem() {
 		tmpFileCounter = new AtomicInteger(0);
-		accessedFiles = new CopyOnWriteArraySet<String>(); //we only add during test execution, and read after
-		leakingResources =  new CopyOnWriteArraySet<LeakingResource>(); 
-		classesThatShouldThrowIOException = new CopyOnWriteArraySet<String>(); //should only contain very few values
+		accessedFiles = new CopyOnWriteArraySet<>(); //we only add during test execution, and read after
+		leakingResources =  new CopyOnWriteArraySet<>();
+		classesThatShouldThrowIOException = new CopyOnWriteArraySet<>(); //should only contain very few values
 	}
 
 	/**
@@ -209,12 +209,22 @@ public final class VirtualFileSystem {
 
 		root = new VFolder(null, null);
 
-		String workingDir = java.lang.System.getProperty("user.dir");
+		String workingDir = getWorkingDirPath();
 		createFolder(workingDir);
 		createFolder(getTmpFolderPath());
 
 		//important to clear, as above code would modify this field
 		accessedFiles.clear();
+	}
+
+	public static String getWorkingDirPath(){
+		//this should be set in the scaffolding file
+		return java.lang.System.getProperty("user.dir");
+	}
+
+	public static String getDefaultParent(){
+		//TODO this need more checking/validation
+		return File.separator;
 	}
 
 	private void markAccessedFile(String path) {

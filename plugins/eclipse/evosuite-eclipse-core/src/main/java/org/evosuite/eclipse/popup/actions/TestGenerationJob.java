@@ -641,7 +641,6 @@ public class TestGenerationJob extends Job {
 
 //		if (!"true".equals(target.getProject().getPersistentProperty(
 //				EvoSuitePropertyPage.REPORT_PROP_KEY))) {
-//			commands.add("-Dhtml=false");
 //			//commands.add("-Dstatistics_backend=none");
 //		} else {
 //			if ("true".equals(target.getProject().getPersistentProperty(
@@ -749,7 +748,7 @@ public class TestGenerationJob extends Job {
 				folder = project.getFolder("evosuite-tests/data");
 			} else {
 				folder = project.getFolder("evosuite-tests/data/"
-						+ filePackage.replace(".", "/"));
+						+ filePackage.replace('.', '/'));
 			}
 			if (!folder.exists()) {
 				try {
@@ -809,7 +808,7 @@ public class TestGenerationJob extends Job {
 				folder = project.getFolder("evosuite-tests/data");
 			} else {
 				folder = project.getFolder("evosuite-tests/data/"
-						+ filePackage.replace(".", "/"));
+						+ filePackage.replace('.', '/'));
 			}
 			IFile file = folder.getFile(target.getName() + ".gadata");
 			return file.getLocation().toOSString();

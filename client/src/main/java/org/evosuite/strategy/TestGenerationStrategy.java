@@ -25,8 +25,10 @@ import java.util.List;
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
@@ -37,6 +39,7 @@ import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -173,4 +176,12 @@ public abstract class TestGenerationStrategy {
 		}
 	}
 
+	protected boolean canGenerateTestsForSUT() {
+		if (TestCluster.getInstance().getNumTestCalls() == 0) {
+			if(Properties.P_REFLECTION_ON_PRIVATE <= 0.0 || CFGMethodAdapter.getNumMethods(TestGenerationContext.getInstance().getClassLoaderForSUT()) == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

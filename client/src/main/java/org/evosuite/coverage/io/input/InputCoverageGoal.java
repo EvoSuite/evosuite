@@ -174,13 +174,13 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
         if ((this.type == null && other.type != null) || (this.type != null && other.type == null))
             return false;
 
-        if (type != null && !this.type.equals(other.type))
+        if (this.type != null && !this.type.equals(other.type))
             return false;
 
         if ((this.valueDescriptor == null && other.valueDescriptor != null) || (this.valueDescriptor != null && other.valueDescriptor == null))
             return false;
 
-        if (valueDescriptor != null && !this.valueDescriptor.equals(other.valueDescriptor))
+        if (this.valueDescriptor != null && !this.valueDescriptor.equals(other.valueDescriptor))
             return false;
 
         return true;

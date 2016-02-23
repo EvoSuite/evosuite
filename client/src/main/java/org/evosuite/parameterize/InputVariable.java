@@ -468,4 +468,9 @@ public class InputVariable implements VariableReference {
 	public TestCase getTestCase() {
 		return this.getTestCase();
 	}
+
+	@Override
+	public boolean isFieldReference() {
+		return false;
+	}
 }

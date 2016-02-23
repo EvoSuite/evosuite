@@ -82,7 +82,7 @@ public class EvoAction extends AnAction {
         }
 
         Map<String,Set<String>> map = getCUTsToTest(event);
-        if(map==null || map.isEmpty()){
+        if(map==null || map.isEmpty() || map.values().stream().mapToInt(Set::size).sum() == 0){
             Messages.showMessageDialog(project, "No '.java' file or non-empty source folder was selected in a valid module",
                     title, Messages.getErrorIcon());
             return;
@@ -110,98 +110,106 @@ public class EvoAction extends AnAction {
      */
     private Map<String, Set<String>> getCUTsToTest(AnActionEvent event){
 
-        Map<String,Set<String>> map = new LinkedHashMap<String, Set<String>>();
-
-        /*
-            full paths of all source root folders.
-            this is needed to calculate the Java class names from the .java file paths
-         */
-        Set<String> roots = new LinkedHashSet<String>();
+        Map<String,Set<String>> map = new LinkedHashMap<>();
 
         Project project = event.getData(PlatformDataKeys.PROJECT);
-        String projectDir = new File(project.getBaseDir().getCanonicalPath()).getAbsolutePath(); //note: need "File" to avoid issues in Windows
 
-        Set<String> modulePaths = new LinkedHashSet<String>(); //TODO refactor to include roots in it
+        ModulesInfo modulesInfo = new ModulesInfo(project);
 
-        for (Module module : ModuleManager.getInstance(project).getModules()) {
-            for(VirtualFile sourceRoot : ModuleRootManager.getInstance(module).getSourceRoots()){
-                String path = new File(sourceRoot.getCanonicalPath()).getAbsolutePath();
-                roots.add(path);
-                /*
-                if(getModuleFolder(projectDir, path) != null) {
-                    roots.add(path);
-                } else {
-                    //should never happen? above code comes from when we were only supporting Maven. maybe now deprecated/convoluted?
-                }
-                */
-            }
-
-            modulePaths.add(Utils.getFolderLocation(module));
-        }
-
-        if (roots.isEmpty()){
+        if (! modulesInfo.hasRoots()){
             return null;
         }
 
+        Set<String> alreadyHandled = new LinkedHashSet<>();
+
         for(VirtualFile virtualFile : event.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY)){
-            String path = new File(virtualFile.getCanonicalPath()).getAbsolutePath();
-            String module = getModuleFolder(projectDir, path, modulePaths);
-
-            if(module == null){
-                continue;
-            }
-
-            Set<String> classes = map.get(module);
-            if(classes == null){
-                classes = new LinkedHashSet<String>();
-            }
-
-            String root = getSourceRootForFile(path, roots);
-
-            if(root == null){
-                /*
-                    the chosen file is not in a source folder.
-                    Need to check if its parent of any of them
-                 */
-                Set<String> included = getIncludedSourceRoots(path,roots);
-                if(included==null || included.isEmpty()){
-                    continue;
-                }
-
-                for(String sourceFolder : included){
-                    scanFolder(new File(sourceFolder),classes,sourceFolder);
-                }
-
-            } else {
-                if(!virtualFile.isDirectory()){
-                    if(!path.endsWith(".java")){
-                        // likely a resource file
-                        continue;
-                    }
-
-                    String name = getCUTName(path, root);
-                    classes.add(name);
-                } else {
-                    scanFolder(new File(virtualFile.getCanonicalPath()),classes,root);
-                }
-
-            }
-
-            map.put(module, classes);
-
-            //if(map.containsKey(maven) && map.get(maven)==null){
-                /*
-                    special case: we are already covering the whole module, so no point
-                    in also specifying single files inside it
-
-                    FIXME: this actually should not happen anymore. However, now there is
-                    potential performance issue of always having to determine every single .java file
-                 */
-              //  continue;
-            //}
+            String selectedFilePath = new File(virtualFile.getCanonicalPath()).getAbsolutePath();
+            recursiveHandle(map, modulesInfo, alreadyHandled, selectedFilePath);
         }
 
         return map;
+    }
+
+
+    private void recursiveHandle(Map<String,Set<String>> map, ModulesInfo modulesInfo, Set<String> alreadyHandled, String path){
+
+        if(alreadyHandled.contains(path)){
+            return;
+        }
+
+        Set<String> skip = handleSelectedPath(map, modulesInfo, path);
+        alreadyHandled.add(path);
+
+        for(String s : skip){
+            recursiveHandle(map, modulesInfo, alreadyHandled, s);
+        }
+    }
+
+
+    private Set<String> handleSelectedPath(Map<String, Set<String>> map, ModulesInfo modulesInfo, String selectedFilePath) {
+
+         /*
+                if Module A includes sub-module B, the source roots in B should
+                not be marked for A
+             */
+        Set<String> skip = new LinkedHashSet<>();
+
+        String module = modulesInfo.getModuleFolder(selectedFilePath);
+        File selectedFile = new File(selectedFilePath);
+
+        if(module == null){
+            return skip;
+        }
+
+        Set<String> classes = map.getOrDefault(module, new LinkedHashSet<>());
+
+        String root = modulesInfo.getSourceRootForFile(selectedFilePath);
+
+        if(root == null){
+            /*
+                the chosen file is not in a source folder.
+                Need to check if its parent of any of them
+             */
+            Set<String> included = modulesInfo.getIncludedSourceRoots(selectedFilePath);
+            if(included==null || included.isEmpty()){
+                return skip;
+            }
+
+            for(String otherModule : modulesInfo.getModulePathsView()) {
+
+                if(otherModule.length() > module.length() && otherModule.startsWith(module)) {
+                    //the considered module has a sub-module
+                    included.stream().filter(inc -> inc.startsWith(otherModule)).forEach(skip::add);
+                }
+            }
+
+            for(String sourceFolder : included){
+                if(skip.contains(sourceFolder)){
+                    continue;
+                }
+                scanFolder(new File(sourceFolder),classes,sourceFolder);
+            }
+
+        } else {
+            if(!selectedFile.isDirectory()){
+                if(!selectedFilePath.endsWith(".java")){
+                    // likely a resource file
+                    return skip;
+                }
+
+                String name = getCUTName(selectedFilePath, root);
+                classes.add(name);
+            } else {
+                scanFolder(selectedFile,classes,root);
+            }
+
+        }
+
+        if(! classes.isEmpty()) {
+            map.put(module, classes);
+        }
+
+        return skip;
     }
 
     private void scanFolder(File file, Set<String> classes, String root) {
@@ -223,57 +231,5 @@ public class EvoAction extends AnAction {
         name = name.replace('/','.'); //posix
         name = name.replace("\\", ".");  // windows
         return name;
-    }
-
-    private Set<String> getIncludedSourceRoots(String path, Set<String> roots){
-        Set<String> set = new HashSet<String>();
-        for(String root : roots){
-            if(root.startsWith(path)){
-               set.add(root);
-            }
-        }
-        return set;
-    }
-
-    private String getSourceRootForFile(String path, Set<String> roots){
-        for(String root : roots){
-            if(path.startsWith(root)){
-                return root;
-            }
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @param projectDir
-     * @param source
-     * @return
-     */
-    private String getModuleFolder(String projectDir, String source, Set<String> modulePaths){
-        File file = new File(source);
-        while(file != null){
-
-            String path = file.getAbsolutePath();
-
-            if(! path.startsWith(projectDir)){
-                //return projectDir; //we went too up in the hierarchy
-                return null;
-            }
-
-            if(file.isDirectory()){
-                File pom = new File(file,"pom.xml");
-                if(pom.exists()){
-                    return path;
-                }
-                //with new check, maybe pom.xml is not needed any more
-                if(modulePaths.contains(path)){
-                    return path;
-                }
-            }
-
-            file = file.getParentFile();
-        }
-        return projectDir;
     }
 }

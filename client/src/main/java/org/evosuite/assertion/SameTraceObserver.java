@@ -22,6 +22,7 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.Properties;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
@@ -62,6 +63,8 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 				return;
 			if(var.isPrimitive())
 				return;
+			if(var.isString() && Properties.INLINE)
+				return; // After inlining the value of assertions would be different
 
 			SameTraceEntry entry = new SameTraceEntry(var);
 
@@ -70,6 +73,8 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 					continue;
 				if(other.isPrimitive())
 					continue;
+                if(other.isWrapperType())
+                    continue; // Issues with inlining resulting in unstable assertions
 
 				Object otherObject = other.getObject(scope);
 				if (otherObject == null)
@@ -78,8 +83,7 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 					continue;
 				
 				try {
-					logger.debug("Comparison of " + var + " with " + other + " is: "
-					        + object.equals(otherObject) +" ==> "+(object == otherObject));
+					logger.debug("Comparison of {} with {}", var, other);
 					entry.addEntry(other, object == otherObject);
 				} catch (Throwable t) {
 					logger.debug("Exception during equals: " + t);
