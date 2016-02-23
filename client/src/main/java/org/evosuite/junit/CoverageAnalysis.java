@@ -28,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.NumberFormat;
 import java.util.*;
@@ -58,9 +57,9 @@ import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.idNaming.CoverageGoalTestNameGenerationStrategy;
-import org.evosuite.idNaming.NumberedTestNameGenerationStrategy;
-import org.evosuite.idNaming.TestNameGenerationStrategy;
+import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
+import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
+import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -83,8 +82,6 @@ import org.junit.runners.model.TestClass;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.criteria.CriteriaBuilder;
 
 /**
  * <p>

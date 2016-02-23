@@ -19,17 +19,13 @@
  */
 package org.evosuite.instrumentation;
 
-import org.evosuite.idNaming.VariableNameCollector;
-import org.objectweb.asm.ClassVisitor;
+import org.evosuite.junit.naming.variables.VariableNameCollector;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by gordon on 22/12/2015.

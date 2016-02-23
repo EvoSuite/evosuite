@@ -116,7 +116,7 @@ public class Properties {
 	public static boolean STRING_REPLACEMENT = true;
 
 	/** Constant <code>RESET_STATIC_FIELDS =false</code> */
-	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each a static field was modified")
+	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each static field was modified")
 	public static boolean RESET_STATIC_FIELDS = true;
 
 	@Parameter(key = "reset_static_field_gets", group = "Test Creation", description = "Call static constructors also after each static field was read")
@@ -718,7 +718,7 @@ public class Properties {
 	public static int CTG_CORES = 1;
 
 	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
-	public static int CTG_TIME = 1;
+	public static int CTG_TIME = 3;
 
 	@Parameter(key = "ctg_time_per_class", group = "Continuous Test Generation", description = "How many minutes to allocate for each class. If this parameter is set, then ctg_time is going to be ignored. This parameter is mainly meant for debugging purposes.")
 	public static Integer CTG_TIME_PER_CLASS = null;
@@ -1107,13 +1107,6 @@ public class Properties {
 	/** Constant <code>MAX_COVERAGE_DEPTH=-1</code> */
 	@Parameter(key = "max_coverage_depth", group = "Output", description = "Maximum depth in the calltree to count a branch as covered")
 	public static int MAX_COVERAGE_DEPTH = -1;
-
-	public enum TestNamingStrategy {
-		NUMBERED, COVERAGE
-	}
-
-	@Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
-	public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
 
 	// ---------------------------------------------------------------
 	// Sandbox
