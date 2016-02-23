@@ -131,36 +131,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- ERMIRA -->
-        <!--
-        <dependency>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>core</artifactId>
-            <version>3.2.0.658</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>runtime</artifactId>
-            <version>3.9.100-v20131218-1515</version>
-        </dependency> -->
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-        </dependency>
-        <!--
-       <dependency>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>org.eclipse.jdt.core</artifactId>
-            <version>3.9.1.v20130905-0837</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.birt.runtime</groupId>
-            <artifactId>org.eclipse.core.resources</artifactId>
-            <version>3.8.101.v20130717-0806</version>
-        </dependency>
-        -->
-        <!-- END ERMIRA -->
         <!-- NATURALIZE -->
         <dependency>
             <groupId>naturalize</groupId>
