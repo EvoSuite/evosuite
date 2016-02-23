@@ -7,7 +7,7 @@
     <artifactId>evosuite</artifactId>
     <name>EvoSuite</name>
     <description>n/a</description>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>http://www.evosuite.org/</url>
     <inceptionYear>2010</inceptionYear>
@@ -186,7 +186,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-report-plugin</artifactId>
-                        <version>2.19</version>
+                        <version>2.19.1</version>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -537,7 +537,7 @@
                 <configuration>
                     <header>src/etc/header.txt</header>
                     <properties>
-                        <year>2010-2015</year>
+                        <year>2010-2016</year>
                     </properties>
                     <excludes>
                         <exclude>DSC_LICENSE.txt</exclude>
@@ -545,12 +545,18 @@
                         <exclude>IMPORTANT_README_FOR_DEVELOPERS.txt</exclude>
                         <exclude>release_results/script/sf110.txt</exclude>
                         <exclude>removed/readme.txt</exclude>
+                        <exclude>plugins/eclipse/README.txt</exclude>
+                        <exclude>generated/**</exclude>
+                        <exclude>**/*.properties</exclude>
                         <exclude>**/.idea/**</exclude>
+                        <exclude>**/*.js</exclude>
+                        <exclude>**/*.css</exclude>
                         <exclude>release_results/generated_files/**</exclude>
                         <exclude>**/dk/brics/**</exclude>
                         <exclude>**/readme.txt</exclude>
                         <exclude>**/how_to.txt</exclude>
                         <exclude>client/src/main/resources/report/**</exclude>
+                        <exclude>client/src/main/resources/jdkPureMethods.txt</exclude>
                         <exclude>**/.hgignore</exclude>
                         <exclude>README.md</exclude>
                     </excludes>
@@ -567,7 +573,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.5.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -606,7 +612,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
+                <version>3.0.0</version>
                 <configuration>
                     <includePom>true</includePom>
                     <excludes>
@@ -617,7 +623,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19</version>
+                <version>2.19.1</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -637,7 +643,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19</version>
+                <version>2.19.1</version>
                 <configuration>
                     <!-- includes>
                         <include>${integrationTests}</include>
@@ -685,7 +691,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.4</version>
+                    <version>3.5</version>
                 </plugin>
                 <!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution
                     see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->
@@ -696,7 +702,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>2.4.2</version>
+                    <version>2.4.3</version>
                     <executions>
                         <execution>
                             <phase>package</phase>
@@ -784,18 +790,6 @@
                                         <shadedPattern>org.evosuite.shaded.org.objenesis</shadedPattern>
                                     </relocation>
                                 </relocations>
-                                <!-- ERMIRA -->
-                                <filters>
-                                  <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                      <exclude>META-INF/*.SF</exclude>
-                                      <exclude>META-INF/*.DSA</exclude>
-                                      <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                  </filter>
-                                </filters>
-                                <!-- END ERMIRA -->
                             </configuration>
                         </execution>
                     </executions>
