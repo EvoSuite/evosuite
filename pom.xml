@@ -710,6 +710,17 @@
                                 <goal>shade</goal>
                             </goals>
                             <configuration>
+                                <filters>
+                                    <filter>
+                                        <!-- filter out signature files from signed dependencies -->
+                                        <artifact>*:*</artifact>
+                                        <excludes>
+                                            <exclude>META-INF/*.SF</exclude>
+                                            <exclude>META-INF/*.DSA</exclude>
+                                            <exclude>META-INF/*.RSA</exclude>
+                                        </excludes>
+                                    </filter>
+                                </filters>
                                 <shadedArtifactAttached>false</shadedArtifactAttached>
                                 <createDependencyReducedPom>true</createDependencyReducedPom>
                                 <!-- do not change "org.evosuite.shaded." as it used in some of the java classes -->
