@@ -142,10 +142,7 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 			args[entry.getValue().placeholderIndex] = newName;
 		}
 		logger.debug("Finalizing testCode:\n" + testCode);
-		System.out.println("Finalizing testCode:" + testCode);
 		logger.debug("Args: " + Arrays.toString(args));
-		System.out.println("Args: " + Arrays.toString(args));
-		System.out.println("---");
 		return MessageFormat.format(testCode, args);
 	}
 
