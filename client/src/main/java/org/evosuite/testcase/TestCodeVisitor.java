@@ -90,7 +90,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 	protected static final String BRACE_OPEN = "'{'";
 	protected static final String BRACE_CLOSE = "'}'";
 
-	private VariableNamingStrategy strategy = new DefaultNamingStrategy((ImportsTestCodeVisitor) this.tcv);
+	private VariableNamingStrategy strategy = null;
 
 	public void initializeNamingStrategyFromProperties() {
 		switch (Properties.VARIABLE_NAMING_STRATEGY) {
@@ -117,6 +117,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 
 	public TestCodeVisitor(){
 		this.tcv = new ImportsTestCodeVisitor();
+		this.strategy = new DefaultNamingStrategy((ImportsTestCodeVisitor) this.tcv);
 	}
 	/**
 	 * <p>

@@ -316,6 +316,8 @@ public class ImportsTestCodeVisitor extends AbstractTestCodeVisitor {
 			String simpleOuterName = outerClass.getSimpleName();
 			if(simpleOuterName.equals(enclosingName)) {
 				name = enclosingName + name.substring(simpleOuterName.length());
+			} else {
+				name = enclosingName + name.substring(name.lastIndexOf(simpleOuterName) + simpleOuterName.length());
 			}
 		}
 

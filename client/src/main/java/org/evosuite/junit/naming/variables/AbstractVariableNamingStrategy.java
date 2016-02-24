@@ -31,6 +31,7 @@ import org.evosuite.utils.generic.GenericField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,9 +66,13 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		GenericField field = var.getField();
 		if (source != null)
 			return getVariableName(testCase, source) + "." + field.getName();
-		else
-			return this.itv.getClassNames().get(field.getField().getDeclaringClass()) + "."
-					+ field.getName();
+		else {
+			String fName = field.getName();
+			Field f = field.getField();
+			Class<?> declaringClass = f.getDeclaringClass();
+			Map<Class<?>, String> classNames = this.itv.getClassNames();
+			return classNames.get(declaringClass) + "." + fName;
+		}
 	}
 
 	public String getArrayIndexName(TestCase testCase, ArrayIndex var) {
@@ -120,6 +125,9 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 	}
 
 	public String finalize(String testCode) {
+		if (variableNames.isEmpty())
+			return testCode;
+
 		Map<Integer, String> auxMap = new HashMap<>();
 
 		for (VariableNamePair entry : variableNames.values())
@@ -144,8 +152,12 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 	private String checkUnique(Map<Integer, String> map, String name) {
 		if (name.endsWith("0")) {
 			String prefix = name.substring(0, name.length()-1);
-			if (! map.values().contains(prefix + "1") && ! isJavaKeyword(prefix))
-				return prefix;
+			if (! map.values().contains(prefix + "1") && ! isJavaKeyword(prefix)) {
+				if (prefix.endsWith("_"))
+					return prefix.substring(0, prefix.length()-1);
+				else
+					return prefix;
+			}
 		}
 		return name;
 	}
