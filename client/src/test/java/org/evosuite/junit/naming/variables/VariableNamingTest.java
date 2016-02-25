@@ -21,6 +21,7 @@ package org.evosuite.junit.naming.variables;
 
 import com.examples.with.different.packagename.NullString;
 import com.examples.with.different.packagename.junit.Foo;
+import com.examples.with.different.packagename.junit.FooArray;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.PrimitiveAssertion;
@@ -40,6 +41,7 @@ import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
@@ -49,6 +51,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -214,4 +217,43 @@ public class VariableNamingTest {
         Assert.assertEquals(((ExplanatoryNamingTestVisitor.CandidateName)set.first()).getName(), "v2");
     }
 
+    @Test
+    public void testArrayIndexAsArgument() throws NoSuchMethodException {
+        DefaultTestCase tc = new DefaultTestCase();
+        Class<?> sut = FooArray.class;
+
+        ArrayReference ref = new ArrayReference(tc, Object[].class);
+        ArrayStatement stmt = new ArrayStatement(tc, ref, new int[] {2});
+        tc.addStatement(stmt);
+
+        ArrayIndex ai0 = new ArrayIndex(tc, ref, 0);
+        GenericConstructor fooConstructor = new GenericConstructor(sut.getConstructors()[0], sut);
+        ConstructorStatement fooConstructorStatement = new ConstructorStatement(tc, fooConstructor, Arrays.asList(new VariableReference[] { ai0 }));
+        tc.addStatement(fooConstructorStatement);
+
+        String expected = "Object[] objectArray = new Object[2];\n" +
+                "FooArray fooArray = new FooArray(objectArray[0]);\n";
+        String actual = tc.toCode();
+        Assert.assertEquals("incorrect test code", expected, actual);
+    }
+
+    @Test
+    public void testArrayIndexInAssignment() throws NoSuchMethodException {
+        DefaultTestCase tc = new DefaultTestCase();
+
+        ArrayReference ref = new ArrayReference(tc, Object[].class);
+        ArrayStatement stmt = new ArrayStatement(tc, ref, new int[] {2});
+        tc.addStatement(stmt);
+
+        ArrayIndex ai0 = new ArrayIndex(tc, ref, 0);
+        VariableReference valueRef = tc.addStatement(new NullStatement(tc, Object.class));
+        AssignmentStatement assStmt = new AssignmentStatement(tc, ai0, valueRef);
+        tc.addStatement(assStmt);
+
+        String expected = "Object[] objectArray = new Object[2];\n" +
+                "Object object = null;\n" +
+                "objectArray[0] = object;\n";
+        String actual = tc.toCode();
+        Assert.assertEquals("incorrect test code", expected, actual);
+    }
 }
