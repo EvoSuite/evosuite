@@ -84,8 +84,9 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 			String code = visitor.getCode();
 			testToCodeMap.put(testCase, code);
 		}
-		String dummyName = super.getVariableName(testCase, var);
 		if (! variableNames.containsKey(var)) {
+			String dummyName = super.getVariableName(testCase, var);
+			variableNames.remove(var);
 			String name = getNaturalizeRenaming(testToCodeMap.get(testCase), dummyName);
 			put(var, name);
 		}
@@ -99,17 +100,16 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 			logger.debug("Calling Naturalize for variable {0}:", id);
 			final SortedSet<Renaming> renamings = renamer.getRenamings(scope, id);
 			logger.debug("Renamings for variable {}: {}", id, renamings);
-			Renaming[] renamingsArray = (Renaming[]) renamings.toArray();
+			Object[] renamingsArray = renamings.toArray();
 
-			String newId = renamingsArray[0].name;
-			int i = 1;
+			String newId = "";
+			int i = 0;
 			while (!isValidVariableName(newId) && i < renamingsArray.length) {
-				newId = renamingsArray[i].name;
+				newId = ((Renaming)renamingsArray[i]).name;
 				i++;
 			}
 
-
-			return newId.equals("UNK_SYMBOL") ? id : newId;
+			return i == renamingsArray.length ? id : newId;
 		} catch (NullPointerException e) {
 			// swallow exception
 			logger.debug("Naturalize failed to generate any renaming for {}.", id);
@@ -121,6 +121,7 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 	private boolean isValidVariableName(String id) {
 		return isName(id) && !id.equals("UNK_SYMBOL");
 	}
+
 	@Override
 	public void reset() {
 		super.reset();
