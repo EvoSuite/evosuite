@@ -78,7 +78,7 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 	public String getArrayIndexName(TestCase testCase, ArrayIndex var) {
 		VariableReference array = var.getArray();
 		List<Integer> indices = var.getArrayIndices();
-		String result = getVariableName(testCase, array);
+		String result = getPlaceholder(testCase, array);
 		for (Integer index : indices) {
 			result += "[" + index + "]";
 		}
@@ -114,8 +114,10 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		if (variableNames.containsKey(var))
 			return String.format("{%d}",  variableNames.get(var).placeholderIndex);
 		else {
-			name = name.replaceAll("[']", "''"); // escape single quotes
-			name = "'" + name + "'"; // make sure string is ignored for placeholders
+			if (!(var instanceof ArrayIndex)) {
+				name = name.replaceAll("[']", "''"); // escape single quotes
+				name = "'" + name + "'"; // make sure string is ignored for placeholders
+			}
 		}
 		return name;
 	}
@@ -141,9 +143,16 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 				variableNames.put(entry.getKey(), new VariableNamePair(entry.getValue().placeholderIndex, newName));
 			args[entry.getValue().placeholderIndex] = newName;
 		}
-		logger.debug("Finalizing testCode:\n" + testCode);
-		logger.debug("Args: " + Arrays.toString(args));
-		return MessageFormat.format(testCode, args);
+		logger.debug("Finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
+		String finalTestCode = "";
+		try {
+			finalTestCode = MessageFormat.format(testCode, args);
+		} catch (IllegalArgumentException e) {
+			logger.error("Error finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
+			// TODO: MessageFormat.format gets confused with braces; might be better to implement our own simplified algorithm
+			finalTestCode = "// Could not finalize test\n" + "/*\n" + testCode + "\n*/";
+		}
+		return finalTestCode;
 	}
 
 	private String checkUnique(Map<Integer, String> map, String name) {
