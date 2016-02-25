@@ -20,13 +20,14 @@
 package org.evosuite.idnaming;
 
 import com.examples.with.different.packagename.Calculator;
-import com.examples.with.different.packagename.idnaming.BOMInputStream;
 import com.examples.with.different.packagename.sette.L4_Collections;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
 import com.examples.with.different.packagename.strings.Calc;
+import com.examples.with.different.packagename.idnaming.naturalize.StringExample;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -38,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 public class IDNamingSystemTest extends SystemTestBase {
 
 	@Test
-	public void testIDNamingOn() {
+	public void testDummyStrategy() {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = Calc.class.getCanonicalName();
@@ -51,7 +52,33 @@ public class IDNamingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		// TODO: figure out how to check that variable names are as expected for each naming strategy
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
 	}
+
+	@Test
+	public void testNaturalizeStrategy() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = StringExample.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.JUNIT_TESTS = true;
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.NATURALIZE;
+		Properties.VARIABLE_NAMING_TRAINING_DATA_DIR = "src/test/java/com/examples/with/different/packagename/idnaming/naturalize";
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		// TODO: figure out how to check that variable names are as expected for each naming strategy
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println(best.toString());
+	}
+
 
 //	@Test
 //	public void testCarvedTestNames() {
