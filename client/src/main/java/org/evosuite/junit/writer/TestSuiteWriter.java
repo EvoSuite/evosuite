@@ -85,7 +85,7 @@ public class TestSuiteWriter implements Opcodes {
 
     private final UnitTestAdapter adapter = TestSuiteWriterUtils.getAdapter();
 
-    private TestCodeVisitor visitor = new TestCodeVisitor();
+    private TestCodeVisitor visitor = null;
 
     private final static String NEWLINE = java.lang.System.getProperty("line.separator");
 
@@ -232,6 +232,9 @@ public class TestSuiteWriter implements Opcodes {
         } else {
             throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
         }
+
+        visitor = new TestCodeVisitor();
+        visitor.initializeNamingStrategyFromProperties();
 
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
