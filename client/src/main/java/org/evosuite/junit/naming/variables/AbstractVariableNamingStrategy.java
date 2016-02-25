@@ -138,10 +138,14 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		String[] args = new String[Collections.max(auxMap.keySet()) + 1];
 		for (Map.Entry<VariableReference, VariableNamePair> entry : variableNames.entrySet()) {
 			String name = entry.getValue().name;
+			// TODO: finalized names (trailing 0 removed if there is only one variable for a type) break naturalize (trying to replace original name in finalized test code)
+			/*
 			String newName = checkUnique(auxMap, name);
 			if (! name.equals(newName))
 				variableNames.put(entry.getKey(), new VariableNamePair(entry.getValue().placeholderIndex, newName));
 			args[entry.getValue().placeholderIndex] = newName;
+			*/
+			args[entry.getValue().placeholderIndex] = name;
 		}
 		logger.debug("Finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
 		String finalTestCode = "";
@@ -149,6 +153,7 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 			finalTestCode = MessageFormat.format(testCode, args);
 		} catch (IllegalArgumentException e) {
 			logger.error("Error finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
+			logger.error(e.toString());
 			// TODO: MessageFormat.format gets confused with braces; might be better to implement our own simplified algorithm
 			finalTestCode = "// Could not finalize test\n" + "/*\n" + testCode + "\n*/";
 		}
