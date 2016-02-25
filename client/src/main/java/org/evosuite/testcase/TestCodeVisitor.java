@@ -590,7 +590,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 			} else {
 				String escapedString = StringUtil.getEscapedString((String) value);
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-						+ getVariablePlaceholder(retval) + " = \"" + escapedString + "\";" + NEWLINE;
+						+ getVariablePlaceholder(retval) + " = '\"" + escapedString + "\"';" + NEWLINE;
 			}
 			// testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			// + getVariablePlaceholder(retval) + " = \""
