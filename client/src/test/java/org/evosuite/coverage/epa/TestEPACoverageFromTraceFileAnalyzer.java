@@ -6,21 +6,149 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by pantonio on 2/20/16.
  */
 public class TestEPACoverageFromTraceFileAnalyzer {
-	
-	private static String TRACE_FILE_CONTENTS = "3-isAddEnabled()Z\n" +
+
+	private static String SAMPLE1 = "1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS127()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS95()Z\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isPreviousEnabled()Z\n" +
+			"1-isRemoveEnabled()Z\n" +
+			"1-isSetEnabled()Z\n" +
+			"1-isStateS119()Z\n" +
+			"1-reportStateS119()V\n" +
+			"1-reportState()V\n" +
+			"1-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS127()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS95()Z\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isPreviousEnabled()Z\n" +
+			"1-isRemoveEnabled()Z\n" +
+			"1-isSetEnabled()Z\n" +
+			"1-isStateS119()Z\n" +
+			"1-reportStateS119()V\n" +
+			"1-reportState()V\n" +
+			"1-hasNext()Z";
+
+	private static String SAMPLE2 = "1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS127()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS95()Z\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isPreviousEnabled()Z\n" +
+			"1-isRemoveEnabled()Z\n" +
+			"1-isSetEnabled()Z\n" +
+			"1-isStateS119()Z\n" +
+			"1-reportStateS119()V\n" +
+			"1-reportState()V\n" +
+			"1-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS127()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS95()Z\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isPreviousEnabled()Z\n" +
+			"1-isRemoveEnabled()Z\n" +
+			"1-isSetEnabled()Z\n" +
+			"1-isStateS119()Z\n" +
+			"1-reportStateS119()V\n" +
+			"1-reportState()V\n" +
+			"1-hasNext()Z\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS127()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isStateS95()Z\n" +
+			"1-isAddEnabled()Z\n" +
+			"1-isNextEnabled()Z\n" +
+			"1-isPreviousEnabled()Z\n" +
+			"1-isRemoveEnabled()Z\n" +
+			"1-isSetEnabled()Z\n" +
+			"1-isStateS119()Z\n" +
+			"1-reportStateS119()V\n" +
+			"1-reportState()V\n" +
+			"1-hasPrevious()Z";
+
+	private static String SAMPLE3 = "2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS127()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS95()Z\n" +
+			"2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isPreviousEnabled()Z\n" +
+			"2-isRemoveEnabled()Z\n" +
+			"2-isSetEnabled()Z\n" +
+			"2-isStateS119()Z\n" +
+			"2-reportStateS119()V\n" +
+			"2-reportState()V\n" +
+			"2-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
+			"2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS127()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS95()Z\n" +
+			"2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isPreviousEnabled()Z\n" +
+			"2-isRemoveEnabled()Z\n" +
+			"2-isSetEnabled()Z\n" +
+			"2-isStateS119()Z\n" +
+			"2-reportStateS119()V\n" +
+			"2-reportState()V\n" +
+			"2-hasNext()Z\n" +
+			"2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS127()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS95()Z\n" +
+			"2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isPreviousEnabled()Z\n" +
+			"2-isRemoveEnabled()Z\n" +
+			"2-isSetEnabled()Z\n" +
+			"2-isStateS119()Z\n" +
+			"2-reportStateS119()V\n" +
+			"2-reportState()V\n" +
+			"2-hasPrevious()Z\n" +
+			"2-checkForComodification()V\n" +
+			"2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS127()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isStateS95()Z\n" +
+			"2-isAddEnabled()Z\n" +
+			"2-isNextEnabled()Z\n" +
+			"2-isPreviousEnabled()Z\n" +
+			"2-isRemoveEnabled()Z\n" +
+			"2-isSetEnabled()Z\n" +
+			"2-isStateS119()Z\n" +
+			"2-reportStateS119()V\n" +
+			"2-reportState()V\n" +
+			"2-add(Ljava/lang/Object;)V";
+
+	private static String SAMPLE4 = "3-isAddEnabled()Z\n" +
 			"3-isNextEnabled()Z\n" +
 			"3-isStateS127()Z\n" +
 			"3-isNextEnabled()Z\n" +
@@ -28,45 +156,12 @@ public class TestEPACoverageFromTraceFileAnalyzer {
 			"3-isAddEnabled()Z\n" +
 			"3-isNextEnabled()Z\n" +
 			"3-isPreviousEnabled()Z\n" +
-			"3-isStateS119()Z\n" +
-			"3-isAddEnabled()Z\n" +
-			"3-isNextEnabled()Z\n" +
-			"3-isPreviousEnabled()Z\n" +
 			"3-isRemoveEnabled()Z\n" +
 			"3-isSetEnabled()Z\n" +
-			"3-isStateS87()Z\n" +
-			"3-reportStateS87()V\n" +
+			"3-isStateS119()Z\n" +
+			"3-reportStateS119()V\n" +
 			"3-reportState()V\n" +
 			"3-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"3-checkForComodification()V\n" +
-			"3-isAddEnabled()Z\n" +
-			"3-isNextEnabled()Z\n" +
-			"3-isStateS127()Z\n" +
-			"3-isNextEnabled()Z\n" +
-			"3-isStateS95()Z\n" +
-			"3-isAddEnabled()Z\n" +
-			"3-isNextEnabled()Z\n" +
-			"3-isPreviousEnabled()Z\n" +
-			"3-isRemoveEnabled()Z\n" +
-			"3-isSetEnabled()Z\n" +
-			"3-isStateS119()Z\n" +
-			"3-reportStateS119()V\n" +
-			"3-reportState()V\n" +
-			"3-add(Ljava/lang/Object;)V\n" +
-			"3-isAddEnabled()Z\n" +
-			"3-isNextEnabled()Z\n" +
-			"3-isStateS127()Z\n" +
-			"3-isNextEnabled()Z\n" +
-			"3-isStateS95()Z\n" +
-			"3-isAddEnabled()Z\n" +
-			"3-isNextEnabled()Z\n" +
-			"3-isPreviousEnabled()Z\n" +
-			"3-isRemoveEnabled()Z\n" +
-			"3-isSetEnabled()Z\n" +
-			"3-isStateS119()Z\n" +
-			"3-reportStateS119()V\n" +
-			"3-reportState()V\n" +
-			"3-hasPrevious()Z\n" +
 			"3-isAddEnabled()Z\n" +
 			"3-isNextEnabled()Z\n" +
 			"3-isStateS127()Z\n" +
@@ -94,561 +189,74 @@ public class TestEPACoverageFromTraceFileAnalyzer {
 			"3-isStateS119()Z\n" +
 			"3-reportStateS119()V\n" +
 			"3-reportState()V\n" +
-			"3-nextIndex()I\n" +
-			"4-isAddEnabled()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isStateS127()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isStateS95()Z\n" +
-			"4-isAddEnabled()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isPreviousEnabled()Z\n" +
-			"4-isStateS119()Z\n" +
-			"4-isAddEnabled()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isPreviousEnabled()Z\n" +
-			"4-isRemoveEnabled()Z\n" +
-			"4-isSetEnabled()Z\n" +
-			"4-isStateS87()Z\n" +
-			"4-reportStateS87()V\n" +
-			"4-reportState()V\n" +
-			"4-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"4-isAddEnabled()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isStateS127()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isStateS95()Z\n" +
-			"4-isAddEnabled()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isPreviousEnabled()Z\n" +
-			"4-isStateS119()Z\n" +
-			"4-isAddEnabled()Z\n" +
-			"4-isNextEnabled()Z\n" +
-			"4-isPreviousEnabled()Z\n" +
-			"4-isRemoveEnabled()Z\n" +
-			"4-isSetEnabled()Z\n" +
-			"4-isStateS87()Z\n" +
-			"4-reportStateS87()V\n" +
-			"4-reportState()V\n" +
-			"4-hasPrevious()Z\n" +
-			"5-isAddEnabled()Z\n" +
-			"5-isNextEnabled()Z\n" +
-			"5-isStateS127()Z\n" +
-			"5-isNextEnabled()Z\n" +
-			"5-isStateS95()Z\n" +
-			"5-isAddEnabled()Z\n" +
-			"5-isNextEnabled()Z\n" +
-			"5-isPreviousEnabled()Z\n" +
-			"5-isStateS119()Z\n" +
-			"5-isAddEnabled()Z\n" +
-			"5-isNextEnabled()Z\n" +
-			"5-isPreviousEnabled()Z\n" +
-			"5-isRemoveEnabled()Z\n" +
-			"5-isSetEnabled()Z\n" +
-			"5-isStateS87()Z\n" +
-			"5-reportStateS87()V\n" +
-			"5-reportState()V\n" +
-			"5-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"5-checkForComodification()V\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS127()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS95()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isRemoveEnabled()Z\n" +
-			"6-isSetEnabled()Z\n" +
-			"6-isStateS119()Z\n" +
-			"6-reportStateS119()V\n" +
-			"6-reportState()V\n" +
-			"6-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"6-checkForComodification()V\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isStateS127()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isRemoveEnabled()Z\n" +
-			"6-isStateS95()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS119()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS87()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isStateS511()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS503()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isRemoveEnabled()Z\n" +
-			"6-isSetEnabled()Z\n" +
-			"6-isStateS479()Z\n" +
-			"6-reportStateS479()V\n" +
-			"6-reportState()V\n" +
-			"6-previous()Ljava/lang/Object;\n" +
-			"6-checkForComodification()V\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isStateS127()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isRemoveEnabled()Z\n" +
-			"6-isStateS95()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS119()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS87()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isStateS511()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS503()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isRemoveEnabled()Z\n" +
-			"6-isSetEnabled()Z\n" +
-			"6-isStateS479()Z\n" +
-			"6-reportStateS479()V\n" +
-			"6-reportState()V\n" +
-			"6-set(Ljava/lang/Object;)V\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isStateS127()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isRemoveEnabled()Z\n" +
-			"6-isStateS95()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS119()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS87()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isStateS511()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isStateS503()Z\n" +
-			"6-isAddEnabled()Z\n" +
-			"6-isNextEnabled()Z\n" +
-			"6-isPreviousEnabled()Z\n" +
-			"6-isRemoveEnabled()Z\n" +
-			"6-isSetEnabled()Z\n" +
-			"6-isStateS479()Z\n" +
-			"6-reportStateS479()V\n" +
-			"6-reportState()V\n" +
-			"6-nextIndex()I\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS127()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS95()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isRemoveEnabled()Z\n" +
-			"7-isSetEnabled()Z\n" +
-			"7-isStateS119()Z\n" +
-			"7-reportStateS119()V\n" +
-			"7-reportState()V\n" +
-			"7-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS127()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS95()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isRemoveEnabled()Z\n" +
-			"7-isSetEnabled()Z\n" +
-			"7-isStateS119()Z\n" +
-			"7-reportStateS119()V\n" +
-			"7-reportState()V\n" +
-			"7-hasNext()Z\n" +
-			"7-checkForComodification()V\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isStateS127()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isRemoveEnabled()Z\n" +
-			"7-isStateS95()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS119()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS87()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isStateS511()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS503()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isRemoveEnabled()Z\n" +
-			"7-isSetEnabled()Z\n" +
-			"7-isStateS479()Z\n" +
-			"7-reportStateS479()V\n" +
-			"7-reportState()V\n" +
-			"7-previous()Ljava/lang/Object;\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isStateS127()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isRemoveEnabled()Z\n" +
-			"7-isStateS95()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS119()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS87()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isStateS511()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isStateS503()Z\n" +
-			"7-isAddEnabled()Z\n" +
-			"7-isNextEnabled()Z\n" +
-			"7-isPreviousEnabled()Z\n" +
-			"7-isRemoveEnabled()Z\n" +
-			"7-isSetEnabled()Z\n" +
-			"7-isStateS479()Z\n" +
-			"7-reportStateS479()V\n" +
-			"7-reportState()V\n" +
-			"7-hasNext()Z\n" +
-			"8-isAddEnabled()Z\n" +
-			"8-isNextEnabled()Z\n" +
-			"8-isStateS127()Z\n" +
-			"8-isNextEnabled()Z\n" +
-			"8-isStateS95()Z\n" +
-			"8-isAddEnabled()Z\n" +
-			"8-isNextEnabled()Z\n" +
-			"8-isPreviousEnabled()Z\n" +
-			"8-isRemoveEnabled()Z\n" +
-			"8-isSetEnabled()Z\n" +
-			"8-isStateS119()Z\n" +
-			"8-reportStateS119()V\n" +
-			"8-reportState()V\n" +
-			"8-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"8-isAddEnabled()Z\n" +
-			"8-isNextEnabled()Z\n" +
-			"8-isStateS127()Z\n" +
-			"8-isNextEnabled()Z\n" +
-			"8-isStateS95()Z\n" +
-			"8-isAddEnabled()Z\n" +
-			"8-isNextEnabled()Z\n" +
-			"8-isPreviousEnabled()Z\n" +
-			"8-isRemoveEnabled()Z\n" +
-			"8-isSetEnabled()Z\n" +
-			"8-isStateS119()Z\n" +
-			"8-reportStateS119()V\n" +
-			"8-reportState()V\n" +
-			"8-nextIndex()I\n" +
-			"9-isAddEnabled()Z\n" +
-			"9-isNextEnabled()Z\n" +
-			"9-isStateS127()Z\n" +
-			"9-isNextEnabled()Z\n" +
-			"9-isStateS95()Z\n" +
-			"9-isAddEnabled()Z\n" +
-			"9-isNextEnabled()Z\n" +
-			"9-isPreviousEnabled()Z\n" +
-			"9-isStateS119()Z\n" +
-			"9-isAddEnabled()Z\n" +
-			"9-isNextEnabled()Z\n" +
-			"9-isPreviousEnabled()Z\n" +
-			"9-isRemoveEnabled()Z\n" +
-			"9-isSetEnabled()Z\n" +
-			"9-isStateS87()Z\n" +
-			"9-reportStateS87()V\n" +
-			"9-reportState()V\n" +
-			"9-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"10-isAddEnabled()Z\n" +
-			"10-isNextEnabled()Z\n" +
-			"10-isStateS127()Z\n" +
-			"10-isNextEnabled()Z\n" +
-			"10-isStateS95()Z\n" +
-			"10-isAddEnabled()Z\n" +
-			"10-isNextEnabled()Z\n" +
-			"10-isPreviousEnabled()Z\n" +
-			"10-isRemoveEnabled()Z\n" +
-			"10-isSetEnabled()Z\n" +
-			"10-isStateS119()Z\n" +
-			"10-reportStateS119()V\n" +
-			"10-reportState()V\n" +
-			"10-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"10-checkForComodification()V\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS127()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS95()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isRemoveEnabled()Z\n" +
-			"11-isSetEnabled()Z\n" +
-			"11-isStateS119()Z\n" +
-			"11-reportStateS119()V\n" +
-			"11-reportState()V\n" +
-			"11-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"11-checkForComodification()V\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isStateS127()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isRemoveEnabled()Z\n" +
-			"11-isStateS95()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS119()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS87()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isStateS511()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS503()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isRemoveEnabled()Z\n" +
-			"11-isSetEnabled()Z\n" +
-			"11-isStateS479()Z\n" +
-			"11-reportStateS479()V\n" +
-			"11-reportState()V\n" +
-			"11-previous()Ljava/lang/Object;\n" +
-			"11-checkForComodification()V\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS127()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS95()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isStateS119()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isRemoveEnabled()Z\n" +
-			"11-isSetEnabled()Z\n" +
-			"11-isStateS87()Z\n" +
-			"11-reportStateS87()V\n" +
-			"11-reportState()V\n" +
-			"11-remove()V\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS127()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isStateS95()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isStateS119()Z\n" +
-			"11-isAddEnabled()Z\n" +
-			"11-isNextEnabled()Z\n" +
-			"11-isPreviousEnabled()Z\n" +
-			"11-isRemoveEnabled()Z\n" +
-			"11-isSetEnabled()Z\n" +
-			"11-isStateS87()Z\n" +
-			"11-reportStateS87()V\n" +
-			"11-reportState()V\n" +
-			"11-hasNext()Z\n" +
-			"12-isAddEnabled()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isStateS127()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isStateS95()Z\n" +
-			"12-isAddEnabled()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isPreviousEnabled()Z\n" +
-			"12-isStateS119()Z\n" +
-			"12-isAddEnabled()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isPreviousEnabled()Z\n" +
-			"12-isRemoveEnabled()Z\n" +
-			"12-isSetEnabled()Z\n" +
-			"12-isStateS87()Z\n" +
-			"12-reportStateS87()V\n" +
-			"12-reportState()V\n" +
-			"12-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"12-isAddEnabled()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isStateS127()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isStateS95()Z\n" +
-			"12-isAddEnabled()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isPreviousEnabled()Z\n" +
-			"12-isStateS119()Z\n" +
-			"12-isAddEnabled()Z\n" +
-			"12-isNextEnabled()Z\n" +
-			"12-isPreviousEnabled()Z\n" +
-			"12-isRemoveEnabled()Z\n" +
-			"12-isSetEnabled()Z\n" +
-			"12-isStateS87()Z\n" +
-			"12-reportStateS87()V\n" +
-			"12-reportState()V\n" +
-			"12-previousIndex()I\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isPreviousEnabled()Z\n" +
-			"13-isRemoveEnabled()Z\n" +
-			"13-isSetEnabled()Z\n" +
-			"13-isStateS127()Z\n" +
-			"13-reportStateS127()V\n" +
-			"13-reportState()V\n" +
-			"13-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"13-checkForComodification()V\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isStateS127()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isStateS95()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isPreviousEnabled()Z\n" +
-			"13-isRemoveEnabled()Z\n" +
-			"13-isStateS119()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isPreviousEnabled()Z\n" +
-			"13-isStateS87()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isStateS511()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isPreviousEnabled()Z\n" +
-			"13-isRemoveEnabled()Z\n" +
-			"13-isSetEnabled()Z\n" +
-			"13-isStateS503()Z\n" +
-			"13-reportStateS503()V\n" +
-			"13-reportState()V\n" +
-			"13-next()Ljava/lang/Object;\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isStateS127()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isStateS95()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isPreviousEnabled()Z\n" +
-			"13-isRemoveEnabled()Z\n" +
-			"13-isStateS119()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isPreviousEnabled()Z\n" +
-			"13-isStateS87()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isStateS511()Z\n" +
-			"13-isAddEnabled()Z\n" +
-			"13-isNextEnabled()Z\n" +
-			"13-isPreviousEnabled()Z\n" +
-			"13-isRemoveEnabled()Z\n" +
-			"13-isSetEnabled()Z\n" +
-			"13-isStateS503()Z\n" +
-			"13-reportStateS503()V\n" +
-			"13-reportState()V\n" +
-			"13-previousIndex()I\n" +
-			"14-isAddEnabled()Z\n" +
-			"14-isNextEnabled()Z\n" +
-			"14-isStateS127()Z\n" +
-			"14-isNextEnabled()Z\n" +
-			"14-isStateS95()Z\n" +
-			"14-isAddEnabled()Z\n" +
-			"14-isNextEnabled()Z\n" +
-			"14-isPreviousEnabled()Z\n" +
-			"14-isStateS119()Z\n" +
-			"14-isAddEnabled()Z\n" +
-			"14-isNextEnabled()Z\n" +
-			"14-isPreviousEnabled()Z\n" +
-			"14-isRemoveEnabled()Z\n" +
-			"14-isSetEnabled()Z\n" +
-			"14-isStateS87()Z\n" +
-			"14-reportStateS87()V\n" +
-			"14-reportState()V\n" +
-			"14-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"15-isAddEnabled()Z\n" +
-			"15-isNextEnabled()Z\n" +
-			"15-isStateS127()Z\n" +
-			"15-isNextEnabled()Z\n" +
-			"15-isStateS95()Z\n" +
-			"15-isAddEnabled()Z\n" +
-			"15-isNextEnabled()Z\n" +
-			"15-isPreviousEnabled()Z\n" +
-			"15-isRemoveEnabled()Z\n" +
-			"15-isSetEnabled()Z\n" +
-			"15-isStateS119()Z\n" +
-			"15-reportStateS119()V\n" +
-			"15-reportState()V\n" +
-			"15-<init>(Lar/uba/dc/listitr/MyArrayList;I)V\n" +
-			"15-isAddEnabled()Z\n" +
-			"15-isNextEnabled()Z\n" +
-			"15-isStateS127()Z\n" +
-			"15-isNextEnabled()Z\n" +
-			"15-isStateS95()Z\n" +
-			"15-isAddEnabled()Z\n" +
-			"15-isNextEnabled()Z\n" +
-			"15-isPreviousEnabled()Z\n" +
-			"15-isRemoveEnabled()Z\n" +
-			"15-isSetEnabled()Z\n" +
-			"15-isStateS119()Z\n" +
-			"15-reportStateS119()V\n" +
-			"15-reportState()V\n" +
-			"15-hasNext()Z";
-	
+			"3-hasNext()Z\n" +
+			"3-isAddEnabled()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isStateS127()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isStateS95()Z\n" +
+			"3-isAddEnabled()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isPreviousEnabled()Z\n" +
+			"3-isRemoveEnabled()Z\n" +
+			"3-isSetEnabled()Z\n" +
+			"3-isStateS119()Z\n" +
+			"3-reportStateS119()V\n" +
+			"3-reportState()V\n" +
+			"3-hasNext()Z\n" +
+			"3-isAddEnabled()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isStateS127()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isStateS95()Z\n" +
+			"3-isAddEnabled()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isPreviousEnabled()Z\n" +
+			"3-isRemoveEnabled()Z\n" +
+			"3-isSetEnabled()Z\n" +
+			"3-isStateS119()Z\n" +
+			"3-reportStateS119()V\n" +
+			"3-reportState()V\n" +
+			"3-hasNext()Z\n" +
+			"3-isAddEnabled()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isStateS127()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isStateS95()Z\n" +
+			"3-isAddEnabled()Z\n" +
+			"3-isNextEnabled()Z\n" +
+			"3-isPreviousEnabled()Z\n" +
+			"3-isRemoveEnabled()Z\n" +
+			"3-isSetEnabled()Z\n" +
+			"3-isStateS119()Z\n" +
+			"3-reportStateS119()V\n" +
+			"3-reportState()V\n" +
+			"3-hasNext()Z";
+
 	@Test
-	public void testTraceFileContentsToEPATrace() throws IOException, ParserConfigurationException, SAXException {
+	public void testEPACoverageFromSamples() throws IOException, SAXException, ParserConfigurationException {
 		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
 				"resources", "epas", "ListItr.xml");
 		final EPA epa = EPAFactory.buildEPA(xmlFilename);
-		
-		final Stream<String> lines = Arrays.stream(TRACE_FILE_CONTENTS.split("\n"));
-		
-		final Map<String, List<String>> idToTraceMap = EPACoverageFromTraceFileAnalyzer.getIdToTraceMap(lines);
-		final float coverage = EPACoverageFromTraceFileAnalyzer.getCoverage(epa, idToTraceMap.values());
+
+		final Stream<String> lines1 = Arrays.stream(SAMPLE1.split("\n"));
+		final Map<String, List<String>> idToTraceMap1 = EPACoverageFromTraceFileAnalyzer.getIdToTraceMap(lines1);
+		final float coverage1 = EPACoverageFromTraceFileAnalyzer.getCoverage(epa, idToTraceMap1.values());
+		assertEquals((float)2/69, coverage1, 0.001);
+
+		final Stream<String> lines2 = Arrays.stream(SAMPLE2.split("\n"));
+		final Map<String, List<String>> idToTraceMap2 = EPACoverageFromTraceFileAnalyzer.getIdToTraceMap(lines2);
+		final float coverage2 = EPACoverageFromTraceFileAnalyzer.getCoverage(epa, idToTraceMap2.values());
+		assertEquals((float)3/69, coverage2, 0.001);
+
+		final Stream<String> lines3 = Arrays.stream(SAMPLE3.split("\n"));
+		final Map<String, List<String>> idToTraceMap3 = EPACoverageFromTraceFileAnalyzer.getIdToTraceMap(lines3);
+		final float coverage3 = EPACoverageFromTraceFileAnalyzer.getCoverage(epa, idToTraceMap3.values());
+		assertEquals((float)4/69, coverage3, 0.001);
+
+		final Stream<String> lines4 = Arrays.stream(SAMPLE4.split("\n"));
+		final Map<String, List<String>> idToTraceMap4 = EPACoverageFromTraceFileAnalyzer.getIdToTraceMap(lines4);
+		final float coverage4 = EPACoverageFromTraceFileAnalyzer.getCoverage(epa, idToTraceMap4.values());
+		assertEquals((float)2/69, coverage4, 0.001);
 	}
-	
 }
