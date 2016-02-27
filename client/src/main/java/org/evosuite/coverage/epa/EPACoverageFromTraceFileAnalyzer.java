@@ -4,6 +4,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class EPACoverageFromTraceFileAnalyzer {
 	public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
 		final String epaXMLfilePath = args[0];
 		final String traceFilePath = args[1];
+		final String resultFilePath = args[2];
 		
 		// Gather all different traces
 		final Map<String, List<String>> idToTraceMap = getIdToTraceMap(Files.lines(Paths.get(traceFilePath)));
@@ -28,8 +30,10 @@ public class EPACoverageFromTraceFileAnalyzer {
 
 		final Collection<List<String>> traces = idToTraceMap.values();
 		final float coverage = getCoverage(epa, traces);
-		System.out.println("EPA Coverage is: " + coverage);
-		
+
+		final PrintWriter printWriter = new PrintWriter(resultFilePath);
+		printWriter.println(coverage);
+		printWriter.close();
 	}
 
 	public static float getCoverage(EPA epa, Collection<List<String>> traces) {
