@@ -149,7 +149,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	public void addCoveredGoals(List<TestFitnessFunction> goals) {
-        coveredGoals.addAll(goals);
+		coveredGoals.addAll(goals);
 	}
 
 	@Override

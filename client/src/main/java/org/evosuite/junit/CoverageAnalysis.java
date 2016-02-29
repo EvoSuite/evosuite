@@ -170,9 +170,9 @@ public class CoverageAnalysis {
 
 				List<JUnitResult> results = executeTests(tests);
 				printReport(results);
-                if(Properties.WRITE_TEST_NAMES_FILE) {
-                    writeTestNamesFiles(results);
-                }
+				if(Properties.WRITE_TEST_NAMES_FILE) {
+					writeTestNamesFiles(results);
+				}
 			} finally {
 				EvoRunner.useAgent = true;
 			}
@@ -213,9 +213,9 @@ public class CoverageAnalysis {
 	 */
 	public static Set<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
 
-	    // A dummy Chromosome
-	    TestChromosome dummy = new TestChromosome();
-        dummy.setChanged(false);
+		// A dummy Chromosome
+		TestChromosome dummy = new TestChromosome();
+		dummy.setChanged(false);
 
 		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
@@ -224,30 +224,30 @@ public class CoverageAnalysis {
 			// Execution result of a dummy Test Case
 			ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 
-		    executionResult.setTrace(testResult.getExecutionTrace());
+			executionResult.setTrace(testResult.getExecutionTrace());
 
-            // As we cannot apply a regular Input/OutputObserver, we need to simulate this
+			// As we cannot apply a regular Input/OutputObserver, we need to simulate this
 			Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
 			inputGoals.put(0, testResult.getInputGoals());
 			executionResult.setInputGoals(inputGoals);
 
-            // As we cannot apply a regular Input/OutputObserver, we need to simulate this
+			// As we cannot apply a regular Input/OutputObserver, we need to simulate this
 			Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
 			outputGoals.put(0, testResult.getOutputGoals());
 			executionResult.setOutputGoals(outputGoals);
 
 			dummy.setLastExecutionResult(executionResult);
 
-            for(TestFitnessFunction goal : allGoals) {
-            	if(coveredGoals.contains(goal))
-            		continue;
-            	else if (goal.isCovered(dummy))
-                    coveredGoals.add(goal);
-            }
+			for(TestFitnessFunction goal : allGoals) {
+				if(coveredGoals.contains(goal))
+					continue;
+				else if (goal.isCovered(dummy))
+					coveredGoals.add(goal);
+			}
 
-            // Method coverage requires an actual test, so we side-step this by setting the called methods directly
-            coveredGoals.addAll(testResult.getMethodCoverageGoals());
-            coveredGoals.addAll(testResult.getMethodNoExceptionCoverageGoals());
+			// Method coverage requires an actual test, so we side-step this by setting the called methods directly
+			coveredGoals.addAll(testResult.getMethodCoverageGoals());
+			coveredGoals.addAll(testResult.getMethodNoExceptionCoverageGoals());
 		}
 
 		return coveredGoals;
@@ -502,21 +502,21 @@ public class CoverageAnalysis {
 
 		if (criterion == Criterion.MUTATION
 				|| criterion == Criterion.STRONGMUTATION) {
-            goals = MutationPool.getMutants();
-        } else if(criterion == Criterion.EXCEPTION) {
-            Set<ExceptionCoverageTestFitness> exceptionGoals = new LinkedHashSet<>();
-            for(JUnitResult result : results) {
-                exceptionGoals.addAll(result.getExceptionCoverageGoals());
-            }
-            goals = new ArrayList<>(exceptionGoals);
+			goals = MutationPool.getMutants();
+		} else if(criterion == Criterion.EXCEPTION) {
+			Set<ExceptionCoverageTestFitness> exceptionGoals = new LinkedHashSet<>();
+			for(JUnitResult result : results) {
+				exceptionGoals.addAll(result.getExceptionCoverageGoals());
+			}
+			goals = new ArrayList<>(exceptionGoals);
 		} else {
 			goals = factory.getCoverageGoals();
 		}
 		totalGoals += goals.size();
 
 		// A dummy Chromosome
-        TestChromosome dummy = new TestChromosome();
-        dummy.setChanged(false);
+		TestChromosome dummy = new TestChromosome();
+		dummy.setChanged(false);
 
 
         // coverage matrix (each row represents the coverage of each test case
@@ -611,15 +611,15 @@ public class CoverageAnalysis {
 	            for (int index_component = 0; index_component < goals.size(); index_component++) {
 	            	TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
 
-                    logger.info("Checking goal: "+goal);
+                    	logger.info("Checking goal: {}", goal);
 	                if (goal.isCovered(dummy)) {
-                        logger.info("Is covered");
-                        tR.addCoveredGoalToDummyTest(goal);
+                        	logger.info("Is covered");
+                        	tR.addCoveredGoalToDummyTest(goal);
 	                	covered.set(index_component);
 	                	coverage_matrix[index_test][index_component] = true;
 	                }
 	                else {
-                        logger.info("Is not covered");
+	                	logger.info("Is not covered");
 	                	coverage_matrix[index_test][index_component] = false;
 	                }
 	            }
@@ -813,7 +813,7 @@ public class CoverageAnalysis {
 			        + Properties.PROCESS_COMMUNICATION_PORT);
 		}
 
-        CoverageAnalysis analysis = new CoverageAnalysis();
+		CoverageAnalysis analysis = new CoverageAnalysis();
 		analysis.analyzeCoverage();
 		/*
 		 * for now, we ignore the instruction (originally was meant to support several client in parallel and
@@ -824,11 +824,11 @@ public class CoverageAnalysis {
 	}
 
 	// just for testing
-//	protected static void reset() {
-//		totalGoals = 0;
-//		totalCoveredGoals = 0;
-//		targetClasses.clear();
-//	}
+	//protected static void reset() {
+	//	totalGoals = 0;
+	//	totalCoveredGoals = 0;
+	//	targetClasses.clear();
+	//}
 
     public void writeTestNamesFiles(List<JUnitResult> results) {
         List<org.evosuite.testcase.TestCase> dummyTests = new ArrayList<>();

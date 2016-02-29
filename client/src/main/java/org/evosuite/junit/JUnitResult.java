@@ -67,7 +67,6 @@ public class JUnitResult {
      */
     private ExecutionTrace executionTrace;
 
-
     /**
      * 
      */

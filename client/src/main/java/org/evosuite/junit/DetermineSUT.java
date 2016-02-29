@@ -140,11 +140,11 @@ public class DetermineSUT {
 			ClassNode classNode = new ClassNode();
 			reader.accept(classNode, ClassReader.SKIP_FRAMES);
 
-            // If we only look for pure classes
-            if(!isPureTestClass(classNode)) {
-                calledClasses.add("<NOTATEST>");
-                return calledClasses;
-            }
+			// If we only look for pure classes
+			if(!isPureTestClass(classNode)) {
+				calledClasses.add("<NOTATEST>");
+				return calledClasses;
+			}
 
 			superClasses = getSuperClasses(classNode);
 
