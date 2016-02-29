@@ -46,11 +46,9 @@ import java.util.SortedSet;
 /**
  * @author Jose Rojas
  */
-public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
+public class NaturalizeNamingStrategy extends AbstractVariableNamingStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(NaturalizeNamingStrategy.class);
-
-	private Map<TestCase, String> testToCodeMap = new HashMap<>();
 
 	private final AbstractIdentifierRenamings renamer;
 
@@ -78,16 +76,15 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 
 	@Override
 	public String getVariableName(TestCase testCase, VariableReference var) {
-		if (! testToCodeMap.containsKey(testCase)) {
-			TestCodeVisitor visitor = new TestCodeVisitor();
-			testCase.accept(visitor);
-			String code = visitor.getCode();
-			testToCodeMap.put(testCase, code);
-		}
+		// TODO: Optimize. Now for each variable the test is visited
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		testCase.accept(visitor);
+		String code = visitor.getCode();
+
 		if (! variableNames.containsKey(var)) {
-			String dummyName = super.getVariableName(testCase, var);
+			String dummyName = visitor.getVariableName(var);
 			variableNames.remove(var);
-			String name = getNaturalizeRenaming(testToCodeMap.get(testCase), dummyName);
+			String name = getNaturalizeRenaming(code, dummyName);
 			put(var, name);
 		}
 		return variableNames.get(var).name;
@@ -125,7 +122,6 @@ public class NaturalizeNamingStrategy extends DefaultNamingStrategy {
 	@Override
 	public void reset() {
 		super.reset();
-		testToCodeMap.clear();
 	}
 
 	private Collection<File> getTrainingFiles() {

@@ -77,8 +77,21 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	public String getArrayIndexName(TestCase testCase, ArrayIndex var) {
 		VariableReference array = var.getArray();
-		List<Integer> indices = var.getArrayIndices();
+		String result = getVariableName(testCase, array);
+		result += getArrayIndicesString(var);
+		return result;
+	}
+
+	public String getArrayIndexPlaceholder(TestCase testCase, ArrayIndex var) {
+		VariableReference array = var.getArray();
 		String result = getPlaceholder(testCase, array);
+		result += getArrayIndicesString(var);
+		return result;
+	}
+
+	private String getArrayIndicesString(ArrayIndex var) {
+		String result = "";
+		List<Integer> indices = var.getArrayIndices();
 		for (Integer index : indices) {
 			result += "[" + index + "]";
 		}
@@ -110,16 +123,22 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	@Override
 	public String getPlaceholder(TestCase testCase, VariableReference var) {
-		String name = getName(testCase, var);
-		if (variableNames.containsKey(var))
-			return String.format("{%d}",  variableNames.get(var).placeholderIndex);
-		else {
-			if (!(var instanceof ArrayIndex)) {
-				name = name.replaceAll("[']", "''"); // escape single quotes
-				name = "'" + name + "'"; // make sure string is ignored for placeholders
-			}
+
+		if ((var instanceof ConstantValue)
+				|| (var instanceof InputVariable)
+				|| (var instanceof FieldReference)) {
+			String name = getName(testCase, var);
+			name = "'" + name.replaceAll("[']", "''") + "'"; // escape single quotes and ignore for placeholders
+			return name;
+		} else if (var instanceof ArrayIndex) {
+			return getArrayIndexPlaceholder(testCase, (ArrayIndex) var);
+		} else {
+			String name = getName(testCase, var);
+			if (variableNames.containsKey(var))
+				return String.format("{%d}", variableNames.get(var).placeholderIndex);
+			else
+				return name;
 		}
-		return name;
 	}
 
 	public void reset() {
@@ -138,14 +157,10 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		String[] args = new String[Collections.max(auxMap.keySet()) + 1];
 		for (Map.Entry<VariableReference, VariableNamePair> entry : variableNames.entrySet()) {
 			String name = entry.getValue().name;
-			// TODO: finalized names (trailing 0 removed if there is only one variable for a type) break naturalize (trying to replace original name in finalized test code)
-			/*
 			String newName = checkUnique(auxMap, name);
 			if (! name.equals(newName))
 				variableNames.put(entry.getKey(), new VariableNamePair(entry.getValue().placeholderIndex, newName));
 			args[entry.getValue().placeholderIndex] = newName;
-			*/
-			args[entry.getValue().placeholderIndex] = name;
 		}
 		logger.debug("Finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
 		String finalTestCode = "";
