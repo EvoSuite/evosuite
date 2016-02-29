@@ -22,61 +22,110 @@ package org.evosuite.idnaming;
 import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.sette.L4_Collections;
 import com.examples.with.different.packagename.sette.SnippetInputContainer;
-import com.examples.with.different.packagename.strings.Calc;
 import com.examples.with.different.packagename.idnaming.naturalize.StringExample;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.strategy.TestGenerationStrategy;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
 public class IDNamingSystemTest extends SystemTestBase {
 
 	@Test
-	public void testDummyStrategy() {
-		EvoSuite evosuite = new EvoSuite();
+	public void testStringExampleDummyStrategy() throws IOException {
 
-		String targetClass = Calc.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.JUNIT_TESTS = true;
 		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DUMMY;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		testStringExample("var0", "var1");
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-		// TODO: figure out how to check that variable names are as expected for each naming strategy
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
 	}
 
 	@Test
-	public void testNaturalizeStrategy() {
+	public void testStringExampleDefaultStrategy() throws IOException {
+
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DEFAULT;
+
+		testStringExample("stringExample", "boolean0");
+
+	}
+
+	@Test
+	public void testStringExampleDeclarationsStrategy() throws IOException {
+
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DECLARATIONS;
+
+		testStringExample("stringExample", "boolean0");
+
+	}
+
+	@Test
+	public void testStringExampleExplanatoryStrategy() throws IOException {
+
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
+
+		testStringExample("invokesFoo", "resultFromFoo");
+
+	}
+
+	@Test
+	public void testStringExampleNaturalizeStrategy() throws IOException {
+
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.NATURALIZE;
+		Properties.VARIABLE_NAMING_TRAINING_DATA_DIR = "src/test/java/com/examples/with/different/packagename/idnaming/naturalize";
+
+		testStringExample("sex", "foo");
+
+	}
+
+	public void testStringExample(String varName0, String varName1) throws IOException {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = StringExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.JUNIT_TESTS = true;
-		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.NATURALIZE;
-		Properties.VARIABLE_NAMING_TRAINING_DATA_DIR = "src/test/java/com/examples/with/different/packagename/idnaming/naturalize";
+		String name = targetClass.substring(targetClass.lastIndexOf(".") + 1) + Properties.JUNIT_SUFFIX;
 
+		// run EvoSuite
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-		// TODO: figure out how to check that variable names are as expected for each naming strategy
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println(best.toString());
+
+		// write test suite
+		TestCaseExecutor.initExecutor(); // TODO: why is this needed?
+		TestSuiteWriter writer = new TestSuiteWriter();
+		writer.insertAllTests(best.getTests());
+		writer.writeTestSuite(name, Properties.TEST_DIR, Collections.EMPTY_LIST);
+
+		// check that the test suite was created
+		String junitFile = Properties.TEST_DIR + File.separatorChar +
+				Properties.CLASS_PREFIX.replace('.', File.separatorChar) + File.separatorChar +
+				name + ".java";
+		Path path = Paths.get(junitFile);
+		Assert.assertTrue("Test Suite does not exist", Files.exists(path));
+
+		String testCode = new String(Files.readAllBytes(path));
+
+		// check variable names, test suite should contain two tests
+		Assert.assertEquals("Unexpected variable names in:\n" + testCode, 2, StringUtils.countMatches(testCode, "StringExample " + varName0 + " = new StringExample();"));
+		Assert.assertEquals("Unexpected variable names in:\n" + testCode, 2, StringUtils.countMatches(testCode, "boolean " + varName1 + " = " + varName0 + ".foo"));
+
 	}
 
 
