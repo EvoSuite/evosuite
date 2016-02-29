@@ -710,6 +710,7 @@
                                 <goal>shade</goal>
                             </goals>
                             <configuration>
+                                <!-- NATURALIZE -->
                                 <filters>
                                     <filter>
                                         <!-- filter out signature files from signed dependencies -->
@@ -721,6 +722,7 @@
                                         </excludes>
                                     </filter>
                                 </filters>
+                                <!---->
                                 <shadedArtifactAttached>false</shadedArtifactAttached>
                                 <createDependencyReducedPom>true</createDependencyReducedPom>
                                 <!-- do not change "org.evosuite.shaded." as it used in some of the java classes -->

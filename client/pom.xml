@@ -141,13 +141,15 @@
 
     </dependencies>
 
+    <!-- NATURALIZE -->
     <repositories>
         <repository>
-            <id>data-local</id>
-            <name>data</name>
-            <url>file://${project.basedir}/repo</url>
+            <id>EvoSuite</id>
+            <name>EvoSuite Repository</name>
+            <url>http://www.evosuite.org/m2</url>
         </repository>
     </repositories>
+    <!---->
 
     <build>
         <plugins>
