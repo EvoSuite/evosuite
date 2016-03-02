@@ -440,21 +440,35 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		VariableReference dest = assertion.getDest();
 		Object value = assertion.getValue();
 
-		if (source.isPrimitive() && dest.isPrimitive()) {
-			if (source.getVariableClass().equals(float.class)) {
+		if (source.isPrimitive() || source.isWrapperType()) {
+			if (source.getVariableClass().equals(float.class) || source.getVariableClass().equals(Float.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
 				else
 					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
-			} else if (source.getVariableClass().equals(double.class)) {
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
+			} else if (source.getVariableClass().equals(double.class) || source.getVariableClass().equals(Double.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
 				else
 					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
+			} else if(source.isWrapperType()) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertTrue(" + getVariablePlaceholder(source) + ".equals((" + this.getClassName(Object.class) +")"
+							+ getVariablePlaceholder(dest) + "));";
+				else
+					testCode += "assertFalse(" + getVariablePlaceholder(source) + ".equals((" + this.getClassName(Object.class) +")"
+							+ getVariablePlaceholder(dest) + "));";
+			} else if(dest.isWrapperType()) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertTrue(" + getVariablePlaceholder(dest) + ".equals((" + this.getClassName(Object.class) +")"
+							+ getVariablePlaceholder(source) + "));";
+				else
+					testCode += "assertFalse(" + getVariablePlaceholder(dest) + ".equals((" + this.getClassName(Object.class) +")"
+							+ getVariablePlaceholder(source) + "));";
 			} else {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertTrue(" + getVariablePlaceholder(source) + " == "
