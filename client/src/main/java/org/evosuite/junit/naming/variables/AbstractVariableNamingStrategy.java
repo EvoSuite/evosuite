@@ -146,24 +146,24 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 	}
 
 	public String finalize(String testCode) {
-		if (variableNames.isEmpty())
-			return testCode;
-
-		Map<Integer, String> auxMap = new HashMap<>();
-
-		for (VariableNamePair entry : variableNames.values())
-			auxMap.put(entry.placeholderIndex, entry.name);
-
-		String[] args = new String[Collections.max(auxMap.keySet()) + 1];
-		for (Map.Entry<VariableReference, VariableNamePair> entry : variableNames.entrySet()) {
-			String name = entry.getValue().name;
-			String newName = checkUnique(auxMap, name);
-			if (! name.equals(newName))
-				variableNames.put(entry.getKey(), new VariableNamePair(entry.getValue().placeholderIndex, newName));
-			args[entry.getValue().placeholderIndex] = newName;
-		}
-		logger.debug("Finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
+		String[] args = {};
 		String finalTestCode = "";
+		if (! variableNames.isEmpty()) {
+			Map<Integer, String> auxMap = new HashMap<>();
+
+			for (VariableNamePair entry : variableNames.values())
+				auxMap.put(entry.placeholderIndex, entry.name);
+
+			args = new String[Collections.max(auxMap.keySet()) + 1];
+			for (Map.Entry<VariableReference, VariableNamePair> entry : variableNames.entrySet()) {
+				String name = entry.getValue().name;
+				String newName = checkUnique(auxMap, name);
+				if (!name.equals(newName))
+					variableNames.put(entry.getKey(), new VariableNamePair(entry.getValue().placeholderIndex, newName));
+				args[entry.getValue().placeholderIndex] = newName;
+			}
+			logger.debug("Finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
+		}
 		try {
 			finalTestCode = MessageFormat.format(testCode, args);
 		} catch (IllegalArgumentException e) {
