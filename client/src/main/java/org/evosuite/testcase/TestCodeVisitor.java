@@ -442,19 +442,33 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		Object value = assertion.getValue();
 
 		if (source.isPrimitive() || source.isWrapperType()) {
-			if (source.getVariableClass().equals(float.class) || source.getVariableClass().equals(Float.class)) {
+			if (source.getVariableClass().equals(float.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
 							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
 				else
 					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
 							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
-			} else if (source.getVariableClass().equals(double.class) || source.getVariableClass().equals(Double.class)) {
+			} else if (source.getVariableClass().equals(Float.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals((float) " + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
+				else
+					testCode += "assertNotEquals((float) " + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
+			} else if (source.getVariableClass().equals(double.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
 							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
 				else
 					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
+			} else if (source.getVariableClass().equals(Double.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals((double) " + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
+				else
+					testCode += "assertNotEquals((double) " + getVariablePlaceholder(source) + ", "
 							+ getVariablePlaceholder(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
 			} else if(source.isWrapperType()) {
 				if (((Boolean) value).booleanValue())
