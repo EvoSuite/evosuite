@@ -441,12 +441,28 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		Object value = assertion.getValue();
 
 		if (source.isPrimitive() && dest.isPrimitive()) {
-			if (((Boolean) value).booleanValue())
-				testCode += "assertTrue(" + getVariablePlaceholder(source) + " == "
-						+ getVariablePlaceholder(dest) + ");";
-			else
-				testCode += "assertFalse(" + getVariablePlaceholder(source) + " == "
-						+ getVariablePlaceholder(dest) + ");";
+			if (source.getVariableClass().equals(float.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", 0.01F);";
+				else
+					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", 0.01F);";
+			} else if (source.getVariableClass().equals(double.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", 0.01D);";
+				else
+					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
+							+ getVariablePlaceholder(dest) + ", 0.01D);";
+			} else {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertTrue(" + getVariablePlaceholder(source) + " == "
+							+ getVariablePlaceholder(dest) + ");";
+				else
+					testCode += "assertFalse(" + getVariablePlaceholder(source) + " == "
+							+ getVariablePlaceholder(dest) + ");";
+			}
 		} else {
 			if (((Boolean) value).booleanValue())
 				testCode += "assertTrue(" + getVariablePlaceholder(source) + ".equals((" + this.getClassName(Object.class) +")"
