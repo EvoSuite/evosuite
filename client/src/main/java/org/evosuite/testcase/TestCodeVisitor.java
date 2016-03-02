@@ -202,10 +202,10 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 			stmt += "assertNull(" + getVariablePlaceholder(source) + ");";
 		} else if (source.getVariableClass().equals(float.class)) {
 			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-					+ getVariablePlaceholder(source) + ", 0.01F);";
+					+ getVariablePlaceholder(source) + ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
 		} else if (source.getVariableClass().equals(double.class)) {
 			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-					+ getVariablePlaceholder(source) + ", 0.01D);";
+					+ getVariablePlaceholder(source) + ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
 		} else if (value.getClass().isEnum()) {
 			stmt += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 					+ getVariablePlaceholder(source) + ");";
@@ -220,10 +220,10 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		} else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
 				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
-						+ ", (float)" + getVariablePlaceholder(source) + ", 0.01F);";
+						+ ", (float)" + getVariablePlaceholder(source) + ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
 			} else if (source.getVariableClass().equals(Double.class)) {
 				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
-						+ ", (double)" + getVariablePlaceholder(source) + ", 0.01D);";
+						+ ", (double)" + getVariablePlaceholder(source) + ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
 			} else if (value.getClass().isEnum()) {
 				stmt += "assertEquals(" + NumberFormatter.getNumberString(value)
 						+ ", " + getVariablePlaceholder(source) + ");";
@@ -265,9 +265,9 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		}
 		stmt += BRACE_CLOSE + ", " + getVariablePlaceholder(source);
 		if(source.getComponentClass().equals(Float.class) || source.getComponentClass().equals(float.class))
-			stmt += ", 0.01F);";
+			stmt += ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
 		else if(source.getComponentClass().equals(Double.class) || source.getComponentClass().equals(double.class))
-			stmt += ", 0.01);";
+			stmt += ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
 		else if(source.getComponentClass().equals(Boolean.class) || source.getComponentClass().equals(boolean.class))
 			stmt += "));";
 		else
@@ -305,10 +305,10 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 					+ target + ");";
 		} else if (value.getClass().equals(Float.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-					+ target + ", 0.01F);";
+					+ target + ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
 		} else if (value.getClass().equals(Double.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
-					+ target + ", 0.01D);";
+					+ target + ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
 		} else if (value.getClass().equals(Character.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 					+ target + ");";
@@ -353,11 +353,11 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 		} else if (value.getClass().equals(Float.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 					+ getVariablePlaceholder(source) + "." + inspector.getMethodCall()
-					+ "(), 0.01F);";
+					+ "(), "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
 		} else if (value.getClass().equals(Double.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 					+ getVariablePlaceholder(source) + "." + inspector.getMethodCall()
-					+ "(), 0.01D);";
+					+ "(), "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
 		} else if (value.getClass().equals(Character.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 					+ getVariablePlaceholder(source) + "." + inspector.getMethodCall() + "());";
@@ -444,17 +444,17 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 			if (source.getVariableClass().equals(float.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", 0.01F);";
+							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
 				else
 					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", 0.01F);";
+							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.FLOAT_PRECISION)+");";
 			} else if (source.getVariableClass().equals(double.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", 0.01D);";
+							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
 				else
 					testCode += "assertNotEquals(" + getVariablePlaceholder(source) + ", "
-							+ getVariablePlaceholder(dest) + ", 0.01D);";
+							+ getVariablePlaceholder(dest) + ", "+NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION)+");";
 			} else {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertTrue(" + getVariablePlaceholder(source) + " == "
