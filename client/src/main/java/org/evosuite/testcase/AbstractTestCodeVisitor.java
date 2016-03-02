@@ -34,6 +34,7 @@ import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 
 import java.lang.reflect.Modifier;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -205,6 +206,7 @@ public class AbstractTestCodeVisitor extends TestVisitor {
 	protected boolean isValidSource(String sourceClass){
 		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
 				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
+				!sourceClass.equals(URLClassLoader.class.getName()) && // Classloaders may differ, e.g. when running with ant
 				!sourceClass.startsWith(RegExp.class.getPackage().getName());
 	}
 
