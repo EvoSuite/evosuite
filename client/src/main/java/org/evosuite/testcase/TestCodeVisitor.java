@@ -1070,7 +1070,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 			result += "   //" + NEWLINE;
 		}
 
-		if(sourceClass!=null && isValidSource(sourceClass)) {
+		if(sourceClass!=null && isValidSource(sourceClass) && isExceptionToAssertThrownBy(ex)) {
 				/*
 					do not check source if it comes from a non-runtime evosuite
 					class. this could happen if source is an instrumentation done

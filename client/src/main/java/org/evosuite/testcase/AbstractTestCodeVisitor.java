@@ -34,7 +34,9 @@ import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -204,6 +206,15 @@ public class AbstractTestCodeVisitor extends TestVisitor {
 		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
 				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
 				!sourceClass.startsWith(RegExp.class.getPackage().getName());
+	}
+
+	private List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[] {
+			StackOverflowError.class, // Might be thrown at different places
+			AssertionError.class}     // Depends whether assertions are enabled or not
+	);
+
+	protected boolean isExceptionToAssertThrownBy(Class<?> exceptionClass){
+		return !invalidExceptions.contains(exceptionClass);
 	}
 
     protected Class<?> getExceptionClassToUse(Throwable exception){
