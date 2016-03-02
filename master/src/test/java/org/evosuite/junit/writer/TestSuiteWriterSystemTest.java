@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class TestSuiteWriterSystemTest extends SystemTestBase {
 
@@ -55,7 +56,8 @@ public class TestSuiteWriterSystemTest extends SystemTestBase {
 		test();
 		Path path = Paths.get(Properties.COVERED_GOALS_FILE);
 		Assert.assertTrue("Covered goals file does not exist", Files.exists(path));
-		Assert.assertEquals("Covered goals file with 2 lines was expected", 2, Files.readAllLines(path).size());
+		List<String> lines = Files.readAllLines(path);
+		Assert.assertEquals("Covered goals file with 2 lines was expected", 2, lines.size());
 	}
 	
 	

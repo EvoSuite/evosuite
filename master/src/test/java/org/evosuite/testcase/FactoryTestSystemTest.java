@@ -107,7 +107,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		String code = test.toCode();
 		System.out.println(code);
 		assertEquals(4, test.size());
-		assertTrue(code.contains("factoryExample0.testByte(byte0, byte1)"));
+		assertTrue(code.contains("factoryExample.testByte(byte0, byte1)"));
 	}
 
 	@Test
@@ -128,7 +128,8 @@ public class FactoryTestSystemTest extends SystemTestBase {
 
 		// With object reuse being 0, there should be no new instance of this object
 		assertEquals(4, test.size());
-		assertTrue(code.contains("factoryExample0.testByte(byte0, byte0)"));
+		assertTrue(code.contains("factoryExample.testByte(byte0, byte0)"));
+		assertFalse(code.contains("factoryExample0"));
 		assertFalse(code.contains("factoryExample1"));
 	}
 
@@ -255,7 +256,8 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		String code = test.toCode();
 		System.out.println(code);
 
-		assertTrue(code.contains("factoryExample0.setMe"));
+		assertTrue(code.contains("factoryExample.setMe"));
+		assertFalse(code.contains("factoryExample0"));
 		assertFalse(code.contains("factoryExample1"));
 	}
 	
@@ -280,7 +282,8 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		String code = test.toCode();
 		System.out.println(code);
 
-		assertTrue(code.contains("factoryExample0.setMe"));
+		assertTrue(code.contains("factoryExample.setMe"));
+		assertFalse(code.contains("factoryExample0"));
 		assertFalse(code.contains("factoryExample1"));
 	}
 	

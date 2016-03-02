@@ -741,7 +741,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		String code = test.getTestCase().toCode();
 		System.out.println(code);
 		Assert.assertFalse(code.contains("XStream"));
-		Assert.assertTrue(code.contains("classWithStaticMethod0.testMe"));
+		Assert.assertTrue(code.contains("classWithStaticMethod.testMe"));
 	}
 
 	@Ignore // EvoSuite may also cover it without seeding now.
@@ -800,7 +800,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		String code = test.getTestCase().toCode();
 		System.out.println(code);
 		Assert.assertFalse(code.contains("XStream"));
-		Assert.assertTrue(code.contains("concreteSubClassWithFields0"));
+		Assert.assertTrue(code.contains("concreteSubClassWithFields"));
 	}
 
 	@Test
