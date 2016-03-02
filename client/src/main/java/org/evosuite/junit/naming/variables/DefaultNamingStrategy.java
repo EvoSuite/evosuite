@@ -50,7 +50,7 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 		// }
 		String variableName = className.substring(0, 1).toLowerCase()
 				+ className.substring(1) + "Array";
-		variableName = variableName.replace(".", "_").replace("[]", "");
+		variableName = variableName.replace('.', '_').replace("[]", "");
 
 		if (!variableNames.containsKey(var)) {
 			if (!indices.containsKey(variableName)) {
@@ -77,7 +77,7 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 			if (variableName.contains("[]")) {
 				variableName = variableName.replace("[]", "Array");
 			}
-			variableName = variableName.replace(".", "_");
+			variableName = variableName.replace('.', '_');
 
 			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
 				variableName += "_";
