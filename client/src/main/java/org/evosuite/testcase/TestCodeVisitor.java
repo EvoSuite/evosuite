@@ -55,6 +55,7 @@ import org.evosuite.testcase.statements.PrimitiveExpression;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.runtime.ViolatedAssumptionAnswer;
 import org.evosuite.testcase.statements.environment.EnvironmentDataStatement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
@@ -817,7 +818,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 
 	@Override
 	public void visitFunctionalMockStatement(FunctionalMockStatement st) {
-		super.visitFunctionalMockStatement(st);
+
 		VariableReference retval = st.getReturnValue();
 
 		// If it is not used, then minimizer will delete the statement anyway
@@ -838,27 +839,45 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 				"Mismatch between variable raw type "+rawClass+" and mocked "+targetClass;
 		String rawClassName = getClassName(rawClass);
 
+
 		//Foo foo = mock(Foo.class);
 		String variableType = getClassName(retval);
 		result += variableType + " " + getVariablePlaceholder(retval);
 
 		result += " = ";
-		if(! variableType.equals(rawClassName)){
+		if (!variableType.equals(rawClassName)) {
 			//this can happen in case of generics, eg
 			//Foo<String> foo = (Foo<String>) mock(Foo.class);
-			result += "(" + variableType+") ";
+			result += "(" + variableType + ") ";
 		}
 
-		result += "mock(" + rawClassName+".class);" + NEWLINE;
+			/*
+				Tricky situation. Ideally, we would want to throw assumption error if a non-mocked method
+				is called, as to avoid false-positives when SUTs evolve.
+				However, it might well be that a test case is not updated, leaving mocks using the default
+				"null" return values. This would crash the JUnit check. Activating the  ViolatedAssumptionAnswer
+				during the search would just make things worse, as negatively effecting the search.
+				So we could just skip it, but this would effect false-positive preventions
+			 */
+		if (st.doesNeedToUpdateInputs()) {
+			try{
+				st.updateMockedMethods();
+			} catch (Exception e){
+			}
+			st.fillWithNullRefs();
+
+			//result += "mock(" + rawClassName + ".class);" + NEWLINE;
+		} else {
+			//result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+		}
+
+		result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
 			if(!md.shouldBeMocked()){
 				continue;
 			}
-
-			result += "when("+ getVariablePlaceholder(retval)+"."+md.getMethodName()+"("+md.getInputParameterMatchers()+"))";
-			result += ".thenReturn( ";
 
 			List<VariableReference> params = st.getParameters(md.getID());
 
@@ -880,7 +899,18 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 				parameter_string = getParameterStringForFMthatReturnPrimitive(returnType, params);
 			}
 
-			result += parameter_string + " );"+NEWLINE;
+			//this does not work when throwing exception as default answer
+//			result += "when("+getVariableName(retval)+"."+md.getMethodName()+"("+md.getInputParameterMatchers()+"))";
+//			result += ".thenReturn( ";
+//			result += parameter_string + " );"+NEWLINE;
+
+			// Mockito doReturn() only takes single arguments. So we need to make sure that in the generated
+			// tests we import MockitoExtension class
+			//parameter_string = "doReturn(" + parameter_string.replaceAll(", ", ").doReturn(") + ")";
+			//result += parameter_string+".when("+getVariableName(retval)+")";
+			result += "doReturn("+parameter_string+").when("+getVariablePlaceholder(retval)+")";
+			result += "."+md.getMethodName()+"("+md.getInputParameterMatchers()+");";
+			result += NEWLINE;
 		}
 
 		testCode += result;
