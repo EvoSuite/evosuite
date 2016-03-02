@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase;
 
+import dk.brics.automaton.RegExp;
 import org.evosuite.PackageInfo;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.statements.ArrayStatement;
@@ -200,8 +201,9 @@ public class AbstractTestCodeVisitor extends TestVisitor {
 	}
 
 	protected boolean isValidSource(String sourceClass){
-		return ! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
-				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.");
+		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
+				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
+				!sourceClass.startsWith(RegExp.class.getPackage().getName());
 	}
 
     protected Class<?> getExceptionClassToUse(Throwable exception){
