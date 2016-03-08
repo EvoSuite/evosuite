@@ -19,12 +19,15 @@
  */
 package org.evosuite.testcarver;
 
+import com.examples.with.different.packagename.coverage.BOMInputStreamTest;
+import com.examples.with.different.packagename.idnaming.BOMInputStream;
 import com.examples.with.different.packagename.testcarver.joda.*;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.SearchStatistics;
+import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -156,6 +159,44 @@ public class CarverSystemTest extends SystemTestBase {
 		Assert.assertNotNull(result);
 		OutputVariable coverage = (OutputVariable)result.getOutputVariables().get("MethodCoverage");
 		Assert.assertEquals("Non-optimal method coverage value", 1d, (double)coverage.getValue(), 0.01);
+	}
+
+	// Error while creating method call for <init>
+	@Ignore
+	@Test
+	public void testCarvedTestNamesBOMInputStream() {
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = BOMInputStream.class.getCanonicalName();
+		String testClass = BOMInputStreamTest.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.JUNIT = testClass;
+		Properties.SELECTED_JUNIT = testClass;
+
+		Properties.CRITERION = new Properties.Criterion[] {
+				Properties.Criterion.INPUT,
+				Properties.Criterion.OUTPUT,
+				Properties.Criterion.METHOD,
+				Properties.Criterion.BRANCH,
+				Properties.Criterion.EXCEPTION
+		};
+
+		String[] command = new String[] {
+				"-class", targetClass,
+				"-Djunit=" + testClass,
+				"-Dselected_junit=" + testClass,
+				"-measureCoverage"
+		};
+
+		SearchStatistics result = (SearchStatistics)evosuite.parseCommandLine(command);
+		Assert.assertNotNull(result);
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		Assert.assertEquals("Incorrect number of carved tests", 2, factory.getNumCarvedTestCases());
+
 	}
 
 }
