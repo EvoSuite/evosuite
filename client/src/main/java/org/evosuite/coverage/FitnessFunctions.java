@@ -25,22 +25,32 @@ import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
+import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
+import org.evosuite.coverage.cbranch.CBranchTestFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
+import org.evosuite.coverage.dataflow.AllDefsCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
+import org.evosuite.coverage.ibranch.IBranchTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageFactory;
 import org.evosuite.coverage.io.input.InputCoverageSuiteFitness;
+import org.evosuite.coverage.io.input.InputCoverageTestFitness;
+import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.line.OnlyLineCoverageSuiteFitness;
 import org.evosuite.coverage.method.*;
 import org.evosuite.coverage.mutation.*;
@@ -49,9 +59,12 @@ import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
+import org.evosuite.coverage.rho.RhoCoverageTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageFactory;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
+import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.regression.RegressionSuiteFitness;
+import org.evosuite.regression.RegressionTestFitnessFunction;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
@@ -129,7 +142,71 @@ public class FitnessFunctions {
 			return new BranchCoverageSuiteFitness();
 		}
 	}
-	
+
+	/**
+	 * <p>
+	 * getTestFitnessFunction
+	 * </p>
+	 *
+	 * @param criterion
+	 *            a {@link org.evosuite.Properties.Criterion} object.
+	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
+	public static Class getTestFitnessFunction(Criterion criterion) {
+		switch (criterion) {
+			case STRONGMUTATION:
+				return StrongMutationTestFitness.class;
+			case WEAKMUTATION:
+				return WeakMutationTestFitness.class;
+			case MUTATION:
+				return StrongMutationTestFitness.class;
+			case ONLYMUTATION:
+				return OnlyMutationTestFitness.class;
+			case DEFUSE:
+				return DefUseCoverageTestFitness.class;
+			case BRANCH:
+				return BranchCoverageTestFitness.class;
+			case CBRANCH:
+				return CBranchTestFitness.class;
+			case IBRANCH:
+				return IBranchTestFitness.class;
+			case STATEMENT:
+				return StatementCoverageTestFitness.class;
+			case RHO:
+				return RhoCoverageTestFitness.class;
+			case AMBIGUITY:
+				return LineCoverageTestFitness.class;
+			case ALLDEFS:
+				return AllDefsCoverageTestFitness.class;
+			case EXCEPTION:
+				return ExceptionCoverageTestFitness.class;
+			case REGRESSION:
+				return RegressionTestFitnessFunction.class;
+			//case READABILITY:
+			//	return ReadabilitySuiteFitness.class;
+			case ONLYBRANCH:
+				return OnlyBranchCoverageTestFitness.class;
+			case METHODTRACE:
+				return MethodTraceCoverageTestFitness.class;
+			case METHOD:
+				return MethodCoverageTestFitness.class;
+			case METHODNOEXCEPTION:
+				return MethodNoExceptionCoverageTestFitness.class;
+			case ONLYLINE:
+				return LineCoverageTestFitness.class;
+			case LINE:
+				return LineCoverageTestFitness.class;
+			case OUTPUT:
+				return OutputCoverageTestFitness.class;
+			case INPUT:
+				return InputCoverageTestFitness.class;
+			default:
+				logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
+						+ " using default one (BranchCoverageTestFitness)");
+				return BranchCoverageTestFitness.class;
+		}
+	}
+
 	/**
 	 * <p>
 	 * getFitnessFactory

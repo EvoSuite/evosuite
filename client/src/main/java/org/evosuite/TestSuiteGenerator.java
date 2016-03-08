@@ -792,6 +792,20 @@ public class TestSuiteGenerator {
 		return ffs;
 	}
 
+	/**
+	 * <p>
+	 * getTestFitnessFunctions
+	 * </p>
+	 *
+	 * @return a list of {@link org.evosuite.testcase.TestFitnessFunction} objects.
+	 */
+	public static List<Class> getTestFitnessFunctions() {
+		List<Class> ffs = new ArrayList<Class>();
+		for (int i = 0; i < Properties.CRITERION.length; i++) {
+			ffs.add(FitnessFunctions.getTestFitnessFunction(Properties.CRITERION[i]));
+		}
+		return ffs;
+	}
 
 	/**
 	 * Prints out all information regarding this GAs stopping conditions

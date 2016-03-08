@@ -25,6 +25,7 @@ package org.evosuite.junit.writer;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
@@ -764,6 +765,8 @@ public class TestSuiteWriter implements Opcodes {
     private void writeCoveredGoalsFile() {
         if (Properties.WRITE_COVERED_GOALS_FILE) {
             StringBuilder builder = new StringBuilder();
+            List<Class> functions = TestSuiteGenerator.getTestFitnessFunctions();
+
             File file = new File(Properties.COVERED_GOALS_FILE);
             for (int i = 0; i < testCases.size(); i++) {
                 TestCase test = testCases.get(i);
@@ -771,7 +774,9 @@ public class TestSuiteWriter implements Opcodes {
                 String testName = (generatedName != null) ? generatedName : TestSuiteWriterUtils.getNameOfTest(testCases, i);
                 Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
                 for (TestFitnessFunction goal : coveredGoals) {
-                    builder.append(testName + "," + goal.toString() + NEWLINE);
+                    if (functions.contains(goal.getClass())) {
+                        builder.append(testName + "," + goal.toString() + NEWLINE);
+                    }
                 }
             }
             FileIOUtils.writeFile(builder.toString(), file);
