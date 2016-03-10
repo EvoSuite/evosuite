@@ -299,6 +299,9 @@ public class RegressionAssertionCounter {
 
 		double exDiff = Math.abs((double) (originalExceptionMapping.size() - regressionExceptionMapping.size()));
 
+		
+		
+		
 		/*
 		 * If the number of exceptions is different, clearly the executions are
 		 * propagating to different results. Otherwise, we need to compare the
@@ -315,6 +318,26 @@ public class RegressionAssertionCounter {
 					originalExceptionMapping.remove(origException.getKey());
 					skip = true;
 				}
+				
+				// See if exception throwing classes differed
+				try{
+					Throwable x = origException.getValue();
+					Class<?> ex = getExceptionClassToUse(x);
+					String sourceClass = RegressionAssertionCounter.getSourceClassName(x);
+					if (sourceClass != null && isValidSource(sourceClass) && isExceptionToAssertThrownBy(ex)) {
+						// Get other exception throwing class and compare them
+						Throwable otherX = regressionExceptionMapping.get(origException.getKey());
+						String otherSourceClass = RegressionAssertionCounter.getSourceClassName(otherX);
+						if (sourceClass != otherSourceClass) {
+							exDiff++;
+							//logger.warn("Exception throwing classes differed: {} {}", sourceClass, otherSourceClass);
+						}
+
+					}
+				} catch (Throwable t){ 
+					// ignore
+				}
+				
 				// Skip if the exceptions are not comparable
 				if (regressionExceptionMapping.containsKey(origException.getKey())
 						&& (regressionExceptionMapping.get(origException.getKey()) == null
@@ -351,24 +374,6 @@ public class RegressionAssertionCounter {
 				if (!regressionExceptionMapping.containsKey(origException.getKey()) || (!regressionExceptionMapping
 						.get(origException.getKey()).getMessage().equals(origException.getValue().getMessage()))) {
 					exDiff++;
-				}
-				// Compare the exception throwing classes
-				else if (regressionExceptionMapping.containsKey(origException.getKey())) {
-					// first check if the exception is usable for an
-					// assertThrownBy
-					Throwable x = origException.getValue();
-					Class<?> ex = getExceptionClassToUse(x);
-					String sourceClass = RegressionAssertionCounter.getSourceClassName(x);
-					if (sourceClass != null && isValidSource(sourceClass) && isExceptionToAssertThrownBy(ex)) {
-						// Get other exception throwing class and compare them
-						Throwable otherX = regressionExceptionMapping.get(origException.getKey());
-						String otherSourceClass = RegressionAssertionCounter.getSourceClassName(otherX);
-						if (sourceClass != otherSourceClass) {
-							exDiff++;
-							logger.warn("Exception throwing classes differed: {} {}", sourceClass, otherSourceClass);
-						}
-
-					}
 				}
 			}
 			// For all exceptions in the regression class.

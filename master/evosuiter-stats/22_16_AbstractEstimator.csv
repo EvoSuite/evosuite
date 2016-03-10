@@ -1,0 +1,5 @@
+fitness,test_count,test_size,branch_distance,object_distance,coverage,exception_diff,total_exceptions,coverage_old,coverage_new,executed_statements,age,time,assertions,state,exec_time,assert_time,cover_time,state_diff_time,branch_time,obj_time
+0,1,0,0,0,0,0,0,0,0,20,1,669,0,F,,,,,,
+0,314,0,0,0,0,0,0,0,0,6584,2,4670,0,P,,,,,,
+0,746,6,0,0,0,0,1,0,0,16080,3,11086,1,P,,,,,,
+0,1,5,0,0,0,0,0,0,0,16080,4,11086,1,L,0,0,0,0,0,0
