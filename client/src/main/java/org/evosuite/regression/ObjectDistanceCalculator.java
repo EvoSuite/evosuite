@@ -465,13 +465,7 @@ public class ObjectDistanceCalculator {
 					|| Double.valueOf(tmpDistance).isInfinite()) {
 				different_variables++;
 				tmpDistance = 0;
-				/*System.out
-						.println("!!!!!!!!!!!!!!!! OBJECT DISTANCE ALERT! NaN/Infinite received as distance: "
-								+ "field: "
-								+ fieldName
-								+ ", d: "
-								+ distance
-								+ " <");*/
+				
 			}
 
 			distance += tmpDistance;
