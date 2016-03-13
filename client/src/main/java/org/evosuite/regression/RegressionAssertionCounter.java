@@ -314,9 +314,14 @@ public class RegressionAssertionCounter {
 				boolean skip = false;
 
 				// Skip if the exception or the message are null
-				if (origException.getValue() == null || origException.getValue().getMessage() == null) {
-					originalExceptionMapping.remove(origException.getKey());
-					skip = true;
+				// Sometimes the getMesage may call the CUT's exception handler which may crash
+				try{
+					if (origException.getValue() == null || origException.getValue().getMessage() == null) {
+						originalExceptionMapping.remove(origException.getKey());
+						skip = true;
+					}
+				} catch (Throwable t){
+					continue;
 				}
 				
 				// See if exception throwing classes differed
@@ -339,11 +344,15 @@ public class RegressionAssertionCounter {
 				}
 				
 				// Skip if the exceptions are not comparable
-				if (regressionExceptionMapping.containsKey(origException.getKey())
-						&& (regressionExceptionMapping.get(origException.getKey()) == null
-								|| regressionExceptionMapping.get(origException.getKey()).getMessage() == null)) {
-					regressionExceptionMapping.remove(origException.getKey());
-					skip = true;
+				try{
+					if (regressionExceptionMapping.containsKey(origException.getKey())
+							&& (regressionExceptionMapping.get(origException.getKey()) == null
+									|| regressionExceptionMapping.get(origException.getKey()).getMessage() == null)) {
+						regressionExceptionMapping.remove(origException.getKey());
+						skip = true;
+					}
+				} catch (Throwable t){
+					continue;
 				}
 
 				// If they start differing from @objectID skip this one
