@@ -126,7 +126,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 
 		ClassLoader dbLoader = DBManager.getInstance().getSutClassLoader();
-		if(dbLoader != null && dbLoader != this) {
+		if(dbLoader != null && dbLoader != this && !isRegression) {
 			/*
 				Check if we should rather use the class version loaded when the DB was initialized.
 				This is tricky, as JPA with Hibernate uses the classes loaded when the DB was initialized.
