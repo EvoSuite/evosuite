@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
  *
@@ -32,16 +32,12 @@ import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
-import org.evosuite.runtime.EvoAssertions;
-import org.evosuite.runtime.EvoRunner;
-import org.evosuite.runtime.EvoRunnerParameters;
-import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.*;
 import org.evosuite.runtime.testdata.EnvironmentDataList;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.runtime.ViolatedAssumptionAnswer;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
@@ -91,9 +87,7 @@ public class TestSuiteWriter implements Opcodes {
 
     private TestCodeVisitor visitor = new TestCodeVisitor();
 
-    private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
-
-    private final static String NEWLINE = System.getProperty("line.separator");
+    private final static String NEWLINE = java.lang.System.getProperty("line.separator");
 
     private TestNameGenerationStrategy nameGenerator = null;
 
@@ -216,7 +210,7 @@ public class TestSuiteWriter implements Opcodes {
             TestCase test = testCases.get(i);
             boolean added = false;
             if(!TimeController.getInstance().hasTimeToExecuteATestCase()) {
-                logger.warn("Using cached result");
+                logger.info("Using cached result");
                 for(ExecutionResult result : cachedResults) {
                     if(result != null && result.test == test) {
                         results.add(result);
@@ -404,7 +398,9 @@ public class TestSuiteWriter implements Opcodes {
 
         if(doesUseMocks(results)){
             String mockito = Mockito.class.getCanonicalName();
+            String extension = MockitoExtension.class.getCanonicalName();
             builder.append("import static "+mockito+".*;"+NEWLINE);
+            builder.append("import static "+extension+".*;"+NEWLINE);
             imports.add(ViolatedAssumptionAnswer.class);
         }
 

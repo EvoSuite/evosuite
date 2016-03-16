@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.runtime;
 
@@ -145,16 +145,13 @@ public class PrivateAccess {
      * classes used to prevent instantiating them (eg those classes only have
      * static methods)
      *
-     * @param klass
-     * @param <T>
      * @throws Throwable
      */
     @Constraints(atMostOnce = true, notMutable = true)
-    public static  void callDefaultConstructorOfTheClassUnderTest() throws Throwable{
+    public static Object callDefaultConstructorOfTheClassUnderTest() throws Throwable{
 
-        //FIXME likely this is wrong
-        Class<?> cut = PrivateAccess.class.getClassLoader().loadClass(RuntimeSettings.className);
-        callDefaultConstructor(cut);
+        Class<?> cut = Thread.currentThread().getContextClassLoader().loadClass(RuntimeSettings.className);
+        return callDefaultConstructor(cut);
     }
 
     /**
@@ -168,7 +165,7 @@ public class PrivateAccess {
      * @throws Throwable
      */
     @Constraints(atMostOnce = true, noNullInputs = true, notMutable = true)
-    public static <T> void callDefaultConstructor(Class<T> klass) throws Throwable{
+    public static <T> T callDefaultConstructor(Class<T> klass) throws Throwable{
 
         //TODO: not only should be atMostOnce in a test, but in the whole suite/archive
 
@@ -194,7 +191,7 @@ public class PrivateAccess {
         constructor.setAccessible(true);
 
         try {
-            constructor.newInstance();
+            return constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new FalsePositiveException("Failed to call the default constructor of "+klass.getName()+": "+e.toString());
         } catch (InvocationTargetException e) {
@@ -450,7 +447,7 @@ public class PrivateAccess {
         }
 
         try {
-            return PrivateAccess.class.getDeclaredMethod("callMethod",types.toArray(new Class[0]));
+            return PrivateAccess.class.getDeclaredMethod("callMethod", types.toArray(new Class[0]));
         } catch (NoSuchMethodException e) {
             logger.error(""+e.getMessage());
             return null;

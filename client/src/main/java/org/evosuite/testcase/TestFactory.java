@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase;
 
@@ -779,7 +779,7 @@ public class TestFactory {
 				return test.getStatement(returnPos).getReturnValue();
 			}
 
-			return createObject(test, type, position, recursionDepth, generatorRefToExclude, canUseMocks);
+			return createObject(test, type, position, recursionDepth, generatorRefToExclude, allowNull, canUseMocks);
 		}
 	}
 
@@ -926,6 +926,15 @@ public class TestFactory {
 			//do not use FM as possible callees
 			if(test.getStatement(ref.getStPosition()) instanceof FunctionalMockStatement){
 				iter.remove();
+				continue;
+			}
+
+			int boundPosition = ConstraintHelper.getLastPositionOfBounded(ref, test);
+			if(boundPosition >= 0 && boundPosition >= statement.getPosition()){
+				// if bounded variable, cannot add methods before its initialization, and so cannot be
+				// used as a callee
+				iter.remove();
+				continue;
 			}
 		}
 
@@ -1084,7 +1093,7 @@ public class TestFactory {
 
 	public VariableReference createObject(TestCase test, Type type, int position,
 										  int recursionDepth, VariableReference generatorRefToExclude) throws ConstructionFailedException {
-		return createObject(test,type,position,recursionDepth,generatorRefToExclude,true);
+		return createObject(test,type,position,recursionDepth,generatorRefToExclude,true,true);
 	}
 
 		/**
@@ -1098,7 +1107,7 @@ public class TestFactory {
          * @throws ConstructionFailedException
          */
 	public VariableReference createObject(TestCase test, Type type, int position,
-	        int recursionDepth, VariableReference generatorRefToExclude, boolean canUseFunctionalMocks) throws ConstructionFailedException {
+	        int recursionDepth, VariableReference generatorRefToExclude, boolean allowNull, boolean canUseFunctionalMocks) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
 		VariableReference ret;
@@ -1133,6 +1142,11 @@ public class TestFactory {
 				for(int i=position-1; i>=0; i--) {
 					Statement statement = test.getStatement(i);
 					VariableReference var = statement.getReturnValue();
+
+					if(!allowNull && ConstraintHelper.isNull(var,test)){
+						continue;
+					}
+
 					if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
 						return var;
 					}
@@ -1246,6 +1260,7 @@ public class TestFactory {
 				                                                position, recursionDepth,
 				                                                allowNull, generatorRefToExclude, canUseMocks);
 
+				assert ! (! allowNull && ConstraintHelper.isNull(reference,test));
 				assert canUseMocks || ! (test.getStatement(reference.getStPosition()) instanceof FunctionalMockStatement);
 				return reference;
 
@@ -1999,7 +2014,7 @@ public class TestFactory {
 					//}
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0, null, false); //no FM for SUT
+						callee = createObject(test, target, position, 0, null, true, false); //no FM for SUT
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {
@@ -2191,6 +2206,7 @@ public class TestFactory {
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
 			                                              recursionDepth, callee, allowNull, excludeCalleeGenerators, true);
+			assert ! (! allowNull && ConstraintHelper.isNull(var,test));
 
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {

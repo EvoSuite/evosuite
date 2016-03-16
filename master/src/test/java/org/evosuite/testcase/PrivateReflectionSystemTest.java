@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase;
 
@@ -26,6 +26,7 @@ import org.evosuite.SystemTestBase;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageFitnessFunctionSystemTest;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
@@ -36,6 +37,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -65,7 +69,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         Properties.P_REFLECTION_ON_PRIVATE = 0.9;
         Properties.REFLECTION_START_PERCENT = 0.0;
 
-        GeneticAlgorithm ga = do100percentLineTestOnStandardCriteria(PrivateConstructor.class);
+        GeneticAlgorithm ga = do100percentLineTestOnStandardCriteriaWithMethodTrace(PrivateConstructor.class);
 
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
@@ -80,7 +84,42 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
                 .findAny();
 
 
+        assertEquals(1, best.getNumOfCoveredGoals(ff.get()));
+
+        cov = best.getCoverageInstanceOf(MethodTraceCoverageSuiteFitness.class);
+        Assert.assertEquals("Non-optimal coverage: ", 1d, cov, 0.001);
+        ff = ga.getFitnessFunctions().stream()
+                .filter(m -> m instanceof MethodTraceCoverageSuiteFitness)
+                .findAny();
+
+
         assertEquals(2, best.getNumOfCoveredGoals(ff.get()));
+
+    }
+
+    protected GeneticAlgorithm<?>  do100percentLineTestOnStandardCriteriaWithMethodTrace(Class<?> target){
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = target.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        List<Properties.Criterion> criteria = new ArrayList<>(Arrays.asList(standardCriteria));
+        criteria.add(Properties.Criterion.METHODTRACE); // Include method trace so we can check for method invocations
+        Properties.CRITERION = criteria.toArray(Properties.CRITERION);
+
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println("EvolvedTestSuite:\n" + best);
+
+        double cov = best.getCoverageInstanceOf(LineCoverageSuiteFitness.class);
+
+        Assert.assertEquals("Non-optimal coverage: ", 1d, cov, 0.001);
+
+        return ga;
     }
 
 

@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
  
@@ -184,16 +184,6 @@ public class TestSuiteGenerator {
         	TestSuiteSerialization.saveTests(testSuite, new File(Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS));
         }
 
-		if (Properties.INLINE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
-			ConstantInliner inliner = new ConstantInliner();
-			// progressMonitor.setCurrentPhase("Inlining constants");
-
-			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
-
-			inliner.inline(testSuite);
-		}
-
 		/*
 		 * Remove covered goals that are not part of the minimization targets, as they
 		 * might screw up coverage analysis when a minimization timeout occurs.
@@ -247,6 +237,16 @@ public class TestSuiteGenerator {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
             ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
+		}
+
+		if (Properties.INLINE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
+			ConstantInliner inliner = new ConstantInliner();
+			// progressMonitor.setCurrentPhase("Inlining constants");
+
+			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
+
+			inliner.inline(testSuite);
 		}
 
 		if (Properties.COVERAGE) {

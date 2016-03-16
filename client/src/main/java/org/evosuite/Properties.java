@@ -1,25 +1,26 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.lm.MutationType;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
@@ -115,8 +116,11 @@ public class Properties {
 	public static boolean STRING_REPLACEMENT = true;
 
 	/** Constant <code>RESET_STATIC_FIELDS =false</code> */
-	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each a static field was modified")
+	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each static field was modified")
 	public static boolean RESET_STATIC_FIELDS = true;
+
+	@Parameter(key = "reset_static_field_gets", group = "Test Creation", description = "Call static constructors also after each static field was read")
+	public static boolean RESET_STATIC_FIELD_GETS = false;
 
 	/** Constant <code>RESET_STANDARD_STREAMS =false</code> */
 	@Parameter(key = "reset_standard_streams", group = "Test Creation", description = "Restore System.out, System.in and DebugGraphics.logStream after test execution")
@@ -289,15 +293,15 @@ public class Properties {
 
     @Parameter(key = "p_reflection_on_private", group = "Test Creation", description = "Probability [0,1] of using reflection to set private fields or call private methods")
     @DoubleValue(min = 0.0, max = 1.0)
-    public static double P_REFLECTION_ON_PRIVATE = 0.0; // TODO off by default. likely need something like 0.5
+    public static double P_REFLECTION_ON_PRIVATE = 0.5;
 
     @Parameter(key = "reflection_start_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which reflection fields/methods handling is activated")
     @DoubleValue(min = 0.0, max = 1.0)
-    public static double REFLECTION_START_PERCENT = 0.5;
+    public static double REFLECTION_START_PERCENT = 0.8;
 
 	@Parameter(key = "p_functional_mocking", group = "Test Creation", description = "Probability [0,1] of using functional mocking (eg Mockito) when creating object instances")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double P_FUNCTIONAL_MOCKING = 0.0; // TODO to put on once finalized
+	public static double P_FUNCTIONAL_MOCKING = 0.8;
 
 	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -837,7 +841,7 @@ public class Properties {
 	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
 
 	@Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
-	public static boolean TEST_COMMENTS = true;
+	public static boolean TEST_COMMENTS = false;
 
 	@Parameter(key = "test_scaffolding", group = "Output", description = "Generate all the scaffolding needed to run EvoSuite JUnit tests in a separate file")
 	public static boolean TEST_SCAFFOLDING = true;
@@ -856,10 +860,6 @@ public class Properties {
 	/** Constant <code>PLOT=false</code> */
 	@Parameter(key = "plot", group = "Output", description = "Create plots of size and fitness")
 	public static boolean PLOT = false;
-
-	/** Constant <code>HTML=true</code> */
-	@Parameter(key = "html", group = "Output", description = "Create html reports")
-	public static boolean HTML = true;
 
 	/** Constant <code>COVERAGE_MATRIX=false</code> */
 	@Parameter(key = "coverage_matrix", group = "Output", description = "Create a coverage matrix (each row represents the coverage a test case, and each column represents one goal")
@@ -941,6 +941,26 @@ public class Properties {
 	/** Constant <code>MINIMIZE_VALUES=false</code> */
 	@Parameter(key = "minimize_values", group = "Output", description = "Minimize constants and method calls")
 	public static boolean MINIMIZE_VALUES = false;
+
+	/** Constant <code>LM_STRINGS=false</code> */
+	@Parameter(key = "lm_strings", group = "Output", description = "Use language model on strings.  The parameter minimize_values must also be true.")
+	public static boolean LM_STRINGS = false;
+
+	/** Constant <code>MINIMIZE_STRINGS=true</code> */
+	@Parameter(key = "minimize_strings", group="Output", description = "Try to minimise strings by deleting non-printables. The parameter minimize_values must also be true,")
+	public static boolean MINIMIZE_STRINGS = true;
+
+	/** Constant <code>LM_SRC=false</code> */
+	@Parameter(key = "lm_src", description = "Text file for the language model.")
+	public static String LM_SRC = "ukwac_char_lm";
+
+	/** Constant <code>LM_ITERATIONS = 1000</code> */
+	@Parameter(key = "lm_iterations", description = "Number of 1+1EA generations PER STRING PRIMITIVE for language model optimiser.")
+	public static int LM_ITERATIONS = 1000;
+
+	/** Constant <code>LM_ITERATIONS = MutationType.LANGMODEL</code> */
+	@Parameter(key = "lm_mutation_type", description = "Type of mutation to use in language model string optimiser.")
+	public static MutationType LM_MUTATION_TYPE = MutationType.EVOSUITE;
 
 	/** Constant <code>COVERAGE=true</code> */
 	@Parameter(key = "coverage", group = "Output", description = "Calculate coverage after test suite generation")

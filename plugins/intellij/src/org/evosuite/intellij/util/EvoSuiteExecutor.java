@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.intellij.util;
 
@@ -149,9 +149,14 @@ public class EvoSuiteExecutor {
         int total = suts.values().stream().mapToInt(Set::size).sum();
         String msg = "Going to generate tests in "+modules+" module(s) for a total of "+total+ " classes";
         System.out.println(msg);
-        notifier.printOnConsole(msg);
+        notifier.printOnConsole(msg+"\n");
 
         if(modules > 1) {
+
+            for(Map.Entry<String,Set<String>> entry : suts.entrySet()){
+                notifier.printOnConsole("Module "+entry.getKey()+" -> to test "+entry.getValue().size()+" class(es) \n");
+            }
+
             notifier.success(msg);
         }
 

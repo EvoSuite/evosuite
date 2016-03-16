@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase;
 
@@ -27,6 +27,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -726,20 +727,34 @@ public class TestCodeVisitor extends TestVisitor {
 		Object value = assertion.getValue();
 
 		if (source.isPrimitive() || source.isWrapperType()) {
-			if (source.getVariableClass().equals(float.class) || source.getVariableClass().equals(Float.class)) {
+			if (source.getVariableClass().equals(float.class)) {
 				if (((Boolean) value).booleanValue())
 					testCode += "assertEquals(" + getVariableName(source) + ", "
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
 				else
 					testCode += "assertNotEquals(" + getVariableName(source) + ", "
 							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
-			} else if (source.getVariableClass().equals(double.class) || source.getVariableClass().equals(Double.class)) {
+			} else if (source.getVariableClass().equals(Float.class)) {
+					if (((Boolean) value).booleanValue())
+						testCode += "assertEquals((float)" + getVariableName(source) + ", (float)"
+								+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
+					else
+						testCode += "assertNotEquals((float)" + getVariableName(source) + ", (float)"
+								+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.FLOAT_PRECISION) + ");";
+			} else if (source.getVariableClass().equals(double.class)) {
                 if (((Boolean) value).booleanValue())
                     testCode += "assertEquals(" + getVariableName(source) + ", "
                             + getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
                 else
                     testCode += "assertNotEquals(" + getVariableName(source) + ", "
                             + getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
+			} else if (source.getVariableClass().equals(Double.class)) {
+				if (((Boolean) value).booleanValue())
+					testCode += "assertEquals((double)" + getVariableName(source) + ", (double)"
+							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
+				else
+					testCode += "assertNotEquals((double)" + getVariableName(source) + ", (double)"
+							+ getVariableName(dest) + ", " + NumberFormatter.getNumberString(Properties.DOUBLE_PRECISION) + ");";
             } else if(source.isWrapperType()) {
                 if (((Boolean) value).booleanValue())
                     testCode += "assertTrue(" + getVariableName(source) + ".equals((" + this.getClassName(Object.class) +")"
@@ -1131,15 +1146,33 @@ public class TestCodeVisitor extends TestVisitor {
 		result += variableType + " " + getVariableName(retval);
 
 		result += " = ";
-		if(! variableType.equals(rawClassName)){
+		if (!variableType.equals(rawClassName)) {
 			//this can happen in case of generics, eg
 			//Foo<String> foo = (Foo<String>) mock(Foo.class);
-			result += "(" + variableType+") ";
+			result += "(" + variableType + ") ";
 		}
 
-		//result += "mock(" + rawClassName+".class);" + NEWLINE;
-		result += "mock(" + rawClassName+".class, new "+ ViolatedAssumptionAnswer.class.getSimpleName()+"());" + NEWLINE;
+			/*
+				Tricky situation. Ideally, we would want to throw assumption error if a non-mocked method
+				is called, as to avoid false-positives when SUTs evolve.
+				However, it might well be that a test case is not updated, leaving mocks using the default
+				"null" return values. This would crash the JUnit check. Activating the  ViolatedAssumptionAnswer
+				during the search would just make things worse, as negatively effecting the search.
+				So we could just skip it, but this would effect false-positive preventions
+			 */
+		if (st.doesNeedToUpdateInputs()) {
+			try{
+				st.updateMockedMethods();
+			} catch (Exception e){
+			}
+			st.fillWithNullRefs();
 
+			//result += "mock(" + rawClassName + ".class);" + NEWLINE;
+		} else {
+			//result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+		}
+
+		result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
@@ -1172,6 +1205,10 @@ public class TestCodeVisitor extends TestVisitor {
 //			result += ".thenReturn( ";
 //			result += parameter_string + " );"+NEWLINE;
 
+			// Mockito doReturn() only takes single arguments. So we need to make sure that in the generated
+			// tests we import MockitoExtension class
+			//parameter_string = "doReturn(" + parameter_string.replaceAll(", ", ").doReturn(") + ")";
+			//result += parameter_string+".when("+getVariableName(retval)+")";
 			result += "doReturn("+parameter_string+").when("+getVariableName(retval)+")";
 			result += "."+md.getMethodName()+"("+md.getInputParameterMatchers()+");";
 			result += NEWLINE;
@@ -1289,8 +1326,10 @@ public class TestCodeVisitor extends TestVisitor {
 				result += getClassName(retval) + " ";
 			}
 		}
-		if (exception != null && !test.isFailing())
+		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
 			result += "try { " + NEWLINE + "  ";
+		}
+
 
 		String parameter_string = getParameterString(method.getParameterTypes(),
 		                                             parameters, isGenericMethod,
@@ -1343,7 +1382,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 
-		if (exception != null && !test.isFailing()) {
+		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
@@ -1424,6 +1463,7 @@ public class TestCodeVisitor extends TestVisitor {
 	private boolean isValidSource(String sourceClass){
 		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
 				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
+				!sourceClass.equals(URLClassLoader.class.getName()) && // Classloaders may differ, e.g. when running with ant
                 !sourceClass.startsWith(RegExp.class.getPackage().getName());
 	}
 
@@ -1487,9 +1527,7 @@ public class TestCodeVisitor extends TestVisitor {
 		                                            constructor.isOverloaded(parameters),
 		                                            startPos);
 
-		// String result = ((Class<?>) retval.getType()).getSimpleName()
-		// +" "+getVariableName(retval)+ " = null;\n";
-		if (exception != null) {
+		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
 			String className = getClassName(retval);
 
 			// FIXXME: Workaround for primitives:
@@ -1503,28 +1541,20 @@ public class TestCodeVisitor extends TestVisitor {
 		} else {
 			result += getClassName(retval) + " ";
 		}
-		if (isNonStaticMemberClass) {
 
+		if (isNonStaticMemberClass) {
 			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
-			        // + new GenericClass(
-			        // constructor.getDeclaringClass().getEnclosingClass()).getSimpleName()
 			        + ".new "
-			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-			        // + getTypeName(constructor.getOwnerType()) + "("
 			        + getSimpleTypeName(constructor.getOwnerType()) + "("
-			        // + getClassName(constructor.getDeclaringClass()) + "("
 			        + parameterString + ");";
-
 		} else {
-
 			result += getVariableName(retval) + " = new "
 			        + getTypeName(constructor.getOwnerType())
-			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
 			        + "(" + parameterString + ");";
 		}
 
-		if (exception != null) {
+		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}

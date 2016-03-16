@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.symbolic;
 
@@ -24,7 +24,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.testcase.variable.ArrayIndex;
@@ -57,6 +59,7 @@ import org.evosuite.utils.generic.GenericMethod;
 public class TestCaseBuilder {
 
 	private final DefaultTestCase tc = new DefaultTestCase();
+	private final Map<Integer,Throwable> exceptions = new HashMap<Integer,Throwable>();
 
 	public VariableReference appendConstructor(Constructor<?> constructor,
 			VariableReference... parameters) {
@@ -258,5 +261,51 @@ public class TestCaseBuilder {
 		FileNamePrimitiveStatement stmt = new FileNamePrimitiveStatement(tc, evosuiteFile);
 		tc.addStatement(stmt);
 		return stmt.getReturnValue();
+	}
+
+	
+	/**
+	 * x.f1 := y.f2
+	 *  
+	 * @param var
+	 * @param array
+	 * @param index
+	 */
+	public void appendAssignment(VariableReference receiver, Field field,
+			VariableReference src, Field fieldSrc) {
+		FieldReference dstFieldReference;
+		if (receiver == null) {
+			dstFieldReference = new FieldReference(tc, new GenericField(field,
+					field.getDeclaringClass()));
+		} else {
+			dstFieldReference = new FieldReference(tc, new GenericField(field,
+					receiver.getType()), receiver);
+		}
+		
+		FieldReference srcFieldReference;
+		if (src == null) {
+			srcFieldReference = new FieldReference(tc, new GenericField(fieldSrc,
+					fieldSrc.getDeclaringClass()));
+		} else {
+			srcFieldReference = new FieldReference(tc, new GenericField(fieldSrc,
+					src.getType()), src);
+		}
+		AssignmentStatement stmt = new AssignmentStatement(tc, dstFieldReference,
+				srcFieldReference);
+		tc.addStatement(stmt);
+	}
+
+
+
+	public void addException(Throwable exception) {
+		int currentPos = this.tc.size()-1;
+		if (currentPos<0)
+			throw new IllegalStateException("Cannot add exception to empty test case");
+		
+		if (exceptions.containsKey(currentPos)) {
+			throw new IllegalStateException("Statement already contains an exception!");
+		}
+		
+		exceptions.put(currentPos, exception);
 	}
 }

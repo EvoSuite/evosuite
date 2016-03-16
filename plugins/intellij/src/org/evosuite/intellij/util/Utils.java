@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.intellij.util;
 
@@ -29,6 +29,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Arrays;
@@ -55,15 +56,21 @@ public class Utils {
         return pom.exists();
     }
 
+    @Nullable
     public static String getFolderLocation(Module module){
         ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
         VirtualFile[] contentRoots = rootManager.getContentRoots(); //TODO check why IntelliJ does return an array here
+
+        if(contentRoots==null || contentRoots.length==0){
+            return null;
+        }
+
         return new File(contentRoots[0].getCanonicalPath()).getAbsolutePath();
     }
 
     public static Module getModule(Project project, String folderLocation){
         for(Module m : ModuleManager.getInstance(project).getModules()){
-            if(getFolderLocation(m).equals(folderLocation)){
+            if(folderLocation.equals(getFolderLocation(m))){
                 return m;
             }
         }

@@ -1,21 +1,21 @@
 /**
- * Copyright (C) 2010-2015 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser Public License as published by the
- * Free Software Foundation, either version 3.0 of the License, or (at your
- * option) any later version.
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser Public License along
- * with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.instrumentation;
 
@@ -126,7 +126,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 
 		ClassLoader dbLoader = DBManager.getInstance().getSutClassLoader();
-		if(dbLoader != null && dbLoader != this) {
+		if(dbLoader != null && dbLoader != this && !isRegression) {
 			/*
 				Check if we should rather use the class version loaded when the DB was initialized.
 				This is tricky, as JPA with Hibernate uses the classes loaded when the DB was initialized.
