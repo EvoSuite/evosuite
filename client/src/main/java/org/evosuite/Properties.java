@@ -1295,6 +1295,10 @@ public class Properties {
 	public static String JUNIT_THEORIES = "";
 
 	/** Constant <code>ERROR_BRANCHES=false</code> */
+
+	@Parameter(key = "exception_branches", description = "Instrument code with explicit branches for exceptional control flow")
+	public static boolean EXCEPTION_BRANCHES = false;
+
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
 	public static boolean ERROR_BRANCHES = false;
 

@@ -164,7 +164,9 @@ public class TestClusterGenerator {
 			} catch (NoSuchMethodException e) {
 			}
 
-			if(constructor != null && Modifier.isPrivate(constructor.getModifiers()) && target.getDeclaredConstructors().length==1){
+			if(constructor != null && Modifier.isPrivate(constructor.getModifiers()) && target.getDeclaredConstructors().length==1
+					// Not enums
+					&& !target.isEnum()){
 
 				Method m = null;
 				try {
