@@ -30,25 +30,28 @@ public class DivisionByZeroInstrumentation extends ErrorBranchInstrumenter {
 	@Override
 	public void visitInsn(int opcode) {
 		// Check *DIV for divisonbyzero
-		if (opcode == Opcodes.IDIV) {
+		if (opcode == Opcodes.IDIV || opcode == Opcodes.IREM) {
 			mv.visitInsn(Opcodes.DUP);
 			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
 
-		} else if (opcode == Opcodes.FDIV) {
-			mv.visitInsn(Opcodes.DUP);
-			mv.visitLdcInsn(0F);
-			mv.visitInsn(Opcodes.FCMPL);
-			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
-
-		} else if (opcode == Opcodes.LDIV || opcode == Opcodes.DDIV) {
+//		} else if (opcode == Opcodes.FDIV) {
+//			mv.visitInsn(Opcodes.DUP);
+//			mv.visitLdcInsn(0F);
+//			mv.visitInsn(Opcodes.FCMPL);
+//			// FIXME: Does float generate ArithmeticException at all?
+//			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
+		} else if(opcode == Opcodes.IREM) {
+			// TODO:
+		} else if (opcode == Opcodes.LDIV || opcode == Opcodes.LREM) {
 			mv.visitInsn(Opcodes.DUP2);
-			if (opcode == Opcodes.LDIV) {
+			// if (opcode == Opcodes.LDIV) {
 				mv.visitLdcInsn(0L);
 				mv.visitInsn(Opcodes.LCMP);
-			} else {
-				mv.visitLdcInsn(0.0);
-				mv.visitInsn(Opcodes.DCMPL);
-			}
+//			} else {
+//				mv.visitLdcInsn(0.0);
+//				mv.visitInsn(Opcodes.DCMPL);
+//			}
+			// FIXME: Double does not throw ArithmeticException but generates Double.INFINITY or Double.NaN
 			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
 		}
 	}
