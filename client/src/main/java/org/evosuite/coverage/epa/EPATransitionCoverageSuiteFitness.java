@@ -141,7 +141,8 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 				for (EPATransition transition : trace.getEpaTransitions()) {
 					String transitionName = transition.getTransitionName();
 					if (!this.coverage_goal_map.containsKey(transitionName)) {
-						throw new EvosuiteError("goal for transition " + transition.toString() + " was not found!");
+						logger.debug("goal for transition " + transition.toString() + " was not found!");
+						break; // discard rest of trace
 					}
 					EPATransitionCoverageTestFitness goal = this.coverage_goal_map.get(transitionName);
 					result.test.addCoveredGoal(goal);
