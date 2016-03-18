@@ -204,6 +204,10 @@ public class BytecodeInstrumentation {
 
             cv = new CFGClassAdapter(classLoader, cv, className);
 
+            if (Properties.EXCEPTION_BRANCHES) {
+                cv = new ExceptionTransformationClassAdapter(cv, className);
+            }
+
             if (Properties.ERROR_BRANCHES) {
                 cv = new ErrorConditionClassAdapter(cv, className);
             }
@@ -216,23 +220,22 @@ public class BytecodeInstrumentation {
                 cv = new AccessibleClassAdapter(cv, className);
             }
 
+
             // If we are doing testability transformation on all classes we need to create the CFG first
             if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
                 cv = new CFGClassAdapter(classLoader, cv, className);
             }
         }
 
+
         // Collect constant values for the value pool
         cv = new PrimitiveClassAdapter(cv, className);
         cv = handleStaticReset(className, cv);
-
 
         // Mock instrumentation (eg File and TCP).
         if (TestSuiteWriterUtils.needToUseAgent()) {
             cv = new MethodCallReplacementClassAdapter(cv, className);
         }
-
-
 
         // Testability Transformations
         if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)

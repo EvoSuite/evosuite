@@ -92,4 +92,20 @@ public class ArrayInstrumentation extends ErrorBranchInstrumenter {
 			insertBranch(Opcodes.IFGE, "java/lang/NegativeArraySizeException");	
 		}
 	}
+
+	public void visitMultiANewArrayInsn(String desc, int dims) {
+		mv.visitLdcInsn(dims);
+		// Number of dimensions
+		insertBranch(Opcodes.IFGE, "java/lang/NegativeArraySizeException");
+		// TODO: Check for each dimension that it is geq 0
+	}
+
+	@Override
+	public void visitTypeInsn(int opcode,
+							  String type) {
+		if(opcode == Opcodes.ANEWARRAY) {
+			mv.visitInsn(Opcodes.DUP);
+			insertBranch(Opcodes.IFGE, "java/lang/NegativeArraySizeException");
+		}
+	}
 }
