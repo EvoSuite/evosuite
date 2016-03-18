@@ -198,7 +198,7 @@ public class EPATraceObserver extends ExecutionObserver {
 	private boolean executeEpaStateMethod(EPAState epaState, Object calleeObject, Scope scope) {
 		final String name = epaState.getName();
 		try {
-			Method method = calleeObject.getClass().getDeclaredMethod(isStateMethodName(name));
+			Method method = getMethod(calleeObject, name);
 			boolean isAccessible = method.isAccessible();
 			method.setAccessible(true);
 			Boolean result = (Boolean) method.invoke(calleeObject);
@@ -210,7 +210,22 @@ public class EPATraceObserver extends ExecutionObserver {
 		}
 	}
 
-	private String isStateMethodName(String name) {
+	private Method getMethod(Object calleeObject, final String name) throws NoSuchMethodException {
+		final String stateMethodName = isStateMethodName(name);
+		Class<?> currentClass = calleeObject.getClass();
+		while (currentClass != null) {
+			try {
+				Method method = currentClass.getDeclaredMethod(stateMethodName);
+				return method;
+			} catch (NoSuchMethodException ex) {
+				currentClass = currentClass.getSuperclass();
+			}
+		}
+		throw new NoSuchMethodException("Method " + stateMethodName + " was not found in class "
+				+ calleeObject.getClass().getName() + " or any superclass");
+	}
+
+	private static String isStateMethodName(String name) {
 		return "isState" + name;
 	}
 
