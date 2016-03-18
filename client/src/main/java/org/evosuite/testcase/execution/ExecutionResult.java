@@ -428,7 +428,8 @@ public class ExecutionResult implements Cloneable {
 			copy.readProperties.addAll(readProperties);
 		}
 		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
-
+		copy.epaTraces.clear();
+		copy.epaTraces.addAll(this.epaTraces);
 		return copy;
 	}
 

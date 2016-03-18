@@ -2,9 +2,7 @@ package org.evosuite.coverage.epa;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 
-import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATransitionCoverageGoal> {

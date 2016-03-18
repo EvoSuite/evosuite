@@ -104,7 +104,8 @@ public class EPATraceObserver extends ExecutionObserver {
 
 	private void afterMethodStatement(MethodStatement methodStmt, Scope scope) throws EvosuiteError {
 		try {
-			if (isObjectInstanceOfTargetClass(methodStmt.getCallee().getObject(scope))) {
+			if (methodStmt.getCallee() != null
+					&& isObjectInstanceOfTargetClass(methodStmt.getCallee().getObject(scope))) {
 				final Object calleeObject = methodStmt.getCallee().getObject(scope);
 				// is the methodStmt defined as an EPA Action ?
 				final String actionName = methodStmt.getMethodName() + methodStmt.getDescriptor();
@@ -122,7 +123,8 @@ public class EPATraceObserver extends ExecutionObserver {
 			} else {
 				// check if the return value is a previously unseen target class
 				// object
-				if (isObjectInstanceOfTargetClass(methodStmt.getReturnValue().getObject(scope))) {
+				if (methodStmt.getReturnValue() != null && methodStmt.getReturnValue().getObject(scope) != null
+						&& isObjectInstanceOfTargetClass(methodStmt.getReturnValue().getObject(scope))) {
 					final Object returned_object = methodStmt.getReturnValue().getObject(scope);
 					if (!hasPreviousEpaState(returned_object)) {
 						// if no last state, previous state should be
@@ -188,7 +190,7 @@ public class EPATraceObserver extends ExecutionObserver {
 			}
 		}
 		if (currentState == null) {
-			throw new MalformedEPATraceException("Object has not EPA state!");
+			throw new MalformedEPATraceException("Object has no EPA state!");
 		}
 		return currentState;
 	}
@@ -264,6 +266,7 @@ public class EPATraceObserver extends ExecutionObserver {
 			traces.add(trace);
 		}
 		r.addEPATraces(traces);
+		this.clear();
 	}
 
 	/**
