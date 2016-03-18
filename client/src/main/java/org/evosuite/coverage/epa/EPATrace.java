@@ -35,4 +35,29 @@ public class EPATrace {
 		buff.append("]");
 		return buff.toString();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((epaTransitions == null) ? 0 : epaTransitions.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EPATrace other = (EPATrace) obj;
+		if (epaTransitions == null) {
+			if (other.epaTransitions != null)
+				return false;
+		} else if (!epaTransitions.equals(other.epaTransitions))
+			return false;
+		return true;
+	}
 }

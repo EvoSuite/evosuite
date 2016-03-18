@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<abstraction initial_state="Sinit" input_format="contract" name="com.examples.with.different.packagename.epa.ListItr">
+<abstraction initial_state="Sinit" initial_action="&lt;init&gt;(Lcom/examples/with/different/packagename/epa/MyArrayList;I)V" input_format="contract" name="com.examples.with.different.packagename.epa.ListItr">
   <label name="add(Ljava/lang/Object;)V"/>
   <label name="hasNext()Z"/>
   <label name="hasPrevious()Z"/>

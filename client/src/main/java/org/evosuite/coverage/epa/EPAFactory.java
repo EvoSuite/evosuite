@@ -36,6 +36,7 @@ public abstract class EPAFactory {
 	private static final String STATE = "state";
 	private static final String NAME = "name";
 	private static final String INITIAL_STATE = "initial_state";
+	private static final String INITIAL_ACTION = "initial_action";
 
 	public static EPA buildEPA(String xmlFilename) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
 		return buildEPA(new FileInputStream(xmlFilename));
@@ -57,6 +58,8 @@ public abstract class EPAFactory {
 		final Document document = documentBuilder.parse(xml);
 		final Element abstraction = document.getDocumentElement();
 		final String initialStateName = abstraction.getAttribute(INITIAL_STATE);
+		final String initialActionName = abstraction.getAttribute(INITIAL_ACTION);
+
 		final String epaName = abstraction.getAttribute(NAME);
 		final NodeList states = abstraction.getElementsByTagName(STATE);
 
@@ -96,7 +99,7 @@ public abstract class EPAFactory {
 		});
 		EPAState initialState = epaStateMap.get(initialStateName);
 
-		EPA newEPA = new EPA(epaName, map, initialState);
+		EPA newEPA = new EPA(epaName, map, initialState, initialActionName);
 		return newEPA;
 	}
 

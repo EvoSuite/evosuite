@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<abstraction initial_state="S0" input_format="code-with-pre" name="com.examples.with.different.packagename.epa.MyBoundedStack">
+<abstraction initial_state="S0" initial_action="&lt;init&gt;()V" input_format="code-with-pre" name="com.examples.with.different.packagename.epa.MyBoundedStack">
   <label name="&lt;init&gt;()V" />
   <label name="push(Ljava/lang/Object;)V" />
   <label name="pop()Ljava/lang/Object;" />

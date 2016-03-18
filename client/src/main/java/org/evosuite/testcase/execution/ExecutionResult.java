@@ -20,6 +20,7 @@
 package org.evosuite.testcase.execution;
 
 import org.evosuite.assertion.OutputTrace;
+import org.evosuite.coverage.epa.EPATrace;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.mutation.Mutation;
@@ -32,7 +33,7 @@ import java.util.*;
 public class ExecutionResult implements Cloneable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
-	
+
 	/** Test case that produced this execution result */
 	public TestCase test;
 
@@ -42,11 +43,12 @@ public class ExecutionResult implements Cloneable {
 	/** Map statement number to raised exception */
 	protected Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
-	/** Record for each exception if it was explicitly thrown 
+	/**
+	 * Record for each exception if it was explicitly thrown
 	 * 
 	 * <p>
 	 * FIXME: internal data structures should never be null...
-	 * */
+	 */
 	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
 
 	/** Trace recorded during execution */
@@ -63,17 +65,17 @@ public class ExecutionResult implements Cloneable {
 
 	/** Set of System properties that were read during test execution */
 	protected Set<String> readProperties;
-	
+
 	/**
 	 * Keep track of whether any System property was written
 	 */
 	protected boolean wasAnyPropertyWritten;
-	
+
 	/*
 	 * Regression Object Distance
 	 */
 	public double regressionObjectDistance = 0;
-	
+
 	/**
 	 * @return the executedStatements
 	 */
@@ -92,12 +94,13 @@ public class ExecutionResult implements Cloneable {
 	/** Output traces produced by observers */
 	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
-    private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
+	private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
 
-    private Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
+	private Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
 
-	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
-	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
+	// experiment .. tried to remember intermediately calculated
+	// ControlFlowDistances .. no real speed up
+	// public Map<Branch, ControlFlowDistance> intermediateDistances;
 
 	/**
 	 * Default constructor when executing without mutation
@@ -127,7 +130,6 @@ public class ExecutionResult implements Cloneable {
 		}
 	}
 
-	
 	/**
 	 * <p>
 	 * getFirstPositionOfThrownException
@@ -276,10 +278,11 @@ public class ExecutionResult implements Cloneable {
 	 * Set execution trace to different value
 	 * 
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace}
+	 *            object.
 	 */
-	public void setTrace(ExecutionTrace trace) throws IllegalArgumentException{
-		if(trace==null){
+	public void setTrace(ExecutionTrace trace) throws IllegalArgumentException {
+		if (trace == null) {
 			throw new IllegalArgumentException("Trace cannot be null");
 		}
 		this.trace = trace;
@@ -365,10 +368,11 @@ public class ExecutionResult implements Cloneable {
 		for (Integer i : exceptions.keySet()) {
 			Throwable t = exceptions.get(i);
 			// Exceptions can be placed at test.size(), e.g. for timeouts
-			assert i>=0 && i<=test.size() : "Exception "+t+" at position "+i+" in test of length "+test.size()+": "+test.toCode(exceptions);
-			if(i >= test.size())
+			assert i >= 0 && i <= test.size() : "Exception " + t + " at position " + i + " in test of length "
+					+ test.size() + ": " + test.toCode(exceptions);
+			if (i >= test.size())
 				continue;
-			
+
 			if (!test.getStatement(i).getDeclaredExceptions().contains(t.getClass()))
 				return true;
 		}
@@ -386,7 +390,7 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	public void setSecurityException(boolean value) {
-		logger.debug("Changing hasSecurityException from "+hasSecurityException +" to "+value);
+		logger.debug("Changing hasSecurityException from " + hasSecurityException + " to " + value);
 		hasSecurityException = value;
 	}
 
@@ -419,7 +423,7 @@ public class ExecutionResult implements Cloneable {
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
-		if(readProperties!=null){
+		if (readProperties != null) {
 			copy.readProperties = new LinkedHashSet<String>();
 			copy.readProperties.addAll(readProperties);
 		}
@@ -462,15 +466,24 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	public void setOutputGoals(Map<Integer, Set<OutputCoverageGoal>> coveredGoals) {
-        outputGoals.putAll(coveredGoals);
+		outputGoals.putAll(coveredGoals);
 	}
 
 	public Map<Integer, Set<InputCoverageGoal>> getInputGoals() {
-        return inputGoals;
+		return inputGoals;
 	}
 
 	public Map<Integer, Set<OutputCoverageGoal>> getOutputGoals() {
 		return outputGoals;
 	}
 
+	private final HashSet<EPATrace> epaTraces = new HashSet<EPATrace>();
+
+	public void addEPATraces(Collection<? extends EPATrace> newEpaTraces) {
+		this.epaTraces.addAll(newEpaTraces);
+	}
+
+	public Collection<? extends EPATrace> getEPATraces() {
+		return this.epaTraces;
+	}
 }

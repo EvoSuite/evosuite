@@ -1,5 +1,9 @@
 package org.evosuite.coverage.epa;
 
+import org.evosuite.Properties;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -233,6 +237,21 @@ public class TestEPACoverageFromTraceFileAnalyzer {
 			"3-reportState()V\n" +
 			"3-hasNext()Z";
 
+	@Before
+	public void prepareTest() {
+		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
+				"resources", "epas", "ListItr.xml");
+		File xmlFile = new File(xmlFilename);
+		Assume.assumeTrue(xmlFile.exists());
+		Properties.EPA_XML_PATH = xmlFilename;
+	}
+	
+	@After
+	public void tearDownTest() {
+		Properties.EPA_XML_PATH = null;
+
+	}
+	
 	@Test
 	public void testEPACoverageFromSamples() throws IOException, SAXException, ParserConfigurationException {
 		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",

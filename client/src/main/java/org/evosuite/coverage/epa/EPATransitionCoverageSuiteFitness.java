@@ -18,6 +18,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
@@ -53,6 +54,9 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 
 			this.epa = target_epa;
 			this.coverage_goal_map = buildCoverageGoalMap(epaXMLFilename);
+
+			TestCaseExecutor.getInstance().addObserver(new EPATraceObserver(this.epa));
+
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
 		}
@@ -72,9 +76,9 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		try {
 			for (EPAState epaState : epa.getStates()) {
 				boolean found;
-				found = hasMethodOrConstructor(className, "reportState" + epaState.getName(), "()V");
+				found = hasMethodOrConstructor(className, "isState" + epaState.getName(), "()Z");
 				if (!found) {
-					throw new EvosuiteError("Report method for EPA State " + epaState.getName()
+					throw new EvosuiteError("Boolean query method for EPA State " + epaState.getName()
 							+ " was not found in target class " + className);
 				}
 			}
@@ -129,22 +133,21 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		List<ExecutionResult> executionResults = runTestSuite(suite);
 		List<EPATrace> epaTraces = new ArrayList<EPATrace>();
 		for (ExecutionResult result : executionResults) {
-			try {
-				List<EPATrace> newEpaTraces = EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS, result.getTrace(),
-						epa);
-				epaTraces.addAll(newEpaTraces);
 
-				for (EPATrace trace : newEpaTraces) {
-					for (EPATransition transition : trace.getEpaTransitions()) {
-						String transitionName = transition.getTransitionName();
-						EPATransitionCoverageTestFitness goal = this.coverage_goal_map.get(transitionName);
-						result.test.addCoveredGoal(goal);
+			Collection<? extends EPATrace> newEpaTraces = result.getEPATraces();
+			epaTraces.addAll(newEpaTraces);
+
+			for (EPATrace trace : newEpaTraces) {
+				for (EPATransition transition : trace.getEpaTransitions()) {
+					String transitionName = transition.getTransitionName();
+					if (!this.coverage_goal_map.containsKey(transitionName)) {
+						throw new EvosuiteError("goal for transition " + transition.toString() + " was not found!");
 					}
+					EPATransitionCoverageTestFitness goal = this.coverage_goal_map.get(transitionName);
+					result.test.addCoveredGoal(goal);
 				}
-
-			} catch (MalformedEPATraceException e) {
-				throw new EvosuiteError(e);
 			}
+
 		}
 
 		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream().map(EPATrace::getEpaTransitions)
@@ -158,7 +161,7 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		updateIndividual(this, suite, fitness);
 		double coverage = (double) covered_transitions / (double) epaTransitionSize;
 		suite.setCoverage(this, coverage);
-		
+
 		suite.setNumOfCoveredGoals(this, covered_transitions);
 		suite.setNumOfNotCoveredGoals(this, uncovered_transitions);
 		return fitness;

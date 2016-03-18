@@ -15,7 +15,6 @@ public class MyBoundedStack {
 	private int index = -1;
 	
 	public MyBoundedStack() {
-		reportState(); // Instrumentation Call
 	}
 	
 	public void push(Object object) {
@@ -23,8 +22,6 @@ public class MyBoundedStack {
 			throw new IllegalStateException();
 		}
 		elements[++index] = object;
-		
-		reportState(); // Instrumentation Call
 	}
 	
 	public Object pop() {
@@ -32,8 +29,6 @@ public class MyBoundedStack {
 			throw new IllegalStateException();
 		}
 		Object ret_val = elements[index--];
-
-		reportState(); // Instrumentation Call
 		return ret_val;
 	}
 
@@ -51,6 +46,10 @@ public class MyBoundedStack {
 		return index!=-1;
 	}
 	
+	private boolean isStateS0() {
+		return false;
+	}
+	
 	private boolean isStateS1() {
 		return isPushEnabled() && !isPopEnabled();
 	}
@@ -61,34 +60,6 @@ public class MyBoundedStack {
 
 	private boolean isStateS3() {
 		return !isPushEnabled() && isPopEnabled();
-	}
-
-	private void reportState() {
-		if (isStateS1()) {
-			reportStateS1();
-		} else if (isStateS2()) {
-			reportStateS2();
-		} else if (isStateS3()) {
-			reportStateS3();
-		}
-		
-	}
-	
-	private void reportStateS0() {
-		// dummy method
-	}
-
-	private void reportStateS1() {
-		// dummy method
-	}
-
-	private void reportStateS2() {
-		// dummy method
-		
-	}
-
-	private void reportStateS3() {
-		// dummy method
 	}
 
 }

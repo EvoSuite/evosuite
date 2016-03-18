@@ -58,13 +58,9 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	 * @return
 	 */
 	public double getDistance(ExecutionResult result) {
-		try {
-			final boolean covered = EPATraceFactory.buildEPATraces(className, result.getTrace(), epa).stream()
-					.filter(epaTrace -> epaTrace.getEpaTransitions().contains(transition)).findAny().isPresent();
-			return covered ? 0.0 : 1.0;
-		} catch (MalformedEPATraceException e) {
-			throw new EvosuiteError("A mistmatch has occurred between an execution and its EPA");
-		}
+		final boolean covered = result.getEPATraces().stream()
+				.filter(epaTrace -> epaTrace.getEpaTransitions().contains(transition)).findAny().isPresent();
+		return covered ? 0.0 : 1.0;
 	}
 
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {

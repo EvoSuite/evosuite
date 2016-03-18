@@ -27,11 +27,14 @@ public class EPA implements Serializable {
 	private final String name;
 
 	private final EPAState initialState;
+	
+	private final String initialAction;
 
-	public EPA(String name, Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
+	public EPA(String name, Map<EPAState, Set<EPATransition>> map, EPAState initialState, String initialAction) {
 		this.name = name;
 		this.map = map;
 		this.initialState = initialState;
+		this.initialAction = initialAction;
 	}
 
 	public EPAState getInitialState() {
@@ -85,6 +88,10 @@ public class EPA implements Serializable {
 	public Set<EPATransition> getTransitions(EPAState originState) {
 		return getTransitions().stream().filter(t -> t.getOriginState().equals(originState))
 				.collect(Collectors.toSet());
+	}
+
+	public String getInitialAction() {
+		return this.initialAction;
 	}
 
 }

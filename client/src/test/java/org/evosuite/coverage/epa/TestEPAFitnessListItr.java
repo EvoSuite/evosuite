@@ -8,10 +8,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -19,11 +19,15 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -31,6 +35,8 @@ import com.examples.with.different.packagename.epa.ListItr;
 import com.examples.with.different.packagename.epa.MyArrayList;
 
 public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
+
+	private Set<ExecutionObserver> previous_observers = null;
 
 	@Test
 	public void testSingleTrace() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
@@ -124,8 +130,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		assertEquals(1, results.size());
 
 		ExecutionResult executionResult = results.get(0);
-		List<EPATrace> traces = EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS, executionResult.getTrace(),
-				epa);
+		List<EPATrace> traces = new LinkedList<EPATrace>(executionResult.getEPATraces());
 
 		assertEquals(1, traces.size());
 
@@ -156,6 +161,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		final File epaXMLFile = new File(xmlFilename);
 		Assume.assumeTrue(epaXMLFile.exists());
 
+		Properties.EPA_XML_PATH = xmlFilename;
 		Properties.TARGET_CLASS = ListItr.class.getName();
 
 		DefaultTestCase tc = buildTestCase0();
@@ -262,7 +268,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		EPATransitionCoverageSuiteFitness epaTransitionFitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
 
 		int expectedTotalTransitions = 69;
-		int expectedCoveredTransitions = 3;
+		int expectedCoveredTransitions = 0;
 
 		List<ExecutionResult> results = new LinkedList<ExecutionResult>();
 		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
@@ -285,14 +291,37 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		assertEquals(fitnessValue, suiteFitnessValue, 0.00000001);
 
 	}
-	
+
+	@Before
+	public void prepareTest() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
+				"resources", "epas", "ListItr.xml");
+		final File epaXMLFile = new File(xmlFilename);
+		Assume.assumeTrue(epaXMLFile.exists());
+
+		Properties.EPA_XML_PATH = xmlFilename;
+
+		EPA automata = EPAFactory.buildEPA(xmlFilename);
+		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
+		TestCaseExecutor.getInstance().newObservers();
+		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver(automata));
+
+	}
+
+	@After
+	public void tearDownTest() {
+		Properties.EPA_XML_PATH = null;
+		if (previous_observers != null) {
+			TestCaseExecutor.getInstance().setExecutionObservers(previous_observers);
+		}
+	}
+
 	@Test
 	public void testStatesAgainstEPA() throws ClassNotFoundException, NoSuchMethodException, FileNotFoundException,
 			ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
 		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
 				"resources", "epas", "ListItr.xml");
 		final File epaXMLFile = new File(xmlFilename);
-		Assume.assumeTrue(epaXMLFile.exists());
 
 		EPA epa = EPAFactory.buildEPA(xmlFilename);
 
@@ -315,8 +344,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		assertEquals(1, results.size());
 
 		ExecutionResult executionResult = results.get(0);
-		List<EPATrace> traces = EPATraceFactory.buildEPATraces(Properties.TARGET_CLASS, executionResult.getTrace(),
-				epa);
+		List<EPATrace> traces = new LinkedList<EPATrace>(executionResult.getEPATraces());
 
 		assertEquals(1, traces.size());
 
@@ -340,8 +368,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 		assertTrue(epa.containsAction("add(Ljava/lang/Object;)V"));
 		assertTrue(epa.containsAction("<init>(Lcom/examples/with/different/packagename/epa/MyArrayList;I)V"));
-		
-		
+
 	}
 
 }

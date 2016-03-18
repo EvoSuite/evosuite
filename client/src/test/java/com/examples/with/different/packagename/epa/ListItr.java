@@ -32,31 +32,26 @@ public class ListItr implements ListIterator<Object> {
 		this.expectedModCount = this.arrayList.getModCount();
 		this.cursor = index;
 
-		reportState();
 	}
 
 	public boolean hasPrevious() {
 		final boolean b = cursor != 0;
-		reportState();
 		return b;
 	}
 
 	public int nextIndex() {
-		reportState();
 		return cursor;
 	}
 
 	// @Pre("(> cursor 0)")
 	public int previousIndex() {
 		final int i = cursor - 1;
-		reportState();
 		return i;
 	}
 
 	@Override
 	public boolean hasNext() {
 		boolean superHasNext = super_hasNext();
-		reportState();
 		return superHasNext;
 	}
 
@@ -64,7 +59,6 @@ public class ListItr implements ListIterator<Object> {
 	// @Pre("(< cursor (eval(.size this$0)))")
 	public Object next() {
 		final Object superNext = super_next();
-		reportState();
 		return superNext;
 	}
 
@@ -72,7 +66,6 @@ public class ListItr implements ListIterator<Object> {
 	// @Pre("(>= lastRet 0)")
 	public void remove() {
 		super_remove();
-		reportState();
 	}
 
 	// @SuppressWarnings("unchecked")
@@ -88,7 +81,6 @@ public class ListItr implements ListIterator<Object> {
 		cursor = i;
 
 		Object object = (Object) elementData[lastRet = i];
-		reportState();
 		return object;
 	}
 
@@ -107,7 +99,6 @@ public class ListItr implements ListIterator<Object> {
 		} catch (IndexOutOfBoundsException ex) {
 			throw new ConcurrentModificationException();
 		}
-		reportState();
 	}
 
 	// @Pre("(> p0 0)")
@@ -127,7 +118,6 @@ public class ListItr implements ListIterator<Object> {
 		} catch (IndexOutOfBoundsException ex) {
 			throw new ConcurrentModificationException();
 		}
-		reportState();
 	}
 
 	private boolean super_hasNext() {
@@ -188,6 +178,10 @@ public class ListItr implements ListIterator<Object> {
 	private boolean isSetEnabled() {
 		return lastRet >= 0;
 	}
+	
+	private boolean isStateSinit() {
+		return false;
+	}
 
 	private boolean isStateS127() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
@@ -215,72 +209,5 @@ public class ListItr implements ListIterator<Object> {
 
 	private boolean isStateS479() {
 		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
-	}
-
-	private void reportState() {
-		try {
-			if (isStateS127())
-				reportStateS127();
-			else if (isStateS95())
-				reportStateS95();
-			else if (isStateS119())
-				reportStateS119();
-			else if (isStateS87())
-				reportStateS87();
-			else if (isStateS511())
-				reportStateS511();
-			else if (isStateS503())
-				reportStateS503();
-			else if (isStateS479())
-				reportStateS479();
-			else {
-				reportStateUnknown();
-			}
-		} catch (Exception t) {
-			if (t.getClass().getName().equals("org.evosuite.runtime.TooManyResourcesException")) {
-				reportStateTooManyResourcesException();
-			}
-			throw t;
-		}
-	}
-
-	private void reportStateTooManyResourcesException() {
-
-	}
-
-	private void reportStateUnknown() {
-
-	}
-
-	private void reportStateS479() {
-
-	}
-
-	private void reportStateS503() {
-
-	}
-
-	private void reportStateS511() {
-
-	}
-
-	private void reportStateS87() {
-
-	}
-
-	private void reportStateSinit() {
-
-	}
-	
-	private void reportStateS119() {
-
-	}
-
-	private void reportStateS95() {
-
-	}
-
-	private void reportStateS127() {
-
 	}
 }
