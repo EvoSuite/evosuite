@@ -1,6 +1,5 @@
 package org.evosuite.coverage.exception;
 
-import com.examples.with.different.packagename.coverage.ImplicitAndExplicitExceptionInSameMethod;
 import com.examples.with.different.packagename.exception.Rethrow2Exceptions;
 import com.examples.with.different.packagename.exception.Rethrow2ExceptionsAndUncheckedException;
 import com.examples.with.different.packagename.exception.SimpleTry2Catches;
@@ -61,7 +60,12 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         // # branches == 0
         // # branchless methods == 1 (<init>)
         // # additional branches: 4 (FileNotFoundException true/false, RuntimeException true/false)
-        checkCoverageGoals(SimpleTryCatch.class, 5, 5);
+        checkCoverageGoals(SimpleTryCatch.class, 3, 3);
+    }
+
+    @Test
+    public void testCheckedExceptionBranchesTwoThrows() {
+        checkCoverageGoals(SimpleTry2Catches.class, 7, 7);
     }
 
     @Test

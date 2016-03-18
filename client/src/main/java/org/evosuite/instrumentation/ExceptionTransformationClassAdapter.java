@@ -57,7 +57,7 @@ public class ExceptionTransformationClassAdapter extends ClassVisitor {
         if (!DependencyAnalysis.shouldInstrument(ResourceList.getClassNameFromResourcePath(className), name + desc))
             return mv;
 
-        logger.info("Applying error transformation to " + className + ", method " + name
+        logger.info("Applying exception transformation to " + className + ", method " + name
                 + desc);
         return new ExceptionTransformationMethodAdapter(mv, className, name, access, desc);
     }

@@ -63,21 +63,56 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         storeLocal(exceptionInstanceVar);
 
         // Insert start of try block label
-        Label start = mark();
+        Label start = newLabel();
+        Label end   = newLabel();
+        Label catchLabel  = newLabel();
+        super.visitTryCatchBlock(start, end, catchLabel, null);
+
+        mark(start);
         super.visitMethodInsn(opcode, owner, name, desc, itf);
 
         // Insert end of try block label
-        Label end = mark();
+        mark(end);
 
         // Skip catch block if no exception was thrown
         Label afterCatch = newLabel();
         goTo(afterCatch);
 
+        mark(catchLabel);
         // Insert jump after catch block instruction
-        catchException(start, end, null);
+        // catchException(start, end, null);
+        // super.visitTryCatchBlock(start, end, end, null);
+
 
         // assign exception to exceptionInstanceVar
         storeLocal(exceptionInstanceVar);
+        Type returnType = Type.getReturnType(desc);
+        switch (returnType.getSort()) {
+            case Type.VOID:
+                break;
+            case Type.BOOLEAN:
+                push(false);
+                break;
+            case Type.CHAR:
+            case Type.BYTE:
+            case Type.INT:
+            case Type.SHORT:
+                push(0);
+                break;
+            case Type.FLOAT:
+                push(0f);
+                break;
+            case Type.LONG:
+                push(0l);
+                break;
+            case Type.DOUBLE:
+                push(0.0);
+                break;
+            case Type.ARRAY:
+            case Type.OBJECT:
+                push((String)null);
+                break;
+        }
 
         // Insert end of catch block label
         mark(afterCatch);
@@ -88,6 +123,7 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
             Label noJump = newLabel();
             visitJumpInsn(Opcodes.IFEQ, noJump);
             loadLocal(exceptionInstanceVar);
+            checkCast(exceptionType);
             throwException();
             visitLabel(noJump);
         }

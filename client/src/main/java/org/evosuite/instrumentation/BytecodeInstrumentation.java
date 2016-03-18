@@ -228,13 +228,14 @@ public class BytecodeInstrumentation {
         cv = new PrimitiveClassAdapter(cv, className);
         cv = handleStaticReset(className, cv);
 
-
         // Mock instrumentation (eg File and TCP).
         if (TestSuiteWriterUtils.needToUseAgent()) {
             cv = new MethodCallReplacementClassAdapter(cv, className);
         }
 
-
+        if (Properties.EXCEPTION_BRANCHES) {
+            cv = new ExceptionTransformationClassAdapter(cv, className);
+        }
 
         // Testability Transformations
         if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)

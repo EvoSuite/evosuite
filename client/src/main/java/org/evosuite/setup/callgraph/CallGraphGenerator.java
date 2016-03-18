@@ -22,14 +22,15 @@
  */
 package org.evosuite.setup.callgraph;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.instrumentation.ExceptionTransformationClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
@@ -76,7 +77,7 @@ public class CallGraphGenerator {
 	 * If we want to have the calltree also for the superclasses, we need to
 	 * determine which methods are callable
 	 * 
-	 * @param callTree
+	 * @param callGraph
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
@@ -150,6 +151,19 @@ public class CallGraphGenerator {
 	@SuppressWarnings("unchecked")
 	private static void handleMethodNode(CallGraph callGraph, ClassNode cn, MethodNode mn, int depth) {
 		handlePublicMethodNode(callGraph, cn, mn);
+
+		// TODO: Integrate this properly - it is currently an unexpected side-effect
+		if(!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(cn.name))
+			ExceptionTransformationClassAdapter.methodExceptionMap.put(cn.name, new LinkedHashMap<>());
+
+		String methodNameDesc = mn.name + mn.desc;
+		Set<Type> exceptionTypes = new LinkedHashSet<>();
+		if(mn.exceptions != null) {
+			for (String exceptionName : ((List<String>)mn.exceptions)) {
+				exceptionTypes.add(Type.getType(exceptionName));
+			}
+		}
+		ExceptionTransformationClassAdapter.methodExceptionMap.get(cn.name).put(methodNameDesc, exceptionTypes);
 
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
