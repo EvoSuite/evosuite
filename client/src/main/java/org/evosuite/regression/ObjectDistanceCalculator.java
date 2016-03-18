@@ -153,7 +153,16 @@ public class ObjectDistanceCalculator {
 				return 1;
 		}
 		
-		return normalize(Math.abs(p.doubleValue() - q.doubleValue()));
+		double distance = Math.abs(p.doubleValue() - q.doubleValue());
+		
+		// If the epsilon is less than 0.01D (as is used for assertion generation)
+		// set distance to 0.
+		if(p instanceof Double){
+			if(distance<0.01)
+				distance = 0;
+		}
+		
+		return normalize(distance);
 	}
 
 	private static double getElementaryDistance(String p, String q) {
