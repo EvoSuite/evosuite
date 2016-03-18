@@ -204,6 +204,10 @@ public class BytecodeInstrumentation {
 
             cv = new CFGClassAdapter(classLoader, cv, className);
 
+            if (Properties.EXCEPTION_BRANCHES) {
+                cv = new ExceptionTransformationClassAdapter(cv, className);
+            }
+
             if (Properties.ERROR_BRANCHES) {
                 cv = new ErrorConditionClassAdapter(cv, className);
             }
@@ -231,10 +235,6 @@ public class BytecodeInstrumentation {
         // Mock instrumentation (eg File and TCP).
         if (TestSuiteWriterUtils.needToUseAgent()) {
             cv = new MethodCallReplacementClassAdapter(cv, className);
-        }
-
-        if (Properties.EXCEPTION_BRANCHES) {
-            cv = new ExceptionTransformationClassAdapter(cv, className);
         }
 
         // Testability Transformations

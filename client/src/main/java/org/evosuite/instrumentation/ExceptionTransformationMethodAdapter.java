@@ -2,6 +2,7 @@ package org.evosuite.instrumentation;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.evosuite.instrumentation.error.ErrorBranchInstrumenter;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -13,7 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 /**
  * Created by gordon on 17/03/2016.
@@ -67,6 +72,8 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         Label end   = newLabel();
         Label catchLabel  = newLabel();
         super.visitTryCatchBlock(start, end, catchLabel, null);
+        TryCatchBlock block = new TryCatchBlock(start, end, catchLabel, null);
+        instrumentedTryCatchBlocks.add(block);
 
         mark(start);
         super.visitMethodInsn(opcode, owner, name, desc, itf);
@@ -117,6 +124,12 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         // Insert end of catch block label
         mark(afterCatch);
 
+        // If there was no exception, skip ahead to rest of the code
+        loadLocal(exceptionInstanceVar);
+        Label noExceptionLabel = newLabel();
+        ifNull(noExceptionLabel);
+
+        // If there was an exception, rethrow it, with one if per declared exception type
         for(Type exceptionType : declaredExceptions) {
             loadLocal(exceptionInstanceVar);
             instanceOf(exceptionType);
@@ -128,6 +141,57 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
             visitLabel(noJump);
         }
 
+        // It _must_ be a RuntimeException if we get to this point.
+        Type runtimeExceptionType = Type.getType(RuntimeException.class);
+        loadLocal(exceptionInstanceVar);
+        checkCast(runtimeExceptionType);
+        throwException();
+
+        mark(noExceptionLabel);
+
+    }
+
+
+    @Override
+    public void visitEnd() {
+        // regenerate try-catch table
+        for (TryCatchBlock tryCatchBlock : instrumentedTryCatchBlocks) {
+            super.visitTryCatchBlock(tryCatchBlock.start,
+                    tryCatchBlock.end, tryCatchBlock.handler,
+                    tryCatchBlock.type);
+        }
+        for (TryCatchBlock tryCatchBlock : tryCatchBlocks) {
+            super.visitTryCatchBlock(tryCatchBlock.start,
+                    tryCatchBlock.end, tryCatchBlock.handler,
+                    tryCatchBlock.type);
+        }
+
+        super.visitEnd();
+    }
+
+    private static class TryCatchBlock {
+        public TryCatchBlock(Label start, Label end, Label handler, String type) {
+            this.start = start;
+            this.end = end;
+            this.handler = handler;
+            this.type = type;
+        }
+
+        Label start;
+        Label end;
+        Label handler;
+        String type;
+    }
+
+    private final List<TryCatchBlock> tryCatchBlocks = new LinkedList<TryCatchBlock>();
+    private final List<TryCatchBlock> instrumentedTryCatchBlocks = new LinkedList<TryCatchBlock>();
+
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler,
+                                   String type) {
+        TryCatchBlock block = new TryCatchBlock(start, end, handler, type);
+        tryCatchBlocks.add(block);
+        // super.visitTryCatchBlock(start, end, handler, type);
     }
 
     	/* (non-Javadoc)

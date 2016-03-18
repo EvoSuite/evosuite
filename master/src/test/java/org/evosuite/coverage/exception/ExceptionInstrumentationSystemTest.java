@@ -37,7 +37,6 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         Properties.TARGET_CLASS = targetClass;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH};
         Properties.EXCEPTION_BRANCHES = true;
-        Properties.ERROR_BRANCHES = true;
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -60,23 +59,31 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         // # branches == 0
         // # branchless methods == 1 (<init>)
         // # additional branches: 4 (FileNotFoundException true/false, RuntimeException true/false)
-        checkCoverageGoals(SimpleTryCatch.class, 3, 3);
+        checkCoverageGoals(SimpleTryCatch.class, 5, 4);
     }
 
     @Test
     public void testCheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(SimpleTry2Catches.class, 7, 7);
+        checkCoverageGoals(SimpleTry2Catches.class, 7, 6);
     }
 
     @Test
     public void testReThrownCheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(Rethrow2Exceptions.class, 7, 7);
+        checkCoverageGoals(Rethrow2Exceptions.class, 7, 6);
     }
 
     @Test
     public void testReThrownCheckedAndUncheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 9, 9);
+        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 7, 7);
     }
 
+    @Test
+    public void testReThrownCheckedAndErrorBranches() {
+        Properties.ERROR_BRANCHES = true;
+        // The NPE caused by "foo" being null is now caught outside the exception instrumentation
+        // and thus represents a different coverage goal than a RuntimeException thrown _in_ foo.
+        // Hence we now only cover 8/9 goals.
+        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 9, 8);
+    }
 
 }
