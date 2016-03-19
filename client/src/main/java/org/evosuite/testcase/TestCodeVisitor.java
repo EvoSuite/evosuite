@@ -1465,7 +1465,8 @@ public class TestCodeVisitor extends TestVisitor {
 				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
 				!sourceClass.equals(URLClassLoader.class.getName()) && // Classloaders may differ, e.g. when running with ant
                 !sourceClass.startsWith(RegExp.class.getPackage().getName()) &&
-                !sourceClass.startsWith("java.") &&
+                !sourceClass.startsWith("java.lang.System.arraycopy") &&
+                !sourceClass.startsWith("java.lang.String") &&
                 !sourceClass.startsWith("sun.") &&
                 !sourceClass.startsWith("com.sun.") &&
                 !sourceClass.startsWith("jdk.internal.");
