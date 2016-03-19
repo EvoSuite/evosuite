@@ -2,6 +2,7 @@ package org.evosuite.instrumentation;
 
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.error.ErrorConditionMethodAdapter;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -43,16 +44,8 @@ public class ExceptionTransformationClassAdapter extends ClassVisitor {
         if (name.equals("<clinit>"))
             return mv;
 
-        String methodNameDesc = name+desc;
-        Set<Type> exceptionTypes = new LinkedHashSet<>();
-        if(exceptions != null) {
-            for (String exceptionName : exceptions) {
-                exceptionTypes.add(Type.getType(exceptionName));
-            }
-        }
-        methodExceptionMap.get(className).put(methodNameDesc, exceptionTypes);
-        logger.info("Storing exception information for " + className + ", method " + name
-                + desc);
+        if (name.equals(ClassResetter.STATIC_RESET))
+            return mv;
 
         if (!DependencyAnalysis.shouldInstrument(ResourceList.getClassNameFromResourcePath(className), name + desc))
             return mv;
