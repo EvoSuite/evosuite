@@ -503,7 +503,11 @@ public class RegressionAssertionCounter {
 		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
 				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
 				!sourceClass.equals(URLClassLoader.class.getName()) && // Classloaders may differ, e.g. when running with ant
-                !sourceClass.startsWith(RegExp.class.getPackage().getName());
+                !sourceClass.startsWith(RegExp.class.getPackage().getName()) &&
+                !sourceClass.startsWith("java.") &&
+                !sourceClass.startsWith("sun.") &&
+                !sourceClass.startsWith("com.sun.") &&
+                !sourceClass.startsWith("jdk.internal.");
 	}
 
 	private static List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[] {
