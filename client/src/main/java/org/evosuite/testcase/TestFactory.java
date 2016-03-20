@@ -1270,7 +1270,7 @@ public class TestFactory {
 					if(allowNull){
 						return createNull(test, parameterType, position, recursionDepth);
 					} else {
-						throw new ConstructionFailedException("Have no objects and generators");
+						throw new ConstructionFailedException("No objects and generators for type "+parameterType);
 					}
 				}
 
