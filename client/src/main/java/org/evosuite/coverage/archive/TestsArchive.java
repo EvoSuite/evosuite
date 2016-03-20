@@ -39,6 +39,7 @@ import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
@@ -337,7 +338,11 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 
 	private int calculatePenalty(TestCase tc){
 		int penalty = 0;
+
 		if(hasFunctionalMocks(tc)){
+			penalty++;
+		}
+		if(hasFunctionalMocksForGenerableTypes(tc)){
 			penalty++;
 		}
 		if(hasPrivateAccess(tc)){
@@ -354,6 +359,21 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		}
 		return false;
 	}
+
+	private boolean hasFunctionalMocksForGenerableTypes(TestCase tc){
+		for(Statement st : tc){
+			if(st instanceof FunctionalMockStatement){
+				FunctionalMockStatement fm = (FunctionalMockStatement) st;
+				Class<?> target = fm.getTargetClass();
+				GenericClass gc = new GenericClass(target);
+				if(TestCluster.getInstance().hasGenerator(gc)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 
 	private boolean hasPrivateAccess(TestCase tc){
 		for(Statement st : tc){
