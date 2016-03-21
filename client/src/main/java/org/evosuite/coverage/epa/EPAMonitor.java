@@ -10,6 +10,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -17,6 +18,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +123,8 @@ public class EPAMonitor {
 
 	private final Map<String, String> constructorToActionMap;
 
+	private EPAState previousEpaState;
+
 	public static EPAMonitor getInstance() {
 		if (instance == null) {
 			if (Properties.EPA_XML_PATH == null) {
@@ -142,41 +146,109 @@ public class EPAMonitor {
 
 	private static Logger logger = LoggerFactory.getLogger(EPAMonitor.class);
 
+	private static boolean wasLoopCounterActive;
+
+	private static boolean wasExecutionTracerEnabled;
+
+	private static boolean wasTraceCallsEnabled;
+
 	public static void enteredMethod(String className, String fullMethodName, Object object) {
 		logger.debug("Entering method " + className + "." + fullMethodName);
+		if (getInstance().isMonitorEnabled()) {
+			disableCallBacks();
+			try {
+				if (fullMethodName.startsWith(INIT)) {
+					getInstance().beforeConstructor(className, fullMethodName, object);
+				} else {
+					getInstance().beforeMethod(className, fullMethodName, object);
+				}
+			} catch (EvosuiteError e) {
+				throw e;
+			} finally {
+				enableCallBacks();
+			}
+		}
+
+	}
+
+	private void beforeMethod(String className, String fullMethodName, Object calleeObject) {
+		if (this.methodToActionMap.containsKey(fullMethodName)) {
+			call_stack.push(className + "." + fullMethodName);
+			try {
+				previousEpaState = getCurrentState(calleeObject);
+			} catch (InvocationTargetException | MalformedEPATraceException e) {
+				throw new EvosuiteError(e);
+			}
+		}
+	}
+
+	private Stack<String> call_stack = new Stack<String>();
+
+	private void beforeConstructor(String className, String fullMethodName, Object object) {
+		if (this.constructorToActionMap.containsKey(fullMethodName)) {
+			call_stack.push(className + "." + fullMethodName);
+			previousEpaState = this.automata.getInitialState();
+		}
 	}
 
 	public static void leftMethod(String className, String fullMethodName, Object object) {
 		logger.debug("Exiting method " + className + "." + fullMethodName);
 		if (getInstance().isMonitorEnabled()) {
-			getInstance().setEnabled(false); // disable call-back
-			final boolean loopCounterIsActive = LoopCounter.getInstance().isActivated();
-			LoopCounter.getInstance().setActive(false);
+			disableCallBacks();
 			try {
 				if (fullMethodName.startsWith(INIT)) {
 					getInstance().afterConstructor(className, fullMethodName, object);
 				} else {
 					getInstance().afterMethod(className, fullMethodName, object);
 				}
+			} catch (EvosuiteError e) {
+				throw e;
 			} finally {
-				getInstance().setEnabled(true);
-				LoopCounter.getInstance().setActive(loopCounterIsActive);
+				enableCallBacks();
 			}
 		}
+	}
+
+	private static void enableCallBacks() {
+		EPAMonitor.getInstance().setEnabled(true);
+		LoopCounter.getInstance().setActive(wasLoopCounterActive);
+		if (wasExecutionTracerEnabled) {
+			ExecutionTracer.enable();
+		}
+		if (wasTraceCallsEnabled) {
+			ExecutionTracer.enableTraceCalls();
+		}
+	}
+
+	private static void disableCallBacks() {
+		wasLoopCounterActive = LoopCounter.getInstance().isActivated();
+		wasExecutionTracerEnabled = ExecutionTracer.isEnabled();
+		wasTraceCallsEnabled = ExecutionTracer.isTraceCallsEnabled();
+
+		LoopCounter.getInstance().setActive(false);
+		ExecutionTracer.disable();
+		ExecutionTracer.disableTraceCalls();
+		EPAMonitor.getInstance().setEnabled(false);
 	}
 
 	private void afterConstructor(String className, String fullConstructorName, Object object) {
 		try {
 			// is the methodStmt defined as an EPA Action ?
 			if (this.constructorToActionMap.containsKey(fullConstructorName)) {
-				final String actionName = this.constructorToActionMap.get(fullConstructorName);
-				if (hasPreviousEpaState(object)) {
-					final EPAState previousEpaState = getPreviousEpaState(object);
-					throw new MalformedEPATraceException(
-							"New object cannot have a previous EPA State: " + previousEpaState);
+
+				String top = call_stack.pop();
+				if (!top.equals(className + "." + fullConstructorName)) {
+					System.out.println("Error");
 				}
 
-				EPAState initialEpaState = this.automata.getInitialState();
+				final String actionName = this.constructorToActionMap.get(fullConstructorName);
+				if (!getPreviousEpaState(object).equals(automata.getInitialState())) {
+					final EPAState previousEpaState = getPreviousEpaState(object);
+					throw new MalformedEPATraceException(
+							"New object cannot have a previous EPA State different than initial: " + previousEpaState);
+				}
+
+				EPAState initialEpaState = getPreviousEpaState(object);
 				final EPAState currentEpaState = getCurrentState(object);
 				final EPATransition transition = new EPATransition(initialEpaState, actionName, currentEpaState);
 				this.appendNewEpaTransition(object, transition);
@@ -190,6 +262,12 @@ public class EPAMonitor {
 	private void afterMethod(String className, String fullMethodName, Object calleeObject) throws EvosuiteError {
 		try {
 			if (this.methodToActionMap.containsKey(fullMethodName)) {
+
+				String top = call_stack.pop();
+				if (!top.equals(className + "." + fullMethodName)) {
+					System.out.println("Error");
+				}
+
 				final String actionName = this.methodToActionMap.get(fullMethodName);
 				if (!hasPreviousEpaState(calleeObject)) {
 					// this object should have been seen previously!
@@ -211,12 +289,21 @@ public class EPAMonitor {
 	 * 
 	 * @param obj
 	 * @param transition
+	 * @throws MalformedEPATraceException
 	 */
-	private void appendNewEpaTransition(Object obj, EPATransition transition) {
+	private void appendNewEpaTransition(Object obj, EPATransition transition) throws MalformedEPATraceException {
 		if (!this.transitions.containsKey(obj)) {
 			this.transitions.put(obj, new LinkedList<EPATransition>());
 		}
-		this.transitions.get(obj).add(transition);
+		final LinkedList<EPATransition> objectTrace = this.transitions.get(obj);
+		if (!objectTrace.isEmpty()) {
+			EPAState lastDestinationStateInTrace = objectTrace.getLast().getDestinationState();
+			if (!lastDestinationStateInTrace.equals(transition.getOriginState())) {
+				throw new MalformedEPATraceException("Trace is not connected! " + lastDestinationStateInTrace + " and "
+						+ transition.getOriginState());
+			}
+		}
+		objectTrace.add(transition);
 	}
 
 	/**
@@ -281,13 +368,7 @@ public class EPAMonitor {
 	 * @return
 	 */
 	private EPAState getPreviousEpaState(Object obj) {
-		if (!hasPreviousEpaState(obj)) {
-			throw new IllegalStateException(
-					"getPreviousEpaState() should not be invoked unless the callee Object has a stored previous state");
-		}
-		final EPATransition lastTransition = this.transitions.get(obj).getLast();
-		final EPAState lastState = lastTransition.getDestinationState();
-		return lastState;
+		return this.previousEpaState;
 	}
 
 	/**
@@ -297,7 +378,7 @@ public class EPAMonitor {
 	 * @return
 	 */
 	private boolean hasPreviousEpaState(Object obj) {
-		return this.transitions.containsKey(obj);
+		return this.previousEpaState != null;
 	}
 
 	public Set<EPATrace> getTraces() {

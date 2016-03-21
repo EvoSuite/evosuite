@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -802,7 +803,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 						stack.pop();
 					}
 				} else {
-					finishedCalls.add(stack.pop());
+					try {
+						finishedCalls.add(stack.pop());
+					} catch (NoSuchElementException ex) {
+						throw ex;
+					}
 				}
 			}
 		}

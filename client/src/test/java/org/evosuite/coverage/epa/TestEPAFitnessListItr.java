@@ -305,6 +305,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
 
 		DEFAULT_TIMEOUT = Properties.TIMEOUT;
+//		Properties.TIMEOUT = 15 * 1000;
 	}
 
 	@After
