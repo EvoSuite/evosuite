@@ -93,8 +93,8 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		try {
 			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
 			for (String actionName : epa.getActions()) {
-				final boolean found = EPAUtils.getEpaActionMethods(actionName, clazz) != null
-						|| EPAUtils.getEpaActionConstructors(actionName, clazz) != null;
+				final boolean found = !EPAUtils.getEpaActionMethods(actionName, clazz).isEmpty()
+						|| !EPAUtils.getEpaActionConstructors(actionName, clazz).isEmpty();
 				if (!found) {
 					throw new EvosuiteError(
 							"EPA Action Name " + actionName + "was not found in target class " + className);

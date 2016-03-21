@@ -11,12 +11,6 @@ import java.util.NoSuchElementException;
 /**
  * An optimized version of AbstractList.ListItr
  */
-// @ClassDefinition(builder="(let [a (doto
-// (ar.com.maba.tesis.arrayList.ArrayList.) (.add 1) (.add 2) (.add 3))]
-// (.listIterator a))",
-// invariant = "(and " +
-// "(or (= lastRet -1) (>= lastRet 0)) " +
-// "(and (<= 0 cursor) (<= cursor (.size this$0))))")
 public class ListItr implements ListIterator<Object> {
 	/**
 	 *
@@ -25,19 +19,20 @@ public class ListItr implements ListIterator<Object> {
 	private int cursor; // index of next element to return
 	private int lastRet; // index of last element returned; -1 if no such
 	private int expectedModCount;
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface EpaState {
 		public String name();
 	}
-	
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
 	public @interface EpaAction {
 		public String name();
 	}
 
-	@EpaAction(name="ListItr()")
+	@EpaAction(name = "ListItr()")
 	public ListItr(MyArrayList arrayList, int index) {
 
 		if (index < 0 || index > arrayList.size())
@@ -49,46 +44,44 @@ public class ListItr implements ListIterator<Object> {
 		this.cursor = index;
 	}
 
-	@EpaAction(name="hasPrevious()")
+	@EpaAction(name = "hasPrevious()")
 	public boolean hasPrevious() {
 		final boolean b = cursor != 0;
 		return b;
 	}
 
-	@EpaAction(name="nextIndex()")
+	@EpaAction(name = "nextIndex()")
 	public int nextIndex() {
 		return cursor;
 	}
 
-	// @Pre("(> cursor 0)")
+	@EpaAction(name = "previousIndex()")
 	public int previousIndex() {
 		final int i = cursor - 1;
 		return i;
 	}
 
-	@EpaAction(name="hasNext()")
+	@EpaAction(name = "hasNext()")
 	@Override
 	public boolean hasNext() {
 		boolean superHasNext = super_hasNext();
 		return superHasNext;
 	}
 
-	@EpaAction(name="next()")
+	@EpaAction(name = "next()")
 	@Override
-	// @Pre("(< cursor (eval(.size this$0)))")
 	public Object next() {
 		final Object superNext = super_next();
 		return superNext;
 	}
 
+	@EpaAction(name = "remove()")
 	@Override
-	// @Pre("(>= lastRet 0)")
 	public void remove() {
 		super_remove();
 	}
 
-	// @SuppressWarnings("unchecked")
-	// @Pre("(> cursor 0)")
+	@EpaAction(name = "previous()")
 	public Object previous() {
 		checkForComodification();
 		int i = cursor - 1;
@@ -103,12 +96,7 @@ public class ListItr implements ListIterator<Object> {
 		return object;
 	}
 
-	// @Pre("(and (>= lastRet 0) (> p0 10))")
-	private void setNumber(Integer integer) {
-		set((Object) integer);
-	}
-
-	@EpaAction(name="set()")
+	@EpaAction(name = "set()")
 	public void set(Object e) {
 		if (lastRet < 0)
 			throw new IllegalStateException();
@@ -121,12 +109,7 @@ public class ListItr implements ListIterator<Object> {
 		}
 	}
 
-	// @Pre("(> p0 0)")
-	private void addNumber(Integer integer) {
-		add((Object) integer);
-	}
-
-	@EpaAction(name="add()")
+	@EpaAction(name = "add()")
 	public void add(Object e) {
 		checkForComodification();
 
@@ -200,37 +183,37 @@ public class ListItr implements ListIterator<Object> {
 		return lastRet >= 0;
 	}
 
-	@EpaState(name="S127")
+	@EpaState(name = "S127")
 	private boolean sasaS127() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	@EpaState(name="S95")
+	@EpaState(name = "S95")
 	private boolean sasaS95() {
 		return isNextEnabled() && isAddEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	@EpaState(name="S119")
+	@EpaState(name = "S119")
 	private boolean sasaS119() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	@EpaState(name="S87")
+	@EpaState(name = "S87")
 	private boolean sasaS87() {
 		return isAddEnabled() && !isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	@EpaState(name="S511")
+	@EpaState(name = "S511")
 	private boolean sasaS511() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
-	@EpaState(name="S503")
+	@EpaState(name = "S503")
 	private boolean sasaS503() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
-	@EpaState(name="S479")
+	@EpaState(name = "S479")
 	private boolean sasaS479() {
 		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
