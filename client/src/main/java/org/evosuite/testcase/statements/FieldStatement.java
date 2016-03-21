@@ -236,7 +236,7 @@ public class FieldStatement extends AbstractStatement {
 					}
 
 					Object ret = field.getField().get(source_object);
-					if(!retval.isAssignableFrom(ret.getClass())) {
+					if(ret!=null && !retval.isAssignableFrom(ret.getClass())) {
 						throw new CodeUnderTestException(new ClassCastException());
 					}
 					try {
