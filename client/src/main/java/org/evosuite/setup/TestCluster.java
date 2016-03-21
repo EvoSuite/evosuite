@@ -32,6 +32,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.ConstraintHelper;
@@ -1262,7 +1263,7 @@ public class TestCluster {
 		try {
 			cacheGenerators(clazz);
 		} catch (ConstructionFailedException e) {
-			logger.error("Failed to check cache for "+clazz+" : "+e.getMessage());
+			AtMostOnceLogger.error(logger, "Failed to check cache for "+clazz+" : "+e.getMessage());
 		}
 		if (!generatorCache.containsKey(clazz))
 			return false;

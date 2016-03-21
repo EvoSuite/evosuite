@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
@@ -40,6 +41,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
@@ -795,54 +797,63 @@ public class TestFactory {
 	 */
 	protected VariableReference attemptObjectGeneration(TestCase test, int position,
 	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
+
 		if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
-			logger.debug("Using a null reference to satisfy the type: " + Object.class);
+			logger.debug("Using a null reference to satisfy the type: {}", Object.class);
 			return createNull(test, Object.class, position, recursionDepth);
 		}
 
-		List<GenericClass> classes = new ArrayList<GenericClass>(
-		        CastClassManager.getInstance().getCastClasses());
+		List<GenericClass> classes = CastClassManager.getInstance().getCastClasses().stream()
+				.filter(c -> TestCluster.getInstance().hasGenerator(c))
+				.collect(Collectors.toList());
 		classes.add(new GenericClass(Object.class));
+
+		//TODO if classes is empty, should we use FM here?
+
 		GenericClass choice = Randomness.choice(classes);
-		logger.debug("Chosen class for Object: "+choice);
+		logger.debug("Chosen class for Object: {}", choice);
 		if(choice.isString()) {
 			return createOrReuseVariable(test, String.class, position,
                     recursionDepth, null, true, false, false);
 		}
+
 		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(choice);
-		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
 
 		currentRecursion.add(o);
 		if (o == null) {
+
 			if (!TestCluster.getInstance().hasGenerator(Object.class)) {
 				logger.debug("We have no generator for Object.class ");
 			}
 			throw new ConstructionFailedException("Generator is null");
+
 		} else if (o.isField()) {
+
 			logger.debug("Attempting generating of Object.class via field of type Object.class");
-			VariableReference ret = addField(test, (GenericField) o, position,
-			                                 recursionDepth + 1);
+			VariableReference ret = addField(test, (GenericField) o, position, recursionDepth + 1);
 			ret.setDistance(recursionDepth + 1);
 			logger.debug("Success in generating type Object.class");
 			return ret;
+
 		} else if (o.isMethod()) {
-			logger.debug("Attempting generating of Object.class via method " + (o)
-			        + " of type Object.class");
-			VariableReference ret = addMethod(test, (GenericMethod) o, position,
-			                                  recursionDepth + 1);
+
+			logger.debug("Attempting generating of Object.class via method {} of type Object.class", o);
+			VariableReference ret = addMethod(test, (GenericMethod) o, position, recursionDepth + 1);
 			logger.debug("Success in generating type Object.class");
 			ret.setDistance(recursionDepth + 1);
 			return ret;
+
 		} else if (o.isConstructor()) {
-			logger.debug("Attempting generating of Object.class via constructor " + (o)
-			        + " of type Object.class");
-			VariableReference ret = addConstructor(test, (GenericConstructor) o,
-			                                       position, recursionDepth + 1);
+
+			logger.debug("Attempting generating of Object.class via constructor {} of type Object.class", o);
+			VariableReference ret = addConstructor(test, (GenericConstructor) o, position, recursionDepth + 1);
 			logger.debug("Success in generating Object.class");
 			ret.setDistance(recursionDepth + 1);
 
 			return ret;
+
 		} else {
+
 			logger.debug("No generators found for Object.class");
 			throw new ConstructionFailedException("No generator found for Object.class");
 		}
@@ -1270,7 +1281,7 @@ public class TestFactory {
 					if(allowNull){
 						return createNull(test, parameterType, position, recursionDepth);
 					} else {
-						throw new ConstructionFailedException("Have no objects and generators");
+						throw new ConstructionFailedException("No objects and generators for type "+parameterType);
 					}
 				}
 
@@ -1391,6 +1402,7 @@ public class TestFactory {
 	private VariableReference createOrReuseObjectVariable(TestCase test, int position,
 	        int recursionDepth, VariableReference exclude)
 	        throws ConstructionFailedException {
+
 		double reuse = Randomness.nextDouble();
 
 		// Only reuse objects if they are related to a target call
@@ -1399,7 +1411,7 @@ public class TestFactory {
 			List<VariableReference> candidates = test.getObjects(Object.class, position);
 			filterVariablesByCastClasses(candidates);
 			//filterVariablesByClass(candidates, Object.class);
-			logger.debug("Choosing object from: "+candidates);
+			logger.debug("Choosing object from: {}", candidates);
 			if (!candidates.isEmpty())
 				return Randomness.choice(candidates);
 		}
@@ -1950,7 +1962,7 @@ public class TestFactory {
 				}
 			} catch (ConstructionFailedException e){
 				//TODO what to do here?
-				logger.error("Failed environment insertion: "+e, e);
+				AtMostOnceLogger.warn(logger,"Failed environment insertion: "+e);
 			}
 		}
 

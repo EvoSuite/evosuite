@@ -240,17 +240,6 @@ public class RegressionAssertionCounter {
 				totalCount += exDiff;
 				RegressionSearchListener.exceptionDiff += exDiff;
 
-				// add exception diff comments
-				// if (!removeAssertions)
-				// addExceptionAssertionComments(regressionTest,
-				// result1.getCopyOfExceptionMapping(),
-				// result2.getCopyOfExceptionMapping());
-
-				// if(result1.hasTestException() || result2.hasTestException()
-				// || result1.hasUndeclaredException() ||
-				// result2.hasUndeclaredException())
-				// logger.warn("================================== HAD EXCEPTION
-				// ==================================");
 
 				for (Class<?> observerClass : RegressionAssertionGenerator.observerClasses) {
 					if (result1.getTrace(observerClass) != null) {
@@ -365,7 +354,19 @@ public class RegressionAssertionCounter {
 							originalExceptionMapping.remove(origException.getKey());
 							regressionExceptionMapping.remove(origException.getKey());
 							skip = true;
+						} else {
+							// If @ is in the last 10 characters, it's likely an object pointer comparison issue
+							int howFarBack = 10;
+							if (diffIndex > howFarBack) {
+								String last10 = origExceptionMessage.substring(diffIndex - howFarBack, diffIndex);
+								if (last10.contains("@")) {
+									originalExceptionMapping.remove(origException.getKey());
+									regressionExceptionMapping.remove(origException.getKey());
+									skip = true;
+								}
+							}
 						}
+						
 					}
 				}
 
@@ -503,7 +504,12 @@ public class RegressionAssertionCounter {
 		return (! sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".") ||
 				sourceClass.startsWith(PackageInfo.getEvoSuitePackage()+".runtime.")) &&
 				!sourceClass.equals(URLClassLoader.class.getName()) && // Classloaders may differ, e.g. when running with ant
-                !sourceClass.startsWith(RegExp.class.getPackage().getName());
+                !sourceClass.startsWith(RegExp.class.getPackage().getName()) &&
+                !sourceClass.startsWith("java.lang.System") &&
+                !sourceClass.startsWith("java.lang.String") &&
+                !sourceClass.startsWith("sun.") &&
+                !sourceClass.startsWith("com.sun.") &&
+                !sourceClass.startsWith("jdk.internal.");
 	}
 
 	private static List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[] {

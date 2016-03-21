@@ -223,7 +223,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     to go by exclusion
                  */
 
-                if(!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) && !Modifier.isPublic(m.getModifiers())
+                if(!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) && !Modifier.isPrivate(m.getModifiers())
                         && !m.isBridge() && !m.isSynthetic() && !m.getName().equals(ClassResetter.STATIC_RESET)) {
                     return false;
                 }
