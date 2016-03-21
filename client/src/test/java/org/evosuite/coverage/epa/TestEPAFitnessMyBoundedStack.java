@@ -39,10 +39,9 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 		Assume.assumeTrue(epaXMLFile.exists());
 
 		Properties.EPA_XML_PATH = xmlFilename;
-		EPA automata = EPAFactory.buildEPA(xmlFilename);
 		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
 		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver(automata));
+		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
 	}
 
 	@After

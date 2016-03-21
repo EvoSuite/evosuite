@@ -65,16 +65,19 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 	private static final String LIST_ITR_EPA_XML = String.join(File.separator, System.getProperty("user.dir"), "src",
 			"test", "resources", "epas", "ListItr.xml");
 	private Set<ExecutionObserver> previous_observers = null;
+	
+	private int DEFAULT_TIMEOUT;
 
 	@Before
 	public void prepareTest() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
 		final File epaXMLFile = new File(LIST_ITR_EPA_XML);
 		Assume.assumeTrue(epaXMLFile.exists());
 		Properties.EPA_XML_PATH = LIST_ITR_EPA_XML;
-		EPA automata = EPAFactory.buildEPA(LIST_ITR_EPA_XML);
 		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
 		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver(automata));
+		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
+		DEFAULT_TIMEOUT = Properties.TIMEOUT;
+		Properties.TIMEOUT = Integer.MAX_VALUE;
 	}
 
 	@After
@@ -83,6 +86,7 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 		if (previous_observers != null) {
 			TestCaseExecutor.getInstance().setExecutionObservers(previous_observers);
 		}
+		Properties.TIMEOUT = DEFAULT_TIMEOUT;
 	}
 
 	@Test

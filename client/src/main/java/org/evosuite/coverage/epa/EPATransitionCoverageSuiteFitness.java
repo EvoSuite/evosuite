@@ -55,7 +55,7 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			this.epa = target_epa;
 			this.coverage_goal_map = buildCoverageGoalMap(epaXMLFilename);
 
-			TestCaseExecutor.getInstance().addObserver(new EPATraceObserver(this.epa));
+			TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
 
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);

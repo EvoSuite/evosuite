@@ -21,12 +21,14 @@ package org.evosuite.instrumentation;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collections;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
+import org.evosuite.instrumentation.epa.EPAMonitorClassAdapter;
 import org.evosuite.instrumentation.error.ErrorConditionClassAdapter;
 import org.evosuite.instrumentation.testability.BooleanTestabilityTransformation;
 import org.evosuite.instrumentation.testability.ComparisonTransformation;
@@ -40,6 +42,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.TransformerUtil;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -199,6 +202,10 @@ public class BytecodeInstrumentation {
             }
 
             cv = new RemoveFinalClassAdapter(cv);
+            
+            if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)) {
+            	cv = new EPAMonitorClassAdapter(cv, className);
+            }
 
             cv = new ExecutionPathClassAdapter(cv, className);
 

@@ -30,18 +30,20 @@ public class TestEPATransitionCoverageGoals extends TestEPATransitionCoverage {
 
 	private static final String BOUNDED_STACK_EPA_XML = String.join(File.separator, System.getProperty("user.dir"),
 			"src", "test", "resources", "epas", "MyBoundedStack.xml");
-	
+
 	private Set<ExecutionObserver> previous_observers = null;
+
+	private int DEFAULT_TIMEOUT = Properties.TIMEOUT;
 
 	@Before
 	public void prepareTest() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
 		final File epaXMLFile = new File(BOUNDED_STACK_EPA_XML);
 		Assume.assumeTrue(epaXMLFile.exists());
 		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
-		EPA automata = EPAFactory.buildEPA(BOUNDED_STACK_EPA_XML);
 		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
 		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver(automata));
+		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
+		Properties.TIMEOUT = Integer.MAX_VALUE;
 	}
 
 	@After
@@ -50,6 +52,7 @@ public class TestEPATransitionCoverageGoals extends TestEPATransitionCoverage {
 		if (previous_observers != null) {
 			TestCaseExecutor.getInstance().setExecutionObservers(previous_observers);
 		}
+		Properties.TIMEOUT = DEFAULT_TIMEOUT;
 	}
 
 	@Test

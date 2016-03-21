@@ -11,16 +11,16 @@ import java.util.Optional;
  */
 public class EPAUtils {
 
-	public static boolean epaStateMethodExists(EPAState epaState, Class objectClass) {
+	public static boolean epaStateMethodExists(EPAState epaState, Class<?> objectClass) {
 		try {
-			final Method epaStateMethod = getEpaStateMethod(epaState, objectClass);
+			getEpaStateMethod(epaState, objectClass);
 			return true;
-		} catch (NoSuchMethodException e) {}
-
-		return false;
+		} catch (NoSuchMethodException e) {
+			return false;
+		}
 	}
 
-	public static Method getEpaStateMethod(EPAState epaState, Class objectClass) throws NoSuchMethodException {
+	public static Method getEpaStateMethod(EPAState epaState, Class<?> objectClass) throws NoSuchMethodException {
 		Class<?> currentClass = objectClass;
 		while (currentClass != null) {
 			final Optional<Method> methodOptional = Arrays.stream(currentClass.getDeclaredMethods())

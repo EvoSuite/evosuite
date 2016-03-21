@@ -37,6 +37,7 @@ import com.examples.with.different.packagename.epa.MyArrayList;
 public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 	private Set<ExecutionObserver> previous_observers = null;
+	private int DEFAULT_TIMEOUT;
 
 	@Test
 	public void testSingleTrace() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
@@ -108,8 +109,6 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 				"resources", "epas", "ListItr.xml");
 		final File epaXMLFile = new File(xmlFilename);
 		Assume.assumeTrue(epaXMLFile.exists());
-
-		EPA epa = EPAFactory.buildEPA(xmlFilename);
 
 		Properties.TARGET_CLASS = ListItr.class.getName();
 
@@ -301,11 +300,11 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 		Properties.EPA_XML_PATH = xmlFilename;
 
-		EPA automata = EPAFactory.buildEPA(xmlFilename);
 		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
 		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver(automata));
+		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
 
+		DEFAULT_TIMEOUT = Properties.TIMEOUT;
 	}
 
 	@After
@@ -314,6 +313,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		if (previous_observers != null) {
 			TestCaseExecutor.getInstance().setExecutionObservers(previous_observers);
 		}
+		Properties.TIMEOUT = DEFAULT_TIMEOUT;
 	}
 
 	@Test
@@ -321,7 +321,6 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 			ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
 		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
 				"resources", "epas", "ListItr.xml");
-		final File epaXMLFile = new File(xmlFilename);
 
 		EPA epa = EPAFactory.buildEPA(xmlFilename);
 

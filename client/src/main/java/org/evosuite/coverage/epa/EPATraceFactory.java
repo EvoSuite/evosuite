@@ -1,12 +1,7 @@
 package org.evosuite.coverage.epa;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.evosuite.testcase.execution.ExecutionTrace;
-import org.evosuite.testcase.execution.MethodCall;
 
 @Deprecated
 public abstract class EPATraceFactory {
