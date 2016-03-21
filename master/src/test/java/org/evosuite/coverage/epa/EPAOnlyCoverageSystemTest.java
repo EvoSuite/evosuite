@@ -22,6 +22,7 @@ package org.evosuite.coverage.epa;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Set;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -29,7 +30,10 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -46,6 +50,17 @@ public class EPAOnlyCoverageSystemTest extends SystemTestBase {
 		Properties.P_FUNCTIONAL_MOCKING = 0.0;
 		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 	}
+	
+	@After
+	public void removeObserver() {
+		Set<ExecutionObserver> observers = TestCaseExecutor.getInstance().getExecutionObservers();
+		for (ExecutionObserver observer : observers) {
+			if (observer instanceof EPATraceObserver) {
+				TestCaseExecutor.getInstance().removeObserver(observer);
+			}
+		}
+	}
+
 
 	@Test
 	public void testOnlyEPACoverage() {

@@ -144,11 +144,11 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		EPAState s119 = new EPAState("S119");
 
 		assertEquals(sinit, t1.getOriginState());
-		assertEquals("<init>(Lcom/examples/with/different/packagename/epa/MyArrayList;I)V", t1.getActionName());
+		assertEquals("ListItr()", t1.getActionName());
 		assertEquals(s87, t1.getDestinationState());
 
 		assertEquals(s87, t2.getOriginState());
-		assertEquals("add(Ljava/lang/Object;)V", t2.getActionName());
+		assertEquals("add()", t2.getActionName());
 		assertEquals(s119, t2.getDestinationState());
 
 	}
@@ -358,15 +358,15 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		EPAState s119 = new EPAState("S119");
 
 		assertEquals(sinit, t1.getOriginState());
-		assertEquals("<init>(Lcom/examples/with/different/packagename/epa/MyArrayList;I)V", t1.getActionName());
+		assertEquals("ListItr()", t1.getActionName());
 		assertEquals(s87, t1.getDestinationState());
 
 		assertEquals(s87, t2.getOriginState());
-		assertEquals("add(Ljava/lang/Object;)V", t2.getActionName());
+		assertEquals("add()", t2.getActionName());
 		assertEquals(s119, t2.getDestinationState());
 
-		assertTrue(epa.containsAction("add(Ljava/lang/Object;)V"));
-		assertTrue(epa.containsAction("<init>(Lcom/examples/with/different/packagename/epa/MyArrayList;I)V"));
+		assertTrue(epa.containsAction("add()"));
+		assertTrue(epa.containsAction("ListItr()"));
 
 	}
 

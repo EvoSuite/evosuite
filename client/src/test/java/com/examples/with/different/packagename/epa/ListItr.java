@@ -30,7 +30,14 @@ public class ListItr implements ListIterator<Object> {
 	public @interface EpaState {
 		public String name();
 	}
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
+	public @interface EpaAction {
+		public String name();
+	}
 
+	@EpaAction(name="ListItr()")
 	public ListItr(MyArrayList arrayList, int index) {
 
 		if (index < 0 || index > arrayList.size())
@@ -42,11 +49,13 @@ public class ListItr implements ListIterator<Object> {
 		this.cursor = index;
 	}
 
+	@EpaAction(name="hasPrevious()")
 	public boolean hasPrevious() {
 		final boolean b = cursor != 0;
 		return b;
 	}
 
+	@EpaAction(name="nextIndex()")
 	public int nextIndex() {
 		return cursor;
 	}
@@ -57,12 +66,14 @@ public class ListItr implements ListIterator<Object> {
 		return i;
 	}
 
+	@EpaAction(name="hasNext()")
 	@Override
 	public boolean hasNext() {
 		boolean superHasNext = super_hasNext();
 		return superHasNext;
 	}
 
+	@EpaAction(name="next()")
 	@Override
 	// @Pre("(< cursor (eval(.size this$0)))")
 	public Object next() {
@@ -97,6 +108,7 @@ public class ListItr implements ListIterator<Object> {
 		set((Object) integer);
 	}
 
+	@EpaAction(name="set()")
 	public void set(Object e) {
 		if (lastRet < 0)
 			throw new IllegalStateException();
@@ -114,6 +126,7 @@ public class ListItr implements ListIterator<Object> {
 		add((Object) integer);
 	}
 
+	@EpaAction(name="add()")
 	public void add(Object e) {
 		checkForComodification();
 
@@ -185,11 +198,6 @@ public class ListItr implements ListIterator<Object> {
 
 	private boolean isSetEnabled() {
 		return lastRet >= 0;
-	}
-
-	@EpaState(name="Sinit")
-	private boolean sasaSinit() {
-		return false;
 	}
 
 	@EpaState(name="S127")

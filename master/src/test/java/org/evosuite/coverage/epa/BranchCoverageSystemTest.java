@@ -21,12 +21,17 @@ package org.evosuite.coverage.epa;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Set;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTestBase;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,33 +47,32 @@ public class BranchCoverageSystemTest extends SystemTestBase {
 		Properties.ASSERTIONS = false;
 		Properties.P_FUNCTIONAL_MOCKING = 0.0;
 		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
-
 	}
 
 	@Test
 	public void testBranchOnlyCoverage() {
 		Properties.PRINT_TO_SYSTEM = true;
-		
+
 		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 60;
-		
+
 		// check test case
 		final String targetClass = ListItr.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-	
+
 		final EvoSuite evoSuite = new EvoSuite();
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		final Object results = evoSuite.parseCommandLine(command);
 		Assert.assertNotNull(results);
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
-	
+
 		TestSuiteChromosome bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
 		assertTrue(!bestIndividual.getTests().isEmpty());
-	
+
 		TestCase test = bestIndividual.getTests().get(0);
 		assertTrue(!test.isEmpty());
-	
+
 		String individual = bestIndividual.toString();
 		System.out.println("===========================");
 		System.out.println("Best Individual:");

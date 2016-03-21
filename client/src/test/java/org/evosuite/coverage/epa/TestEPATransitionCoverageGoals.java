@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -59,6 +60,7 @@ public class TestEPATransitionCoverageGoals extends TestEPATransitionCoverage {
 	public void testGoalsCovered() throws ClassNotFoundException, NoSuchMethodException, SecurityException {
 		Properties.TARGET_CLASS = MyBoundedStack.class.getName();
 		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
+		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPATRANSITION };
 
 		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
 				Properties.EPA_XML_PATH);

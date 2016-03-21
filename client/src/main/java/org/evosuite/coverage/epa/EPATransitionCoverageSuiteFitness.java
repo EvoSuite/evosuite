@@ -75,6 +75,9 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	private static void checkEPAStates(EPA epa, String className) {
 		try {
 			for (EPAState epaState : epa.getStates()) {
+				if (epa.getInitialState().equals(epaState)) {
+					continue; // initial states are false by default
+				}
 				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
 				if (!EPAUtils.epaStateMethodExists(epaState, clazz)) {
 					throw new EvosuiteError("Boolean query method for EPA State " + epaState.getName()
@@ -88,13 +91,10 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 
 	private static void checkEPAActionNames(EPA epa, String className) {
 		try {
-			for (EPATransition transition : epa.getTransitions()) {
-				final String actionName = transition.getActionName();
-				String[] parts = actionName.split("\\(");
-				final String methodName = parts[0];
-				final String methodSignature = "(" + parts[1];
-
-				boolean found = hasMethodOrConstructor(className, methodName, methodSignature);
+			Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
+			for (String actionName : epa.getActions()) {
+				final boolean found = EPAUtils.getEpaActionMethods(actionName, clazz) != null
+						|| EPAUtils.getEpaActionConstructors(actionName, clazz) != null;
 				if (!found) {
 					throw new EvosuiteError(
 							"EPA Action Name " + actionName + "was not found in target class " + className);
@@ -103,24 +103,6 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		} catch (ClassNotFoundException e) {
 			throw new EvosuiteError(e);
 		}
-	}
-
-	private static boolean hasMethodOrConstructor(String className, final String methodName,
-			final String methodSignature) throws ClassNotFoundException {
-		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
-		for (Method method : clazz.getDeclaredMethods()) {
-			String methodDescriptor = Type.getMethodDescriptor(method);
-			if ((methodDescriptor.equals(methodSignature)) && method.getName().equals(methodName)) {
-				return true;
-			}
-		}
-		for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-			String constructorDescriptor = Type.getConstructorDescriptor(constructor);
-			if ((constructorDescriptor.equals(methodSignature)) && "<init>".equals(methodName)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**

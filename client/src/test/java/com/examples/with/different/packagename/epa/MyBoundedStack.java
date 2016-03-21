@@ -13,11 +13,11 @@ public class MyBoundedStack {
 		public String name();
 	}
 
-	/*
-	 * ======================================================
-	 * Original Code
-	 * ======================================================
-	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
+	public @interface EpaAction {
+		public String name();
+	}
 
 	private final static int DEFAULT_SIZE = 10;
 
@@ -25,46 +25,38 @@ public class MyBoundedStack {
 
 	private int index = -1;
 
-	private boolean initialState = true;
-
+	@EpaAction(name = "MyBoundedStack()")
 	public MyBoundedStack() {
-		initialState = false;
 	}
 
+	@EpaAction(name = "push()")
 	public void push(Object object) {
-		if (index==elements.length-1) {
+		if (index == elements.length - 1) {
 			throw new IllegalStateException();
 		}
 		elements[++index] = object;
 	}
 
+	@EpaAction(name = "pop()")
 	public Object pop() {
-		if (index==-1) {
+		if (index == -1) {
 			throw new IllegalStateException();
 		}
 		Object ret_val = elements[index--];
 		return ret_val;
 	}
 
-
-	/*
-	 * ======================================================
-	 * Instrumentation
-	 * ======================================================
-	 */
+	// ======================================================
+	// Boolean Queries
+	// ======================================================
 	private boolean isPushEnabled() {
-		return index!=elements.length-1;
+		return index != elements.length - 1;
 	}
 
 	private boolean isPopEnabled() {
-		return index!=-1;
+		return index != -1;
 	}
-	
-	@EpaState(name = "S0")
-	private boolean queryForS0() {
-		return initialState;
-	}
-	
+
 	@EpaState(name = "S1")
 	private boolean queryForS1() {
 		return isPushEnabled() && !isPopEnabled();

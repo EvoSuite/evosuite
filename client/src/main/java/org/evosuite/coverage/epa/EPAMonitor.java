@@ -1,23 +1,30 @@
 package org.evosuite.coverage.epa;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.testcase.execution.EvosuiteError;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public class EPAMonitor {
+
+	private static final String INIT = "<init>";
 
 	/**
 	 * The EPA automata used to inspect coverage
@@ -48,7 +55,71 @@ public class EPAMonitor {
 			throw new IllegalArgumentException("EPA XML Path cannot be null!");
 		}
 		this.automata = automata;
+		Class<?> targetClass;
+		try {
+			targetClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
+			this.epaStatesToMethodMap = createEpaStateToMethodMap(automata, targetClass);
+			this.methodToActionMap = createMethodToActionMap(automata, targetClass);
+			this.constructorToActionMap = createConstructorToActionMap(automata, targetClass);
+		} catch (ClassNotFoundException | NoSuchMethodException e) {
+			throw new EvosuiteError(e);
+		}
+
 	}
+
+	private static Map<String, String> createConstructorToActionMap(EPA automata, Class<?> targetClass) {
+		final Map<String, String> constructorToActionMap = new HashMap<String, String>();
+		for (String actionName : automata.getActions()) {
+			// search methods
+			Set<Constructor<?>> constructors = EPAUtils.getEpaActionConstructors(actionName, targetClass);
+			for (Constructor<?> constructor : constructors) {
+				final String constructorName = INIT;
+				final String constructorDescriptor = Type.getConstructorDescriptor(constructor);
+				final String constructorFullName = constructorName + constructorDescriptor;
+				constructorToActionMap.put(constructorFullName, actionName);
+			}
+		}
+		return constructorToActionMap;
+
+	}
+
+	private static Map<String, String> createMethodToActionMap(EPA automata, Class<?> targetClass) {
+		Map<String, String> methodToActionMap = new HashMap<String, String>();
+		for (String actionName : automata.getActions()) {
+			// search methods
+			Set<Method> methods = EPAUtils.getEpaActionMethods(actionName, targetClass);
+			for (Method method : methods) {
+				final String methodName = method.getName();
+				final String methodDescriptor = Type.getMethodDescriptor(method);
+				final String methodFullName = methodName + methodDescriptor;
+				methodToActionMap.put(methodFullName, actionName);
+			}
+		}
+		return methodToActionMap;
+	}
+
+	private static Map<EPAState, Method> createEpaStateToMethodMap(EPA automata, Class<?> targetClass)
+			throws NoSuchMethodException {
+		final HashMap<EPAState, Method> epaStateMethods = new HashMap<EPAState, Method>();
+		for (EPAState state : automata.getStates()) {
+			if (automata.getInitialState().equals(state)) {
+				continue; // ignore initial states (always false)
+			}
+			Method method = EPAUtils.getEpaStateMethod(state, targetClass);
+			if (method == null) {
+				throw new NoSuchMethodException("Boolean query method for state " + state + " was not found in class "
+						+ targetClass.getName() + " or any superclass");
+			}
+			epaStateMethods.put(state, method);
+		}
+		return epaStateMethods;
+	}
+
+	private final Map<EPAState, Method> epaStatesToMethodMap;
+
+	private final Map<String, String> methodToActionMap;
+
+	private final Map<String, String> constructorToActionMap;
 
 	public static EPAMonitor getInstance() {
 		if (instance == null) {
@@ -82,7 +153,7 @@ public class EPAMonitor {
 			final boolean loopCounterIsActive = LoopCounter.getInstance().isActivated();
 			LoopCounter.getInstance().setActive(false);
 			try {
-				if (fullMethodName.startsWith("<init>")) {
+				if (fullMethodName.startsWith(INIT)) {
 					getInstance().afterConstructor(className, fullMethodName, object);
 				} else {
 					getInstance().afterMethod(className, fullMethodName, object);
@@ -94,11 +165,11 @@ public class EPAMonitor {
 		}
 	}
 
-	private void afterConstructor(String className, String fullMethodName, Object object) {
+	private void afterConstructor(String className, String fullConstructorName, Object object) {
 		try {
 			// is the methodStmt defined as an EPA Action ?
-			if (getEpaAction(fullMethodName) != null) {
-				final String actionName = getEpaAction(fullMethodName);
+			if (this.constructorToActionMap.containsKey(fullConstructorName)) {
+				final String actionName = this.constructorToActionMap.get(fullConstructorName);
 				if (hasPreviousEpaState(object)) {
 					final EPAState previousEpaState = getPreviousEpaState(object);
 					throw new MalformedEPATraceException(
@@ -118,8 +189,8 @@ public class EPAMonitor {
 
 	private void afterMethod(String className, String fullMethodName, Object calleeObject) throws EvosuiteError {
 		try {
-			if (getEpaAction(fullMethodName) != null) {
-				final String actionName = getEpaAction(fullMethodName);
+			if (this.methodToActionMap.containsKey(fullMethodName)) {
+				final String actionName = this.methodToActionMap.get(fullMethodName);
 				if (!hasPreviousEpaState(calleeObject)) {
 					// this object should have been seen previously!
 					throw new MalformedEPATraceException("Object has no previous EPA State!");
@@ -165,6 +236,10 @@ public class EPAMonitor {
 	private EPAState getCurrentState(Object calleeObject) throws MalformedEPATraceException, InvocationTargetException {
 		EPAState currentState = null;
 		for (EPAState epaState : this.automata.getStates()) {
+			if (this.automata.getInitialState().equals(epaState)) {
+				continue; // discard initial states (always false)
+			}
+
 			boolean executionResult = executeEpaStateMethod(epaState, calleeObject);
 			if (executionResult == true) {
 				if (currentState != null) {
@@ -183,7 +258,11 @@ public class EPAMonitor {
 
 	private boolean executeEpaStateMethod(EPAState epaState, Object calleeObject) throws InvocationTargetException {
 		try {
-			final Method method = EPAUtils.getEpaStateMethod(epaState, calleeObject.getClass());
+			if (!this.epaStatesToMethodMap.containsKey(epaState)) {
+				throw new NoSuchMethodException("Boolean query method for state " + epaState
+						+ " was not found in class " + calleeObject.getClass().getName() + " or any superclass");
+			}
+			final Method method = this.epaStatesToMethodMap.get(epaState);
 			boolean isAccessible = method.isAccessible();
 			method.setAccessible(true);
 			Boolean result = (Boolean) method.invoke(calleeObject);
@@ -219,20 +298,6 @@ public class EPAMonitor {
 	 */
 	private boolean hasPreviousEpaState(Object obj) {
 		return this.transitions.containsKey(obj);
-	}
-
-	/**
-	 * Checks if a given method is defined as an EPA action in the EPA automata
-	 * 
-	 * @param fullMethodName
-	 * @return
-	 */
-	private String getEpaAction(String fullMethodName) {
-		if (this.automata.containsAction(fullMethodName)) {
-			return fullMethodName;
-		} else {
-			return null;
-		}
 	}
 
 	public Set<EPATrace> getTraces() {
