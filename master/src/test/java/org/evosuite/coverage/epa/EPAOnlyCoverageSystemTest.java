@@ -43,6 +43,8 @@ public class EPAOnlyCoverageSystemTest extends SystemTestBase {
 	public void prepare() {
 		Properties.MINIMIZE = false;
 		Properties.ASSERTIONS = false;
+		Properties.P_FUNCTIONAL_MOCKING = 0.0;
+		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 	}
 
 	@Test

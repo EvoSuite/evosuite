@@ -25,8 +25,6 @@ public class ListItr implements ListIterator<Object> {
 	private int cursor; // index of next element to return
 	private int lastRet; // index of last element returned; -1 if no such
 	private int expectedModCount;
-	private boolean initialState = true;
-
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface EpaState {
@@ -42,8 +40,6 @@ public class ListItr implements ListIterator<Object> {
 		this.lastRet = -1;
 		this.expectedModCount = this.arrayList.getModCount();
 		this.cursor = index;
-
-		initialState = false;
 	}
 
 	public boolean hasPrevious() {
@@ -193,7 +189,7 @@ public class ListItr implements ListIterator<Object> {
 
 	@EpaState(name="Sinit")
 	private boolean sasaSinit() {
-		return initialState;
+		return false;
 	}
 
 	@EpaState(name="S127")
