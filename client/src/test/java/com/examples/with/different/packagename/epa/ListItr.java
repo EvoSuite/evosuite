@@ -1,5 +1,9 @@
 package com.examples.with.different.packagename.epa;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ConcurrentModificationException;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -15,12 +19,19 @@ import java.util.NoSuchElementException;
 // "(and (<= 0 cursor) (<= cursor (.size this$0))))")
 public class ListItr implements ListIterator<Object> {
 	/**
-	 * 
+	 *
 	 */
 	private final MyArrayList arrayList;
 	private int cursor; // index of next element to return
 	private int lastRet; // index of last element returned; -1 if no such
 	private int expectedModCount;
+	private boolean initialState = true;
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
+	public @interface EpaState {
+		public String name();
+	}
 
 	public ListItr(MyArrayList arrayList, int index) {
 
@@ -32,6 +43,7 @@ public class ListItr implements ListIterator<Object> {
 		this.expectedModCount = this.arrayList.getModCount();
 		this.cursor = index;
 
+		initialState = false;
 	}
 
 	public boolean hasPrevious() {
@@ -178,36 +190,44 @@ public class ListItr implements ListIterator<Object> {
 	private boolean isSetEnabled() {
 		return lastRet >= 0;
 	}
-	
-	private boolean isStateSinit() {
-		return false;
+
+	@EpaState(name="Sinit")
+	private boolean sasaSinit() {
+		return initialState;
 	}
 
-	private boolean isStateS127() {
+	@EpaState(name="S127")
+	private boolean sasaS127() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isStateS95() {
+	@EpaState(name="S95")
+	private boolean sasaS95() {
 		return isNextEnabled() && isAddEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isStateS119() {
+	@EpaState(name="S119")
+	private boolean sasaS119() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isStateS87() {
+	@EpaState(name="S87")
+	private boolean sasaS87() {
 		return isAddEnabled() && !isNextEnabled() && !isPreviousEnabled() && !isRemoveEnabled() && !isSetEnabled();
 	}
 
-	private boolean isStateS511() {
+	@EpaState(name="S511")
+	private boolean sasaS511() {
 		return isAddEnabled() && isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
-	private boolean isStateS503() {
+	@EpaState(name="S503")
+	private boolean sasaS503() {
 		return isAddEnabled() && !isNextEnabled() && isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 
-	private boolean isStateS479() {
+	@EpaState(name="S479")
+	private boolean sasaS479() {
 		return isAddEnabled() && isNextEnabled() && !isPreviousEnabled() && isRemoveEnabled() && isSetEnabled();
 	}
 }

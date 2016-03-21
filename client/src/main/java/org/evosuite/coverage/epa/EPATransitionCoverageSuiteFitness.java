@@ -75,9 +75,8 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 	private static void checkEPAStates(EPA epa, String className) {
 		try {
 			for (EPAState epaState : epa.getStates()) {
-				boolean found;
-				found = hasMethodOrConstructor(className, "isState" + epaState.getName(), "()Z");
-				if (!found) {
+				Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(className);
+				if (!EPAUtils.epaStateMethodExists(epaState, clazz)) {
 					throw new EvosuiteError("Boolean query method for EPA State " + epaState.getName()
 							+ " was not found in target class " + className);
 				}
