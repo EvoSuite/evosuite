@@ -237,8 +237,10 @@ public class EPAMonitor {
 			if (this.constructorToActionMap.containsKey(fullConstructorName)) {
 
 				String top = call_stack.pop();
-				if (!top.equals(className + "." + fullConstructorName)) {
-					System.out.println("Error");
+				final String classNameAndFullConstructorName = className + "." + fullConstructorName;
+				if (!top.equals(classNameAndFullConstructorName)) {
+					throw new EvosuiteError("afterConstructor() for " + classNameAndFullConstructorName
+							+ " but last call on stack was " + top);
 				}
 
 				final String actionName = this.constructorToActionMap.get(fullConstructorName);
@@ -264,8 +266,10 @@ public class EPAMonitor {
 			if (this.methodToActionMap.containsKey(fullMethodName)) {
 
 				String top = call_stack.pop();
-				if (!top.equals(className + "." + fullMethodName)) {
-					System.out.println("Error");
+				final String classNameAndFullMethodName = className + "." + fullMethodName;
+				if (!top.equals(classNameAndFullMethodName)) {
+					throw new EvosuiteError(
+							"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
 				}
 
 				final String actionName = this.methodToActionMap.get(fullMethodName);
