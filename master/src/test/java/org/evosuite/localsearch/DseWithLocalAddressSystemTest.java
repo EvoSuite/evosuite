@@ -46,7 +46,9 @@ public class DseWithLocalAddressSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
-		 Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 
 	@Test
@@ -63,16 +65,14 @@ public class DseWithLocalAddressSystemTest extends SystemTestBase {
 		String targetClass = DseWithServer.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH,
-				Criterion.EXCEPTION };
+		Properties.CRITERION = new Criterion[] { Criterion.BRANCH, Criterion.EXCEPTION };
 
 		Properties.MINIMIZE = true;
 		Properties.ASSERTIONS = true;
 
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);

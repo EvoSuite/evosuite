@@ -47,6 +47,8 @@ public class DseWithSocketSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
 //		 Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 
 	@Test

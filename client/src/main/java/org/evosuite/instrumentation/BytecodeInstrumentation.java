@@ -182,7 +182,7 @@ public class BytecodeInstrumentation {
         }
 
         if (Properties.RESET_STATIC_FIELDS) {
-            cv = new PutStaticClassAdapter(cv, className);
+            cv = new StaticAccessClassAdapter(cv, className);
         }
 
         if (Properties.PURE_INSPECTORS) {

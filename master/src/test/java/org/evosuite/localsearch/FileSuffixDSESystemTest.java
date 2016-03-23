@@ -43,6 +43,8 @@ public class FileSuffixDSESystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 10;
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 
 	@Test

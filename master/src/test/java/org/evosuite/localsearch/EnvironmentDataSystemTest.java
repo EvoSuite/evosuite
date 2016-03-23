@@ -61,6 +61,8 @@ public class EnvironmentDataSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
 		RuntimeSettings.useVFS = true;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 
 	@Test

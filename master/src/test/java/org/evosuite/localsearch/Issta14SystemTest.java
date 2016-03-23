@@ -42,6 +42,8 @@ public class Issta14SystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 60_000;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 
 	@Test

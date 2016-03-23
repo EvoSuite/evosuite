@@ -24,12 +24,12 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * Invokes a <code>PutStaticMethodAdapter</code> on each method.
- * This class should instrument before the mutation instrumentation.
+ * Invokes a <code>StaticAccessMethodAdapter</code> on each method. This class
+ * should instrument before the mutation instrumentation.
  * 
  * @author Juan Galeotti
  */
-public class PutStaticClassAdapter extends ClassVisitor {
+public class StaticAccessClassAdapter extends ClassVisitor {
 
 	private final String className;
 
@@ -43,19 +43,17 @@ public class PutStaticClassAdapter extends ClassVisitor {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public PutStaticClassAdapter(ClassVisitor visitor, String className) {
+	public StaticAccessClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM5, visitor);
 		this.className = className;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String name,
-			String descriptor, String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor,
-				signature, exceptions);
-		PutStaticMethodAdapter putStaticMethodAdapter = new PutStaticMethodAdapter(
-				className, name, mv);
-		return putStaticMethodAdapter;
+	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor, String signature,
+			String[] exceptions) {
+		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature, exceptions);
+		StaticAccessMethodAdapter methodAdapter = new StaticAccessMethodAdapter(className, name, mv);
+		return methodAdapter;
 	}
 }

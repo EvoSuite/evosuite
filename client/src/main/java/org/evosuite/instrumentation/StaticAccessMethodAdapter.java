@@ -32,13 +32,13 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * For each PUTSTATIC we include a call to 
- * <code>ExecutionTracer.passedPutStatic(String,String)</code> passing
- * the class name and the field name of the PUTSTATIC statement.
+ * For each PUTSTATIC or GETSTATIC we include a call to
+ * <code>ExecutionTracer.passedPutStatic(String,String)</code> passing the class
+ * name and the field name of the PUTSTATIC statement.
  *
  * @author Juan Galeotti
  */
-public class PutStaticMethodAdapter extends MethodVisitor {
+public class StaticAccessMethodAdapter extends MethodVisitor {
 
 	private static final String PASSED_PUT_STATIC = "passedPutStatic";
 	private static final String PASSED_GET_STATIC = "passedGetStatic";
@@ -47,48 +47,50 @@ public class PutStaticMethodAdapter extends MethodVisitor {
 	private final String methodName;
 
 	/**
-	 * <p>Constructor for PutStaticMethodAdapter.</p>
+	 * <p>
+	 * Constructor for StaticAccessMethodAdapter.
+	 * </p>
 	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className a {@link java.lang.String} object.
+	 * @param mv
+	 *            a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 */
-	public PutStaticMethodAdapter(String className, String methodName,
-			MethodVisitor mv) {
+	public StaticAccessMethodAdapter(String className, String methodName, MethodVisitor mv) {
 		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.methodName = methodName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodAdapter#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.objectweb.asm.MethodAdapter#visitFieldInsn(int,
+	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitFieldInsn(int opcode, String owner, String name,
-			String desc) {
+	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 
 		if ((opcode == Opcodes.PUTSTATIC || opcode == Opcodes.GETSTATIC)
 				&& !(className.equals(owner) && methodName.equals("<clinit>"))
 				&& !(className.equals(owner) && methodName.equals(ClassResetter.STATIC_RESET))) {
 
 			String classNameWithDots = owner.replace('/', '.');
-			if(RuntimeInstrumentation.checkIfCanInstrument(classNameWithDots)) {
+			if (RuntimeInstrumentation.checkIfCanInstrument(classNameWithDots)) {
 
-				String executionTracerClassName = ExecutionTracer.class.getName()
-						.replace('.', '/');
-				String executionTracerDescriptor = Type.getMethodDescriptor(
-						Type.VOID_TYPE, Type.getType(String.class),
+				String executionTracerClassName = ExecutionTracer.class.getName().replace('.', '/');
+				String executionTracerDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(String.class),
 						Type.getType(String.class));
-
 
 				super.visitLdcInsn(classNameWithDots);
 				super.visitLdcInsn(name);
 				if (opcode == Opcodes.PUTSTATIC)
-					super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-							PASSED_PUT_STATIC, executionTracerDescriptor, false);
+					super.visitMethodInsn(INVOKESTATIC, executionTracerClassName, PASSED_PUT_STATIC,
+							executionTracerDescriptor, false);
 				else
-					super.visitMethodInsn(INVOKESTATIC, executionTracerClassName,
-							PASSED_GET_STATIC, executionTracerDescriptor, false);
+					super.visitMethodInsn(INVOKESTATIC, executionTracerClassName, PASSED_GET_STATIC,
+							executionTracerDescriptor, false);
 			}
 		}
 		super.visitFieldInsn(opcode, owner, name, desc);

@@ -66,6 +66,8 @@ public class LocalSearchNumericSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 1000;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
     }
 	
 	private TestCase getIntTest(int x, int y) throws NoSuchMethodException, SecurityException, ConstructionFailedException, ClassNotFoundException {

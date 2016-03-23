@@ -43,6 +43,7 @@ public class RegexSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 10;
 		Properties.SEARCH_BUDGET = 20;
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+		Properties.RESET_STATIC_FIELD_GETS = true;
 	}
 
 	@Test
