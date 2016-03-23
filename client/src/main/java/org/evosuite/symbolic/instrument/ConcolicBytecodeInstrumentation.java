@@ -21,7 +21,7 @@ package org.evosuite.symbolic.instrument;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.ExitClassInitAdapter;
-import org.evosuite.instrumentation.PutStaticClassAdapter;
+import org.evosuite.instrumentation.StaticAccessClassAdapter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.instrumentation.CreateClassResetClassAdapter;
@@ -55,7 +55,7 @@ public class ConcolicBytecodeInstrumentation {
 		ClassVisitor cv = writer;
 
         if (Properties.RESET_STATIC_FIELDS) {
-            cv = new PutStaticClassAdapter(cv, className);
+            cv = new StaticAccessClassAdapter(cv, className);
         }
 
 		// Apply transformations to class under test and its owned
