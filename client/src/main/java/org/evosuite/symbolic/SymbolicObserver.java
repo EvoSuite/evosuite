@@ -59,6 +59,7 @@ import org.evosuite.testcase.statements.ClassPrimitiveStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EnumPrimitiveStatement;
 import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveExpression;
@@ -160,7 +161,9 @@ public class SymbolicObserver extends ExecutionObserver {
 			} else if (s instanceof MethodStatement) {
 				before((MethodStatement) s, scope);
 
-			}
+			} else if (s instanceof FunctionalMockStatement) {
+				before((FunctionalMockStatement) s, scope);
+			} 
 
 			/* primitive statements */
 			else if (s instanceof BooleanPrimitiveStatement) {
@@ -1350,6 +1353,10 @@ public class SymbolicObserver extends ExecutionObserver {
 		/* do nothing */
 	}
 
+	private void before(FunctionalMockStatement statement, Scope scope) {
+		/* do nothing */
+	}
+	
 	private void before(IntPrimitiveStatement statement, Scope scope) {
 		/* do nothing */
 	}
@@ -1432,6 +1439,9 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			} else if (s instanceof PrimitiveExpression) {
 				after((PrimitiveExpression) s, scope);
+				
+			} else if (s instanceof FunctionalMockStatement) {
+				after((FunctionalMockStatement) s, scope);
 
 			} else {
 				throw new UnsupportedOperationException(
@@ -1523,6 +1533,13 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		symb_references.put(lhs_name, NullReference.getInstance());
 	}
+	
+	
+	private void after(FunctionalMockStatement statement, Scope scope) {
+		/* do nothing */
+	}
+
+	
 
 	private void after(FieldStatement s, Scope scope) {
 		ReferenceExpressionPair readResult;
