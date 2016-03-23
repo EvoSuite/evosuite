@@ -49,6 +49,8 @@ public class HardConstraintsDSESystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 60;
 		Properties.MINIMIZE = true;
 		Properties.ASSERTIONS = true;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 	
 	@Test

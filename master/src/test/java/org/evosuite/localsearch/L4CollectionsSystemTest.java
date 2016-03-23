@@ -43,6 +43,8 @@ public class L4CollectionsSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 
 	@Test

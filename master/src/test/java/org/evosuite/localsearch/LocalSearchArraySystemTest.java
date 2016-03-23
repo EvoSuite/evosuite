@@ -64,6 +64,8 @@ public class LocalSearchArraySystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 1000;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = true;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
     }
 	
 	

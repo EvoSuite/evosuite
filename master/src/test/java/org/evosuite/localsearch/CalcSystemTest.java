@@ -44,6 +44,8 @@ public class CalcSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 	}
 
 	@Test

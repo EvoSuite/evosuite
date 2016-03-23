@@ -53,7 +53,8 @@ public class PostCodeValidatorSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 50000;
 		Properties.Z3_STR2_PATH = System.getenv("z3_str2_path");
 		Properties.DSE_SOLVER = SolverType.Z3_STR2_SOLVER;
-		
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 10;
 		

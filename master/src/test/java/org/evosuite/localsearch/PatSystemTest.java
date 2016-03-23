@@ -46,6 +46,7 @@ public class PatSystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 10;
 		Properties.SEARCH_BUDGET = 20;
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
+		Properties.RESET_STATIC_FIELD_GETS = true;
 	}
 
 	@Test
@@ -59,6 +60,7 @@ public class PatSystemTest extends SystemTestBase {
 		String targetClass = Pat.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		
+
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 		Properties.CRITERION = new Criterion[] {
 	            //these are basic criteria that should be always on by default
@@ -89,6 +91,7 @@ public class PatSystemTest extends SystemTestBase {
 	            //these are basic criteria that should be always on by default
 	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 		
+
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 

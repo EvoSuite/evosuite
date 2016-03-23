@@ -19,6 +19,7 @@
  */
 package org.evosuite.testsuite.localsearch;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -40,6 +41,7 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		double fitnessBefore = individual.getFitness();
 		//logger.info("Test suite before local search: " + individual);
 
+		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(individual.getTestChromosomes());
 		List<TestChromosome> tests = individual.getTestChromosomes();
 		/*
 		 * When we apply local search, due to budget constraints we might not be able
@@ -74,6 +76,11 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 		// Return true if fitness has improved
 		boolean hasImproved = hasImproved(fitnessBefore,  individual, objective);
+		if (!hasImproved) {
+			// restore original tests 
+			individual.clearTests(); 
+			individual.addTests(originalTests);
+		}
 		return hasImproved;
 	}
 

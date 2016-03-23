@@ -37,6 +37,7 @@ public class HardConstraintsNoDSESystemTest extends SystemTestBase {
 
 	@Test
 	public void test() {
+		Properties.RESET_STATIC_FIELD_GETS = true;
 
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 60;

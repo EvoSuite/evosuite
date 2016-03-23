@@ -43,6 +43,8 @@ public class LocalSearchSystemTest extends SystemTestBase {
     public void init(){
         Properties.DSE_PROBABILITY = 0.0;
         Properties.PRIMITIVE_POOL = 0.0;
+		Properties.RESET_STATIC_FIELD_GETS = true;
+
     }
 	
 	@Ignore // This seems to be trivial now?
