@@ -641,7 +641,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
 	        throws ConstructionFailedException {
-		assert (type != null);
+		Inputs.checkNull(type);
+
 		List<VariableReference> variables = getObjects(type, position);
 		Iterator<VariableReference> iterator = variables.iterator();
 		while (iterator.hasNext()) {

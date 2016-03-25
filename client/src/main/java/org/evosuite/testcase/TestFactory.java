@@ -904,7 +904,7 @@ public class TestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
 			if (!method.isStatic()) {
-				callee = test.getRandomNonNullNonPrimitiveObject(method.getOwnerType(), position);
+				callee = getRandomNonNullNonPrimitiveObject(test, method.getOwnerType(), position);
 			}
 
 			List<VariableReference> parameters = new ArrayList<>();
@@ -933,7 +933,7 @@ public class TestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference source = null;
 			if (!field.isStatic())
-				source = test.getRandomNonNullNonPrimitiveObject(field.getOwnerType(), position);
+				source = getRandomNonNullNonPrimitiveObject(test,field.getOwnerType(), position);
 
 			try {
 				FieldStatement f = new FieldStatement(test, field, source, retval);
@@ -946,6 +946,31 @@ public class TestFactory {
 		}
 	}
 
+	private VariableReference getRandomNonNullNonPrimitiveObject(TestCase tc, Type type, int position)
+			throws ConstructionFailedException {
+		Inputs.checkNull(type);
+
+		List<VariableReference> variables = tc.getObjects(type, position);
+		Iterator<VariableReference> iterator = variables.iterator();
+		while (iterator.hasNext()) {
+			VariableReference var = iterator.next();
+			if (var instanceof NullReference
+					|| tc.getStatement(var.getStPosition()) instanceof PrimitiveStatement
+					|| var.isPrimitive()
+					|| var.isWrapperType()
+					|| tc.getStatement(var.getStPosition()) instanceof FunctionalMockStatement
+					|| ConstraintHelper.getLastPositionOfBounded(var, tc) >= position) {
+				iterator.remove();
+			}
+		}
+
+		if (variables.isEmpty()) {
+			throw new ConstructionFailedException("Found no variables of type " + type
+					+ " at position " + position);
+		}
+
+		return Randomness.choice(variables);
+	}
 
 	public boolean changeRandomCall(TestCase test, Statement statement) {
 		logger.debug("Changing statement {}", statement.getCode());
@@ -1438,7 +1463,7 @@ public class TestFactory {
 			while(iter.hasNext()) {
 				VariableReference ref = iter.next();
 
-				if(ConstraintHelper.getLastPositionOfBounded(ref,test) > position){
+				if(ConstraintHelper.getLastPositionOfBounded(ref,test) >= position){
 					iter.remove();
 					additionalToRemove.add(ref);
 				}
@@ -1470,10 +1495,6 @@ public class TestFactory {
 				if ((Character.TYPE.getTypeName().equals(cls)))
 					iter.remove();
 			}
-		}
-
-		for(VariableReference var : objects){
-			assert ConstraintHelper.getLastPositionOfBounded(var, test) < position;
 		}
 
 		return objects;

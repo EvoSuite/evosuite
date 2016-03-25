@@ -614,8 +614,10 @@ public class ConstraintVerifier {
                 //is any other method of the bounded variable been called?
                 VariableReference callee = ms.getCallee();
                 if(vr.same(callee)){
-                    logger.error("Invalid method call at position "+j+" on bounded variable created in "+vr.getStPosition()+" " +
-                            "and initialized in "+i);
+                    logger.error("Invalid method call at position "+j+
+                            " on bounded variable created in "+vr.getStPosition()+" " +
+                            "and initialized in "+i +
+                            "\nTest case code:\n" + tc.toCode());
                     return false;
                 }
             }
