@@ -1352,8 +1352,13 @@ public class TestFactory {
 					allowNull, generatorRefToExclude, canUseMocks, canReuseExistingVariables);
 
 			assert !(!allowNull && ConstraintHelper.isNull(reference, test));
-			assert reference.getStPosition() >= position || ConstraintHelper.getLastPositionOfBounded(reference, test) < position;
 			assert canUseMocks || !(test.getStatement(reference.getStPosition()) instanceof FunctionalMockStatement);
+
+			if(reference.getStPosition() < position && ConstraintHelper.getLastPositionOfBounded(reference, test) >= position){
+				AtMostOnceLogger.warn(logger, "Bounded variable issue when calling createVariable()");
+				return null;
+			}
+
 			return reference;
 		}
 
@@ -2305,7 +2310,13 @@ public class TestFactory {
 			}
 
 			assert ! (! allowNull && ConstraintHelper.isNull(var,test));
-			assert var.getStPosition() >= position || ConstraintHelper.getLastPositionOfBounded(var, test) < position;
+
+			if(var.getStPosition() < position && ConstraintHelper.getLastPositionOfBounded(var, test) >= position){
+				String msg = "Bounded variable issue when calling satisfyParameters()";
+				AtMostOnceLogger.warn(logger, msg);
+				throw new ConstructionFailedException(msg);
+			}
+
 
 			// Generics instantiation may lead to invalid types, so better double check
 			if(!var.isAssignableTo(parameterType)) {
