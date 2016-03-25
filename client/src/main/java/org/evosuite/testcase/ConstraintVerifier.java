@@ -641,9 +641,12 @@ public class ConstraintVerifier {
                     }
                 }
 
-                if(vr.same(input)){
-                    logger.error("Bounded variable created at position "+vr.getStPosition()+" is used as input in "+
-                        j + " before its bounding initializer at position "+i);
+                if (vr.same(input)) {
+                    logger.error("Bounded variable of type " + vr.getType() +
+                            " created at position " + vr.getStPosition() + " is used as input in " +
+                            j + " before its bounding initializer at position " + i +
+                            ". Statement at position "+j+" is:\n"+tc.getStatement(j).getCode() +
+                            "\nTest case code:\n" + tc.toCode());
                     return false;
                 }
             }

@@ -89,7 +89,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 * testcase.
 	 */
 	@Override
-	public int getStPosition() {
+	public synchronized int getStPosition() {
 		if (stPosition == null || changeListener.hasChanged()) {
 			stPosition = null;
 			for (int i = 0; i < testCase.size(); i++) {
@@ -108,11 +108,10 @@ public class VariableReferenceImpl implements VariableReference {
 				msg += "failed to find type " + this.type.getTypeName() + "\n";
 
 				throw new AssertionError(
-				        msg
-				                + "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
+				        msg + "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 			}
 		} else {
-			int position = stPosition;
+			int position = stPosition; //somehow this could be null, leading to NPE. Synchronization issue?
 			stPosition = null;
 			stPosition = getStPosition();
 			assert (stPosition == position);
