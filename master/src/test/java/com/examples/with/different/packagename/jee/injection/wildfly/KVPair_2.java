@@ -9,9 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-@Entity(name="KVPair_0")
-@Table(name = "BMT_KVPair")
-public class KVPair implements Serializable {
+@Entity
+public class KVPair_2 implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -21,10 +20,10 @@ public class KVPair implements Serializable {
     @Column
     private String value;
 
-    public KVPair() {
+    public KVPair_2() {
     }
 
-    public KVPair(String key, String value) {
+    public KVPair_2(String key, String value) {
         setKey(key);
         setValue(value);
     }

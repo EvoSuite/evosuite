@@ -54,23 +54,23 @@ public class UnManagedComponent {
 
         if (key == null || key.length() == 0) {
             @SuppressWarnings("unchecked")
-            final List<KVPair> list = entityManager.createQuery("select k from KVPair_0 k").getResultList();
+            final List<KVPair_2> list = entityManager.createQuery("select k from KVPair_2 k").getResultList();
 
-            for (KVPair kvPair : list)
+            for (KVPair_2 kvPair : list)
                 sb.append(kvPair.getKey()).append("=").append(kvPair.getValue()).append(',');
 
         } else {
-            KVPair kvPair;
+            KVPair_2 kvPair;
 
             if (value == null) {
-                kvPair = new KVPair(key, value);
+                kvPair = new KVPair_2(key, value);
 
                 entityManager.refresh(kvPair);
             } else {
-                kvPair = entityManager.find(KVPair.class, key);
+                kvPair = entityManager.find(KVPair_2.class, key);
 
                 if (kvPair == null) {
-                    kvPair = new KVPair(key, value);
+                    kvPair = new KVPair_2(key, value);
                     entityManager.persist(kvPair);
                 } else {
                     kvPair.setValue(value);

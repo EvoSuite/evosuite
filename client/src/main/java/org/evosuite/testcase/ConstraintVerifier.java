@@ -654,7 +654,8 @@ public class ConstraintVerifier {
 
         Statement declaration = tc.getStatement(vr.getStPosition());
         if(! (declaration instanceof ConstructorStatement)){
-            logger.error("Bounded variable is declared in "+vr.getStPosition()+" but not with a 'new' constructor");
+            logger.error("Bounded variable is declared in "+vr.getStPosition()+" but not with a 'new' constructor." +
+            "Statement:\n"+declaration+"\nTest code:\n"+tc.toCode());
             return false;
         }
 

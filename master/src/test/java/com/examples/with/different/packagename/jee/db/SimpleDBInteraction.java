@@ -34,14 +34,14 @@ public class SimpleDBInteraction {
 
     public void persist( String key , String value){
 
-        KVPair pair = new KVPair(key, value);
+        KVPair_0 pair = new KVPair_0(key, value);
 
         em.persist(pair);
     }
 
     public boolean check(String key, String value){
 
-        KVPair pair = em.find(KVPair.class , key);
+        KVPair_0 pair = em.find(KVPair_0.class , key);
         if(pair==null){
             System.out.println("Not found");
             return false;
