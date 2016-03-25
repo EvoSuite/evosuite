@@ -948,7 +948,7 @@ public class TestFactory {
 
 
 	public boolean changeRandomCall(TestCase test, Statement statement) {
-		logger.debug("Changing statement ", statement.getCode());
+		logger.debug("Changing statement {}", statement.getCode());
 
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
@@ -977,6 +977,17 @@ public class TestFactory {
 		GenericAccessibleObject<?> ao = statement.getAccessibleObject();
 		if (ao != null && ao.getNumParameters() > 0) {
 			calls.remove(ao);
+		}
+
+		if(ConstraintHelper.getLastPositionOfBounded(statement.getReturnValue(),test) >= 0){
+			//if the return variable is bounded, we can only use a constructor on the right hand-side
+			Iterator<GenericAccessibleObject<?>> z = calls.iterator();
+			while(z.hasNext()){
+				GenericAccessibleObject<?> k = z.next();
+				if(! (k instanceof GenericConstructor)){
+					z.remove();
+				}
+			}
 		}
 
 		logger.debug("Got {} possible calls for {} objects",calls.size(),objects.size());
