@@ -826,7 +826,7 @@ public class TestFactory {
 		Set<GenericClass> castClasses = new LinkedHashSet<>(CastClassManager.getInstance().getCastClasses());
 		//needed a copy because hasGenerator(c) does modify that set...
 		List<GenericClass> classes = castClasses.stream()
-				.filter(c -> TestCluster.getInstance().hasGenerator(c))
+				.filter(c -> TestCluster.getInstance().hasGenerator(c) || c.isString())
 				.collect(Collectors.toList());
 		classes.add(new GenericClass(Object.class));
 
