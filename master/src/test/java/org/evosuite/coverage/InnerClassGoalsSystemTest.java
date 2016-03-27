@@ -22,10 +22,8 @@ package org.evosuite.coverage;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,8 +32,6 @@ import org.junit.Test;
 import com.examples.with.different.packagename.ClassWithInnerClass;
 import com.examples.with.different.packagename.ClassWithPrivateInnerClass;
 import com.examples.with.different.packagename.ClassWithPrivateNonStaticInnerClass;
-
-import static org.junit.Assert.assertTrue;
 
 public class InnerClassGoalsSystemTest extends SystemTestBase {
 
@@ -198,11 +194,6 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(8, goals ); // 7 or 8?
-		for(TestCase test : best.getTests()) {
-			for(FitnessFunction<?> goal : test.getCoveredGoals()) {
-				System.out.println("Covered: " + goal);
-			}
-		}
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }
