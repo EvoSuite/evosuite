@@ -99,9 +99,9 @@ public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// 6: 
-		Assert.assertTrue("Wrong number of goals: " + goals, goals > 4);
-		Assert.assertEquals("Non-optimal coverage: ", 5d/6d, best.getCoverage(), 0.001);
+		// 3: Constructor, overflow true/false
+		Assert.assertEquals("Wrong number of goals: "+goals, 4, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 3d/4d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -123,9 +123,9 @@ public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// 6: 
-		Assert.assertTrue("Wrong number of goals: " + goals, goals > 4);
-		Assert.assertEquals("Non-optimal coverage: ", 5d/6d, best.getCoverage(), 0.001);
+		// 3: Constructor, overflow true/false
+		Assert.assertEquals("Wrong number of goals: " + goals, 4, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 3d/4d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
