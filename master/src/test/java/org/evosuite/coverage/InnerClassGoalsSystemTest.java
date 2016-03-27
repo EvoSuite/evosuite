@@ -108,8 +108,11 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// TODO: Should constructors of private inner classes be tested?
-		Assert.assertEquals(5, goals );
+		// If reflection is active, then the private constructor will be tested
+		if(Properties.P_REFLECTION_ON_PRIVATE > 0.0)
+			Assert.assertEquals(6, goals);
+		else
+			Assert.assertEquals(5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -157,8 +160,12 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-		// TODO: Should constructors of private inner classes be tested?
-		Assert.assertEquals(5, goals );
+		// If reflection is active, then the private constructor will be tested
+		if(Properties.P_REFLECTION_ON_PRIVATE > 0.0)
+			Assert.assertEquals(6, goals);
+		else
+			Assert.assertEquals(5, goals);
+
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
