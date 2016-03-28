@@ -22,6 +22,7 @@ package org.evosuite.symbolic.solver.z3;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,6 +78,12 @@ public class Z3Solver extends SubProcessSolver {
 		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
 			logger.debug("Z3 SMT query has no variables");
 			throw new SolverEmptyQueryException("Z3 SMT query has no variables");
+		}
+
+		if (smtCheckSatQuery.getAssertions().isEmpty()) {
+			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
+			return emptySAT;
 		}
 
 		Z3QueryPrinter printer = new Z3QueryPrinter();

@@ -22,6 +22,7 @@ package org.evosuite.symbolic.solver.cvc4;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -111,6 +112,12 @@ public final class CVC4Solver extends SubProcessSolver {
 			throw new SolverEmptyQueryException("No variables found during the creation of the SMT query.");
 		}
 
+		if (smtQuery.getAssertions().isEmpty()) {
+			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
+			return emptySAT;
+		}
+		
 		CVC4QueryPrinter printer = new CVC4QueryPrinter();
 		String smtQueryStr = printer.print(smtQuery);
 

@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -173,6 +174,12 @@ public class Z3Str2Solver extends SubProcessSolver {
 			throw new SolverEmptyQueryException("Z3-str2 input has no variables");
 		}
 
+		if (smtCheckSatQuery.getAssertions().isEmpty()) {
+			Map<String, Object> emptySolution = new HashMap<String, Object>();
+			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
+			return emptySAT;
+		}
+		
 		Z3Str2QueryPrinter printer = new Z3Str2QueryPrinter();
 		String smtQueryStr = printer.print(smtCheckSatQuery);
 
