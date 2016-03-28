@@ -223,7 +223,7 @@ public class JUnitAnalyzer {
 
 				for (int i = 0; i < tests.size(); i++) {
 					if (TestSuiteWriterUtils.getNameOfTest(tests, i).equals(testName)) {
-						logger.warn("Failing test: " + tests.get(i).toCode());
+						logger.warn("Failing test:\n " + tests.get(i).toCode());
 						numUnstable++;
 						/*
 						 * we have a match. should we remove it or mark as

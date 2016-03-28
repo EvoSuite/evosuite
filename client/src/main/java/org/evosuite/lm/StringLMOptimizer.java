@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.ValueMinimizer;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.variable.ConstantValue;
 
 /**
  * Uses a language model to locate more readable alternatives
@@ -13,7 +13,7 @@ import org.evosuite.testcase.statements.StringPrimitiveStatement;
 public class StringLMOptimizer {
 
 	private String originalString;
-    private StringPrimitiveStatement statement;
+	private ConstantValue constantValue;
 
 	private LangModel languageModel;
 
@@ -21,11 +21,12 @@ public class StringLMOptimizer {
 
     ValueMinimizer.Minimization objective;
 
-	public StringLMOptimizer(StringPrimitiveStatement originalStatement, ValueMinimizer.Minimization objective) {
-		this.statement = originalStatement;
+	public StringLMOptimizer(ConstantValue constantValue, ValueMinimizer.Minimization objective) {
+		// this.statement = originalStatement;
+		this.constantValue = constantValue;
         this.objective = objective;
 
-        this.originalString = statement.getValue();
+        this.originalString = (String)constantValue.getValue();
 
 		try {
 			languageModel = new LangModel(Properties.LM_SRC);
@@ -46,7 +47,7 @@ public class StringLMOptimizer {
      * value, the mutated string becomes the new value.
      */
 	public String optimize() {
-        LanguageModelSearch search = new LanguageModel11EA(statement, objective);
+        LanguageModelSearch search = new LanguageModel11EA(constantValue, objective);
         return search.optimise();
 	}
 	

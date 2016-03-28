@@ -105,10 +105,17 @@ public class CFGClassAdapter extends ClassVisitor {
 //			return mv;
 //		}
 
-		if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
-			logger.info("Skipping enum valueOf");
-			return mv;
+		if (isEnum) {
+			if(name.equals("valueOf") || name.equals("values")) {
+				logger.info("Skipping enum valueOf");
+				return mv;
+			}
+		    if (name.equals("<init>") && descriptor.equals("(Ljava/lang/String;I)V")) {
+				logger.info("Skipping enum default constructor");
+				return mv;
+			}
 		}
+
 		logger.info("Analyzing CFG of "+className);
 
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);

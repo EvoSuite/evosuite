@@ -30,14 +30,8 @@ import java.io.Serializable;
  */
 
 
-/**
- * JPA Entity for storing key value pairs into a database.
- *
- * @author Mike Musgrove
- */
 @Entity
-@Table(name = "KVPair_table")
-public class KVPair implements Serializable {
+public class KVPair_0 implements Serializable {
     /** Default value included to remove warning. **/
     private static final long serialVersionUID = 1L;
 
@@ -48,10 +42,10 @@ public class KVPair implements Serializable {
     @Column
     private String value;
 
-    public KVPair() {
+    public KVPair_0() {
     }
 
-    public KVPair(String key, String value) {
+    public KVPair_0(String key, String value) {
         setKey(key);
         setValue(value);
     }

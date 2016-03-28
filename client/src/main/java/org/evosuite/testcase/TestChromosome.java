@@ -372,7 +372,7 @@ public class TestChromosome extends ExecutableChromosome {
 				List<Type> missing = fms.updateMockedMethods();
 				int pos = st.getPosition();
 				logger.debug("Generating parameters for mock call");
-				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true, false);
+				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true, false,true);
 				fms.addMissingInputs(refs);
 			} catch (Exception e){
 				//shouldn't really happen because, in the worst case, we could create mocks for missing parameters

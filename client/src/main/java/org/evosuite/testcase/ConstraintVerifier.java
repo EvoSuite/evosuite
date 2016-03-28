@@ -614,8 +614,10 @@ public class ConstraintVerifier {
                 //is any other method of the bounded variable been called?
                 VariableReference callee = ms.getCallee();
                 if(vr.same(callee)){
-                    logger.error("Invalid method call at position "+j+" on bounded variable created in "+vr.getStPosition()+" " +
-                            "and initialized in "+i);
+                    logger.error("Invalid method call at position "+j+
+                            " on bounded variable created in "+vr.getStPosition()+" " +
+                            "and initialized in "+i +
+                            "\nTest case code:\n" + tc.toCode());
                     return false;
                 }
             }
@@ -641,9 +643,12 @@ public class ConstraintVerifier {
                     }
                 }
 
-                if(vr.same(input)){
-                    logger.error("Bounded variable created at position "+vr.getStPosition()+" is used as input in "+
-                        j + " before its bounding initializer at position "+i);
+                if (vr.same(input)) {
+                    logger.error("Bounded variable of type " + vr.getType() +
+                            " created at position " + vr.getStPosition() + " is used as input in " +
+                            j + " before its bounding initializer at position " + i +
+                            ". Statement at position "+j+" is:\n"+tc.getStatement(j).getCode() +
+                            "\nTest case code:\n" + tc.toCode());
                     return false;
                 }
             }
@@ -651,7 +656,8 @@ public class ConstraintVerifier {
 
         Statement declaration = tc.getStatement(vr.getStPosition());
         if(! (declaration instanceof ConstructorStatement)){
-            logger.error("Bounded variable is declared in "+vr.getStPosition()+" but not with a 'new' constructor");
+            logger.error("Bounded variable is declared in "+vr.getStPosition()+" but not with a 'new' constructor." +
+            "Statement:\n"+declaration+"\nTest code:\n"+tc.toCode());
             return false;
         }
 

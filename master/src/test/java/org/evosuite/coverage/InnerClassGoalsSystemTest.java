@@ -108,8 +108,11 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// TODO: Should constructors of private inner classes be tested?
-		Assert.assertEquals(5, goals );
+		// If reflection is active, then the private constructor will be tested
+		if(Properties.P_REFLECTION_ON_PRIVATE > 0.0)
+			Assert.assertEquals(6, goals);
+		else
+			Assert.assertEquals(5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -123,6 +126,9 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 		Properties.CRITERION = new Properties.Criterion[]{
 				Properties.Criterion.LINE,
 		};
+
+		// Increase chances of using seeded values to make sure the test finishes in budget
+		Properties.PRIMITIVE_POOL = 1.0;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
@@ -157,8 +163,12 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
-		// TODO: Should constructors of private inner classes be tested?
-		Assert.assertEquals(5, goals );
+		// If reflection is active, then the private constructor will be tested
+		if(Properties.P_REFLECTION_ON_PRIVATE > 0.0)
+			Assert.assertEquals(6, goals);
+		else
+			Assert.assertEquals(5, goals);
+
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -168,6 +178,9 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		String targetClass = ClassWithPrivateNonStaticInnerClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+
+		// Increase chances of using seeded values to make sure the test finishes in budget
+		Properties.PRIMITIVE_POOL = 1.0;
 
 		Properties.CRITERION = new Properties.Criterion[]{
 				Properties.Criterion.LINE,

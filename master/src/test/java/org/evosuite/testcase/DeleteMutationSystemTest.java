@@ -165,7 +165,7 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 	public void testTwoInts() throws NoSuchMethodException, SecurityException, ClassNotFoundException, ConstructionFailedException {
 		Properties.TARGET_CLASS = IntExampleWithNoElse.class.getCanonicalName();
 		TestChromosome test1 = new TestChromosome();
-		test1.setTestCase(getTwoIntTest(1, 22, 22, 22));
+		test1.setTestCase(getTwoIntTest(1, 1, 22, 22));
 		TestChromosome test2 = new TestChromosome();
 		test2.setTestCase(getTwoIntTest(-23423423, 234234234, -23423423, 234234234));
 		TestChromosome test3 = new TestChromosome();
@@ -179,6 +179,15 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 		assertEquals(2.0, fitness.getFitness(suite), 0.0F);
 		suite.addTest(test2);
 		suite.addTest(test3);
+
+        // This is the expected result
+        //
+		TestSuiteChromosome checkSuite = suite.clone();
+		TestChromosome test4 = new TestChromosome();
+		test4.setTestCase(getTwoIntTest(1, 22, 22, 1));
+		checkSuite.addTest(test4);
+		assertEquals(0.0, fitness.getFitness(checkSuite), 0.0F);
+
 		
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
 		Method m = sut.getMethod("testMe", new Class<?>[] { int.class, int.class });

@@ -50,6 +50,10 @@ public class StaticSingletonResetSystemTest extends SystemTestBase {
 		String targetClass = SingletonObjectReset.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;
+
+		// Otherwise the private constructor is counted as coverage target
+		// but can only be covered by reflection
+		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);

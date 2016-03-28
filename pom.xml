@@ -399,13 +399,13 @@
                 <!-- Apache 2 -->
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-orm</artifactId>
-                <version>4.1.6.RELEASE</version>
+                <version>4.2.5.RELEASE</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>4.1.6.RELEASE</version>
+                <version>4.2.5.RELEASE</version>
             </dependency>
 
 

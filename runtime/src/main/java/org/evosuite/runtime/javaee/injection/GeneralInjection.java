@@ -85,6 +85,8 @@ public class GeneralInjection {
                     }
                 }
             }
+
+            fields.sort((a,b) -> a.getName().compareTo(b.getName()));
             cache.put(klass, fields);
         }
 

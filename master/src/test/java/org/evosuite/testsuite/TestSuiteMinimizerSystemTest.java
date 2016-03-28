@@ -41,12 +41,12 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
 	}
 	
 	@Test
-    public void testWithOne()
+    public void testWithOneFitnessFunctionNoValueMinimization()
 	{
 		Properties.CRITERION = new Criterion[1];
         Properties.CRITERION[0] = Criterion.ONLYBRANCH;
 
-        Properties.MINIMIZE_VALUES = true;
+        Properties.MINIMIZE_VALUES = false;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -63,6 +63,7 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
 
         GeneticAlgorithm<?> ga = getGAFromResult(result);
         TestSuiteChromosome c = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println(c.toString());
         
         Assert.assertEquals(0.0, c.getFitness(), 0.0);
         Assert.assertEquals(1.0, c.getCoverage(), 0.0);
@@ -70,7 +71,71 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         Assert.assertEquals(5, c.size());
 	}
 
-	@SuppressWarnings("rawtypes")
+    @Test
+    public void testWithOneFitnessFunctionWithValueMinimization()
+    {
+        Properties.CRITERION = new Criterion[1];
+        Properties.CRITERION[0] = Criterion.ONLYBRANCH;
+
+        Properties.MINIMIZE_VALUES = true;
+        Properties.MINIMIZE_SKIP_COINCIDENTAL = false;
+        Properties.MINIMIZE_SECOND_PASS = false;
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = MethodReturnsPrimitive.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        String[] command = new String[] {
+                "-generateSuite",
+                "-class", targetClass
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
+
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome c = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println(c.toString());
+
+        Assert.assertEquals(0.0, c.getFitness(), 0.0);
+        Assert.assertEquals(1.0, c.getCoverage(), 0.0);
+        Assert.assertEquals(6.0, c.getNumOfCoveredGoals(ga.getFitnessFunction()), 0.0);
+        Assert.assertEquals(5, c.size());
+    }
+
+    @Test
+    public void testWithOneFitnessFunctionWithValueMinimizationAndSkippingCoveredGoals()
+    {
+        Properties.CRITERION = new Criterion[1];
+        Properties.CRITERION[0] = Criterion.ONLYBRANCH;
+
+        Properties.MINIMIZE_VALUES = true;
+        Properties.MINIMIZE_SKIP_COINCIDENTAL = true;
+        Properties.MINIMIZE_SECOND_PASS = true;
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = MethodReturnsPrimitive.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        String[] command = new String[] {
+                "-generateSuite",
+                "-class", targetClass
+        };
+
+        Object result = evosuite.parseCommandLine(command);
+        Assert.assertNotNull(result);
+
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome c = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println(c.toString());
+
+        Assert.assertEquals(0.0, c.getFitness(), 0.0);
+        Assert.assertEquals(1.0, c.getCoverage(), 0.0);
+        Assert.assertEquals(6.0, c.getNumOfCoveredGoals(ga.getFitnessFunction()), 0.0);
+        Assert.assertEquals(5, c.size());
+    }
+
+    @SuppressWarnings("rawtypes")
 	@Test
     public void testWithTwo()
 	{
