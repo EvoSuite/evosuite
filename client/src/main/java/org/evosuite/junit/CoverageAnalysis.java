@@ -161,13 +161,17 @@ public class CoverageAnalysis {
 		Class<?>[] tests = testClasses.toArray(new Class<?>[testClasses.size()]);
 		LoggingUtils.getEvoLogger().info("* Executing test(s)");
 		if (Properties.SELECTED_JUNIT == null) {
+			boolean origUseAgent = EvoRunner.useAgent;
+			boolean origUseClassLoader = EvoRunner.useClassLoader;
 			try {
 				EvoRunner.useAgent = false; //avoid double instrumentation
+				EvoRunner.useClassLoader = false; //avoid double instrumentation
 
 				List<JUnitResult> results = executeTests(tests);
 				printReport(results);
 			} finally {
-				EvoRunner.useAgent = true;
+				EvoRunner.useAgent = origUseAgent;
+				EvoRunner.useClassLoader = origUseClassLoader;
 			}
 		} else {
 			// instead of just running junit tests, carve them

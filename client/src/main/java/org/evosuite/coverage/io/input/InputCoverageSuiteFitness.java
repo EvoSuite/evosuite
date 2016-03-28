@@ -193,6 +193,10 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                                 continue;
                             updateDistances(suite, mapDistances, className, methodName, goal.getArgIndex(), argType, value);
                             break;
+                        case Type.CHAR:
+                            char charValue = (char)((Number) argValue).intValue();
+                            updateCharDistances(suite, mapDistances, className, methodName, goal.getArgIndex(), argType, charValue);
+                            break;
                         default:
                             break;
                     }
@@ -247,6 +251,53 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 mapDistances.put(goalPositive, distanceToPositive);
         } else
             mapDistances.put(goalPositive, distanceToPositive);
+    }
+
+    private void updateCharDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, Map<TestFitnessFunction, Double> mapDistances, String className, String methodName, int argIndex, Type argType, char value) {
+        TestFitnessFunction goalAlpha = InputCoverageFactory.createGoal(className, methodName, argIndex, argType, CHAR_ALPHA);
+        TestFitnessFunction goalDigit = InputCoverageFactory.createGoal(className, methodName, argIndex, argType, CHAR_DIGIT);
+        TestFitnessFunction goalOther = InputCoverageFactory.createGoal(className, methodName, argIndex, argType, CHAR_OTHER);
+
+        double distanceToAlpha = 0.0;
+        if(value < 'A')
+            distanceToAlpha = 'A' - value;
+        else if(value > 'z')
+            distanceToAlpha = value - 'z';
+        else if(value < 'a' && value > 'Z') {
+            distanceToAlpha = Math.min('a' - value, value - 'Z');
+        }
+
+        double distanceToDigit = 0.0;
+        if(value < '0')
+            distanceToDigit = '0' - value;
+        else if(value > '9')
+            distanceToDigit = value - '9';
+
+        double distanceToOther = 0.0;
+        if(value > '0' && value < '9')
+            distanceToAlpha = Math.min(value - '0', '9' - value);
+        else if(value > 'A' && value < 'Z')
+            distanceToAlpha = Math.min(value - 'A', 'Z' - value);
+        else if(value > 'a' && value < 'z')
+            distanceToAlpha = Math.min(value - 'A', 'Z' - value);
+
+        if (mapDistances.containsKey(goalAlpha)) {
+            if (distanceToAlpha < mapDistances.get(goalAlpha))
+                mapDistances.put(goalAlpha, distanceToAlpha);
+        } else
+            mapDistances.put(goalAlpha, distanceToAlpha);
+
+        if (mapDistances.containsKey(goalDigit)) {
+            if (distanceToDigit < mapDistances.get(goalDigit))
+                mapDistances.put(goalDigit, distanceToDigit);
+        } else
+            mapDistances.put(goalDigit, distanceToDigit);
+
+        if (mapDistances.containsKey(goalOther)) {
+            if (distanceToOther < mapDistances.get(goalOther))
+                mapDistances.put(goalOther, distanceToOther);
+        } else
+            mapDistances.put(goalOther, distanceToOther);
     }
 
     /**
