@@ -31,7 +31,6 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 
 	private static final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
 			"resources", "epas", "MyBoundedStack.xml");
-	private Set<ExecutionObserver> previous_observers = null;
 
 	@Before
 	public void prepareTest() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
@@ -39,18 +38,11 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 		Assume.assumeTrue(epaXMLFile.exists());
 
 		Properties.EPA_XML_PATH = xmlFilename;
-		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
-		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
 	}
 
 	@After
 	public void tearDownTest() {
 		Properties.EPA_XML_PATH = null;
-		if (previous_observers!=null) {
-			TestCaseExecutor.getInstance().setExecutionObservers(previous_observers);
-		}
-
 	}
 
 	@Test

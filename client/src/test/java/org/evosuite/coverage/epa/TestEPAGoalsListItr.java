@@ -64,7 +64,6 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 
 	private static final String LIST_ITR_EPA_XML = String.join(File.separator, System.getProperty("user.dir"), "src",
 			"test", "resources", "epas", "ListItr.xml");
-	private Set<ExecutionObserver> previous_observers = null;
 	
 	private int DEFAULT_TIMEOUT;
 
@@ -73,19 +72,14 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 		final File epaXMLFile = new File(LIST_ITR_EPA_XML);
 		Assume.assumeTrue(epaXMLFile.exists());
 		Properties.EPA_XML_PATH = LIST_ITR_EPA_XML;
-		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
-		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
 		DEFAULT_TIMEOUT = Properties.TIMEOUT;
 		Properties.TIMEOUT = Integer.MAX_VALUE;
+		EPAMonitor.reset();
 	}
 
 	@After
 	public void tearDownTest() {
 		Properties.EPA_XML_PATH = null;
-		if (previous_observers != null) {
-			TestCaseExecutor.getInstance().setExecutionObservers(previous_observers);
-		}
 		Properties.TIMEOUT = DEFAULT_TIMEOUT;
 	}
 
@@ -113,7 +107,7 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 		assertTrue(suiteFitness == suite.getFitness());
 
 		ExecutionResult execResult = testChromosome.executeForFitnessFunction(epaFitness);
-		List<EPATrace> epaTraces = new LinkedList<EPATrace>(execResult.getEPATraces());
+		List<EPATrace> epaTraces = new LinkedList<EPATrace>(execResult.getTrace().getEPATraces());
 
 		assertEquals(1, epaTraces.size());
 

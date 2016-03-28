@@ -631,6 +631,7 @@ public class CoverageAnalysis {
 
 		ExecutionTracer.enable();
 		ExecutionTracer.setCheckCallerThread(false);
+		//
 
 		List<JUnitResult> results = new ArrayList<JUnitResult>();
         for (Class<?> testClass : testClasses) {

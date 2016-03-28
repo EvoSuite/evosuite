@@ -1,5 +1,4 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,6 +23,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +41,10 @@ import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
+import org.evosuite.coverage.epa.EPAState;
+import org.evosuite.coverage.epa.EPATrace;
+import org.evosuite.coverage.epa.EPATransition;
+import org.evosuite.coverage.epa.MalformedEPATraceException;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
@@ -1701,6 +1705,39 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Set<String> getClassesForStaticReset() {
 		return staticFieldUpdatedForClasses;
+	}
+
+	/**
+	 * The observed transitions for each distinct object of the target class so
+	 * far (at the test case level). We use identityHashCode to identify those
+	 * transitions.
+	 */
+	private final IdentityHashMap<Object, LinkedList<EPATransition>> transitions = new IdentityHashMap<Object, LinkedList<EPATransition>>();
+	
+	@Override
+	public void appendNewTransition(Object object, EPATransition transition) throws MalformedEPATraceException{
+		if (!this.transitions.containsKey(object)) {
+			this.transitions.put(object, new LinkedList<EPATransition>());
+		}
+		final LinkedList<EPATransition> objectTrace = this.transitions.get(object);
+		if (!objectTrace.isEmpty()) {
+			EPAState lastDestinationStateInTrace = objectTrace.getLast().getDestinationState();
+			if (!lastDestinationStateInTrace.equals(transition.getOriginState())) {
+				throw new MalformedEPATraceException("Trace is not connected! " + lastDestinationStateInTrace + " and "
+						+ transition.getOriginState());
+			}
+		}
+		objectTrace.add(transition);		
+	}
+
+	@Override
+	public Set<EPATrace> getEPATraces() {
+		final HashSet<EPATrace> traces = new HashSet<EPATrace>();
+		for (LinkedList<EPATransition> epaTransitionList : this.transitions.values()) {
+			EPATrace trace = new EPATrace(new LinkedList<EPATransition>(epaTransitionList));
+			traces.add(trace);
+		}
+		return traces;
 	}
 
 

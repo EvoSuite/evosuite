@@ -51,17 +51,6 @@ public class EPAOnlyCoverageSystemTest extends SystemTestBase {
 		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 	}
 	
-	@After
-	public void removeObserver() {
-		Set<ExecutionObserver> observers = TestCaseExecutor.getInstance().getExecutionObservers();
-		for (ExecutionObserver observer : observers) {
-			if (observer instanceof EPATraceObserver) {
-				TestCaseExecutor.getInstance().removeObserver(observer);
-			}
-		}
-	}
-
-
 	@Test
 	public void testOnlyEPACoverage() {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;

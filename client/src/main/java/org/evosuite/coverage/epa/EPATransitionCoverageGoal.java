@@ -56,7 +56,7 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	 * @return
 	 */
 	public double getDistance(ExecutionResult result) {
-		final boolean covered = result.getEPATraces().stream()
+		final boolean covered = result.getTrace().getEPATraces().stream()
 				.filter(epaTrace -> epaTrace.getEpaTransitions().contains(transition)).findAny().isPresent();
 		return covered ? 0.0 : 1.0;
 	}

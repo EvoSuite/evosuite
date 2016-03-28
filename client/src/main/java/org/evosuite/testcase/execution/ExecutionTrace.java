@@ -25,6 +25,9 @@ package org.evosuite.testcase.execution;
 import java.util.*;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.coverage.epa.EPATrace;
+import org.evosuite.coverage.epa.EPATransition;
+import org.evosuite.coverage.epa.MalformedEPATraceException;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
@@ -605,4 +608,19 @@ public interface ExecutionTrace {
 
 	public Set<String> getClassesForStaticReset();
 
+	
+	/**
+	 * Appends a new transition to the given object
+	 * 
+	 * @param object
+	 * @param transition
+	 * @throws MalformedEPATraceException 
+	 */
+	public void appendNewTransition(Object object, EPATransition transition) throws MalformedEPATraceException;
+
+	/**
+	 * Returns the observed EPA traces in the current execution trace
+	 * @return
+	 */
+	public Set<EPATrace> getEPATraces();
 }

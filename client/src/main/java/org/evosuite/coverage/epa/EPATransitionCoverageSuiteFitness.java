@@ -55,8 +55,6 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 			this.epa = target_epa;
 			this.coverage_goal_map = buildCoverageGoalMap(epaXMLFilename);
 
-			TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
-
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
 		}
@@ -115,7 +113,7 @@ public class EPATransitionCoverageSuiteFitness extends TestSuiteFitnessFunction 
 		List<EPATrace> epaTraces = new ArrayList<EPATrace>();
 		for (ExecutionResult result : executionResults) {
 
-			Collection<? extends EPATrace> newEpaTraces = result.getEPATraces();
+			Collection<? extends EPATrace> newEpaTraces = result.getTrace().getEPATraces();
 			epaTraces.addAll(newEpaTraces);
 
 			for (EPATrace trace : newEpaTraces) {

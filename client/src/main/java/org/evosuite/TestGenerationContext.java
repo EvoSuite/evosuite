@@ -27,6 +27,7 @@ import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
+import org.evosuite.coverage.epa.EPAMonitor;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
@@ -219,5 +220,9 @@ public class TestGenerationContext {
 		Injector.reset();
 		
 		DSEStats.clear();
+		
+		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)) {
+			EPAMonitor.reset();
+		}
 	}
 }

@@ -36,7 +36,6 @@ import com.examples.with.different.packagename.epa.MyArrayList;
 
 public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
-	private Set<ExecutionObserver> previous_observers = null;
 	private int DEFAULT_TIMEOUT;
 
 	@Test
@@ -129,7 +128,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		assertEquals(1, results.size());
 
 		ExecutionResult executionResult = results.get(0);
-		List<EPATrace> traces = new LinkedList<EPATrace>(executionResult.getEPATraces());
+		List<EPATrace> traces = new LinkedList<EPATrace>(executionResult.getTrace().getEPATraces());
 
 		assertEquals(1, traces.size());
 
@@ -300,20 +299,16 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 
 		Properties.EPA_XML_PATH = xmlFilename;
 
-		previous_observers = TestCaseExecutor.getInstance().getExecutionObservers();
-		TestCaseExecutor.getInstance().newObservers();
-		TestCaseExecutor.getInstance().addObserver(new EPATraceObserver());
 
 		DEFAULT_TIMEOUT = Properties.TIMEOUT;
+
+		EPAMonitor.reset();
 //		Properties.TIMEOUT = 15 * 1000;
 	}
 
 	@After
 	public void tearDownTest() {
 		Properties.EPA_XML_PATH = null;
-		if (previous_observers != null) {
-			TestCaseExecutor.getInstance().setExecutionObservers(previous_observers);
-		}
 		Properties.TIMEOUT = DEFAULT_TIMEOUT;
 	}
 
@@ -344,7 +339,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		assertEquals(1, results.size());
 
 		ExecutionResult executionResult = results.get(0);
-		List<EPATrace> traces = new LinkedList<EPATrace>(executionResult.getEPATraces());
+		List<EPATrace> traces = new LinkedList<EPATrace>(executionResult.getTrace().getEPATraces());
 
 		assertEquals(1, traces.size());
 

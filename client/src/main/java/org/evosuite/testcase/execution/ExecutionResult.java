@@ -428,8 +428,6 @@ public class ExecutionResult implements Cloneable {
 			copy.readProperties.addAll(readProperties);
 		}
 		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
-		copy.epaTraces.clear();
-		copy.epaTraces.addAll(this.epaTraces);
 		return copy;
 	}
 
@@ -478,13 +476,4 @@ public class ExecutionResult implements Cloneable {
 		return outputGoals;
 	}
 
-	private final HashSet<EPATrace> epaTraces = new HashSet<EPATrace>();
-
-	public void addEPATraces(Collection<? extends EPATrace> newEpaTraces) {
-		this.epaTraces.addAll(newEpaTraces);
-	}
-
-	public Collection<? extends EPATrace> getEPATraces() {
-		return this.epaTraces;
-	}
 }

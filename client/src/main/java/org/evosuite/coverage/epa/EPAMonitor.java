@@ -18,6 +18,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -32,13 +33,6 @@ public class EPAMonitor {
 	 * The EPA automata used to inspect coverage
 	 */
 	private final EPA automata;
-
-	/**
-	 * The observed transitions for each distinct object of the target class so
-	 * far (at the test case level). We use identityHashCode to identify those
-	 * transitions.
-	 */
-	private final IdentityHashMap<Object, LinkedList<EPATransition>> transitions = new IdentityHashMap<Object, LinkedList<EPATransition>>();
 
 	private static EPAMonitor instance = null;
 
@@ -261,6 +255,11 @@ public class EPAMonitor {
 
 	}
 
+	private void appendNewEpaTransition(Object object, EPATransition transition) throws MalformedEPATraceException {
+		ExecutionTrace executionTrace = ExecutionTracer.getExecutionTracer().getTrace();
+		executionTrace.appendNewTransition(object, transition);
+	}
+
 	private void afterMethod(String className, String fullMethodName, Object calleeObject) throws EvosuiteError {
 		try {
 			if (this.methodToActionMap.containsKey(fullMethodName)) {
@@ -288,27 +287,7 @@ public class EPAMonitor {
 		}
 	}
 
-	/**
-	 * Appends the transition at the end of the trace for the given object.
-	 * 
-	 * @param obj
-	 * @param transition
-	 * @throws MalformedEPATraceException
-	 */
-	private void appendNewEpaTransition(Object obj, EPATransition transition) throws MalformedEPATraceException {
-		if (!this.transitions.containsKey(obj)) {
-			this.transitions.put(obj, new LinkedList<EPATransition>());
-		}
-		final LinkedList<EPATransition> objectTrace = this.transitions.get(obj);
-		if (!objectTrace.isEmpty()) {
-			EPAState lastDestinationStateInTrace = objectTrace.getLast().getDestinationState();
-			if (!lastDestinationStateInTrace.equals(transition.getOriginState())) {
-				throw new MalformedEPATraceException("Trace is not connected! " + lastDestinationStateInTrace + " and "
-						+ transition.getOriginState());
-			}
-		}
-		objectTrace.add(transition);
-	}
+
 
 	/**
 	 * In order to obtain the current state, we invoke all the EPA state methods
@@ -383,15 +362,6 @@ public class EPAMonitor {
 	 */
 	private boolean hasPreviousEpaState(Object obj) {
 		return this.previousEpaState != null;
-	}
-
-	public Set<EPATrace> getTraces() {
-		final HashSet<EPATrace> traces = new HashSet<EPATrace>();
-		for (LinkedList<EPATransition> epaTransitionList : this.transitions.values()) {
-			EPATrace trace = new EPATrace(new LinkedList<EPATransition>(epaTransitionList));
-			traces.add(trace);
-		}
-		return traces;
 	}
 
 }

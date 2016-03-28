@@ -51,16 +51,6 @@ public class EPACoverageWithMinimizationSystemTest extends SystemTestBase {
 	}
 
 	
-	@After
-	public void removeObserver() {
-		Set<ExecutionObserver> observers = TestCaseExecutor.getInstance().getExecutionObservers();
-		for (ExecutionObserver observer : observers) {
-			if (observer instanceof EPATraceObserver) {
-				TestCaseExecutor.getInstance().removeObserver(observer);
-			}
-		}
-	}
-
 	@Test
 	public void testEPACoverageWithMinimization() {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;

@@ -19,23 +19,33 @@
  */
 package org.evosuite.junit.naming.methods;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.epa.EPA;
-import org.evosuite.coverage.epa.EPAFactory;
-import org.evosuite.coverage.epa.EPATraceObserver;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputObserver;
-import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputObserver;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -43,14 +53,6 @@ import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.objectweb.asm.Type;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * @author Gordon Fraser
