@@ -56,6 +56,7 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
+import org.evosuite.runtime.TooManyResourcesException;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.ViolatedAssumptionAnswer;
@@ -1326,7 +1327,7 @@ public class TestCodeVisitor extends TestVisitor {
 				result += getClassName(retval) + " ";
 			}
 		}
-		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
+		if (shouldUseTryCatch(exception)) {
 			result += "try { " + NEWLINE + "  ";
 		}
 
@@ -1382,7 +1383,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 
-		if (exception != null && !test.isFailing()  && ! (exception instanceof OutOfMemoryError)) {
+		if (shouldUseTryCatch(exception)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
@@ -1440,7 +1441,7 @@ public class TestCodeVisitor extends TestVisitor {
 				 */
 
 				//from class EvoAssertions
-				result += "   assertThrownBy(\"" + sourceClass + "\", e);" + NEWLINE;
+				result += "   verifyException(\"" + sourceClass + "\", e);" + NEWLINE;
 		}
 		
 		// Add assertion on the message (feel free to remove the isRegression() Condition)
@@ -1532,7 +1533,7 @@ public class TestCodeVisitor extends TestVisitor {
 		                                            constructor.isOverloaded(parameters),
 		                                            startPos);
 
-		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
+		if (shouldUseTryCatch(exception)) {
 			String className = getClassName(retval);
 
 			// FIXXME: Workaround for primitives:
@@ -1559,7 +1560,7 @@ public class TestCodeVisitor extends TestVisitor {
 			        + "(" + parameterString + ");";
 		}
 
-		if (exception != null && ! (exception instanceof OutOfMemoryError)) {
+		if (shouldUseTryCatch(exception)) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
@@ -1571,6 +1572,13 @@ public class TestCodeVisitor extends TestVisitor {
 
 		testCode += result + NEWLINE;
 		addAssertions(statement);
+	}
+
+	private boolean shouldUseTryCatch(Throwable t){
+		return t != null
+				&& ! (t instanceof OutOfMemoryError)
+				&& ! (t instanceof TooManyResourcesException)
+				&& ! test.isFailing();
 	}
 
 	/**

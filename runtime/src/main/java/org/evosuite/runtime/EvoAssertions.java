@@ -19,6 +19,8 @@
  */
 package org.evosuite.runtime;
 
+import org.junit.internal.AssumptionViolatedException;
+
 import java.lang.annotation.Annotation;
 
 /**
@@ -26,6 +28,33 @@ import java.lang.annotation.Annotation;
  */
 public class EvoAssertions {
 
+    /**
+     * Check if the given exception was thrown in the given class.
+     * In some special cases, the exception is rather rethrown
+     *
+     */
+    public static void verifyException(String sourceClass, Throwable t)throws AssertionError{
+
+        // this can happen in false positives for PAFM
+        if(t instanceof AssumptionViolatedException){
+            throw (AssumptionViolatedException) t;
+        }
+
+        //non functional requirement exceptions are handled specially in the generated tests
+        if(t instanceof TooManyResourcesException){
+            throw (TooManyResourcesException) t;
+        }
+
+        assertThrownBy(sourceClass, t);
+    }
+
+    /**
+     * Check if the given exception was thrown in the given class
+     *
+     * @param sourceClass
+     * @param t
+     * @throws AssertionError
+     */
     public static void assertThrownBy(String sourceClass, Throwable t) throws AssertionError{
         StackTraceElement[] stackTrace = t.getStackTrace();
 
