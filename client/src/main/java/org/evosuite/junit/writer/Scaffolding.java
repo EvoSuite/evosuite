@@ -48,6 +48,7 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;
 import org.evosuite.runtime.util.SystemInUtil;
+import org.evosuite.runtime.vnet.NonFunctionalRequirmentRule;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.junit.rules.Timeout;
 
@@ -207,6 +208,8 @@ public class Scaffolding {
          */
         //generateTimeoutRule(bd);
 
+        generateNFRRule(bd);
+
         generateFields(bd, wasSecurityException, results);
 
         generateBeforeClass(bd, wasSecurityException);
@@ -226,6 +229,15 @@ public class Scaffolding {
         }
 
         return bd.toString();
+    }
+
+
+    private void generateNFRRule(StringBuilder bd){
+        bd.append(METHOD_SPACE);
+        bd.append("@org.junit.Rule \n");
+        bd.append(METHOD_SPACE);
+        bd.append("public "+NonFunctionalRequirmentRule.class.getName()+" nfr = new "+
+                NonFunctionalRequirmentRule.class.getName()+ "();\n\n");
     }
 
     /**
