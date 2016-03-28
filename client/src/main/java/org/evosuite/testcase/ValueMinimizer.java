@@ -22,12 +22,15 @@
  */
 package org.evosuite.testcase;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.evosuite.Properties;
 import org.evosuite.lm.StringLMOptimizer;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.NumericalPrimitiveStatement;
+import org.evosuite.testcase.variable.ConstantValue;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
@@ -67,14 +70,26 @@ public class ValueMinimizer extends TestVisitor {
 		 */
 		@Override
 		public boolean isNotWorse() {
+            ExecutionResult lastResult = individual.getLastExecutionResult();
 			individual.setChanged(true);
+            individual.getTestCase().clearCoveredGoals();
 			double newFitness = fitness.getFitness(individual);
-			if (newFitness <= lastFitness) { // TODO: Maximize
+            boolean worse = false;
+            if(fitness.isMaximizationFunction()) {
+                if (newFitness < lastFitness)
+                    worse = true;
+            } else {
+                if (newFitness > lastFitness)
+                    worse = true;
+            }
+
+            if (!worse) {
 				lastFitness = newFitness;
 				individual.setFitness(fitness, lastFitness);
 				return true;
 			} else {
 				individual.setFitness(fitness, lastFitness);
+                individual.setLastExecutionResult(lastResult);
 				return false;
 			}
 		}
@@ -114,7 +129,15 @@ public class ValueMinimizer extends TestVisitor {
 			suite.setTestChromosome(testIndex, individual);
 			double newFitness = fitness.getFitness(suite);
 			// individual.setChanged(true);
-			if (newFitness <= lastFitness) { // TODO: Maximize
+            boolean worse = false;
+            if(fitness.isMaximizationFunction()) {
+                if (newFitness < lastFitness)
+                    worse = true;
+            } else {
+                if (newFitness > lastFitness)
+                    worse = true;
+            }
+			if (!worse) {
 				logger.debug("Fitness changed from " + lastFitness + " to " + newFitness);
 				lastFitness = newFitness;
 				lastCoverage = suite.getCoverage();
@@ -164,93 +187,167 @@ public class ValueMinimizer extends TestVisitor {
 
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> void binarySearch(NumericalPrimitiveStatement<T> statement) {
-		PrimitiveStatement<T> zero = (PrimitiveStatement<T>) PrimitiveStatement.getPrimitiveStatement(statement.getTestCase(),
-				statement.getReturnValue().getGenericClass());
-		T max = statement.getValue();
-		T min = zero.getValue();
-		boolean positive = statement.isPositive();
-		T lastValue = null;
-		boolean done = false;
-		while (!done) {
-			T oldValue = statement.getValue();
-			statement.setMid(min, max);
-			T newValue = statement.getValue();
-			if (oldValue.equals(newValue)) {
-				break;
-			}
-			if (lastValue != null && lastValue.equals(newValue)) {
-				break;
-			}
-			if (lastValue instanceof Double) {
-				double oldVal = Math.abs((Double) lastValue);
-				if (oldVal < 1.0) {
-					newValue = (T) new Double(0.0);
-					statement.setValue(newValue);
-					if (!objective.isNotWorse()) {
-						statement.setValue(lastValue);
-					}
-					break;
-				}
-			}
-			if (lastValue instanceof Float) {
-				double oldVal = Math.abs((Float) lastValue);
-				if (oldVal < 1.0F) {
-					newValue = (T) new Float(0.0F);
-					statement.setValue(newValue);
-					if (!objective.isNotWorse()) {
-						statement.setValue(lastValue);
-					}
-					break;
-				}
-			}
+    /* Generics, blargh */
+    @SuppressWarnings("unchecked")
+    private  <N extends Number> N increment(N n, int x) {
+        if (n instanceof Double) {
+            return (N) (Double) (((Double)n) + x);
+        } else if (n instanceof Float) {
+            return (N) (Float) (((Float)n) + x);
+        } else if (n instanceof Integer) {
+            return (N) (Integer) (((Integer)n) + x);
+        } else if (n instanceof Long) {
+            return (N) (Long) (((Long)n) + x);
+        } else if (n instanceof Short) {
+            return (N) (Short) (short)(((Short)n) + (short)x);
+        } else if(n instanceof Byte) {
+            return (N) (Byte) (byte)(((Byte)n) + (byte)x);
+        } else if (n == null) {
+            throw new NullPointerException();
+        } else {
+            throw new IllegalArgumentException("Unexpected number type: " + n.getClass());
+        }
+    }
 
-			lastValue = newValue;
-			logger.info("Trying " + statement.getValue() + " " + min + "/" + max + " - "
-					+ statement.getClass());
+    /* Generics, blargh
+     * TODO: Why are we not going min + max / 2 ?
+     */
+    @SuppressWarnings("unchecked")
+    private  <N extends Number> N getMid(N min, N max) {
+        if (min instanceof Double) {
+            return (N) (Double) (((Double)min) + (((Double)max - (Double)min)/2.0));
+        } else if (min instanceof Float) {
+            return (N) (Float) (((Float)min) + (((Float)max - (Float)min)/2F));
+        } else if (min instanceof Integer) {
+            return (N) (Integer) (((Integer)min) + (((Integer)max - (Integer)min)/2));
+        } else if (min instanceof Long) {
+            return (N) (Long) (((Long)min) + (((Long)max - (Long)min)/2L));
+        } else if (min instanceof Short) {
+            return (N) (Short) (short)(((Short)min) + (((Short)max - (Short)min)/(short)2));
+        } else if(min instanceof Byte) {
+            return (N) (Byte) (byte)(((Byte)min) + (((Byte)max - (Byte)min)/(byte)2));
+        } else if (min == null) {
+            throw new NullPointerException();
+        } else {
+            throw new IllegalArgumentException("Unexpected number type: " + min.getClass());
+        }
+    }
 
-			if (min.equals(max) || statement.getValue().equals(min)
-					|| statement.getValue().equals(max)) {
-				done = true;
-				logger.info("Fixpoint.");
-				//assert (objective.isNotWorse());
-			}
-			if (objective.isNotWorse()) {
-				logger.info("Fitness hasn't decreased");
-				// If fitness has not decreased, new max is new value
-				max = statement.getValue();
-			} else {
-				logger.info("Fitness has decreased!");
-				// Else has to be larger
-				if (positive)
-					statement.increment();
-				else
-					statement.decrement();
-				min = statement.getValue();
-				statement.setValue(max);
-			}
-		}
-	}
+    /* Generics, blargh
+     */
+    @SuppressWarnings("unchecked")
+    private  <N extends Number> N getZero(N n) {
+        if (n instanceof Double) {
+            return (N) (Double.valueOf(0.0));
+        } else if (n instanceof Float) {
+            return (N) (Float.valueOf(0F));
+        } else if (n instanceof Integer) {
+            return (N) (Integer.valueOf(0));
+        } else if (n instanceof Long) {
+            return (N) Long.valueOf(0L);
+        } else if (n instanceof Short) {
+            return (N) Short.valueOf((short)0);
+        } else if(n instanceof Byte) {
+            return (N) Byte.valueOf((byte)0);
+        } else if (n == null) {
+            throw new NullPointerException();
+        } else {
+            throw new IllegalArgumentException("Unexpected number type: " + n.getClass());
+        }
+    }
 
+    private <T extends Number> void binarySearch(ConstantValue constantValue, T number) {
+
+        T min = getZero(number);
+        T max = number;
+
+        boolean positive = number.doubleValue() >= 0.0;
+        T lastValue = null;
+        boolean done = false;
+        while (!done) {
+            Object oldValue = constantValue.getValue();
+            constantValue.setValue(getMid(min, max));
+            T newValue = (T)constantValue.getValue();
+            if (oldValue.equals(newValue)) {
+                break;
+            }
+            if (lastValue != null && lastValue.equals(newValue)) {
+                break;
+            }
+            if (lastValue instanceof Double) {
+                double oldVal = Math.abs((Double) lastValue);
+                if (oldVal < 1.0) {
+                    newValue = (T) new Double(0.0);
+                    constantValue.setValue(newValue);
+                    if (!objective.isNotWorse()) {
+                        constantValue.setValue(lastValue);
+                    }
+                    break;
+                }
+            }
+            if (lastValue instanceof Float) {
+                double oldVal = Math.abs((Float) lastValue);
+                if (oldVal < 1.0F) {
+                    newValue = (T) new Float(0.0F);
+                    constantValue.setValue(newValue);
+                    if (!objective.isNotWorse()) {
+                        constantValue.setValue(lastValue);
+                    }
+                    break;
+                }
+            }
+
+            lastValue = newValue;
+            logger.info("Trying " + constantValue.getValue() + " " + min + "/" + max + " - "
+                    + constantValue.getSimpleClassName());
+
+            if (min.equals(max) || constantValue.getValue().equals(min)
+                    || constantValue.getValue().equals(max)) {
+                done = true;
+                logger.info("Fixpoint.");
+                //assert (objective.isNotWorse());
+            }
+            if (objective.isNotWorse()) {
+                logger.info("Fitness hasn't decreased");
+                // If fitness has not decreased, new max is new value
+                max = (T)constantValue.getValue();
+            } else {
+                logger.info("Fitness has decreased!");
+                // Else has to be larger
+                if (positive) {
+                    min = increment((T)constantValue.getValue(), 1);
+                }
+                else {
+                    min = increment((T)constantValue.getValue(), -1);
+                }
+                constantValue.setValue(max);
+                System.out.println("Setting value back to "+max);
+                constantValue.getTestCase().clearCoveredGoals();
+            }
+        }
+        constantValue.getTestCase().clearCoveredGoals();
+
+    }
 	/**
 	 * Shorten the string as much as possible, until the objective value is affected.
 	 *
-	 * @param p StringPrimitiveStatement containing a string to be minimised.
+	 * @param constantValue StringPrimitiveStatement containing a string to be minimised.
 	 */
-	private void removeCharacters(StringPrimitiveStatement p) {
+	private void removeCharacters(ConstantValue constantValue) {
 
-		String oldString = p.getValue();
+        assert(constantValue.getValue() instanceof String);
+
+		String oldString = (String)constantValue.getValue();
 
 		for (int i = oldString.length() - 1; i >= 0; i--) {
 			String newString = oldString.substring(0, i) + oldString.substring(i + 1);
-			p.setValue(newString);
+            constantValue.setValue(newString);
 			//logger.info(" " + i + " " + oldValue + "/" + oldValue.length() + " -> "
 			//        + newString + "/" + newString.length());
 			if (objective.isNotWorse()) {
-				oldString = p.getValue();
+				oldString = (String)constantValue.getValue();
 			} else {
-				p.setValue(oldString);
+                constantValue.setValue(oldString);
 			}
 		}
 	}
@@ -266,21 +363,23 @@ public class ValueMinimizer extends TestVisitor {
 	 * If any transformation negatively impacts the objective function value, then
 	 * the transformation is reversed and the next one tried.
 	 */
-	private void cleanString(StringPrimitiveStatement statement) {
-		String oldString = statement.getValue();
+	private void cleanString(ConstantValue constantValue) {
+        assert(constantValue.getValue() instanceof String);
+
+        String oldString = (String)constantValue.getValue();
 		String newString = oldString.replaceAll("[^\\p{ASCII}]", "").replaceAll("\\p{Cntrl}",
 				"");
-		statement.setValue(newString);
+        constantValue.setValue(newString);
 		if (!objective.isNotWorse()) {
-			statement.setValue(oldString);
+			constantValue.setValue(oldString);
 			newString = oldString;
 		}
 
 		oldString = newString;
 		newString = newString.replaceAll("[^\\p{L}\\p{N}]", "");
-		statement.setValue(newString);
+        constantValue.setValue(newString);
 		if (!objective.isNotWorse()) {
-			statement.setValue(oldString);
+            constantValue.setValue(oldString);
 		}
 	}
 
@@ -289,15 +388,17 @@ public class ValueMinimizer extends TestVisitor {
 	 * If a better string is found that doesn't negatively impact the fitness value,
 	 * statement will be overwritten to use the new improved value.
 	 *
-	 * @param statement
+	 * @param constantValue
 	 */
-	private void replaceWithLanguageModel(StringPrimitiveStatement statement) {
-		String oldString = statement.getValue();
-		StringLMOptimizer slmo = new StringLMOptimizer(statement, objective);
+	private void replaceWithLanguageModel(ConstantValue constantValue) {
+        assert(constantValue.getValue() instanceof String);
+
+        String oldString = (String)constantValue.getValue();
+		StringLMOptimizer slmo = new StringLMOptimizer(constantValue, objective);
 		String newString = slmo.optimize();
-		statement.setValue(newString);
+        constantValue.setValue(newString);
 		if (!objective.isNotWorse()) {
-			statement.setValue(oldString);
+            constantValue.setValue(oldString);
 		}
 	}
 
@@ -309,30 +410,41 @@ public class ValueMinimizer extends TestVisitor {
 	public void visitTestCase(TestCase test) {
 	}
 
-	/* (non-Javadoc)
+    @Override
+    public void visitStatement(Statement statement) {
+        for(VariableReference var : statement.getVariableReferences()) {
+            if(var instanceof ConstantValue) {
+                ConstantValue constantValue = (ConstantValue)var;
+                Object value = constantValue.getValue();
+                if(value instanceof String) {
+                    logger.info("Statement before minimization: " + statement.getCode());
+
+                    cleanString(constantValue);
+                    removeCharacters(constantValue);
+
+                    if(Properties.LM_STRINGS) {
+                        replaceWithLanguageModel(constantValue);
+                    }
+                    logger.info("Statement after minimization: " + statement.getCode());
+                    // TODO: Try to delete characters, or at least replace non-ascii characters with ascii characters
+
+                } else if(value instanceof Number) {
+                    logger.info("Statement before minimization: " + statement.getCode());
+                    binarySearch(constantValue, (Number)constantValue.getValue());
+                    logger.info("Statement after minimization: " + statement.getCode());
+
+                }
+            }
+        }
+    }
+
+
+    /* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitPrimitiveStatement(org.evosuite.testcase.PrimitiveStatement)
 	 */
 	/** {@inheritDoc} */
 	@Override
 	public void visitPrimitiveStatement(PrimitiveStatement<?> statement) {
-		if (statement instanceof NumericalPrimitiveStatement<?>) {
-			if (statement instanceof BooleanPrimitiveStatement)
-				return;
-			logger.info("Statement before minimization: " + statement.getCode());
-			binarySearch((NumericalPrimitiveStatement<?>) statement);
-			logger.info("Statement after minimization: " + statement.getCode());
-		} else if (statement instanceof StringPrimitiveStatement) {
-			logger.info("Statement before minimization: " + statement.getCode());
-
-			cleanString((StringPrimitiveStatement) statement);
-			removeCharacters((StringPrimitiveStatement) statement);
-
-			if(Properties.LM_STRINGS) {
-				replaceWithLanguageModel((StringPrimitiveStatement) statement);
-			}
-			logger.info("Statement after minimization: " + statement.getCode());
-			// TODO: Try to delete characters, or at least replace non-ascii characters with ascii characters
-		}
 	}
 
 	/* (non-Javadoc)
@@ -351,44 +463,7 @@ public class ValueMinimizer extends TestVisitor {
 	/** {@inheritDoc} */
 	@Override
 	public void visitMethodStatement(MethodStatement statement) {
-		//if (true)
-		//	return;
-		/*
-		try {
-			TestCluster cluster = TestCluster.getInstance();
-			DefaultTestFactory factory = DefaultTestFactory.getInstance();
 
-			StatementInterface copy = statement;
-			int position = copy.getPosition();
-
-			Set<AccessibleObject> generators = cluster.getGenerators(statement.getReturnType());
-			logger.info("Trying replacement of " + statement.getCode());
-			//logger.info(test.toCode());
-			for (AccessibleObject generator : generators) {
-				try {
-					logger.info("Trying replacement with " + generator);
-					factory.changeCall(test, statement, generator);
-					if (objective.isNotWorse()) {
-						//logger.info(test.toCode());
-						copy = statement;
-						logger.info("Success replacement with " + generator);
-					} else {
-						logger.info("Failed replacement with " + generator);
-						test.setStatement(copy, position);
-						//logger.info(test.toCode());
-					}
-				} catch (ConstructionFailedException e) {
-					logger.info("Failed replacement with " + generator);
-					test.setStatement(copy, position);
-					// logger.info(test.toCode());
-				}
-			}
-
-		} catch (ConstructionFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
 	}
 
 	/* (non-Javadoc)

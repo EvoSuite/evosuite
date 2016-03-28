@@ -2,7 +2,7 @@ package org.evosuite.lm;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.ValueMinimizer;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
     protected final LangModel languageModel;
     protected final String startPoint;
     protected final ValueMinimizer.Minimization objective;
-    protected final StringPrimitiveStatement statement;
+    protected final ConstantValue constantValue;
 
     protected static final int MAX_EVALUATIONS;
 
@@ -36,16 +36,17 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
     private int evaluations = 0;
 
 
-    public LanguageModelSearch(ValueMinimizer.Minimization objective, StringPrimitiveStatement statement) {
+    public LanguageModelSearch(ValueMinimizer.Minimization objective, ConstantValue constantValue) {
         try {
             this.languageModel = new LangModel(Properties.LM_SRC);
         } catch (Exception e) {
             //FIXME: remove this garbage
             throw new RuntimeException("Couldn't create language model");
         }
-        this.startPoint = statement.getValue();
+        this.startPoint = (String)constantValue.getValue();
         this.objective = objective;
-        this.statement = statement;
+        // this.statement = statement;
+        this.constantValue = constantValue;
     }
 
     public static String mutateRandom(final String input){
@@ -234,11 +235,11 @@ public abstract class LanguageModelSearch implements Comparator<Chromosome> {
             throw new EvaluationBudgetExpendedException();
         }
         evaluations++;
-        String oldValue = statement.getValue();
-        statement.setValue(individual.getValue());
+        String oldValue = (String)constantValue.getValue();
+        constantValue.setValue(individual.getValue());
         boolean isNotWorse = objective.isNotWorse();
 
-        statement.setValue(oldValue);
+        constantValue.setValue(oldValue);
 
         return (isNotWorse ? 1 : 0) + languageModel.score(individual.getValue());
 

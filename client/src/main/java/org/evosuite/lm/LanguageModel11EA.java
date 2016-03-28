@@ -1,15 +1,10 @@
 package org.evosuite.lm;
 
-import org.evosuite.Properties;
 import org.evosuite.testcase.ValueMinimizer;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
-import org.evosuite.utils.Randomness;
+import org.evosuite.testcase.variable.ConstantValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by mat on 07/04/2014.
@@ -18,7 +13,7 @@ public class LanguageModel11EA extends LanguageModelSearch{
     protected static Logger logger = LoggerFactory.getLogger(LanguageModel11EA.class);
 
 
-    public  LanguageModel11EA(StringPrimitiveStatement statement, ValueMinimizer.Minimization objective) {
+    public  LanguageModel11EA(ConstantValue statement, ValueMinimizer.Minimization objective) {
         super(objective, statement);
     }
 

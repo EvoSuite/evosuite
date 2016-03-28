@@ -202,6 +202,16 @@ public class TestSuiteGenerator {
 			}
 		}
 
+		if (Properties.INLINE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
+			ConstantInliner inliner = new ConstantInliner();
+			// progressMonitor.setCurrentPhase("Inlining constants");
+
+			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
+
+			inliner.inline(testSuite);
+		}
+
 		if (Properties.MINIMIZE) {
             ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
             // progressMonitor.setCurrentPhase("Minimizing test cases");
@@ -237,16 +247,6 @@ public class TestSuiteGenerator {
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size, testSuite.size());
 		    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
             ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
-		}
-
-		if (Properties.INLINE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
-			ConstantInliner inliner = new ConstantInliner();
-			// progressMonitor.setCurrentPhase("Inlining constants");
-
-			//Map<FitnessFunction<? extends TestSuite<?>>, Double> fitnesses = testSuite.getFitnesses();
-
-			inliner.inline(testSuite);
 		}
 
 		if (Properties.COVERAGE) {

@@ -1,7 +1,7 @@
 package org.evosuite.lm;
 
 import org.evosuite.testcase.ValueMinimizer;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +26,8 @@ public class LanguageModelGA extends LanguageModelSearch {
     private static Logger logger = LoggerFactory.getLogger(LanguageModelGA.class);
 
 
-    public LanguageModelGA(StringPrimitiveStatement statement, ValueMinimizer.Minimization objective){
-        super(objective, statement);
+    public LanguageModelGA(ConstantValue constantValue, ValueMinimizer.Minimization objective){
+        super(objective, constantValue);
 
         population = new HashSet<>();
         setupPopulation();
