@@ -56,6 +56,11 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
      */
     public static boolean useAgent = true;
 
+    /**
+     * Another dirty hack, to use with care. This is to make useSeparateClassLoader
+     * work together with -measureCoverage
+     */
+    public static boolean useClassLoader = true;
 
     public EvoRunner(Class<?> klass)
             throws InitializationError {
@@ -88,7 +93,7 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
         RuntimeSettings.useSeparateClassLoader = ep.separateClassLoader();
         RuntimeSettings.useJEE = ep.useJEE();
 
-        if(RuntimeSettings.useSeparateClassLoader) {
+        if(RuntimeSettings.useSeparateClassLoader && useClassLoader) {
             return getFromEvoSuiteClassloader(klass);
         }
 
