@@ -266,7 +266,7 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		EPATransitionCoverageSuiteFitness epaTransitionFitness = new EPATransitionCoverageSuiteFitness(xmlFilename);
 
 		int expectedTotalTransitions = 69;
-		int expectedCoveredTransitions = 0;
+		int expectedCoveredTransitions = 3;
 
 		List<ExecutionResult> results = new LinkedList<ExecutionResult>();
 		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
@@ -278,6 +278,9 @@ public class TestEPAFitnessListItr extends TestEPATransitionCoverage {
 		ExecutionTrace execTrace = execResult.getTrace();
 		Collection<Throwable> thrownExceptions = execResult.getAllThrownExceptions();
 
+		Set<EPATrace> epa_traces = execTrace.getEPATraces();
+		assertTrue(!epa_traces.isEmpty());
+		
 		suite.addFitness(epaTransitionFitness);
 		double fitnessValue = epaTransitionFitness.getFitness(suite);
 
