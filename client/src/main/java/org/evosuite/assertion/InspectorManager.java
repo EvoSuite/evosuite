@@ -152,6 +152,9 @@ public class InspectorManager {
 		if (method.getDeclaringClass().equals(Object.class))
 			return false;
 
+		if (method.getDeclaringClass().equals(Enum.class))
+			return false;
+
 		if (method.isSynthetic())
 			return false;
 
