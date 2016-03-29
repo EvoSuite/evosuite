@@ -24,7 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,13 +39,9 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
-import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 public class MethodStatement extends EntityWithParametersStatement {
 
@@ -440,123 +435,6 @@ public class MethodStatement extends EntityWithParametersStatement {
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
-	 * asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		Label start = mg.newLabel();
-		Label end = mg.newLabel();
-
-		// if(exception != null)
-		mg.mark(start);
-
-		if (!isStatic()) {
-			callee.loadBytecode(mg, locals);
-			if (!method.getMethod().getDeclaringClass().equals(callee.getVariableClass())) {
-				logger.debug("Types don't match - casting!");
-				mg.cast(Type.getType(callee.getVariableClass()),
-				        Type.getType(method.getMethod().getDeclaringClass()));
-			}
-		}
-		int num = 0;
-		for (VariableReference parameter : parameters) {
-			parameter.loadBytecode(mg, locals);
-			if (method.getMethod().getParameterTypes()[num].isPrimitive()) {
-				if (parameter.getGenericClass().isWrapperType()) {
-					mg.unbox(Type.getType(parameter.getGenericClass().getUnboxedType()));
-				} else if (!parameter.getGenericClass().isPrimitive()) {
-					Class<?> parameterClass = new GenericClass(
-					        method.getParameterTypes()[num]).getBoxedType();
-					Type parameterType = Type.getType(parameterClass);
-					mg.checkCast(parameterType);
-					mg.unbox(Type.getType(method.getMethod().getParameterTypes()[num]));
-				}
-
-				if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
-					logger.debug("Argument types don't match - casting!");
-					mg.cast(Type.getType(parameter.getVariableClass()),
-					        Type.getType(method.getMethod().getParameterTypes()[num]));
-				}
-			} else if (parameter.getVariableClass().isPrimitive()) {
-				mg.box(Type.getType(parameter.getVariableClass()));
-			}
-			num++;
-		}
-		logger.debug("Invoking method {}", method.getName());
-		// if(exception != null) {
-		//
-		// mg.visitTryCatchBlock(start, end, handler,
-		// exception.getClass().getName().replace('.', '/'));
-		// }
-		if (isStatic())
-			mg.invokeStatic(Type.getType(method.getMethod().getDeclaringClass()),
-			                org.objectweb.asm.commons.Method.getMethod(method.getMethod()));
-		else {
-			if (!callee.getVariableClass().isInterface()) {
-				mg.invokeVirtual(Type.getType(callee.getVariableClass()),
-				                 org.objectweb.asm.commons.Method.getMethod(method.getMethod()));
-			} else {
-				mg.invokeInterface(Type.getType(callee.getVariableClass()),
-				                   org.objectweb.asm.commons.Method.getMethod(method.getMethod()));
-			}
-		}
-
-		if (!retval.isVoid()) {
-			if (!retval.getVariableClass().equals(method.getReturnType())) {
-				if (!retval.getVariableClass().isPrimitive()) {
-					mg.checkCast(Type.getType(retval.getVariableClass()));
-				} else {
-					mg.cast(Type.getType(method.getMethod().getReturnType()),
-					        Type.getType(retval.getVariableClass()));
-				}
-			}
-			retval.storeBytecode(mg, locals);
-		}
-
-		// if(exception != null) {
-		mg.mark(end);
-		Label l = mg.newLabel();
-		mg.goTo(l);
-		// mg.catchException(start, end,
-		// Type.getType(getExceptionClass(exception)));
-		mg.catchException(start, end, Type.getType(Throwable.class));
-		mg.pop(); // Pop exception from stack
-		if (!retval.isVoid()) {
-			Class<?> clazz = retval.getVariableClass();
-			if (clazz.equals(boolean.class))
-				mg.push(false);
-			else if (clazz.equals(char.class))
-				mg.push(0);
-			else if (clazz.equals(int.class))
-				mg.push(0);
-			else if (clazz.equals(short.class))
-				mg.push(0);
-			else if (clazz.equals(long.class))
-				mg.push(0L);
-			else if (clazz.equals(float.class))
-				mg.push(0.0F);
-			else if (clazz.equals(double.class))
-				mg.push(0.0);
-			else if (clazz.equals(byte.class))
-				mg.push(0);
-			else if (clazz.equals(String.class))
-				mg.push("");
-			else
-				mg.visitInsn(Opcodes.ACONST_NULL);
-
-			retval.storeBytecode(mg, locals);
-		}
-		mg.mark(l);
-		// }
 	}
 
 	/*

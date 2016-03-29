@@ -79,15 +79,6 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).doubleValue());
-	}
-
-	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
 	/** {@inheritDoc} */

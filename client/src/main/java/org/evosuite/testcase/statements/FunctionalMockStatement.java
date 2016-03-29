@@ -825,11 +825,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     }
 
     @Override
-    public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
-        //deprecated
-    }
-
-    @Override
     public boolean isAssignmentStatement() {
         return false;
     }

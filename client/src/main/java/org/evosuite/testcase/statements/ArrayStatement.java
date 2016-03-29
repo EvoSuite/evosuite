@@ -227,24 +227,6 @@ public class ArrayStatement extends AbstractStatement {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
-	 * asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		if (lengths.length > 1) {
-			throw new RuntimeException("Not yet implemented for multidimensional arrays!");
-		}
-		mg.push(lengths[0]);
-		mg.newArray(Type.getType((Class<?>) retval.getComponentType()));
-		retval.storeBytecode(mg, locals);
-	}
 
 	/**
 	 * <p>

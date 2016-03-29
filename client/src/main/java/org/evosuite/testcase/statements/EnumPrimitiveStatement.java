@@ -197,15 +197,6 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	protected void pushBytecode(GeneratorAdapter mg) {
-		mg.getStatic(Type.getType(enumClass), value.name(), Type.getType(enumClass));
-	}
-
-	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
 	/** {@inheritDoc} */

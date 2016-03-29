@@ -309,31 +309,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
     public abstract void zero();
 
     /**
-     * Push the value on the stack
-     *
-     * @param mg a {@link org.objectweb.asm.commons.GeneratorAdapter} object.
-     */
-    protected abstract void pushBytecode(GeneratorAdapter mg);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-                            Throwable exception) {
-
-        pushBytecode(mg);
-        if (value != null) {
-            Class<?> clazz = value.getClass();
-            if (!clazz.equals(retval.getVariableClass())) {
-                mg.cast(org.objectweb.asm.Type.getType(clazz),
-                        org.objectweb.asm.Type.getType(retval.getVariableClass()));
-            }
-        }
-        retval.storeBytecode(mg, locals);
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override

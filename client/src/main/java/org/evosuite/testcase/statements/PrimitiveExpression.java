@@ -23,7 +23,6 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.TestCase;
@@ -32,7 +31,6 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 // TODO-JRO Implement methods of PrimitiveExpression as needed
 public class PrimitiveExpression extends AbstractStatement {
@@ -165,13 +163,6 @@ public class PrimitiveExpression extends AbstractStatement {
 	public GenericAccessibleObject<?> getAccessibleObject() {
 		throw new UnsupportedOperationException(
 		        "Method getAccessibleObject not implemented!");
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		throw new UnsupportedOperationException("Method getBytecode not implemented!");
 	}
 
 	/** {@inheritDoc} */

@@ -77,11 +77,6 @@ public class NamePrimitiveStatement extends EnvironmentDataStatement<EvoName>{
     }
 
     @Override
-    protected void pushBytecode(GeneratorAdapter mg) {
-
-    }
-
-    @Override
     public void randomize() {
 
         JeeData data = tc.getAccessedEnvironment().getJeeData();

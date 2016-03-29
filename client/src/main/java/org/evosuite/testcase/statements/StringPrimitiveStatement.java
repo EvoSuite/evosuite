@@ -83,15 +83,6 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 		value = "";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push(value);
-	}
-
 	private static String removeCharAt(String s, int pos) {
 		return s.substring(0, pos) + s.substring(pos + 1);
 	}

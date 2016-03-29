@@ -65,15 +65,6 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).booleanValue());
-	}
-
-	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
 	/** {@inheritDoc} */

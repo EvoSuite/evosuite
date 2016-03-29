@@ -68,15 +68,6 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).charValue());
-	}
-
-	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
 	/** {@inheritDoc} */

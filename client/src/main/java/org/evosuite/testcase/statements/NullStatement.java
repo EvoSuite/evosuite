@@ -29,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.variable.NullReference;
@@ -37,7 +36,6 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -84,17 +82,6 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.StatementInterface#getBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		mg.visitInsn(Opcodes.ACONST_NULL);
-		retval.storeBytecode(mg, locals);
 	}
 
 	/* (non-Javadoc)
@@ -158,12 +145,6 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	@Override
 	public void zero() {
 		logger.info("Method zero not implemented: How to zero null?");
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	protected void pushBytecode(GeneratorAdapter mg) {
-		mg.push((String) null);
 	}
 
 	/** {@inheritDoc} */

@@ -268,33 +268,6 @@ public class AssignmentStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
-	 * asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		parameter.loadBytecode(mg, locals);
-
-		Class<?> clazz = parameter.getVariableClass();
-		if (parameter.isPrimitive() && !retval.isPrimitive()) {
-			mg.box(Type.getType(parameter.getVariableClass()));
-			clazz = parameter.getGenericClass().getBoxedType();
-		}
-
-		if (!clazz.equals(retval.getVariableClass())) {
-			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
-		}
-
-		retval.storeBytecode(mg, locals);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
 	/** {@inheritDoc} */

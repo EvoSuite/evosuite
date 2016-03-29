@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -39,10 +38,6 @@ import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * Statement that accesses an instance/class field
@@ -343,89 +338,6 @@ public class FieldStatement extends AbstractStatement {
 	public void setField(GenericField field) {
 		// assert (this.field.getType().equals(field.getType()));
 		this.field = field;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
-	 * asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-
-		Label start = mg.newLabel();
-		Label end = mg.newLabel();
-
-		// if(exception != null)
-		mg.mark(start);
-
-		if (!isStatic()) {
-			source.loadBytecode(mg, locals);
-		}
-		if (isStatic())
-			mg.getStatic(Type.getType(field.getField().getDeclaringClass()),
-			             field.getName(), Type.getType(field.getField().getType()));
-		else {
-			if (!source.getVariableClass().isInterface()) {
-				mg.getField(Type.getType(source.getVariableClass()), field.getName(),
-				            Type.getType(field.getField().getType()));
-			} else {
-				mg.getField(Type.getType(field.getField().getDeclaringClass()),
-				            field.getName(), Type.getType(field.getField().getType()));
-			}
-		}
-
-		if (!retval.getVariableClass().equals(field.getField().getType())) {
-			if (!retval.getVariableClass().isPrimitive()) {
-				if (field.getField().getType().isPrimitive()) {
-					mg.box(Type.getType(field.getField().getType()));
-				}
-				mg.checkCast(Type.getType(retval.getVariableClass()));
-			} else {
-				mg.cast(Type.getType(field.getField().getType()),
-				        Type.getType(retval.getVariableClass()));
-			}
-		}
-		retval.storeBytecode(mg, locals);
-
-		// if(exception != null) {
-		mg.mark(end);
-		Label l = mg.newLabel();
-		mg.goTo(l);
-		// mg.catchException(start, end, Type.getType(exception.getClass()));
-		mg.catchException(start, end, Type.getType(Throwable.class));
-		mg.pop(); // Pop exception from stack
-		if (!retval.isVoid()) {
-			Class<?> clazz = retval.getVariableClass();
-			if (clazz.equals(boolean.class))
-				mg.push(false);
-			else if (clazz.equals(char.class))
-				mg.push(0);
-			else if (clazz.equals(int.class))
-				mg.push(0);
-			else if (clazz.equals(short.class))
-				mg.push(0);
-			else if (clazz.equals(long.class))
-				mg.push(0L);
-			else if (clazz.equals(float.class))
-				mg.push(0.0F);
-			else if (clazz.equals(double.class))
-				mg.push(0.0);
-			else if (clazz.equals(byte.class))
-				mg.push(0);
-			else if (clazz.equals(String.class))
-				mg.push("");
-			else
-				mg.visitInsn(Opcodes.ACONST_NULL);
-
-			retval.storeBytecode(mg, locals);
-		}
-		mg.mark(l);
-		// }
 	}
 
 	/*

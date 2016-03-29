@@ -77,11 +77,6 @@ public class LocalAddressPrimitiveStatement extends EnvironmentDataStatement<Evo
     }
 
     @Override
-    protected void pushBytecode(GeneratorAdapter mg) {
-
-    }
-
-    @Override
     public void randomize() {
 
         EvoSuiteLocalAddress addr;

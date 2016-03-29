@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -41,14 +40,9 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
-import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
 
 import org.evosuite.dse.VM;
 
@@ -346,95 +340,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
-	 * asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
-		logger.debug("Invoking constructor");
-		Label start = mg.newLabel();
-		Label end = mg.newLabel();
 
-		// if(exception != null)
-		mg.mark(start);
-
-		mg.newInstance(Type.getType(retval.getVariableClass()));
-		mg.dup();
-		int num = 0;
-		for (VariableReference parameter : parameters) {
-			parameter.loadBytecode(mg, locals);
-			if (constructor.getConstructor().getParameterTypes()[num].isPrimitive()) {
-				if (parameter.getGenericClass().isWrapperType()) {
-					mg.unbox(Type.getType(parameter.getGenericClass().getUnboxedType()));
-				} else if (!parameter.getGenericClass().isPrimitive()) {
-					Class<?> parameterClass = new GenericClass(
-					        constructor.getParameterTypes()[num]).getBoxedType();
-					Type parameterType = Type.getType(parameterClass);
-					mg.checkCast(parameterType);
-					mg.unbox(Type.getType(constructor.getConstructor().getParameterTypes()[num]));
-				}
-
-				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
-					logger.debug("Types don't match - casting "
-					        + parameter.getVariableClass().getName()
-					        + " to "
-					        + constructor.getConstructor().getParameterTypes()[num].getName());
-					mg.cast(Type.getType(parameter.getVariableClass()),
-					        Type.getType(constructor.getConstructor().getParameterTypes()[num]));
-				}
-			} else if (parameter.getVariableClass().isPrimitive()) {
-				mg.box(Type.getType(parameter.getVariableClass()));
-			}
-			num++;
-		}
-		mg.invokeConstructor(Type.getType(retval.getVariableClass()),
-		                     Method.getMethod(constructor.getConstructor()));
-		logger.debug("Storing result");
-		retval.storeBytecode(mg, locals);
-
-		// if(exception != null) {
-		mg.mark(end);
-		Label l = mg.newLabel();
-		mg.goTo(l);
-		// mg.catchException(start, end,
-		// Type.getType(getExceptionClass(exception)));
-		mg.catchException(start, end, Type.getType(Throwable.class));
-		mg.pop(); // Pop exception from stack
-		if (!retval.isVoid()) {
-			Class<?> clazz = retval.getVariableClass();
-			if (clazz.equals(boolean.class))
-				mg.push(false);
-			else if (clazz.equals(char.class))
-				mg.push(0);
-			else if (clazz.equals(int.class))
-				mg.push(0);
-			else if (clazz.equals(short.class))
-				mg.push(0);
-			else if (clazz.equals(long.class))
-				mg.push(0L);
-			else if (clazz.equals(float.class))
-				mg.push(0.0F);
-			else if (clazz.equals(double.class))
-				mg.push(0.0);
-			else if (clazz.equals(byte.class))
-				mg.push(0);
-			else if (clazz.equals(String.class))
-				mg.push("");
-			else
-				mg.visitInsn(Opcodes.ACONST_NULL);
-
-			retval.storeBytecode(mg, locals);
-		}
-		mg.mark(l);
-		// }
-
-	}
 
 	/*
 	 * (non-Javadoc)

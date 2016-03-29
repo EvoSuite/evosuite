@@ -78,11 +78,6 @@ public class RemoteAddressPrimitiveStatement extends EnvironmentDataStatement<Ev
     }
 
     @Override
-    protected void pushBytecode(GeneratorAdapter mg) {
-
-    }
-
-    @Override
     public void randomize() {
         EvoSuiteRemoteAddress addr;
 

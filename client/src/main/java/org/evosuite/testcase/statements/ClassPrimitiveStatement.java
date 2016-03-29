@@ -84,12 +84,6 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		this.value = Properties.getTargetClass();
 	}
 
-	@Override
-	protected void pushBytecode(GeneratorAdapter mg) {
-		// TODO Auto-generated method stub
-
-	}
-
 	private Class<?> getType(org.objectweb.asm.Type type) throws ClassNotFoundException {
 		// Not quite sure why we have to treat primitives explicitly...
 		switch (type.getSort()) {
