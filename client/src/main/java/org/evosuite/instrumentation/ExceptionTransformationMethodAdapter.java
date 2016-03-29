@@ -81,6 +81,11 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         // Insert end of try block label
         mark(end);
 
+        // If there was no exception, skip ahead to rest of the code
+        loadLocal(exceptionInstanceVar);
+        Label noExceptionLabel = newLabel();
+        ifNull(noExceptionLabel);
+
         // Skip catch block if no exception was thrown
         Label afterCatch = newLabel();
         goTo(afterCatch);
@@ -93,41 +98,6 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
         // assign exception to exceptionInstanceVar
         storeLocal(exceptionInstanceVar);
-        Type returnType = Type.getReturnType(desc);
-        switch (returnType.getSort()) {
-            case Type.VOID:
-                break;
-            case Type.BOOLEAN:
-                push(false);
-                break;
-            case Type.CHAR:
-            case Type.BYTE:
-            case Type.INT:
-            case Type.SHORT:
-                push(0);
-                break;
-            case Type.FLOAT:
-                push(0f);
-                break;
-            case Type.LONG:
-                push(0l);
-                break;
-            case Type.DOUBLE:
-                push(0.0);
-                break;
-            case Type.ARRAY:
-            case Type.OBJECT:
-                push((String)null);
-                break;
-        }
-
-        // Insert end of catch block label
-        mark(afterCatch);
-
-        // If there was no exception, skip ahead to rest of the code
-        loadLocal(exceptionInstanceVar);
-        Label noExceptionLabel = newLabel();
-        ifNull(noExceptionLabel);
 
         // If there was an exception, rethrow it, with one if per declared exception type
         for(Type exceptionType : declaredExceptions) {
@@ -146,6 +116,10 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         loadLocal(exceptionInstanceVar);
         checkCast(runtimeExceptionType);
         throwException();
+
+        // Insert end of catch block label
+        mark(afterCatch);
+
 
         mark(noExceptionLabel);
 

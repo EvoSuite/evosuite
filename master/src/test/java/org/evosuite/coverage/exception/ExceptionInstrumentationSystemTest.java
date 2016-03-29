@@ -1,9 +1,6 @@
 package org.evosuite.coverage.exception;
 
-import com.examples.with.different.packagename.exception.Rethrow2Exceptions;
-import com.examples.with.different.packagename.exception.Rethrow2ExceptionsAndUncheckedException;
-import com.examples.with.different.packagename.exception.SimpleTry2Catches;
-import com.examples.with.different.packagename.exception.SimpleTryCatch;
+import com.examples.with.different.packagename.exception.*;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
@@ -59,22 +56,22 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         // # branches == 0
         // # branchless methods == 1 (<init>)
         // # additional branches: 4 (FileNotFoundException true/false, RuntimeException true/false)
-        checkCoverageGoals(SimpleTryCatch.class, 5, 4);
+        checkCoverageGoals(SimpleTryCatch.class, 5, 3);
     }
 
     @Test
     public void testCheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(SimpleTry2Catches.class, 7, 6);
+        checkCoverageGoals(SimpleTry2Catches.class, 7, 5);
     }
 
     @Test
     public void testReThrownCheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(Rethrow2Exceptions.class, 7, 6);
+        checkCoverageGoals(Rethrow2Exceptions.class, 7, 5);
     }
 
     @Test
     public void testReThrownCheckedAndUncheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 7, 7);
+        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 7, 6);
     }
 
     @Test
@@ -83,7 +80,12 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         // The NPE caused by "foo" being null is now caught outside the exception instrumentation
         // and thus represents a different coverage goal than a RuntimeException thrown _in_ foo.
         // Hence we now only cover 8/9 goals.
-        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 9, 8);
+        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 9, 7);
+    }
+
+    @Test
+    public void testCatchWithUnknownThrow() {
+        checkCoverageGoals(CatchWithUnknownThrow.class, 5, 4);
     }
 
 }
