@@ -19,6 +19,7 @@
  */
 package org.evosuite.junit.naming.variables;
 
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.testcase.ImportsTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
@@ -128,7 +129,6 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 				|| (var instanceof InputVariable)
 				|| (var instanceof FieldReference)) {
 			String name = getName(testCase, var);
-			name = "'" + name.replaceAll("[']", "''") + "'"; // escape single quotes and ignore for placeholders
 			return name;
 		} else if (var instanceof ArrayIndex) {
 			return getArrayIndexPlaceholder(testCase, (ArrayIndex) var);
@@ -147,30 +147,22 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	public String finalize(String testCode) {
 		String[] args = {};
-		String finalTestCode = "";
+		String finalTestCode = testCode;
 		if (! variableNames.isEmpty()) {
 			Map<Integer, String> auxMap = new HashMap<>();
 
 			for (VariableNamePair entry : variableNames.values())
 				auxMap.put(entry.placeholderIndex, entry.name);
 
-			args = new String[Collections.max(auxMap.keySet()) + 1];
 			for (Map.Entry<VariableReference, VariableNamePair> entry : variableNames.entrySet()) {
 				String name = entry.getValue().name;
 				String newName = checkUnique(auxMap, name);
 				if (!name.equals(newName))
 					variableNames.put(entry.getKey(), new VariableNamePair(entry.getValue().placeholderIndex, newName));
-				args[entry.getValue().placeholderIndex] = newName;
+				String placeholderString = "{" + String.valueOf(entry.getValue().placeholderIndex) + "}";
+				finalTestCode = StringUtils.replace(finalTestCode, placeholderString, newName);
 			}
 			logger.debug("Finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
-		}
-		try {
-			finalTestCode = MessageFormat.format(testCode, args);
-		} catch (IllegalArgumentException e) {
-			logger.error("Error finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
-			logger.error(e.toString());
-			// TODO: MessageFormat.format gets confused with braces; might be better to implement our own simplified algorithm
-			finalTestCode = "// Could not finalize test\n" + "/*\n" + testCode + "\n*/";
 		}
 		return finalTestCode;
 	}

@@ -28,20 +28,20 @@ import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.junit.naming.variables.ExplanatoryNamingTestVisitor;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.AssignmentStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
-import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
@@ -51,7 +51,6 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -255,5 +254,17 @@ public class VariableNamingTest {
                 "objectArray[0] = object;\n";
         String actual = tc.toCode();
         Assert.assertEquals("incorrect test code", expected, actual);
+    }
+
+    @Test
+    public void testFinalize() {
+        TestCase tc = new DefaultTestCase();
+        StringPrimitiveStatement stringStatement = new StringPrimitiveStatement(tc, ")Kt2Y'&&{rU&OI");
+        tc.addStatement(stringStatement);
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DECLARATIONS;
+        visitor.initializeNamingStrategyFromProperties();
+        tc.accept(visitor);
+        Assert.assertEquals("String string = \")Kt2Y'&&{rU&OI\";\n", visitor.getCode());
     }
 }

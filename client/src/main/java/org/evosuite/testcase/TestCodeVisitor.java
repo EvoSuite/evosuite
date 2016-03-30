@@ -88,8 +88,8 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 	protected String testCode = "";
 
 	protected static final String NEWLINE = System.getProperty("line.separator");
-	protected static final String BRACE_OPEN = "'{'";
-	protected static final String BRACE_CLOSE = "'}'";
+	protected static final String BRACE_OPEN = "{";
+	protected static final String BRACE_CLOSE = "}";
 
 	private VariableNamingStrategy strategy = null;
 
@@ -635,7 +635,7 @@ public class TestCodeVisitor extends AbstractTestCodeVisitor {
 			} else {
 				String escapedString = StringUtil.getEscapedString((String) value);
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-						+ getVariablePlaceholder(retval) + " = '\"" + escapedString + "\"';" + NEWLINE;
+						+ getVariablePlaceholder(retval) + " = \"" + escapedString + "\";" + NEWLINE;
 			}
 			// testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			// + getVariablePlaceholder(retval) + " = \""
