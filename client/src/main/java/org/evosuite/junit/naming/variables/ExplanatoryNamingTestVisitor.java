@@ -590,7 +590,8 @@ public class ExplanatoryNamingTestVisitor extends TestVisitor {
      * @return a {@link Throwable} object.
      */
     public Throwable getException(Statement statement) {
-        if (this.itv.getExceptions() != null && this.itv.getExceptions().containsKey(statement.getPosition()))
+        if (this.itv != null && this.itv.getExceptions() != null
+                && this.itv.getExceptions().containsKey(statement.getPosition()))
             return this.itv.getExceptions().get(statement.getPosition());
 
         return null;
