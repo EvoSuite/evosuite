@@ -37,8 +37,10 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Jose Rojas
@@ -50,6 +52,8 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 	protected final ImportsTestCodeVisitor itv;
 
     protected Map<VariableReference,VariableNamePair> variableNames = new HashMap<>();
+
+	protected final Map<String, Integer> indices = new HashMap<>();
 
 	public AbstractVariableNamingStrategy(ImportsTestCodeVisitor itv) {
 		this.itv = itv;
@@ -66,7 +70,21 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		VariableReference source = var.getSource();
 		GenericField field = var.getField();
 		if (source != null)
-			return getVariableName(testCase, source) + "." + field.getName();
+			return getName(testCase, source) + "." + field.getName();
+		else {
+			String fName = field.getName();
+			Field f = field.getField();
+			Class<?> declaringClass = f.getDeclaringClass();
+			Map<Class<?>, String> classNames = this.itv.getClassNames();
+			return classNames.get(declaringClass) + "." + fName;
+		}
+	}
+
+	public String getFieldReferencePlaceholder(TestCase testCase, FieldReference var) {
+		VariableReference source = var.getSource();
+		GenericField field = var.getField();
+		if (source != null)
+			return getPlaceholder(testCase, source) + "." + field.getName();
 		else {
 			String fName = field.getName();
 			Field f = field.getField();
@@ -78,7 +96,7 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	public String getArrayIndexName(TestCase testCase, ArrayIndex var) {
 		VariableReference array = var.getArray();
-		String result = getVariableName(testCase, array);
+		String result = getName(testCase, array);
 		result += getArrayIndicesString(var);
 		return result;
 	}
@@ -126,12 +144,13 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 	public String getPlaceholder(TestCase testCase, VariableReference var) {
 
 		if ((var instanceof ConstantValue)
-				|| (var instanceof InputVariable)
-				|| (var instanceof FieldReference)) {
+				|| (var instanceof InputVariable)) {
 			String name = getName(testCase, var);
 			return name;
 		} else if (var instanceof ArrayIndex) {
 			return getArrayIndexPlaceholder(testCase, (ArrayIndex) var);
+		} else if (var instanceof FieldReference) {
+			return getFieldReferencePlaceholder(testCase, (FieldReference) var);
 		} else {
 			String name = getName(testCase, var);
 			if (variableNames.containsKey(var))
@@ -143,10 +162,11 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 
 	public void reset() {
 		variableNames.clear();
+		indices.clear();
 	}
 
 	public String finalize(String testCode) {
-		String[] args = {};
+		logger.debug("Finalizing testCode:\n{}\n", testCode);
 		String finalTestCode = testCode;
 		if (! variableNames.isEmpty()) {
 			Map<Integer, String> auxMap = new HashMap<>();
@@ -159,10 +179,10 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 				String newName = checkUnique(auxMap, name);
 				if (!name.equals(newName))
 					variableNames.put(entry.getKey(), new VariableNamePair(entry.getValue().placeholderIndex, newName));
+
 				String placeholderString = "{" + String.valueOf(entry.getValue().placeholderIndex) + "}";
 				finalTestCode = StringUtils.replace(finalTestCode, placeholderString, newName);
 			}
-			logger.debug("Finalizing testCode:\n{}\nArgs: {}", testCode, Arrays.toString(args));
 		}
 		return finalTestCode;
 	}
@@ -220,6 +240,35 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 		return (Arrays.binarySearch(keywords, keyword) >= 0);
 	}
 
+	protected String getUniqueName(String name) {
+		if (!indices.containsKey(name)) {
+			indices.put(name, 0);
+		}
+
+		int index = indices.get(name);
+		indices.put(name, index + 1);
+
+		name += index;
+
+		return name;
+	}
+
+	/*
+	protected String getUniqueName(String name) {
+		if(usedNames.contains(name)) {
+			int num = 1; // Starting at 1 because 0 is implicitly used by the first variable
+			while(usedNames.contains(name+num))
+				num++;
+			name = name + num;
+		} else if(isJavaKeyword(name)) {
+
+		}
+
+		usedNames.add(name);
+		return name;
+	}
+	*/
+
 	/**
 	 * Class VariableNamePair
 	 *
@@ -235,8 +284,4 @@ public abstract class AbstractVariableNamingStrategy implements VariableNamingSt
 			this.name = name;
 		}
 	}
-
-
-
-
 }

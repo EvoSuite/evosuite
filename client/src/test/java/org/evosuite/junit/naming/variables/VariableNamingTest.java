@@ -19,7 +19,9 @@
  */
 package org.evosuite.junit.naming.variables;
 
+import com.examples.with.different.packagename.ClassWithPublicField;
 import com.examples.with.different.packagename.NullString;
+import com.examples.with.different.packagename.concolic.MemoryCell;
 import com.examples.with.different.packagename.junit.Foo;
 import com.examples.with.different.packagename.junit.FooArray;
 import org.evosuite.Properties;
@@ -42,14 +44,19 @@ import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.ConstantValue;
+import org.evosuite.testcase.variable.FieldReference;
+import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.Assert;
 import org.junit.Test;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,8 +198,17 @@ public class VariableNamingTest {
         Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.EXPLANATORY;
         TestCodeVisitor tcv = new TestCodeVisitor();
         tcv.initializeNamingStrategyFromProperties();
-        tcv.visitTestCase(tc);
-
+        tc.accept(tcv);
+	    Assert.assertEquals("Unexpected test code", "String[] stringArray = new String[2];\n" +
+			    "String newString = new String();\n" +
+			    "stringArray[0] = \"\";\n" +
+			    "stringArray[1] = null;\n" +
+			    "NullString invokesIsNull = new NullString();\n" +
+			    "invokesIsNull.isNull(\"\");\n" +
+			    "invokesIsNull.isNull(stringArray[1]);\n" +
+			    "boolean resultFromIsNull = invokesIsNull.isNull((String) 42);\n" +
+			    "boolean getsboolean = true;\n" +
+			    "getsboolean = resultFromIsNull;\n", tcv.getCode());
         Assert.assertEquals("Unexpected variable name", "stringArray"   , tcv.getVariableName(arrayVar));
         Assert.assertEquals("Unexpected variable name", "newString"     , tcv.getVariableName(objectVar));
         Assert.assertEquals("Unexpected variable name", "invokesIsNull" , tcv.getVariableName(sut));
@@ -265,6 +281,31 @@ public class VariableNamingTest {
         Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DECLARATIONS;
         visitor.initializeNamingStrategyFromProperties();
         tc.accept(visitor);
-        Assert.assertEquals("String string = \")Kt2Y'&&{rU&OI\";\n", visitor.getCode());
+        Assert.assertEquals("Incorrect test code", "String string = \")Kt2Y'&&{rU&OI\";\n", visitor.getCode());
     }
+
+	@Test
+	public void testFinalizeClassWithPublicField() throws NoSuchFieldException {
+		TestCase tc = new DefaultTestCase();
+		Class<?> sut = ClassWithPublicField.class;
+
+		// ClassWithPublicField classWithPublicField = new ClassWithPublicField();
+		GenericConstructor fooConstructor = new GenericConstructor(sut.getConstructors()[0], sut);
+		ConstructorStatement fooConstructorStatement = new ConstructorStatement(tc, fooConstructor, Arrays.asList(new VariableReference[] { }));
+		VariableReference ref = tc.addStatement(fooConstructorStatement);
+
+		// classWithPublicField0.z = null;
+		Field f = sut.getField("z");
+		GenericField gf = new GenericField(f, f.getDeclaringClass());
+		FieldReference fRef = new FieldReference(tc, gf, ref);
+		AssignmentStatement assStmt = new AssignmentStatement(tc, fRef, new ConstantValue(tc, fRef.getGenericClass(), null));
+		tc.addStatement(assStmt);
+
+		TestCodeVisitor visitor = new TestCodeVisitor();
+		tc.accept(visitor);
+		Assert.assertEquals("Incorrect test code", "ClassWithPublicField classWithPublicField = new ClassWithPublicField();\n" +
+				"classWithPublicField.z = null;\n", visitor.getCode());
+	}
+
+
 }

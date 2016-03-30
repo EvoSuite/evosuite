@@ -33,8 +33,6 @@ import java.util.Map;
  */
 public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 
-	protected final Map<String, Integer> indices = new HashMap<>();
-
 	public DefaultNamingStrategy(ImportsTestCodeVisitor itv) {
 		super(itv);
 	}
@@ -52,18 +50,8 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 				+ className.substring(1) + "Array";
 		variableName = variableName.replace('.', '_').replace("[]", "");
 
-		if (!variableNames.containsKey(var)) {
-			if (!indices.containsKey(variableName)) {
-				indices.put(variableName, 0);
-			}
-
-			int index = indices.get(variableName);
-			indices.put(variableName, index + 1);
-
-			variableName += index;
-
-			put(var, variableName);
-		}
+		if (!variableNames.containsKey(var))
+			put(var, getUniqueName(variableName));
 		return variableNames.get(var).name;
 	}
 
@@ -82,25 +70,10 @@ public class DefaultNamingStrategy extends AbstractVariableNamingStrategy {
 			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
 				variableName += "_";
 
-			if (!indices.containsKey(variableName)) {
-				indices.put(variableName, 0);
-			}
-
-			int index = indices.get(variableName);
-			indices.put(variableName, index + 1);
-
-			variableName += index;
-
-			put(var, variableName);
+			put(var, getUniqueName(variableName));
 		}
 
 		return variableNames.get(var).name;
-	}
-
-	@Override
-	public void reset() {
-		super.reset();
-		indices.clear();
 	}
 
 }

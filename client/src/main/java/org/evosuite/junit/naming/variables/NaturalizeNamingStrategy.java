@@ -99,14 +99,17 @@ public class NaturalizeNamingStrategy extends AbstractVariableNamingStrategy {
 			logger.debug("Renamings for variable {}: {}", id, renamings);
 			Object[] renamingsArray = renamings.toArray();
 
-			String newId = "";
+			String variableName = "";
 			int i = 0;
-			while (!isValidVariableName(newId) && i < renamingsArray.length) {
-				newId = ((Renaming)renamingsArray[i]).name;
+			while (!isValidVariableName(variableName) && i < renamingsArray.length) {
+				variableName = ((Renaming)renamingsArray[i]).name;
 				i++;
 			}
 
-			return i == renamingsArray.length ? id : newId;
+			if (i == renamingsArray.length)
+				return id;
+			else
+				return getUniqueName(variableName);
 		} catch (NullPointerException e) {
 			// swallow exception
 			logger.debug("Naturalize failed to generate any renaming for {}.", id);
@@ -117,11 +120,6 @@ public class NaturalizeNamingStrategy extends AbstractVariableNamingStrategy {
 
 	private boolean isValidVariableName(String id) {
 		return isName(id) && !id.equals("UNK_SYMBOL");
-	}
-
-	@Override
-	public void reset() {
-		super.reset();
 	}
 
 	private Collection<File> getTrainingFiles() {

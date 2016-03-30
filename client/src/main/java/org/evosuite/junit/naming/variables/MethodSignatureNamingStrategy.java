@@ -40,8 +40,6 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodSignatureNamingStrategy.class);
 
-    private Set<String> usedNames = new LinkedHashSet<>();
-
     public MethodSignatureNamingStrategy(ImportsTestCodeVisitor itv) {
         super(itv);
     }
@@ -49,17 +47,6 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
     @Override
     public String getArrayReferenceName(TestCase testCase, ArrayReference var) {
         return getVariableName(testCase, var) + "Array";
-    }
-
-    private String getUniqueName(String name) {
-        if(usedNames.contains(name)) {
-            int num = 1; // Starting at 1 because 0 is implicitly used by the first variable
-            while(usedNames.contains(name+num))
-                num++;
-            name = name + num;
-        }
-        usedNames.add(name);
-        return name;
     }
 
     @Override
@@ -99,11 +86,4 @@ public class MethodSignatureNamingStrategy extends DefaultNamingStrategy {
         }
 		return super.getVariableName(testCase, variableReference);
 	}
-
-    @Override
-    public void reset() {
-        super.reset();
-        usedNames.clear();
-    }
-
 }

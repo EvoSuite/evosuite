@@ -57,7 +57,8 @@ public class ExplanatoryNamingStrategy extends AbstractVariableNamingStrategy {
 	protected void setVariableNames(Map<VariableReference, String> variableNames) {
 		super.reset();
 		for (Map.Entry<VariableReference, String> entry : variableNames.entrySet()) {
-			put(entry.getKey(), entry.getValue());
+			VariableReference varRef = entry.getKey();
+			put(varRef, getUniqueName(entry.getValue()));
 		}
 	}
 }
