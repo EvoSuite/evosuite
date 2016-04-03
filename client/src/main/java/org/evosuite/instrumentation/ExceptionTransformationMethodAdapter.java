@@ -42,7 +42,6 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
         if(!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(owner) ||
            !ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).containsKey(name+desc)) {
-            logger.warn("Method signature not seen yet: "+owner+"."+name+desc);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
@@ -96,16 +95,16 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
         // If there was an exception, rethrow it, with one if per declared exception type
         for(Type exceptionType : declaredExceptions) {
-            tagBranch();
             loadLocal(exceptionInstanceVar);
             instanceOf(exceptionType);
             Label noJump = newLabel();
+            tagBranch();
             visitJumpInsn(Opcodes.IFEQ, noJump);
             loadLocal(exceptionInstanceVar);
             checkCast(exceptionType);
             throwException();
-            visitLabel(noJump);
             tagBranchExit();
+            visitLabel(noJump);
         }
 
         // It _must_ be a RuntimeException if we get to this point.

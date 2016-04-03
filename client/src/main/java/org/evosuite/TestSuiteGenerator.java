@@ -37,7 +37,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.regression.RegressionSearchListener;
@@ -57,15 +56,14 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
-import org.evosuite.testcase.*;
+import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testsuite.RegressionTestSuiteSerialization;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.testsuite.TestSuiteMinimizer;
-import org.evosuite.testsuite.TestSuiteSerialization;
+import org.evosuite.testsuite.*;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
@@ -769,7 +767,10 @@ public class TestSuiteGenerator {
 		    LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
 			break;
 		case IBRANCH:
-			LoggingUtils.getEvoLogger().info("  - 'i' Branch Coverage"); //FIXME what is "I" standing for???
+			LoggingUtils.getEvoLogger().info("  - Interprocedural Context Branch Coverage");
+			break;
+		case TRYCATCH:
+			LoggingUtils.getEvoLogger().info("  - Try-Catch Branch Coverage");
 			break;
 		default:
 			throw new IllegalArgumentException("Unrecognized criterion: "+criterion);

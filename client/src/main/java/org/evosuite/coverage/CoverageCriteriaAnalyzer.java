@@ -177,6 +177,8 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.IBranchCoverage;
             case REGRESSION:
                 return RuntimeVariable.BranchCoverage;
+            case TRYCATCH:
+                return RuntimeVariable.TryCatchCoverage;
             default:
                 throw new RuntimeException("Criterion not supported: " + criterion);
 
@@ -338,6 +340,7 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.LineCoverageBitString;
             case REGRESSION:
             case REGRESSIONTESTS:
+            case TRYCATCH:
                 return null;
             default:
                 logger.debug("Criterion not supported: " + criterion);

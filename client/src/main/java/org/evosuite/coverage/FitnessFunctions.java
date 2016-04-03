@@ -35,17 +35,19 @@ import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.exception.TryCatchCoverageFactory;
+import org.evosuite.coverage.exception.TryCatchCoverageSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
 import org.evosuite.coverage.io.input.InputCoverageFactory;
 import org.evosuite.coverage.io.input.InputCoverageSuiteFitness;
+import org.evosuite.coverage.io.output.OutputCoverageFactory;
+import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.line.OnlyLineCoverageSuiteFitness;
 import org.evosuite.coverage.method.*;
 import org.evosuite.coverage.mutation.*;
-import org.evosuite.coverage.io.output.OutputCoverageFactory;
-import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
@@ -123,6 +125,8 @@ public class FitnessFunctions {
 			return new OutputCoverageSuiteFitness();
 		case INPUT:
 			return new InputCoverageSuiteFitness();
+		case TRYCATCH:
+			return new TryCatchCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -183,6 +187,8 @@ public class FitnessFunctions {
 			return new OutputCoverageFactory();
 		case INPUT:
 			return new InputCoverageFactory();
+		case TRYCATCH:
+			return new TryCatchCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
