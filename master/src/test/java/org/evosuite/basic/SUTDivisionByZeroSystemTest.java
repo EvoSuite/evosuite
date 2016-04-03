@@ -48,7 +48,7 @@ public class SUTDivisionByZeroSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testDivisonByZero() {
+	public void testDivisionByZero() {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = DivisionByZero.class.getCanonicalName();
@@ -56,6 +56,7 @@ public class SUTDivisionByZeroSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.PRIMITIVE_POOL = 0.99;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -65,14 +66,15 @@ public class SUTDivisionByZeroSystemTest extends SystemTestBase {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		/*
 		 * 1: default constructor
 		 * 1: method testMe
 		 * 2: extra branch for division by 0
 		 * 2: for underflow
 		 */
-		Assert.assertTrue("Wrong number of goals: "+goals, goals>=4 );
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+
 		double coverage = best.getCoverage();
 		//one of the underflow branches is difficult to get without DSE/LS
 		Assert.assertTrue("Not good enough coverage: "+coverage, coverage > 0.83d);
