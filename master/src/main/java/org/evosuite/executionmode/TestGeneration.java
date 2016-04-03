@@ -19,20 +19,12 @@
  */
 package org.evosuite.executionmode;
 
-import java.io.File;
-import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.evosuite.*;
+import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
@@ -49,6 +41,11 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.rmi.RemoteException;
+import java.util.*;
+
 public class TestGeneration {
 
 	private static Logger logger = LoggerFactory.getLogger(TestGeneration.class);
@@ -64,20 +61,19 @@ public class TestGeneration {
 
 		List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 
+		if(line.getOptions().length == 0) {
+            Help.execute(options);
+            return results;
+        }
+
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		if(cp==null || cp.isEmpty()){
-			LoggingUtils.getEvoLogger().error("No defined classpath for the target project. From command line you can set it with the -projectCP option");
+			LoggingUtils.getEvoLogger().error("No classpath has been defined for the target project.\nOn the command line you can set it with the -projectCP option\n");
+            Help.execute(options);
 			return results;
 		}
 
-		
-		if (line.hasOption("class")) {
-			if (line.hasOption("extend")) {
-				javaOpts.add("-Djunit_extend="
-						+ line.getOptionValue("extend"));
-			}
-			results.addAll(generateTests(strategy, line.getOptionValue("class"), javaOpts));
-		} else if (line.hasOption("prefix")){
+		if (line.hasOption("prefix")){
 			results.addAll(generateTestsPrefix(strategy, line.getOptionValue("prefix"),javaOpts));
 		} else if (line.hasOption("target")) {			
 			String target = line.getOptionValue("target");
@@ -87,7 +83,7 @@ public class TestGeneration {
 		} else {
 			LoggingUtils.getEvoLogger().error(
 					"Please specify either target class ('-class' option), prefix ('-prefix' option), or " +
-							"classpath entry ('-target' option)");
+							"classpath entry ('-target' option)\n");
 			Help.execute(options);
 		}
 		return results;
