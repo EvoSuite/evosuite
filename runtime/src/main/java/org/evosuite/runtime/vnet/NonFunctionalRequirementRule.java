@@ -11,7 +11,7 @@ import org.junit.runners.model.Statement;
  * for example execution time. This is necessary due to EvoSuite adding
  * arbitrary timeouts to prevent tests hanging or taking too long
  */
-public class NonFunctionalRequirmentRule implements TestRule {
+public class NonFunctionalRequirementRule implements TestRule {
 
     @Override
     public Statement apply(Statement base, Description description) {

@@ -19,38 +19,35 @@
  */
 package org.evosuite.junit.writer;
 
-import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
-import org.evosuite.runtime.*;
+import org.evosuite.runtime.GuiSupport;
+import org.evosuite.runtime.InitializingListener;
+import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
+import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.classhandling.ClassStateSupport;
 import org.evosuite.runtime.classhandling.JDKClassResetter;
+import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
-import org.evosuite.runtime.classhandling.ClassResetter;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.thread.KillSwitchHandler;
 import org.evosuite.runtime.thread.ThreadStopper;
 import org.evosuite.runtime.util.SystemInUtil;
-import org.evosuite.runtime.vnet.NonFunctionalRequirmentRule;
+import org.evosuite.runtime.vnet.NonFunctionalRequirementRule;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.junit.rules.Timeout;
+
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
 /**
  * Class used to generate all the scaffolding code that ends up in methods like @After/@Before
@@ -236,8 +233,8 @@ public class Scaffolding {
         bd.append(METHOD_SPACE);
         bd.append("@org.junit.Rule \n");
         bd.append(METHOD_SPACE);
-        bd.append("public "+NonFunctionalRequirmentRule.class.getName()+" nfr = new "+
-                NonFunctionalRequirmentRule.class.getName()+ "();\n\n");
+        bd.append("public "+NonFunctionalRequirementRule.class.getName()+" nfr = new "+
+                NonFunctionalRequirementRule.class.getName()+ "();\n\n");
     }
 
     /**
@@ -613,11 +610,11 @@ public class Scaffolding {
 
             Set<String> readProperties = TestSuiteWriterUtils.mergeProperties(results);
             for (String prop : readProperties) {
-                bd.append(BLOCK_SPACE);
                 String currentValue = java.lang.System.getProperty(prop);
                 String escaped_prop = StringEscapeUtils.escapeJava(prop);
                 if (currentValue != null) {
                     String escaped_currentValue = StringEscapeUtils.escapeJava(currentValue);
+                    bd.append(BLOCK_SPACE);
                     bd.append("java.lang.System.setProperty(\"" + escaped_prop + "\", \""
                             + escaped_currentValue + "\"); \n");
                 } else {
