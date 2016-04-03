@@ -73,7 +73,10 @@ public class TestGeneration {
 			return results;
 		}
 
-		if (line.hasOption("prefix")){
+
+		if (line.hasOption("class")) {
+			results.addAll(generateTests(strategy, line.getOptionValue("class"), javaOpts));
+		} else if (line.hasOption("prefix")){
 			results.addAll(generateTestsPrefix(strategy, line.getOptionValue("prefix"),javaOpts));
 		} else if (line.hasOption("target")) {			
 			String target = line.getOptionValue("target");
