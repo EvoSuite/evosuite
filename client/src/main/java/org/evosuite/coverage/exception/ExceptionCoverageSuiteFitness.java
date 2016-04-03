@@ -19,12 +19,6 @@
  */
 package org.evosuite.coverage.exception;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -33,6 +27,8 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Exception fitness is different from the others, as we do not know a priori how
@@ -129,6 +125,12 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		// for each test case
 		for (ExecutionResult result : results) {
+
+			// Using private reflection can lead to false positives
+			// that represent unrealistic behaviour. Thus, we only
+			// use reflection for basic criteria, not for exception
+			if(result.calledReflection())
+				continue;
 
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {

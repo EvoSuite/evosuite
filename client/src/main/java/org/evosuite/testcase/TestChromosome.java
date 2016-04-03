@@ -40,7 +40,6 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -655,6 +654,7 @@ public class TestChromosome extends ExecutableChromosome {
 		return lastExecutionResult == null ? false
 		        : !lastExecutionResult.noThrownExceptions();
 	}
+
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.Chromosome#applyDSE()
