@@ -98,12 +98,18 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
             loadLocal(exceptionInstanceVar);
             instanceOf(exceptionType);
             Label noJump = newLabel();
+            Label jump = newLabel();
             tagBranch();
-            visitJumpInsn(Opcodes.IFEQ, noJump);
+
+
+            tagBranch();
+            visitJumpInsn(Opcodes.IFNE, jump);
+            visitJumpInsn(Opcodes.GOTO, noJump);
+            tagBranchExit();
+            mark(jump);
             loadLocal(exceptionInstanceVar);
             checkCast(exceptionType);
             throwException();
-            tagBranchExit();
             visitLabel(noJump);
         }
 

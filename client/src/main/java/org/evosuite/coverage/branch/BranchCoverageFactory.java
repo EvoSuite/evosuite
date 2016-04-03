@@ -77,11 +77,10 @@ public class BranchCoverageFactory extends
 
 				for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
 						methodName)) {
-					if (!(b.getInstruction().isForcedBranch())) {
-						goals.add(createBranchCoverageTestFitness(b, true));
-						// if (!b.isSwitchCaseBranch())
-						goals.add(createBranchCoverageTestFitness(b, false));
-					}
+                    if(!b.isInstrumented()) {
+                        goals.add(createBranchCoverageTestFitness(b, true));
+                        goals.add(createBranchCoverageTestFitness(b, false));
+                    }
 				}
 			}
 		}

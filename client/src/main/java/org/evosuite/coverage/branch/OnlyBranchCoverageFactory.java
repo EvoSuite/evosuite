@@ -19,9 +19,6 @@
  */
 package org.evosuite.coverage.branch;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
@@ -29,6 +26,9 @@ import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -69,7 +69,7 @@ public class OnlyBranchCoverageFactory extends
 
 				for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
 						methodName)) {
-					if (!(b.getInstruction().isForcedBranch())) {
+					if(!b.isInstrumented()) {
 						goals.add(createOnlyBranchCoverageTestFitness(b, true));
 						//if (!b.isSwitchCaseBranch())
 						goals.add(createOnlyBranchCoverageTestFitness(b, false));

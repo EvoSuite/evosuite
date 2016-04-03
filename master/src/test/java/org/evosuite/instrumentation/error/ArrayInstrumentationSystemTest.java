@@ -19,6 +19,8 @@
  */
 package org.evosuite.instrumentation.error;
 
+import com.examples.with.different.packagename.errorbranch.ArrayAccess;
+import com.examples.with.different.packagename.errorbranch.ArrayCreation;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
@@ -28,32 +30,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.errorbranch.ArrayAccess;
-import com.examples.with.different.packagename.errorbranch.ArrayCreation;
-
 public class ArrayInstrumentationSystemTest extends SystemTestBase {
-
-	@Test
-	public void testArrayAccessWithoutErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = ArrayAccess.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 2, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
 
 	@Test
 	public void testArrayAccessWithErrorBranches() {
@@ -64,6 +41,7 @@ public class ArrayInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -73,33 +51,13 @@ public class ArrayInstrumentationSystemTest extends SystemTestBase {
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 8, goals);
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+
 		// One infeasible error branch
-		Assert.assertEquals("Non-optimal coverage: ", 7d / 8d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
 	}
 
-	@Test
-	public void testArrayCreationWithoutErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = ArrayCreation.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 2, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
 
 	@Test
 	public void testArrayCreationWithErrorBranches() {
@@ -110,6 +68,7 @@ public class ArrayInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -119,8 +78,9 @@ public class ArrayInstrumentationSystemTest extends SystemTestBase {
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 4, goals);
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(1, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 

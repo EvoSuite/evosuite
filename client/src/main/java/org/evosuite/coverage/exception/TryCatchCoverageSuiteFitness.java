@@ -2,36 +2,26 @@ package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
-import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gordon on 03/04/2016.
  */
 public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
 
-    public TryCatchCoverageSuiteFitness() {
-        super();
-    }
-
-    public TryCatchCoverageSuiteFitness(ClassLoader loader) {
-        super(loader);
-    }
-
     /**
      * Make sure we only include artificial branches
      */
     protected void determineCoverageGoals() {
-        List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
-        for (BranchCoverageTestFitness goal : goals) {
+        List<TryCatchCoverageTestFitness> goals = new TryCatchCoverageFactory().getCoverageGoals();
+        for (TryCatchCoverageTestFitness goal : goals) {
 
-            // Only instrumented branches
-            if(goal.getBranch() == null || !goal.getBranch().isInstrumented()) {
-                continue;
-            }
             if(Properties.TEST_ARCHIVE)
                 TestsArchive.instance.addGoalToCover(this, goal);
 
@@ -42,5 +32,15 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
                 branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), goal);
         }
         totalGoals = goals.size();
+    }
+
+    @Override
+    protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<String, Integer> callCount) {
+        // no-op
+    }
+
+    @Override
+    protected void handleFalseDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<Integer, Double> falseDistance) {
+        // We only aim to cover true branches
     }
 }

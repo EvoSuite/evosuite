@@ -19,13 +19,13 @@
  */
 package org.evosuite.instrumentation.error;
 
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 public class VectorInstrumentation extends ErrorBranchInstrumenter {
 
@@ -51,11 +51,11 @@ public class VectorInstrumentation extends ErrorBranchInstrumenter {
 				// empty
 				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
 
-				tagBranchStart();
+				//tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, VECTORNAME,
 	                      "isEmpty", "()Z", false);
-				insertBranchWithoutTag(Opcodes.IFLE, "java/util/NoSuchElementException");
-				tagBranchEnd();
+				insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
+				// tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);
 				
 			} else if(indexListMethods.contains(name)) {
