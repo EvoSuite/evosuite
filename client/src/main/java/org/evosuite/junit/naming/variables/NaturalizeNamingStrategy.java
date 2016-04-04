@@ -85,7 +85,7 @@ public class NaturalizeNamingStrategy extends AbstractVariableNamingStrategy {
 			String dummyName = visitor.getVariableName(var);
 			variableNames.remove(var);
 			String name = getNaturalizeRenaming(code, dummyName);
-			put(var, name);
+			put(var, getUniqueName(name));
 		}
 		return variableNames.get(var).name;
 	}
@@ -109,7 +109,7 @@ public class NaturalizeNamingStrategy extends AbstractVariableNamingStrategy {
 			if (i == renamingsArray.length)
 				return id;
 			else
-				return getUniqueName(variableName);
+				return variableName;
 		} catch (NullPointerException e) {
 			// swallow exception
 			logger.debug("Naturalize failed to generate any renaming for {}.", id);
