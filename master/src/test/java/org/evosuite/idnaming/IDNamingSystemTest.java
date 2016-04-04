@@ -19,13 +19,9 @@
  */
 package org.evosuite.idnaming;
 
-import com.examples.with.different.packagename.Calculator;
-import com.examples.with.different.packagename.coverage.BOMInputStreamTest;
 import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
 import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
-import com.examples.with.different.packagename.idnaming.BOMInputStream;
 import com.examples.with.different.packagename.idnaming.naturalize.StringExample;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -35,14 +31,10 @@ import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.statistics.SearchStatistics;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.xsd.TestSuite;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,10 +43,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class IDNamingSystemTest extends SystemTestBase {
 
