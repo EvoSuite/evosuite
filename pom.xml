@@ -777,6 +777,10 @@
                                         <pattern>org.slf4j</pattern>
                                         <shadedPattern>org.evosuite.shaded.org.slf4j</shadedPattern>
                                     </relocation>
+                                    <relocation>
+                                        <pattern>ch.qos.logback</pattern>
+                                        <shadedPattern>org.evosuite.shaded.ch.qos.logback</shadedPattern>
+                                    </relocation>
                                 </relocations>
                             </configuration>
                         </execution>

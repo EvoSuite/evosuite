@@ -39,8 +39,8 @@
 	 -->
 
 
-	<appender name="STDOUT" class="ch.qos.logback.core.FileAppender">
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+	<appender name="STDOUT" class="org.evosuite.shaded.ch.qos.logback.core.FileAppender">
+		<filter class="org.evosuite.shaded.ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
 			<onMatch>DENY</onMatch>
 			<onMismatch>ACCEPT</onMismatch>
@@ -52,15 +52,15 @@
 	</appender>
 
 
-	<appender name="EVO_LOGGER" class="ch.qos.logback.core.FileAppender">
+	<appender name="EVO_LOGGER" class="org.evosuite.shaded.ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>%msg%n</pattern>
 		</encoder>
 		<File>${evosuite.log.folder:-.}/std_out_${evosuite.log.appender:-MASTER}.log</File>
 	</appender>
 
-	<appender name="STDERR" class="ch.qos.logback.core.FileAppender">
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+	<appender name="STDERR" class="org.evosuite.shaded.ch.qos.logback.core.FileAppender">
+		<filter class="org.evosuite.shaded.ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
 			<onMatch>ACCEPT</onMatch>
 			<onMismatch>DENY</onMismatch>
