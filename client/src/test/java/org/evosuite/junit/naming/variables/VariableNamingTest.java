@@ -21,7 +21,6 @@ package org.evosuite.junit.naming.variables;
 
 import com.examples.with.different.packagename.ClassWithPublicField;
 import com.examples.with.different.packagename.NullString;
-import com.examples.with.different.packagename.concolic.MemoryCell;
 import com.examples.with.different.packagename.junit.Foo;
 import com.examples.with.different.packagename.junit.FooArray;
 import org.evosuite.Properties;
@@ -46,7 +45,6 @@ import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericField;
