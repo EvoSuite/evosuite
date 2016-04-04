@@ -48,7 +48,9 @@ import java.util.Map;
 public enum RuntimeVariable {
 
 	/** Number of predicates in CUT */
-	Predicates,         
+	Predicates,
+	/** Number of added jump conditions through instrumentation */
+	Instrumented_Predicates,
 	/** Number of classes in classpath  */
 	Classpath_Classes,   
 	/**  Number of classes analyzed for test cluster */

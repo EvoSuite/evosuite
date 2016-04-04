@@ -22,10 +22,6 @@
  */
 package org.evosuite.setup;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -38,14 +34,18 @@ import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.setup.callgraph.CallGraphGenerator;
 import org.evosuite.setup.callgraph.CallGraph;
+import org.evosuite.setup.callgraph.CallGraphGenerator;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * This class performs static analysis before everything else initializes
@@ -362,6 +362,8 @@ public class DependencyAnalysis {
 	private static void gatherStatistics() {
 		ClientServices.getInstance().getClientNode()
 				.trackOutputVariable(RuntimeVariable.Predicates, BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter());
+		ClientServices.getInstance().getClientNode()
+				.trackOutputVariable(RuntimeVariable.Instrumented_Predicates, BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches());
 		ClientServices
 				.getInstance()
 				.getClientNode()
