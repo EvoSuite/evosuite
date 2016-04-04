@@ -65,6 +65,24 @@ public class TestMethodSignatureNamingStrategy {
         assertEquals("y", tcv.getVariableName(var2));
     }
 
+	@Test
+	public void testSimpleSameVariable() throws NoSuchMethodException {
+		Properties.VARIABLE_NAMING_STRATEGY = Properties.VariableNamingStrategy.DECLARATIONS;
+		VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 0, "x");
+		VariableNameCollector.getInstance().addParameterName(SimpleInteger.class.getCanonicalName(), "testInt(II)I", 1, "y");
+
+		TestCase test = new DefaultTestCase();
+		VariableReference var1 = test.addStatement(new IntPrimitiveStatement(test, 0));
+		GenericConstructor gc = new GenericConstructor(SimpleInteger.class.getConstructor(), SimpleInteger.class);
+		VariableReference callee = test.addStatement(new ConstructorStatement(test, gc, new ArrayList<>()));
+		GenericMethod gm = new GenericMethod(SimpleInteger.class.getMethod("testInt", new Class<?>[] {int.class, int.class}), SimpleInteger.class);
+		test.addStatement(new MethodStatement(test, gm, callee, Arrays.asList(var1, var1)));
+
+		TestCodeVisitor tcv = new TestCodeVisitor();
+		tcv.initializeNamingStrategyFromProperties();
+		test.accept(tcv);
+		assertEquals("x", tcv.getVariableName(var1)); // variable takes its name from method's first parameter
+	}
 
     @Test
     public void testTwoCallsToSameMethodWithSameVariables() throws NoSuchMethodException {
