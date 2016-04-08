@@ -196,6 +196,19 @@ public class ProjectAction implements Action {
 		return classes;
 	}
 
+	public int getNumberOfTestedClasses() {
+		if (this.modules.isEmpty()) {
+			return 0;
+		}
+
+		int classes = 0;
+		for (ModuleAction m : this.modules) {
+			classes += m.getNumberOfTestedClasses();
+		}
+
+		return classes;
+	}
+
 	/**
 	 * 
 	 * @return

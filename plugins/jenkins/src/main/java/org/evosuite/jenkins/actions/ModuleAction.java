@@ -156,6 +156,10 @@ public class ModuleAction implements Action {
 	 * 
 	 * @return
 	 */
+	public int getNumberOfTestedClasses() {
+		return this.projectInfo.getGeneratedTestSuites().size();
+	}
+
 	public int getNumberOfStatements() {
 		if (this.classes.isEmpty()) {
 			return 0;
