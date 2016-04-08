@@ -120,14 +120,16 @@ public class EvoSuiteRecorder extends Recorder {
 
 		AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
 		ProjectAction projectAction = new ProjectAction(project);
-		if (!projectAction.perform(project, build, listener)) {
-			return false;
-		}
+		projectAction.perform(project, build, listener);
 
 		BuildAction build_action = new BuildAction(build, projectAction);
 		build.addAction(build_action);
 
 		// Deliver new test cases (i.e., commit and push the new test cases generated)
+
+		if (this.disableAutoCommit) {
+			return true;
+		}
 
 		SCM scm = project.getScm();
 		if (scm == null) {
@@ -147,16 +149,14 @@ public class EvoSuiteRecorder extends Recorder {
 		}
 		assert scmWrapper != null;
 
-		if (!this.disableAutoCommit) {
-			if (!scmWrapper.commit(build, listener, this.branchName)) {
-				return false;
-			}
+		// perform commit action
+		if (!scmWrapper.commit(build, listener, this.branchName)) {
+			return false;
+		}
 
-			// only perform a push if there was a commit
-			if (!this.disableAutoPush) {
-				if (!scmWrapper.push(build, listener, this.branchName)) {
-					return false;
-				}
+		if (!this.disableAutoPush) {
+			if (!scmWrapper.push(build, listener, this.branchName)) {
+				return false;
 			}
 		}
 

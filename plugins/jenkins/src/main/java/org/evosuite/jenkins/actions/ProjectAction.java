@@ -109,8 +109,12 @@ public class ProjectAction implements Action {
 			String moduleName) throws InterruptedException, IOException {
 
 		// FIXME should we also use module.getRelativePath() ?!
-		// FIXME check if this code does not return a null
-		FilePath from = build.getWorkspace().list(build.getEnvironment(listener).expand(Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO))[0];
+		FilePath[] paths = build.getWorkspace().list(build.getEnvironment(listener).expand(Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO));
+		if (paths.length == 0) {
+			return null;
+		}
+
+		FilePath from = paths[0];
 		FilePath to = new FilePath(new File(build.getRootDir(),
 				File.separator + moduleName + File.separator + Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO));
 		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "From: " + from.getRemote());
@@ -120,7 +124,7 @@ public class ProjectAction implements Action {
 		return new File(to.getRemote());
 	}
 
-	public boolean perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
+	public void perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
 			BuildListener listener) throws InterruptedException, IOException {
 
 		EnvVars env = build.getEnvironment(listener);
@@ -128,20 +132,21 @@ public class ProjectAction implements Action {
 
 		MavenModuleSet prj = (MavenModuleSet) this.project;
 		for (MavenModule module : prj.getModules()) {
-			this.saveTests(build, listener, module.getName());
 			File project_info = this.saveProjectInfoXml(build, listener, module.getName());
+			if (project_info == null) {
+				continue;
+			}
+			this.saveTests(build, listener, module.getName());
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "ProjectInfo: " + project_info.getAbsolutePath());
 
 			if (project_info.exists()) {
 				ModuleAction m = new ModuleAction(build, module.getName());
 				if (!m.build(project_info, listener)) {
-					return false;
+					continue;
 				}
 				this.modules.add(m);
 			}
 		}
-
-		return true;
 	}
 
 	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
