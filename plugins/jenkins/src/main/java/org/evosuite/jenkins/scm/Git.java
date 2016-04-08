@@ -138,6 +138,12 @@ public class Git implements SCM {
 				FilePath[] filesToCommit = build.getWorkspace().list(build.getEnvironment(listener).expand(
 						Properties.CTG_DIR + File.separator + Properties.CTG_BESTS_DIR_NAME + File.separator +
 						"**" + File.separator + "*"));
+
+				if (filesToCommit.length == 0) {
+					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
+					return true;
+				}
+
 				for (FilePath fileToCommit : filesToCommit) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "commit: " + fileToCommit.getRemote());
 					this.gitClient.add(fileToCommit.getRemote());
