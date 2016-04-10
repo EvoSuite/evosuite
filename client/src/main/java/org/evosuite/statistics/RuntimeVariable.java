@@ -126,6 +126,11 @@ public enum RuntimeVariable {
 	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
+	/** Coverage of instrumented branches */
+	Total_Branches_Real,
+	Total_Branches_Instrumented,
+	Covered_Branches_Real,
+	Covered_Branches_Instrumented,
 	TryCatchCoverage,
 	BranchCoverageTimeline,
 	/** A bit string (0/1) representing whether branches (in order) are covered */

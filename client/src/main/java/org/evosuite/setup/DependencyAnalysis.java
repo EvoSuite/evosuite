@@ -364,11 +364,21 @@ public class DependencyAnalysis {
 				.trackOutputVariable(RuntimeVariable.Predicates, BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter());
 		ClientServices.getInstance().getClientNode()
 				.trackOutputVariable(RuntimeVariable.Instrumented_Predicates, BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches());
+		int numBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter() * 2;
 		ClientServices
 				.getInstance()
 				.getClientNode()
-				.trackOutputVariable(RuntimeVariable.Total_Branches,
-						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter()) * 2);
+				.trackOutputVariable(RuntimeVariable.Total_Branches, numBranches);
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.Total_Branches_Real,
+						((BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter() - BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()))/2);
+		ClientServices
+				.getInstance()
+				.getClientNode()
+				.trackOutputVariable(RuntimeVariable.Total_Branches_Instrumented,
+						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()));
 		ClientServices
 				.getInstance()
 				.getClientNode()
