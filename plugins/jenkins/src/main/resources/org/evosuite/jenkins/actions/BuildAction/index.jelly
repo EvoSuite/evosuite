@@ -28,8 +28,8 @@
           <td class="pane-header">Overall Coverage</td>
           <td class="pane-header">Number of Testable Classes</td>
           <td class="pane-header">Number of Tested Classes</td>
-          <td class="pane-header">Number of Tests</td>
-          <td class="pane-header">Number of Statements</td>
+          <td class="pane-header">Average Number of Tests</td>
+          <td class="pane-header">Average Number of Statements</td>
           <td class="pane-header">Total Effort (minutes)</td>
         </tr>
         <j:forEach var="moduleAction" items="${it.getModules()}">
