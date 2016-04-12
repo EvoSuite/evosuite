@@ -245,7 +245,7 @@ public class ModuleAction implements Action {
 
 		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
 		formatter.applyPattern("#0.00");
-		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
+		return Double.parseDouble(formatter.format(coverage / this.getNumberOfTestableClasses()));
 	}
 
 	/**
@@ -265,7 +265,7 @@ public class ModuleAction implements Action {
 
 		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
 		formatter.applyPattern("#0.00");
-		return Double.parseDouble(formatter.format(coverage / this.classes.size()));
+		return Double.parseDouble(formatter.format(coverage / this.getNumberOfTestableClasses()));
 	}
 
 	/**
