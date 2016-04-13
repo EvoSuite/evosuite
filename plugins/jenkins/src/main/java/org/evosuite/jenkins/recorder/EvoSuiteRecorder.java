@@ -60,12 +60,15 @@ public class EvoSuiteRecorder extends Recorder {
 	private boolean disableAutoCommit;
 	private boolean disableAutoPush;
 	private String branchName;
+	private String ctgBestsDir;
 
 	@DataBoundConstructor
-	public EvoSuiteRecorder(boolean disableAutoCommit, boolean disableAutoPush, String branchName) {
+	public EvoSuiteRecorder(boolean disableAutoCommit, boolean disableAutoPush,
+	    String branchName, String ctgBestsDir) {
 		this.disableAutoCommit = disableAutoCommit;
 		this.disableAutoPush = disableAutoPush;
 		this.branchName = branchName;
+		this.ctgBestsDir = ctgBestsDir;
 	}
 
 	public boolean getDisableAutoCommit() {
@@ -80,6 +83,10 @@ public class EvoSuiteRecorder extends Recorder {
 		return this.branchName;
 	}
 
+	public String getCtgBestsDir() {
+	    return this.ctgBestsDir;
+	}
+
 	public void setDisableAutoCommit(boolean disableAutoCommit) {
 		this.disableAutoCommit = disableAutoCommit;
 	}
@@ -90,6 +97,10 @@ public class EvoSuiteRecorder extends Recorder {
 
 	public void setBranchName(String branchName) {
 		this.branchName = branchName;
+	}
+
+	public void setCtgBestsDir(String ctgBestsDir) {
+        this.ctgBestsDir = ctgBestsDir;
 	}
 
 	@Override
@@ -150,7 +161,7 @@ public class EvoSuiteRecorder extends Recorder {
 		assert scmWrapper != null;
 
 		// perform commit action
-		if (!scmWrapper.commit(build, listener, this.branchName)) {
+		if (!scmWrapper.commit(build, listener, this.branchName, this.ctgBestsDir)) {
 			return false;
 		}
 

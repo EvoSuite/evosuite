@@ -9,4 +9,7 @@
   <f:entry title="${%Branch name}" help="...">
     <f:textbox name="evosuite.branchName" value="${instance.branchName}" default="evosuite-tests" />
   </f:entry>
+  <f:entry title="${%Directory name containing the best EvoSuite test suites}" help="Directory where all the best test suites generated so far are stored.">
+    <f:textbox name="evosuite.ctgBestsDir" value="${instance.ctgBestsDir}" default=".evosuite/best-tests" />
+  </f:entry>
 </j:jelly>

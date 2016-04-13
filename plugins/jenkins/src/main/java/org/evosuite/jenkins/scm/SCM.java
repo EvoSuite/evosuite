@@ -19,16 +19,14 @@
  */
 package org.evosuite.jenkins.scm;
 
-import java.io.File;
-
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 
 public interface SCM {
 
-	public static String TESTS_DIR_TO_COMMIT = ".evosuite" + File.separator + "best-tests";
+    public static String COMMIT_MSG_PREFIX = "EvoSuite Jenkins Plugin #";
 
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir);
 
 	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 

@@ -74,7 +74,7 @@ public class Mercurial implements SCM {
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
@@ -103,7 +103,7 @@ public class Mercurial implements SCM {
 			}
 
 			// parse list of new and modified files
-			Set<String> setOfFiles = this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener, true, new ArgumentListBuilder("status")));
+			Set<String> setOfFiles = this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener, true, new ArgumentListBuilder("status")), ctgBestsDir);
 			for (String file : setOfFiles) {
 				if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
 					this.rollback(build, listener);
@@ -112,7 +112,7 @@ public class Mercurial implements SCM {
 			}
 
 			// commit
-			String commit_msg = "EvoSuite Jenkins Plugin #" + "evosuite-" + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
+			String commit_msg = SCM.COMMIT_MSG_PREFIX + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + commit_msg);
 
 			if (this.hgClient.run("commit", "--message", commit_msg).pwd(build.getWorkspace()).join() != 0) {
@@ -150,9 +150,9 @@ public class Mercurial implements SCM {
 		// TODO
 	}
 
-	private Set<String> parseStatus(String status) {
+	private Set<String> parseStatus(String status, String ctgBestsDir) {
 		Set<String> result = new LinkedHashSet<String>();
-		Matcher m = Pattern.compile("[?AMR!]\\s(.*" + SCM.TESTS_DIR_TO_COMMIT + ".*)").matcher(status);
+		Matcher m = Pattern.compile("[?AMR!]\\s(.*" + ctgBestsDir + ".*)").matcher(status);
 		while (m.find()) {
 			result.add(m.group(1));
 		}
