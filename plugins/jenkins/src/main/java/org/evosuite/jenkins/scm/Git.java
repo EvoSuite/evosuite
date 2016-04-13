@@ -25,7 +25,6 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 
 import org.eclipse.jgit.transport.URIish;
-import org.evosuite.Properties;
 import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.jenkinsci.plugins.gitclient.CliGitAPIImpl;
 import org.jenkinsci.plugins.gitclient.GitClient;
@@ -88,7 +87,7 @@ public class Git implements SCM {
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
+	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
@@ -111,7 +110,7 @@ public class Git implements SCM {
 			try {
 				// parse list of new and modified files
 				String status = ((CliGitAPIImpl) this.gitClient).launchCommand("ls-files", "--deleted", "--modified",
-						"--others", SCM.TESTS_DIR_TO_COMMIT);
+						"--others", ctgBestsDir);
 				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Status (" + status.length() + "):\n" + status);
 
 				if (status.isEmpty()) {
@@ -138,8 +137,7 @@ public class Git implements SCM {
 				// GitClient, however we still do not know how to get that.
 				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage() + "\nTrying a different approach!");
 				FilePath[] filesToCommit = build.getWorkspace().list(build.getEnvironment(listener).expand(
-						Properties.CTG_DIR + File.separator + Properties.CTG_BESTS_DIR_NAME + File.separator +
-						"**" + File.separator + "*"));
+				    ctgBestsDir + File.separator + "**" + File.separator + "*"));
 
 				if (filesToCommit.length == 0) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
@@ -153,8 +151,7 @@ public class Git implements SCM {
 			}
 
 			// commit
-			String commit_msg = "EvoSuite Jenkins Plugin #" + "evosuite-"
-					+ build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
+			String commit_msg = SCM.COMMIT_MSG_PREFIX + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + commit_msg);
 			this.gitClient.commit(commit_msg);
 
