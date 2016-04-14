@@ -87,7 +87,7 @@ public class Git implements SCM {
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
+	public int commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
@@ -107,6 +107,7 @@ public class Git implements SCM {
 			EnvVars env = build.getEnvironment(listener);
 			env.overrideAll(build.getBuildVariables());
 
+			int number_of_files_committed = 0;
 			try {
 				// parse list of new and modified files
 				String status = ((CliGitAPIImpl) this.gitClient).launchCommand("ls-files", "--deleted", "--modified",
@@ -115,7 +116,7 @@ public class Git implements SCM {
 
 				if (status.isEmpty()) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
-					return true;
+					return 0;
 				}
 
 				for (String toCommit : status.split("\\R")) {
@@ -123,6 +124,8 @@ public class Git implements SCM {
 					if (new File(filePath).exists()) {
 						listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "adding: " + filePath);
 						this.gitClient.add(filePath);
+
+						number_of_files_committed++;
 					} else {
 						listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "File '" + filePath + "' reported by git status command does not exist");
 					}
@@ -141,9 +144,10 @@ public class Git implements SCM {
 
 				if (filesToCommit.length == 0) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
-					return true;
+					return number_of_files_committed;
 				}
 
+				number_of_files_committed = filesToCommit.length;
 				for (FilePath fileToCommit : filesToCommit) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "adding: " + fileToCommit.getRemote());
 					this.gitClient.add(fileToCommit.getRemote());
@@ -155,19 +159,14 @@ public class Git implements SCM {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + commit_msg);
 			this.gitClient.commit(commit_msg);
 
-		} catch (InterruptedException e) {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commit failed " + e.getMessage());
-			e.printStackTrace();
-			this.rollback(build, listener);
-			return false;
-		} catch (IOException e) {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commit failed " + e.getMessage());
-			e.printStackTrace();
-			this.rollback(build, listener);
-			return false;
-		}
+			return number_of_files_committed;
 
-		return true;
+		} catch (InterruptedException | IOException e) {
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commit failed " + e.getMessage());
+			e.printStackTrace();
+			this.rollback(build, listener);
+			return -1;
+		}
 	}
 
 	@Override
