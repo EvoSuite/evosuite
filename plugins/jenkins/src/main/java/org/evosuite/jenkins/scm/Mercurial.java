@@ -74,7 +74,7 @@ public class Mercurial implements SCM {
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
+	public int commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
@@ -86,29 +86,32 @@ public class Mercurial implements SCM {
 						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + branchName);
 				if (this.hgClient.run("branch", branchName).pwd(build.getWorkspace()).join() != 0) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to create a new branch called " + branchName);
-					return false;
+					return -1;
 				}
 			}
 
 			// switch to EVOSUITE_BRANCH
 			if (this.hgClient.run("update", branchName).pwd(build.getWorkspace()).join() != 0) {
 				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to switch to branch " + branchName);
-				return false;
+				return -1;
 			}
 
 			// start adding all removed files to commit
 			if (this.hgClient.run("remove", "--after").pwd(build.getWorkspace()).join() != 0) {
 				this.rollback(build, listener);
-				return false;
+				return -1;
 			}
 
 			// parse list of new and modified files
+			int number_of_files_committed = 0;
 			Set<String> setOfFiles = this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener, true, new ArgumentListBuilder("status")), ctgBestsDir);
 			for (String file : setOfFiles) {
 				if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
 					this.rollback(build, listener);
-					return false;
+					return -1;
 				}
+
+				number_of_files_committed++;
 			}
 
 			// commit
@@ -117,15 +120,15 @@ public class Mercurial implements SCM {
 
 			if (this.hgClient.run("commit", "--message", commit_msg).pwd(build.getWorkspace()).join() != 0) {
 				this.rollback(build, listener);
-				return false;
+				return -1;
 			}
+
+			return number_of_files_committed++;
 
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-			return false;
+			return -1;
 		}
-
-		return false;
 	}
 
 	@Override

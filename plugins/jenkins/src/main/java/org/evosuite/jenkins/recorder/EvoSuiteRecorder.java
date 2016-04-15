@@ -161,11 +161,12 @@ public class EvoSuiteRecorder extends Recorder {
 		assert scmWrapper != null;
 
 		// perform commit action
-		if (!scmWrapper.commit(build, listener, this.branchName, this.ctgBestsDir)) {
+		int number_of_files_committed = scmWrapper.commit(build, listener, this.branchName, this.ctgBestsDir);
+		if (number_of_files_committed == -1) {
 			return false;
 		}
 
-		if (!this.disableAutoPush) {
+		if (!this.disableAutoPush && number_of_files_committed > 0) {
 			if (!scmWrapper.push(build, listener, this.branchName)) {
 				return false;
 			}
