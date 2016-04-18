@@ -19,60 +19,61 @@
     License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<!-- This XSD file defines the XML structure of project info for Continuous 
-	Test Generation (CTG). It is important to use a XSD for several reasons, 
-	eg: (1) Being able to still read the data after an EvoSuite release upgrade; 
-	(2) The XSD defines a contract for other components (eg a Jenkins plugin) that 
-	needs to read this data; (3) Easier to integrate other tools. For more details, 
-	see: http://www.w3.org/TR/xmlschema-0/ -->
+<!--
+	This XSD file defines the XML structure of project info for Continuous 
+	Test Generation (CTG). It is important to use a XSD for several reasons, e.g.:
+	(1) Being able to still read the data after an EvoSuite release upgrade; 
+	(2) The XSD defines a contract for other components (eg a Jenkins plugin)
+	that needs to read this data;
+	(3) Easier to integrate other tools.
 
+	The XML should be as smaller as possible, because each invocation of the
+	CTG will add more and more data. At some point we might want to delete old
+	entries, but it is still not clear how should we handled that.
+
+	For more details, see: http://www.w3.org/TR/xmlschema-0/
+-->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<xs:element name="ProjectInfo">
+	<xs:element name="Project">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="totalNumberOfClasses" type="xs:nonNegativeInteger" />
-				<xs:element name="totalNumberOfTestableClasses" type="xs:nonNegativeInteger" />
-				<xs:element name="overallCoverage" type="percentage" /> <!-- note, this is a derived value -->
+				<xs:element name="totalNumberOfTestableClasses" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1" />
 				<xs:sequence>
-					<xs:element name="generatedTestSuites" type="TestSuite" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="cut" type="CUT" minOccurs="0" maxOccurs="unbounded" />
 				</xs:sequence>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
-	<xs:complexType name="TestSuite">
+	<xs:complexType name="CUT">
 		<xs:sequence>
-			<xs:element name="fullNameOfTargetClass" type="xs:string" />
-			<xs:element name="fullNameOfTestSuite" type="xs:string" />
-			<xs:element name="totalEffortInSeconds" type="xs:nonNegativeInteger" />
+			<xs:element name="fullNameOfTargetClass" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="fullNameOfTestSuite" type="xs:string" minOccurs="1" maxOccurs="1" />
 			<xs:sequence>
-				<xs:element name="coverageTestSuites" type="TestSuiteCoverage" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="generation" type="Generation" minOccurs="1" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="TestSuiteCoverage">
+	<xs:complexType name="Generation">
 		<xs:sequence>
-			<xs:element name="id" type="xs:nonNegativeInteger" />
-			<xs:element name="fullPathOfTestSuite" type="xs:string" />
+			<xs:element name="id" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1" />
+			<xs:element name="failed" type="xs:boolean" minOccurs="1" maxOccurs="1" />
+			<xs:element name="modified" type="xs:boolean" minOccurs="1" maxOccurs="1" />
+			<xs:element name="std_err_CLIENT" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="std_out_CLIENT" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="std_err_MASTER" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="std_out_MASTER" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<!-- TODO what else? memory used? number of GA's evaluations? ... -->
 			<xs:sequence>
-				<xs:element name="coverage" type="CriterionCoverage" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="failure" type="Failure" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
-			<xs:element name="numberOfTests" type="xs:nonNegativeInteger" />
-			<xs:element name="totalNumberOfStatements" type="xs:nonNegativeInteger" />			
-			<xs:element name="effortInSeconds" type="xs:nonNegativeInteger" />			
-			<xs:sequence>
-				<xs:element name="failures" type="Failure" minOccurs="0" maxOccurs="unbounded" />
-			</xs:sequence>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="CriterionCoverage">
-		<xs:sequence>
-			<xs:element name="criterion" type="xs:string" />
-			<xs:element name="coverageValue" type="percentage" />
+			<!-- EvoSuite could fail and not return any test suite. Or if a new generated
+			     test suite do not improve the coverage, number of test cases, etc of a
+			     previously generated suite, it is not included here. -->
+			<xs:element name="suite" type="TestSuite" minOccurs="0" maxOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -93,6 +94,28 @@
 			<xs:enumeration value="MINOR" />
 		</xs:restriction>
 	</xs:simpleType>
+
+	<xs:complexType name="TestSuite">
+		<xs:sequence>
+			<xs:element name="fullPathOfTestSuite" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="numberOfTests" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1" />
+			<xs:element name="totalNumberOfStatements" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1" />
+			<xs:element name="totalEffortInSeconds" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1" />
+			<!-- TODO what else? number of assertions, ... -->
+			<xs:sequence>
+				<xs:element name="coverage" type="Coverage" minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Coverage">
+		<xs:sequence>
+			<xs:element name="criterion" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="coverageValue" type="percentage" minOccurs="1" maxOccurs="1" />
+			<xs:element name="coverageBitString" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<!-- TODO what else? -->
+		</xs:sequence>
+	</xs:complexType>
 
 	<xs:simpleType name="percentage">
 		<xs:restriction base="xs:double">

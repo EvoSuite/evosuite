@@ -45,10 +45,15 @@ import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
-import org.evosuite.xsd.CriterionCoverage;
-import org.evosuite.xsd.ProjectInfo;
+import org.evosuite.utils.LoggingUtils;
+import org.evosuite.xsd.CUT;
+import org.evosuite.xsd.CUTUtil;
+import org.evosuite.xsd.Coverage;
+import org.evosuite.xsd.Generation;
+import org.evosuite.xsd.GenerationUtil;
+import org.evosuite.xsd.Project;
+import org.evosuite.xsd.ProjectUtil;
 import org.evosuite.xsd.TestSuite;
-import org.evosuite.xsd.TestSuiteCoverage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +84,7 @@ public class StorageManager {
 	public StorageManager() {
 		this.isStorageOk = this.openForWriting();
 		this.df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ENGLISH);
+		this.df.applyPattern("#0.00");
 	}
 
 	/**
@@ -272,62 +278,54 @@ public class StorageManager {
 			throw new NullPointerException("ProjectStaticData 'current' cannot be null");
 		}
 		
-		ProjectInfo db = StorageManager.getDatabaseProjectInfo();
-		String info = removeNoMoreExistentData(db, current);
+		Project db = StorageManager.getDatabaseProject();
+		String info = "\n\n=== CTG run results ===\n";
 
-		info += "\n\n=== CTG run results ===";
-		
-		/*
-		 * Check what test cases have been actually generating
-		 * in this CTG run
-		 */
+		info += removeNoMoreExistentData(db, current);
+
 		List<TestsOnDisk> suites = gatherGeneratedTestsOnDisk();
-		info += "\nNew test suites: "+suites.size();
+		info += "\nNew test suites: " + suites.size();
 
-		//identify for which CUTs we failed to generate tests
-		if(cuts != null && cuts.length != suites.size()){
-			//this can happen if crash for some CUTs
-			Set<String> presents = new LinkedHashSet<>();
-			for(TestsOnDisk ts : suites){
-				String name = ts.cut;
-				presents.add(name);
-			}
+		// identify for which CUTs we failed to generate tests
+		Set<String> missingCUTs = new LinkedHashSet<String>();
 
-			Set<String> expected = new LinkedHashSet<>();
-			Collections.addAll(expected,cuts);
-			List<String> missing = new ArrayList<>();
-			for(String exp : expected){
-				if(!presents.contains(exp)){
-					missing.add(exp);
-				}
-			}
+		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(current.getTotalNumberOfTestableCUTs()));
+		for (String cut : current.getClassNames()) {
+		    if (!current.getClassInfo(cut).isTestable() || !current.getClassInfo(cut).isToTest()) {
+		        // if a class is not testable or was not considered for
+		        // test generation, we don't need to update any database
+		        // of that class. and not even counting it as a missing class
+		        continue ;
+		    }
 
-			if(! missing.isEmpty()){
-				if(missing.size()==1){
-					info += "\n\nWARN: failed to generate tests for "+missing.get(0);
-				} else {
-					info += "\n\nMissing classes:";
+		    TestsOnDisk suite = suites.parallelStream().filter(s -> s.cut.equals(cut)).findFirst().orElse(null);
+		    if (suite == null && current.getClassInfo(cut).isToTest()) {
+                missingCUTs.add(cut);
+            }
 
-					Collections.sort(missing);
-					for(String m : missing){
-						info += "\n" + m;
-					}
-
-					String summary = "\n\nWARN: failed to generate tests for "+missing.size()+" classes out of "+expected.size();
-					info += summary;
-				}
-			}
+		    LoggingUtils.getEvoLogger().info("* Updating database to " + cut);
+		    updateDatabase(cut, suite, db, current);
 		}
 
-		for (TestsOnDisk suite : suites) {
-			if (isBetterThanExistingTestCases(current, suite)) {
-				updateDatabase(suite,db);
-			}
+		/*
+         * Print out what class(es) EvoSuite failed to generate
+         * test cases in this CTG run
+         */
+
+		if (!missingCUTs.isEmpty()) {
+		    if (missingCUTs.size() == 1) {
+		        info += "\n\nWARN: failed to generate tests for " + missingCUTs.iterator().next();
+		    } else {
+		        info += "\n\nMissing classes:";
+		        for (String missingCUT : missingCUTs) {
+		            info += "\n" + missingCUT;
+		        }
+		        String summary = "\n\nWARN: failed to generate tests for " + missingCUTs.size() + " classes out of " + current.getTotalNumberOfTestableCUTs();
+                info += summary;
+		    }
 		}
 
-		updateProjectStatistics(db,current);
 		commitDatabase(db);
-
 		return info;
 	}
 
@@ -450,12 +448,12 @@ public class StorageManager {
 	}
 	
 	
-	private void commitDatabase(ProjectInfo db) {
+	private void commitDatabase(Project db) {
 
 		StringWriter writer = null;
 		try{
 			writer = new StringWriter();
-			JAXBContext context = JAXBContext.newInstance(ProjectInfo.class);            
+			JAXBContext context = JAXBContext.newInstance(Project.class);            
 			Marshaller m = context.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true); // TODO remove me!
 			m.marshal(db, writer);
@@ -480,29 +478,6 @@ public class StorageManager {
 		return new File(Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO);
 	}
 
-	private void updateProjectStatistics(ProjectInfo db, ProjectStaticData current) {
-
-		db.setTotalNumberOfClasses(BigInteger.valueOf(current.getTotalNumberOfClasses()));
-		int n = current.getTotalNumberOfTestableCUTs();
-		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(n));
-
-		double coverage = 0d;
-		for (TestSuite suite : db.getGeneratedTestSuites()) {
-			TestSuiteCoverage suite_coverage = suite.getCoverageTestSuites().get( suite.getCoverageTestSuites().size() - 1 );
-
-			double criterion_coverage = 0d;
-			for (CriterionCoverage c : suite_coverage.getCoverage()) {
-				criterion_coverage += c.getCoverageValue();
-			}
-
-			coverage += (criterion_coverage / (double) suite_coverage.getCoverage().size());
-		}
-
-		coverage = coverage / (double) n;
-		this.df.applyPattern("#0.00");
-		db.setOverallCoverage(Double.parseDouble(this.df.format(coverage)));
-	}
-
 	/**
 	 * Not only modify the state of <code>db</code>, but
 	 * also copy/replace new test cases on file disk
@@ -510,81 +485,110 @@ public class StorageManager {
 	 * @param ondisk
 	 * @param db
 	 */
-	private void updateDatabase(TestsOnDisk ondisk, ProjectInfo db) {
+	private void updateDatabase(String targetClass, TestsOnDisk ondisk, Project db, ProjectStaticData current) {
 
-		assert ondisk.isValid();
+  	    String testName = targetClass + Properties.JUNIT_SUFFIX; //extractClassName(tmpTests, ondisk.testSuite);
 
-		CsvJUnitData csv = ondisk.csvData;
+		// CUT data
 
-		String testName = extractClassName(tmpTests, ondisk.testSuite);
+		CUT cut = ProjectUtil.getCUT(db, targetClass);
+		if (cut == null) {
+		    // first generation
+			cut = new CUT();
+			cut.setFullNameOfTargetClass(targetClass);
+			cut.setFullNameOfTestSuite(testName);
 
-		TestSuite suite = null;
-		Iterator<TestSuite> iter = db.getGeneratedTestSuites().iterator();
-		while (iter.hasNext()) {
-			TestSuite tmp = iter.next();
-			if (tmp.getFullNameOfTargetClass().equals(csv.getTargetClass())) {
-				suite = tmp;
-
-				iter.remove();
-				break;
-			}
+			db.getCut().add(cut);
 		}
 
-		// first generation
-		BigInteger totalEffort = BigInteger.ZERO;
-		if (suite == null) {
-			suite = new TestSuite();
-			suite.setFullNameOfTestSuite(testName);
-			suite.setFullNameOfTargetClass(csv.getTargetClass());
-		} else {
-			totalEffort = suite.getTotalEffortInSeconds();
+		// Generation data
+
+		Generation generation = new Generation();
+		generation.setId(BigInteger.valueOf(cut.getGeneration().size()));
+		generation.setFailed(false); // by default
+		generation.setModified(current.getClassInfo(targetClass).hasChanged());
+
+		File std_err_CLIENT = new File(this.tmpLogs + File.separator + targetClass
+            + File.separator + "std_err_CLIENT.log");
+		assert std_err_CLIENT.exists();
+	    File std_out_CLIENT = new File(this.tmpLogs + File.separator + targetClass
+            + File.separator + "std_out_CLIENT.log");
+	    assert std_out_CLIENT.exists();
+	    File std_err_MASTER = new File(this.tmpLogs + File.separator + targetClass
+            + File.separator + "std_err_MASTER.log");
+	    assert std_err_MASTER.exists();
+	    File std_out_MASTER = new File(this.tmpLogs + File.separator + targetClass
+            + File.separator + "std_out_MASTER.log");
+	    assert std_out_MASTER.exists();
+		generation.setStdErrCLIENT(std_err_CLIENT.getAbsolutePath());
+		generation.setStdOutCLIENT(std_out_CLIENT.getAbsolutePath());
+		generation.setStdErrMASTER(std_err_MASTER.getAbsolutePath());
+		generation.setStdOutMASTER(std_out_MASTER.getAbsolutePath());
+
+		cut.getGeneration().add(generation);
+
+		if (ondisk == null) {
+		    // EvoSuite failed to generate any test case for 'targetClass'.
+		    // was it supposed to happen?
+		    if (current.getClassInfo(targetClass).isToTest()) {
+		        // it should have generated test cases
+		        generation.setFailed(true);
+
+	            /*
+	             * TODO to properly update failure data, we will first need
+	             * to change how we output such info in EvoSuite (likely
+	             * we will need something more than statistics.csv) 
+	             */
+		    }
+
+		    return;
 		}
 
-		TestSuiteCoverage new_coverage_test_suite = new TestSuiteCoverage();
-		new_coverage_test_suite.setId(BigInteger.valueOf( suite.getCoverageTestSuites().size() ));
-		new_coverage_test_suite.setFullPathOfTestSuite(ondisk.testSuite.getAbsolutePath());
+        assert ondisk.isValid();
+        CsvJUnitData csv = ondisk.csvData;
 
-		List<CriterionCoverage> coverageValues = new ArrayList<CriterionCoverage>();
-		this.df.applyPattern("#0.00");
+		if (!isBetterThanAnyExistingTestSuite(db, current, ondisk)) {
+		    // if the new test suite is not better than any other
+		    // test suite (manually written or generated), we don't
+		    // accept the new test suite and we just keep information
+		    // about EvoSuite execution.
+		    return;
+		}
 
+		// Test Suite data
+
+		TestSuite suite = new TestSuite();
+		suite.setFullPathOfTestSuite(ondisk.testSuite.getAbsolutePath());
+		suite.setNumberOfTests(BigInteger.valueOf(csv.getNumberOfTests()));
+		suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
+		suite.setTotalEffortInSeconds(BigInteger.valueOf(csv.getDurationInSeconds()));
+
+		List<Coverage> coverageValues = new ArrayList<Coverage>();
 		for (String criterion : csv.getCoverageVariables()) {
-			CriterionCoverage coverage = new CriterionCoverage();
-			coverage.setCriterion(criterion);
-			coverage.setCoverageValue(Double.parseDouble(this.df.format(csv.getCoverage(criterion))));
+		    Coverage coverage = new Coverage();
+		    coverage.setCriterion(criterion);
+		    coverage.setCoverageValue(Double.parseDouble(this.df.format(csv.getCoverage(criterion))));
+		    coverage.setCoverageBitString(csv.getCoverageBitString(criterion));
 
-			coverageValues.add(coverage);
+		    coverageValues.add(coverage);
 		}
-		new_coverage_test_suite.getCoverage().addAll(coverageValues);
 
-		new_coverage_test_suite.setNumberOfTests(BigInteger.valueOf(csv.getNumberOfTests()));
-		new_coverage_test_suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
-
-		BigInteger duration = new BigInteger(String.valueOf(csv.getDurationInSeconds()));
-		suite.setTotalEffortInSeconds(totalEffort.add(duration));
-		new_coverage_test_suite.setEffortInSeconds(duration);
-
-		suite.getCoverageTestSuites().add(new_coverage_test_suite);
-		db.getGeneratedTestSuites().add(suite);
-
-		/*
-		 * TODO to properly update failure data, we will first need
-		 * to change how we output such info in EvoSuite (likely
-		 * we will need something more than statistics.csv)
-		 */
+		suite.getCoverage().addAll(coverageValues);
+		generation.setSuite(suite);
 
 		/*
 		 * So far we have modified only the content of db.
 		 * Need also to update the actual test cases 
 		 */
-		removeTestSuite(testName);
-		addTestSuite(ondisk.testSuite);
+		removeBestTestSuite(testName);
+		addBestTestSuite(ondisk.testSuite);
 
 		File scaffolding = getScaffoldingIfExists(ondisk.testSuite);
 		if (scaffolding != null) {
-			addTestSuite(scaffolding);
+			addBestTestSuite(scaffolding);
 		}
 
-		if(ondisk.serializedSuite != null){
+		if (ondisk.serializedSuite != null) {
 			File target = new File(getSeedInFolder(), ondisk.serializedSuite.getName());
 			target.delete();
 			try {
@@ -622,7 +626,7 @@ public class StorageManager {
 	 *   
 	 * @param newlyGeneratedTestSuite
 	 */
-	private void addTestSuite(File newlyGeneratedTestSuite) {
+	private void addBestTestSuite(File newlyGeneratedTestSuite) {
 		String testName = extractClassName(tmpTests,newlyGeneratedTestSuite);
 		
 		String path = testName.replace(".", File.separator) + ".java";
@@ -636,7 +640,27 @@ public class StorageManager {
 		}
 	}
 
-	private boolean isBetterThanExistingTestCases(ProjectStaticData current, TestsOnDisk suite) {
+	/**
+	 * Before accepting a new generated test suite, this function
+	 * checks if it improves coverage of any existing test suite.
+	 * The coverage of any existing test suite can be obtained
+	 * using mvn evosuite:coverage, which creates a evosuite-report/statistics.csv
+	 * file with code coverage. This function first verifies whether
+	 * it a new class (or a class that has been modified). Note that
+	 * by default and to be compatible with all Schedules, we consider
+	 * that a class has always been modified, unless HistorySchedule
+	 * says different. Then it checks if the new generated test suite
+	 * has better coverage (or if it covers different goals). If yes,
+	 * it returns true (and the generated test suite is accepted),
+	 * false otherwise.
+	 * 
+	 * @param db
+	 * @param current
+	 * @param suite
+	 * @return true is the generated test suite is better (in terms of
+	 * coverage) than any existing test suite, false otherwise
+	 */
+	private boolean isBetterThanAnyExistingTestSuite(Project db, ProjectStaticData current, TestsOnDisk suite) {
 
 		if (suite.csvData == null) {
 			// no data available
@@ -645,8 +669,9 @@ public class StorageManager {
 
 		// first check if the class under test has been changed or if
 		// is a new class. if yes, accept the generated TestSuite
-		// (even if the coverage has decreased)
-		if (current.hasChanged(suite.cut)) {
+		// (even without checking if the coverage has decreased)
+		// note: by default a class has been changed
+		if (current.getClassInfo(suite.cut).hasChanged()) {
 			return true;
 		}
 
@@ -657,8 +682,10 @@ public class StorageManager {
 		File statistics_file = new File(statistics);
 		if (!statistics_file.exists()) {
 			// this could happen if file was manually removed
-			// or if is a project without test cases
-			return true;
+			// or if is a project without test cases. before giving
+		    // up, let's check if it's better than any previous generated
+		    // test suite
+		    return isBetterThanPreviousGeneration(db, current, suite);
 		}
 
 		List<String[]> rows = null;
@@ -684,26 +711,33 @@ public class StorageManager {
         if (rowCUT.size() == 1) {
         	// this could happen if the data of the Class Under
         	// Test was manually removed, or if during the execution
-        	// of measureCoverage option something wrong happened
-        	return true;
+        	// of measureCoverage option something wrong happened.
+            // if so, try to compare with a previous generated one
+            return isBetterThanPreviousGeneration(db, current, suite);
         }
 
-        // if at least the coverage of one criterion was
-        // improved accept the generated TestSuite
+        // is the OverallCoverage higher?
+        double existingOverallCoverage = 0.0;
+        double generatedOverallCoverage = 0.0;
+
         for (String variable : suite.csvData.getCoverageVariables()) {
         	String coverageVariable = CsvJUnitData.getValue(rowCUT, variable);
         	if (coverageVariable == null) {
         		continue ;
         	}
 
-        	double generatedCoverage = suite.csvData.getCoverage(variable);
-        	double existingCoverage = Double.valueOf(coverageVariable);
-        	double covDif = generatedCoverage - existingCoverage; 
+        	generatedOverallCoverage += suite.csvData.getCoverage(variable);
+        	existingOverallCoverage += Double.valueOf(coverageVariable);
+        }
 
-        	// this check is to avoid issues with double truncation
-        	if (covDif > 0.0001) {
-				return true;
-			}
+        // average
+        generatedOverallCoverage /= suite.csvData.getNumberOfCoverageValues();
+        existingOverallCoverage /= suite.csvData.getNumberOfCoverageValues();
+
+        double covDif = generatedOverallCoverage - existingOverallCoverage; 
+        // this check is to avoid issues with double truncation
+        if (covDif > 0.0001) {
+            return true;
         }
 
         // coverage seems to be either the same or lower. does the generated
@@ -716,8 +750,10 @@ public class StorageManager {
         	}
 
         	String generatedCoverage = suite.csvData.getCoverageBitString(variable);
-        	// both strings must have the same length
-        	assert(generatedCoverage.length() == existingCoverage.length());
+        	if (generatedCoverage.length() != existingCoverage.length()) {
+                // accept the new suite, as we can't compare both BitStrings
+                return true;
+            }
 
         	for (int i = 0; i < generatedCoverage.length(); i++) {
         		if (existingCoverage.charAt(i) == '0' && generatedCoverage.charAt(i) == '1') {
@@ -729,74 +765,113 @@ public class StorageManager {
 		return false;
 	}
 
-	/*
-		this not really reliable, as CUT could have changed. tracking compilation would be cumbersome (many edge
-		cases), and not even so useful, as we would lose info each time of a "mvn clean"
+	/**
+	 * Before accepting the new test suite this function verifies
+	 * whether it is better (in terms of coverage) than a previous
+	 * test generation. It first checks whether it is a class that
+	 * has been modified. By default we consider that a class has
+	 * always been changed. Only HistorySchedule will change that
+	 * behavior. So, for all Schedules except History we accept
+	 * the new generated test suite. For HistorySchedule, and if a
+	 * class has not been changed it then checks if the new test
+	 * suite improves the coverage of the previous one.
+	 * 
+	 * @param db
+	 * @param current
+	 * @param suite
+	 * @return true if the generated test suite is better (in terms of
+	 * coverage) than a previous generated test suite, false otherwise
 	 */
-	@Deprecated
-	private boolean isBetterThanOldOne(TestsOnDisk suite, ProjectInfo db) {
+	private boolean isBetterThanPreviousGeneration(Project db, ProjectStaticData current, TestsOnDisk suite) {
 
-		if(suite.csvData == null) {
-			// no data available
-			return false; 
-		}
-		
-		TestSuite old = null;
-		for(TestSuite tmp : db.getGeneratedTestSuites()){
-			if(tmp.getFullNameOfTargetClass().equals(suite.cut)){
-				old = tmp;
-				break;
-			}
-		}
-		
-		if(old == null){
-			// there is no old test suite, so accept new one
+  	    if (suite.csvData == null) {
+          // no data available
+            return false; 
+        }
+
+        // first check if the class under test has been changed or if
+        // is a new class. if yes, accept the generated TestSuite
+        // (even without checking if the coverage has increased/decreased)
+        // note: by default we consider that a class has been changed,
+  	    // only HistorySchedule change this behavior
+        if (current.getClassInfo(suite.cut).hasChanged()) {
+            return true;
+        }
+
+        CUT cut = ProjectUtil.getCUT(db, suite.cut);
+        Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
+        if (latestSuccessfulGeneration == null) {
+            return true;
+        }
+        TestSuite previousTestSuite = latestSuccessfulGeneration.getSuite();
+
+		File oldFile = getFileForTargetBestTest(cut.getFullNameOfTestSuite());
+		if (!oldFile.exists()) {
+			// this could happen if file was manually removed
 			return true;
 		}
 
-		File oldFile = getFileForTargetBestTest(old.getFullNameOfTestSuite());
-		if(!oldFile.exists()){
-			//this could happen if file was manually removed
-			return true;
-		}
+		// is the OverallCoverage higher?
+        double previousOverallCoverage = GenerationUtil.getOverallCoverage(latestSuccessfulGeneration);
+        double generatedOverallCoverage = 0.0;
 
 		// first, check if the coverage of at least one criterion is better
-		TestSuiteCoverage previousCoverage = old.getCoverageTestSuites().get( old.getCoverageTestSuites().size() - 1 );
-		for (CriterionCoverage criterion : previousCoverage.getCoverage()) {
-			if (!suite.csvData.hasCoverage(criterion.getCriterion())) {
-				continue ;
-			}
-			double oldCov = criterion.getCoverageValue();
-			double newCov = suite.csvData.getCoverage(criterion.getCriterion());
-			double covDif = Math.abs(newCov - oldCov); 
-
-			if (covDif > 0.0001) {
-				/*
-				 * this check is to avoid issues with double truncation 
-				 */
-				return newCov > oldCov;
-			}
+		for (Coverage coverage : previousTestSuite.getCoverage()) {
+		    if (!suite.csvData.hasCoverage(coverage.getCriterion())) {
+		        continue ;
+            }
+            generatedOverallCoverage += suite.csvData.getCoverage(coverage.getCriterion());
 		}
+		generatedOverallCoverage /= suite.csvData.getNumberOfCoverageValues();
 
-		// ok, coverage seems the same, so look at failures
-		int oldFail = previousCoverage.getFailures().size();
-		int newFail = suite.csvData.getTotalNumberOfFailures();
-		if (newFail != oldFail) {
-			return newFail > oldFail;
-		}
+		double covDif = generatedOverallCoverage - previousOverallCoverage; 
+        if (covDif > 0.01) {
+            // this check is to avoid issues with double truncation
+            // by default, the coverage values in the project_info.xml
+            // just has two decimal digits
+            return true;
+        }
 
-		// everything seems same, so look at size 
-		int oldSize = previousCoverage.getTotalNumberOfStatements().intValue();
+		// seems we got the same coverage or lower, what about goals covered?
+        // if the new test generation is covering other goals, accept it, as
+        // developers could be interested on that particular goal(s)
+        for (Coverage coverage : previousTestSuite.getCoverage()) {
+            if (!suite.csvData.hasCoverage(coverage.getCriterion())) {
+                continue ;
+            }
+
+            String generatedCoverage = suite.csvData.getCoverageBitString(coverage.getCriterion());
+            String previousCoverage = coverage.getCoverageBitString();
+            if (generatedCoverage.length() != previousCoverage.length()) {
+                // accept the new suite, as we can't compare both BitStrings
+                return true;
+            }
+
+            for (int i = 0; i < generatedCoverage.length(); i++) {
+                if (previousCoverage.charAt(i) == '0' && generatedCoverage.charAt(i) == '1') {
+                    return true;
+                }
+            }
+        }
+
+        if (covDif < 0.0) {
+            // a negative difference means that the previous coverage
+            // was higher, therefore discard the new test suite
+            return false;
+        }
+
+        // if we got same coverage, look at size 
+		int oldSize = previousTestSuite.getTotalNumberOfStatements().intValue();
 		int newSize = suite.csvData.getTotalNumberOfStatements();
 		if (newSize != oldSize) {
 			return newSize < oldSize;
 		}
 
-		// at last, look the number of test cases
-		int oldNumTests = previousCoverage.getNumberOfTests().intValue();
+		// same number of statements, look the number of test cases
+		int oldNumTests = previousTestSuite.getNumberOfTests().intValue();
 		int newNumTests = suite.csvData.getNumberOfTests();
 
-		return newNumTests <= oldNumTests; 
+		return newNumTests < oldNumTests; 
 	}
 
 	/**
@@ -805,17 +880,17 @@ public class StorageManager {
 	 * 
 	 * @param
 	 */
-	private String removeNoMoreExistentData(ProjectInfo db,
+	private String removeNoMoreExistentData(Project db,
 			ProjectStaticData current) {
 
 		int removed = 0;
-		Iterator<TestSuite> iter = db.getGeneratedTestSuites().iterator();
+		Iterator<CUT> iter = db.getCut().iterator();
 		while(iter.hasNext()){
-			TestSuite suite = iter.next();
-			String cut = suite.getFullNameOfTargetClass();
-			if(! current.containsClass(cut)){
+			CUT cut = iter.next();
+			String cutName = cut.getFullNameOfTargetClass();
+			if(! current.containsClass(cutName)){
 				iter.remove();
-				removeTestSuite(suite.getFullNameOfTestSuite());		
+				removeBestTestSuite(cut.getFullNameOfTestSuite());		
 				removed++;
 			}
 			
@@ -829,7 +904,7 @@ public class StorageManager {
 	 * 
 	 * @param
 	 */
-	private void removeTestSuite(String testName) {
+	private void removeBestTestSuite(String testName) {
 
 		File file = getFileForTargetBestTest(testName);
 		
@@ -854,21 +929,21 @@ public class StorageManager {
 	 * 
 	 * @return
 	 */
-	public static ProjectInfo getDatabaseProjectInfo(){
+	public static Project getDatabaseProject() {
 
 		File current = getProjectInfoFile();
 		InputStream stream = null;
 		if(!current.exists()){
 			stream = getDefaultXmlStream();
-			return getProjectInfo(current, stream);
+			return getProject(current, stream);
 		} else {
 			try {
 				stream = getCurrentXmlStream(current);
-				return getProjectInfo(current, stream);
+				return getProject(current, stream);
 			} catch(Exception e){
 				//this could happen if it was an old file, and EvoSuite did not have a proper backward compatibility
 				stream = getDefaultXmlStream();
-				return getProjectInfo(current, stream);
+				return getProject(current, stream);
 			}
 		}
 
@@ -899,15 +974,14 @@ public class StorageManager {
 		return stream;
 	}
 
-	private static ProjectInfo getProjectInfo(File current, InputStream stream) {
+	private static Project getProject(File current, InputStream stream) {
 		try{
-			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(Project.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = factory.newSchema(new StreamSource(StorageManager.class.getResourceAsStream("/xsd/ctg_project_report.xsd")));
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setSchema(schema);
-			ProjectInfo project = (ProjectInfo) jaxbUnmarshaller.unmarshal(stream);
-			return project;
+			return (Project) jaxbUnmarshaller.unmarshal(stream);
 		} catch(Exception e){
 			String msg = "Error in reading "+current.getAbsolutePath()+" , "+e;
 			logger.error(msg,e);

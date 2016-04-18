@@ -21,7 +21,7 @@ package org.evosuite.continuous.persistency;
 
 import java.io.File;
 
-import org.evosuite.xsd.ProjectInfo;
+import org.evosuite.xsd.Project;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -35,8 +35,8 @@ public class StorageManagerTest {
 		sm.clean();
 		
 		try{
-			ProjectInfo info = StorageManager.getDatabaseProjectInfo();
-			Assert.assertNotNull(info);
+			Project project = StorageManager.getDatabaseProject();
+			Assert.assertNotNull(project);
 		} finally {
 			sm.clean();
 		}
