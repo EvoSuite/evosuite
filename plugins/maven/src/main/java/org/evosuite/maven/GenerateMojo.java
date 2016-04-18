@@ -67,7 +67,6 @@ public class GenerateMojo extends AbstractMojo {
 	@Parameter( property = "cuts" )
 	private String cuts;
 
-
 	/**
 	 * Absolute path to a file having the list of CUTs specified. This is needed for operating
 	 * systems like Windows that have constraints on the size of input parameters and so could
@@ -75,7 +74,6 @@ public class GenerateMojo extends AbstractMojo {
 	 */
 	@Parameter( property = "cutsFile")
 	private String cutsFile;
-
 
 	/**
 	 * How many minutes to allocate for each class
@@ -199,13 +197,6 @@ public class GenerateMojo extends AbstractMojo {
 			return;
 		}
 
-		try {
-			List<File> files = FileUtils.scan(this.project.getCompileSourceRoots(), this.includes, this.excludes);
-			HistoryChanges.keepTrack(basedir.getAbsolutePath(), files);
-		} catch (Exception e) {
-			throw new MojoExecutionException("", e);
-		}
-
 		runEvoSuiteOnSeparatedProcess(target, cp, basedir.getAbsolutePath());
 
 	}
@@ -243,6 +234,13 @@ public class GenerateMojo extends AbstractMojo {
 		params.add("-Dcriterion=" + criterion);
 		params.add("-Dctg_schedule=" + schedule);
 		if (schedule.toUpperCase().equals(Properties.AvailableSchedule.HISTORY.toString())) {
+			try {
+				List<File> files = FileUtils.scan(this.project.getCompileSourceRoots(), this.includes, this.excludes);
+				HistoryChanges.keepTrack(dir, files);
+			} catch (Exception e) {
+				throw new MojoFailureException("", e);
+			}
+
 			params.add("-Dctg_history_file=" + dir + File.separator + Properties.CTG_DIR + File.separator + "history_file");
 		}
 		params.add("-Dctg_memory="+memoryInMB);
