@@ -25,6 +25,7 @@ import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 
 import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -34,6 +35,8 @@ import java.util.regex.Pattern;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.maven.AbstractMavenProject;
+import hudson.maven.MavenModule;
+import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.plugins.mercurial.HgExe;
@@ -74,7 +77,8 @@ public class Mercurial implements SCM {
 	}
 
 	@Override
-	public int commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
+    public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
+        BuildListener listener, String branchName, String ctgBestsDir) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
@@ -102,16 +106,27 @@ public class Mercurial implements SCM {
 				return -1;
 			}
 
+			MavenModuleSet prj = (MavenModuleSet) project;
+
 			// parse list of new and modified files
 			int number_of_files_committed = 0;
-			Set<String> setOfFiles = this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener, true, new ArgumentListBuilder("status")), ctgBestsDir);
-			for (String file : setOfFiles) {
-				if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
-					this.rollback(build, listener);
-					return -1;
-				}
+			for (MavenModule module : prj.getModules()) {
+			    for (String file : this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener,
+			        true, new ArgumentListBuilder("status")),
+			        (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator) + ctgBestsDir)) {
 
-				number_of_files_committed++;
+			      if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
+                      this.rollback(build, listener);
+                      return -1;
+			      }
+
+                  number_of_files_committed++;
+			    }
+			}
+
+			if (number_of_files_committed == 0) {
+			    listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
+                return 0;
 			}
 
 			// commit

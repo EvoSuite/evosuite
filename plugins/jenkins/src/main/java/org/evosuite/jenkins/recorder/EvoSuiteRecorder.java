@@ -161,7 +161,7 @@ public class EvoSuiteRecorder extends Recorder {
 		assert scmWrapper != null;
 
 		// perform commit action
-		int number_of_files_committed = scmWrapper.commit(build, listener, this.branchName, this.ctgBestsDir);
+		int number_of_files_committed = scmWrapper.commit(project, build, listener, this.branchName, this.ctgBestsDir);
 		if (number_of_files_committed == -1) {
 			return false;
 		}

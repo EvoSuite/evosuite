@@ -19,6 +19,7 @@
  */
 package org.evosuite.jenkins.scm;
 
+import hudson.maven.AbstractMavenProject;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 
@@ -28,14 +29,15 @@ public interface SCM {
 
     /**
      * 
+     * @param project
      * @param build
      * @param listener
      * @param branchName
      * @param ctgBestsDir
-     * @return the number of committed files. -1 if the commit command failed, otherwise
-     * it returns the total number of files added and committed.
+     * @return the number of committed files. -1 if the commit command failed, otherwise it returns
+     *         the total number of files added and committed.
      */
-	public int commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir);
+	public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir);
 
 	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 

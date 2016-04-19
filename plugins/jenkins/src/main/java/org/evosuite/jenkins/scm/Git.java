@@ -39,6 +39,9 @@ import java.util.Set;
 
 import hudson.EnvVars;
 import hudson.FilePath;
+import hudson.maven.AbstractMavenProject;
+import hudson.maven.MavenModule;
+import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.plugins.git.Branch;
@@ -87,7 +90,8 @@ public class Git implements SCM {
 	}
 
 	@Override
-	public int commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir) {
+	public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
+	    BuildListener listener, String branchName, String ctgBestsDir) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
@@ -109,17 +113,25 @@ public class Git implements SCM {
 
 			int number_of_files_committed = 0;
 			try {
-				// parse list of new and modified files
-				String status = ((CliGitAPIImpl) this.gitClient).launchCommand("ls-files", "--deleted", "--modified",
-						"--others", ctgBestsDir);
-				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Status (" + status.length() + "):\n" + status);
+			    MavenModuleSet prj = (MavenModuleSet) project;
 
-				if (status.isEmpty()) {
+			    // parse list of new and modified files per module
+			    StringBuilder filesToBeCommitted = new StringBuilder();
+		        for (MavenModule module : prj.getModules()) {
+    				String status = ((CliGitAPIImpl) this.gitClient).launchCommand("ls-files", "--deleted", "--modified",
+    						"--others", (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator) +
+    						ctgBestsDir);
+    				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Status (" + status.length() + "):\n" + status);
+    				filesToBeCommitted.append(status);
+		        }
+
+		        String s_filesToBeCommitted = filesToBeCommitted.toString();
+				if (s_filesToBeCommitted.isEmpty()) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
 					return 0;
 				}
 
-				for (String toCommit : status.split("\\R")) {
+				for (String toCommit : s_filesToBeCommitted.split("\\R")) {
 					String filePath = build.getWorkspace().getRemote() + File.separator + toCommit;
 					if (new File(filePath).exists()) {
 						listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "adding: " + filePath);
@@ -140,7 +152,7 @@ public class Git implements SCM {
 				// GitClient, however we still do not know how to get that.
 				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + e.getMessage() + "\nTrying a different approach!");
 				FilePath[] filesToCommit = build.getWorkspace().list(build.getEnvironment(listener).expand(
-				    ctgBestsDir + File.separator + "**" + File.separator + "*"));
+				    "**" + File.separator + ctgBestsDir + File.separator + "**" + File.separator + "*"));
 
 				if (filesToCommit.length == 0) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
