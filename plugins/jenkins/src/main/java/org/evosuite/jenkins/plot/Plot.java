@@ -22,6 +22,7 @@ package org.evosuite.jenkins.plot;
 import hudson.model.AbstractProject;
 import hudson.util.ColorPalette;
 import hudson.util.Graph;
+import jenkins.model.JenkinsLocationConfiguration;
 
 import java.awt.Color;
 import java.util.Calendar;
@@ -45,6 +46,8 @@ public abstract class Plot extends Graph {
 	protected ProjectAction project;
 	private CategoryDataset dataset;
 	private String yLabel;
+
+	private static final String JENKINS_URL = JenkinsLocationConfiguration.get().getUrl();
 
 	public Plot(ProjectAction project, String yLabel) {
 		super(Calendar.getInstance(), 350, 150);
@@ -116,8 +119,9 @@ public abstract class Plot extends Graph {
 
 		@Override
 		public String generateURL(CategoryDataset dataset, int series, int category) {
-			int da = Integer.parseInt((String) dataset.getColumnKey(category).toString().substring(1));
-			return "/" + project.getBuildByNumber(da).getUrl() + "evosuite-build/";
+			int da = Integer.parseInt((String) dataset.getColumnKey(category).toString().replace("#", ""));
+			return JENKINS_URL + (JENKINS_URL.endsWith("/") ? "" : "/") +
+			    (project.getBuildByNumber(da).getUrl() + "evosuite-build/");
 		}
 
 		@Override
