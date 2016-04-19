@@ -19,67 +19,200 @@
  */
 package org.evosuite.xsd;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
+ * <p>ProjectUtil class</p>
+ * 
+ * Useful to get data (total, averages, etc) from a {@code Project} instance.
  * 
  * @author José Campos
  */
 public abstract class ProjectUtil {
 
+  /**
+   * Total Numbers
+   */
+
+  /**
+   * Returns the total number of tested classes
+   * 
+   * @param project
+   * @return
+   */
   public static int getNumberTestedClasses(Project project) {
     return project.getCut().size();
   }
 
+  /**
+   * Returns the total number of testable classes
+   * 
+   * @param project
+   * @return
+   */
   public static int getNumberTestableClasses(Project project) {
     return project.getTotalNumberOfTestableClasses().intValue();
   }
 
-  public static CUT getCUT(Project project, String className) {
-    return project.getCut().parallelStream()
-        .filter(p -> p.getFullNameOfTargetClass().equals(className))
-        .findFirst().orElse(null);
-  }
-
-  public static double getOverallCoverage(Project project) {
-
-    if (project.getCut().isEmpty()) {
-      return 0.0;
-    }
-
-    double overallCoverage = 0.0;
-    for (CUT cut : project.getCut()) {
-      // search for the latest successful test generation of 'cut'
-      Generation lastSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
-
-      if (lastSuccessfulGeneration == null) {
-        // for a particular 'cut', there was not a single successful test generation
-        continue;
-      }
-
-      overallCoverage += GenerationUtil.getOverallCoverage(lastSuccessfulGeneration);
-    }
-
-    return overallCoverage / project.getTotalNumberOfTestableClasses().doubleValue();
-  }
-
-  public static int getNumberGeneratedTestSuites(Project project) {
-
+  /**
+   * Returns the total time (minutes) spent on all successful generations
+   * 
+   * @param project
+   * @return total time (minutes) or 0 if there is not any {@code CUT}
+   */
+  public static int getTotalEffort(Project project) {
     if (project.getCut().isEmpty()) {
       return 0;
     }
 
-    int number_generated_test_suites = 0;
+    return (int) Math
+        .max(1,
+            ProjectUtil.getAllSuccessfulGenerations(project).parallelStream()
+                .mapToDouble(g -> g.getSuite().getTotalEffortInSeconds().doubleValue()).sum()
+                / 60.0);
+  }
+
+  /**
+   * Returns the total number of generated test suites of all successful generations
+   * 
+   * @param project
+   * @return number of generated test suites or 0 if there is not any {@code CUT}
+   */
+  public static int getNumberGeneratedTestSuites(Project project) {
+    if (project.getCut().isEmpty()) {
+      return 0;
+    }
+
+    return ProjectUtil.getAllSuccessfulGenerations(project).size();
+  }
+
+  /**
+   * Returns all criteria used on all successful generations
+   * 
+   * @param project
+   * @return all criteria used or an empty Set<> if there is not any {@code CUT}
+   */
+  public static Set<String> getUnionCriteria(Project project) {
+    Set<String> criteria = new LinkedHashSet<String>();
+    if (project.getCut().isEmpty()) {
+      return criteria;
+    }
+
+    return ProjectUtil.getAllSuccessfulGenerations(project).parallelStream()
+        .map(g -> GenerationUtil.getCriteria(g)).flatMap(s -> s.stream())
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Averages
+   */
+
+  /**
+   * Returns the average length (i.e., number of statements) of all successful generations
+   * 
+   * @param project
+   * @return average length or 0.0 if there is not any {@code CUT}
+   */
+  public static double getAverageNumberStatements(Project project) {
+    if (project.getCut().isEmpty()) {
+      return 0.0;
+    }
+
+    return ProjectUtil.getAllSuccessfulGenerations(project).parallelStream()
+        .mapToDouble(g -> g.getSuite().getTotalNumberOfStatements().doubleValue()).sum()
+        / project.getTotalNumberOfTestableClasses().doubleValue();
+  }
+
+  /**
+   * Returns the overall coverage of all successful generations
+   * 
+   * @param project
+   * @return overall coverage or 0.0 if there is not any {@code CUT}
+   */
+  public static double getOverallCoverage(Project project) {
+    if (project.getCut().isEmpty()) {
+      return 0.0;
+    }
+
+    return ProjectUtil.getAllSuccessfulGenerations(project).parallelStream()
+        .mapToDouble(g -> GenerationUtil.getOverallCoverage(g)).sum()
+        / project.getTotalNumberOfTestableClasses().doubleValue();
+  }
+
+  /**
+   * Returns the coverage of a particular criterion of all successful generations
+   * 
+   * @param project
+   * @param criterionName
+   * @return average coverage of a criterion or 0.0 if there is not any {@code CUT}
+   */
+  public static double getAverageCriterionCoverage(Project project, String criterionName) {
+    if (project.getCut().isEmpty()) {
+      return 0.0;
+    }
+
+    return ProjectUtil.getAllSuccessfulGenerations(project).parallelStream()
+        .mapToDouble(g -> GenerationUtil.getCriterionCoverage(g, criterionName)).sum()
+        / project.getTotalNumberOfTestableClasses().doubleValue();
+  }
+
+  /**
+   * Returns the average number of generated tests of all successful generations
+   * 
+   * @param project
+   * @return average number of tests or 0.0 if there is not any {@code CUT}
+   */
+  public static double getAverageNumberTests(Project project) {
+    if (project.getCut().isEmpty()) {
+      return 0.0;
+    }
+
+    return ProjectUtil.getAllSuccessfulGenerations(project).parallelStream()
+        .mapToDouble(g -> g.getSuite().getNumberOfTests().doubleValue()).sum()
+        / project.getTotalNumberOfTestableClasses().doubleValue();
+  }
+
+  /**
+   * Aux
+   */
+
+  /**
+   * Returns the {@code CUT} object of a particular class name
+   * 
+   * @param project
+   * @param className
+   * @return a {@code CUT} object or null if there is not any {@code CUT} with class name
+   */
+  public static CUT getCUT(Project project, String className) {
+    return project.getCut().parallelStream()
+        .filter(p -> p.getFullNameOfTargetClass().equals(className)).findFirst().orElse(null);
+  }
+
+  /**
+   * Returns all successful generations
+   * 
+   * @param project
+   * @return all successful generations or an empty Set<> if: there is not any {@code CUT}; or if
+   *         there is not any successful generation at all
+   */
+  private static List<Generation> getAllSuccessfulGenerations(Project project) {
+    List<Generation> all = new ArrayList<Generation>();
+    if (project.getCut().isEmpty()) {
+      return all;
+    }
+
     for (CUT cut : project.getCut()) {
       // search for the latest successful test generation of 'cut'
       Generation lastSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
-
-      if (lastSuccessfulGeneration == null) {
-        // for a particular 'cut', there was not a single successful test generation
-        continue;
+      if (lastSuccessfulGeneration != null) {
+        all.add(lastSuccessfulGeneration);
       }
-
-      number_generated_test_suites++;
     }
 
-    return number_generated_test_suites;
+    return all;
   }
 }

@@ -19,18 +19,139 @@
  */
 package org.evosuite.xsd;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
+ * <p>CUTUtil class</p>
+ * 
+ * Useful to get data (total, averages, etc) from a {@code CUT} instance.
  * 
  * @author José Campos
  */
 public abstract class CUTUtil {
 
-  public static Generation getLatestSuccessfulGeneration(CUT cut) {
+  /**
+   * Total Numbers
+   */
 
-    if (cut.getGeneration().isEmpty()) {
-      return null;
+  /**
+   * Returns the total length (i.e., number of statements) of the latest successful generation
+   * 
+   * @param cut
+   * @return total length or 0 if there is not any successful generation for {@code CUT}
+   */
+  public static int getNumberStatements(CUT cut) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
+    if (latestSuccessfulGeneration == null) {
+      return 0;
     }
 
+    return GenerationUtil.getNumberStatements(latestSuccessfulGeneration);
+  }
+
+  /**
+   * Returns the total time (minutes) spent on the latest successful generation
+   * 
+   * @param cut
+   * @return total time (minutes) spent or 0 if there is not any successful generation for {@code CUT}
+   */
+  public static int getTotalEffort(CUT cut) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
+    if (latestSuccessfulGeneration == null) {
+      return 0;
+    }
+
+    return GenerationUtil.getTotalEffort(latestSuccessfulGeneration);
+  }
+
+  /**
+   * Returns the total number of generated tests of the latest successful generation
+   * 
+   * @param cut
+   * @return total number of tests or 0 if there is not any successful generation for {@code CUT}
+   */
+  public static int getNumberTests(CUT cut) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
+    if (latestSuccessfulGeneration == null) {
+      return 0;
+    }
+
+    return GenerationUtil.getNumberTests(latestSuccessfulGeneration);
+  }
+
+  /**
+   * Returns all criteria used on the latest successful generation
+   * 
+   * @param cut
+   * @return all criteria used or an empty Set<> if there is not any successful generation for {@code CUT}
+   */
+  public static Set<String> getCriteria(CUT cut) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
+    if (latestSuccessfulGeneration == null) {
+      return new HashSet<String>();
+    }
+
+    return GenerationUtil.getCriteria(latestSuccessfulGeneration);
+  }
+
+  /**
+   * Returns the coverage of a particular criterion of the latest successful generation
+   * 
+   * @param cut
+   * @param criterionName
+   * @return coverage of a criterion or 0.0 if there is not any successful generation for {@code CUT}
+   */
+  public static double getCriterionCoverage(CUT cut, String criterionName) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
+    if (latestSuccessfulGeneration == null) {
+      return 0.0;
+    }
+
+    return GenerationUtil.getCriterionCoverage(latestSuccessfulGeneration, criterionName);
+  }
+
+  /**
+   * Averages
+   */
+
+  /**
+   * Returns the overall coverage of the latest successful generation
+   * 
+   * @param cut
+   * @return overall coverage or or 0.0 if there is not any successful generation for {@code CUT}
+   */
+  public static double getOverallCoverage(CUT cut) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
+    if (latestSuccessfulGeneration == null) {
+      return 0.0;
+    }
+
+    return GenerationUtil.getOverallCoverage(latestSuccessfulGeneration);
+  }
+
+  /**
+   * Aux
+   */
+
+  /**
+   * Returns the latest test generation
+   * 
+   * @param cut
+   * @return
+   */
+  public static Generation getLatestGeneration(CUT cut) {
+    return cut.getGeneration().get(cut.getGeneration().size() - 1);
+  }
+
+  /**
+   * Returns the latest successful test generation
+   * 
+   * @param cut
+   * @return the latest successful test generation or null if: one of the latest generation failed
+   *         and the class was modified; or if there is not any successful generation for {@code CUT}
+   */
+  public static Generation getLatestSuccessfulGeneration(CUT cut) {
     for (int i = cut.getGeneration().size() - 1; i >= 0; i--) {
       Generation g = cut.getGeneration().get(i);
 
