@@ -47,10 +47,10 @@
               <st:out value="${moduleAction.getNumberOfTestedClasses()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getNumberOfTests()}"/>
+              <st:out value="${moduleAction.getAverageNumberOfTests()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getNumberOfStatements()}"/>
+              <st:out value="${moduleAction.getAverageNumberOfStatements()}"/>
             </td>
             <td>
               <st:out value="${moduleAction.getTotalEffort()}"/>

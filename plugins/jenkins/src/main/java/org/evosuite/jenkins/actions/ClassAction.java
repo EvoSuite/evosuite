@@ -30,14 +30,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
-import org.evosuite.xsd.CriterionCoverage;
+import org.evosuite.xsd.CUT;
+import org.evosuite.xsd.CUTUtil;
+import org.evosuite.xsd.Generation;
 import org.evosuite.xsd.TestSuite;
-import org.evosuite.xsd.TestSuiteCoverage;
 
 import de.java2html.converter.JavaSource2HTMLConverter;
 import de.java2html.javasource.JavaSource;
@@ -48,13 +50,13 @@ public class ClassAction implements Action {
 
 	private final AbstractBuild<?, ?> build;
 
-	private final TestSuite suite;
+	private final CUT cut;
+
 	private String testSourceCode;
 
-	public ClassAction(TestSuite suite, AbstractBuild<?, ?> build) {
+	public ClassAction(AbstractBuild<?, ?> build, CUT cut) {
 		this.build = build;
-
-		this.suite = suite;
+		this.cut = cut;
 		this.testSourceCode = "";
 	}
 
@@ -65,7 +67,7 @@ public class ClassAction implements Action {
 
 	@Override
 	public String getDisplayName() {
-		return this.suite.getFullNameOfTargetClass();
+		return this.cut.getFullNameOfTargetClass();
 	}
 
 	@Override
@@ -77,23 +79,49 @@ public class ClassAction implements Action {
 		return this.build;
 	}
 
-	public TestSuite getSuite() {
-		return this.suite;
-	}
-
 	public String getName() {
-		return this.suite.getFullNameOfTargetClass();
+		return this.cut.getFullNameOfTargetClass();
 	}
 
 	public String getTestSuiteName() {
-		return this.suite.getFullNameOfTestSuite();
+		return this.cut.getFullNameOfTestSuite();
 	}
 
-	public void highlightSource(final String javafile, BuildListener listener) {
-		try {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javafile);
+	public void highlightSource(BuildListener listener) {
+	    Generation latestGeneration = CUTUtil.getLatestGeneration(this.cut);
+	    if (latestGeneration.isFailed()) {
+	      StringBuilder str = new StringBuilder();
+	      str.append("=== std_err_CLIENT ===\n");
+	      str.append(this.getLog(latestGeneration.getStdErrCLIENT()));
+	      str.append("\n=== std_out_CLIENT ===\n");
+	      str.append(this.getLog(latestGeneration.getStdOutCLIENT()));
+	      str.append("\n=== std_err_MASTER ===\n");
+	      str.append(this.getLog(latestGeneration.getStdErrMASTER()));
+	      str.append("\n=== std_out_MASTER ===\n");
+	      str.append(this.getLog(latestGeneration.getStdOutMASTER()));
+	      this.testSourceCode = str.toString();
+          return ;
+	    }
 
-			InputStream file = new FileInputStream(new File(javafile));
+	    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(this.cut);
+	    if (latestSuccessfulGeneration == null) { 
+          this.testSourceCode = EvoSuiteRecorder.LOG_PREFIX + "There was not a single successful generation "
+              + "for this class. Likely this is an EvoSuite bug.";
+          return ;
+        }
+
+	    TestSuite suite = latestSuccessfulGeneration.getSuite();
+	    if (suite == null) { 
+	      this.testSourceCode = EvoSuiteRecorder.LOG_PREFIX + "Test suite of the latest successful generation "
+	          + "is null. Likely this is an EvoSuite bug.";
+	      return ;
+	    }
+
+		try {
+		    String javaFile = suite.getFullPathOfTestSuite();
+			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javaFile);
+
+			InputStream file = new FileInputStream(new File(javaFile));
 			JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
 
 			JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
@@ -112,153 +140,45 @@ public class ClassAction implements Action {
 		}
 	}
 
-	public int getLastId() {
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return 0;
-		}
-
-		int lastId = 0;
-		for (TestSuiteCoverage suite : this.suite.getCoverageTestSuites()) {
-			lastId = Math.max(lastId, suite.getId().intValue());
-		}
-
-		return lastId;
-	}
+    private String getLog(String filePath) {
+      try {
+        return new String(Files.readAllBytes(Paths.get(filePath)));
+      } catch (IOException e) {
+        return "It was not possible to open/read '" + filePath + "'";
+      }
+    }
 
 	// data for jelly template
 
-	/**
-	 * 
-	 * @return
-	 */
 	public int getNumberOfStatements() {
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return 0;
-		}
-
-		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
-		return suiteCoverage.getTotalNumberOfStatements().intValue();
+	    return CUTUtil.getNumberStatements(this.cut);
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public int getTotalEffort() {
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return 0;
-		}
-
-		return this.getTotalEffort(this.suite.getCoverageTestSuites().size() - 1);
+        return CUTUtil.getTotalEffort(this.cut);
 	}
 
-	/**
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public int getTotalEffort(int id) {
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return 0;
-		}
-
-		if (id >= this.suite.getCoverageTestSuites().size()) {
-			// this could happen if, for example, EvoSuite stopped
-			// generating test cases to this particular class, or if
-			// something went wrong and we just have coverage to other
-			// classes but not to this particular one
-			return 0;
-		}
-
-		double effort = this.suite.getCoverageTestSuites().get(id).getEffortInSeconds().doubleValue();
-
-		effort = (effort / 60.0 + 1);
-		return (int) effort; // cast to int to truncate effort value
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
 	public int getNumberOfTests() {
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return 0;
-		}
-
-		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
-		return suiteCoverage.getNumberOfTests().intValue();
+        return CUTUtil.getNumberTests(this.cut);
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public String getTestSourceCode() {
 		return this.testSourceCode;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public Set<String> getCriteria() {
-		Set<String> criteria = new LinkedHashSet<String>();
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return criteria;
-		}
-
-		for (TestSuiteCoverage suiteCoverage : this.suite.getCoverageTestSuites()) {
-			for (CriterionCoverage criterionCoverage : suiteCoverage.getCoverage()) {
-				criteria.add(criterionCoverage.getCriterion());
-			}
-		}
-
-		return criteria;
+        return CUTUtil.getCriteria(this.cut);
 	}
 
-	/**
-	 *  
-	 * 
-	 * @return
-	 */
 	public double getOverallCoverage() {
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return 0.0;
-		}
-
-		double coverage = 0.0;
-		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
-
-		for (CriterionCoverage criterionCoverage : suiteCoverage.getCoverage()) {
-			coverage += criterionCoverage.getCoverageValue();
-		}
-
-		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
-		formatter.applyPattern("#0.00");
-		return Double.parseDouble(formatter.format(coverage / suiteCoverage.getCoverage().size() * 100.0));
+	    DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+        formatter.applyPattern("#0.00");
+        return Double.parseDouble(formatter.format(CUTUtil.getOverallCoverage(this.cut) * 100.0));
 	}
 
-	/**
-	 * 
-	 * 
-	 * @param criterionName
-	 * @return
-	 */
 	public double getCriterionCoverage(String criterionName) {
-		if (this.suite.getCoverageTestSuites().isEmpty()) {
-			return 0.0;
-		}
-
-		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
-		formatter.applyPattern("#0.00");
-
-		TestSuiteCoverage suiteCoverage = this.suite.getCoverageTestSuites().get( this.suite.getCoverageTestSuites().size() - 1 );
-		for (CriterionCoverage criterionCoverage : suiteCoverage.getCoverage()) {
-			if (criterionCoverage.getCriterion().equals(criterionName)) {
-				return Double.parseDouble(formatter.format(criterionCoverage.getCoverageValue() * 100.0));
-			}
-		}
-
-		return 0.0;
+	    DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
+        formatter.applyPattern("#0.00");
+	    return Double.parseDouble(formatter.format(CUTUtil.getCriterionCoverage(this.cut, criterionName) * 100.0));
 	}
 }
