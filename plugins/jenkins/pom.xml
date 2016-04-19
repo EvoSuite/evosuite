@@ -7,6 +7,7 @@
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
     <version>1.643</version>
+    <relativePath />
   </parent>
 
   <groupId>org.evosuite.plugins</groupId>
