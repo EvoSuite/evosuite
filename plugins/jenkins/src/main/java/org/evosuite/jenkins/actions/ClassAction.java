@@ -21,17 +21,17 @@ package org.evosuite.jenkins.actions;
 
 import hudson.model.Action;
 import hudson.model.BuildListener;
+import hudson.remoting.VirtualChannel;
+import hudson.FilePath;
 import hudson.model.AbstractBuild;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Set;
 
@@ -87,18 +87,18 @@ public class ClassAction implements Action {
 		return this.cut.getFullNameOfTestSuite();
 	}
 
-	public void highlightSource(BuildListener listener) {
+	public void highlightSource(VirtualChannel channel, BuildListener listener) throws InterruptedException {
 	    Generation latestGeneration = CUTUtil.getLatestGeneration(this.cut);
 	    if (latestGeneration.isFailed()) {
 	      StringBuilder str = new StringBuilder();
 	      str.append("=== std_err_CLIENT ===\n");
-	      str.append(this.getLog(latestGeneration.getStdErrCLIENT()));
+	      str.append(this.getLog(channel, latestGeneration.getStdErrCLIENT()));
 	      str.append("\n=== std_out_CLIENT ===\n");
-	      str.append(this.getLog(latestGeneration.getStdOutCLIENT()));
+	      str.append(this.getLog(channel, latestGeneration.getStdOutCLIENT()));
 	      str.append("\n=== std_err_MASTER ===\n");
-	      str.append(this.getLog(latestGeneration.getStdErrMASTER()));
+	      str.append(this.getLog(channel, latestGeneration.getStdErrMASTER()));
 	      str.append("\n=== std_out_MASTER ===\n");
-	      str.append(this.getLog(latestGeneration.getStdOutMASTER()));
+	      str.append(this.getLog(channel, latestGeneration.getStdOutMASTER()));
 	      this.testSourceCode = str.toString();
           return ;
 	    }
@@ -121,7 +121,10 @@ public class ClassAction implements Action {
 		    String javaFile = suite.getFullPathOfTestSuite();
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "JavaFile: " + javaFile);
 
-			InputStream file = new FileInputStream(new File(javaFile));
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			new FilePath(channel, javaFile).copyTo(out);
+
+			InputStream file = new ByteArrayInputStream(out.toByteArray());
 			JavaSource source = new JavaSourceParser().parse(new InputStreamReader(file, Charset.forName("UTF-8")));
 
 			JavaSourceConversionOptions options = JavaSourceConversionOptions.getDefault();
@@ -140,9 +143,11 @@ public class ClassAction implements Action {
 		}
 	}
 
-    private String getLog(String filePath) {
+    private String getLog(VirtualChannel channel, String filePath) throws InterruptedException {
       try {
-        return new String(Files.readAllBytes(Paths.get(filePath)));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new FilePath(channel, filePath).copyTo(out);
+        return new String(out.toByteArray(), Charset.forName("UTF-8"));
       } catch (IOException e) {
         return "It was not possible to open/read '" + filePath + "'";
       }

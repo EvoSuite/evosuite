@@ -26,6 +26,8 @@ import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 import hudson.EnvVars;
+import hudson.FilePath;
 import hudson.maven.AbstractMavenProject;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
@@ -42,6 +45,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
+import hudson.remoting.VirtualChannel;
 
 public class ProjectAction implements Action {
 
@@ -92,23 +96,30 @@ public class ProjectAction implements Action {
 		EnvVars env = build.getEnvironment(listener);
 		env.overrideAll(build.getBuildVariables());
 
+		VirtualChannel channel = build.getWorkspace().getChannel();
+
 		MavenModuleSet prj = (MavenModuleSet) this.project;
 		for (MavenModule module : prj.getModules()) {
 
-		  File projectXML = new File(build.getWorkspace().getRemote() + File.separator
+		  FilePath fp = new FilePath(channel, build.getWorkspace().getRemote() + File.separator
               + (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator)
               + Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO);
-		  if (!projectXML.exists()) {
+
+		  if (!fp.exists()) {
 		    listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "There is not any " +
-		        Properties.CTG_PROJECT_INFO + " file for module " + module.getName());
+		        fp.getRemote() + " file for module " + module.getName());
 		    continue ;
 		  }
 
+		  ByteArrayOutputStream out = new ByteArrayOutputStream();
+		  fp.copyTo(out);
+		  ByteArrayInputStream projectXML = new ByteArrayInputStream(out.toByteArray());
+
 		  listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Analysing " +
-		      Properties.CTG_PROJECT_INFO + " file from " + projectXML.getAbsolutePath());
+		      Properties.CTG_PROJECT_INFO + " file from " + fp.getRemote());
 
 		  ModuleAction m = new ModuleAction(build, module.getName());
-		  if (!m.build(projectXML, listener)) {
+		  if (!m.build(channel, projectXML, listener)) {
 		    continue ;
 		  }
 

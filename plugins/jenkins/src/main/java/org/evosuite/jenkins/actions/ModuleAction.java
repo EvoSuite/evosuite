@@ -21,12 +21,10 @@ package org.evosuite.jenkins.actions;
 
 import hudson.model.Action;
 import hudson.model.BuildListener;
+import hudson.remoting.VirtualChannel;
 import hudson.model.AbstractBuild;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,10 +105,8 @@ public class ModuleAction implements Action {
 	 * @param project_info
 	 * @return
 	 */
-	public boolean build(File project_info, BuildListener listener) {
+	public boolean build(VirtualChannel channel, ByteArrayInputStream stream, BuildListener listener) {
 		try {
-			InputStream stream = new FileInputStream(project_info);
-
 			JAXBContext jaxbContext = JAXBContext.newInstance(Project.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = factory.newSchema(new StreamSource(ContinuousTestGeneration.class.getResourceAsStream("/xsd/ctg_project_report.xsd")));
@@ -120,13 +116,9 @@ public class ModuleAction implements Action {
 
 			for (CUT cut : this.project.getCut()) {
 				ClassAction c = new ClassAction(this.getBuild(), cut);
-				c.highlightSource(listener);
+				c.highlightSource(channel, listener);
 				this.classes.add(c);
 			}
-		}
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return false;
 		}
 		catch(Exception e) {
 			e.printStackTrace();
