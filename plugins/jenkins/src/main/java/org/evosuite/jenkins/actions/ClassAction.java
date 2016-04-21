@@ -91,29 +91,29 @@ public class ClassAction implements Action {
 	    Generation latestGeneration = CUTUtil.getLatestGeneration(this.cut);
 	    if (latestGeneration.isFailed()) {
 	      StringBuilder str = new StringBuilder();
-	      str.append("=== std_err_CLIENT ===\n");
-	      str.append(this.getLog(channel, latestGeneration.getStdErrCLIENT()));
-	      str.append("\n=== std_out_CLIENT ===\n");
-	      str.append(this.getLog(channel, latestGeneration.getStdOutCLIENT()));
-	      str.append("\n=== std_err_MASTER ===\n");
-	      str.append(this.getLog(channel, latestGeneration.getStdErrMASTER()));
-	      str.append("\n=== std_out_MASTER ===\n");
-	      str.append(this.getLog(channel, latestGeneration.getStdOutMASTER()));
+	      str.append("<h3>std_err_CLIENT</h3>");
+	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdErrCLIENT()) + "</p>");
+	      str.append("<h3>std_out_CLIENT</h3>");
+	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdOutCLIENT()) + "</p>");
+	      str.append("<h3>std_err_MASTER</h3>");
+	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdErrMASTER()) + "</p>");
+	      str.append("<h3>std_out_MASTER</h3>");
+	      str.append("<p>" + this.getLog(channel, latestGeneration.getStdOutMASTER()) + "</p>");
 	      this.testSourceCode = str.toString();
           return ;
 	    }
 
 	    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(this.cut);
 	    if (latestSuccessfulGeneration == null) { 
-          this.testSourceCode = EvoSuiteRecorder.LOG_PREFIX + "There was not a single successful generation "
-              + "for this class. Likely this is an EvoSuite bug.";
+	      this.testSourceCode = "<p>There was not a single successful generation "
+              + "for this class. Likely this is an EvoSuite bug.</p>";
           return ;
         }
 
 	    TestSuite suite = latestSuccessfulGeneration.getSuite();
 	    if (suite == null) { 
-	      this.testSourceCode = EvoSuiteRecorder.LOG_PREFIX + "Test suite of the latest successful generation "
-	          + "is null. Likely this is an EvoSuite bug.";
+	      this.testSourceCode = "<p>Test suite of the latest successful generation "
+              + "is null. Likely this is an EvoSuite bug.</p>";
 	      return ;
 	    }
 
@@ -149,7 +149,7 @@ public class ClassAction implements Action {
         new FilePath(channel, filePath).copyTo(out);
         return new String(out.toByteArray(), Charset.forName("UTF-8"));
       } catch (IOException e) {
-        return "It was not possible to open/read '" + filePath + "'";
+        return "It was not possible to open/read '" + filePath + "' due to " + e.getMessage();
       }
     }
 
