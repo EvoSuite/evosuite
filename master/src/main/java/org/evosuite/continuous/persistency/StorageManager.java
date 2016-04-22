@@ -507,6 +507,8 @@ public class StorageManager {
 		generation.setId(BigInteger.valueOf(cut.getGeneration().size()));
 		generation.setFailed(false); // by default
 		generation.setModified(current.getClassInfo(targetClass).hasChanged());
+		generation.setTimeBudgetInSeconds(BigInteger.valueOf(current.getClassInfo(targetClass).getTimeBudgetInSeconds()));
+		generation.setMemoryInMB(BigInteger.valueOf(current.getClassInfo(targetClass).getMemoryInMB()));
 
 		File std_err_CLIENT = new File(this.tmpLogs + File.separator + targetClass
             + File.separator + "std_err_CLIENT.log");

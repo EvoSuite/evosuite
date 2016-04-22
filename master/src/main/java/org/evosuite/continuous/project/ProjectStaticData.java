@@ -174,6 +174,16 @@ public class ProjectStaticData {
 		 */
         private boolean isToTest = true;
 
+        /**
+         * time budget in seconds allocated to test this class
+         */
+        private int timeBudgetInSeconds = 0;
+
+        /**
+         * amount of memory in Megabytes used to test this class
+         */
+        private int memoryInMB = 0;
+
 		public ClassInfo(Class<?> theClass, int numberOfBranches, boolean hasCode) {
 			super();
 			this.theClass = theClass;
@@ -201,6 +211,20 @@ public class ProjectStaticData {
         }
         public boolean isToTest() {
             return this.isToTest;
+        }
+
+        public void setTimeBudgetInSeconds(int timeBudgetInSeconds) {
+            this.timeBudgetInSeconds = timeBudgetInSeconds;
+        }
+        public int getTimeBudgetInSeconds() {
+            return this.timeBudgetInSeconds;
+        }
+
+        public void setMemoryInMB(int memoryInMB) {
+            this.memoryInMB = memoryInMB;
+        }
+        public int getMemoryInMB() {
+            return memoryInMB;
         }
 	}
 

@@ -30,6 +30,7 @@ import org.evosuite.continuous.job.schedule.ScheduleType;
 import org.evosuite.continuous.job.schedule.SeedingSchedule;
 import org.evosuite.continuous.job.schedule.SimpleSchedule;
 import org.evosuite.continuous.project.ProjectStaticData;
+import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,16 @@ public class JobScheduler {
 			return null;
 		}
 		logger.info("Creating new schedule with "+currentSchedule.getClass().getSimpleName());
-		return currentSchedule.createNewSchedule();
+
+		// update some extra information of each Class-Under-Test
+		List<JobDefinition> jobs = currentSchedule.createNewSchedule();
+		for (JobDefinition job : jobs) {
+		  ClassInfo classInfo = this.projectData.getClassInfo(job.cut);
+		  classInfo.setTimeBudgetInSeconds(job.seconds);
+		  classInfo.setMemoryInMB(job.memoryInMB);
+		}
+
+		return jobs;
 	}
 	
 
