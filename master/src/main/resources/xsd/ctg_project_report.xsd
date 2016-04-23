@@ -64,10 +64,12 @@
 			<xs:element name="modified" type="xs:boolean" minOccurs="1" maxOccurs="1" />
 			<xs:element name="timeBudgetInSeconds" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1" />
 			<xs:element name="memoryInMB" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1" />
-			<xs:element name="std_err_CLIENT" type="xs:string" minOccurs="1" maxOccurs="1" />
-			<xs:element name="std_out_CLIENT" type="xs:string" minOccurs="1" maxOccurs="1" />
-			<xs:element name="std_err_MASTER" type="xs:string" minOccurs="1" maxOccurs="1" />
-			<xs:element name="std_out_MASTER" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<!-- if EvoSuite skip a class for testing (currently classes are only skipped by HistorySchedule)
+				 it won't create any err/out file. so, the minOccurs of those files has to 0 -->
+			<xs:element name="std_err_CLIENT" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="std_out_CLIENT" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="std_err_MASTER" type="xs:string" minOccurs="0" maxOccurs="1" />
+			<xs:element name="std_out_MASTER" type="xs:string" minOccurs="0" maxOccurs="1" />
 			<!-- TODO what else? memory used? number of GA's evaluations? ... -->
 			<xs:sequence>
 				<xs:element name="failure" type="Failure" minOccurs="0" maxOccurs="unbounded" />
