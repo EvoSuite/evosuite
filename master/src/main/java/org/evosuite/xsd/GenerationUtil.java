@@ -71,7 +71,7 @@ public abstract class GenerationUtil {
    * @return total time (minutes) settled by the scheduler or 0 if the generation failed
    */
   public static int getTimeBudget(Generation generation) {
-    if (generation == null || generation.isFailed() || generation.getSuite() == null) {
+    if (generation == null) {
       return 0;
     }
 
