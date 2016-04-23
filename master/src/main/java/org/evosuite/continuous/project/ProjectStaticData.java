@@ -312,6 +312,10 @@ public class ProjectStaticData {
       return this.modifiedFiles.parallelStream().anyMatch(m -> m.endsWith(javaFileName));
     }
 
+    protected void setProject(Project project) {
+        this.project = project;
+    }
+
     /**
      * It checks whether EvoSuite was able to improve coverage,
      * test suite size, etc for 'className' in the last N

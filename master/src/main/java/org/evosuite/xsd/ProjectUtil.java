@@ -216,7 +216,7 @@ public abstract class ProjectUtil {
    * @return all successful generations or an empty Set<> if: there is not any {@code CUT}; or if
    *         there is not any successful generation at all
    */
-  private static List<Generation> getAllSuccessfulGenerations(Project project) {
+  protected static List<Generation> getAllSuccessfulGenerations(Project project) {
     List<Generation> all = new ArrayList<Generation>();
     if (project.getCut().isEmpty()) {
       return all;
