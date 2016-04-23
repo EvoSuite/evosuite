@@ -45,8 +45,25 @@ public abstract class ProjectUtil {
    * @param project
    * @return
    */
-  public static int getNumberTestedClasses(Project project) {
+  public static int getTotalNumberTestedClasses(Project project) {
     return project.getCut().size();
+  }
+
+  /**
+   * Returns the total number of tested classes on the latest execution
+   * 
+   * @param project
+   * @return
+   */
+  public static int getNumberLatestTestedClasses(Project project) {
+    if (project.getCut().isEmpty()) {
+      return 0;
+    }
+
+    final OptionalInt highestID = project.getCut().parallelStream()
+        .mapToInt(c -> CUTUtil.getLatestGeneration(c).getId().intValue()).reduce(Integer::max);
+    return (int) project.getCut().parallelStream()
+        .filter(c -> CUTUtil.getTimeBudget(c, highestID.getAsInt()) > 0).count();
   }
 
   /**

@@ -135,7 +135,7 @@ public class ModuleAction implements Action {
 	}
 
 	public int getNumberOfTestedClasses() {
-		return ProjectUtil.getNumberTestedClasses(this.project);
+		return ProjectUtil.getNumberLatestTestedClasses(this.project);
 	}
 
 	public int getAverageNumberOfStatements() {

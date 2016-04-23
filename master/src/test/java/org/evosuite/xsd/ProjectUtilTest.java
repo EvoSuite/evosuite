@@ -35,9 +35,10 @@ public class ProjectUtilTest {
   @Test
   public void testNumberTestedClasses() {
     Project project = new Project();
-    assertEquals(0, ProjectUtil.getNumberTestedClasses(project));
+    assertEquals(0, ProjectUtil.getTotalNumberTestedClasses(project));
+    assertEquals(0, ProjectUtil.getNumberLatestTestedClasses(project));
     project.getCut().add(new CUT());
-    assertEquals(1, ProjectUtil.getNumberTestedClasses(project));
+    assertEquals(1, ProjectUtil.getTotalNumberTestedClasses(project));
   }
 
   @Test
@@ -112,6 +113,8 @@ public class ProjectUtilTest {
     c1.getGeneration().add(g0_1);
     c2.getGeneration().add(g0_2);
 
+    assertEquals(2, ProjectUtil.getNumberLatestTestedClasses(project));
+
     // 120 seconds from c1 + 40 seconds from c2 = 160 seconds ~ 3minute
     assertEquals(3, ProjectUtil.getTotalEffort(project));
     // 120 seconds from c1 + 60 seconds from c2 = 180 seconds = 3minute
@@ -148,6 +151,8 @@ public class ProjectUtilTest {
     g2.setTimeBudgetInSeconds(XSDUtils.convert(0));
     g2.setSuite(null);
     c2.getGeneration().add(g2);
+
+    assertEquals(1, ProjectUtil.getNumberLatestTestedClasses(project));
 
     // this time only c1 has been tested, therefore the time settled by
     // the scheduler and actually spent is lower
