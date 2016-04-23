@@ -291,9 +291,8 @@ public class StorageManager {
 
 		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(current.getTotalNumberOfTestableCUTs()));
 		for (String cut : current.getClassNames()) {
-		    if (!current.getClassInfo(cut).isTestable() || !current.getClassInfo(cut).isToTest()) {
-		        // if a class is not testable or was not considered for
-		        // test generation, we don't need to update any database
+		    if (!current.getClassInfo(cut).isTestable()) {
+		        // if a class is not testable, we don't need to update any database
 		        // of that class. and not even counting it as a missing class
 		        continue ;
 		    }
@@ -509,6 +508,15 @@ public class StorageManager {
 		generation.setModified(current.getClassInfo(targetClass).hasChanged());
 		generation.setTimeBudgetInSeconds(BigInteger.valueOf(current.getClassInfo(targetClass).getTimeBudgetInSeconds()));
 		generation.setMemoryInMB(BigInteger.valueOf(current.getClassInfo(targetClass).getMemoryInMB()));
+
+		if (!current.getClassInfo(targetClass).isToTest()) {
+            // if a class was not considered for testing purpose,
+            // we still want to keep some information about it.
+            // that information will be crucial to, for example,
+            // determine how much time EvoSuite spent over all classes
+		    cut.getGeneration().add(generation);
+		    return ; // we do not have more information, so return
+        }
 
 		File std_err_CLIENT = new File(this.tmpLogs + File.separator + targetClass
             + File.separator + "std_err_CLIENT.log");

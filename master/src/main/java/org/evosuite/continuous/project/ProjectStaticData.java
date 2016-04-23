@@ -324,6 +324,10 @@ public class ProjectStaticData {
      */
     public boolean isToTest(String className, int n) {
 
+        if (this.project == null) {
+            return true; // we don't have any previous data at all
+        }
+
         CUT cut = this.project.getCut().parallelStream()
           .filter(p -> p.getFullNameOfTargetClass().equals(className))
           .findFirst().orElse(null);
@@ -351,6 +355,7 @@ public class ProjectStaticData {
         // should be tested again
 
         List<Generation> lastNGenerations = cut.getGeneration().stream()
+            .filter(g -> g.getTimeBudgetInSeconds().intValue() > 0)
             .skip(how_many_generations_so_far - n)
             .collect(Collectors.toList());
 
