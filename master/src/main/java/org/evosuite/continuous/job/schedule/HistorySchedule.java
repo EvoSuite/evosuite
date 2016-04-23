@@ -92,7 +92,7 @@ public class HistorySchedule extends OneTimeSchedule {
     });
 
     int totalLeftOver = 0;
-    int totalBudgetUsedSoFar = 0;
+    int totalBudgetUsed = 0;
     List<JobDefinition> jobs = new LinkedList<JobDefinition>();
 
     for (ClassInfo c_info : classesInfo) {
@@ -120,8 +120,9 @@ public class HistorySchedule extends OneTimeSchedule {
         budget = maximumBudgetPerCore;
       }
 
-      totalBudgetUsedSoFar += budget;
-      if (totalBudgetUsedSoFar <= totalBudget) {
+      if ((totalBudgetUsed + budget) <= totalBudget) {
+        totalBudgetUsed += budget;
+
         LoggingUtils.getEvoLogger()
             .info("+ Going to generate test cases for " + c_info.getClassName()
                 + " using a time budget of " + budget + " seconds. Status of it ["
@@ -142,10 +143,15 @@ public class HistorySchedule extends OneTimeSchedule {
       }
     }
 
+    totalLeftOver += (totalBudget - totalBudgetUsed);
+
     /*
-     * we still have some more budget to allocate
+     * do we still have some more budget to allocate? and is it less
+     * than totalBudget? (because if it is equal to totalBudget, means
+     * that we have skipped all classes, and therefore there is not point
+     * of distributing left over budget as all classes will be skipped)
      */
-    if (totalLeftOver > 0) {
+    if (totalLeftOver > 0 && totalLeftOver < totalBudget) {
       LoggingUtils.getEvoLogger().info("Distributing left budget (" + totalLeftOver + ")");
       distributeExtraBudgetEvenly(jobs, totalLeftOver, maximumBudgetPerCore);
     }
