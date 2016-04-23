@@ -51,18 +51,60 @@ public abstract class CUTUtil {
   }
 
   /**
-   * Returns the total time (minutes) spent on the latest successful generation
+   * Returns the total time (minutes) spent on the latest generation
    * 
    * @param cut
-   * @return total time (minutes) spent or 0 if there is not any successful generation for {@code CUT}
+   * @return
    */
   public static int getTotalEffort(CUT cut) {
-    Generation latestSuccessfulGeneration = CUTUtil.getLatestSuccessfulGeneration(cut);
-    if (latestSuccessfulGeneration == null) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestGeneration(cut);
+    return GenerationUtil.getTotalEffort(latestSuccessfulGeneration);
+  }
+
+  /**
+   * Returns the total time (minutes) settled by the scheduler on the latest generation
+   * 
+   * @param cut
+   * @return
+   */
+  public static int getTimeBudget(CUT cut) {
+    Generation latestSuccessfulGeneration = CUTUtil.getLatestGeneration(cut);
+    return GenerationUtil.getTimeBudget(latestSuccessfulGeneration);
+  }
+
+  /**
+   * Returns the total time (minutes) spent on a generation with an ID equal to generationID
+   * 
+   * @param cut
+   * @param generationID
+   * @return total time (minutes) spent on a generation with ID equal to generationID, or 0 if there
+   *         is not a generation with the ID equal to generationID
+   */
+  public static int getTotalEffort(CUT cut, int generationID) {
+    if (generationID >= cut.getGeneration().size()) {
       return 0;
     }
 
-    return GenerationUtil.getTotalEffort(latestSuccessfulGeneration);
+    Generation generation = cut.getGeneration().get(generationID);
+    return GenerationUtil.getTotalEffort(generation);
+  }
+
+  /**
+   * Returns the total time (minutes) settled by the scheduler on a generation with an ID equal to
+   * generationID
+   * 
+   * @param cut
+   * @param generationID
+   * @return total time (minutes) settled by the scheduler on a generation with ID equal to
+   *         generationID, or 0 if there is not a generation with the ID equal to generationID
+   */
+  public static int getTimeBudget(CUT cut, int generationID) {
+    if (generationID >= cut.getGeneration().size()) {
+      return 0;
+    }
+
+    Generation generation = cut.getGeneration().get(generationID);
+    return GenerationUtil.getTimeBudget(generation);
   }
 
   /**

@@ -22,6 +22,7 @@ package org.evosuite.xsd;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -69,11 +70,27 @@ public abstract class ProjectUtil {
       return 0;
     }
 
-    return (int) Math
-        .max(1,
-            ProjectUtil.getAllSuccessfulGenerations(project).parallelStream()
-                .mapToDouble(g -> g.getSuite().getTotalEffortInSeconds().doubleValue()).sum()
-                / 60.0);
+    final OptionalInt highestID = project.getCut().parallelStream()
+        .mapToInt(c -> CUTUtil.getLatestGeneration(c).getId().intValue()).reduce(Integer::max);
+    return (int) Math.ceil(project.getCut().parallelStream()
+        .mapToDouble(c -> CUTUtil.getTotalEffort(c, highestID.getAsInt())).sum());
+  }
+
+  /**
+   * Returns the total time (minutes) settled by the scheduler on all successful generations
+   * 
+   * @param project
+   * @return total time (minutes) or 0 if there is not any {@code CUT}
+   */
+  public static int getTimeBudget(Project project) {
+    if (project.getCut().isEmpty()) {
+      return 0;
+    }
+
+    final OptionalInt highestID = project.getCut().parallelStream()
+        .mapToInt(c -> CUTUtil.getLatestGeneration(c).getId().intValue()).reduce(Integer::max);
+    return (int) Math.ceil(project.getCut().parallelStream()
+        .mapToDouble(c -> CUTUtil.getTimeBudget(c, highestID.getAsInt())).sum());
   }
 
   /**

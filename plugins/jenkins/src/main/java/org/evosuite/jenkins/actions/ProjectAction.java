@@ -234,4 +234,17 @@ public class ProjectAction implements Action {
 
 		return effort;
 	}
+
+	public int getTimeBudget() {
+      if (this.modules.isEmpty()) {
+          return 0;
+      }
+
+      int effort = 0;
+      for (ModuleAction m : this.modules) {
+          effort += m.getTimeBudget();
+      }
+
+      return effort;
+  }
 }

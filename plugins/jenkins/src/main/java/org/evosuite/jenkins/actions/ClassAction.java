@@ -163,6 +163,10 @@ public class ClassAction implements Action {
         return CUTUtil.getTotalEffort(this.cut);
 	}
 
+	public int getTimeBudget() {
+        return CUTUtil.getTimeBudget(this.cut);
+    }
+
 	public int getNumberOfTests() {
         return CUTUtil.getNumberTests(this.cut);
 	}

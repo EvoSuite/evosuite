@@ -51,17 +51,31 @@ public abstract class GenerationUtil {
   }
 
   /**
-   * Returns the total time (minutes) spent on a successful generation
+   * Returns the total time (minutes) spent on a generation
    * 
    * @param generation
-   * @return total time (minutes) or 0 if the generation failed
+   * @return total time (minutes) spent on a generation or 0 if the generation failed
    */
   public static int getTotalEffort(Generation generation) {
     if (generation == null || generation.isFailed() || generation.getSuite() == null) {
       return 0;
     }
 
-    return (int) Math.max(1, generation.getSuite().getTotalEffortInSeconds().doubleValue() / 60.0);
+    return (int) Math.ceil(generation.getSuite().getTotalEffortInSeconds().doubleValue() / 60.0);
+  }
+
+  /**
+   * Returns the total time (minutes) settled by the scheduler
+   * 
+   * @param generation
+   * @return total time (minutes) settled by the scheduler or 0 if the generation failed
+   */
+  public static int getTimeBudget(Generation generation) {
+    if (generation == null || generation.isFailed() || generation.getSuite() == null) {
+      return 0;
+    }
+
+    return (int) Math.ceil(generation.getTimeBudgetInSeconds().doubleValue() / 60.0);
   }
 
   /**

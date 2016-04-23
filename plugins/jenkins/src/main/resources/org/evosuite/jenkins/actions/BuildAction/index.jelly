@@ -53,7 +53,7 @@
               <st:out value="${moduleAction.getAverageNumberOfStatements()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getTotalEffort()}"/>
+              <st:out value="${moduleAction.getTimeBudget()}"/>
             </td>
           </tr>
         </j:forEach>

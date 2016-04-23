@@ -45,7 +45,7 @@
               <st:out value="${testableClass.getNumberOfStatements()}"/>
             </td>
             <td>
-              <st:out value="${testableClass.getTotalEffort()}"/>
+              <st:out value="${testableClass.getTimeBudget()}"/>
             </td>
           </tr>
         </j:forEach>

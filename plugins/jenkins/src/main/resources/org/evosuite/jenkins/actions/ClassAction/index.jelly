@@ -40,7 +40,7 @@
             <st:out value="${it.getNumberOfStatements()}"/>
           </td>
           <td>
-            <st:out value="${it.getTotalEffort()}"/>
+            <st:out value="${it.getTimeBudget()}"/>
           </td>
         </tr>
       </table>

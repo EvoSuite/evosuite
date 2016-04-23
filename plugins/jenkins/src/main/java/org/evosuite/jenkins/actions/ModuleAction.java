@@ -146,6 +146,10 @@ public class ModuleAction implements Action {
 	    return ProjectUtil.getTotalEffort(this.project);
 	}
 
+	public int getTimeBudget() {
+        return ProjectUtil.getTimeBudget(this.project);
+    }
+
 	public int getAverageNumberOfTests() {
 	    return (int) ProjectUtil.getAverageNumberTests(this.project);
 	}
