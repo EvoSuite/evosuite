@@ -45,6 +45,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.FileIOUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,6 +177,8 @@ public class ClassStatisticsPrinter {
 		LoggingUtils.getEvoLogger().info("* Average cyclomatic complexity: "+(complexity/CFGMethodAdapter.getNumMethods(TestGenerationContext.getInstance().getClassLoaderForSUT())));
 		LoggingUtils.getEvoLogger().info("* Maximum cyclomatic complexity: "+maxComplexity);
 
+		StringBuilder allGoals = new StringBuilder();
+
 		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
 		for (Criterion criterion : oldCriterion) {
 			if (!reinstrument(criterion)) {
@@ -187,13 +190,22 @@ public class ClassStatisticsPrinter {
 			int numGoals = 0;
 			for (TestFitnessFactory<?> factory : factories) {
 				if (Properties.PRINT_GOALS) {
-					for (TestFitnessFunction goal : factory.getCoverageGoals())
-						LoggingUtils.getEvoLogger().info("" + goal.toString());
+  					for (TestFitnessFunction goal : factory.getCoverageGoals()) {
+  					  allGoals.append(goal.toString() + java.lang.System.getProperty("line.separator"));
+  					}
 				}
 				numGoals += factory.getCoverageGoals().size();
 			}
 
 			LoggingUtils.getEvoLogger().info("* Criterion " + criterion + ": " + numGoals);
+		}
+
+		if (allGoals.length() > 0 && Properties.PRINT_GOALS) {
+		  if (Properties.WRITE_ALL_GOALS_FILE) {
+		    FileIOUtils.writeFile(allGoals.toString(), Properties.ALL_GOALS_FILE);
+		  } else {
+		    LoggingUtils.getEvoLogger().info(allGoals.toString());
+		  }
 		}
 	}
 }
