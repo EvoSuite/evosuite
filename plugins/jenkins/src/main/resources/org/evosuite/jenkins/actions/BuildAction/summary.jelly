@@ -4,6 +4,9 @@
 
     Number of Modules: ${it.getNumberOfModules()}<br/>
     Number of Testable Classes: ${it.getNumberOfTestableClasses()}<br/>
+    Number of Tested Classes: ${it.getNumberOfTestedClasses()}<br/>
     Overall Coverage: ${it.getOverallCoverage()}%<br/>
+    Total Time Budget: ${it.getTimeBudget()} minutes<br/>
+    Time Budget Used: ${it.getTotalEffort()} minutes<br/>
   </t:summary>
 </j:jelly>

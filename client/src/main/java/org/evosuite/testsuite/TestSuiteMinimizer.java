@@ -19,14 +19,6 @@
  */
 package org.evosuite.testsuite;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
@@ -38,14 +30,13 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFactory;
-import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * <p>
@@ -125,17 +116,21 @@ public class TestSuiteMinimizer {
     }
 
     private void filterJUnitCoveredGoals(List<TestFitnessFunction> goals) {
-        if (!Properties.JUNIT_EXTEND.isEmpty()) {
+        if (Properties.JUNIT.isEmpty())
+            return;
 
+        LoggingUtils.getEvoLogger().info("* Determining coverage of existing tests");
+        String[] testClasses = Properties.JUNIT.split(":");
+        for (String testClass : testClasses) {
             try {
-                Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
+                Class<?> junitClass = Class.forName(testClass, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
                 Set<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
-                logger.warn("Removing " + coveredGoals.size() + " goals already covered by JUnit (total: " + goals.size() + ")");
+                LoggingUtils.getEvoLogger().info("* Removing " + coveredGoals.size() + " goals already covered by JUnit (total: " + goals.size() + ")");
                 //logger.warn("Removing " + coveredGoals + " goals already covered by JUnit (total: " + goals + ")");
                 goals.removeAll(coveredGoals);
-                logger.warn("Remaining goals: "+goals.size()+": "+goals);
-            } catch (ClassNotFoundException e) {
-                logger.warn("Failed to find JUnit test suite: " + Properties.JUNIT_EXTEND);
+                logger.info("Remaining goals: " + goals.size() + ": " + goals);
+            } catch(ClassNotFoundException e){
+                LoggingUtils.getEvoLogger().warn("* Failed to find JUnit test suite: " + Properties.JUNIT);
             }
         }
     }

@@ -60,12 +60,15 @@ public class EvoSuiteRecorder extends Recorder {
 	private boolean disableAutoCommit;
 	private boolean disableAutoPush;
 	private String branchName;
+	private String ctgBestsDir;
 
 	@DataBoundConstructor
-	public EvoSuiteRecorder(boolean disableAutoCommit, boolean disableAutoPush, String branchName) {
+	public EvoSuiteRecorder(boolean disableAutoCommit, boolean disableAutoPush,
+	    String branchName, String ctgBestsDir) {
 		this.disableAutoCommit = disableAutoCommit;
 		this.disableAutoPush = disableAutoPush;
 		this.branchName = branchName;
+		this.ctgBestsDir = ctgBestsDir;
 	}
 
 	public boolean getDisableAutoCommit() {
@@ -80,6 +83,10 @@ public class EvoSuiteRecorder extends Recorder {
 		return this.branchName;
 	}
 
+	public String getCtgBestsDir() {
+	    return this.ctgBestsDir;
+	}
+
 	public void setDisableAutoCommit(boolean disableAutoCommit) {
 		this.disableAutoCommit = disableAutoCommit;
 	}
@@ -90,6 +97,10 @@ public class EvoSuiteRecorder extends Recorder {
 
 	public void setBranchName(String branchName) {
 		this.branchName = branchName;
+	}
+
+	public void setCtgBestsDir(String ctgBestsDir) {
+        this.ctgBestsDir = ctgBestsDir;
 	}
 
 	@Override
@@ -120,14 +131,16 @@ public class EvoSuiteRecorder extends Recorder {
 
 		AbstractMavenProject<?, ?> project = ((AbstractMavenProject<?, ?>) build.getProject());
 		ProjectAction projectAction = new ProjectAction(project);
-		if (!projectAction.perform(project, build, listener)) {
-			return false;
-		}
+		projectAction.perform(project, build, listener);
 
 		BuildAction build_action = new BuildAction(build, projectAction);
 		build.addAction(build_action);
 
 		// Deliver new test cases (i.e., commit and push the new test cases generated)
+
+		if (this.disableAutoCommit) {
+			return true;
+		}
 
 		SCM scm = project.getScm();
 		if (scm == null) {
@@ -147,16 +160,15 @@ public class EvoSuiteRecorder extends Recorder {
 		}
 		assert scmWrapper != null;
 
-		if (!this.disableAutoCommit) {
-			if (!scmWrapper.commit(build, listener, this.branchName)) {
-				return false;
-			}
+		// perform commit action
+		int number_of_files_committed = scmWrapper.commit(project, build, listener, this.branchName, this.ctgBestsDir);
+		if (number_of_files_committed == -1) {
+			return false;
+		}
 
-			// only perform a push if there was a commit
-			if (!this.disableAutoPush) {
-				if (!scmWrapper.push(build, listener, this.branchName)) {
-					return false;
-				}
+		if (!this.disableAutoPush && number_of_files_committed > 0) {
+			if (!scmWrapper.push(build, listener, this.branchName)) {
+				return false;
 			}
 		}
 

@@ -19,19 +19,15 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -74,6 +70,12 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		Set<Integer> touchedMutants = new HashSet<Integer>(removedMutants);
 
 		for (ExecutionResult result : results) {
+			// Using private reflection can lead to false positives
+			// that represent unrealistic behaviour. Thus, we only
+			// use reflection for basic criteria, not for mutation
+			if(result.calledReflection())
+				continue;
+
 			touchedMutants.addAll(result.getTrace().getTouchedMutants());
 
 			for (Entry<Integer, Double> entry : result.getTrace().getMutationDistances().entrySet()) {

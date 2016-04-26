@@ -76,15 +76,6 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	protected void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).intValue());
-	}
-
-	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
 	/** {@inheritDoc} */

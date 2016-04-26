@@ -26,6 +26,8 @@ import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -43,19 +45,22 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
+import hudson.remoting.VirtualChannel;
 
 public class ProjectAction implements Action {
 
 	private final AbstractProject<?, ?> project;
-	private List<ModuleAction> modules = new ArrayList<ModuleAction>();
+
+	private final List<ModuleAction> modules;
 
 	public ProjectAction(AbstractProject<?, ?> project) {
 		this.project = (AbstractProject<?, ?>) project;
+		this.modules = new ArrayList<ModuleAction>();
 	}
 
 	public ProjectAction(AbstractProject<?, ?> project, List<ModuleAction> modules) {
 		this.project = (AbstractProject<?, ?>) project;
-		this.modules.addAll(modules);
+		this.modules = new ArrayList<ModuleAction>(modules);
 	}
 
 	@Override
@@ -85,63 +90,41 @@ public class ProjectAction implements Action {
 		return this.modules;
 	}
 
-	private void saveTests(AbstractBuild<?, ?> build, BuildListener listener,
-			String moduleName) throws InterruptedException, IOException {
-
-		FilePath workspace = build.getWorkspace();
-
-		// FIXME should we also use module.getRelativePath() ?!
-		FilePath[] testsGenerated = workspace.list(build.getEnvironment(listener).expand(
-				Properties.CTG_DIR + File.separator + "tmp_*" + File.separator +
-				Properties.CTG_TMP_TESTS_DIR_NAME + File.separator + "**" + File.separator + "*"));
-		for (FilePath testGenerated : testsGenerated) {
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "From_testsGenerated: " + testGenerated.getRemote());
-
-			FilePath to = new FilePath(new File(
-					testGenerated.getRemote().replace(workspace.getRemote(),
-							build.getRootDir().getAbsolutePath() + File.separator + ".." + File.separator + moduleName + File.separator)));
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "To_testsGenerated: " + to.getRemote());
-			testGenerated.copyTo(to);
-		}
-	}
-
-	private File saveProjectInfoXml(AbstractBuild<?, ?> build, BuildListener listener,
-			String moduleName) throws InterruptedException, IOException {
-
-		// FIXME should we also use module.getRelativePath() ?!
-		// FIXME check if this code does not return a null
-		FilePath from = build.getWorkspace().list(build.getEnvironment(listener).expand(Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO))[0];
-		FilePath to = new FilePath(new File(build.getRootDir(),
-				File.separator + moduleName + File.separator + Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO));
-		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "From: " + from.getRemote());
-		listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "To: " + to.getRemote());
-
-		from.copyTo(to);
-		return new File(to.getRemote());
-	}
-
-	public boolean perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
+	public void perform(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
 			BuildListener listener) throws InterruptedException, IOException {
 
 		EnvVars env = build.getEnvironment(listener);
 		env.overrideAll(build.getBuildVariables());
 
+		VirtualChannel channel = build.getWorkspace().getChannel();
+
 		MavenModuleSet prj = (MavenModuleSet) this.project;
 		for (MavenModule module : prj.getModules()) {
-			this.saveTests(build, listener, module.getName());
-			File project_info = this.saveProjectInfoXml(build, listener, module.getName());
-			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "ProjectInfo: " + project_info.getAbsolutePath());
 
-			if (project_info.exists()) {
-				ModuleAction m = new ModuleAction(build, module.getName());
-				if (!m.build(project_info, listener)) {
-					return false;
-				}
-				this.modules.add(m);
-			}
+		  FilePath fp = new FilePath(channel, build.getWorkspace().getRemote() + File.separator
+              + (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator)
+              + Properties.CTG_DIR + File.separator + Properties.CTG_PROJECT_INFO);
+
+		  if (!fp.exists()) {
+		    listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "There is not any " +
+		        fp.getRemote() + " file for module " + module.getName());
+		    continue ;
+		  }
+
+		  ByteArrayOutputStream out = new ByteArrayOutputStream();
+		  fp.copyTo(out);
+		  ByteArrayInputStream projectXML = new ByteArrayInputStream(out.toByteArray());
+
+		  listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Analysing " +
+		      Properties.CTG_PROJECT_INFO + " file from " + fp.getRemote());
+
+		  ModuleAction m = new ModuleAction(build, module.getName());
+		  if (!m.build(channel, projectXML, listener)) {
+		    continue ;
+		  }
+
+		  this.modules.add(m);
 		}
-
-		return true;
 	}
 
 	public void doCoverageGraph(StaplerRequest req, StaplerResponse rsp) throws IOException {
@@ -166,18 +149,10 @@ public class ProjectAction implements Action {
 	
 	// data for jelly template
 
-	/**
-	 * 
-	 * @return
-	 */
 	public int getNumberOfModules() {
 		return this.modules.size();
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public int getNumberOfTestableClasses() {
 		if (this.modules.isEmpty()) {
 			return 0;
@@ -191,10 +166,19 @@ public class ProjectAction implements Action {
 		return classes;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
+	public int getNumberOfTestedClasses() {
+		if (this.modules.isEmpty()) {
+			return 0;
+		}
+
+		int classes = 0;
+		for (ModuleAction m : this.modules) {
+			classes += m.getNumberOfTestedClasses();
+		}
+
+		return classes;
+	}
+
 	public Set<String> getCriteria() {
 		Set<String> criteria = new LinkedHashSet<String>();
 		if (this.modules.isEmpty()) {
@@ -207,10 +191,7 @@ public class ProjectAction implements Action {
 
 		return criteria;
 	}
-	/**
-	 * 
-	 * @return
-	 */
+
 	public double getOverallCoverage() {
 		if (this.modules.isEmpty()) {
 			return 0.0;
@@ -226,11 +207,6 @@ public class ProjectAction implements Action {
 		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
 	}
 
-	/**
-	 * 
-	 * @param criterionName
-	 * @return
-	 */
 	public double getCriterionCoverage(String criterionName) {
 		if (this.modules.isEmpty()) {
 			return 0.0;
@@ -238,7 +214,7 @@ public class ProjectAction implements Action {
 
 		double coverage = 0.0;
 		for (ModuleAction m : this.modules) {
-			coverage += m.getCriterionCoverage(criterionName);
+			coverage += m.getAverageCriterionCoverage(criterionName);
 		}
 
 		DecimalFormat formatter = EvoSuiteRecorder.decimalFormat;
@@ -246,11 +222,6 @@ public class ProjectAction implements Action {
 		return Double.parseDouble(formatter.format(coverage / this.modules.size()));
 	}
 
-	/**
-	 * Return the total time (minutes) spent on test generation
-	 * 
-	 * @return 
-	 */
 	public int getTotalEffort() {
 		if (this.modules.isEmpty()) {
 			return 0;
@@ -263,4 +234,17 @@ public class ProjectAction implements Action {
 
 		return effort;
 	}
+
+	public int getTimeBudget() {
+      if (this.modules.isEmpty()) {
+          return 0;
+      }
+
+      int effort = 0;
+      for (ModuleAction m : this.modules) {
+          effort += m.getTimeBudget();
+      }
+
+      return effort;
+  }
 }

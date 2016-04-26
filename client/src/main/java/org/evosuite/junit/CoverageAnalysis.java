@@ -22,31 +22,7 @@
  */
 package org.evosuite.junit;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Modifier;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-
 import junit.framework.TestCase;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -82,6 +58,14 @@ import org.junit.runners.model.TestClass;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.lang.reflect.Modifier;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 /**
  * <p>
@@ -631,7 +615,7 @@ public class CoverageAnalysis {
 
 		ExecutionTracer.enable();
 		ExecutionTracer.setCheckCallerThread(false);
-		//
+		ExecutionTracer.getExecutionTracer().clear();
 
 		List<JUnitResult> results = new ArrayList<JUnitResult>();
         for (Class<?> testClass : testClasses) {

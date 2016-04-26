@@ -20,11 +20,10 @@
     License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<!-- this an empty project description, for when CTG is used for the first 
-	time -->
+<!--
+	This an empty project description, for when CTG is used for the first time.
+-->
 
-<ProjectInfo>
-	<totalNumberOfClasses> 0 </totalNumberOfClasses>
+<Project>
 	<totalNumberOfTestableClasses> 0 </totalNumberOfTestableClasses>
-	<overallCoverage> 0 </overallCoverage>
-</ProjectInfo>
+</Project>

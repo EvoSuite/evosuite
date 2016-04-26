@@ -55,17 +55,17 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>3.3.3</version>
+            <version>3.3.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>3.3.3</version>
+            <version>3.3.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.3</version>
+            <version>3.4</version>
             <!-- annotations are not needed for plugin execution so you can remove
                 this dependency for execution with using provided scope -->
             <scope>provided</scope>
@@ -74,19 +74,20 @@
             <!-- required in all cases -->
             <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-api</artifactId>
-            <version>1.0.0.v20140518</version>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <!-- optional helpers, might be superfluous depending on your use case -->
             <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-util</artifactId>
-            <version>1.0.0.v20140518</version>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 
     <build>
         <pluginManagement>
             <plugins>
+            <!-- be sure classes get shaded -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
@@ -114,7 +115,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.3</version>
+                    <version>3.5.1</version>
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>
@@ -173,7 +174,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.8.1</version>
+                <version>2.9</version>
                 <configuration>
                     <!-- essential, otherwise "site" will take forever and ever... -->
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>

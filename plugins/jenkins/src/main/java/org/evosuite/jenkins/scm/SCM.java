@@ -19,16 +19,25 @@
  */
 package org.evosuite.jenkins.scm;
 
-import java.io.File;
-
+import hudson.maven.AbstractMavenProject;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 
 public interface SCM {
 
-	public static String TESTS_DIR_TO_COMMIT = ".evosuite" + File.separator + "best-tests";
+    public static String COMMIT_MSG_PREFIX = "EvoSuite Jenkins Plugin #";
 
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
+    /**
+     * 
+     * @param project
+     * @param build
+     * @param listener
+     * @param branchName
+     * @param ctgBestsDir
+     * @return the number of committed files. -1 if the commit command failed, otherwise it returns
+     *         the total number of files added and committed.
+     */
+	public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build, BuildListener listener, String branchName, String ctgBestsDir);
 
 	public boolean push(AbstractBuild<?, ?> build, BuildListener listener, String branchName);
 

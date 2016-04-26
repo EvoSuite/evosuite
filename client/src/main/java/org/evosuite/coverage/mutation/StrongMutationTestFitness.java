@@ -22,26 +22,7 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.evosuite.assertion.ArrayTraceEntry;
-import org.evosuite.assertion.ArrayTraceObserver;
-import org.evosuite.assertion.AssertionTraceObserver;
-import org.evosuite.assertion.ComparisonTraceEntry;
-import org.evosuite.assertion.ComparisonTraceObserver;
-import org.evosuite.assertion.InspectorTraceEntry;
-import org.evosuite.assertion.InspectorTraceObserver;
-import org.evosuite.assertion.NullTraceEntry;
-import org.evosuite.assertion.NullTraceObserver;
-import org.evosuite.assertion.OutputTrace;
-import org.evosuite.assertion.PrimitiveFieldTraceEntry;
-import org.evosuite.assertion.PrimitiveFieldTraceObserver;
-import org.evosuite.assertion.PrimitiveTraceEntry;
-import org.evosuite.assertion.PrimitiveTraceObserver;
+import org.evosuite.assertion.*;
 import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.TestCase;
@@ -49,6 +30,12 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * <p>
@@ -324,8 +311,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 
 		double impactDistance = 1.0;
 
-		// If executed...
-		if (executionDistance <= 0) {
+		// If executed...but not with reflection
+		if (executionDistance <= 0 && !result.calledReflection()) {
 			// Add infection distance
 			assert (result.getTrace() != null);
 			// assert (result.getTrace().mutantDistances != null);

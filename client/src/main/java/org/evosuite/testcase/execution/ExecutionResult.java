@@ -25,6 +25,7 @@ import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -379,6 +380,23 @@ public class ExecutionResult implements Cloneable {
 
 		return false;
 	}
+
+	/**
+	 * Returns true if any of the executed statements was a reflection statement
+	 *
+	 * @return
+     */
+	public boolean calledReflection() {
+		int executedStatements = getExecutedStatements();
+		for(int numStatement = 0; numStatement < executedStatements; numStatement++) {
+			Statement s = test.getStatement(numStatement);
+			if(s.isReflectionStatement())
+				return true;
+		}
+		return false;
+	}
+
+
 
 	/**
 	 * check if the test case threw any security exception

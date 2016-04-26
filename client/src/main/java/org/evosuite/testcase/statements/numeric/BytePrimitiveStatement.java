@@ -92,15 +92,6 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void pushBytecode(GeneratorAdapter mg) {
-		mg.push((value).shortValue());
-	}
-
-	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
 	/** {@inheritDoc} */

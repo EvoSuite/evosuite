@@ -998,6 +998,14 @@ public class Properties {
 	@Parameter(key = "print_goals", group = "Output", description = "Print out goals of class under test")
 	public static boolean PRINT_GOALS = false;
 
+	/** Constant <code>ALL_GOALS_FILE="all.goals"</code> */
+	@Parameter(key = "all_goals_file", group = "Output", description = "File to which the list of all goals is written")
+	public static String ALL_GOALS_FILE = REPORT_DIR + File.separator + "all.goals";
+
+	/** Constant <code>WRITE_ALL_GOALS_FILE=false</code> */
+	@Parameter(key = "write_all_goals_file", group = "Output", description = "If enabled, the list of all goals is written to a file")
+	public static boolean WRITE_ALL_GOALS_FILE = false;
+
 	/** Constant <code>PRINT_CURRENT_GOALS=false</code> */
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
 	public static boolean PRINT_CURRENT_GOALS = false;
@@ -1430,7 +1438,7 @@ public class Properties {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
-        REGRESSION,	REGRESSIONTESTS, EPATRANSITION
+        REGRESSION,	REGRESSIONTESTS, TRYCATCH, EPATRANSITION
 	}
 
     /** Constant <code>CRITERION</code> */

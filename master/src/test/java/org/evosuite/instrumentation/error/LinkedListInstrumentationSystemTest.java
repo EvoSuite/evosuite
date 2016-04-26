@@ -19,47 +19,18 @@
  */
 package org.evosuite.instrumentation.error;
 
-import java.util.List;
-
+import com.examples.with.different.packagename.errorbranch.LinkedListAccess;
+import com.examples.with.different.packagename.errorbranch.LinkedListAccessIndex;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.errorbranch.LinkedListAccess;
-import com.examples.with.different.packagename.errorbranch.LinkedListAccessIndex;
-
 public class LinkedListInstrumentationSystemTest extends SystemTestBase {
-
-	@Test
-	public void testLinkedListWithoutErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = LinkedListAccess.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ERROR_BRANCHES = false;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		// One infeasible error branch
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
 
 	@Test
 	public void testLinkedListWithErrorBranches() {
@@ -70,6 +41,7 @@ public class LinkedListInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -77,42 +49,12 @@ public class LinkedListInstrumentationSystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		List<? extends TestFitnessFunction> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 13, goals.size());
+		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(5, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
 
-		// Not sure why we have to do this:
-		TestCaseExecutor.initExecutor();
-
-		for (TestFitnessFunction goal : goals) {
-			BranchCoverageTestFitness branchGoal = (BranchCoverageTestFitness) goal;
-			if (branchGoal.getBranch() != null
-			        && !branchGoal.getBranch().isInstrumented()) {
-				Assert.assertTrue(branchGoal.isCoveredBy(best));
-			}
-		}
-	}
-
-	@Test
-	public void testLinkedListIndexWithoutErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = LinkedListAccessIndex.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ERROR_BRANCHES = false;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 3, goals);
-		// One infeasible error branch
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
+
 
 	@Test
 	public void testLinkedListIndexWithErrorBranches() {
@@ -123,6 +65,7 @@ public class LinkedListInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -130,18 +73,9 @@ public class LinkedListInstrumentationSystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		List<? extends TestFitnessFunction> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 15, goals.size());
+		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(6, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
-		// Not sure why we have to do this:
-		TestCaseExecutor.initExecutor();
-
-		for (TestFitnessFunction goal : goals) {
-			BranchCoverageTestFitness branchGoal = (BranchCoverageTestFitness) goal;
-			if (branchGoal.getBranch() != null
-			        && !branchGoal.getBranch().isInstrumented()) {
-				Assert.assertTrue(branchGoal.isCoveredBy(best));
-			}
-		}
 	}
 }

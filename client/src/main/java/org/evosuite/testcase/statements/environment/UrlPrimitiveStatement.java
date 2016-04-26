@@ -74,11 +74,6 @@ public class UrlPrimitiveStatement extends EnvironmentDataStatement<EvoSuiteURL>
     }
 
     @Override
-    protected void pushBytecode(GeneratorAdapter mg) {
-
-    }
-
-    @Override
     public void randomize() {
         String url = Randomness.choice(tc.getAccessedEnvironment().getViewOfRemoteURLs());
         if (url != null) {

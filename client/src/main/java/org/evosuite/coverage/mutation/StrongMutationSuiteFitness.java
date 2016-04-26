@@ -19,15 +19,6 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -37,6 +28,8 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.*;
 
 /**
  * <p>
@@ -144,6 +137,12 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		List<TestChromosome> executionOrder = prioritizeTests(suite); // Quicker tests first
 		for (TestChromosome test : executionOrder) {
 			ExecutionResult result = test.getLastExecutionResult();
+			// Using private reflection can lead to false positives
+			// that represent unrealistic behaviour. Thus, we only
+			// use reflection for basic criteria, not for mutation
+			if(result.calledReflection())
+				continue;
+
 			ExecutionTrace trace = result.getTrace();
 			touchedMutants.addAll(trace.getTouchedMutants());
 			logger.debug("Tests touched " + touchedMutants.size() + " mutants");

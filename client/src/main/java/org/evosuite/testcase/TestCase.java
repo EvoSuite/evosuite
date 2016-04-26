@@ -377,6 +377,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 */
 	public boolean hasReferences(VariableReference var);
 
+
 	/**
 	 * Check if all methods/fields accessed are accessible also for the current SUT
 	 * 

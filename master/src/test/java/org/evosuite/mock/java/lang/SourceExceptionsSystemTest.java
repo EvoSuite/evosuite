@@ -58,7 +58,7 @@ public class SourceExceptionsSystemTest extends SystemTestBase {
         }
 
         String code = best.toString();
-        Assert.assertTrue("Code:\n"+code, code.contains("assertThrownBy(\"com.examples.with.different.packagename.mock.java.lang.SourceExceptions\","));
-        Assert.assertTrue("Code:\n"+code, code.contains("assertThrownBy(\"com.examples.with.different.packagename.mock.java.lang.SourceExceptions$Foo\","));
+        Assert.assertTrue("Code:\n"+code, code.contains("verifyException(\"com.examples.with.different.packagename.mock.java.lang.SourceExceptions\","));
+        Assert.assertTrue("Code:\n"+code, code.contains("verifyException(\"com.examples.with.different.packagename.mock.java.lang.SourceExceptions$Foo\","));
     }
 }

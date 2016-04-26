@@ -109,7 +109,11 @@ public class CsvJUnitData {
 				// end with "CoverageBitString", e.g., BranchCoverageBitString, WeakMutationCoverageBitString, etc
 				if (!columnName.equals(RuntimeVariable.CoverageBitString.name()) &&
 						columnName.endsWith("CoverageBitString") ) {
-					data.coverageBitString.put(columnName, getValue(rows, columnName));
+					String coverageColumn = columnName.replace("BitString", "");
+					if (coverageColumn.contains("Mutation")) {
+						coverageColumn = coverageColumn.replace("Coverage", "Score");
+					}
+					data.coverageBitString.put(coverageColumn, getValue(rows, columnName));
 				}
 			}
 

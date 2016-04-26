@@ -24,23 +24,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.continuous.persistency.StorageManager;
-import org.evosuite.xsd.CriterionCoverage;
-import org.evosuite.xsd.ProjectInfo;
-import org.evosuite.xsd.TestSuite;
-import org.evosuite.xsd.TestSuiteCoverage;
+import org.evosuite.xsd.CUT;
+import org.evosuite.xsd.Generation;
+import org.evosuite.xsd.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +83,7 @@ public class ProjectStaticData {
     /**
      * 
      */
-    private final HashMap<String, List<Map<String, Double>>> coverages;
+    private Project project = null;
 
     /**
      * 
@@ -98,9 +95,7 @@ public class ProjectStaticData {
 	 */
 	public ProjectStaticData() {
 		classes = new ConcurrentHashMap<String, ClassInfo>();
-
 		this.modifiedFiles = new LinkedHashSet<String>();
-        this.coverages = new LinkedHashMap<String, List<Map<String, Double>>>();
 	}
 
 	/**
@@ -112,9 +107,7 @@ public class ProjectStaticData {
 			return ;
 		}
 
-		//
-		// 1. Load history changes
-		//
+		// Load history file
         BufferedReader br = null;
         try {
             String sCurrentLine;
@@ -151,29 +144,7 @@ public class ProjectStaticData {
             }
         }
 
-        //
-        // 2. Load previous CTG data
-        //
-        ProjectInfo p = StorageManager.getDatabaseProjectInfo();
-        if (p.getGeneratedTestSuites().size() == 0) {
-        	return ; // we still do not have coverage
-        }
-
-        for (TestSuite suite : p.getGeneratedTestSuites()) {
-        	String targetClass = suite.getFullNameOfTargetClass();
-
-        	List<Map<String, Double>> suite_coverages = new ArrayList<Map<String, Double>>();
-        	for (TestSuiteCoverage suite_coverage : suite.getCoverageTestSuites()) {
-        		Map<String, Double> previous_coverages = new LinkedHashMap<String, Double>();
-        		for (CriterionCoverage coverage : suite_coverage.getCoverage()) {
-        			previous_coverages.put(coverage.getCriterion(), coverage.getCoverageValue());
-        		}
-
-        		suite_coverages.add(previous_coverages);
-        	}
-
-        	this.coverages.put(targetClass, suite_coverages);
-        }
+        this.project = StorageManager.getDatabaseProject();
 	}
 
 	/**
@@ -203,6 +174,16 @@ public class ProjectStaticData {
 		 */
         private boolean isToTest = true;
 
+        /**
+         * time budget in seconds allocated to test this class
+         */
+        private int timeBudgetInSeconds = 0;
+
+        /**
+         * amount of memory in Megabytes used to test this class
+         */
+        private int memoryInMB = 0;
+
 		public ClassInfo(Class<?> theClass, int numberOfBranches, boolean hasCode) {
 			super();
 			this.theClass = theClass;
@@ -230,6 +211,20 @@ public class ProjectStaticData {
         }
         public boolean isToTest() {
             return this.isToTest;
+        }
+
+        public void setTimeBudgetInSeconds(int timeBudgetInSeconds) {
+            this.timeBudgetInSeconds = timeBudgetInSeconds;
+        }
+        public int getTimeBudgetInSeconds() {
+            return this.timeBudgetInSeconds;
+        }
+
+        public void setMemoryInMB(int memoryInMB) {
+            this.memoryInMB = memoryInMB;
+        }
+        public int getMemoryInMB() {
+            return memoryInMB;
         }
 	}
 
@@ -311,68 +306,87 @@ public class ProjectStaticData {
 	}
 
 	/**
-     * Return the history statistics of a class
+     * Returns true if a class has been changed, false otherwise
      */
-    public boolean hasChanged(String className) {
-    	for (String modified_file_name : this.modifiedFiles) {
-    		if (modified_file_name.contains(className))
-    			return true;
-    	}
-    	return false;
+    public boolean hasChanged(String javaFileName) {
+      return this.modifiedFiles.parallelStream().anyMatch(m -> m.endsWith(javaFileName));
+    }
+
+    protected void setProject(Project project) {
+        this.project = project;
     }
 
     /**
-     * Return previous test coverage
-     */
-    public List<Map<String, Double>> getPreviousCoverages(String className) {
-        return this.coverages.get(className);
-    }
-
-    /**
-     * Has the coverage improved in last N commits
+     * It checks whether EvoSuite was able to improve coverage,
+     * test suite size, etc for 'className' in the last N
+     * generations. I.e., it checks whether it is worth to test
+     * 'className'.
+     * 
+     * @param className
+     * @param n
+     * @return
      */
     public boolean isToTest(String className, int n) {
 
-    	List<Map<String, Double>> classCoverage = this.coverages.get(className);
-    	if (classCoverage == null) {
-    		return true; // first time
+        if (this.project == null) {
+            return true; // we don't have any previous data at all
+        }
+
+        CUT cut = this.project.getCut().parallelStream()
+          .filter(p -> p.getFullNameOfTargetClass().equals(className))
+          .findFirst().orElse(null);
+
+    	if (cut == null) {
+    		return true; // we don't have any coverage yet
     	}
 
-    	Map<String, Double> previousCoverage = classCoverage.get( this.coverages.get(className).size() - 1 );
+    	int how_many_generations_so_far = cut.getGeneration().size();
 
-    	// check if all criteria have been covered
-    	boolean one_hundred_percent_coverage = true;
-    	for (String criterion : previousCoverage.keySet()) {
-    		if (previousCoverage.get(criterion) < 1.0) {
-    			one_hundred_percent_coverage = false;
-    			break ;
-    		}
+    	// did EvoSuite crashed?
+    	if (cut.getGeneration().get(how_many_generations_so_far - 1).isFailed()) {
+    	    return true;
     	}
 
-    	// we've achieved 100% coverage (even if just one execution),
-    	// so we don't want to test this class
-        if (one_hundred_percent_coverage)
-            return false;
-
-        // not enough data
-        if (this.coverages.get(className).size() < n)
+        // not enough data to compare
+        if (how_many_generations_so_far < n) {
             return true;
+        }
 
         // we just keep track of the best test suite generated so far,
         // however if the coverage of any criterion did not increased
-        // in the last N commits, there is no point continue testing.
+        // in the last N generations, there is no point continue testing.
         // if at some point the className is changed, then the class
         // should be tested again
 
-        // has the coverage of any criterion improved in the last N commits?
-        for (int i = this.coverages.get(className).size() - 1; i > this.coverages.get(className).size() - 1 - n; i--) {
-        	for (String criterion : this.coverages.get(className).get(i).keySet()) {
-        		if (this.coverages.get(className).get(i).get(criterion) < previousCoverage.get(criterion)) {
-        			return true;
-        		}
-        	}
+        List<Generation> lastNGenerations = cut.getGeneration().stream()
+            .filter(g -> g.getTimeBudgetInSeconds().intValue() > 0)
+            .skip(how_many_generations_so_far - n)
+            .collect(Collectors.toList());
+
+        // project_info.xml is populated with many 'generation' elements,
+        // however, not all have a 'suite' element. a 'generation' only
+        // has a 'suite' if EvoSuite did not crash, or if the generated
+        // test suite was not better than any previous manually-written/generated
+        // test suite. therefore, if N previous generations include a
+        // test suite, each improved (coverage, number of test cases, etc)
+        // the previous one (N-1)
+        for (int i = lastNGenerations.size() - 1; i >= 0; i--) {
+            Generation generation = lastNGenerations.get(i);
+            if (generation.isFailed()) {
+                // if any of the previous N executions failed and modified
+                // the cut, re-generate new test cases for it
+                return true;
+            }
+
+            if (generation.getSuite() != null) {
+                // if we got a Test Suite it's because it improved
+                // the previous one
+                return true;
+            }
         }
 
+        // it seems that we were not able to improve coverage, etc of 'className'
+        // on the last N generations
         return false;
     }
 

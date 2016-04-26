@@ -84,6 +84,18 @@ public class BuildAction implements Action {
 		return (int) this.projectAction.getNumberOfTestableClasses();
 	}
 
+	public int getNumberOfTestedClasses() {
+		return this.projectAction.getNumberOfTestedClasses();
+	}
+
+	public int getTotalEffort() {
+        return this.projectAction.getTotalEffort();
+    }
+
+    public int getTimeBudget() {
+        return this.projectAction.getTimeBudget();
+    }
+
 	public Set<String> getCriteria() {
 		return this.projectAction.getCriteria();
 	}

@@ -19,15 +19,15 @@
  */
 package com.examples.with.different.packagename.testcarver;
 
-import static org.junit.Assert.assertEquals;
-
 import org.evosuite.runtime.agent.InstrumentingAgent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestPersonWithJavaAgent {
+import static org.junit.Assert.assertEquals;
+
+public class PersonWithJavaAgentSystemTest {
 
 	
 	@BeforeClass 

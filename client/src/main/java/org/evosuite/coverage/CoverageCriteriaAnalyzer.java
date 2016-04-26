@@ -179,6 +179,8 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.BranchCoverage;
             case EPATRANSITION:
             	return RuntimeVariable.EpaTransitionCoverage;
+            case TRYCATCH:
+                return RuntimeVariable.TryCatchCoverage;
             default:
                 throw new RuntimeException("Criterion not supported: " + criterion);
 
@@ -340,6 +342,7 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.LineCoverageBitString;
             case REGRESSION:
             case REGRESSIONTESTS:
+            case TRYCATCH:
                 return null;
             case EPATRANSITION:
             	return RuntimeVariable.EpaTransitionCoverage;

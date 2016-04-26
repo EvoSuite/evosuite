@@ -37,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.ClassWithAnonymousClass;
 import com.examples.with.different.packagename.FlagExample3;
 import com.examples.with.different.packagename.IntExample;
 import com.examples.with.different.packagename.SingleMethod;
@@ -375,4 +376,52 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		assertEquals(7, goals.size());
 	}
+
+	@Test
+    public void testListOfGoals_AnonymousClass() {
+        String targetClass = ClassWithAnonymousClass.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Properties.Criterion[] { Criterion.ONLYLINE };
+
+        String[] command = new String[] {
+            "-class", targetClass,
+            "-printStats"
+        };
+
+        EvoSuite evosuite = new EvoSuite();
+        evosuite.parseCommandLine(command);
+
+        LineCoverageFactory line_factory = new LineCoverageFactory();
+        List<LineCoverageTestFitness> lines = line_factory.getCoverageGoals();
+        for (LineCoverageTestFitness line : lines) {
+            System.out.println(line);
+        }
+
+        // lines: 22, 24, 27, 30, 31, 32, 33, 35, 38 
+        Assert.assertEquals(9, lines.size());
+    }
+
+    @Test
+    public void testCoveredGoals_AnonymousClass() {
+        String targetClass = ClassWithAnonymousClass.class.getCanonicalName();
+
+        Properties.TARGET_CLASS = targetClass;
+        Properties.CRITERION = new Properties.Criterion[] { Criterion.ONLYLINE };
+
+        String[] command = new String[] {
+            "-class", targetClass,
+            "-generateSuite"
+        };
+
+        EvoSuite evosuite = new EvoSuite();
+
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+        // lines: 22, 24, 27, 30, 31, 32, 33, 35, 38
+        Assert.assertEquals(9, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+        Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }

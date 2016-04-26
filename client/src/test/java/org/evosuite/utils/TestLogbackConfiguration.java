@@ -19,12 +19,13 @@
  */
 package org.evosuite.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 public class TestLogbackConfiguration {
 
@@ -38,6 +39,7 @@ public class TestLogbackConfiguration {
 		LoggingUtils.changeLogbackFile("logback.xml");
 	}
 
+    @Ignore // With evosuite-logback.xml using the shaded logger this cannot work
 	@Test
 	public void testStdOutErr() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

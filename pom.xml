@@ -68,24 +68,8 @@
             </roles>
         </developer>
         <developer>
-            <id>fgross</id>
-            <name>Florian Gross</name>
-            <timezone>2</timezone>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>jroessler</id>
-            <name>Jeremias Roessler</name>
-            <timezone>2</timezone>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>amis</id>
-            <name>Andre Mis</name>
+            <id>jmrojas</id>
+            <name>Jose Miguel Rojas</name>
             <timezone>2</timezone>
             <roles>
                 <role>Developer</role>
@@ -181,7 +165,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-project-info-reports-plugin</artifactId>
-                        <version>2.8.1</version>
+                        <version>2.9</version>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -239,13 +223,13 @@
                 <!-- MIT -->
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.12</version>
+                <version>1.7.20</version>
             </dependency>
             <dependency>
                 <!-- EPL/LGPL -->
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.1.3</version>
+                <version>1.1.6</version>
             </dependency>
             <dependency>
                 <!-- MIT -->
@@ -263,7 +247,7 @@
                 <!-- Adhoc license, copyright holder is INRIA -->
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-all</artifactId>
-                <version>5.0.4</version>
+                <version>5.1</version>
                 <!--				<version>4.2</version> -->
             </dependency>
             <dependency>
@@ -300,7 +284,7 @@
                 <!-- BSD -->
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.8</version>
+                <version>1.4.9</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
@@ -788,6 +772,14 @@
                                     <relocation>
                                         <pattern>org.objenesis</pattern>
                                         <shadedPattern>org.evosuite.shaded.org.objenesis</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>org.slf4j</pattern>
+                                        <shadedPattern>org.evosuite.shaded.org.slf4j</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>ch.qos.logback</pattern>
+                                        <shadedPattern>org.evosuite.shaded.ch.qos.logback</shadedPattern>
                                     </relocation>
                                 </relocations>
                             </configuration>

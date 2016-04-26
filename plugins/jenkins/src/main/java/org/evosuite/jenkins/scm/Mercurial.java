@@ -25,6 +25,7 @@ import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 
 import org.evosuite.jenkins.recorder.EvoSuiteRecorder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -34,6 +35,8 @@ import java.util.regex.Pattern;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.maven.AbstractMavenProject;
+import hudson.maven.MavenModule;
+import hudson.maven.MavenModuleSet;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.plugins.mercurial.HgExe;
@@ -74,7 +77,8 @@ public class Mercurial implements SCM {
 	}
 
 	@Override
-	public boolean commit(AbstractBuild<?, ?> build, BuildListener listener, String branchName) {
+    public int commit(AbstractMavenProject<?, ?> project, AbstractBuild<?, ?> build,
+        BuildListener listener, String branchName, String ctgBestsDir) {
 		try {
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Commiting new test cases");
 
@@ -86,46 +90,60 @@ public class Mercurial implements SCM {
 						.println(EvoSuiteRecorder.LOG_PREFIX + "There is no branch called " + branchName);
 				if (this.hgClient.run("branch", branchName).pwd(build.getWorkspace()).join() != 0) {
 					listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to create a new branch called " + branchName);
-					return false;
+					return -1;
 				}
 			}
 
 			// switch to EVOSUITE_BRANCH
 			if (this.hgClient.run("update", branchName).pwd(build.getWorkspace()).join() != 0) {
 				listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Unable to switch to branch " + branchName);
-				return false;
+				return -1;
 			}
 
 			// start adding all removed files to commit
 			if (this.hgClient.run("remove", "--after").pwd(build.getWorkspace()).join() != 0) {
 				this.rollback(build, listener);
-				return false;
+				return -1;
 			}
 
+			MavenModuleSet prj = (MavenModuleSet) project;
+
 			// parse list of new and modified files
-			Set<String> setOfFiles = this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener, true, new ArgumentListBuilder("status")));
-			for (String file : setOfFiles) {
-				if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
-					this.rollback(build, listener);
-					return false;
-				}
+			int number_of_files_committed = 0;
+			for (MavenModule module : prj.getModules()) {
+			    for (String file : this.parseStatus(this.hgClient.popen(build.getWorkspace(), listener,
+			        true, new ArgumentListBuilder("status")),
+			        (module.getRelativePath().isEmpty() ? "" : module.getRelativePath() + File.separator) + ctgBestsDir)) {
+
+			      if (this.hgClient.run("add", file).pwd(build.getWorkspace()).join() != 0) {
+                      this.rollback(build, listener);
+                      return -1;
+			      }
+
+                  number_of_files_committed++;
+			    }
+			}
+
+			if (number_of_files_committed == 0) {
+			    listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + "Nothing to commit");
+                return 0;
 			}
 
 			// commit
-			String commit_msg = "EvoSuite Jenkins Plugin #" + "evosuite-" + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
+			String commit_msg = SCM.COMMIT_MSG_PREFIX + build.getProject().getName().replace(" ", "_") + "-" + build.getNumber();
 			listener.getLogger().println(EvoSuiteRecorder.LOG_PREFIX + commit_msg);
 
 			if (this.hgClient.run("commit", "--message", commit_msg).pwd(build.getWorkspace()).join() != 0) {
 				this.rollback(build, listener);
-				return false;
+				return -1;
 			}
+
+			return number_of_files_committed++;
 
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-			return false;
+			return -1;
 		}
-
-		return false;
 	}
 
 	@Override
@@ -150,9 +168,9 @@ public class Mercurial implements SCM {
 		// TODO
 	}
 
-	private Set<String> parseStatus(String status) {
+	private Set<String> parseStatus(String status, String ctgBestsDir) {
 		Set<String> result = new LinkedHashSet<String>();
-		Matcher m = Pattern.compile("[?AMR!]\\s(.*" + SCM.TESTS_DIR_TO_COMMIT + ".*)").matcher(status);
+		Matcher m = Pattern.compile("[?AMR!]\\s(.*" + ctgBestsDir + ".*)").matcher(status);
 		while (m.find()) {
 			result.add(m.group(1));
 		}

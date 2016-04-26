@@ -31,7 +31,8 @@ import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.utils.FileIOUtils;
-import org.evosuite.xsd.ProjectInfo;
+import org.evosuite.xsd.Project;
+import org.evosuite.xsd.ProjectUtil;
 
 
 /**
@@ -227,9 +228,9 @@ public class ContinuousTestGeneration {
      */
     public String info(){
     		
-		ProjectInfo projectInfo = StorageManager.getDatabaseProjectInfo(); 
+		Project project = StorageManager.getDatabaseProject(); 
 		
-		if(projectInfo==null){
+		if(project==null){
 			return "No info available";
 		}
 		
@@ -237,13 +238,13 @@ public class ContinuousTestGeneration {
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("Total number of classes in the project: "+
-				projectInfo.getTotalNumberOfClasses()+"\n");
+				ProjectUtil.getNumberTestableClasses(project)+"\n");
 		sb.append("Number of classes in the project that are testable: "+
-				projectInfo.getTotalNumberOfTestableClasses()+"\n");
+				ProjectUtil.getNumberTestableClasses(project)+"\n");
     		sb.append("Number of generated test suites: "+
-    				projectInfo.getGeneratedTestSuites().size()+"\n");
+    				ProjectUtil.getNumberGeneratedTestSuites(project)+"\n");
 		sb.append("Overall coverage: "+
-    				projectInfo.getOverallCoverage()+"\n");
+    				ProjectUtil.getOverallCoverage(project)+"\n");
     		
     		return sb.toString();
     }

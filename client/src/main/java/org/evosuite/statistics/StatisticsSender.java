@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.rmi.ClientServices;
@@ -138,6 +141,8 @@ public class StatisticsSender {
 		Set<Integer> coveredFalseBranches = new HashSet<Integer>();
 		Set<String> coveredBranchlessMethods = new HashSet<String>();
 		Set<Integer> coveredLines = new HashSet<Integer>();
+		Set<Integer> coveredRealBranches = new HashSet<Integer>();
+		Set<Integer> coveredInstrumentedBranches = new HashSet<Integer>();
 
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			ExecutionTrace trace = test.getLastExecutionResult().getTrace();
@@ -148,6 +153,22 @@ public class StatisticsSender {
 			coveredLines.addAll(trace.getCoveredLines());
 		}
 
+		if(Properties.ERROR_BRANCHES || Properties.EXCEPTION_BRANCHES) {
+			BranchPool branchPool = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT());
+			Set<Integer> union = new HashSet<>(coveredTrueBranches);
+			union.addAll(coveredFalseBranches);
+			for (Integer branchId : union) {
+				Branch b = branchPool.getBranch(branchId);
+				if (b.isInstrumented())
+					coveredInstrumentedBranches.add(branchId);
+				else
+					coveredRealBranches.add(branchId);
+			}
+		} else {
+			coveredRealBranches.addAll(coveredTrueBranches);
+			coveredRealBranches.addAll(coveredFalseBranches);
+		}
+
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Goals, testSuite.getCoveredGoals().size());		
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
@@ -156,6 +177,10 @@ public class StatisticsSender {
 				RuntimeVariable.Covered_Branches, coveredTrueBranches.size() + coveredFalseBranches.size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Branchless_Methods, coveredBranchlessMethods.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(
+				RuntimeVariable.Covered_Branches_Real, coveredRealBranches.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(
+				RuntimeVariable.Covered_Branches_Instrumented, coveredInstrumentedBranches.size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Lines, coveredLines);
 	}

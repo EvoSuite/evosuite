@@ -74,7 +74,7 @@ public class JUnitRunListener extends RunListener {
 	 */
 	@Override
 	public void testRunFinished(Result result) {
-		LoggingUtils.getEvoLogger().info("* Number of test cases to executed: " + result.getRunCount());
+		LoggingUtils.getEvoLogger().info("* Number of test cases executed: " + result.getRunCount());
 	}
 
 	/**

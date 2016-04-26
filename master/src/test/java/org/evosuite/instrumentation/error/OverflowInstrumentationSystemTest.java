@@ -44,6 +44,7 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -51,9 +52,9 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 7d / 7d, best.getCoverage(), 0.001);
+		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
 	}
 
 	@Test
@@ -66,6 +67,7 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
 		Properties.SEARCH_BUDGET = 50000;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -73,9 +75,10 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 7d / 7d, best.getCoverage(), 0.001);
+		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
+
 	}
 
 	@Test
@@ -88,6 +91,7 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
 		Properties.SEARCH_BUDGET = 20000;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -95,9 +99,10 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println(best.toString());
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1, best.getCoverage(), 0.001);
+		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
+
 	}
 
 	@Test
@@ -109,6 +114,7 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -116,8 +122,9 @@ public class OverflowInstrumentationSystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 7d / 7d, best.getCoverage(), 0.001);
+		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
+
 	}
 }

@@ -27,8 +27,9 @@
           <td class="pane-header">Module</td>
           <td class="pane-header">Overall Coverage</td>
           <td class="pane-header">Number of Testable Classes</td>
-          <td class="pane-header">Number of Tests</td>
-          <td class="pane-header">Number of Statements</td>
+          <td class="pane-header">Number of Tested Classes</td>
+          <td class="pane-header">Average Number of Tests</td>
+          <td class="pane-header">Average Number of Statements</td>
           <td class="pane-header">Total Effort (minutes)</td>
         </tr>
         <j:forEach var="moduleAction" items="${it.getModules()}">
@@ -43,13 +44,16 @@
               <st:out value="${moduleAction.getNumberOfTestableClasses()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getNumberOfTests()}"/>
+              <st:out value="${moduleAction.getNumberOfTestedClasses()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getNumberOfStatements()}"/>
+              <st:out value="${moduleAction.getAverageNumberOfTests()}"/>
             </td>
             <td>
-              <st:out value="${moduleAction.getTotalEffort()}"/>
+              <st:out value="${moduleAction.getAverageNumberOfStatements()}"/>
+            </td>
+            <td>
+              <st:out value="${moduleAction.getTimeBudget()}"/>
             </td>
           </tr>
         </j:forEach>

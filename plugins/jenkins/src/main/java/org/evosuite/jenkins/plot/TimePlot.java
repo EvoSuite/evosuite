@@ -65,8 +65,10 @@ public class TimePlot extends Plot {
 				continue;
 			}
 
-			int totalTime = build_action.getProjectAction().getTotalEffort();
-			timeDataSetBuilder.add(totalTime, "TotalEffort", new ChartUtil.NumberOnlyBuildLabel(build));
+			int timeBudget = build_action.getProjectAction().getTimeBudget();
+			timeDataSetBuilder.add(timeBudget, "Total Time Budget", new ChartUtil.NumberOnlyBuildLabel(build));
+			int totalEffort = build_action.getProjectAction().getTotalEffort();
+			timeDataSetBuilder.add(totalEffort, "Time Budget Used", new ChartUtil.NumberOnlyBuildLabel(build));
 		}
 
 		return timeDataSetBuilder.build();

@@ -105,6 +105,12 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
+        // Using private reflection can lead to false positives
+        // that represent unrealistic behaviour. Thus, we only
+        // use reflection for basic criteria, not for exception
+        if(result.calledReflection())
+            return fitness;
+
         //iterate on the indexes of the statements that resulted in an exception
         for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
             if(ExceptionCoverageHelper.shouldSkip(result,i)){

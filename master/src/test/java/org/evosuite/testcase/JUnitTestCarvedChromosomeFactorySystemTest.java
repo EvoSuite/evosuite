@@ -21,6 +21,7 @@ package org.evosuite.testcase;
 
 import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
 import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
+import com.examples.with.different.packagename.testcarver.*;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
@@ -34,12 +35,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.examples.with.different.packagename.testcarver.ConcreteSubClassWithFields;
-import com.examples.with.different.packagename.testcarver.ConcreteSubClassWithFieldsTestCase;
-import com.examples.with.different.packagename.testcarver.DifficultClassTest;
-import com.examples.with.different.packagename.testcarver.DifficultClassWithoutCarving;
-import com.examples.with.different.packagename.testcarver.DifficultClassWithoutCarvingTest;
 
 public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 
@@ -421,7 +416,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 
 	@Test
 	public void testJavaAgent() {
-		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.TestPersonWithJavaAgent.class.getCanonicalName();
+		Properties.SELECTED_JUNIT = PersonWithJavaAgentSystemTest.class.getCanonicalName();
 		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.Person.class.getCanonicalName();
 
 		Properties.SEED_MUTATIONS = 1;

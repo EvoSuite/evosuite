@@ -1,24 +1,17 @@
 package org.evosuite.instrumentation;
 
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.evosuite.instrumentation.error.ErrorBranchInstrumenter;
-import org.evosuite.runtime.classhandling.ResetManager;
-import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
+import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 /**
  * Created by gordon on 17/03/2016.
@@ -49,7 +42,6 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
         if(!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(owner) ||
            !ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).containsKey(name+desc)) {
-            logger.warn("Method signature not seen yet: "+owner+"."+name+desc);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
@@ -81,6 +73,13 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         // Insert end of try block label
         mark(end);
 
+        // If there was no exception, skip ahead to rest of the code
+        loadLocal(exceptionInstanceVar);
+        Label noExceptionLabel = newLabel();
+        tagBranch();
+        ifNull(noExceptionLabel);
+        tagBranchExit();
+
         // Skip catch block if no exception was thrown
         Label afterCatch = newLabel();
         goTo(afterCatch);
@@ -93,48 +92,21 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
         // assign exception to exceptionInstanceVar
         storeLocal(exceptionInstanceVar);
-        Type returnType = Type.getReturnType(desc);
-        switch (returnType.getSort()) {
-            case Type.VOID:
-                break;
-            case Type.BOOLEAN:
-                push(false);
-                break;
-            case Type.CHAR:
-            case Type.BYTE:
-            case Type.INT:
-            case Type.SHORT:
-                push(0);
-                break;
-            case Type.FLOAT:
-                push(0f);
-                break;
-            case Type.LONG:
-                push(0l);
-                break;
-            case Type.DOUBLE:
-                push(0.0);
-                break;
-            case Type.ARRAY:
-            case Type.OBJECT:
-                push((String)null);
-                break;
-        }
-
-        // Insert end of catch block label
-        mark(afterCatch);
-
-        // If there was no exception, skip ahead to rest of the code
-        loadLocal(exceptionInstanceVar);
-        Label noExceptionLabel = newLabel();
-        ifNull(noExceptionLabel);
 
         // If there was an exception, rethrow it, with one if per declared exception type
         for(Type exceptionType : declaredExceptions) {
             loadLocal(exceptionInstanceVar);
             instanceOf(exceptionType);
             Label noJump = newLabel();
-            visitJumpInsn(Opcodes.IFEQ, noJump);
+            Label jump = newLabel();
+            tagBranch();
+
+
+            tagBranch();
+            visitJumpInsn(Opcodes.IFNE, jump);
+            visitJumpInsn(Opcodes.GOTO, noJump);
+            tagBranchExit();
+            mark(jump);
             loadLocal(exceptionInstanceVar);
             checkCast(exceptionType);
             throwException();
@@ -142,10 +114,16 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         }
 
         // It _must_ be a RuntimeException if we get to this point.
+        tagBranch();
         Type runtimeExceptionType = Type.getType(RuntimeException.class);
         loadLocal(exceptionInstanceVar);
         checkCast(runtimeExceptionType);
         throwException();
+        tagBranchExit();
+
+        // Insert end of catch block label
+        mark(afterCatch);
+
 
         mark(noExceptionLabel);
 
@@ -211,6 +189,18 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
         super.visitMaxs(maxStack + 1, maxLocals);
+    }
+
+    public void tagBranch() {
+        Label dummyTag = new AnnotatedLabel(false, true);
+        // dummyTag.info = Boolean.TRUE;
+        super.visitLabel(dummyTag);
+    }
+
+    public void tagBranchExit() {
+        Label dummyTag = new AnnotatedLabel(false, false);
+        // dummyTag.info = Boolean.FALSE;
+        super.visitLabel(dummyTag);
     }
 
 }

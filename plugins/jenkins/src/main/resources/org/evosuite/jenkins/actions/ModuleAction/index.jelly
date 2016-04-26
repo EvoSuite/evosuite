@@ -15,9 +15,9 @@
         </div>
         <j:forEach var="criterion" items="${it.getCriteria()}">
         	<br />
-        	<div> ${it.getCriterionCoverage(criterion)}% ${criterion}</div>
+        	<div> ${it.getAverageCriterionCoverage(criterion)}% ${criterion}</div>
 	        <div style="width:100%; height:1em; background-color: #FCE94F">
-	          <div style="width:${it.getCriterionCoverage(criterion)}%; height: 1em; background-color: #008000; float: left"></div>
+	          <div style="width:${it.getAverageCriterionCoverage(criterion)}%; height: 1em; background-color: #008000; float: left"></div>
 	        </div>
         </j:forEach>
         <br />
@@ -45,7 +45,7 @@
               <st:out value="${testableClass.getNumberOfStatements()}"/>
             </td>
             <td>
-              <st:out value="${testableClass.getTotalEffort()}"/>
+              <st:out value="${testableClass.getTimeBudget()}"/>
             </td>
           </tr>
         </j:forEach>

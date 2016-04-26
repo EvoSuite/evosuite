@@ -91,16 +91,6 @@ public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuit
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	protected void pushBytecode(GeneratorAdapter mg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
 	/** {@inheritDoc} */

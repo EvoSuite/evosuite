@@ -19,6 +19,9 @@
  */
 package org.evosuite.instrumentation.error;
 
+import com.examples.with.different.packagename.errorbranch.DoubleDivisionByZero;
+import com.examples.with.different.packagename.errorbranch.IntDivisionByZero;
+import com.examples.with.different.packagename.errorbranch.LongDivisionByZero;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
@@ -28,33 +31,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.errorbranch.DoubleDivisionByZero;
-import com.examples.with.different.packagename.errorbranch.FloatDivisionByZero;
-import com.examples.with.different.packagename.errorbranch.IntDivisionByZero;
-import com.examples.with.different.packagename.errorbranch.LongDivisionByZero;
-
 public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
-	
-	@Test
-	public void testIntDivisionWithoutErrorBranches() {
-		
-		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = IntDivisionByZero.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals("Wrong number of goals: ", 2, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-	}
-	
 	@Test
 	public void testIntDivisionWithErrorBranches() {
 		
@@ -64,6 +42,7 @@ public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -73,37 +52,14 @@ public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+
 		// 6: 2 regular branches, 2 for overflow, 2 for division by zero
 		// one of the overflow branches is infeasible
-		Assert.assertTrue("Wrong number of goals: " + goals, goals > 4);
-		Assert.assertTrue("Non-optimal coverage: ", best.getCoverage() >= 5d/6d);
+		Assert.assertTrue("Non-optimal coverage: ", best.getCoverage() >= 3d/4d);
 	}
-	
-	@Test
-	public void testFloatDivisionWithErrorBranches() {
-		
-		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = FloatDivisionByZero.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ERROR_BRANCHES = true;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass  };
-
-		Object result = evosuite.parseCommandLine(command);
-
-				GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// 3: Constructor, overflow true/false
-		Assert.assertEquals("Wrong number of goals: "+goals, 4, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 3d/4d, best.getCoverage(), 0.001);
-	}
-	
 	@Test
 	public void testDoubleDivisionWithErrorBranches() {
 		
@@ -113,6 +69,7 @@ public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass  };
 
@@ -122,10 +79,10 @@ public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// 3: Constructor, overflow true/false
-		Assert.assertEquals("Wrong number of goals: " + goals, 4, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 3d/4d, best.getCoverage(), 0.001);
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(1, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
 	@Test
@@ -137,18 +94,18 @@ public class DivisionByZeroInstrumentationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 
-				GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
+		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
 
-		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// 6: 
-		Assert.assertTrue("Wrong number of goals: " + goals, goals > 4);
-		Assert.assertEquals("Non-optimal coverage: ", 5d/6d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }

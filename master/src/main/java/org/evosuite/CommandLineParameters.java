@@ -19,26 +19,18 @@
  */
 package org.evosuite;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.executionmode.Continuous;
-import org.evosuite.executionmode.Help;
-import org.evosuite.executionmode.ListClasses;
-import org.evosuite.executionmode.ListParameters;
-import org.evosuite.executionmode.MeasureCoverage;
-import org.evosuite.executionmode.PrintStats;
-import org.evosuite.executionmode.Setup;
-import org.evosuite.executionmode.TestGeneration;
-import org.evosuite.executionmode.WriteDependencies;
+import org.evosuite.executionmode.*;
 import org.evosuite.utils.LoggingUtils;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class is used to define and validate the input parameters passed by console
@@ -127,7 +119,6 @@ public class CommandLineParameters {
 		Option mem = new Option("mem", true,"heap size for client process (in megabytes)");
 		Option libraryPath = new Option("libraryPath", true,"java library path to native libraries of the project under test");
 		Option startedByCtg = new Option("startedByCtg",false, "Determine if current process was started by a CTG process");
-		Option extendSuite = new Option("extend", true, "extend an existing test suite");
 		Option inheritance = new Option("inheritanceTree","Cache inheritance tree during setup");
 		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
 		Option base_dir = new Option("base_dir", true, "Working directory in which tests and reports will be placed");
@@ -143,7 +134,6 @@ public class CommandLineParameters {
 		options.addOption(continuous);
 		options.addOption(listParameters);
 		options.addOption(help);
-		options.addOption(extendSuite);
 		options.addOption(measureCoverage);
 		options.addOption(listClasses);
 		options.addOption(listDependencies);

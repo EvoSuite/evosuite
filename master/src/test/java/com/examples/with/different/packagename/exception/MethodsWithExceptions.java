@@ -10,8 +10,9 @@ public class MethodsWithExceptions {
 
 
     public static boolean oneException(int x) throws FileNotFoundException {
-        if(x == 5)
+        if(x == 5) {
             throw new FileNotFoundException();
+        }
 
         return true;
     }

@@ -173,20 +173,6 @@ public interface Statement {
 	public Set<Assertion> getAssertions();
 
 	/**
-	 * Generate bytecode by calling method generator
-	 * 
-	 * @param mg
-	 *            a {@link org.objectweb.asm.commons.GeneratorAdapter} object.
-	 * @param locals
-	 *            a {@link java.util.Map} object.
-	 * @param exception
-	 *            a {@link java.lang.Throwable} object.
-	 */
-	@Deprecated //not really used any more
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception);
-
-	/**
 	 * Create a string representing the statement as Java code
 	 * 
 	 * @return a {@link java.lang.String} object.
