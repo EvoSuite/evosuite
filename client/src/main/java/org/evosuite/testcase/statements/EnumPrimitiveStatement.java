@@ -233,6 +233,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 				 */
 				constants = enumClass.getEnumConstants();
 			}
+			//TODO: the hack above has a drawback: sometimes the new constant array doesn't contain the element at constants[pos]
 			if (constants.length > pos) {
 				value = constants[pos];
 			}
