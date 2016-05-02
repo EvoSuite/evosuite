@@ -233,7 +233,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 				 */
 				constants = enumClass.getEnumConstants();
 			}
-			if (constants .length>0) {
+			if (constants.length > pos) {
 				value = constants[pos];
 			}
 		} catch (ClassNotFoundException e) {
