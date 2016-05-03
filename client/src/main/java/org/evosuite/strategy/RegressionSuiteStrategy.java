@@ -72,11 +72,9 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Testsuite_Diversity, 0);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 		
-		
+		// Regression random strategy switch. 
+        // TODO: create dedicated property for search algorithm.
 		if (Properties.REGRESSION_USE_FITNESS == 10) {
-			Properties.REGRESSION_USE_FITNESS = 1;
-			Properties.REGRESSION_DIFFERENT_BRANCHES = false;
-
 			 return generateRandomRegressionTests();
 		}
 

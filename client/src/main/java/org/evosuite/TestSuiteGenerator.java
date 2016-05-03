@@ -27,6 +27,7 @@ import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
@@ -39,6 +40,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
+import org.evosuite.regression.RegressionClassDiff;
 import org.evosuite.regression.RegressionSearchListener;
 import org.evosuite.regression.RegressionSuiteMinimizer;
 import org.evosuite.result.TestGenerationResult;
@@ -140,6 +142,35 @@ public class TestSuiteGenerator {
 
 		if (Properties.getTargetClass() == null)
 		    return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
+		
+		if(Properties.isRegression()){
+		    // Sanity checks
+		    if (Properties.getTargetClassRegression(true) == null) {
+		      logger.error("class {} was not on the regression projectCP", Properties.TARGET_CLASS);
+		      return TestGenerationResultBuilder.buildErrorResult("Could not load target regression class");
+		    }
+		    if (!ResourceList
+		        .getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
+		        .hasClass(Properties.TARGET_CLASS)) {
+		      logger.error("class {} was not on the regression_cp", Properties.TARGET_CLASS);
+		      return TestGenerationResultBuilder.buildErrorResult(
+		          "Class " + Properties.TARGET_CLASS + " did not exist on regression classpath");
+
+		    }
+		    
+		    // Get the TARGET_CLASS on both classpaths
+		    Class<?> original_class = Properties.getTargetClassRegression(false);
+		    Class<?> regression_class = Properties.getTargetClassRegression(true);
+		    
+		    boolean areDifferent = RegressionClassDiff.areDifferent(original_class, regression_class);
+		    
+		    // If classes are different, no point in continuing. 
+		    // TODO: report it to master to create a nice regression report
+		    if(!areDifferent){
+              logger.error("class {} was equal on both versions", Properties.TARGET_CLASS);
+              return TestGenerationResultBuilder.buildErrorResult("Class " + Properties.TARGET_CLASS + " was not changed between the two versions");
+		    }
+		}
 
 		TestSuiteChromosome testCases = generateTests();
 
