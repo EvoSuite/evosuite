@@ -56,9 +56,9 @@ public class RegressionClassDiff {
    * Is the underlying code of two java classes, one on ProjectCP and one on regression_cp,
    * different?
    */
-  public static boolean areDifferent(Class<?> original_class, Class<?> regression_class) {
+  public static boolean areDifferent(String classFullPath, Class<?> original_class, Class<?> regression_class) {
 
-    String path = Properties.TARGET_CLASS.replace('.', '/') + ".class";
+    String path = classFullPath.replace('.', '/') + ".class";
     InputStream isO = original_class.getClassLoader().getResourceAsStream(path);
     InputStream isR = regression_class.getClassLoader().getResourceAsStream(path);
 
