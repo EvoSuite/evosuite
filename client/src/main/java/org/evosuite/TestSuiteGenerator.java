@@ -157,12 +157,8 @@ public class TestSuiteGenerator {
 		          "Class " + Properties.TARGET_CLASS + " did not exist on regression classpath");
 
 		    }
-		    
-		    // Get the TARGET_CLASS on both classpaths
-		    Class<?> original_class = Properties.getTargetClassRegression(false);
-		    Class<?> regression_class = Properties.getTargetClassRegression(true);
-		    
-		    boolean areDifferent = RegressionClassDiff.areDifferent(Properties.TARGET_CLASS, original_class, regression_class);
+
+		    boolean areDifferent = RegressionClassDiff.differentAcrossClassloaders(Properties.TARGET_CLASS);
 		    
 		    // If classes are different, no point in continuing. 
 		    // TODO: report it to master to create a nice regression report

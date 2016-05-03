@@ -56,16 +56,19 @@ public class RegressionClassDiff {
    * Is the underlying code of two java classes, one on ProjectCP and one on regression_cp,
    * different?
    */
-  public static boolean areDifferent(String classFullPath, Class<?> original_class, Class<?> regression_class) {
+  public static boolean differentAcrossClassloaders(String classFullPath) {
 
-    String path = classFullPath.replace('.', '/') + ".class";
-    InputStream isO = original_class.getClassLoader().getResourceAsStream(path);
-    InputStream isR = regression_class.getClassLoader().getResourceAsStream(path);
+    InputStream originalClassIS =
+        ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
+            .getClassAsStream(classFullPath);
+    InputStream regressionClassIS = ResourceList
+        .getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
+        .getClassAsStream(classFullPath);
 
     boolean different = false;
 
-    Map<String, List<Integer>> methodInstructionsA = RegressionClassDiff.getClassInstructions(isO);
-    Map<String, List<Integer>> methodInstructionsB = RegressionClassDiff.getClassInstructions(isR);
+    Map<String, List<Integer>> methodInstructionsA = RegressionClassDiff.getClassInstructions(originalClassIS);
+    Map<String, List<Integer>> methodInstructionsB = RegressionClassDiff.getClassInstructions(regressionClassIS);
 
     int sizeA = methodInstructionsA.size();
     int sizeB = methodInstructionsB.size();
@@ -88,11 +91,14 @@ public class RegressionClassDiff {
     // logger.warn("Were not equal? {}", different);
 
     if (!different) {
-      logger.debug("class {} was equal on both versions", Properties.TARGET_CLASS);
+      logger.warn("class {} was equal on both versions", classFullPath);
     } else {
+      logger.warn("class {} has been modified between the two versions provided", classFullPath);
       logger.debug("Different Classes: classA {}", methodInstructionsA);
       logger.debug("Different Classes: classB {}", methodInstructionsB);
     }
+    
+    
 
     return different;
   }
@@ -115,7 +121,9 @@ public class RegressionClassDiff {
         List<Integer> instructions = new ArrayList<>();
 
         InsnList inList = m.instructions;
-        // System.out.println(m.name);
+
+        String mathodID = m.name + ": " + m.desc;
+        System.out.println(mathodID);
         int[] methodInstructions = new int[inList.size()];
         for (int i = 0; i < inList.size(); i++) {
           int op = inList.get(i).getOpcode();
@@ -128,11 +136,12 @@ public class RegressionClassDiff {
           // StringWriter sw = new StringWriter();
           // printer.print(new PrintWriter(sw));
           // printer.getText().clear();
+          // System.out.println(sw.toString());
           // logger.warn("{} -> {}", sw.toString(), op);
           if (op != -1)
             instructions.add(op);
         }
-        methodInstructionsMap.put(m.name, instructions);
+        methodInstructionsMap.put(mathodID, instructions);
       }
     } catch (IOException e) {
       // Will fail if ClassReader fails
