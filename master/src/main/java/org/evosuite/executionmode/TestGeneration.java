@@ -587,7 +587,7 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: " + sut);
-			results.addAll(generateTests(Strategy.EVOSUITE,sut,args));
+			results.addAll(generateTests(strategy,sut,args));
 		}
 		
 		return results;
