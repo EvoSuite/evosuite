@@ -407,7 +407,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 		LoggingUtils.getEvoLogger().info(
 				"* Generated " + suite.size() + " tests with total length "
 						+ suite.totalLengthOfTestCases());
-		try {
+		/*try {
 			File file = new File("results.txt");
 			System.out.println("\n\r" + numAssertions + ", "
 					+ suite.totalLengthOfTestCases());
@@ -417,7 +417,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 			assert false;
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 		suiteGA.printBudget();
 
