@@ -17,7 +17,7 @@
     </prerequisites>
 
     <name>Maven Plugin for EvoSuite</name>
-    <description>Plugin used to run EvoSuite to automatically generate high cocerage JUnit tests</description>
+    <description>Plugin used to run EvoSuite to automatically generate high coverage JUnit tests</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -77,8 +77,7 @@ public class EvoSuite {
      * Constant
      * <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
      */
-    public final static String JAVA_CMD = javaHome + separator + "bin" + separator
-            + "java";
+    public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
 
     public static String base_dir_path = System.getProperty("user.dir");
 

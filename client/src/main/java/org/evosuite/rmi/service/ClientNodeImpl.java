@@ -180,16 +180,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	@Override
 	public void cancelCurrentSearch() throws RemoteException {
-		if (this.state == ClientState.INITIALIZATION)
+		if (this.state == ClientState.INITIALIZATION) {
 			System.exit(1);
-		//LoggingUtils.getEvoLogger().info("Cancelling client");
+		}
 		RMIStoppingCondition.getInstance().stop();
-
 	}
 
 	@Override
-	public boolean waitUntilFinished(long timeoutInMs) throws RemoteException,
-	InterruptedException {
+	public boolean waitUntilFinished(long timeoutInMs) throws RemoteException, InterruptedException {
 		return finishedLatch.await(timeoutInMs, TimeUnit.MILLISECONDS);
 	}
 
@@ -207,7 +205,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	@Override
-	public void changeState(ClientState state, ClientStateInformation information) {
+	public synchronized void changeState(ClientState state, ClientStateInformation information) {
 		if (this.state != state){
 			logger.info("Client changing state from " + this.state + " to " + state);
 		}
