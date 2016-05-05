@@ -39,9 +39,9 @@
 
 	<!-- different appenders for std out and err -->
 
-	<appender name="STDOUT_MASTER" class="org.evosuite.shaded.ch.qos.logback.core.ConsoleAppender">
+	<appender name="STDOUT_MASTER" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.out</target>
-		<filter class="org.evosuite.shaded.ch.qos.logback.classic.filter.LevelFilter">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
 			<onMatch>DENY</onMatch>
 			<onMismatch>ACCEPT</onMismatch>
@@ -51,9 +51,9 @@
 		</encoder>
 	</appender>
 
-	<appender name="STDERR_MASTER" class="org.evosuite.shaded.ch.qos.logback.core.ConsoleAppender">
+	<appender name="STDERR_MASTER" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.err</target>
-		<filter class="org.evosuite.shaded.ch.qos.logback.classic.filter.LevelFilter">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
 			<onMatch>ACCEPT</onMatch>
 			<onMismatch>DENY</onMismatch>
@@ -65,8 +65,8 @@
 
 	<!-- appenders for client. -->
 
-	<appender name="STDOUT_CLIENT" class="org.evosuite.shaded.ch.qos.logback.classic.net.SocketAppender">
-		<filter class="org.evosuite.shaded.ch.qos.logback.classic.filter.LevelFilter">
+	<appender name="STDOUT_CLIENT" class="ch.qos.logback.classic.net.SocketAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
 			<onMatch>DENY</onMatch>
 			<onMismatch>ACCEPT</onMismatch>
@@ -76,8 +76,8 @@
 		<reconnectionDelay>10000</reconnectionDelay>
 	</appender>
 
-	<appender name="STDERR_CLIENT" class="org.evosuite.shaded.ch.qos.logback.classic.net.SocketAppender">
-		<filter class="org.evosuite.shaded.ch.qos.logback.classic.filter.LevelFilter">
+	<appender name="STDERR_CLIENT" class="ch.qos.logback.classic.net.SocketAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
 			<level>ERROR</level>
 			<onMatch>ACCEPT</onMatch>
 			<onMismatch>DENY</onMismatch>
@@ -91,13 +91,13 @@
 	<!-- the "EVO" logger is used both by master and client. it is used for 
 		outputting standard information to the user. so, it's level is always ALL. -->
 
-	<appender name="EVO_LOGGER_MASTER" class="org.evosuite.shaded.ch.qos.logback.core.ConsoleAppender">
+	<appender name="EVO_LOGGER_MASTER" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<appender name="EVO_LOGGER_CLIENT" class="org.evosuite.shaded.ch.qos.logback.classic.net.SocketAppender">
+	<appender name="EVO_LOGGER_CLIENT" class="ch.qos.logback.classic.net.SocketAppender">
 		<remoteHost>${master_host:-localhost}</remoteHost>
 		<port>${master_log_port:-12345}</port>
 		<reconnectionDelay>10000</reconnectionDelay>

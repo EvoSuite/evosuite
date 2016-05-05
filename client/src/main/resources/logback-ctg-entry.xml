@@ -25,14 +25,14 @@
 
 <configuration>
 
-    <appender name="STDOUT" class="org.evosuite.shaded.ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
             <pattern>[MASTER] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="EVO_LOGGER" class="org.evosuite.shaded.ch.qos.logback.core.ConsoleAppender">
+    <appender name="EVO_LOGGER" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
             <pattern>%msg%n</pattern>

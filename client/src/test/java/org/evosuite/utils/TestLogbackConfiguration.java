@@ -39,8 +39,7 @@ public class TestLogbackConfiguration {
 		LoggingUtils.changeLogbackFile("logback.xml");
 	}
 
-    @Ignore // With evosuite-logback.xml using the shaded logger this cannot work
-	@Test
+    @Test
 	public void testStdOutErr() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(out));
