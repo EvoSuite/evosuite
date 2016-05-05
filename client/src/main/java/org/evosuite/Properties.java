@@ -1145,7 +1145,7 @@ public class Properties {
 
 
 	@Parameter(key = "jee" , description = "Support for JEE")
-	public static boolean JEE = false; //TODO put on by default once stable
+	public static boolean JEE = true;
 
 	@Parameter(key = "handle_servlets" , description = "Special treatment of JEE Servlets")
 	public static boolean HANDLE_SERVLETS = false; //TODO off for now, as we might not need it in the end
