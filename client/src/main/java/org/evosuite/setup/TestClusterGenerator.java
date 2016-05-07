@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -436,41 +435,43 @@ public class TestClusterGenerator {
 //		}
 
         // To make sure we also have anonymous inner classes double check inner classes using ASM
-        ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);
-        Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
-        innerClasses.addAll(targetClassNode.innerClasses);
-        while (!innerClasses.isEmpty()) {
-            InnerClassNode icn = innerClasses.poll();
-            try {
-                logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name
-                        + "," + icn.outerName);
-                String innerClassName = ResourceList.getClassNameFromResourcePath(icn.name);
-                Class<?> innerClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(innerClassName);
-                //if (!canUse(innerClass))
-                //	continue;
+        for (Class<?> _targetClass : targetClasses) {
+          ClassNode targetClassNode = DependencyAnalysis.getClassNode(_targetClass.getName());
+          Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
+          innerClasses.addAll(targetClassNode.innerClasses);
+          while (!innerClasses.isEmpty()) {
+              InnerClassNode icn = innerClasses.poll();
+              try {
+                  logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name
+                          + "," + icn.outerName);
+                  String innerClassName = ResourceList.getClassNameFromResourcePath(icn.name);
+                  Class<?> innerClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(innerClassName);
+                  //if (!canUse(innerClass))
+                  //	continue;
 
-                // Sometimes strange things appear such as Map$Entry
-                if (!targetClasses.contains(innerClass)
-						/*
-							FIXME: why all the checks were removed? without the following,
-							for example com.google.javascript.jscomp.IdMappingUtil in
-							 124_closure-compiler is not testable
-						 */
-                        && !innerClassName.contains("Map$Entry")
-                        ) {
-                    //						&& !innerClassName.matches(".*\\$\\d+(\\$.*)?$")) {
+                  // Sometimes strange things appear such as Map$Entry
+                  if (!targetClasses.contains(innerClass)
+  						/*
+  							FIXME: why all the checks were removed? without the following,
+  							for example com.google.javascript.jscomp.IdMappingUtil in
+  							 124_closure-compiler is not testable
+  						 */
+                          && !innerClassName.contains("Map$Entry")
+                          ) {
+                      //						&& !innerClassName.matches(".*\\$\\d+(\\$.*)?$")) {
 
-                    logger.info("Adding inner class " + innerClassName);
-                    targetClasses.add(innerClass);
-                    ClassNode innerClassNode = DependencyAnalysis.getClassNode(innerClassName);
-                    innerClasses.addAll(innerClassNode.innerClasses);
-                }
+                      logger.info("Adding inner class " + innerClassName);
+                      targetClasses.add(innerClass);
+                      ClassNode innerClassNode = DependencyAnalysis.getClassNode(innerClassName);
+                      innerClasses.addAll(innerClassNode.innerClasses);
+                  }
 
-            } catch (Throwable t) {
-                logger.error("Problem for " + Properties.TARGET_CLASS
-                        + ". Error loading inner class: " + icn.innerName + ", "
-                        + icn.name + "," + icn.outerName + ": " + t);
-            }
+              } catch (Throwable t) {
+                  logger.error("Problem for " + Properties.TARGET_CLASS
+                          + ". Error loading inner class: " + icn.innerName + ", "
+                          + icn.name + "," + icn.outerName + ": " + t);
+              }
+          }
         }
 
         for (Class<?> clazz : targetClasses) {
