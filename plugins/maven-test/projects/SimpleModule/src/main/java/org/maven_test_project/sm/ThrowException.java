@@ -19,7 +19,6 @@
  */
 package org.maven_test_project.sm;
 
-import org.evosuite.runtime.mock.MockFramework;
 
 public class ThrowException{
 
@@ -28,7 +27,7 @@ public class ThrowException{
     }
 
 	public void foo(){
-		throw new IllegalArgumentException("This should get mocked");
+		throw new IllegalArgumentException("");
 	}
 	
 }

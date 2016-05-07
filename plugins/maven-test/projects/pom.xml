@@ -11,34 +11,28 @@
 	<modules>
 		<module>SimpleModule</module>
 		<module>ModuleWithOneDependency</module>
-		<!-- TODO a module with runtime dependency -->
 	</modules>
 
 
-	<properties>
-		<evosuiteVersion>0.1.2-SNAPSHOT</evosuiteVersion>  <!-- this needs to be overriden with -D -->
-	</properties>
+	<!-- this needs to be set with -D. Done automatically from tests.
+		Uncomment (and update) if open from IDE  -->
+	<!--<properties>-->
+	<!--<evosuiteVersion>1.0.4-SNAPSHOT</evosuiteVersion>-->
+	<!--</properties>-->
 
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-standalone-runtime</artifactId>
 			<version>${evosuiteVersion}</version>
-			<!-- <scope>system</scope> <systemPath>${basedir}/../../../../runtime/target/evosuite-runtime-${evosuiteVersion}.jar</systemPath> -->
 		</dependency>
 	</dependencies>
-
-	<!-- this does not work, as we would need a full formatted repository. Maybe 
-		we could use some special plugin to test this plugin: http://maven.apache.org/plugin-testing/ 
-		<pluginRepositories> <pluginRepository> <id>localPackaged</id> <url>file://${basedir}/../../target/</url> 
-		<releases> <enabled>true</enabled> </releases> <snapshots> <enabled>true</enabled> 
-		</snapshots> </pluginRepository> </pluginRepositories> -->
 
 
 	<build>

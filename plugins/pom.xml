@@ -15,6 +15,7 @@
 
 	<modules>
 		<module>maven</module>
+		<module>maven-test</module>
 		<!-- <module>eclipse</module> -->
 	</modules>
 
