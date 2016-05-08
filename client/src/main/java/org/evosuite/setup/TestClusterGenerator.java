@@ -435,7 +435,12 @@ public class TestClusterGenerator {
 //		}
 
         // To make sure we also have anonymous inner classes double check inner classes using ASM
-        for (Class<?> _targetClass : targetClasses) {
+
+        // because the loop changes 'targetClasses' set we cannot iterate over it, not even
+        // using an iterator. a simple workaround is to create a temporary set with the content
+        // of 'targetClasses' and iterate that one
+        Set<Class<?>> tmp_targetClasses = new LinkedHashSet<Class<?>>(targetClasses);
+        for (Class<?> _targetClass : tmp_targetClasses) {
           ClassNode targetClassNode = DependencyAnalysis.getClassNode(_targetClass.getName());
           Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
           innerClasses.addAll(targetClassNode.innerClasses);
