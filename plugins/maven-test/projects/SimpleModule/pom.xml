@@ -10,7 +10,7 @@
 	
 	<parent>
 		<groupId>maven-test-project</groupId>
-		<artifactId>ParentProject</artifactId>
+		<artifactId>MavenTestProjects</artifactId>
 		<version>0.1.1-SNAPSHOT</version>
 	</parent>
 	

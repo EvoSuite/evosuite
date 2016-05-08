@@ -3,23 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>maven-test-project</groupId>
-	<artifactId>ModuleWithOneDependency</artifactId>
-	<name>ModuleWithOneDependency</name>
+	<artifactId>EnvModule</artifactId>
+	<name>EnvModule</name>
 	<version>0.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-
+	
 	<parent>
 		<groupId>maven-test-project</groupId>
 		<artifactId>MavenTestProjects</artifactId>
 		<version>0.1.1-SNAPSHOT</version>
 	</parent>
-
-	<dependencies>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-		</dependency>
-	</dependencies>
+	
 
 </project>
