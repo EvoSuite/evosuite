@@ -127,15 +127,10 @@ public class EvoRunner extends BlockJUnit4ClassRunner {
             // LoggingUtils.loadLogbackForEvoSuite();
 
 	    	/*
-	    	 * TODO: this approach does throw away all the possible instrumentation done on the input clazz,
+	    	 * This approach does throw away all the possible instrumentation done on the input clazz,
 	    	 * eg code coverage of Emma, Cobertura, Javalanche, etc.
-	    	 * 
-	    	 * maybe an option would be to use java agents:
-	    	 * 
-	    	 * http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/
-	    	 * http://www.eclemma.org/jacoco/trunk/doc/implementation.html
-	    	 * http://osi.fotap.org/2008/06/27/dynamically-installing-agents-in-java-6/
-	    	 * http://docs.oracle.com/javase/7/docs/api/java/lang/instrument/package-summary.html
+	    	 * Furthermore, if the classloader used to load EvoRunner is not the same as CUT,
+	    	 * then loading CUTs will fail (this does happen in "mvn test")
 	    	 */
 
             EvoClassLoader classLoader = new EvoClassLoader();

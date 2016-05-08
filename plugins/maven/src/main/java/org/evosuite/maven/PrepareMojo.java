@@ -38,9 +38,8 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.InitializingListener;
 
 /**
- * Workaround mojo to overcome bug in Maven.
- * Needed when EvoSuite tests are run together with manual ones
- *
+ * Mojo needed to prepate the EvoSuite tests for execution.
+ * This is needed to make sure that bytecode is properly instrumented.
  *
  */
 @Mojo( name = "prepare")
@@ -63,7 +62,7 @@ public class PrepareMojo extends AbstractMojo{
 		
 		File dir = new File(dirName);
 		getLog().info("Analyzing test folder: "+dir.getAbsolutePath());
-		//NOTE: this test can fail, likely due to permissions...
+		//NOTE: this check can fail, likely due to permissions...
 		//if(!dir.isDirectory()){
 		//	getLog().error("Target folder for compiled tests is not a folder: "+dir.getAbsolutePath());
 		//	return;

@@ -11,6 +11,7 @@
 	<modules>
 		<module>SimpleModule</module>
 		<module>ModuleWithOneDependency</module>
+		<module>EnvModule</module>
 	</modules>
 
 
