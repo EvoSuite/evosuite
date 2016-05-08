@@ -6,7 +6,6 @@ import org.apache.maven.it.Verifier;
 import org.evosuite.runtime.InitializingListener;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.nio.file.Files;
@@ -25,6 +24,7 @@ public class MavenPluginIT {
     private final Path simple = projects.resolve("SimpleModule");
     private final Path dependency = projects.resolve("ModuleWithOneDependency");
     private final Path env = projects.resolve("EnvModule");
+    private final Path coverage = projects.resolve("CoverageModule");
 
     private final String srcEvo = "src/evo";
 
@@ -35,7 +35,7 @@ public class MavenPluginIT {
         verifier.addCliOption("evosuite:clean");
         verifier.executeGoal("clean");
 
-        for(Path p : Arrays.asList(projects,simple,dependency,env)){
+        for(Path p : Arrays.asList(projects,simple,dependency,env,coverage)){
             FileUtils.deleteDirectory(p.resolve(srcEvo).toFile());
             FileUtils.deleteQuietly(p.resolve("log.txt").toFile());
             FileUtils.deleteQuietly(p.resolve(InitializingListener.getScaffoldingListFilePath()).toFile());
@@ -170,6 +170,63 @@ public class MavenPluginIT {
         verifyESTestsRunFor(verifier,cut);
     }
 
+    @Test
+    public void testJaCoCoNoEnv() throws Exception{
+
+        Verifier verifier  = getVerifier(dependency);
+        addGenerateAndExportOption(verifier);
+        verifier.addCliOption("-Pjacoco");
+
+        verifier.executeGoal("verify");
+
+        Files.exists(dependency.resolve(srcEvo));
+        String cut = "org.maven_test_project.mwod.OneDependencyClass";
+        verifyLogFilesExist(dependency,cut);
+        verifyESTestsRunFor(verifier,cut);
+        verifyJaCoCoFileExists(dependency);
+    }
+
+    @Test
+    public void testJaCoCoWithEnv() throws Exception{
+
+        Verifier verifier  = getVerifier(env);
+        addGenerateAndExportOption(verifier);
+        verifier.addCliOption("-Pjacoco");
+
+        verifier.executeGoal("verify");
+
+        Files.exists(env.resolve(srcEvo));
+        String cut = "org.maven_test_project.em.FileCheck";
+        verifyLogFilesExist(env,cut);
+        verifyESTestsRunFor(verifier,cut);
+        verifyJaCoCoFileExists(env);
+    }
+
+    @Test
+    public void testJaCoCoPass() throws Exception{
+        Verifier verifier = getVerifier(coverage);
+        verifier.addCliOption("-Pjacoco");
+
+        verifier.executeGoal("verify");
+        verifyJaCoCoFileExists(coverage);
+    }
+
+    @Test
+    public void testJaCoCoFail() throws Exception{
+        Verifier verifier = getVerifier(coverage);
+        verifier.addCliOption("-Dtest=SimpleClassPartialTest");
+
+        verifier.executeGoal("verify");
+
+        verifier.executeGoal("clean");
+        verifier.addCliOption("-Pjacoco");
+        try{
+            verifier.executeGoal("verify");
+            fail();
+        } catch (Exception e){
+            //expected, as JaCoCo coverage check should had failed
+        }
+    }
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -184,6 +241,10 @@ public class MavenPluginIT {
         verifier.addCliOption("-DtargetFolder="+srcEvo);
         //TODO remove once off by default
         verifier.addCliOption("-DextraArgs=\"-Duse_separate_classloader=false\"");
+    }
+
+    private void verifyJaCoCoFileExists(Path targetProject){
+        assertTrue(Files.exists(targetProject.resolve("target").resolve("jacoco.exec")));
     }
 
     private void verifyLogFilesExist(Path targetProject, String className) throws Exception{

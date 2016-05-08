@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>maven-test-project</groupId>
-	<artifactId>ParentProject</artifactId>
+	<artifactId>MavenTestProjects</artifactId>
 	<name>Test Project For Maven Support</name>
 	<version>0.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -12,6 +12,7 @@
 		<module>SimpleModule</module>
 		<module>ModuleWithOneDependency</module>
 		<module>EnvModule</module>
+		<module>CoverageModule</module>
 	</modules>
 
 
@@ -123,5 +124,57 @@
 		</pluginManagement>
 
 	</build>
+
+	<profiles>
+		<profile>
+			<id>jacoco</id>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.7.6.201602180812</version>
+						<executions>
+							<execution>
+								<id>default-prepare-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>default-report</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>default-check</id>
+								<goals>
+									<goal>check</goal>
+								</goals>
+								<configuration>
+									<rules>
+										<rule>
+											<element>BUNDLE</element>
+											<limits>
+												<limit>
+													<counter>COMPLEXITY</counter>
+													<value>COVEREDRATIO</value>
+													<minimum>0.99</minimum>
+												</limit>
+											</limits>
+										</rule>
+									</rules>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 
 </project>
