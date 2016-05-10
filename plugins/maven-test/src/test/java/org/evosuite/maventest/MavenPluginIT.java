@@ -250,11 +250,66 @@ public class MavenPluginIT {
     }
 
 
-    @Ignore("Simply, this does not work :( cannot have ")
     @Test
     public void testPowerMockWithEnv() throws Exception{
         testVerfiyWithEnv("powermock",1);
     }
+
+
+
+    //--- Cobertura --------------------------------------------------------------
+
+    @Test
+    public void testCoberturaNoEnv() throws Exception{
+        testVerifyNoEnv("cobertura");
+        verifyCoberturaFileExists(dependency);
+    }
+
+    @Test
+    public void testCoberturaWithEnv() throws Exception{
+        testVerfiyWithEnv("cobertura");
+        verifyCoberturaFileExists(env);
+    }
+
+    @Test
+    public void testCoberturaPass() throws Exception{
+        testCoveragePass("cobertura");
+        verifyCoberturaFileExists(coverage);
+    }
+
+    @Test
+    public void testCoberturaFail() throws Exception{
+        testCoverageFail("cobertura");
+        verifyCoberturaFileExists(coverage);
+    }
+
+    //--- PIT --------------------------------------------------------------
+
+    @Test
+    public void testPitNoEnv() throws Exception{
+        testVerifyNoEnv("pit");
+        verifyPitFolderExists(dependency);
+    }
+
+    @Test
+    public void testPitWithEnv() throws Exception{
+        testVerfiyWithEnv("pit");
+        verifyPitFolderExists(env);
+    }
+
+
+    @Test
+    public void testPitPass() throws Exception{
+        testCoveragePass("pit");
+        verifyPitFolderExists(coverage);
+    }
+
+    @Test
+    public void testPitFail() throws Exception{
+        testCoverageFail("pit,pitOneTest"); //PIT has its filters for test execution
+        verifyPitFolderExists(coverage);
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------
 
@@ -339,6 +394,14 @@ public class MavenPluginIT {
 
     private void verifyJMockitFolderExists(Path targetProject){
         assertTrue(Files.exists(targetProject.resolve("target").resolve("jmockit")));
+    }
+
+    private void verifyPitFolderExists(Path targetProject){
+        assertTrue(Files.exists(targetProject.resolve("target").resolve("pit-reports")));
+    }
+
+    private void verifyCoberturaFileExists(Path targetProject){
+        assertTrue(Files.exists(targetProject.resolve("target").resolve("cobertura").resolve("cobertura.ser")));
     }
 
     private void verifyLogFilesExist(Path targetProject, String className) throws Exception{

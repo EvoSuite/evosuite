@@ -38,6 +38,7 @@ org.jcp.xml.dsig.internal.dom.
 org.junit.
 org.mozilla.javascript.gen.c.
 org.netbeans.lib.profiler.
+org.pitest.
 org.powermock.
 org.slf4j.
 org.xml.
