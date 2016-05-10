@@ -55,21 +55,23 @@ public class ToolsJarLocator {
 	 */
 	public ClassLoader getLoaderForToolsJar() throws RuntimeException{
 
-		try {
-			Class.forName(EXAMPLE_CLASS,true,ClassLoader.getSystemClassLoader());
-			logger.info("Tools.jar already on system classloader");
-			return ClassLoader.getSystemClassLoader(); //if this code is reached, the tools.jar is available on system classpath
-		} catch (ClassNotFoundException e) {
-			//OK, it is missing, so lets try to locate it
-		}
-
-		try {
-			Class.forName(EXAMPLE_CLASS);
-			logger.info("Tools.jar already on current classloader");
-			return ToolsJarLocator.class.getClassLoader(); //if this code is reached, the tools.jar is available on classpath
-		} catch (ClassNotFoundException e) {
-			//OK, it is missing, so lets try to locate it
-		}
+		/*
+			This was a problem, as PowerMock and JMockit ship with their own version of tools.jar taken from OpenJDK
+		 */
+//		try {
+//			Class.forName(EXAMPLE_CLASS,true,ClassLoader.getSystemClassLoader());
+//			logger.info("Tools.jar already on system classloader");
+//			return ClassLoader.getSystemClassLoader(); //if this code is reached, the tools.jar is available on system classpath
+//		} catch (ClassNotFoundException e) {
+//			//OK, it is missing, so lets try to locate it
+//		}
+//		try {
+//			Class.forName(EXAMPLE_CLASS);
+//			logger.info("Tools.jar already on current classloader");
+//			return ToolsJarLocator.class.getClassLoader(); //if this code is reached, the tools.jar is available on classpath
+//		} catch (ClassNotFoundException e) {
+//			//OK, it is missing, so lets try to locate it
+//		}
 		
 		if(manuallySpecifiedToolLocation != null){
 			//if defined, then use it, and throws exception if it is not valid
@@ -117,7 +119,9 @@ public class ToolsJarLocator {
 		try {
 			loader = URLClassLoader.newInstance(
 					new URL[] { new File(location).toURI().toURL() },
-					ClassLoader.getSystemClassLoader());
+					//ClassLoader.getSystemClassLoader()
+					null
+			);
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("Malformed URL: "+location,e);
 		}

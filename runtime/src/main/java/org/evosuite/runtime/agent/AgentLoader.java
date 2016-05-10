@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -112,10 +113,27 @@ public class AgentLoader {
 			ClassLoader toolLoader) throws Exception {
 		
 		Class<?> string = toolLoader.loadClass("java.lang.String");
+
+		Class<?> provider = toolLoader.loadClass("com.sun.tools.attach.spi.AttachProvider");
+		Method getProviders = provider.getDeclaredMethod("providers");
+		List<?> list = (List<?>) getProviders.invoke(null);
+		if(list==null || list.isEmpty()){
+			String msg = "AttachProvider.providers() failed to return any provider. Tool classloader: "+toolLoader;
+			throw  new RuntimeException(msg);
+		}
+		if(list.stream().anyMatch(k -> k==null)){
+			throw new RuntimeException("AttachProvider.providers() returned null values");
+		}
+
 		Class<?> clazz = toolLoader.loadClass("com.sun.tools.attach.VirtualMachine");
 		Method attach = clazz.getMethod("attach", string);
 
-		Object instance = attach.invoke(null, pid);
+		Object instance = null;
+		try {
+			instance = attach.invoke(null, pid);
+		} catch (Exception e){
+			throw new RuntimeException("Failed to attach Java Agent. Tool classloader: "+toolLoader,e);
+		}
 
 		Method loadAgent = clazz.getMethod("loadAgent", string, string);
 		loadAgent.invoke(instance, jarFilePath, "");

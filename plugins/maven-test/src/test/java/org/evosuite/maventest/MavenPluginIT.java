@@ -6,6 +6,7 @@ import org.apache.maven.it.Verifier;
 import org.evosuite.runtime.InitializingListener;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ public class MavenPluginIT {
             FileUtils.deleteDirectory(p.resolve(srcEvo).toFile());
             FileUtils.deleteQuietly(p.resolve("log.txt").toFile());
             FileUtils.deleteQuietly(p.resolve(InitializingListener.getScaffoldingListFilePath()).toFile());
+            FileUtils.deleteQuietly(p.resolve("coverage.check.failed").toFile());
         }
     }
 
@@ -129,16 +131,14 @@ public class MavenPluginIT {
             Likely Agent has to be on by default
          */
 
-        String target = "src/evo";
-
         Verifier verifier  = getVerifier(dependency);
         verifier.addCliOption("evosuite:generate");
         verifier.addCliOption("evosuite:export");
-        verifier.addCliOption("-DtargetFolder="+target);
+        verifier.addCliOption("-DtargetFolder="+srcEvo);
 
         verifier.executeGoal("test");
 
-        Files.exists(dependency.resolve(target));
+        Files.exists(dependency.resolve(srcEvo));
         verifyLogFilesExist(dependency,"org.maven_test_project.mwod.OneDependencyClass");
     }
 
@@ -147,6 +147,22 @@ public class MavenPluginIT {
 
         Verifier verifier  = getVerifier(dependency);
         addGenerateAndExportOption(verifier);
+        verifier.addCliOption("-DforkCount=1");
+
+        verifier.executeGoal("test");
+
+        Files.exists(dependency.resolve(srcEvo));
+        String cut = "org.maven_test_project.mwod.OneDependencyClass";
+        verifyLogFilesExist(dependency,cut);
+        verifyESTestsRunFor(verifier,cut);
+    }
+
+    @Test
+    public void testExportWithTestsWithAgentNoFork() throws Exception {
+
+        Verifier verifier  = getVerifier(dependency);
+        addGenerateAndExportOption(verifier);
+        verifier.addCliOption("-DforkCount=0");
 
         verifier.executeGoal("test");
 
@@ -170,28 +186,88 @@ public class MavenPluginIT {
         verifyESTestsRunFor(verifier,cut);
     }
 
+    //--- JaCoCo --------------------------------------------------------------
+
+
     @Test
     public void testJaCoCoNoEnv() throws Exception{
-
-        Verifier verifier  = getVerifier(dependency);
-        addGenerateAndExportOption(verifier);
-        verifier.addCliOption("-Pjacoco");
-
-        verifier.executeGoal("verify");
-
-        Files.exists(dependency.resolve(srcEvo));
-        String cut = "org.maven_test_project.mwod.OneDependencyClass";
-        verifyLogFilesExist(dependency,cut);
-        verifyESTestsRunFor(verifier,cut);
+        testVerifyNoEnv("jacoco");
         verifyJaCoCoFileExists(dependency);
     }
 
     @Test
     public void testJaCoCoWithEnv() throws Exception{
+        testVerfiyWithEnv("jacoco");
+        verifyJaCoCoFileExists(env);
+    }
+
+    @Test
+    public void testJaCoCoPass() throws Exception{
+        testCoveragePass("jacoco");
+        verifyJaCoCoFileExists(coverage);
+    }
+
+    @Test
+    public void testJaCoCoFail() throws Exception{
+        testCoverageFail("jacoco");
+        verifyJaCoCoFileExists(coverage);
+    }
+
+
+    //--- JMockit --------------------------------------------------------------
+
+
+    @Test
+    public void testJMockitNoEnv() throws Exception{
+        testVerifyNoEnv("jmockit", 1);
+        verifyJMockitFolderExists(dependency);
+    }
+
+    @Test
+    public void testJMockitWithEnv() throws Exception{
+        testVerfiyWithEnv("jmockit", 1);
+        verifyJMockitFolderExists(env);
+    }
+
+    @Test
+    public void testJMockitPass() throws Exception{
+        testCoveragePass("jmockit");
+        verifyJMockitFolderExists(coverage);
+    }
+
+    @Test
+    public void testJMockitFail() throws Exception{
+        testCoverageFail("jmockit");
+        verifyJMockitFolderExists(coverage);
+    }
+
+
+    //--- PowerMock --------------------------------------------------------------
+
+    @Test
+    public void testPowerMockNoEnv() throws Exception{
+        testVerifyNoEnv("powermock",1);
+    }
+
+
+    @Ignore("Simply, this does not work :( cannot have ")
+    @Test
+    public void testPowerMockWithEnv() throws Exception{
+        testVerfiyWithEnv("powermock",1);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    private void testVerfiyWithEnv(String profile) throws Exception{
+        testVerfiyWithEnv(profile, 1);
+    }
+
+    private void testVerfiyWithEnv(String profile, int forkCount) throws Exception{
 
         Verifier verifier  = getVerifier(env);
         addGenerateAndExportOption(verifier);
-        verifier.addCliOption("-Pjacoco");
+        verifier.addCliOption("-P"+profile);
+        verifier.addCliOption("-DforkCount="+forkCount);
 
         verifier.executeGoal("verify");
 
@@ -199,36 +275,50 @@ public class MavenPluginIT {
         String cut = "org.maven_test_project.em.FileCheck";
         verifyLogFilesExist(env,cut);
         verifyESTestsRunFor(verifier,cut);
-        verifyJaCoCoFileExists(env);
     }
 
-    @Test
-    public void testJaCoCoPass() throws Exception{
-        Verifier verifier = getVerifier(coverage);
-        verifier.addCliOption("-Pjacoco");
+    private void testVerifyNoEnv(String profile) throws Exception {
+        testVerifyNoEnv(profile, 1);
+    }
+
+    private void testVerifyNoEnv(String profile, int forkCount) throws Exception{
+
+        Verifier verifier  = getVerifier(dependency);
+        addGenerateAndExportOption(verifier);
+        verifier.addCliOption("-P"+profile);
+        verifier.addCliOption("-DforkCount="+forkCount);
 
         verifier.executeGoal("verify");
-        verifyJaCoCoFileExists(coverage);
+
+        Files.exists(dependency.resolve(srcEvo));
+        String cut = "org.maven_test_project.mwod.OneDependencyClass";
+        verifyLogFilesExist(dependency,cut);
+        verifyESTestsRunFor(verifier,cut);
     }
 
-    @Test
-    public void testJaCoCoFail() throws Exception{
+    private void testCoveragePass(String profile) throws Exception{
+        Verifier verifier = getVerifier(coverage);
+        verifier.addCliOption("-P"+profile);
+        verifier.executeGoal("verify");
+    }
+
+    private void testCoverageFail(String profile) throws Exception{
         Verifier verifier = getVerifier(coverage);
         verifier.addCliOption("-Dtest=SimpleClassPartialTest");
 
         verifier.executeGoal("verify");
 
         verifier.executeGoal("clean");
-        verifier.addCliOption("-Pjacoco");
+        verifier.addCliOption("-P"+profile);
         try{
             verifier.executeGoal("verify");
             fail();
         } catch (Exception e){
-            //expected, as JaCoCo coverage check should had failed
+            //expected, as coverage check should had failed
         }
     }
 
-    //------------------------------------------------------------------------------------------------------------------
+
 
     private void verifyESTestsRunFor(Verifier verifier, String className) throws Exception{
         //Note: this depends on Maven / Surefire, so might change in future with new versions
@@ -245,6 +335,10 @@ public class MavenPluginIT {
 
     private void verifyJaCoCoFileExists(Path targetProject){
         assertTrue(Files.exists(targetProject.resolve("target").resolve("jacoco.exec")));
+    }
+
+    private void verifyJMockitFolderExists(Path targetProject){
+        assertTrue(Files.exists(targetProject.resolve("target").resolve("jmockit")));
     }
 
     private void verifyLogFilesExist(Path targetProject, String className) throws Exception{

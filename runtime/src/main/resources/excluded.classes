@@ -42,4 +42,6 @@ org.apache.lucene.util.SPIClassIterator
 org.apache.lucene.analysis.util.AnalysisSPILoader
 org.apache.lucene.analysis.util.CharFilterFactory
 org.apache.struts.util.MessageResources
-org.dom4j.DefaultDocumentFactory   
+org.dom4j.DefaultDocumentFactory
+org.powermock.
+mockit.
