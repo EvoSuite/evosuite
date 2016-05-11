@@ -370,34 +370,117 @@ public class MethodCallReplacementCache {
 						"getPreferredSize", "()Ljava/awt/Dimension;", true, false));
 
 		// javax.swing.JOptionPane.showMessageDialog()
+		final String JOPTION_PANE = javax.swing.JOptionPane.class.getName().replace(".", "/");
+		final String SHOW_MESSAGE_DIALOG = "showMessageDialog";
+		final Type OBJECT_TYPE = Type.getType(Object.class);
+		final Type OBJECT_ARRAY_TYPE = Type.getType(Object[].class);
+		final Type STRING_TYPE = Type.getType(String.class);
+		final Type COMPONENT_TYPE = Type.getType(java.awt.Component.class);
 		{
-			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(java.awt.Component.class),
-					Type.getType(Object.class));
-			final MethodCallReplacement replacement = new MethodCallReplacement("javax/swing/JOptionPane",
-					"showMessageDialog", desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class), "showMessageDialog", desc,
-					false, false);
+			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_MESSAGE_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_MESSAGE_DIALOG, desc, false, false);
 			addReplacementCall(replacement);
 		}
 		{
-			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(java.awt.Component.class),
-					Type.getType(Object.class), Type.getType(String.class), Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement("javax/swing/JOptionPane",
-					"showMessageDialog", desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class), "showMessageDialog", desc,
-					false, false);
+			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_MESSAGE_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_MESSAGE_DIALOG, desc, false, false);
 			addReplacementCall(replacement);
 		}
+		final Type ICON_TYPE = Type.getType(Icon.class);
 		{
-			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(java.awt.Component.class),
-					Type.getType(Object.class), Type.getType(String.class), Type.INT_TYPE, Type.getType(Icon.class));
-			final MethodCallReplacement replacement = new MethodCallReplacement("javax/swing/JOptionPane",
-					"showMessageDialog", desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class), "showMessageDialog", desc,
-					false, false);
+			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE, ICON_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_MESSAGE_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_MESSAGE_DIALOG, desc, false, false);
 			addReplacementCall(replacement);
 		}
 
+		// javax.swing.JOptionPane.showConfirmDialog()
+		final String SHOW_CONFIRM_DIALOG = "showConfirmDialog";
+		{
+			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_CONFIRM_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_CONFIRM_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE, Type.INT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_CONFIRM_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE, Type.INT_TYPE, ICON_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_CONFIRM_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+
+		// javax.swing.JOptionPane.showInputDialog
+		final String SHOW_INPUT_DIALOG = "showInputDialog";
+		{
+			final String desc = Type.getMethodDescriptor(STRING_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_INPUT_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(STRING_TYPE, OBJECT_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_INPUT_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_INPUT_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_INPUT_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_INPUT_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
+		{
+			final String desc = Type.getMethodDescriptor(OBJECT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE, ICON_TYPE, OBJECT_ARRAY_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_INPUT_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+		}
 	}
 
 	@SuppressWarnings("unused")

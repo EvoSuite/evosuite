@@ -44,6 +44,7 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 		Properties.MINIMIZE = true;
 		// As mutation operators remove instrumentation. This needs fixing first
 		Properties.ASSERTIONS = false; 
+		Properties.TIMEOUT = Integer.MAX_VALUE;
 
 		EvoSuite evosuite = new EvoSuite();
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };

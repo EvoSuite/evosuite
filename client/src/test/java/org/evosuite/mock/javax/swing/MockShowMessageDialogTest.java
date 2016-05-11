@@ -5,14 +5,12 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.coverage.FitnessFunctions;
-import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -24,11 +22,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.mock.java.lang.MemoryCheck;
-import com.examples.with.different.packagename.mock.javax.swing.JOptionPaneExample;
 import com.examples.with.different.packagename.mock.javax.swing.ShowMessageDialogExample;
 
-public class MockJOptionPaneTest {
+public class MockShowMessageDialogTest {
 
 	private static final boolean DEFAULT_MOCK_GUI = RuntimeSettings.mockGUI;
 	private static final boolean DEFAULT_REPLACE_GUI = Properties.REPLACE_GUI;
@@ -45,12 +41,14 @@ public class MockJOptionPaneTest {
 		Properties.TARGET_CLASS = ShowMessageDialogExample.class.getCanonicalName();
 		Properties.REPLACE_GUI = true;
 		RuntimeSettings.mockGUI = true;
+		TestGenerationContext.getInstance().resetContext();
 	}
 
 	@After
 	public void tearDown() {
 		RuntimeSettings.mockGUI = DEFAULT_MOCK_GUI;
 		Properties.REPLACE_GUI = DEFAULT_REPLACE_GUI;
+		TestGenerationContext.getInstance().resetContext();
 	}
 
 	@Test
