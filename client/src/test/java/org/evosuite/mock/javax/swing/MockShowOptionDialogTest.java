@@ -62,7 +62,7 @@ public class MockShowOptionDialogTest {
 		double fitness = ff.getFitness(suite);
 
 		Set<TestFitnessFunction> coveredGoals = suite.getCoveredGoals();
-		Assert.assertEquals(7, coveredGoals.size());
+		Assert.assertEquals(2, coveredGoals.size());
 	}
 
 	private static TestCase buildTestCase0(InstrumentingClassLoader cl)

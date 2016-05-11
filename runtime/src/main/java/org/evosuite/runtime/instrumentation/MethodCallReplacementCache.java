@@ -481,6 +481,17 @@ public class MethodCallReplacementCache {
 					SHOW_INPUT_DIALOG, desc, false, false);
 			addReplacementCall(replacement);
 		}
+		// javax.swing.JOptionPane.showOptionDialog
+		final String SHOW_OPTION_DIALOG = "showOptionDialog";
+		{
+			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
+					Type.INT_TYPE, Type.INT_TYPE, ICON_TYPE, OBJECT_ARRAY_TYPE, OBJECT_TYPE);
+			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_OPTION_DIALOG, desc,
+					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JOptionPane.class),
+					SHOW_OPTION_DIALOG, desc, false, false);
+			addReplacementCall(replacement);
+
+		}
 	}
 
 	@SuppressWarnings("unused")
