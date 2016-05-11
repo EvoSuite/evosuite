@@ -59,7 +59,7 @@ public class MockShowInputDialogTest {
 		suite.addTest(t1);
 
 		BranchCoverageSuiteFitness ff = new BranchCoverageSuiteFitness(cl);
-		double fitness = ff.getFitness(suite);
+		ff.getFitness(suite);
 
 		Set<TestFitnessFunction> coveredGoals = suite.getCoveredGoals();
 		Assert.assertEquals(7, coveredGoals.size());
@@ -74,7 +74,7 @@ public class MockShowInputDialogTest {
 		VariableReference showMessageDialogExample0 = builder.appendConstructor(constructor);
 
 		Method showInputDialogsMethod = clazz.getMethod("showInputDialogs");
-		VariableReference int0 = builder.appendMethod(showMessageDialogExample0, showInputDialogsMethod);
+		builder.appendMethod(showMessageDialogExample0, showInputDialogsMethod);
 
 		return builder.getDefaultTestCase();
 	}

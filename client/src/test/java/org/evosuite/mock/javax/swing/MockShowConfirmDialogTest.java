@@ -59,7 +59,7 @@ public class MockShowConfirmDialogTest {
 		suite.addTest(t1);
 
 		BranchCoverageSuiteFitness ff = new BranchCoverageSuiteFitness(cl);
-		double fitness = ff.getFitness(suite);
+		ff.getFitness(suite);
 
 		Set<TestFitnessFunction> coveredGoals = suite.getCoveredGoals();
 		Assert.assertEquals(5, coveredGoals.size());
@@ -74,7 +74,7 @@ public class MockShowConfirmDialogTest {
 		VariableReference showMessageDialogExample0 = builder.appendConstructor(constructor);
 
 		Method showConfirmDialogsMethod = clazz.getMethod("showConfirmDialogs");
-		VariableReference int0 = builder.appendMethod(showMessageDialogExample0, showConfirmDialogsMethod);
+		builder.appendMethod(showMessageDialogExample0, showConfirmDialogsMethod);
 
 		return builder.getDefaultTestCase();
 	}

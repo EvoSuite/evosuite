@@ -112,4 +112,36 @@ public abstract class JOptionPane {
 			int messageType, Icon icon, Object[] options, Object initialValue) throws HeadlessException {
 		return 0;
 	}
+
+	public static void showInternalMessageDialog(Component parentComponent, Object message) {
+	}
+
+	public static void showInternalMessageDialog(Component parentComponent, Object message, String title,
+			int messageType) {
+
+	}
+
+	public static void showInternalMessageDialog(Component parentComponent, Object message, String title,
+			int messageType, Icon icon) {
+	}
+	
+	public static int showInternalConfirmDialog(Component parentComponent, Object message) throws HeadlessException {
+		return 0;
+	}
+
+	public static int showInternalConfirmDialog(Component parentComponent, Object message, String title, int optionType)
+			throws HeadlessException {
+		return 0;
+	}
+
+	public static int showInternalConfirmDialog(Component parentComponent, Object message, String title, int optionType,
+			int messageType) throws HeadlessException {
+		return 0;
+	}
+
+	public static int showInternalConfirmDialog(Component parentComponent, Object message, String title, int optionType,
+			int messageType, Icon icon) throws HeadlessException {
+		return 0;
+	}
+
 }
