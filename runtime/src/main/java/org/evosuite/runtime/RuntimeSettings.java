@@ -49,6 +49,11 @@ public class RuntimeSettings {
      */
     public static boolean mockSystemIn = false;
 
+    
+    /**
+     * Should the use the GUI (javax.swing, etc.) be mocked?
+     */
+    public static boolean mockGUI = false;
     /**
      * Shall the test cases use a virtual file system?
      */
@@ -111,11 +116,12 @@ public class RuntimeSettings {
     public static boolean isRunningASystemTest = false;
 
     public static boolean isUsingAnyMocking(){
-        return mockJVMNonDeterminism || useVFS || useVNET;
+        return mockJVMNonDeterminism || useVFS || useVNET || mockGUI ;
     }
 
     public static void deactivateAllMocking(){
         mockJVMNonDeterminism = false;
+        mockGUI = false;
         useVNET = false;
         useVFS = false;
         assert ! isUsingAnyMocking();
@@ -123,6 +129,7 @@ public class RuntimeSettings {
 
     public static void activateAllMocking(){
         mockJVMNonDeterminism = true;
+        mockGUI = true;
         useVNET = true;
         useVFS = true;
         assert isUsingAnyMocking();

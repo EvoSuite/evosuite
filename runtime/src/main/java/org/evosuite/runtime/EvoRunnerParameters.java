@@ -44,4 +44,6 @@ public @interface EvoRunnerParameters {
     boolean separateClassLoader() default false;
 
     boolean useJEE() default false;
+    
+    boolean mockGUI() default false;
 }

@@ -670,6 +670,11 @@ public class Scaffolding {
             bd.append(RuntimeSettings.class.getName() + ".mockSystemIn = true; \n");
         }
 
+        if (Properties.REPLACE_GUI) {
+            bd.append(BLOCK_SPACE);
+            bd.append(RuntimeSettings.class.getName() + ".mockGUI = true; \n");
+        }
+   
 
         if(Properties.RESET_STATIC_FIELDS || wasSecurityException){
             //need to setup the Sandbox mode

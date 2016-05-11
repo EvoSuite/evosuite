@@ -112,6 +112,10 @@ public class EnvironmentTestClusterAugmenter {
         if(Properties.REPLACE_SYSTEM_IN){
             handleSystemIn();
         }
+        
+        if(Properties.REPLACE_GUI){
+            handleGUI();
+        }
 
         if(Properties.VIRTUAL_NET){
             handleNetwork(test);
@@ -122,7 +126,12 @@ public class EnvironmentTestClusterAugmenter {
         }
     }
 
-    private void handleJEE(TestCase test) {
+    private void handleGUI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void handleJEE(TestCase test) {
 
         JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
         test.getAccessedEnvironment().setJeeData(jeeData);
