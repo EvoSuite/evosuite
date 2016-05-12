@@ -557,6 +557,10 @@ public class TestSuiteWriter implements Opcodes {
         if(Properties.JEE){
             list.add("useJEE = true");
         }
+        
+        if (Properties.REPLACE_GUI) {
+            list.add("mockGUI = true");
+        }
 
         if (!list.isEmpty()) {
             s += list.get(0);

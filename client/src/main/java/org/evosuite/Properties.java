@@ -1358,7 +1358,7 @@ public class Properties {
 	public static boolean REPLACE_SYSTEM_IN = true;
 
 	@Parameter(key = "replace_gui", group = "Test Execution", description = "Replace javax.swing with a smart stub/mock")
-	public static boolean REPLACE_GUI = true;
+	public static boolean REPLACE_GUI = false;
 
 	
     @Parameter(key = "max_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
