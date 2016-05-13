@@ -9,10 +9,9 @@
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
-    <!-- Module used to test the Maven Plugin. Has to be called _after_ "install" has been executed
-        on previous modules -->
+    <!-- Module used to check if running ES tests in Ant works fine -->
 
-    <artifactId>evosuite-maven-plugin-test</artifactId>
+    <artifactId>build-support-test</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -20,19 +19,19 @@
     </properties>
 
     <dependencies>
-        <!-- Force this module to be built after the Maven Plugin-->
+        <!-- Force this module to be built after the Master-->
         <dependency>
-            <groupId>org.evosuite.plugins</groupId>
-            <artifactId>evosuite-maven-plugin</artifactId>
+            <groupId>org.evosuite</groupId>
+            <artifactId>evosuite-master</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-verifier</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-verifier</artifactId>
         </dependency>
     </dependencies>
 
