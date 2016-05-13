@@ -42,7 +42,7 @@ public class BuildSupportIT {
         Verifier maven = getMaven(simple);
         maven.executeGoal("test");
         maven.verifyTextInLog("Running com.testbuild.support.FooTest");
-        maven.verifyTextInLog("Tests run: 2, Failures: 0, Errors: 0, Skipped: 0");
+        maven.verifyTextInLog("Tests run: 3, Failures: 0, Errors: 0, Skipped: 0");
     }
 
 
