@@ -190,16 +190,6 @@ public abstract class MockJOptionPane {
 		return getInputString();
 	}
 
-	public static Object showInputDialog(Component parentComponent, Object message, String title, int messageType,
-			Icon icon, Object[] selectionValues, Object initialSelectionValue) throws HeadlessException {
-		return null;
-	}
-
-	public static int showOptionDialog(Component parentComponent, Object message, String title, int optionType,
-			int messageType, Icon icon, Object[] options, Object initialValue) throws HeadlessException {
-		return 0;
-	}
-
 	public static void showInternalMessageDialog(Component parentComponent, Object message) {
 		/* do nothing */
 	}
@@ -242,13 +232,28 @@ public abstract class MockJOptionPane {
 		return getInputString();
 	}
 
+	public static int showInternalOptionDialog(Component parentComponent, Object message, String title, int optionType,
+			int messageType, Icon icon, Object[] options, Object initialValue) throws HeadlessException {
+		// TODO Complete the mocking of this method
+		return 0;
+	}
+
+	public static int showOptionDialog(Component parentComponent, Object message, String title, int optionType,
+			int messageType, Icon icon, Object[] options, Object initialValue) throws HeadlessException {
+		// TODO Complete the mocking of this method
+		return 0;
+	}
+	
 	public static Object showInternalInputDialog(Component parentComponent, Object message, String title,
 			int messageType, Icon icon, Object[] selectionValues, Object initialSelectionValue) {
+		// TODO Complete the mocking of this method
+		return null;
+	}
+	
+	public static Object showInputDialog(Component parentComponent, Object message, String title, int messageType,
+			Icon icon, Object[] selectionValues, Object initialSelectionValue) throws HeadlessException {
+		// TODO Complete the mocking of this method
 		return null;
 	}
 
-	public static int showInternalOptionDialog(Component parentComponent, Object message, String title, int optionType,
-			int messageType, Icon icon, Object[] options, Object initialValue) throws HeadlessException {
-		return 0;
-	}
 }
