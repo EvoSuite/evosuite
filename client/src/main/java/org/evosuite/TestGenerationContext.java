@@ -41,6 +41,7 @@ import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.javaee.injection.Injector;
+import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -213,6 +214,7 @@ public class TestGenerationContext {
 		ContractChecker.setActive(true);
 
 		SystemInUtil.resetSingleton();
+		JOptionPaneInputs.resetSingleton();
 		Runtime.resetSingleton();
         MethodCallReplacementCache.resetSingleton();
 

@@ -5,6 +5,9 @@ import java.awt.HeadlessException;
 
 import javax.swing.Icon;
 
+import org.evosuite.runtime.util.JOptionPaneInputs;
+import org.evosuite.runtime.util.JOptionPaneInputs.DialogType;
+
 /**
  * These methods replace those from javax.swing.JOptionPane. This class is used
  * when the REPLACE_GUI option is enabled.
@@ -83,7 +86,18 @@ public abstract class JOptionPane {
 	}
 
 	public static String showInputDialog(Object message) throws HeadlessException {
-		return null;
+		// first, we record that the SUT issued a call to JOptionPane.showInputDialog()
+		JOptionPaneInputs.getInstance().addDialog(DialogType.STRING_INPUT);
+		
+		// second, we check if an input is specified for that GUI stimulus
+		if (JOptionPaneInputs.getInstance().containsString()) {
+			// return the specified input
+			final String str = JOptionPaneInputs.getInstance().dequeueString();
+			return str;
+		} else {
+			// return null by default if no input was specified
+			return null;
+		}
 	}
 
 	public static String showInputDialog(Object message, Object initialSelectionValue) {

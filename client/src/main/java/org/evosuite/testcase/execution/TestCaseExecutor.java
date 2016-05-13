@@ -54,6 +54,7 @@ import org.evosuite.utils.ResetExecutor;
 import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -452,6 +453,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 			// important to call it before setting up the sandbox
 			SystemInUtil.getInstance().initForTestCase();
+			JOptionPaneInputs.getInstance().initForTestCase();
 
 			Sandbox.goingToExecuteSUTCode();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();

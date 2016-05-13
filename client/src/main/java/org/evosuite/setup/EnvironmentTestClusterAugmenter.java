@@ -28,6 +28,8 @@ import org.evosuite.runtime.javaee.TestDataJavaEE;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.testdata.*;
+import org.evosuite.runtime.util.JOptionPaneInputs;
+import org.evosuite.runtime.util.JOptionPaneInputs.DialogType;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.EndPointInfo;
@@ -56,401 +58,429 @@ import java.util.Set;
  */
 public class EnvironmentTestClusterAugmenter {
 
-    private static final Logger logger = LoggerFactory.getLogger(EnvironmentTestClusterAugmenter.class);
+	private static final Logger logger = LoggerFactory.getLogger(EnvironmentTestClusterAugmenter.class);
 
-    private volatile boolean hasAddedRandom;
-    private volatile boolean hasAddedSystem;
-    private volatile boolean hasAddedFiles;
-    private volatile boolean hasAddedSystemIn;
+	private volatile boolean hasAddedRandom;
+	private volatile boolean hasAddedSystem;
+	private volatile boolean hasAddedFiles;
+	private volatile boolean hasAddedSystemIn;
 
-    private volatile boolean hasAddedRemoteURLs;
-    private volatile boolean hasAddedUdpSupport;
-    private volatile boolean hasAddedTcpListeningSupport;
-    private volatile boolean hasAddedTcpRemoteSupport;
+	private volatile boolean hasAddedRemoteURLs;
+	private volatile boolean hasAddedUdpSupport;
+	private volatile boolean hasAddedTcpListeningSupport;
+	private volatile boolean hasAddedTcpRemoteSupport;
 
-    private final TestCluster cluster;
-    private final TestClusterGenerator testClusterGenerator;
+	private final TestCluster cluster;
+	private final TestClusterGenerator testClusterGenerator;
 
-    /**
-     * Keep track of all EvoSuite classes that have been already fully handled (via recursion)
-     */
-    private final Set<String> handledClasses;
+	/**
+	 * Keep track of all EvoSuite classes that have been already fully handled
+	 * (via recursion)
+	 */
+	private final Set<String> handledClasses;
 
-    public EnvironmentTestClusterAugmenter(TestCluster cluster) {
-        this.cluster = cluster;
-        testClusterGenerator = new TestClusterGenerator(cluster.getInheritanceTree());
-        this.handledClasses = new LinkedHashSet<>();
-    }
+	public EnvironmentTestClusterAugmenter(TestCluster cluster) {
+		this.cluster = cluster;
+		testClusterGenerator = new TestClusterGenerator(cluster.getInheritanceTree());
+		this.handledClasses = new LinkedHashSet<>();
+	}
 
-    /**
-     *
-     * <p>
-     * If access to certain classes was observed at runtime, this method adds
-     * test calls to the test cluster which may lead to covering more branches.
-     * For example, if file access was observed, statements will be introduced
-     * that perform mutations on the accessed files like content modification.
-     *
-     * <p>
-     * (Idea by Gordon, JavaDoc written by Daniel)
-     *
-     * @see org.evosuite.runtime.Random
-     * @see org.evosuite.runtime.System
-     */
-    public void handleRuntimeAccesses(TestCase test) {
+	/**
+	 *
+	 * <p>
+	 * If access to certain classes was observed at runtime, this method adds
+	 * test calls to the test cluster which may lead to covering more branches.
+	 * For example, if file access was observed, statements will be introduced
+	 * that perform mutations on the accessed files like content modification.
+	 *
+	 * <p>
+	 * (Idea by Gordon, JavaDoc written by Daniel)
+	 *
+	 * @see org.evosuite.runtime.Random
+	 * @see org.evosuite.runtime.System
+	 */
+	public void handleRuntimeAccesses(TestCase test) {
 
-        //important, as test might have been changed since last update (eg mutation)
-        test.getAccessedEnvironment().clear();
+		// important, as test might have been changed since last update (eg
+		// mutation)
+		test.getAccessedEnvironment().clear();
 
-        if (Properties.REPLACE_CALLS) {
-            handleReplaceCalls();
-        }
+		if (Properties.REPLACE_CALLS) {
+			handleReplaceCalls();
+		}
 
-        if (Properties.VIRTUAL_FS) {
-            handleVirtualFS(test);
-        }
+		if (Properties.VIRTUAL_FS) {
+			handleVirtualFS(test);
+		}
 
-        if(Properties.REPLACE_SYSTEM_IN){
-            handleSystemIn();
-        }
-        
-        if(Properties.REPLACE_GUI){
-            handleGUI();
-        }
+		if (Properties.REPLACE_SYSTEM_IN) {
+			handleSystemIn();
+		}
 
-        if(Properties.VIRTUAL_NET){
-            handleNetwork(test);
-        }
-        
-        if(Properties.JEE){
-            handleJEE(test);
-        }
-    }
+		if (Properties.REPLACE_GUI) {
+			handleGUI();
+		}
 
-    private void handleGUI() {
-		// TODO Auto-generated method stub
-		
+		if (Properties.VIRTUAL_NET) {
+			handleNetwork(test);
+		}
+
+		if (Properties.JEE) {
+			handleJEE(test);
+		}
+	}
+
+	private boolean hasAddedJOptionPaneInputsForStrings = false;
+
+	private void handleGUI() {
+
+		if (!hasAddedJOptionPaneInputsForStrings
+				&& JOptionPaneInputs.getInstance().hasDialog(DialogType.STRING_INPUT)) {
+			hasAddedJOptionPaneInputsForStrings = true;
+
+			try {
+				final Class<?> clazz = JOptionPaneInputs.class;
+				final String ENQUEUE_STRING = "enqueueString";
+				final Method method_to_call = clazz.getMethod(ENQUEUE_STRING, new Class<?>[] { String.class });
+				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
+
+				// adds JOptionPaneInputs.enqueueString() to the palette of
+				// methods that can be used
+				TestCluster.getInstance().addEnvironmentTestCall(genericMethod);
+
+			} catch (SecurityException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			}
+		}
+
 	}
 
 	private void handleJEE(TestCase test) {
 
-        JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
-        test.getAccessedEnvironment().setJeeData(jeeData);
+		JeeData jeeData = TestDataJavaEE.getInstance().getJeeData();
+		test.getAccessedEnvironment().setJeeData(jeeData);
 
-        if(jeeData.lookedUpContextNames.size() > 0){
-            addEnvironmentClassToCluster(EvoNamingContext.class);
+		if (jeeData.lookedUpContextNames.size() > 0) {
+			addEnvironmentClassToCluster(EvoNamingContext.class);
 
-            //TODO add method with right input type
-        }
+			// TODO add method with right input type
+		}
 
-        if(! Properties.HANDLE_SERVLETS){
-            /*
-                Started to prepare custom mocks for Servlets, but then realized that
-                their behavior is very basic. As such, most likely they are not needed,
-                as they could be much better replaced by functional mocks with Mockito...
-             */
+		if (!Properties.HANDLE_SERVLETS) {
+			/*
+			 * Started to prepare custom mocks for Servlets, but then realized
+			 * that their behavior is very basic. As such, most likely they are
+			 * not needed, as they could be much better replaced by functional
+			 * mocks with Mockito...
+			 */
 
-            return;
-        }
+			return;
+		}
 
-        if(jeeData.wasAServletInitialized){
-            addEnvironmentClassToCluster(EvoServletState.class);
-        }
+		if (jeeData.wasAServletInitialized) {
+			addEnvironmentClassToCluster(EvoServletState.class);
+		}
 
-        //TODO TestDataJavaEE data for Servlets
-    }
+		// TODO TestDataJavaEE data for Servlets
+	}
 
-    /**
-     * Add the given klass to the test cluster.
-     * Also recursively add (as modifiers) all the other EvoSuite classes for
-     * which the given class is a generator
-     *
-     * @param klass
-     */
-    private boolean addEnvironmentClassToCluster(Class<?> klass) {
-        if(handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)){
-            return false; //already handled, or not valid
-        }
-        handledClasses.add(klass.getCanonicalName());
+	/**
+	 * Add the given klass to the test cluster. Also recursively add (as
+	 * modifiers) all the other EvoSuite classes for which the given class is a
+	 * generator
+	 *
+	 * @param klass
+	 */
+	private boolean addEnvironmentClassToCluster(Class<?> klass) {
+		if (handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)) {
+			return false; // already handled, or not valid
+		}
+		handledClasses.add(klass.getCanonicalName());
 
-        boolean excludeClass = klass.getAnnotation(EvoSuiteClassExclude.class) != null;
+		boolean excludeClass = klass.getAnnotation(EvoSuiteClassExclude.class) != null;
 
-        //only consider public constructors/methods
+		// only consider public constructors/methods
 
-        for(Constructor c : klass.getConstructors()){
-            //first check if it should be skipped
-            if (shouldSkip(excludeClass, c)){
-                continue;
-            }
+		for (Constructor c : klass.getConstructors()) {
+			// first check if it should be skipped
+			if (shouldSkip(excludeClass, c)) {
+				continue;
+			}
 
-            GenericAccessibleObject gc = new GenericConstructor(c,klass);
-            TestCluster.getInstance().addEnvironmentTestCall(gc);
-            GenericClass genclass = new GenericClass(klass);
-            TestCluster.getInstance().invalidateGeneratorCache(genclass);
-            TestCluster.getInstance().addGenerator(genclass,gc);
+			GenericAccessibleObject gc = new GenericConstructor(c, klass);
+			TestCluster.getInstance().addEnvironmentTestCall(gc);
+			GenericClass genclass = new GenericClass(klass);
+			TestCluster.getInstance().invalidateGeneratorCache(genclass);
+			TestCluster.getInstance().addGenerator(genclass, gc);
 
-            testClusterGenerator.addNewDependencies(Arrays.asList(c.getParameterTypes()));
-        }
+			testClusterGenerator.addNewDependencies(Arrays.asList(c.getParameterTypes()));
+		}
 
-        for(Method m : klass.getMethods()){
-            if (shouldSkip(excludeClass, m)){
-                continue;
-            }
+		for (Method m : klass.getMethods()) {
+			if (shouldSkip(excludeClass, m)) {
+				continue;
+			}
 
-            GenericAccessibleObject gm = new GenericMethod(m,klass);
-            TestCluster.getInstance().addEnvironmentTestCall(gm);
+			GenericAccessibleObject gm = new GenericMethod(m, klass);
+			TestCluster.getInstance().addEnvironmentTestCall(gm);
 
-            testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
+			testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
 
-            Class<?> returnType = m.getReturnType();
-            if(! returnType.equals(Void.TYPE)){
-                GenericClass genclass = new GenericClass(returnType);
-                TestCluster.getInstance().invalidateGeneratorCache(genclass);
-                TestCluster.getInstance().addGenerator(genclass,gm);
-                addEnvironmentDependency(returnType);
-            }
-        }
+			Class<?> returnType = m.getReturnType();
+			if (!returnType.equals(Void.TYPE)) {
+				GenericClass genclass = new GenericClass(returnType);
+				TestCluster.getInstance().invalidateGeneratorCache(genclass);
+				TestCluster.getInstance().addGenerator(genclass, gm);
+				addEnvironmentDependency(returnType);
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    private void addEnvironmentDependency(Class<?> klass){
-        if(handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)){
-            return; //already handled, or not valid
-        }
+	private void addEnvironmentDependency(Class<?> klass) {
+		if (handledClasses.contains(klass.getCanonicalName()) || !TestClusterUtils.isEvoSuiteClass(klass)) {
+			return; // already handled, or not valid
+		}
 
-        handledClasses.add(klass.getCanonicalName());
-        boolean excludeClass = klass.getAnnotation(EvoSuiteClassExclude.class) != null;
-        //do not consider constructors
+		handledClasses.add(klass.getCanonicalName());
+		boolean excludeClass = klass.getAnnotation(EvoSuiteClassExclude.class) != null;
+		// do not consider constructors
 
-        for(Method m : klass.getMethods()){
-            if (shouldSkip(excludeClass, m)){
-                continue;
-            }
+		for (Method m : klass.getMethods()) {
+			if (shouldSkip(excludeClass, m)) {
+				continue;
+			}
 
-            GenericAccessibleObject gm = new GenericMethod(m,klass);
-            GenericClass gc = new GenericClass(klass);
-            TestCluster.getInstance().addModifier(gc,gm);
+			GenericAccessibleObject gm = new GenericMethod(m, klass);
+			GenericClass gc = new GenericClass(klass);
+			TestCluster.getInstance().addModifier(gc, gm);
 
-            testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
+			testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
 
-            Class<?> returnType = m.getReturnType();
+			Class<?> returnType = m.getReturnType();
 
-            if(! returnType.equals(Void.TYPE)){
-                GenericClass genclass = new GenericClass(returnType);
-                TestCluster.getInstance().invalidateGeneratorCache(genclass);
-                TestCluster.getInstance().addGenerator(genclass,gm);
-                addEnvironmentDependency(returnType);
-            }
-        }
-    }
+			if (!returnType.equals(Void.TYPE)) {
+				GenericClass genclass = new GenericClass(returnType);
+				TestCluster.getInstance().invalidateGeneratorCache(genclass);
+				TestCluster.getInstance().addGenerator(genclass, gm);
+				addEnvironmentDependency(returnType);
+			}
+		}
+	}
 
-    private boolean isObjectMethod(AccessibleObject ao){
-        if(! (ao instanceof Method)){
-            return false;
-        }
+	private boolean isObjectMethod(AccessibleObject ao) {
+		if (!(ao instanceof Method)) {
+			return false;
+		}
 
-        /*
-            Note: this check is not 100% precise (one could have new completely unrelated method
-            with same name from Object but different signature). However, as we only apply it
-            on EvoSuite methods, should be fine
-         */
+		/*
+		 * Note: this check is not 100% precise (one could have new completely
+		 * unrelated method with same name from Object but different signature).
+		 * However, as we only apply it on EvoSuite methods, should be fine
+		 */
 
-        Method m = (Method) ao;
-        String name = m.getName();
-        switch (name){
-            case "clone":
-            case "equals":
-            case "finalize":
-            case "getClass":
-            case "hashCode":
-            case "notify":
-            case "notifyAll":
-            case "toString":
-            case "wait":
-                return true;
-            default:
-                return false;
-        }
-    }
+		Method m = (Method) ao;
+		String name = m.getName();
+		switch (name) {
+		case "clone":
+		case "equals":
+		case "finalize":
+		case "getClass":
+		case "hashCode":
+		case "notify":
+		case "notifyAll":
+		case "toString":
+		case "wait":
+			return true;
+		default:
+			return false;
+		}
+	}
 
+	private boolean shouldSkip(boolean excludeClass, AccessibleObject c) {
 
-    private boolean shouldSkip(boolean excludeClass, AccessibleObject c) {
+		if (isObjectMethod(c)) {
+			return true;
+		}
 
-        if(isObjectMethod(c)){
-            return true;
-        }
+		if (excludeClass) {
+			boolean include = c.getAnnotation(EvoSuiteInclude.class) != null;
+			if (!include) {
+				return true;
+			}
+		} else {
+			boolean exclude = c.getAnnotation(EvoSuiteExclude.class) != null
+					|| c.getAnnotation(EvoSuiteAssertionOnly.class) != null;
+			if (exclude) {
+				return true;
+			}
+		}
 
-        if(excludeClass){
-            boolean include = c.getAnnotation(EvoSuiteInclude.class) != null;
-            if(!include){
-                return true;
-            }
-        } else {
-            boolean exclude = c.getAnnotation(EvoSuiteExclude.class) != null ||
-                    c.getAnnotation(EvoSuiteAssertionOnly.class) != null;
-            if(exclude){
-                return true;
-            }
-        }
+		Constraints constraints = c.getAnnotation(Constraints.class);
+		if (constraints != null && constraints.noDirectInsertion()) {
+			return true;
+		}
 
-        Constraints constraints = c.getAnnotation(Constraints.class);
-        if(constraints!=null && constraints.noDirectInsertion()){
-            return true;
-        }
+		return false;
+	}
 
-        return false;
-    }
+	private void handleNetwork(TestCase test) {
+		/*
+		 * there are several things that are mocked in the network. based on
+		 * what the SUT used, we might only need a subset of methods used to
+		 * manipulate the mocked network
+		 */
 
-    private void handleNetwork(TestCase test){
-        /*
-            there are several things that are mocked in the network.
-            based on what the SUT used, we might only need a subset of
-            methods used to manipulate the mocked network
-         */
+		// TODO might need more stuff once we handle assertion generation
 
-        // TODO might need more stuff once we handle assertion generation
+		test.getAccessedEnvironment()
+				.addLocalListeningPorts(VirtualNetwork.getInstance().getViewOfLocalListeningPorts());
+		test.getAccessedEnvironment().addRemoteURLs(VirtualNetwork.getInstance().getViewOfRemoteAccessedFiles());
+		test.getAccessedEnvironment()
+				.addRemoteContactedPorts(VirtualNetwork.getInstance().getViewOfRemoteContactedPorts());
 
-        test.getAccessedEnvironment().addLocalListeningPorts(VirtualNetwork.getInstance().getViewOfLocalListeningPorts());
-        test.getAccessedEnvironment().addRemoteURLs(VirtualNetwork.getInstance().getViewOfRemoteAccessedFiles());
-        test.getAccessedEnvironment().addRemoteContactedPorts(VirtualNetwork.getInstance().getViewOfRemoteContactedPorts());
+		if (!hasAddedRemoteURLs && test.getAccessedEnvironment().getViewOfRemoteURLs().size() > 0) {
+			hasAddedRemoteURLs = true;
+			try {
+				TestCluster.getInstance()
+						.addEnvironmentTestCall(new GenericMethod(
+								NetworkHandling.class.getMethod("createRemoteTextFile",
+										new Class<?>[] { EvoSuiteURL.class, String.class }),
+								new GenericClass(NetworkHandling.class)));
+			} catch (Exception e) {
+				logger.error("Error while handling hasAddedRemoteURLs: " + e.getMessage(), e);
+			}
+		}
 
-        if(!hasAddedRemoteURLs && test.getAccessedEnvironment().getViewOfRemoteURLs().size() > 0){
-            hasAddedRemoteURLs = true;
-            try {
-                TestCluster.getInstance().addEnvironmentTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("createRemoteTextFile", new Class<?>[]{EvoSuiteURL.class,String.class}),
-                        new GenericClass(NetworkHandling.class)
-                ));
-            } catch (Exception e){
-                logger.error("Error while handling hasAddedRemoteURLs: "+e.getMessage(),e);
-            }
-        }
+		boolean openedTCP = false;
+		boolean openedUDP = false;
 
-        boolean openedTCP = false;
-        boolean openedUDP = false;
+		for (EndPointInfo info : test.getAccessedEnvironment().getViewOfLocalListeningPorts()) {
+			if (info.getType().equals(VirtualNetwork.ConnectionType.TCP)) {
+				openedTCP = true;
+			} else if (info.getType().equals(VirtualNetwork.ConnectionType.UDP)) {
+				openedUDP = true;
+			}
+			if (openedTCP && openedUDP) {
+				break;
+			}
+		}
 
-        for(EndPointInfo info : test.getAccessedEnvironment().getViewOfLocalListeningPorts()){
-            if(info.getType().equals(VirtualNetwork.ConnectionType.TCP)){
-                openedTCP = true;
-            } else if(info.getType().equals(VirtualNetwork.ConnectionType.UDP)){
-                openedUDP = true;
-            }
-            if(openedTCP && openedUDP){
-                break;
-            }
-        }
+		if (!hasAddedUdpSupport && openedUDP) {
+			hasAddedUdpSupport = true;
+			try {
+				TestCluster.getInstance()
+						.addEnvironmentTestCall(
+								new GenericMethod(
+										NetworkHandling.class.getMethod("sendUdpPacket",
+												new Class<?>[] { EvoSuiteLocalAddress.class,
+														EvoSuiteRemoteAddress.class, byte[].class }),
+										new GenericClass(NetworkHandling.class)));
+				TestCluster.getInstance()
+						.addEnvironmentTestCall(new GenericMethod(
+								NetworkHandling.class.getMethod("sendUdpPacket",
+										new Class<?>[] { EvoSuiteLocalAddress.class, byte[].class }),
+								new GenericClass(NetworkHandling.class)));
+			} catch (Exception e) {
+				logger.error("Error while handling hasAddedUdpSupport: " + e.getMessage(), e);
+			}
+		}
 
-        if(!hasAddedUdpSupport && openedUDP){
-            hasAddedUdpSupport = true;
-            try {
-                TestCluster.getInstance().addEnvironmentTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteLocalAddress.class, EvoSuiteRemoteAddress.class, byte[].class}),
-                        new GenericClass(NetworkHandling.class)
-                ));
-                TestCluster.getInstance().addEnvironmentTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendUdpPacket", new Class<?>[]{EvoSuiteLocalAddress.class, byte[].class}),
-                        new GenericClass(NetworkHandling.class)
-                ));
-            } catch (Exception e){
-                logger.error("Error while handling hasAddedUdpSupport: "+e.getMessage(),e);
-            }
-        }
+		if (!hasAddedTcpListeningSupport && openedTCP) {
+			hasAddedTcpListeningSupport = true;
 
-        if(!hasAddedTcpListeningSupport && openedTCP){
-            hasAddedTcpListeningSupport = true;
+			try {
+				TestCluster.getInstance()
+						.addEnvironmentTestCall(new GenericMethod(
+								NetworkHandling.class.getMethod("sendDataOnTcp",
+										new Class<?>[] { EvoSuiteLocalAddress.class, byte[].class }),
+								new GenericClass(NetworkHandling.class)));
+				TestCluster.getInstance()
+						.addEnvironmentTestCall(new GenericMethod(
+								NetworkHandling.class.getMethod("sendMessageOnTcp",
+										new Class<?>[] { EvoSuiteLocalAddress.class, String.class }),
+								new GenericClass(NetworkHandling.class)));
+			} catch (Exception e) {
+				logger.error("Error while handling hasAddedTcpListeningSupport: " + e.getMessage(), e);
+			}
+		}
 
-            try {
-                TestCluster.getInstance().addEnvironmentTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendDataOnTcp", new Class<?>[]{EvoSuiteLocalAddress.class, byte[].class}),
-                        new GenericClass(NetworkHandling.class)
-                ));
-                TestCluster.getInstance().addEnvironmentTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("sendMessageOnTcp", new Class<?>[]{EvoSuiteLocalAddress.class, String.class}),
-                        new GenericClass(NetworkHandling.class)
-                ));
-            } catch (Exception e){
-                logger.error("Error while handling hasAddedTcpListeningSupport: "+e.getMessage(),e);
-            }
-        }
+		if (!hasAddedTcpRemoteSupport && test.getAccessedEnvironment().getViewOfRemoteContactedPorts().size() > 0) {
+			hasAddedTcpRemoteSupport = true;
 
-        if(!hasAddedTcpRemoteSupport && test.getAccessedEnvironment().getViewOfRemoteContactedPorts().size() > 0){
-            hasAddedTcpRemoteSupport = true;
+			try {
+				TestCluster.getInstance()
+						.addEnvironmentTestCall(new GenericMethod(
+								NetworkHandling.class.getMethod("openRemoteTcpServer",
+										new Class<?>[] { EvoSuiteRemoteAddress.class }),
+								new GenericClass(NetworkHandling.class)));
+			} catch (Exception e) {
+				logger.error("Error while handling hasAddedTcpRemoteSupport: " + e.getMessage(), e);
+			}
+		}
+	}
 
-            try {
-                TestCluster.getInstance().addEnvironmentTestCall(new GenericMethod(
-                        NetworkHandling.class.getMethod("openRemoteTcpServer", new Class<?>[]{EvoSuiteRemoteAddress.class}),
-                        new GenericClass(NetworkHandling.class)
-                ));
-            } catch (Exception e){
-                logger.error("Error while handling hasAddedTcpRemoteSupport: "+e.getMessage(),e);
-            }
-        }
-    }
+	/**
+	 * If System.in was used, add methods to handle/simulate it
+	 */
+	private void handleSystemIn() {
+		if (!hasAddedSystemIn && SystemInUtil.getInstance().hasBeenUsed()) {
+			hasAddedSystemIn = true;
 
-    /**
-     * If System.in was used, add methods to handle/simulate it
-     */
-    private void handleSystemIn(){
-        if(!hasAddedSystemIn && SystemInUtil.getInstance().hasBeenUsed()){
-            hasAddedSystemIn = true;
+			try {
+				TestCluster.getInstance()
+						.addEnvironmentTestCall(new GenericMethod(
+								SystemInUtil.class.getMethod("addInputLine", new Class<?>[] { String.class }),
+								new GenericClass(SystemInUtil.class)));
+			} catch (SecurityException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			}
+		}
+	}
 
-            try {
-                TestCluster.getInstance().addEnvironmentTestCall(new GenericMethod(
-                        SystemInUtil.class.getMethod("addInputLine",new Class<?>[] { String.class }),
-                        new GenericClass(SystemInUtil.class)));
-            } catch (SecurityException e) {
-                logger.error("Error while handling Random: "+e.getMessage(),e);
-            } catch (NoSuchMethodException e) {
-                logger.error("Error while handling Random: "+e.getMessage(),e);
-            }
-        }
-    }
+	private void handleVirtualFS(TestCase test) {
+		test.getAccessedEnvironment().addLocalFiles(VirtualFileSystem.getInstance().getAccessedFiles());
 
+		if (!hasAddedFiles && VirtualFileSystem.getInstance().getAccessedFiles().size() > 0) {
+			logger.info("Adding EvoSuiteFile calls to cluster");
 
+			hasAddedFiles = true;
 
+			addEnvironmentClassToCluster(FileSystemHandling.class);
+		}
+	}
 
-    private void handleVirtualFS(TestCase test) {
-        test.getAccessedEnvironment().addLocalFiles(VirtualFileSystem.getInstance().getAccessedFiles());
+	private void handleReplaceCalls() {
 
-        if (!hasAddedFiles && VirtualFileSystem.getInstance().getAccessedFiles().size() > 0) {
-            logger.info("Adding EvoSuiteFile calls to cluster");
+		if (!hasAddedRandom && Random.wasAccessed()) {
+			hasAddedRandom = true;
+			try {
+				cluster.addTestCall(
+						new GenericMethod(Random.class.getMethod("setNextRandom", new Class<?>[] { int.class }),
+								new GenericClass(Random.class)));
+			} catch (SecurityException | NoSuchMethodException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			}
+		}
 
-            hasAddedFiles = true;
-
-            addEnvironmentClassToCluster(FileSystemHandling.class);
-        }
-    }
-
-    private void handleReplaceCalls() {
-
-        if (!hasAddedRandom && Random.wasAccessed()) {
-            hasAddedRandom = true;
-            try {
-                cluster.addTestCall(new GenericMethod(
-                        Random.class.getMethod("setNextRandom",
-                                new Class<?>[]{int.class}),
-                        new GenericClass(
-                                Random.class)));
-            } catch (SecurityException | NoSuchMethodException  e) {
-                logger.error("Error while handling Random: "+e.getMessage(),e);
-            }
-        }
-
-        if (!hasAddedSystem && org.evosuite.runtime.System.wasTimeAccessed()) {
-            hasAddedSystem = true;
-            try {
-                cluster.addTestCall(new GenericMethod(
-                        System.class.getMethod("setCurrentTimeMillis",
-                                new Class<?>[]{long.class}),
-                        new GenericClass(
-                                System.class)));
-            } catch (SecurityException e) {
-                logger.error("Error while handling System: "+e.getMessage(),e);
-            } catch (NoSuchMethodException e) {
-                logger.error("Error while handling System: "+e.getMessage(),e);
-            }
-        }
-    }
-
+		if (!hasAddedSystem && org.evosuite.runtime.System.wasTimeAccessed()) {
+			hasAddedSystem = true;
+			try {
+				cluster.addTestCall(
+						new GenericMethod(System.class.getMethod("setCurrentTimeMillis", new Class<?>[] { long.class }),
+								new GenericClass(System.class)));
+			} catch (SecurityException e) {
+				logger.error("Error while handling System: " + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling System: " + e.getMessage(), e);
+			}
+		}
+	}
 
 }

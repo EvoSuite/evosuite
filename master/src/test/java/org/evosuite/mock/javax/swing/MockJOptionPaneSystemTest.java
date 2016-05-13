@@ -19,14 +19,21 @@
  */
 package org.evosuite.mock.javax.swing;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Set;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
+import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.mock.javax.swing.AskUser;
 import com.examples.with.different.packagename.mock.javax.swing.ShowMessageDialogExample;
 
 /**
@@ -44,7 +51,6 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 		Properties.MINIMIZE = true;
 		// As mutation operators remove instrumentation. This needs fixing first
 		Properties.ASSERTIONS = false; 
-		Properties.TIMEOUT = Integer.MAX_VALUE;
 
 		EvoSuite evosuite = new EvoSuite();
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -56,7 +62,32 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 		Assert.assertNotNull(best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
-		java.lang.System.out.println(best.toString());
+	}
+	
+	@Test
+	public void testShowInputDialogExample() throws Exception {
+		final String targetClass = AskUser.class.getCanonicalName();
+
+		Properties.INLINE = false;
+		Properties.TEST_ARCHIVE = false;
+		
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = false;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false; 
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
 	}
 
 }
