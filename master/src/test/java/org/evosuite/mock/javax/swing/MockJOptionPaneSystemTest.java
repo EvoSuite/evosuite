@@ -28,6 +28,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.mock.javax.swing.AskUser;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowConfirmDialogs0;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowConfirmDialogs1;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowConfirmDialogs2;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowConfirmDialogs3;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInputDailogs;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInternalConfirmDialogs0;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInternalConfirmDialogs1;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInternalConfirmDialogs2;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInternalConfirmDialogs3;
 import com.examples.with.different.packagename.mock.javax.swing.ShowMessageDialogExample;
 
 /**
@@ -44,7 +53,7 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 		Properties.REPLACE_GUI = true;
 		Properties.MINIMIZE = true;
 		// As mutation operators remove instrumentation. This needs fixing first
-		Properties.ASSERTIONS = false; 
+		Properties.ASSERTIONS = false;
 
 		EvoSuite evosuite = new EvoSuite();
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -57,19 +66,19 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
 	}
-	
+
 	@Test
 	public void testShowInputDialogExample() throws Exception {
 		final String targetClass = AskUser.class.getCanonicalName();
 
 		Properties.TEST_ARCHIVE = false;
-		
+
 		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
 		Properties.TARGET_CLASS = targetClass;
 		Properties.REPLACE_GUI = true;
 		Properties.MINIMIZE = true;
 		// As mutation operators remove instrumentation. This needs fixing first
-		Properties.ASSERTIONS = false; 
+		Properties.ASSERTIONS = false;
 
 		EvoSuite evosuite = new EvoSuite();
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -81,6 +90,239 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 		Assert.assertNotNull(best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+	}
+
+	@Test
+	public void testShowInputMultipleDialogs() throws Exception {
+		final String targetClass = AskUserShowInputDailogs.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+	}
+
+	@Test
+	public void testShowConfirmDialogs0() throws Exception {
+		final String targetClass = AskUserShowConfirmDialogs0.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
+	}
+
+	@Test
+	public void testShowConfirmDialogs1() throws Exception {
+		final String targetClass = AskUserShowConfirmDialogs1.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
+	}
+
+	@Test
+	public void testShowConfirmDialogs2() throws Exception {
+		final String targetClass = AskUserShowConfirmDialogs2.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
+	}
+
+	@Test
+	public void testShowConfirmDialogs3() throws Exception {
+		final String targetClass = AskUserShowConfirmDialogs3.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
+	}
+
+	@Test
+	public void testShowInternalConfirmDialogs0() throws Exception {
+		final String targetClass = AskUserShowInternalConfirmDialogs0.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
+	}
+
+	@Test
+	public void testShowInternalConfirmDialogs1() throws Exception {
+		final String targetClass = AskUserShowInternalConfirmDialogs1.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
+	}
+
+	@Test
+	public void testShowInternalConfirmDialogs2() throws Exception {
+		final String targetClass = AskUserShowInternalConfirmDialogs2.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
+	}
+
+	@Test
+	public void testShowInternalConfirmDialogs3() throws Exception {
+		final String targetClass = AskUserShowInternalConfirmDialogs3.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+
 	}
 
 }

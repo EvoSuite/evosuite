@@ -6,7 +6,7 @@ import java.awt.HeadlessException;
 import javax.swing.Icon;
 
 import org.evosuite.runtime.util.JOptionPaneInputs;
-import org.evosuite.runtime.util.JOptionPaneInputs.DialogType;
+import org.evosuite.runtime.util.JOptionPaneInputs.GUIAction;
 
 /**
  * These methods replace those from javax.swing.JOptionPane. This class is used
@@ -15,7 +15,7 @@ import org.evosuite.runtime.util.JOptionPaneInputs.DialogType;
  * @author galeotti
  *
  */
-public abstract class JOptionPane {
+public abstract class MockJOptionPane {
 
 	/**
 	 * Replaces method javax.swing.JOptionPane.showMessageDialog(Component
@@ -25,7 +25,7 @@ public abstract class JOptionPane {
 	 * @param message
 	 */
 	public static void showMessageDialog(Component parentComponent, Object message) {
-		/* skip */
+		/* do nothing */
 	}
 
 	/**
@@ -38,7 +38,7 @@ public abstract class JOptionPane {
 	 * @param messageType
 	 */
 	public static void showMessageDialog(Component parentComponent, Object message, String title, int messageType) {
-		/* skip */
+		/* do nothing */
 	}
 
 	/**
@@ -54,7 +54,7 @@ public abstract class JOptionPane {
 	 */
 	public static void showMessageDialog(Component parentComponent, Object message, String title, int messageType,
 			Icon icon) {
-		/* skip */
+		/* do nothing */
 	}
 
 	/**
@@ -67,28 +67,85 @@ public abstract class JOptionPane {
 	 *         JOptionPane.CANCEL_OPTION and JOptionPane.CLOSED_OPTION
 	 */
 	public static int showConfirmDialog(Component parentComponent, Object message) throws HeadlessException {
-		return 0;
+		return showConfirmDialog(javax.swing.JOptionPane.YES_NO_CANCEL_OPTION);
+	}
+
+	private static int showConfirmDialog(int optionType) {
+
+		switch (optionType) {
+		case javax.swing.JOptionPane.DEFAULT_OPTION:
+		case javax.swing.JOptionPane.YES_NO_CANCEL_OPTION: {
+			return getInputYesNoCancel();
+		}
+		case javax.swing.JOptionPane.YES_NO_OPTION: {
+			return getInputYesNo();
+		}
+		case javax.swing.JOptionPane.OK_CANCEL_OPTION: {
+			return getInputOkCancel();
+		}
+		default:
+			throw new IllegalStateException(
+					"Option number " + optionType + " does not match any known JOptionPane option");
+		}
+
+	}
+
+	private static int getInputOkCancel() {
+		// first, we record that the SUT has issued a call
+		// to JOptionPane.showConfirmDialog()
+		JOptionPaneInputs.getInstance().addDialog(GUIAction.OK_CANCEL_SELECTION);
+
+		// second, we check if an input is specified for that GUI stimulus
+		if (JOptionPaneInputs.getInstance().containsOkCancel()) {
+			// return the specified input
+			final int str = JOptionPaneInputs.getInstance().dequeueOkCancel();
+			return str;
+		} else {
+			// return 0 by default if no input was specified
+			return 0;
+		}
+	}
+
+	private static int getInputYesNo() {
+		// first, we record that the SUT has issued a call
+		// to JOptionPane.showConfirmDialog()
+		JOptionPaneInputs.getInstance().addDialog(GUIAction.YES_NO_SELECTION);
+
+		// second, we check if an input is specified for that GUI stimulus
+		if (JOptionPaneInputs.getInstance().containsYesNo()) {
+			// return the specified input
+			final int str = JOptionPaneInputs.getInstance().dequeueYesNo();
+			return str;
+		} else {
+			// return 0 by default if no input was specified
+			return 0;
+		}
 	}
 
 	public static int showConfirmDialog(Component parentComponent, Object message, String title, int optionType)
 			throws HeadlessException {
-		return 0;
+		return showConfirmDialog(optionType);
 	}
 
 	public static int showConfirmDialog(Component parentComponent, Object message, String title, int optionType,
 			int messageType) throws HeadlessException {
-		return 0;
+		return showConfirmDialog(optionType);
 	}
 
 	public static int showConfirmDialog(Component parentComponent, Object message, String title, int optionType,
 			int messageType, Icon icon) throws HeadlessException {
-		return 0;
+		return showConfirmDialog(optionType);
 	}
 
 	public static String showInputDialog(Object message) throws HeadlessException {
-		// first, we record that the SUT issued a call to JOptionPane.showInputDialog()
-		JOptionPaneInputs.getInstance().addDialog(DialogType.STRING_INPUT);
-		
+		return getInputString();
+	}
+
+	private static String getInputString() {
+		// first, we record that the SUT issued a call to
+		// JOptionPane.showInputDialog()
+		JOptionPaneInputs.getInstance().addDialog(GUIAction.STRING_INPUT);
+
 		// second, we check if an input is specified for that GUI stimulus
 		if (JOptionPaneInputs.getInstance().containsString()) {
 			// return the specified input
@@ -100,21 +157,37 @@ public abstract class JOptionPane {
 		}
 	}
 
+	private static int getInputYesNoCancel() {
+		// first, we record that the SUT has issued a call
+		// to JOptionPane.showConfirmDialog()
+		JOptionPaneInputs.getInstance().addDialog(GUIAction.YES_NO_CANCEL_SELECTION);
+
+		// second, we check if an input is specified for that GUI stimulus
+		if (JOptionPaneInputs.getInstance().containsYesNoCancel()) {
+			// return the specified input
+			final int str = JOptionPaneInputs.getInstance().dequeueYesNoCancel();
+			return str;
+		} else {
+			// return 0 by default if no input was specified
+			return 0;
+		}
+	}
+
 	public static String showInputDialog(Object message, Object initialSelectionValue) {
-		return null;
+		return getInputString();
 	}
 
 	public static String showInputDialog(Component parentComponent, Object message) throws HeadlessException {
-		return null;
+		return getInputString();
 	}
 
 	public static String showInputDialog(Component parentComponent, Object message, Object initialSelectionValue) {
-		return null;
+		return getInputString();
 	}
 
 	public static String showInputDialog(Component parentComponent, Object message, String title, int messageType)
 			throws HeadlessException {
-		return null;
+		return getInputString();
 	}
 
 	public static Object showInputDialog(Component parentComponent, Object message, String title, int messageType,
@@ -128,43 +201,45 @@ public abstract class JOptionPane {
 	}
 
 	public static void showInternalMessageDialog(Component parentComponent, Object message) {
+		/* do nothing */
 	}
 
 	public static void showInternalMessageDialog(Component parentComponent, Object message, String title,
 			int messageType) {
-
+		/* do nothing */
 	}
 
 	public static void showInternalMessageDialog(Component parentComponent, Object message, String title,
 			int messageType, Icon icon) {
+		/* do nothing */
 	}
 
 	public static int showInternalConfirmDialog(Component parentComponent, Object message) {
-		return 0;
+		return showConfirmDialog(javax.swing.JOptionPane.YES_NO_CANCEL_OPTION);
 	}
 
 	public static int showInternalConfirmDialog(Component parentComponent, Object message, String title,
 			int optionType) {
-		return 0;
+		return showConfirmDialog(optionType);
 	}
 
 	public static int showInternalConfirmDialog(Component parentComponent, Object message, String title, int optionType,
 			int messageType) {
-		return 0;
+		return showConfirmDialog(optionType);
 	}
 
 	public static int showInternalConfirmDialog(Component parentComponent, Object message, String title, int optionType,
 			int messageType, Icon icon) {
-		return 0;
+		return showConfirmDialog(optionType);
 	}
 
 	public static String showInternalInputDialog(Component parentComponent, Object message) {
-		return null;
+		return getInputString();
 	}
 
 	public static String showInternalInputDialog(Component parentComponent, Object message, String title,
 			int messageType) {
-		return null;
+		return getInputString();
 	}
 
 	public static Object showInternalInputDialog(Component parentComponent, Object message, String title,

@@ -29,7 +29,7 @@ import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
 import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.testdata.*;
 import org.evosuite.runtime.util.JOptionPaneInputs;
-import org.evosuite.runtime.util.JOptionPaneInputs.DialogType;
+import org.evosuite.runtime.util.JOptionPaneInputs.GUIAction;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.EndPointInfo;
@@ -132,16 +132,88 @@ public class EnvironmentTestClusterAugmenter {
 
 	private boolean hasAddedJOptionPaneInputsForStrings = false;
 
+	private boolean hasAddedJOptionPaneYesNoCancelSelection = false;
+	
+	private boolean hasAddedJOptionPaneYesNoSelection = false;
+	
+	private boolean hasAddedJOptionPaneOkCancelSelection = false;
+	
 	private void handleGUI() {
 
 		if (!hasAddedJOptionPaneInputsForStrings
-				&& JOptionPaneInputs.getInstance().hasDialog(DialogType.STRING_INPUT)) {
+				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.STRING_INPUT)) {
 			hasAddedJOptionPaneInputsForStrings = true;
 
 			try {
 				final Class<?> clazz = JOptionPaneInputs.class;
-				final String ENQUEUE_STRING = "enqueueString";
-				final Method method_to_call = clazz.getMethod(ENQUEUE_STRING, new Class<?>[] { String.class });
+				final String ENQUEUE_INPUT_STRING = "enqueueInputString";
+				final Method method_to_call = clazz.getMethod(ENQUEUE_INPUT_STRING, new Class<?>[] { String.class });
+				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
+
+				// adds JOptionPaneInputs.enqueueString() to the palette of
+				// methods that can be used
+				TestCluster.getInstance().addEnvironmentTestCall(genericMethod);
+
+			} catch (SecurityException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			}
+		}
+		
+		if (!hasAddedJOptionPaneYesNoCancelSelection
+				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.YES_NO_CANCEL_SELECTION)) {
+			hasAddedJOptionPaneYesNoCancelSelection = true;
+
+			try {
+				final Class<?> clazz = JOptionPaneInputs.class;
+				final String ENQUEUE_YES_NO_CANCEL_SELECTION = "enqueueYesNoCancelSelection";
+				final Method method_to_call = clazz.getMethod(ENQUEUE_YES_NO_CANCEL_SELECTION, new Class<?>[] { int.class });
+				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
+
+				// adds JOptionPaneInputs.enqueueString() to the palette of
+				// methods that can be used
+				TestCluster.getInstance().addEnvironmentTestCall(genericMethod);
+
+			} catch (SecurityException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			}
+		}
+		
+		if (!hasAddedJOptionPaneYesNoSelection
+				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.YES_NO_SELECTION)) {
+			hasAddedJOptionPaneYesNoSelection = true;
+
+			try {
+				final Class<?> clazz = JOptionPaneInputs.class;
+				final String ENQUEUE_YES_NO_SELECTION = "enqueueYesNoSelection";
+				final Method method_to_call = clazz.getMethod(ENQUEUE_YES_NO_SELECTION, new Class<?>[] { int.class });
+				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
+
+				// adds JOptionPaneInputs.enqueueString() to the palette of
+				// methods that can be used
+				TestCluster.getInstance().addEnvironmentTestCall(genericMethod);
+
+			} catch (SecurityException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			}
+		}
+		
+		if (!hasAddedJOptionPaneOkCancelSelection
+				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.OK_CANCEL_SELECTION)) {
+			hasAddedJOptionPaneOkCancelSelection = true;
+
+			try {
+				final Class<?> clazz = JOptionPaneInputs.class;
+				final String ENQUEUE_OK_CANCEL_SELECTION = "enqueueOkCancelSelection";
+				final Method method_to_call = clazz.getMethod( ENQUEUE_OK_CANCEL_SELECTION, new Class<?>[] { int.class });
 				final GenericClass genericClass = new GenericClass(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 

@@ -12,8 +12,8 @@ import java.util.LinkedList;
  */
 public class JOptionPaneInputs {
 
-	public enum DialogType {
-		STRING_INPUT, YES_NO_CONFIRM, YES_NO_CANCEL_CONFIRM, YES_CANCEL_CONFIRM
+	public enum GUIAction {
+		STRING_INPUT, YES_NO_SELECTION, YES_NO_CANCEL_SELECTION, OK_CANCEL_SELECTION
 	}
 
 	private JOptionPaneInputs() {
@@ -39,7 +39,10 @@ public class JOptionPaneInputs {
 	 * This method should clean all the input queues before test case execution
 	 */
 	public void initForTestCase() {
-		strings.clear();
+		this.stringInputs.clear();
+		this.yesNoCancelSelections.clear();
+		this.yesNoSelections.clear();
+		this.okCancelSelections.clear();
 	}
 
 	/**
@@ -49,8 +52,33 @@ public class JOptionPaneInputs {
 	 * @param data
 	 *            the string to be queued
 	 */
-	public static void enqueueString(String data) {
-		getInstance().enqueue(data);
+	public static void enqueueInputString(String data) {
+		getInstance().enqueueInputString0(data);
+	}
+
+	public static void enqueueYesNoCancelSelection(int selection) {
+		getInstance().enqueueYesNoCancelSelection0(selection);
+	}
+
+	public static void enqueueYesNoSelection(int selection) {
+		getInstance().enqueueYesNoSelection0(selection);
+	}
+	
+
+	public static void enqueueOkCancelSelection(int selection) {
+		getInstance().enqueueOkCancelSelection0(selection);
+	}
+	
+	private void enqueueOkCancelSelection0(int selection) {
+		this.okCancelSelections.add(selection);
+	}
+
+	private void enqueueYesNoSelection0(int selection) {
+		this.yesNoSelections.add(selection);
+	}
+
+	private void enqueueYesNoCancelSelection0(int selection) {
+		this.yesNoCancelSelections.add(selection);
 	}
 
 	/**
@@ -60,16 +88,16 @@ public class JOptionPaneInputs {
 	 * @return
 	 */
 	public String dequeueString() {
-		if (strings.isEmpty()) {
+		if (stringInputs.isEmpty()) {
 			throw new IllegalStateException("dequeueString() should not be invoked if no string is contained!");
 		}
-		return strings.poll();
+		return stringInputs.poll();
 	}
 
-	private final LinkedList<String> strings = new LinkedList<String>();
+	private final LinkedList<String> stringInputs = new LinkedList<String>();
 
-	private void enqueue(String str) {
-		strings.add(str);
+	private void enqueueInputString0(String str) {
+		stringInputs.add(str);
 	}
 
 	private boolean hasStringDialogs = false;
@@ -83,21 +111,21 @@ public class JOptionPaneInputs {
 	 * @param dialogType
 	 *            the type of the JOptionPane dialog
 	 */
-	public void addDialog(DialogType dialogType) {
+	public void addDialog(GUIAction dialogType) {
 		switch (dialogType) {
 		case STRING_INPUT: {
 			hasStringDialogs = true;
 		}
 			break;
-		case YES_CANCEL_CONFIRM: {
+		case OK_CANCEL_SELECTION: {
 			hasYesCancelDialogs = true;
 		}
 			break;
-		case YES_NO_CANCEL_CONFIRM: {
+		case YES_NO_CANCEL_SELECTION: {
 			hasYesNoCancelDialogs = true;
 		}
 			break;
-		case YES_NO_CONFIRM: {
+		case YES_NO_SELECTION: {
 			hasYesNoDialogs = true;
 		}
 			break;
@@ -113,18 +141,18 @@ public class JOptionPaneInputs {
 	 * @param dialogType
 	 * @return
 	 */
-	public boolean hasDialog(DialogType dialogType) {
+	public boolean hasDialog(GUIAction dialogType) {
 		switch (dialogType) {
 		case STRING_INPUT: {
 			return hasStringDialogs;
 		}
-		case YES_CANCEL_CONFIRM: {
+		case OK_CANCEL_SELECTION: {
 			return hasYesCancelDialogs;
 		}
-		case YES_NO_CANCEL_CONFIRM: {
+		case YES_NO_CANCEL_SELECTION: {
 			return hasYesNoCancelDialogs;
 		}
-		case YES_NO_CONFIRM: {
+		case YES_NO_SELECTION: {
 			return hasYesNoDialogs;
 		}
 		default:
@@ -147,6 +175,47 @@ public class JOptionPaneInputs {
 	 * @return
 	 */
 	public boolean containsString() {
-		return !strings.isEmpty();
+		return !stringInputs.isEmpty();
+	}
+
+	private final LinkedList<Integer> yesNoCancelSelections = new LinkedList<Integer>();
+
+	public boolean containsYesNoCancel() {
+		return !yesNoCancelSelections.isEmpty();
+	}
+
+	public int dequeueYesNoCancel() {
+		if (yesNoCancelSelections.isEmpty()) {
+			throw new IllegalStateException("The input queue for YES/NO/CANCEL selections is empty");
+		}
+		return yesNoCancelSelections.poll();
+	}
+
+	private final LinkedList<Integer> yesNoSelections = new LinkedList<Integer>();
+
+	public boolean containsYesNo() {
+		return !yesNoSelections.isEmpty();
+
+	}
+
+	public int dequeueYesNo() {
+		if (yesNoSelections.isEmpty()) {
+			throw new IllegalStateException("The input queue for YES/NO selections is empty");
+		}
+		return yesNoSelections.poll();
+	}
+
+	private final LinkedList<Integer> okCancelSelections = new LinkedList<Integer>();
+
+	public boolean containsOkCancel() {
+		return !okCancelSelections.isEmpty();
+
+	}
+
+	public int dequeueOkCancel() {
+		if (okCancelSelections.isEmpty()) {
+			throw new IllegalStateException("The input queue for OK/CANCEL selections is empty");
+		}
+		return okCancelSelections.poll();
 	}
 }

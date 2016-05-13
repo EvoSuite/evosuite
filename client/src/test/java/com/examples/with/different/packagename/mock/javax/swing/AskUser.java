@@ -1,6 +1,6 @@
 package com.examples.with.different.packagename.mock.javax.swing;
 
-import org.evosuite.runtime.gui.JOptionPane;
+import javax.swing.JOptionPane;
 
 public class AskUser {
 

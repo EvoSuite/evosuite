@@ -17,7 +17,7 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.util.JOptionPaneInputs;
-import org.evosuite.runtime.util.JOptionPaneInputs.DialogType;
+import org.evosuite.runtime.util.JOptionPaneInputs.GUIAction;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.TestCase;
@@ -64,21 +64,21 @@ public class JOptionPaneTestClusterTest {
 
 	@Test
 	public void testNoDialogBeforeExecution() {
-		boolean hasStringDialog0 = JOptionPaneInputs.getInstance().hasDialog(DialogType.STRING_INPUT);
+		boolean hasStringDialog0 = JOptionPaneInputs.getInstance().hasDialog(GUIAction.STRING_INPUT);
 		assertFalse(hasStringDialog0);
 	}
 
 	@Test
 	public void testShowInputDialogWasFound() throws Exception {
 
-		boolean hasStringDialog0 = JOptionPaneInputs.getInstance().hasDialog(DialogType.STRING_INPUT);
+		boolean hasStringDialog0 = JOptionPaneInputs.getInstance().hasDialog(GUIAction.STRING_INPUT);
 		assertFalse(hasStringDialog0);
 
 		InstrumentingClassLoader cl = new InstrumentingClassLoader();
 		TestCase t1 = buildTestCase0(cl);
 		TestCaseExecutor.getInstance().execute(t1);
 
-		boolean hasStringDialog = JOptionPaneInputs.getInstance().hasDialog(DialogType.STRING_INPUT);
+		boolean hasStringDialog = JOptionPaneInputs.getInstance().hasDialog(GUIAction.STRING_INPUT);
 		assertTrue(hasStringDialog);
 	}
 
@@ -124,8 +124,8 @@ public class JOptionPaneTestClusterTest {
 		VariableReference string0 = builder.appendStringPrimitive("input0");
 
 		Class<?> jOptionPaneInputsClass = JOptionPaneInputs.class;
-		final String ENQUEUE_STRING = "enqueueString";
-		Method enqueueStringMethod = jOptionPaneInputsClass.getMethod(ENQUEUE_STRING, String.class);
+		final String ENQUEUE_INPUT_STRING = "enqueueInputString";
+		Method enqueueStringMethod = jOptionPaneInputsClass.getMethod(ENQUEUE_INPUT_STRING, String.class);
 		builder.appendMethod(null, enqueueStringMethod, string0);
 
 		Class<?> clazz = cl.loadClass(TARGET_CLASS);
