@@ -1,10 +1,12 @@
 package org.evosuite.mock.javax.swing;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -17,8 +19,10 @@ import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.JOptionPaneInputs.DialogType;
 import org.evosuite.symbolic.TestCaseBuilder;
+import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -132,6 +136,39 @@ public class JOptionPaneTestClusterTest {
 		builder.appendMethod(showMessageDialogExample0, showConfirmDialogsMethod);
 
 		return builder.getDefaultTestCase();
+	}
+
+	@Test
+	public void testInlinerBug() throws Exception {
+
+		Properties.TIMEOUT = Integer.MAX_VALUE;
+
+		InstrumentingClassLoader cl = new InstrumentingClassLoader();
+		TestCase t0 = buildTestCase0(cl);
+		TestCase t1 = buildTestCase1(cl);
+
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(t0);
+		suite.addTest(t1);
+
+		System.out.println(suite.toString());
+		
+		BranchCoverageSuiteFitness ff = new BranchCoverageSuiteFitness(cl);
+		ff.getFitness(suite);
+
+		ConstantInliner inliner = new ConstantInliner();
+		inliner.inline(suite);
+
+		System.out.println(suite.toString());
+
+		List<ExecutionResult> execResults = suite.getLastExecutionResults();
+		assertEquals(2, execResults.size());
+		
+		ExecutionResult r1 = execResults.get(0);
+		ExecutionResult r2 = execResults.get(1);
+		
+		r1.calledReflection();
+		r2.calledReflection();
 	}
 
 }

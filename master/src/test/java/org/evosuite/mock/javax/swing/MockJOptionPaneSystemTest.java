@@ -19,16 +19,10 @@
  */
 package org.evosuite.mock.javax.swing;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Set;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,13 +62,12 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 	public void testShowInputDialogExample() throws Exception {
 		final String targetClass = AskUser.class.getCanonicalName();
 
-		Properties.INLINE = false;
 		Properties.TEST_ARCHIVE = false;
 		
 		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
 		Properties.TARGET_CLASS = targetClass;
 		Properties.REPLACE_GUI = true;
-		Properties.MINIMIZE = false;
+		Properties.MINIMIZE = true;
 		// As mutation operators remove instrumentation. This needs fixing first
 		Properties.ASSERTIONS = false; 
 
