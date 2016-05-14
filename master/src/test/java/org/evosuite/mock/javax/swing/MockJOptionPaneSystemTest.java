@@ -37,6 +37,7 @@ import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInter
 import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInternalConfirmDialogs1;
 import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInternalConfirmDialogs2;
 import com.examples.with.different.packagename.mock.javax.swing.AskUserShowInternalConfirmDialogs3;
+import com.examples.with.different.packagename.mock.javax.swing.AskUserShowOptionDialog;
 import com.examples.with.different.packagename.mock.javax.swing.ShowMessageDialogExample;
 
 /**
@@ -325,4 +326,32 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 
 	}
 
+	@Test
+	public void testShowOptionDialogExample() throws Exception {
+		final String targetClass = AskUserShowOptionDialog.class.getCanonicalName();
+
+		Properties.TEST_ARCHIVE = false;
+
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.BRANCH };
+		Properties.TARGET_CLASS = targetClass;
+		Properties.REPLACE_GUI = true;
+		Properties.MINIMIZE = true;
+		// As mutation operators remove instrumentation. This needs fixing first
+		Properties.ASSERTIONS = false;
+
+		EvoSuite evosuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		System.out.println(best);
+		
+		Assert.assertNotNull(best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
+	}
+
+	
 }

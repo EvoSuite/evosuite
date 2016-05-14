@@ -133,15 +133,16 @@ public class EnvironmentTestClusterAugmenter {
 	private boolean hasAddedJOptionPaneInputsForStrings = false;
 
 	private boolean hasAddedJOptionPaneYesNoCancelSelection = false;
-	
+
 	private boolean hasAddedJOptionPaneYesNoSelection = false;
-	
+
 	private boolean hasAddedJOptionPaneOkCancelSelection = false;
-	
+
+	private boolean hasAddedJOptionPaneOptionSelection = false;
+
 	private void handleGUI() {
 
-		if (!hasAddedJOptionPaneInputsForStrings
-				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.STRING_INPUT)) {
+		if (!hasAddedJOptionPaneInputsForStrings && JOptionPaneInputs.getInstance().hasDialog(GUIAction.STRING_INPUT)) {
 			hasAddedJOptionPaneInputsForStrings = true;
 
 			try {
@@ -161,7 +162,7 @@ public class EnvironmentTestClusterAugmenter {
 				logger.error("Error while handling Random: " + e.getMessage(), e);
 			}
 		}
-		
+
 		if (!hasAddedJOptionPaneYesNoCancelSelection
 				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.YES_NO_CANCEL_SELECTION)) {
 			hasAddedJOptionPaneYesNoCancelSelection = true;
@@ -169,7 +170,8 @@ public class EnvironmentTestClusterAugmenter {
 			try {
 				final Class<?> clazz = JOptionPaneInputs.class;
 				final String ENQUEUE_YES_NO_CANCEL_SELECTION = "enqueueYesNoCancelSelection";
-				final Method method_to_call = clazz.getMethod(ENQUEUE_YES_NO_CANCEL_SELECTION, new Class<?>[] { int.class });
+				final Method method_to_call = clazz.getMethod(ENQUEUE_YES_NO_CANCEL_SELECTION,
+						new Class<?>[] { int.class });
 				final GenericClass genericClass = new GenericClass(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 
@@ -183,7 +185,7 @@ public class EnvironmentTestClusterAugmenter {
 				logger.error("Error while handling Random: " + e.getMessage(), e);
 			}
 		}
-		
+
 		if (!hasAddedJOptionPaneYesNoSelection
 				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.YES_NO_SELECTION)) {
 			hasAddedJOptionPaneYesNoSelection = true;
@@ -205,7 +207,7 @@ public class EnvironmentTestClusterAugmenter {
 				logger.error("Error while handling Random: " + e.getMessage(), e);
 			}
 		}
-		
+
 		if (!hasAddedJOptionPaneOkCancelSelection
 				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.OK_CANCEL_SELECTION)) {
 			hasAddedJOptionPaneOkCancelSelection = true;
@@ -213,7 +215,30 @@ public class EnvironmentTestClusterAugmenter {
 			try {
 				final Class<?> clazz = JOptionPaneInputs.class;
 				final String ENQUEUE_OK_CANCEL_SELECTION = "enqueueOkCancelSelection";
-				final Method method_to_call = clazz.getMethod( ENQUEUE_OK_CANCEL_SELECTION, new Class<?>[] { int.class });
+				final Method method_to_call = clazz.getMethod(ENQUEUE_OK_CANCEL_SELECTION,
+						new Class<?>[] { int.class });
+				final GenericClass genericClass = new GenericClass(clazz);
+				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
+
+				// adds JOptionPaneInputs.enqueueString() to the palette of
+				// methods that can be used
+				TestCluster.getInstance().addEnvironmentTestCall(genericMethod);
+
+			} catch (SecurityException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling Random: " + e.getMessage(), e);
+			}
+		}
+
+		if (!hasAddedJOptionPaneOptionSelection
+				&& JOptionPaneInputs.getInstance().hasDialog(GUIAction.OPTION_SELECTION)) {
+			hasAddedJOptionPaneOptionSelection = true;
+
+			try {
+				final Class<?> clazz = JOptionPaneInputs.class;
+				final String ENQUEUE_OPTION_SELECTION = "enqueueOptionSelection";
+				final Method method_to_call = clazz.getMethod(ENQUEUE_OPTION_SELECTION, new Class<?>[] { int.class });
 				final GenericClass genericClass = new GenericClass(clazz);
 				final GenericMethod genericMethod = new GenericMethod(method_to_call, genericClass);
 

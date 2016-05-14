@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 
 import javax.swing.Icon;
+import javax.swing.JOptionPane;
 
 import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.JOptionPaneInputs.GUIAction;
@@ -75,13 +76,13 @@ public abstract class MockJOptionPane {
 		switch (optionType) {
 		case javax.swing.JOptionPane.DEFAULT_OPTION:
 		case javax.swing.JOptionPane.YES_NO_CANCEL_OPTION: {
-			return getInputYesNoCancel();
+			return getInputYesNoCancelSelection();
 		}
 		case javax.swing.JOptionPane.YES_NO_OPTION: {
-			return getInputYesNo();
+			return getInputYesNoSelection();
 		}
 		case javax.swing.JOptionPane.OK_CANCEL_OPTION: {
-			return getInputOkCancel();
+			return getInputOkCancelSelection();
 		}
 		default:
 			throw new IllegalStateException(
@@ -90,35 +91,35 @@ public abstract class MockJOptionPane {
 
 	}
 
-	private static int getInputOkCancel() {
+	private static int getInputOkCancelSelection() {
 		// first, we record that the SUT has issued a call
 		// to JOptionPane.showConfirmDialog()
 		JOptionPaneInputs.getInstance().addDialog(GUIAction.OK_CANCEL_SELECTION);
 
 		// second, we check if an input is specified for that GUI stimulus
-		if (JOptionPaneInputs.getInstance().containsOkCancel()) {
+		if (JOptionPaneInputs.getInstance().containsOkCancelSelection()) {
 			// return the specified input
-			final int str = JOptionPaneInputs.getInstance().dequeueOkCancel();
+			final int str = JOptionPaneInputs.getInstance().dequeueOkCancelSelection();
 			return str;
 		} else {
-			// return 0 by default if no input was specified
-			return 0;
+			// return -1 by default if no input was specified
+			return JOptionPane.CLOSED_OPTION;
 		}
 	}
 
-	private static int getInputYesNo() {
+	private static int getInputYesNoSelection() {
 		// first, we record that the SUT has issued a call
 		// to JOptionPane.showConfirmDialog()
 		JOptionPaneInputs.getInstance().addDialog(GUIAction.YES_NO_SELECTION);
 
 		// second, we check if an input is specified for that GUI stimulus
-		if (JOptionPaneInputs.getInstance().containsYesNo()) {
+		if (JOptionPaneInputs.getInstance().containsYesNoSelection()) {
 			// return the specified input
-			final int str = JOptionPaneInputs.getInstance().dequeueYesNo();
+			final int str = JOptionPaneInputs.getInstance().dequeueYesNoSelection();
 			return str;
 		} else {
-			// return 0 by default if no input was specified
-			return 0;
+			// return -1 by default if no input was specified
+			return JOptionPane.CLOSED_OPTION;
 		}
 	}
 
@@ -138,18 +139,18 @@ public abstract class MockJOptionPane {
 	}
 
 	public static String showInputDialog(Object message) throws HeadlessException {
-		return getInputString();
+		return getStringInput();
 	}
 
-	private static String getInputString() {
+	private static String getStringInput() {
 		// first, we record that the SUT issued a call to
 		// JOptionPane.showInputDialog()
 		JOptionPaneInputs.getInstance().addDialog(GUIAction.STRING_INPUT);
 
 		// second, we check if an input is specified for that GUI stimulus
-		if (JOptionPaneInputs.getInstance().containsString()) {
+		if (JOptionPaneInputs.getInstance().containsStringInput()) {
 			// return the specified input
-			final String str = JOptionPaneInputs.getInstance().dequeueString();
+			final String str = JOptionPaneInputs.getInstance().dequeueStringInput();
 			return str;
 		} else {
 			// return null by default if no input was specified
@@ -157,37 +158,37 @@ public abstract class MockJOptionPane {
 		}
 	}
 
-	private static int getInputYesNoCancel() {
+	private static int getInputYesNoCancelSelection() {
 		// first, we record that the SUT has issued a call
 		// to JOptionPane.showConfirmDialog()
 		JOptionPaneInputs.getInstance().addDialog(GUIAction.YES_NO_CANCEL_SELECTION);
 
 		// second, we check if an input is specified for that GUI stimulus
-		if (JOptionPaneInputs.getInstance().containsYesNoCancel()) {
+		if (JOptionPaneInputs.getInstance().containsYesNoCancelSelection()) {
 			// return the specified input
-			final int str = JOptionPaneInputs.getInstance().dequeueYesNoCancel();
+			final int str = JOptionPaneInputs.getInstance().dequeueYesNoCancelSelection();
 			return str;
 		} else {
-			// return 0 by default if no input was specified
-			return 0;
+			// return -1 by default if no input was specified
+			return JOptionPane.CLOSED_OPTION;
 		}
 	}
 
 	public static String showInputDialog(Object message, Object initialSelectionValue) {
-		return getInputString();
+		return getStringInput();
 	}
 
 	public static String showInputDialog(Component parentComponent, Object message) throws HeadlessException {
-		return getInputString();
+		return getStringInput();
 	}
 
 	public static String showInputDialog(Component parentComponent, Object message, Object initialSelectionValue) {
-		return getInputString();
+		return getStringInput();
 	}
 
 	public static String showInputDialog(Component parentComponent, Object message, String title, int messageType)
 			throws HeadlessException {
-		return getInputString();
+		return getStringInput();
 	}
 
 	public static void showInternalMessageDialog(Component parentComponent, Object message) {
@@ -224,36 +225,95 @@ public abstract class MockJOptionPane {
 	}
 
 	public static String showInternalInputDialog(Component parentComponent, Object message) {
-		return getInputString();
+		return getStringInput();
 	}
 
 	public static String showInternalInputDialog(Component parentComponent, Object message, String title,
 			int messageType) {
-		return getInputString();
+		return getStringInput();
 	}
 
 	public static int showInternalOptionDialog(Component parentComponent, Object message, String title, int optionType,
 			int messageType, Icon icon, Object[] options, Object initialValue) throws HeadlessException {
-		// TODO Complete the mocking of this method
-		return 0;
+		return getOptionSelectionInt(options == null, options == null ? 0 : options.length);
 	}
 
 	public static int showOptionDialog(Component parentComponent, Object message, String title, int optionType,
 			int messageType, Icon icon, Object[] options, Object initialValue) throws HeadlessException {
-		// TODO Complete the mocking of this method
-		return 0;
+		return getOptionSelectionInt(options == null, options == null ? 0 : options.length);
 	}
-	
+
+	/**
+	 * 
+	 * @param optionsIsNull
+	 *            if the option is null or not
+	 * @param optionsLength
+	 *            the length of the options (if non null)
+	 * @return the index selection or -1 if CLOSED or 0 if no options
+	 */
+	private static int getOptionSelectionInt(final boolean optionsIsNull, final int optionsLength) {
+		// first, we record that the SUT has issued a call
+		// to JOptionPane.showOptionDialog()
+		JOptionPaneInputs.getInstance().addDialog(GUIAction.OPTION_SELECTION);
+
+		// second, we check if an input is specified for that GUI stimulus
+		if (JOptionPaneInputs.getInstance().containsOptionSelection()) {
+			// return the specified input
+			final int selection = JOptionPaneInputs.getInstance().dequeueOptionSelection();
+			if (selection < JOptionPane.CLOSED_OPTION) {
+				// truncate lower
+				return JOptionPane.CLOSED_OPTION;
+			} else if (optionsIsNull) {
+				// if no options, returns OK
+				return JOptionPane.OK_OPTION;
+			} else {
+				if (selection >= optionsLength) {
+					// truncate upper
+					return optionsLength - 1;
+				} else {
+					return selection;
+				}
+			}
+		} else {
+			// return -1 by default if no input was specified
+			return JOptionPane.CLOSED_OPTION;
+		}
+	}
+
+	private static Object getOptionSelectionInt(final Object[] options) {
+		// first, we record that the SUT has issued a call
+		// to JOptionPane.showOptionDialog()
+		JOptionPaneInputs.getInstance().addDialog(GUIAction.OPTION_SELECTION);
+
+		// second, we check if an input is specified for that GUI stimulus
+		if (JOptionPaneInputs.getInstance().containsOptionSelection()) {
+			// return the specified input
+			final int selection = JOptionPaneInputs.getInstance().dequeueOptionSelection();
+			if (selection < 0 || options == null) {
+				// truncate lower
+				return null;
+			} else {
+				if (selection >= options.length) {
+					// truncate upper
+					return options[options.length - 1];
+				} else {
+					return options[selection];
+				}
+			}
+		} else {
+			// return null by default if no input was specified
+			return null;
+		}
+	}
+
 	public static Object showInternalInputDialog(Component parentComponent, Object message, String title,
-			int messageType, Icon icon, Object[] selectionValues, Object initialSelectionValue) {
-		// TODO Complete the mocking of this method
-		return null;
+			int messageType, Icon icon, Object[] options, Object initialSelectionValue) {
+		return getOptionSelectionInt(options);
 	}
-	
+
 	public static Object showInputDialog(Component parentComponent, Object message, String title, int messageType,
-			Icon icon, Object[] selectionValues, Object initialSelectionValue) throws HeadlessException {
-		// TODO Complete the mocking of this method
-		return null;
+			Icon icon, Object[] options, Object initialSelectionValue) throws HeadlessException {
+		return getOptionSelectionInt(options);
 	}
 
 }
