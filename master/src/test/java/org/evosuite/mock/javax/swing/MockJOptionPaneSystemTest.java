@@ -346,8 +346,6 @@ public class MockJOptionPaneSystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		System.out.println(best);
-		
 		Assert.assertNotNull(best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		Assert.assertEquals("Non-optimal fitness: ", 0d, best.getFitness(), 0.001);
