@@ -126,11 +126,6 @@ public class MavenPluginIT {
     @Test
     public void testExportWithTests() throws Exception {
 
-        /*
-            FIXME this fails because we do not use Agent.
-            Likely Agent has to be on by default
-         */
-
         Verifier verifier  = getVerifier(dependency);
         verifier.addCliOption("evosuite:generate");
         verifier.addCliOption("evosuite:export");
