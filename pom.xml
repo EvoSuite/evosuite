@@ -397,6 +397,13 @@
                 <artifactId>maven-verifier</artifactId>
                 <version>1.6</version>
             </dependency>
+            <dependency>
+                <!-- Apache 2 -->
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant-junit</artifactId>
+                <version>1.9.7</version>
+                <scope>provided</scope>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -769,6 +776,12 @@
                                     <relocation>
                                         <pattern>org.apache</pattern>
                                         <shadedPattern>org.evosuite.shaded.org.apache</shadedPattern>
+                                        <excludes>
+                                            <!-- Important, otherwise AntInitializingListener would not work in Ant -->
+                                            <exclude>org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter</exclude>
+                                            <exclude>org.apache.tools.ant.taskdefs.optional.junit.JUnitTest</exclude>
+                                            <exclude>org.apache.tools.ant.BuildException</exclude>
+                                        </excludes>
                                     </relocation>
                                     <relocation>
                                         <pattern>org.hamcrest</pattern>

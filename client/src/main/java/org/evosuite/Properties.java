@@ -873,12 +873,13 @@ public class Properties {
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "_ESTest";
 
+	//WARN: do not change this value, as had to be hardcoded in quite a few places :( if really need to change it,
+	// all that code has to be changed as well
 	@Parameter(key = "scaffolding_suffix", group = "Output", description = "Suffix used to specify scaffolding files")
 	public static String SCAFFOLDING_SUFFIX = "scaffolding";
 
 	@Parameter(key = "tools_jar_location", group = "Output", description = "Location of where to locate tools.jar")
 	public static String TOOLS_JAR_LOCATION = null;
-//	public static String TOOLS_JAR_LOCATION = "/Library/Java/JavaVirtualMachines/jdk1.7.0_51.jdk/Contents/Home/lib";
 
 	@Parameter(key = "pure_inspectors", group = "Output", description = "Selects only an underapproximation of all inspectors that are also pure (no side-effects)")
 	public static boolean PURE_INSPECTORS = true;

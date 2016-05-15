@@ -37,6 +37,8 @@ import java.util.jar.JarFile;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.runtime.InitializingListener;
+import org.evosuite.runtime.InitializingListenerUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -368,25 +370,8 @@ public class ResourceList {
 	 *
 	 */
 	public static String getClassNameFromResourcePath(String resource){
-		if(resource==null || resource.isEmpty()){
-			return resource;
-		}
-
-		// check file ending
-		final String CLASS = ".class";		 
-		if(resource.endsWith(CLASS)){
-			resource = resource.substring(0, resource.length() - CLASS.length());
-		}
-
-		//in Jar it is always '/'
-		resource = resource.replace('/', '.');
-
-		if(File.separatorChar != '/'){
-			//this would happen on a Windows machine for example
-			resource = resource.replace(File.separatorChar, '.');
-		}
-
-		return resource;
+		//method had to be moved due to constraints on "runtime" module dependencies
+		return InitializingListenerUtils.getClassNameFromResourcePath(resource);
 	}
 
 

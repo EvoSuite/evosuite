@@ -1,12 +1,20 @@
 package com.testbuild.support;
 
+import junit.framework.JUnit4TestAdapter;
+import junit.framework.TestCase;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.MockFramework;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class FooTest {
+public class FooTest extends TestCase {
+
+    //make it JUnit 3 compatible. Only needed when Ant called from Java,
+    //as from standalone command line it was fine
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(FooTest.class);
+    }
 
     /*
         These tests have to fail when run from IDE.
