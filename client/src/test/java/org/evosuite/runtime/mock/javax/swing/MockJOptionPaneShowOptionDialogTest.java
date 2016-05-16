@@ -1,4 +1,4 @@
-package org.evosuite.runtime.javax.swing;
+package org.evosuite.runtime.mock.javax.swing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -22,9 +22,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.mock.javax.swing.ShowInputDialogExample;
+import com.examples.with.different.packagename.mock.javax.swing.ShowOptionDialogExample;
 
-public class MockJOptionPaneShowInputDialogTest {
+public class MockJOptionPaneShowOptionDialogTest {
 
 	private static final boolean DEFAULT_MOCK_GUI = RuntimeSettings.mockGUI;
 	private static final boolean DEFAULT_REPLACE_GUI = Properties.REPLACE_GUI;
@@ -38,7 +38,7 @@ public class MockJOptionPaneShowInputDialogTest {
 	@Before
 	public void setUp() {
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
-		Properties.TARGET_CLASS = ShowInputDialogExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = ShowOptionDialogExample.class.getCanonicalName();
 		Properties.REPLACE_GUI = true;
 		RuntimeSettings.mockGUI = true;
 		TestGenerationContext.getInstance().resetContext();
@@ -52,7 +52,7 @@ public class MockJOptionPaneShowInputDialogTest {
 	}
 
 	@Test
-	public void testShowOptionDialog() throws Exception {
+	public void testShowInputDialogs() throws Exception {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		InstrumentingClassLoader cl = new InstrumentingClassLoader();
 		TestCase t1 = buildTestCase0(cl);
@@ -62,19 +62,19 @@ public class MockJOptionPaneShowInputDialogTest {
 		ff.getFitness(suite);
 
 		Set<TestFitnessFunction> coveredGoals = suite.getCoveredGoals();
-		Assert.assertEquals(7, coveredGoals.size());
+		Assert.assertEquals(2, coveredGoals.size());
 	}
 
 	private static TestCase buildTestCase0(InstrumentingClassLoader cl)
 			throws ClassNotFoundException, NoSuchMethodException, SecurityException {
 		TestCaseBuilder builder = new TestCaseBuilder();
 
-		Class<?> clazz = cl.loadClass(ShowInputDialogExample.class.getCanonicalName());
+		Class<?> clazz = cl.loadClass(ShowOptionDialogExample.class.getCanonicalName());
 		Constructor<?> constructor = clazz.getConstructor();
 		VariableReference showMessageDialogExample0 = builder.appendConstructor(constructor);
 
-		Method showInputDialogsMethod = clazz.getMethod("showInputDialogs");
-		builder.appendMethod(showMessageDialogExample0, showInputDialogsMethod);
+		Method showOptionDialogMethod = clazz.getMethod("showOptionDialog");
+		builder.appendMethod(showMessageDialogExample0, showOptionDialogMethod);
 
 		return builder.getDefaultTestCase();
 	}

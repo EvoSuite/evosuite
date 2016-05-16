@@ -17,13 +17,22 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.runtime.gui;
+package org.evosuite.runtime.mock.javax.swing;
 
 import java.awt.Dimension;
 
-public class JComponent {
+import javax.swing.JComponent;
 
-	public static Dimension getPreferredSize() {
-		return new Dimension(320, 200);		
+import org.evosuite.runtime.mock.OverrideMock;
+
+public class MockJComponent extends JComponent implements OverrideMock {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1745297916366590682L;
+
+	public Dimension getPreferredSize() {
+		return  new Dimension(320, 200);
 	}
 }

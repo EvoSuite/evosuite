@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.runtime.javax.swing;
+package org.evosuite.runtime.mock.javax.swing;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;

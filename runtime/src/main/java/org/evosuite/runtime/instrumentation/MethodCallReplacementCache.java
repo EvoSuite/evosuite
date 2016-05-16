@@ -73,21 +73,13 @@ public class MethodCallReplacementCache {
 			// java.lang.*
 			addJavaLangCalls();
 
-			// java.security.SecureRandom
-			addSecureRandomCalls();
-
 			// javax.swing.JComponent.getPreferredSize()
 			addReplacementCall(new MethodCallReplacement("javax/swing/JComponent", "getPreferredSize",
 					"()Ljava/awt/Dimension;", Opcodes.INVOKEVIRTUAL,
-					PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JComponent.class), "getPreferredSize",
-					"()Ljava/awt/Dimension;", true, false));
+					PackageInfo.getNameWithSlash(org.evosuite.runtime.mock.javax.swing.MockJComponent.class),
+					"getPreferredSize", "()Ljava/awt/Dimension;", true, false));
 
 			addExtraceExceptionReplacements();
-
-			// java.util.UUID.randomUUID()
-			addReplacementCall(new MethodCallReplacement("java/util/UUID", "randomUUID", "()Ljava/util/UUID;",
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "randomUUID",
-					"()Ljava/util/UUID;", false, false));
 
 		}
 
@@ -354,54 +346,6 @@ public class MethodCallReplacementCache {
 		 * "org/evosuite/runtime/ResourceLoader", "getResource",
 		 * "(Ljava/lang/String;)Ljava/net/URL;", true, false));
 		 */
-	}
-
-	@SuppressWarnings("unused")
-	private void addRandomCalls() {
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextInt", "()I", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt", "()I", true, false));
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextInt", "(I)I", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt", "(I)I", true, false));
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextDouble", "()D", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextDouble", "()D", true, false));
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextFloat", "()F", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextFloat", "()F", true, false));
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextLong", "()J", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextLong", "()J", true, false));
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextGaussian", "()D", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextGaussian", "()D", true, false));
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextBoolean", "()Z", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBoolean", "()Z", true, false));
-		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextBytes", "([B)V", Opcodes.INVOKEVIRTUAL,
-				PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBytes", "([B)V", true, false));
-	}
-
-	private void addSecureRandomCalls() {
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextInt", "()I",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt",
-				"()I", true, false));
-
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextInt", "(I)I",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextInt",
-				"(I)I", true, false));
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextDouble", "()D",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextDouble",
-				"()D", true, false));
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextFloat", "()F",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextFloat",
-				"()F", true, false));
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextLong", "()J",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextLong",
-				"()J", true, false));
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextGaussian", "()D",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextGaussian",
-				"()D", true, false));
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextBoolean", "()Z",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBoolean",
-				"()Z", true, false));
-		addReplacementCall(new MethodCallReplacement("java/security/SecureRandom", "nextBytes", "([B)V",
-				Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "nextBytes",
-				"([B)V", true, false));
 	}
 
 	private void replaceAllInstanceMethodsWithStatic(Class<?> mockClass, Class<?> target) {

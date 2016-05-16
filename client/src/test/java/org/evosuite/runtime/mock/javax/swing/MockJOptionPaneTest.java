@@ -1,4 +1,4 @@
-package org.evosuite.runtime.javax.swing;
+package org.evosuite.runtime.mock.javax.swing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

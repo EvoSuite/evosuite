@@ -1,4 +1,4 @@
-package org.evosuite.runtime.javax.swing;
+package org.evosuite.runtime.mock.javax.swing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
