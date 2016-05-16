@@ -1,4 +1,4 @@
-package org.evosuite.mock.javax.swing;
+package org.evosuite.runtime.javax.swing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -22,11 +22,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.mock.javax.swing.ShowInternalOptionDialogExample;
+import com.examples.with.different.packagename.mock.javax.swing.ShowOptionDialogExample;
 
-public class MockShowInternalOptionDialogTest {
+public class MockJOptionPaneShowOptionDialogTest {
 
-	private static final String TARGET_CLASS = ShowInternalOptionDialogExample.class.getCanonicalName();
 	private static final boolean DEFAULT_MOCK_GUI = RuntimeSettings.mockGUI;
 	private static final boolean DEFAULT_REPLACE_GUI = Properties.REPLACE_GUI;
 
@@ -39,7 +38,7 @@ public class MockShowInternalOptionDialogTest {
 	@Before
 	public void setUp() {
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
-		Properties.TARGET_CLASS = TARGET_CLASS;
+		Properties.TARGET_CLASS = ShowOptionDialogExample.class.getCanonicalName();
 		Properties.REPLACE_GUI = true;
 		RuntimeSettings.mockGUI = true;
 		TestGenerationContext.getInstance().resetContext();
@@ -53,7 +52,7 @@ public class MockShowInternalOptionDialogTest {
 	}
 
 	@Test
-	public void testShowInternalInputDialogs() throws Exception {
+	public void testShowInputDialogs() throws Exception {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		InstrumentingClassLoader cl = new InstrumentingClassLoader();
 		TestCase t1 = buildTestCase0(cl);
@@ -70,11 +69,11 @@ public class MockShowInternalOptionDialogTest {
 			throws ClassNotFoundException, NoSuchMethodException, SecurityException {
 		TestCaseBuilder builder = new TestCaseBuilder();
 
-		Class<?> clazz = cl.loadClass(TARGET_CLASS);
+		Class<?> clazz = cl.loadClass(ShowOptionDialogExample.class.getCanonicalName());
 		Constructor<?> constructor = clazz.getConstructor();
 		VariableReference showMessageDialogExample0 = builder.appendConstructor(constructor);
 
-		Method showOptionDialogMethod = clazz.getMethod("showInternalOptionDialog");
+		Method showOptionDialogMethod = clazz.getMethod("showOptionDialog");
 		builder.appendMethod(showMessageDialogExample0, showOptionDialogMethod);
 
 		return builder.getDefaultTestCase();

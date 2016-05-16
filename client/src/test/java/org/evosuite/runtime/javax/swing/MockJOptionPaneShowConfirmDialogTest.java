@@ -1,4 +1,4 @@
-package org.evosuite.mock.javax.swing;
+package org.evosuite.runtime.javax.swing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.mock.javax.swing.ShowConfirmDialogExample;
 
-public class MockShowConfirmDialogTest {
+public class MockJOptionPaneShowConfirmDialogTest {
 
 	private static final boolean DEFAULT_MOCK_GUI = RuntimeSettings.mockGUI;
 	private static final boolean DEFAULT_REPLACE_GUI = Properties.REPLACE_GUI;

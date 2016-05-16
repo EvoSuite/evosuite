@@ -1,4 +1,4 @@
-package org.evosuite.runtime.gui;
+package org.evosuite.runtime.javax.swing;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
@@ -6,6 +6,7 @@ import java.awt.HeadlessException;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
+import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.JOptionPaneInputs.GUIAction;
 
@@ -16,7 +17,12 @@ import org.evosuite.runtime.util.JOptionPaneInputs.GUIAction;
  * @author galeotti
  *
  */
-public abstract class MockJOptionPane {
+public abstract class MockJOptionPane extends JOptionPane implements OverrideMock {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1531475063681545845L;
 
 	/**
 	 * Replaces method javax.swing.JOptionPane.showMessageDialog(Component

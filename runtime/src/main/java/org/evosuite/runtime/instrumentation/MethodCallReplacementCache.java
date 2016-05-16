@@ -19,23 +19,27 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.evosuite.PackageInfo;
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.gui.MockJOptionPane;
-import org.evosuite.runtime.mock.*;
+import org.evosuite.runtime.mock.EvoSuiteMock;
+import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.mock.OverrideMock;
+import org.evosuite.runtime.mock.StaticReplacementMethod;
+import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.*;
-
-import javax.swing.Icon;
 
 /**
  * @author gordon
@@ -85,11 +89,6 @@ public class MethodCallReplacementCache {
 					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.Random.class), "randomUUID",
 					"()Ljava/util/UUID;", false, false));
 
-		}
-
-		if (RuntimeSettings.mockGUI) {
-
-			addGUICalls();
 		}
 
 		handleMockList();
@@ -357,187 +356,6 @@ public class MethodCallReplacementCache {
 		 */
 	}
 
-	private static final String JOPTION_PANE = javax.swing.JOptionPane.class.getName().replace(".", "/");
-	private static final Type OBJECT_TYPE = Type.getType(Object.class);
-	private static final Type OBJECT_ARRAY_TYPE = Type.getType(Object[].class);
-	private static final Type STRING_TYPE = Type.getType(String.class);
-	private static final Type COMPONENT_TYPE = Type.getType(java.awt.Component.class);
-	private static final Type ICON_TYPE = Type.getType(Icon.class);
-
-	/**
-	 * Add all the replacement calls for javax.swing methods
-	 */
-	private void addGUICalls() {
-
-		// javax.swing.JComponent.getPreferredSize()
-		addReplacementCall(
-				new MethodCallReplacement("javax/swing/JComponent", "getPreferredSize", "()Ljava/awt/Dimension;",
-						Opcodes.INVOKEVIRTUAL, PackageInfo.getNameWithSlash(org.evosuite.runtime.gui.JComponent.class),
-						"getPreferredSize", "()Ljava/awt/Dimension;", true, false));
-
-		// javax.swing.JOptionPane
-		addShowMessageDialogCalls();
-		addShowConfirmDialogCalls();
-		addShowInputDialogCalls();
-		addShowOptionDialogCalls();
-		addShowInternalMessageDialogCalls();
-		addShowInternalConfirmDialogCalls();
-		addInternalShowInputDialogCalls();
-		addShowInternalOptionDialogCalls();
-	}
-
-	private void addShowOptionDialogCalls() {
-		final String SHOW_OPTION_DIALOG = "showOptionDialog";
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, Type.INT_TYPE, ICON_TYPE, OBJECT_ARRAY_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_OPTION_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_OPTION_DIALOG, desc,
-					false, false);
-			addReplacementCall(replacement);
-
-		}
-	}
-
-	private void addShowInternalOptionDialogCalls() {
-		final String SHOW_INTERNAL_OPTION_DIALOG = "showInternalOptionDialog";
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, Type.INT_TYPE, ICON_TYPE, OBJECT_ARRAY_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_OPTION_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_OPTION_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-
-		}
-	}
-
-	private void addShowInternalMessageDialogCalls() {
-		// javax.swing.JOptionPane.showMessageDialog()
-		final String SHOW_INTERNAL_MESSAGE_DIALOG = "showInternalMessageDialog";
-		{
-			{
-				final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
-				final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-						SHOW_INTERNAL_MESSAGE_DIALOG, desc, Opcodes.INVOKESTATIC,
-						PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_MESSAGE_DIALOG, desc, false,
-						false);
-				addReplacementCall(replacement);
-			}
-			{
-				final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-						Type.INT_TYPE);
-				final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-						SHOW_INTERNAL_MESSAGE_DIALOG, desc, Opcodes.INVOKESTATIC,
-						PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_MESSAGE_DIALOG, desc, false,
-						false);
-				addReplacementCall(replacement);
-			}
-			{
-				final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-						Type.INT_TYPE, ICON_TYPE);
-				final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-						SHOW_INTERNAL_MESSAGE_DIALOG, desc, Opcodes.INVOKESTATIC,
-						PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_MESSAGE_DIALOG, desc, false,
-						false);
-				addReplacementCall(replacement);
-			}
-		}
-	}
-
-	private void addInternalShowInputDialogCalls() {
-		final String SHOW_INTERNAL_INPUT_DIALOG = "showInternalInputDialog";
-		{
-			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_INPUT_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_INPUT_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_INPUT_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_INPUT_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(OBJECT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, ICON_TYPE, OBJECT_ARRAY_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_INPUT_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_INPUT_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-		}
-	}
-
-	private void addShowConfirmDialogCalls() {
-		final String SHOW_CONFIRM_DIALOG = "showConfirmDialog";
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_CONFIRM_DIALOG,
-					desc, false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_CONFIRM_DIALOG,
-					desc, false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_CONFIRM_DIALOG,
-					desc, false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, Type.INT_TYPE, ICON_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_CONFIRM_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_CONFIRM_DIALOG,
-					desc, false, false);
-			addReplacementCall(replacement);
-		}
-	}
-
-	private void addShowMessageDialogCalls() {
-		final String SHOW_MESSAGE_DIALOG = "showMessageDialog";
-		{
-			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_MESSAGE_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_MESSAGE_DIALOG,
-					desc, false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_MESSAGE_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_MESSAGE_DIALOG,
-					desc, false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.VOID_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, ICON_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_MESSAGE_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_MESSAGE_DIALOG,
-					desc, false, false);
-			addReplacementCall(replacement);
-		}
-	}
-
 	@SuppressWarnings("unused")
 	private void addRandomCalls() {
 		addReplacementCall(new MethodCallReplacement("java/util/Random", "nextInt", "()I", Opcodes.INVOKEVIRTUAL,
@@ -707,93 +525,6 @@ public class MethodCallReplacementCache {
 			addSpecialReplacementCall(new MethodCallReplacement(target.getCanonicalName().replace('.', '/'),
 					method.getName(), desc, Opcodes.INVOKESPECIAL, mockClass.getCanonicalName().replace('.', '/'),
 					method.getName(), desc, false, false));
-		}
-	}
-
-	private void addShowInternalConfirmDialogCalls() {
-		final String SHOW_INTERNAL_CONFIRM_DIALOG = "showInternalConfirmDialog";
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_CONFIRM_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_CONFIRM_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_CONFIRM_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_CONFIRM_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_CONFIRM_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_CONFIRM_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(Type.INT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, Type.INT_TYPE, ICON_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE,
-					SHOW_INTERNAL_CONFIRM_DIALOG, desc, Opcodes.INVOKESTATIC,
-					PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INTERNAL_CONFIRM_DIALOG, desc, false,
-					false);
-			addReplacementCall(replacement);
-		}
-	}
-
-	private void addShowInputDialogCalls() {
-		final String SHOW_INPUT_DIALOG = "showInputDialog";
-		{
-			final String desc = Type.getMethodDescriptor(STRING_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INPUT_DIALOG, desc,
-					false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(STRING_TYPE, OBJECT_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INPUT_DIALOG, desc,
-					false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INPUT_DIALOG, desc,
-					false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INPUT_DIALOG, desc,
-					false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(STRING_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INPUT_DIALOG, desc,
-					false, false);
-			addReplacementCall(replacement);
-		}
-		{
-			final String desc = Type.getMethodDescriptor(OBJECT_TYPE, COMPONENT_TYPE, OBJECT_TYPE, STRING_TYPE,
-					Type.INT_TYPE, ICON_TYPE, OBJECT_ARRAY_TYPE, OBJECT_TYPE);
-			final MethodCallReplacement replacement = new MethodCallReplacement(JOPTION_PANE, SHOW_INPUT_DIALOG, desc,
-					Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(MockJOptionPane.class), SHOW_INPUT_DIALOG, desc,
-					false, false);
-			addReplacementCall(replacement);
 		}
 	}
 

@@ -24,6 +24,7 @@ import java.util.List;
 
 
 import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.runtime.javax.swing.MockJOptionPane;
 import org.evosuite.runtime.mock.java.io.MockFile;
 import org.evosuite.runtime.mock.java.io.MockFileInputStream;
 import org.evosuite.runtime.mock.java.io.MockFileOutputStream;
@@ -170,6 +171,10 @@ public class MockList {
 		if(RuntimeSettings.useJEE){
 			list.add(MockInitialContext.class);
 			list.add(MockPersistence.class);
+		}
+		
+		if (RuntimeSettings.mockGUI) {
+			list.add(MockJOptionPane.class);
 		}
 
 		return list;
