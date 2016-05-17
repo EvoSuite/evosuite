@@ -45,9 +45,7 @@ public class FileSystemHandling {
 	 * Append a string to the given file.
 	 * If the file does not exist, it will be created.
 	 * 
-	 * @param filePath
-	 * @param line
-	 * @return 
+	 * @return
 	 */
 	public static boolean appendStringToFile(EvoSuiteFile file, String value){
 		
@@ -63,9 +61,7 @@ public class FileSystemHandling {
 	 * to the next line.
 	 * If the file does not exist, it will be created.
 	 * 
-	 * @param filePath
-	 * @param line
-	 * @return 
+	 * @return
 	 */
 	public static boolean appendLineToFile(EvoSuiteFile file, String line){
 		
@@ -82,7 +78,6 @@ public class FileSystemHandling {
 	 * Append a byte array to the given file.
 	 * If the file does not exist, it will be created.
 	 * 
-	 * @param filePath
 	 * @param data
 	 * @return
 	 */

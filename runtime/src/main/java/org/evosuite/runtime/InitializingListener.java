@@ -20,9 +20,13 @@
 package org.evosuite.runtime;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import org.evosuite.runtime.agent.InstrumentingAgent;
@@ -65,6 +69,11 @@ public class InitializingListener extends RunListener {
      */
     public static final String SCAFFOLDING_LIST_FILE_STRING = ".scaffolding_list.tmp";
 
+    /**
+     * Property used for example in Ant to specify where the EvoSuite tests have been compiled.
+     */
+    public static final String COMPILED_TESTS_FOLDER_PROPERTY = "EvoSuiteCompiledTestFolder";
+
 
     //TODO: need to move out of this class, as to avoid dependency on JUnit RunListener
     public static String getScaffoldingListFilePath() {
@@ -93,7 +102,18 @@ public class InitializingListener extends RunListener {
         RuntimeSettings.mockSystemIn = true;
         RuntimeSettings.resetStaticState = true;
 
-        List<String> list = classesToInit();
+        List<String> list;
+        String compiledTestsFolder = java.lang.System.getProperty(COMPILED_TESTS_FOLDER_PROPERTY);
+
+        /*
+            We have 2 different approaches based on Maven and Ant.
+            TODO: we ll need to handle also Gradle, and possibly find a simpler, unified way
+         */
+        if(compiledTestsFolder == null){
+            list = classesToInitFromScaffoldingFile();
+        } else {
+            list = InitializingListenerUtils.scanClassesToInit(new File(compiledTestsFolder));
+        }
 
         InstrumentingAgent.initialize();
 
@@ -129,7 +149,10 @@ public class InitializingListener extends RunListener {
         }
     }
 
-    private List<String> classesToInit() {
+
+
+
+    private List<String> classesToInitFromScaffoldingFile() {
 
         List<String> list = new ArrayList<>();
 

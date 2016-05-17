@@ -30,6 +30,7 @@ org.apache.lucene.util.SPIClassIterator
 org.apache.lucene.analysis.util.AnalysisSPILoader
 org.apache.lucene.analysis.util.CharFilterFactory
 org.apache.struts.util.MessageResources
+org.apache.tools.ant.
 org.apache.xerces.dom3.
 org.dom4j.DefaultDocumentFactory
 org.exsyst.

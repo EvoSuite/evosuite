@@ -36,9 +36,10 @@ import org.apache.maven.project.MavenProject;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.InitializingListener;
+import org.evosuite.runtime.InitializingListenerUtils;
 
 /**
- * Mojo needed to prepate the EvoSuite tests for execution.
+ * Mojo needed to prepare the EvoSuite tests for execution.
  * This is needed to make sure that bytecode is properly instrumented.
  *
  */
@@ -73,24 +74,8 @@ public class PrepareMojo extends AbstractMojo{
 			return;
 		}
 		
-		List<String> list = new ArrayList<>();
-		
-		Iterator<File> iterator =  FileUtils.iterateFiles(dir, new String[]{"class"}, true);
-		while(iterator.hasNext()){
-			File file = iterator.next();
-			/*
-			 * not a robust check, as that parameter could had been changed.
-			 * but anyway, this class is a tmp hack till Maven gets fixed
-			 */
-			if(! file.getName().endsWith(Properties.SCAFFOLDING_SUFFIX+".class")){
-				continue;
-			}
-			
-			String resource = file.getAbsolutePath().substring(dir.getAbsolutePath().length() + 1 , file.getAbsolutePath().length());
-			String className = ResourceList.getClassNameFromResourcePath(resource);
-			list.add(className);
-		}
-		
+		List<String> list = InitializingListenerUtils.scanClassesToInit(dir);
+
 		getLog().info("Found "+list.size()+" EvoSuite scaffolding files");
 		
 		File scaffolding = new File(project.getBasedir() + File.separator + InitializingListener.SCAFFOLDING_LIST_FILE_STRING);

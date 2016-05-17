@@ -16,6 +16,7 @@
 	<modules>
 		<module>maven</module>
 		<module>maven-test</module>
+		<module>build-support-test</module>
 		<!-- <module>eclipse</module> -->
 	</modules>
 

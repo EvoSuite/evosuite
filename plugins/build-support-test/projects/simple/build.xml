@@ -1,0 +1,140 @@
+<project name="Simple" default="compile" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+
+    <property name="mavenAntTasksCP" value="lib/maven-ant-tasks-2.1.3.jar" />
+
+    <path id="maven-ant-tasks.classpath" path="${mavenAntTasksCP}" />
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath" />
+
+    <!-- this needs to be set with -D. Done automatically from tests.
+        Uncomment (and update) if open from IDE  -->
+    <!--<property name="evosuiteVersion" value="1.0.4-SNAPSHOT" />-->
+    <property name="EvoSuiteCompiledTestFolder" value="build/tests" />
+
+
+    <artifact:dependencies pathId="dependency.classpath">
+        <dependency groupId="org.evosuite"
+                    artifactId="evosuite-standalone-runtime"
+                    version="${evosuiteVersion}"
+                    scope="test"/>
+        <dependency groupId="junit" artifactId="junit" version="4.12" scope="test"/>
+        <dependency groupId="ch.qos.logback" artifactId="logback-classic" version="1.1.6" />
+    </artifact:dependencies>
+
+    <!-- The directories for compilation targets -->
+    <property name="build.home"              value="build"/>
+    <property name="build.classes"           value="${build.home}/classes"/>
+    <property name="build.tests"             value="${build.home}/tests"/>
+
+    <!-- Javac -->
+    <property name="compile.debug"           value="true"/>
+    <property name="compile.deprecation"     value="false"/>
+    <property name="compile.optimize"        value="false"/>
+    <property name="compile.source"          value="1.8"/>
+    <property name="compile.target"          value="1.8"/>
+    <property name="compile.encoding"        value="utf-8"/>
+    <property name="compile.nowarn"          value="false"/>
+    <property name="compile.fork"            value="false"/>
+
+
+    <!-- The base directories for sources -->
+    <property name="source.java"             value="src/main/java"/>
+    <property name="test.java"               value="src/test/java"/>
+    <property name="source.resources"        value="src/main/resources"/>
+    <property name="test.resources"          value="src/test/resources"/>
+
+
+    <!-- ====================================================================== -->
+
+    <target name="clean" description="Clean build and distribution directories">
+        <delete dir="${build.home}"/>
+    </target>
+
+    <!-- ====================================================================== -->
+
+    <target name="prepare" description="Prepare build directory">
+        <mkdir dir="${build.home}"/>
+        <mkdir dir="${source.java}"/>
+        <mkdir dir="${source.resources}"/>
+        <mkdir dir="${test.java}"/>
+        <mkdir dir="${test.resources}"/>
+    </target>
+
+
+    <!-- ====================================================================== -->
+
+    <target name="compile" depends="prepare" description="Compile main code">
+        <mkdir dir="${build.classes}"/>
+        <javac  srcdir="${source.java}"
+                destdir="${build.classes}"
+                source="${compile.source}"
+                target="${compile.target}"
+                debug="${compile.debug}"
+                deprecation="${compile.deprecation}"
+                optimize="${compile.optimize}"
+                encoding="${compile.encoding}"
+                nowarn="${compile.nowarn}"
+                verbose="true"
+                includeantruntime="false"
+                fork="${compile.fork}"
+        >
+            <classpath>
+                <pathelement path="${java.home}/../lib/tools.jar" />
+                <pathelement path="${env.JAVA_HOME}/lib/tools.jar" />
+            </classpath>
+        </javac>
+    </target>
+
+
+    <!-- ====================================================================== -->
+
+    <target name="compile-tests" depends="compile" description="Compile tests">
+        <mkdir dir="${build.tests}"/>
+        <javac  srcdir="${test.java}"
+                destdir="${build.tests}"
+                debug="${compile.debug}"
+                source="${compile.source}"
+                target="${compile.target}"
+                deprecation="${compile.deprecation}"
+                optimize="${compile.optimize}"
+                encoding="${compile.encoding}"
+                nowarn="${compile.nowarn}"
+                verbose="true"
+                includeantruntime="false"
+                fork="${compile.fork}"
+        >
+            <classpath>
+                <pathelement path="${build.classes}"/>
+                <path refid="dependency.classpath" />
+                <pathelement path="${java.home}/../lib/tools.jar" />
+                <pathelement path="${env.JAVA_HOME}/lib/tools.jar" />
+            </classpath>
+        </javac>
+    </target>
+
+
+    <!-- ====================================================================== -->
+
+    <target name="test" depends="compile-tests" description="Run provided tests">
+        <junit printsummary="yes" haltonfailure="yes" fork="yes" showoutput="yes" enableTestListenerEvents="true">
+            <sysproperty key="EvoSuiteCompiledTestFolder" value="${EvoSuiteCompiledTestFolder}" />
+            <formatter classname="org.evosuite.runtime.AntInitializingListener" />
+            <formatter type="plain" usefile="false" />
+            <classpath>
+                <pathelement path="${build.classes}"/>
+                <pathelement path="${build.tests}"/>
+                <path refid="dependency.classpath" />
+                <pathelement path="${java.home}/../lib/tools.jar" />
+                <pathelement path="${env.JAVA_HOME}/lib/tools.jar" />
+            </classpath>
+            <batchtest fork="yes">
+                <fileset dir="${test.java}">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+</project>

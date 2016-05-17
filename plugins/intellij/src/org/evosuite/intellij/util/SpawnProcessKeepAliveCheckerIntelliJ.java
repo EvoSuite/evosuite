@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Note: this is copy&paste adaptation of the class SpawnProcessKeepAliveChecker.
+ * Note: this is copy&amp;paste adaptation of the class SpawnProcessKeepAliveChecker.
  * Issue here we cannot reuse the original due to how the IntelliJ plugin is built
  *
  * Created by Andrea Arcuri on 26/11/15.

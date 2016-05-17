@@ -209,7 +209,7 @@ public class AgentLoader {
 			 */    			
 			/*
 			 * FIXME: what is this???????? Definitively the above comment
-			 * is just a copy&paste that makes no sense here... 
+			 * is just a copy&amp;paste that makes no sense here...
 			 */
 			jarFilePath = searchInFolder("lib");    			
 		}

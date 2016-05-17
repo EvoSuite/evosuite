@@ -30,6 +30,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <!-- Only needed for listener used in Ant when running tests -->
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-junit</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

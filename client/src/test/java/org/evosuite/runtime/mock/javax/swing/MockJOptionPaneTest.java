@@ -1,4 +1,4 @@
-package org.evosuite.mock.javax.swing;
+package org.evosuite.runtime.mock.javax.swing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,7 +34,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.mock.javax.swing.AskUser;
 
-public class JOptionPaneTestClusterTest {
+public class MockJOptionPaneTest {
 
 	private static final String TARGET_CLASS = AskUser.class.getCanonicalName();
 	private static final boolean DEFAULT_MOCK_GUI = RuntimeSettings.mockGUI;

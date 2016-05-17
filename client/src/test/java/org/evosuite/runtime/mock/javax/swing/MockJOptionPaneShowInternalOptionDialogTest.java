@@ -1,4 +1,4 @@
-package org.evosuite.mock.javax.swing;
+package org.evosuite.runtime.mock.javax.swing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -22,10 +22,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.mock.javax.swing.ShowConfirmDialogExample;
+import com.examples.with.different.packagename.mock.javax.swing.ShowInternalOptionDialogExample;
 
-public class MockShowConfirmDialogTest {
+public class MockJOptionPaneShowInternalOptionDialogTest {
 
+	private static final String TARGET_CLASS = ShowInternalOptionDialogExample.class.getCanonicalName();
 	private static final boolean DEFAULT_MOCK_GUI = RuntimeSettings.mockGUI;
 	private static final boolean DEFAULT_REPLACE_GUI = Properties.REPLACE_GUI;
 
@@ -38,7 +39,7 @@ public class MockShowConfirmDialogTest {
 	@Before
 	public void setUp() {
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
-		Properties.TARGET_CLASS = ShowConfirmDialogExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = TARGET_CLASS;
 		Properties.REPLACE_GUI = true;
 		RuntimeSettings.mockGUI = true;
 		TestGenerationContext.getInstance().resetContext();
@@ -52,7 +53,7 @@ public class MockShowConfirmDialogTest {
 	}
 
 	@Test
-	public void testShowConfirmDialogs() throws Exception {
+	public void testShowInternalInputDialogs() throws Exception {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		InstrumentingClassLoader cl = new InstrumentingClassLoader();
 		TestCase t1 = buildTestCase0(cl);
@@ -62,19 +63,19 @@ public class MockShowConfirmDialogTest {
 		ff.getFitness(suite);
 
 		Set<TestFitnessFunction> coveredGoals = suite.getCoveredGoals();
-		Assert.assertEquals(5, coveredGoals.size());
+		Assert.assertEquals(2, coveredGoals.size());
 	}
 
 	private static TestCase buildTestCase0(InstrumentingClassLoader cl)
 			throws ClassNotFoundException, NoSuchMethodException, SecurityException {
 		TestCaseBuilder builder = new TestCaseBuilder();
 
-		Class<?> clazz = cl.loadClass(ShowConfirmDialogExample.class.getCanonicalName());
+		Class<?> clazz = cl.loadClass(TARGET_CLASS);
 		Constructor<?> constructor = clazz.getConstructor();
 		VariableReference showMessageDialogExample0 = builder.appendConstructor(constructor);
 
-		Method showConfirmDialogsMethod = clazz.getMethod("showConfirmDialogs");
-		builder.appendMethod(showMessageDialogExample0, showConfirmDialogsMethod);
+		Method showOptionDialogMethod = clazz.getMethod("showInternalOptionDialog");
+		builder.appendMethod(showMessageDialogExample0, showOptionDialogMethod);
 
 		return builder.getDefaultTestCase();
 	}

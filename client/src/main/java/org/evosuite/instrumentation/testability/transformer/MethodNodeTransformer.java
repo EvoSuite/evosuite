@@ -254,7 +254,7 @@ public class MethodNodeTransformer {
 	}
 	
 	
-	// TODO: Everything from here on needs to be finished, it is just copy&paste for now
+	// TODO: Everything from here on needs to be finished, it is just copy&amp;paste for now
 	
     /**
      * Generates the instruction to store the top stack value in the given local
