@@ -61,6 +61,7 @@
         <developer>
             <id>arcuri</id>
             <name>Andrea Arcuri</name>
+            <email>arcuri82@gmail.com</email>
             <url>http://www.arcuriandrea.org</url>
             <timezone>2</timezone>
             <roles>
@@ -90,6 +91,28 @@
 
 
     <profiles>
+        <profile>
+            <!--  mvn source:jar javadoc:jar verify -PsignJars -DskipTests  -->
+            <id>signJars</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>SystemTests</id>
             <!-- properties>
@@ -274,12 +297,12 @@
                             <artifactId>jgrapht-ext</artifactId>
                             <version>0.9.0</version>
                         </dependency> -->
-            <dependency>
-                <!-- LGPL -->
-                <groupId>com.panayotis</groupId>
-                <artifactId>JavaPlot</artifactId>
-                <version>0.4.0</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--&lt;!&ndash; LGPL &ndash;&gt;-->
+                <!--<groupId>com.panayotis</groupId>-->
+                <!--<artifactId>JavaPlot</artifactId>-->
+                <!--<version>0.4.0</version>-->
+            <!--</dependency>-->
             <dependency>
                 <!-- BSD -->
                 <groupId>com.thoughtworks.xstream</groupId>
@@ -408,37 +431,37 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- TODO removed once finalized deployment to Central -->
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<releases>-->
+                <!--<enabled>true</enabled>-->
+                <!--<checksumPolicy>warn</checksumPolicy>-->
+            <!--</releases>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>never</updatePolicy>-->
+                <!--<checksumPolicy>fail</checksumPolicy>-->
+            <!--</snapshots>-->
+            <!--<id>EvoSuite</id>-->
+            <!--<name>EvoSuite Repository</name>-->
+            <!--<url>http://www.evosuite.org/m2/</url>-->
+            <!--<layout>default</layout>-->
+        <!--</repository>-->
 
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-                <checksumPolicy>warn</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </snapshots>
-            <id>EvoSuite</id>
-            <name>EvoSuite Repository</name>
-            <url>http://www.evosuite.org/m2/</url>
-            <layout>default</layout>
-        </repository>
-
-        <!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>
-            </repository> -->
-    </repositories>
+        <!--&lt;!&ndash; <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>-->
+            <!--</repository> &ndash;&gt;-->
+    <!--</repositories>-->
 
 
-    <!-- Once we publish EvoSuite as open source, we should rather deploy to MavenCentral -->
-    <distributionManagement>
-        <repository>
-            <id>EvoSuite</id>
-            <name>EvoSuite Repository</name>
-            <url>${deployURL}</url>
-        </repository>
-    </distributionManagement>
+    <!--&lt;!&ndash; Once we publish EvoSuite as open source, we should rather deploy to MavenCentral &ndash;&gt;-->
+    <!--<distributionManagement>-->
+        <!--<repository>-->
+            <!--<id>EvoSuite</id>-->
+            <!--<name>EvoSuite Repository</name>-->
+            <!--<url>${deployURL}</url>-->
+        <!--</repository>-->
+    <!--</distributionManagement>-->
 
 
     <build>
@@ -581,7 +604,8 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.3</version>
                 <configuration>
-                    <source>1.7</source>
+                    <source>1.8</source>
+                    <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
             </plugin>
             <!-- TODO Update URL. -->
