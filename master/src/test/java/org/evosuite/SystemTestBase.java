@@ -35,10 +35,10 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.mock.MockFramework;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
@@ -92,7 +92,7 @@ public class SystemTestBase {
 		RuntimeSettings.applyUIDTransformation = false;
 
 		TestGenerationContext.getInstance().resetContext();
-		ResetManager.getInstance().clearManager();
+		ClassReInitializer.resetSingleton();
 		System.setProperties(currentProperties);
 		Properties.getInstance().resetToDefaults();
 		ExceptionCoverageFactory.getGoals().clear();
@@ -129,7 +129,7 @@ public class SystemTestBase {
 		Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
 		
 		TestGenerationContext.getInstance().resetContext();
-		ResetManager.getInstance().clearManager();
+		ClassReInitializer.resetSingleton();
 
 		//change seed every month
 		long seed = new GregorianCalendar().get(Calendar.MONTH);

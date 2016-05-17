@@ -119,6 +119,11 @@ public class Properties {
 	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each static field was modified")
 	public static boolean RESET_STATIC_FIELDS = true;
 
+	/** Constant <code>RESET_STATIC_FINAL_FIELDS =false</code> */
+	@Parameter(key = "reset_static_final_fields", group = "Test Creation", description = "Remove the static modifier in target fields")
+	public static boolean RESET_STATIC_FINAL_FIELDS = true;
+
+	
 	@Parameter(key = "reset_static_field_gets", group = "Test Creation", description = "Call static constructors also after each static field was read")
 	public static boolean RESET_STATIC_FIELD_GETS = false;
 

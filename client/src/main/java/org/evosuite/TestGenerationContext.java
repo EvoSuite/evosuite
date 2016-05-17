@@ -22,6 +22,8 @@
  */
 package org.evosuite;
 
+import java.util.List;
+
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.archive.TestsArchive;
@@ -54,6 +56,7 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +76,7 @@ public class TestGenerationContext {
 	 * used by all test code
 	 */
 	private InstrumentingClassLoader classLoader;
-	
+
 	/**
 	 * The regression class loader
 	 */
@@ -83,7 +86,6 @@ public class TestGenerationContext {
 	 * The classloader used to load this class
 	 */
 	private ClassLoader originalClassLoader;
-	
 
 	/**
 	 * Private singleton constructor
@@ -92,7 +94,7 @@ public class TestGenerationContext {
 		originalClassLoader = this.getClass().getClassLoader();
 		classLoader = new InstrumentingClassLoader();
 		regressionClassLoader = new InstrumentingClassLoader(true);
-		
+
 		DBManager.getInstance().setSutClassLoader(classLoader);
 	}
 
@@ -100,36 +102,36 @@ public class TestGenerationContext {
 		return singleton;
 	}
 
-    /**
-	 * This is pretty important if the SUT use classloader of the running thread.
-	 * If we do not set this up, we will end up with cast exceptions.
+	/**
+	 * This is pretty important if the SUT use classloader of the running
+	 * thread. If we do not set this up, we will end up with cast exceptions.
 	 *
 	 * <p>
 	 * Note, an example in which this happens is in
 	 *
-     * <p>
+	 * <p>
 	 * org.dom4j.bean.BeanAttribute
 	 *
-     * <p>
+	 * <p>
 	 * in SF100 project 62_dom4j
 	 */
-    public void goingToExecuteSUTCode(){
+	public void goingToExecuteSUTCode() {
 
 		Thread.currentThread().setContextClassLoader(classLoader);
 	}
-	
-	public void doneWithExecutingSUTCode(){
+
+	public void doneWithExecutingSUTCode() {
 		Thread.currentThread().setContextClassLoader(originalClassLoader);
 	}
-	
+
 	public InstrumentingClassLoader getClassLoaderForSUT() {
 		return classLoader;
-	}	
-	
+	}
+
 	public InstrumentingClassLoader getRegressionClassLoaderForSUT() {
 		return regressionClassLoader;
-	}	
-	
+	}
+
 	/**
 	 * @deprecated use {@code getInstance().getClassLoaderForSUT()}
 	 * 
@@ -142,10 +144,11 @@ public class TestGenerationContext {
 	public void resetContext() {
 		logger.info("*** Resetting context");
 
-		// A fresh context needs a fresh class loader to make sure we can re-instrument classes
+		// A fresh context needs a fresh class loader to make sure we can
+		// re-instrument classes
 		classLoader = new InstrumentingClassLoader();
 
-		if(! DBManager.getInstance().isWasAccessed()){
+		if (!DBManager.getInstance().isWasAccessed()) {
 			DBManager.getInstance().setSutClassLoader(classLoader);
 		}
 
@@ -164,13 +167,14 @@ public class TestGenerationContext {
 		DefUsePool.clear();
 
 		// TODO: This is not nice
-		for(ClassLoader cl:CFGMethodAdapter.methods.keySet())
+		for (ClassLoader cl : CFGMethodAdapter.methods.keySet())
 			CFGMethodAdapter.methods.get(cl).clear();
 
 		// TODO: Clear only pool of current classloader?
 		BytecodeInstructionPool.clearAll();
 
-		// TODO: After this, the test cluster is empty until DependencyAnalysis.analyse is called
+		// TODO: After this, the test cluster is empty until
+		// DependencyAnalysis.analyse is called
 		TestCluster.reset();
 		CastClassManager.getInstance().clear();
 		ConcreteClassAnalyzer.getInstance().clear();
@@ -187,19 +191,20 @@ public class TestGenerationContext {
 		TestCaseExecutor.initExecutor();
 
 		TestsArchive.instance.reset();
-		
+
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 		ObjectPoolManager.getInstance().reset();
 		CarvingManager.getInstance().clear();
 
 		// TODO: Why are we doing this?
-		if (Properties.INSTRUMENT_CONTEXT
-				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
+		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
 				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
-//				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.CBRANCH)) {
+			// || ArrayUtil.contains(Properties.CRITERION,
+			// Properties.Criterion.CBRANCH)) {
 			try {
-				TestClusterGenerator clusterGenerator = new TestClusterGenerator(DependencyAnalysis.getInheritanceTree());
+				TestClusterGenerator clusterGenerator = new TestClusterGenerator(
+						DependencyAnalysis.getInheritanceTree());
 				clusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
@@ -216,10 +221,16 @@ public class TestGenerationContext {
 		SystemInUtil.resetSingleton();
 		JOptionPaneInputs.resetSingleton();
 		Runtime.resetSingleton();
-        MethodCallReplacementCache.resetSingleton();
+		MethodCallReplacementCache.resetSingleton();
 
 		Injector.reset();
-		
+
 		DSEStats.clear();
+
+		// keep the list of initialized classes (clear them when needed in
+		// the system test cases)
+		final List<String> initializedClasses = ClassReInitializer.getInstance().getInitializedClasses();
+		ClassReInitializer.resetSingleton();
+		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
 	}
 }

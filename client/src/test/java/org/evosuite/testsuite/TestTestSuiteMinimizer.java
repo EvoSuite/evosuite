@@ -37,8 +37,8 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.testcase.*;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
@@ -68,7 +68,8 @@ public class TestTestSuiteMinimizer
         Properties.TARGET_CLASS = "";
 
         TestGenerationContext.getInstance().resetContext();
-        ResetManager.getInstance().clearManager();
+		ClassReInitializer.resetSingleton();
+
         Randomness.setSeed(42);
 
         currentProperties = (java.util.Properties) System.getProperties().clone();
@@ -78,7 +79,6 @@ public class TestTestSuiteMinimizer
     public void tearDown()
     {
         TestGenerationContext.getInstance().resetContext();
-        ResetManager.getInstance().clearManager();
         System.setProperties(currentProperties);
         Properties.getInstance().resetToDefaults();
     }

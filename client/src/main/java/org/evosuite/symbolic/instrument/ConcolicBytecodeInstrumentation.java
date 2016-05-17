@@ -20,10 +20,9 @@
 package org.evosuite.symbolic.instrument;
 
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.ExitClassInitAdapter;
+import org.evosuite.instrumentation.EndOfClassInitializerVisitor;
 import org.evosuite.instrumentation.StaticAccessClassAdapter;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.instrumentation.CreateClassResetClassAdapter;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
 import org.objectweb.asm.ClassReader;
@@ -66,16 +65,16 @@ public class ConcolicBytecodeInstrumentation {
         // If we need to reset static constructors, make them explicit methods
         if (Properties.RESET_STATIC_FIELDS) {
             // Create a __STATIC_RESET() cloning the original <clinit> method or create one by default
-            CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
-            if (ResetManager.getInstance().getResetFinalFields()) {
-                resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
+            final CreateClassResetClassAdapter resetClassAdapter ;
+            if (Properties.RESET_STATIC_FINAL_FIELDS) {
+                resetClassAdapter= new CreateClassResetClassAdapter(cv, className,true);
             } else {
-                resetClassAdapter.setRemoveFinalModifierOnStaticFields(false);
+                resetClassAdapter= new CreateClassResetClassAdapter(cv, className,false);
             }
             cv = resetClassAdapter;
             // Add a callback before leaving the <clinit> method
 
-            ExitClassInitAdapter exitClassInitAdapter = new ExitClassInitAdapter(cv, className);
+            EndOfClassInitializerVisitor exitClassInitAdapter = new EndOfClassInitializerVisitor(cv, className);
             cv = exitClassInitAdapter;
         }
 		

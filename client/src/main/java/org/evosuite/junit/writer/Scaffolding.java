@@ -32,7 +32,6 @@ import org.evosuite.runtime.annotation.EvoSuiteClassExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.classhandling.ClassStateSupport;
 import org.evosuite.runtime.classhandling.JDKClassResetter;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.jvm.ShutdownHookHandler;
 import org.evosuite.runtime.sandbox.Sandbox;
@@ -42,6 +41,7 @@ import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.SystemInUtil;
 import org.evosuite.runtime.vnet.NonFunctionalRequirementRule;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.junit.rules.Timeout;
 
 import java.lang.reflect.Constructor;
@@ -276,7 +276,7 @@ public class Scaffolding {
 	}
 
 	private void generateResetClasses(String testClassName, StringBuilder bd) {
-		List<String> classesToReset = ResetManager.getInstance().getClassResetOrder();
+		List<String> classesToReset = ClassReInitializer.getInstance().getInitializedClasses();
 
 		bd.append("\n");
 		bd.append(METHOD_SPACE);
