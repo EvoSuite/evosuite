@@ -132,7 +132,8 @@ public class SystemTestBase {
 		ResetManager.getInstance().clearManager();
 
 		//change seed every month
-		long seed = getSeed();
+		long seed = new GregorianCalendar().get(Calendar.MONTH);
+//		long seed = getSeed();
 		Randomness.setSeed(seed);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
