@@ -174,7 +174,8 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
 		}
 		if (Properties.RESET_STATIC_FIELDS) {
-			ClassReInitializer.getInstance().setReInitializeAllClasses(true);
+			final boolean reset_all_classes = Properties.RESET_ALL_CLASSES_DURING_ASSERTION_GENERATION;
+			ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
 		}
 		changeClassLoader(suite);
 		for (Mutation m : MutationPool.getMutants()) {

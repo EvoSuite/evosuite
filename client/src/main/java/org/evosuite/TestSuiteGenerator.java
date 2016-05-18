@@ -134,8 +134,8 @@ public class TestSuiteGenerator {
 			return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
 		} finally {
 			if (Properties.RESET_STATIC_FIELDS) {
-				// classes were initialized here, we should recover that
-				addInitializedClasses();
+				configureClassReInitializer();
+
 			}
 
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
@@ -209,12 +209,16 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Reports the initialized classes during class initialization to the
-	 * ClassReInitializater
+	 * ClassReInitializater and configures the ClassReInitializer accordingly
 	 */
-	private void addInitializedClasses() {
+	private void configureClassReInitializer() {
+		// add loaded classes during building of dependency graph
 		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
 		final List<String> initializedClasses = execTrace.getInitializedClasses();
 		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
+		// set the behaviour of the ClassReInitializer
+		final boolean reset_all_classes = Properties.RESET_ALL_CLASSES_DURING_TEST_GENERATION;
+		ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
 	}
 
 	private static void writeJUnitTestSuiteForFailedInitialization() throws EvosuiteError {
