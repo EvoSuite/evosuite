@@ -58,6 +58,7 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.DSEStrategy;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
@@ -585,6 +586,8 @@ public class TestSuiteGenerator {
 			return new EntBugTestStrategy();
 		case MOSUITE:
 			return new MOSuiteStrategy();
+		case DSE:
+			return new DSEStrategy();
 		default:
 			throw new RuntimeException("Unsupported strategy: " + Properties.STRATEGY);
 		}
