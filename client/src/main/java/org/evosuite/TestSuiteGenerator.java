@@ -65,8 +65,11 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
@@ -130,6 +133,11 @@ public class TestSuiteGenerator {
 			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
 			return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
 		} finally {
+			if (Properties.RESET_STATIC_FIELDS) {
+				// classes were initialized here, we should recover that
+				addInitializedClasses();
+			}
+
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
 			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
@@ -197,6 +205,16 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("");
 
 		return result;
+	}
+
+	/**
+	 * Reports the initialized classes during class initialization to the
+	 * ClassReInitializater
+	 */
+	private void addInitializedClasses() {
+		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
+		final List<String> initializedClasses = execTrace.getInitializedClasses();
+		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
 	}
 
 	private static void writeJUnitTestSuiteForFailedInitialization() throws EvosuiteError {

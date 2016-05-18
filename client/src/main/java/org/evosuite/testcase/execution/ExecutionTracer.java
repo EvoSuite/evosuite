@@ -542,13 +542,13 @@ public class ExecutionTracer {
 		final String classNameWithDots = className.replace('/', '.');
 
 		ExecutionTracer tracer = getExecutionTracer();
-		if (tracer.disabled)
-			return;
-
-		if (isThreadNeqCurrentThread())
-			return;
-
-		checkTimeout();
+//		if (tracer.disabled)
+//			return;
+//
+//		if (isThreadNeqCurrentThread())
+//			return;
+//
+//		checkTimeout();
 		
 		tracer.trace.classInitialized(classNameWithDots);
 		
