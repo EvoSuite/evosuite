@@ -73,7 +73,7 @@ public class SystemTestBase {
 	 * Needed to keep track of how ofter a test was re-executed.
 	 * Note: re-execution only works if in surefire/failsafe we use "rerunFailingTestsCount"
 	 */
-	private static Map<String, Integer> executionCounter = new ConcurrentHashMap<>();
+	private static final Map<String, Integer> executionCounter = new ConcurrentHashMap<>();
 
 
 	@Rule
@@ -132,8 +132,8 @@ public class SystemTestBase {
 		ClassReInitializer.resetSingleton();
 
 		//change seed every month
-		long seed = new GregorianCalendar().get(Calendar.MONTH);
-//		long seed = getSeed();
+//		long seed = new GregorianCalendar().get(Calendar.MONTH);
+		long seed = getSeed();
 		Randomness.setSeed(seed);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
