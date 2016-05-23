@@ -72,7 +72,8 @@ public class JUnitTestCarvedChromosomeFactory implements
 
 	private void readTestCases() throws IllegalStateException {
 		CarvingManager manager = CarvingManager.getInstance();
-		List<TestCase> tests = manager.getTestsForClass(Properties.getTargetClass());
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+		List<TestCase> tests = manager.getTestsForClass(targetClass);
 		junitTests.addAll(tests);
 
 		if (junitTests.size() > 0) {

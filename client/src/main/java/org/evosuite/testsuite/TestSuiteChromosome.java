@@ -217,7 +217,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	public Set<TestFitnessFunction> getCoveredGoals() {
 		Set<TestFitnessFunction> goals = new HashSet<TestFitnessFunction>();
 		for (TestChromosome test : tests) {
-			goals.addAll(test.getTestCase().getCoveredGoals());
+			final Set<TestFitnessFunction> goalsForTest = test.getTestCase().getCoveredGoals();
+			goals.addAll(goalsForTest);
 		}
 		return goals;
 	}

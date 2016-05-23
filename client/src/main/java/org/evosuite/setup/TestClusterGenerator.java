@@ -204,7 +204,7 @@ public class TestClusterGenerator {
 
             //Check if we should add PrivateAccess.callDefaultConstructorOfTheClassUnderTest()
 
-            Class<?> target = Properties.getTargetClass();
+    		Class<?> target = Properties.getTargetClassAndDontInitialise();
 
             Constructor<?> constructor = null;
             try {
@@ -397,7 +397,7 @@ public class TestClusterGenerator {
             ClassNotFoundException {
 
         logger.info("Analyzing target class");
-        Class<?> targetClass = Properties.getTargetClass();
+        Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
         TestCluster cluster = TestCluster.getInstance();
 

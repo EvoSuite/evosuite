@@ -192,9 +192,14 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     public static boolean canBeFunctionalMocked(Type type) {
 
         Class<?> rawClass = new GenericClass(type).getRawClass();
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
-        if (rawClass.equals(Properties.getTargetClass()) ||
-                EvoSuiteMock.class.isAssignableFrom(rawClass) ||
+        if (Properties.hasTargetClassBeenLoaded() 
+        		&& (rawClass.equals(targetClass))) {
+        	return false;
+        }
+        
+        if (EvoSuiteMock.class.isAssignableFrom(rawClass) ||
                 MockList.isAMockClass(rawClass.getName()) ||
                 rawClass.equals(Class.class) ||
                 rawClass.isArray() || rawClass.isPrimitive() || rawClass.isAnonymousClass() ||

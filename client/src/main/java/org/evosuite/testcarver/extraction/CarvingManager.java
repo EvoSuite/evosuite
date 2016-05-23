@@ -116,7 +116,7 @@ public class CarvingManager {
 		FieldRegistry.carvingClassLoader = classLoader;
 		try {
 			// instrument target class
-			classLoader.loadClass(Properties.getTargetClass().getCanonicalName());
+			classLoader.loadClass(Properties.TARGET_CLASS);
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -170,7 +170,7 @@ public class CarvingManager {
 					if (Properties.CHOP_CARVED_EXCEPTIONS) {
 						logger.info("Chopping exception of carved test");
 						chopException(test, executionResult);
-						if (test.hasObject(Properties.getTargetClass(), test.size())) {
+						if (test.hasObject(Properties.getTargetClassAndDontInitialise(), test.size())) {
 							processedTests.add(test);
 						} else {
 							logger.info("Chopped test is empty");

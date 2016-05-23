@@ -100,7 +100,7 @@ public class DSEStrategy extends TestGenerationStrategy {
 	}
 
 	private TestSuiteChromosome generateSuite() {
-		final Class<?> targetClass = Properties.getTargetClass();
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 		final Set<Method> staticMethods = getStaticMethods(targetClass);
 		TestSuiteChromosome result = new TestSuiteChromosome();
 		for (Method staticMethod : staticMethods) {

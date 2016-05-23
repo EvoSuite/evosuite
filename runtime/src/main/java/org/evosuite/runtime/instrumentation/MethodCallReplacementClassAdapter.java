@@ -187,6 +187,9 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 				}
 			} catch(ClassNotFoundException e) {
 				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
+			} catch (NoClassDefFoundError e) {
+				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
+				
 			} finally {
 				Thread.currentThread().setContextClassLoader(threadCL);
 			}

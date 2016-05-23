@@ -70,9 +70,10 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 				logger.warn(individual.getTestCase().toCode());
 				break;
 			}
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
 			if (!test.hasReferences(test.getStatement(i).getReturnValue())
-					&& !test.getStatement(i).getReturnClass().equals(Properties.getTargetClass())) {
+					&& !test.getStatement(i).getReturnClass().equals(targetClass)) {
 				logger.info("Return value of statement " + i
 						+ " is not referenced and not SUT, not doing local search");
 				continue;

@@ -69,11 +69,13 @@ public abstract class Contract {
 	 */
 	protected Collection<Object> getAllObjects(Scope scope) {
 		// TODO: Assignable classes and subclasses?
-		return scope.getObjects(Properties.getTargetClass());
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+		return scope.getObjects(targetClass);
 	}
 
 	protected Collection<VariableReference> getAllVariables(Scope scope) {
-		return scope.getElements(Properties.getTargetClass());
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+		return scope.getElements(targetClass);
 	}
 
 	/**
@@ -87,7 +89,8 @@ public abstract class Contract {
 	 */
 	protected Collection<Pair<Object>> getAllObjectPairs(Scope scope) {
 		Set<Pair<Object>> pairs = new HashSet<Pair<Object>>();
-		for (Object o1 : scope.getObjects(Properties.getTargetClass())) {
+		Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+		for (Object o1 : scope.getObjects(targetClass)) {
 			for (Object o2 : scope.getObjects(o1.getClass())) {
 				pairs.add(new Pair<Object>(o1, o2));
 			}
@@ -97,7 +100,8 @@ public abstract class Contract {
 
 	protected Collection<Pair<VariableReference>> getAllVariablePairs(Scope scope) {
 		Set<Pair<VariableReference>> pairs = new HashSet<Pair<VariableReference>>();
-		List<VariableReference> objects = scope.getElements(Properties.getTargetClass());
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+		List<VariableReference> objects = scope.getElements(targetClass);
 		for (int i = 0; i < objects.size(); i++) {
 			for (int j = i; j < objects.size(); j++) {
 				pairs.add(new Pair<VariableReference>(objects.get(i), objects.get(j)));
@@ -123,15 +127,18 @@ public abstract class Contract {
 		//	return true;
 		if (statement instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) statement;
-			if (Properties.getTargetClass().equals(ms.getMethod().getDeclaringClass()))
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+			if (targetClass.equals(ms.getMethod().getDeclaringClass()))
 				return true;
 		} else if (statement instanceof ConstructorStatement) {
 			ConstructorStatement cs = (ConstructorStatement) statement;
-			if (Properties.getTargetClass().equals(cs.getConstructor().getDeclaringClass()))
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+			if (targetClass.equals(cs.getConstructor().getDeclaringClass()))
 				return true;
 		} else if (statement instanceof FieldStatement) {
 			FieldStatement fs = (FieldStatement) statement;
-			if (Properties.getTargetClass().equals(fs.getField().getDeclaringClass()))
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+			if (targetClass.equals(fs.getField().getDeclaringClass()))
 				return true;
 		}
 

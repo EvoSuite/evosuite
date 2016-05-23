@@ -91,13 +91,15 @@ public class ExceptionCoverageHelper {
         if (result.test.getStatement(exceptionPosition) instanceof MethodStatement) {
             MethodStatement ms = (MethodStatement) result.test.getStatement(exceptionPosition);
             Method method = ms.getMethod().getMethod();
-            if (method.getDeclaringClass().equals(Properties.getTargetClass())){
+			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+            if (method.getDeclaringClass().equals(targetClass)){
                 return true;
             }
         } else if (result.test.getStatement(exceptionPosition) instanceof ConstructorStatement) {
             ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(exceptionPosition);
             Constructor<?> constructor = cs.getConstructor().getConstructor();
-            if (constructor.getDeclaringClass().equals(Properties.getTargetClass())){
+			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+            if (constructor.getDeclaringClass().equals(targetClass)){
                 return true;
             }
         }

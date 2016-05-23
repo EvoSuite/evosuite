@@ -83,7 +83,7 @@ public class ClassStatisticsPrinter {
 
 		// Need to load class explicitly in case there are no test cases.
 		// If there are tests, then this is redundant
-		Properties.getTargetClass(false);
+		Properties.getTargetClassAndDontInitialise();
 
 		return true;
 	}
@@ -101,7 +101,7 @@ public class ClassStatisticsPrinter {
 					Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 
 			// Load SUT without initialising it
-			Class<?> targetClass = Properties.getTargetClass(false);
+			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 			if(targetClass != null) {
 				LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 			} else {

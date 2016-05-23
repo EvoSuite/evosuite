@@ -222,7 +222,7 @@ public abstract class AssertionGenerator {
 
 			TestGenerationContext.getInstance().resetContext();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			Properties.getTargetClass();
+			Properties.resetTargetClass();
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
 

@@ -63,8 +63,8 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(),
 		super(
 		        tc,
-		        new GenericClass(Class.class).getWithParameterTypes(new Type[] { Properties.getTargetClass() }),
-		        Properties.getTargetClass());
+		        new GenericClass(Class.class).getWithParameterTypes(new Type[] { Properties.getTargetClassAndDontInitialise() }),
+		        Properties.getTargetClassAndDontInitialise());
 		//		super(tc, new GenericClass(Properties.getTargetClass()),
 		//		        Properties.getTargetClass());
 	}
@@ -81,7 +81,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	@Override
 	public void zero() {
-		this.value = Properties.getTargetClass();
+		this.value = Properties.getTargetClassAndDontInitialise();
 	}
 
 	private Class<?> getType(org.objectweb.asm.Type type) throws ClassNotFoundException {

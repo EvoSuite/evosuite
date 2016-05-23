@@ -82,7 +82,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     protected void determineMethods() {
         String className = Properties.TARGET_CLASS;
-		Class<?> clazz = Properties.getTargetClass();
+		Class<?> clazz = Properties.getTargetClassAndDontInitialise();
         if (clazz != null) {
             Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
             for (Constructor<?> c : allConstructors) {

@@ -2096,7 +2096,8 @@ public class TestFactory {
 		logger.debug("Inserting random call at position {}", position);
 		try {
             if(reflectionFactory==null){
-                reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+    			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+                reflectionFactory = new ReflectionFactory(targetClass);
             }
 
             if(reflectionFactory.hasPrivateFieldsOrMethods() &&
@@ -2210,7 +2211,8 @@ public class TestFactory {
 
 		if(!success) {
             if(reflectionFactory==null){
-                reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+    			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+                reflectionFactory = new ReflectionFactory(targetClass);
             }
 
             if(TestCluster.getInstance().getNumTestCalls() > 0 || (reflectionFactory.hasPrivateFieldsOrMethods() && TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT)) {
@@ -2252,7 +2254,8 @@ public class TestFactory {
 			logger.debug("Getting calls for object {}", var.toString());
 			try {
                 if(reflectionFactory==null){
-                    reflectionFactory = new ReflectionFactory(Properties.getTargetClass());
+        			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+                    reflectionFactory = new ReflectionFactory(targetClass);
                 }
 
                 if(reflectionFactory.hasPrivateFieldsOrMethods() &&
