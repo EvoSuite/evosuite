@@ -25,6 +25,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -75,12 +77,15 @@ public class RhoCoverageFactory extends
 	 */
 	protected static void loadCoverage() {
 
+		if (!new File(Properties.COVERAGE_MATRIX_FILENAME).exists()) {
+			return ;
+		}
+
 		BufferedReader br = null;
 
 		try {
 			String sCurrentLine;
-			br = new BufferedReader(new FileReader("evosuite-report" + File.separator + 
-					Properties.TARGET_CLASS + ".matrix"));
+			br = new BufferedReader(new FileReader(Properties.COVERAGE_MATRIX_FILENAME));
 
 			String[] split;
 			while ((sCurrentLine = br.readLine()) != null) {
@@ -89,11 +94,7 @@ public class RhoCoverageFactory extends
 				List<Integer> test = new ArrayList<Integer>();
 				for (int i = 0; i < split.length - 1; i++) { // - 1, because we do not want to consider test result
 					if (split[i].compareTo("1") == 0) {
-						try {
-							test.add(goals.get(i).getLine());
-						} catch (IndexOutOfBoundsException e) {
-							// ok ...
-						}
+						test.add(goals.get(i).getLine());
 					}
 				}
 
@@ -112,10 +113,7 @@ public class RhoCoverageFactory extends
 			LoggingUtils.getEvoLogger().info("(RhoScore - 0.5) of an existing test suite: " + rho);
 		}
 		catch (IOException e) {
-			// the coverage matrix file does not exist, ok no problem...
-			// we will generate new test cases from scratch
-			logger.debug("there is no " + Properties.REPORT_DIR + File.separator +
-					Properties.TARGET_CLASS + ".matrix" );
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -153,6 +151,14 @@ public class RhoCoverageFactory extends
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
 		if (Properties.USE_EXISTING_COVERAGE) {
+			// extremely important: before loading any previous coverage (i.e., from a coverage
+			// matrix) goals need to be sorted. otherwise any previous coverage won't match!
+			Collections.sort(goals, new Comparator<LineCoverageTestFitness>() {
+				@Override
+				public int compare(LineCoverageTestFitness l1, LineCoverageTestFitness l2) {
+					return Integer.compare(l1.getLine(), l2.getLine());
+				}
+			});
 			loadCoverage();
 		} else {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RhoScore_T0, 1.0);

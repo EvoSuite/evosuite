@@ -80,7 +80,8 @@ public class CoverageAnalysisLocaleSystemTest extends SystemTestBase {
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +
                 Properties.REPORT_DIR + File.separator +
-                "data" + File.separator + Properties.TARGET_CLASS + "." + Properties.Criterion.LINE.name() + ".matrix";
+                "data" + File.separator + Properties.TARGET_CLASS + File.separator +
+                Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("CoverageMatrix file " + coveragematrix_file);
 
         List<String> lines = Files.readAllLines(Paths.get(coveragematrix_file));

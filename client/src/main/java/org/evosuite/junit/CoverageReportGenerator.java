@@ -62,7 +62,8 @@ public class CoverageReportGenerator {
 
 		FileIOUtils.writeFile(suite.toString(), new File(getReportDir().getAbsolutePath() +
 				File.separator + "data" + File.separator +
-				Properties.TARGET_CLASS + "." + criterion.toString() + ".matrix"));
+				Properties.TARGET_CLASS + File.separator +
+				criterion.toString() + File.separator + Properties.COVERAGE_MATRIX_FILENAME));
 	}
 
 	/**

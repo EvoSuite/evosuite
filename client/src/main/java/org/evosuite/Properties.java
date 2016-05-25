@@ -858,6 +858,10 @@ public class Properties {
 	@Parameter(key = "coverage_matrix", group = "Output", description = "Create a coverage matrix (each row represents the coverage a test case, and each column represents one goal")
 	public static boolean COVERAGE_MATRIX = false;
 
+	/** Constant <code>COVERAGE_MATRIX_FILENAME=matrix</code> */
+	@Parameter(key = "coverage_matrix_filename", group = "Output", description = "File to which the coverage matrix is written")
+	public static String COVERAGE_MATRIX_FILENAME = "matrix";
+
 	/** Constant <code>JUNIT_TESTS=true</code> */
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;

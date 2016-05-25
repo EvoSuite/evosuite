@@ -115,8 +115,8 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         String matrix_file = System.getProperty("user.dir") + File.separator + 
         		Properties.REPORT_DIR + File.separator + 
-        		"data" + File.separator +
-        		targetClass + "." + Properties.Criterion.LINE.name() + ".matrix";
+        		"data" + File.separator + targetClass + File.separator +
+        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
@@ -172,8 +172,8 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         String matrix_file = System.getProperty("user.dir") + File.separator + 
         		Properties.REPORT_DIR + File.separator + 
-        		"data" + File.separator +
-        		targetClass + "." + Properties.Criterion.LINE.name() + ".matrix";
+        		"data" + File.separator + targetClass + File.separator +
+        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
@@ -221,8 +221,8 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 
         String matrix_file = System.getProperty("user.dir") + File.separator + 
         		Properties.REPORT_DIR + File.separator + 
-        		"data" + File.separator +
-        		targetClass + "." + Properties.Criterion.LINE.name() + ".matrix";
+        		"data" + File.separator + targetClass + File.separator +
+        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
