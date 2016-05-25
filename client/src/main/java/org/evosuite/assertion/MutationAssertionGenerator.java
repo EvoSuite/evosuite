@@ -35,13 +35,13 @@ import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.FieldStatement;
 import org.evosuite.testcase.statements.MethodStatement;
@@ -79,9 +79,9 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	protected final static Map<Mutation, Integer> exceptionMutations = new HashMap<Mutation, Integer>();
 
 	/** Constant <code>observerClasses</code> */
-	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
-	        ComparisonTraceEntry.class, SameTraceEntry.class, InspectorTraceEntry.class,
-	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class, ArrayTraceEntry.class };
+	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class, ComparisonTraceEntry.class,
+			SameTraceEntry.class, InspectorTraceEntry.class, PrimitiveFieldTraceEntry.class, NullTraceEntry.class,
+			ArrayTraceEntry.class };
 
 	/**
 	 * Default constructor
@@ -120,7 +120,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	protected ExecutionResult runTest(TestCase test, Mutation mutant) {
 		ExecutionResult result = new ExecutionResult(test, mutant);
-		//resetObservers();
+		// resetObservers();
 		comparisonObserver.clear();
 		sameObserver.clear();
 		primitiveObserver.clear();
@@ -130,7 +130,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		arrayObserver.clear();
 		try {
 			logger.debug("Executing test");
-			if (mutant==null) {
+			if (mutant == null) {
 				MutationObserver.deactivateMutation();
 			} else {
 				MutationObserver.activateMutation(mutant);
@@ -156,13 +156,11 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		return result;
 	}
 
-
-
 	protected Criterion[] oldCriterion = Properties.CRITERION;
-	
+
 	/**
-	 * If we are not doing mutation testing anyway, then 
-	 * we need to reinstrument the code to get the mutants now
+	 * If we are not doing mutation testing anyway, then we need to reinstrument
+	 * the code to get the mutants now
 	 * 
 	 * @param suite
 	 */
@@ -176,16 +174,15 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			Properties.CRITERION = new Criterion[] { Criterion.MUTATION };
 		}
 		if (Properties.RESET_STATIC_FIELDS) {
-			ResetManager.getInstance().disableTracing();
-			ResetManager.getInstance().setResetAllClasses(true);
-			ResetManager.getInstance().setResetFinalFields(true);
+			final boolean reset_all_classes = Properties.RESET_ALL_CLASSES_DURING_ASSERTION_GENERATION;
+			ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
 		}
 		changeClassLoader(suite);
 		for (Mutation m : MutationPool.getMutants()) {
 			mutants.put(m.getId(), m);
 		}
 	}
-	
+
 	/**
 	 * Set the criterion to whatever it was before
 	 * 
@@ -194,34 +191,29 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	protected void restoreCriterion(TestSuiteChromosome suite) {
 		Properties.CRITERION = oldCriterion;
 	}
-	
+
 	/**
-	 * We send status about the mutation score when we're done,
-	 * because we know it
+	 * We send status about the mutation score when we're done, because we know
+	 * it
 	 * 
 	 * @param tkilled
 	 */
 	protected void calculateMutationScore(Set<Integer> tkilled) {
 		if (MutationPool.getMutantCounter() == 0) {
 			Properties.CRITERION = oldCriterion;
-			//SearchStatistics.getInstance().mutationScore(1.0);
-			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
-			                                         + NumberFormat.getPercentInstance().format(1.0));
+			// SearchStatistics.getInstance().mutationScore(1.0);
+			LoggingUtils.getEvoLogger()
+					.info("* Resulting test suite's mutation score: " + NumberFormat.getPercentInstance().format(1.0));
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, 1.0);
 
-
 		} else {
-			double score = (double) tkilled.size()
-			        / (double) MutationPool.getMutantCounter();
-			//SearchStatistics.getInstance().mutationScore(score);
+			double score = (double) tkilled.size() / (double) MutationPool.getMutantCounter();
+			// SearchStatistics.getInstance().mutationScore(score);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.MutationScore, score);
-			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
-			                                         + NumberFormat.getPercentInstance().format(score));
+			LoggingUtils.getEvoLogger().info(
+					"* Resulting test suite's mutation score: " + NumberFormat.getPercentInstance().format(score));
 		}
 	}
-	
-	
-
 
 	/**
 	 * @param test
@@ -229,9 +221,8 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	 * @param executedMutants
 	 * @return
 	 */
-	protected int getNumKilledMutants(TestCase test,
-	        Map<Mutation, List<OutputTrace<?>>> mutation_traces,
-	        List<Mutation> executedMutants) {
+	protected int getNumKilledMutants(TestCase test, Map<Mutation, List<OutputTrace<?>>> mutation_traces,
+			List<Mutation> executedMutants) {
 		List<Assertion> assertions;
 		Set<Integer> killed = new HashSet<Integer>();
 		assertions = test.getAssertions();
@@ -244,8 +235,7 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 					for (OutputTrace<?> trace : mutation_traces.get(m)) {
 						isKilled = trace.isDetectedBy(assertion);
 						if (isKilled) {
-							logger.debug("Mutation killed: " + m.getId() + " by trace "
-							        + i++);
+							logger.debug("Mutation killed: " + m.getId() + " by trace " + i++);
 							killed.add(m.getId());
 							break;
 						}
@@ -274,8 +264,8 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			Iterator<Assertion> iterator = assertions.iterator();
 			VariableReference ret = statement.getReturnValue();
 			VariableReference callee = null;
-			if(statement instanceof MethodStatement) {
-				callee = ((MethodStatement)statement).getCallee();
+			if (statement instanceof MethodStatement) {
+				callee = ((MethodStatement) statement).getCallee();
 			}
 			boolean just = true;
 			while (iterator.hasNext()) {
@@ -291,11 +281,11 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 			return just;
 		}
 	}
-	
+
 	protected boolean primitiveWithoutAssertion(Statement statement) {
-		if(!statement.getReturnValue().isPrimitive())
+		if (!statement.getReturnValue().isPrimitive())
 			return false;
-		
+
 		Set<Assertion> assertions = statement.getAssertions();
 		if (assertions.isEmpty())
 			return true;
@@ -339,8 +329,8 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 	}
 
 	/**
-	 * Remove assertNonNull assertions for all cases where we have 
-	 * further assertions
+	 * Remove assertNonNull assertions for all cases where we have further
+	 * assertions
 	 * 
 	 * @param test
 	 */
@@ -406,8 +396,12 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.
+	 * testcase.TestCase)
 	 */
 	/** {@inheritDoc} */
 	@Override
@@ -415,6 +409,5 @@ public abstract class MutationAssertionGenerator extends AssertionGenerator {
 		// TODO Auto-generated method stub
 
 	}
-
 
 }

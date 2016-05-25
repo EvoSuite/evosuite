@@ -249,8 +249,10 @@ public class TestChromosome extends ExecutableChromosome {
 					if (!(mutation.getStatement() instanceof PrimitiveStatement<?>))
 						continue;
 				}
+				final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
 				if (!test.hasReferences(mutation.getStatement().getReturnValue())
-				        && !mutation.getStatement().getReturnClass().equals(Properties.getTargetClass())) {
+				        && !mutation.getStatement().getReturnClass().equals(targetClass)) {
 					continue;
 				}
 

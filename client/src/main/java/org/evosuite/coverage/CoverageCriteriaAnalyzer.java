@@ -88,7 +88,7 @@ public class CoverageCriteriaAnalyzer {
 
         // Need to load class explicitly in case there are no test cases.
         // If there are tests, then this is redundant
-        Properties.getTargetClass();
+        Properties.getInitializedTargetClass();
 
         // TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
         logger.info("Changing classloader of test suite for criterion: " + criterion);

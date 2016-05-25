@@ -21,7 +21,6 @@ package org.evosuite.testcase.execution;
 
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
@@ -532,6 +531,34 @@ public class ExecutionTracer {
 		tracer.trace.putStaticPassed(classNameWithDots, fieldName);
 	}
 
+	
+	/**
+	 * This method is added in the transformed bytecode
+	 *
+	 * @param className
+	 */
+	public static void exitClassInit(String className) {
+		
+		final String classNameWithDots = className.replace('/', '.');
+
+		ExecutionTracer tracer = getExecutionTracer();
+//		if (tracer.disabled)
+//			return;
+//
+//		if (isThreadNeqCurrentThread())
+//			return;
+//
+//		checkTimeout();
+		
+		tracer.trace.classInitialized(classNameWithDots);
+		
+	}
+	
+	/**
+	 * 
+	 * @param classNameWithDots
+	 * @param fieldName
+	 */
 	public static void passedGetStatic(String classNameWithDots, String fieldName) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)

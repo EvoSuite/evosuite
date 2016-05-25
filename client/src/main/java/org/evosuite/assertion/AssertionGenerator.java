@@ -28,7 +28,6 @@ import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
@@ -36,6 +35,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -208,9 +208,8 @@ public abstract class AssertionGenerator {
 		if (!Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
-		ResetManager.getInstance().disableTracing();
-		ResetManager.getInstance().setResetAllClasses(true);
-		ResetManager.getInstance().setResetFinalFields(true);
+		final boolean reset_all_classes = Properties.RESET_ALL_CLASSES_DURING_ASSERTION_GENERATION;
+		ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
 		changeClassLoader(suite);
 	}
 	
@@ -223,7 +222,7 @@ public abstract class AssertionGenerator {
 
 			TestGenerationContext.getInstance().resetContext();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			Properties.getTargetClass();
+			Properties.resetTargetClass();
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
 

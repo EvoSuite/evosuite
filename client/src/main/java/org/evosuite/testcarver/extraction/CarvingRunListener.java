@@ -81,7 +81,8 @@ public class CarvingRunListener extends RunListener {
 
 	private List<Class<?>> getObservedClasses(final CaptureLog log) {
 		List<Class<?>> targetClasses = new ArrayList<Class<?>>();
-		targetClasses.add(Properties.getTargetClass());
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+		targetClasses.add(targetClass);
 		String prop = Properties.SELECTED_JUNIT;
 		if (prop == null || prop.trim().isEmpty()) {
 			throw new IllegalStateException(

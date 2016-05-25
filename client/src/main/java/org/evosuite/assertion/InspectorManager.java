@@ -38,9 +38,9 @@ public class InspectorManager {
 	private static Logger logger = LoggerFactory
 			.getLogger(InspectorManager.class);
 
-	private Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
+	private final Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
 
-	private Map<String, List<String>> blackList = new HashMap<String, List<String>>();
+	private final Map<String, List<String>> blackList = new HashMap<String, List<String>>();
 
 	private InspectorManager() {
 		// TODO: Need to replace this with proper analysis
@@ -128,6 +128,10 @@ public class InspectorManager {
 			instance = new InspectorManager();
 		}
 		return instance;
+	}
+	
+	public static void resetSingleton() {
+		instance=null;
 	}
 
 	private boolean isInspectorMethod(Method method) {
@@ -242,8 +246,9 @@ public class InspectorManager {
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Inspector> getInspectors(Class<?> clazz) {
-		if (!inspectors.containsKey(clazz))
+		if (!inspectors.containsKey(clazz)) {
 			determineInspectors(clazz);
+		}
 		return inspectors.get(clazz);
 	}
 

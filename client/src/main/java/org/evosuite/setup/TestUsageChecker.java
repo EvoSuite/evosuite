@@ -85,7 +85,8 @@ public class TestUsageChecker {
 			return false;
 
 		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-			if(Properties.hasTargetClassBeenLoaded() && !c.getDeclaringClass().equals(Properties.getTargetClass())) {
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+			if(Properties.hasTargetClassBeenLoaded() && !c.getDeclaringClass().equals(targetClass)) {
 				logger.debug("Excluding deprecated constructor " + c.getName());
 				return false;
 			}
@@ -143,7 +144,9 @@ public class TestUsageChecker {
             return false;
 
         if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-            if(Properties.hasTargetClassBeenLoaded() && !c.equals(Properties.getTargetClass())) {
+    		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(Properties.hasTargetClassBeenLoaded() && !c.equals(targetClass)) {
                 logger.debug("Skipping deprecated class " + c.getName());
                 return false;
             }
@@ -221,7 +224,9 @@ public class TestUsageChecker {
             return false;// handled here to avoid printing reasons
 
         if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
-            if(Properties.hasTargetClassBeenLoaded() && !f.getDeclaringClass().equals(Properties.getTargetClass())) {
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(Properties.hasTargetClassBeenLoaded() && !f.getDeclaringClass().equals(targetClass)) {
                 logger.debug("Skipping deprecated field " + f.getName());
                 return false;
             }
@@ -289,7 +294,9 @@ public class TestUsageChecker {
         }
 
         if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
-            if(Properties.hasTargetClassBeenLoaded() && !m.getDeclaringClass().equals(Properties.getTargetClass())) {
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(Properties.hasTargetClassBeenLoaded() && !m.getDeclaringClass().equals(targetClass)) {
                 logger.debug("Excluding deprecated method " + m.getName());
                 return false;
             }
@@ -344,7 +351,9 @@ public class TestUsageChecker {
 
         // Hashcode only if we need to cover it
         if (m.getName().equals("hashCode")) {
-            if(!m.getDeclaringClass().equals(Properties.getTargetClass()))
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(!m.getDeclaringClass().equals(targetClass))
                 return false;
             else {
                 if(GraphPool.getInstance(ownerClass.getClassLoader()).getActualCFG(Properties.TARGET_CLASS, m.getName() + Type.getMethodDescriptor(m)) == null) {

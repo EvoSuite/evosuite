@@ -72,8 +72,10 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 //			        && mutation.getStatement() instanceof PrimitiveStatement<?>) {
 				logger.info("Found suitable mutation: " + mutation);
 
+				final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
 				if (!individual.getTestCase().hasReferences(mutation.getStatement().getReturnValue())
-				        && !mutation.getStatement().getReturnClass().equals(Properties.getTargetClass())) {
+				        && !mutation.getStatement().getReturnClass().equals(targetClass)) {
 					logger.info("Return value of statement "
 					        + " is not referenced and not SUT, not doing local search");
 					continue;

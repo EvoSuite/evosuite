@@ -111,8 +111,7 @@ public class RuntimeInstrumentation {
 			 * FIXME: currently reset does add a new method, but that does no work
 			 * when retransformingMode :(
 			 */
-				CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
-				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
+				CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className, true);
 				cv = resetClassAdapter;
 			}
 

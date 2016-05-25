@@ -58,6 +58,7 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.DSEStrategy;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
@@ -65,8 +66,11 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
@@ -92,6 +96,7 @@ import java.util.*;
  */
 public class TestSuiteGenerator {
 
+	private static final String FOR_NAME = "forName";
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
 	/**
@@ -105,34 +110,41 @@ public class TestSuiteGenerator {
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
-		// Deactivate loop counter to make sure classes initizlie properly
+		// Deactivate loop counter to make sure classes initialize properly
 		LoopCounter.getInstance().setActive(false);
 
 		TestCaseExecutor.initExecutor();
-		Sandbox.goingToExecuteSUTCode();
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
-		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+			// Here is where the <clinit> code should be invoked for the first time
+			DefaultTestCase test = buildLoadTargetClassTestCase();
+			ExecutionResult execResult = TestCaseExecutor.getInstance().execute(test, Integer.MAX_VALUE);
 
+			if (hasThrownInitializerError(execResult)) {
+				// create single test suite with Class.forName()
+				writeJUnitTestSuiteForFailedInitialization();
+				ExceptionInInitializerError ex = getInitializerError(execResult);
+				throw ex;
+			} else if (!execResult.getAllThrownExceptions().isEmpty()) {
+				// some other exception has been thrown during initialization
+				Throwable t = execResult.getAllThrownExceptions().iterator().next();
+				throw t;
+			}
+			
 			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 
 		} catch (Throwable e) {
-
-			if (e instanceof ExceptionInInitializerError) {
-				// create single test suite with Class.forName()
-				writeJUnitTestSuiteForFailedInitialization();
-			}
 
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 					+ (e.getMessage() != null ? e.getMessage() : e.toString()));
 			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
 			return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
 		} finally {
-			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-			Sandbox.doneWithExecutingSUTCode();
-			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			if (Properties.RESET_STATIC_FIELDS) {
+				configureClassReInitializer();
+
+			}
 			// Once class loading is complete we can start checking loops
 			// without risking to interfere with class initialisation
 			LoopCounter.getInstance().setActive(true);
@@ -148,7 +160,8 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* Generating tests for class " + Properties.TARGET_CLASS);
 		printTestCriterion();
 
-		if (Properties.getTargetClass() == null) {
+		if (!Properties.hasTargetClassBeenLoaded()) {
+			// initialization failed, then build error message
 			return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 		}
 
@@ -199,20 +212,77 @@ public class TestSuiteGenerator {
 		return result;
 	}
 
+	/**
+	 * Returns true iif the test case execution has thrown an instance of ExceptionInInitializerError
+	 * 
+	 * @param execResult of the test case execution
+	 * @return true if the test case has thrown an ExceptionInInitializerError
+	 */
+	private static boolean hasThrownInitializerError(ExecutionResult execResult) {
+		for (Throwable t : execResult.getAllThrownExceptions()) {
+			if (t instanceof ExceptionInInitializerError) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Returns the initialized  error from the test case execution
+	 * 
+	 * @param execResult of the test case execution
+	 * @return null if there were no thrown instances of ExceptionInInitializerError
+	 */
+	private static ExceptionInInitializerError getInitializerError(ExecutionResult execResult) {
+		for (Throwable t : execResult.getAllThrownExceptions()) {
+			if (t instanceof ExceptionInInitializerError) {
+				ExceptionInInitializerError exceptionInInitializerError = (ExceptionInInitializerError)t;
+				return exceptionInInitializerError;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Reports the initialized classes during class initialization to the
+	 * ClassReInitializater and configures the ClassReInitializer accordingly
+	 */
+	private void configureClassReInitializer() {
+		// add loaded classes during building of dependency graph
+		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
+		final List<String> initializedClasses = execTrace.getInitializedClasses();
+		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
+		// set the behaviour of the ClassReInitializer
+		final boolean reset_all_classes = Properties.RESET_ALL_CLASSES_DURING_TEST_GENERATION;
+		ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
+	}
+
 	private static void writeJUnitTestSuiteForFailedInitialization() throws EvosuiteError {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
+		DefaultTestCase test = buildLoadTargetClassTestCase();
+		suite.addTest(test);
+		writeJUnitTestsAndCreateResult(suite);
+	}
+
+	/**
+	 * Creates a single Test Case that simply loads the target class. 
+	 * The test case uses Class.forName(TargetClassName)
+	 * @return
+	 * @throws EvosuiteError
+	 */
+	private static DefaultTestCase buildLoadTargetClassTestCase() throws EvosuiteError {
 		DefaultTestCase test = new DefaultTestCase();
 
 		StringPrimitiveStatement stmt0 = new StringPrimitiveStatement(test, Properties.TARGET_CLASS);
 		VariableReference string0 = test.addStatement(stmt0);
 		try {
-			Method forNameMethod = Class.class.getMethod("forName", String.class);
+			Method forNameMethod = Class.class.getMethod(FOR_NAME, String.class);
 			Statement statement = new MethodStatement(test,
 					new GenericMethod(forNameMethod, forNameMethod.getDeclaringClass()), null,
 					Collections.singletonList(string0));
 			test.addStatement(statement);
-			suite.addTest(test);
-			writeJUnitTestsAndCreateResult(suite);
+			return test;
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new EvosuiteError("Unexpected exception while retrieving Class.forName(String) method");
 		}
@@ -563,6 +633,8 @@ public class TestSuiteGenerator {
 			return new EntBugTestStrategy();
 		case MOSUITE:
 			return new MOSuiteStrategy();
+		case DSE:
+			return new DSEStrategy();
 		default:
 			throw new RuntimeException("Unsupported strategy: " + Properties.STRATEGY);
 		}

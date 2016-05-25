@@ -106,12 +106,14 @@ public class RegressionSearchListener implements SearchListener {
 			statsDir.mkdirs();
 		}
 
+		Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
 		// Format: $rand_seed_$file-count-in-current-dir_$CUT-name.csv
 		statsFile = new File(statsDirName
 				+ "/"
 				+ ((Properties.RANDOM_SEED == null) ? "0_" : Properties.RANDOM_SEED + "_") 
 				+ (filecount) + "" + "_" 
-				+ Properties.getTargetClass().getSimpleName() + ".csv");
+				+ targetClass.getSimpleName() + ".csv");
 
 		// if file exists, append time!
 		if (statsFile.exists())
@@ -379,7 +381,7 @@ public class RegressionSearchListener implements SearchListener {
 				analyzeDir.mkdirs();
 			}
 			File analysisFile = new File(analyzeDirName + "/analysis.txt");
-			String report = "Class: " + Properties.getTargetClass().getName()
+			String report = "Class: " + Properties.TARGET_CLASS
 					+ " | " + "gens: " + iteration + " | assertions: "
 					+ totalCount + " | " + analysisReport + " | " + jdiffReport;
 			logger.warn("Analysis report: " + report);

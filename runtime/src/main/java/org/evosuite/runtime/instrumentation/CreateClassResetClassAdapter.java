@@ -54,19 +54,18 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	/** Constant <code>static_classes</code> */
 	public static List<String> staticClasses = new ArrayList<String>();
 
-	private static Logger logger = LoggerFactory
-			.getLogger(CreateClassResetClassAdapter.class);
+	private static Logger logger = LoggerFactory.getLogger(CreateClassResetClassAdapter.class);
 
 	private boolean isInterface = false;
-	
+
 	private boolean isAnonymous = false;
-	
+
 	private boolean clinitFound = false;
 
 	private boolean definesUid = false;
-	
+
 	private boolean resetMethodAdded = false;
-	
+
 	private long serialUID = -1L;
 
 	private final List<String> finalFields = new ArrayList<String>();
@@ -83,15 +82,16 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public CreateClassResetClassAdapter(ClassVisitor visitor, String className) {
+	public CreateClassResetClassAdapter(ClassVisitor visitor, String className,
+			boolean removeFinalModifierOnStaticFields) {
 		super(Opcodes.ASM5, visitor);
 		this.className = className;
+		this.removeFinalModifierOnStaticFields = removeFinalModifierOnStaticFields;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void visit(int version, int access, String name, String signature,
-			String superName, String[] interfaces) {
+	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
 		isInterface = ((access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE);
 		if (ANONYMOUS_MATCHER1.matcher(name).matches()) {
@@ -107,13 +107,15 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	private final List<StaticField> static_fields = new LinkedList<StaticField>();
 
-	/* (non-Javadoc)
-	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String,
+	 * java.lang.String, java.lang.String, java.lang.Object)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public FieldVisitor visitField(int access, String name, String desc,
-			String signature, Object value) {
+	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
 
 		if (name.equals("serialVersionUID")) {
 			definesUid = true;
@@ -149,50 +151,42 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		return (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 	}
 
-	public void setRemoveFinalModifierOnStaticFields(
-			boolean removeFinalModifierOnStaticFields) {
-		this.removeFinalModifierOnStaticFields = removeFinalModifierOnStaticFields;
-	}
-
-	private boolean removeFinalModifierOnStaticFields = false;
+	private final boolean removeFinalModifierOnStaticFields;
 
 	/** {@inheritDoc} */
 	@Override
-	public MethodVisitor visitMethod(int methodAccess, String methodName,
-			String descriptor, String signature, String[] exceptions) {
+	public MethodVisitor visitMethod(int methodAccess, String methodName, String descriptor, String signature,
+			String[] exceptions) {
 
-		MethodVisitor mv = super.visitMethod(methodAccess, methodName,
-				descriptor, signature, exceptions);
-		
+		MethodVisitor mv = super.visitMethod(methodAccess, methodName, descriptor, signature, exceptions);
+
 		if (methodName.equals("<clinit>") && !isInterface && !isAnonymous && !resetMethodAdded) {
 			clinitFound = true;
 			logger.info("Found static initializer in class " + className);
-			//determineSerialisableUID();
+			// determineSerialisableUID();
 
 			// duplicates existing <clinit>
 			// TODO: Removed | Opcodes.ACC_PUBLIC
-			//       Does __STATIC_RESET need to be public?
-			//       <clinit> apparently can be private, resulting
-			//       in illegal modifiers
+			// Does __STATIC_RESET need to be public?
+			// <clinit> apparently can be private, resulting
+			// in illegal modifiers
 			MethodVisitor visitMethod = super.visitMethod(methodAccess | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
-					ClassResetter.STATIC_RESET, descriptor, signature,
-					exceptions);
+					ClassResetter.STATIC_RESET, descriptor, signature, exceptions);
 
-			CreateClassResetMethodAdapter staticResetMethodAdapter = new CreateClassResetMethodAdapter(
-					visitMethod, className, this.static_fields, finalFields);
+			CreateClassResetMethodAdapter staticResetMethodAdapter = new CreateClassResetMethodAdapter(visitMethod,
+					className, this.static_fields, finalFields);
 
 			resetMethodAdded = true;
-			
+
 			if (this.removeUpdatesOnFinalFields) {
-				MethodVisitor mv2 = new RemoveFinalMethodAdapter(className,
-						staticResetMethodAdapter, finalFields);
+				MethodVisitor mv2 = new RemoveFinalMethodAdapter(className, staticResetMethodAdapter, finalFields);
 
 				return new MultiMethodVisitor(mv2, mv);
 			} else {
 				return new MultiMethodVisitor(staticResetMethodAdapter, mv);
 			}
-		} else if(methodName.equals(ClassResetter.STATIC_RESET)) {
-			if(resetMethodAdded) {
+		} else if (methodName.equals(ClassResetter.STATIC_RESET)) {
+			if (resetMethodAdded) {
 				// Do not add reset method a second time
 			} else {
 				resetMethodAdded = true;
@@ -206,13 +200,13 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		if (!clinitFound && !isInterface && !isAnonymous && !resetMethodAdded) {
 			// create brand new __STATIC_RESET
 			if (!definesUid) {
-				//determineSerialisableUID();
-				//createSerialisableUID();
+				// determineSerialisableUID();
+				// createSerialisableUID();
 			}
 			createEmptyStaticReset();
 		} else if (clinitFound) {
 			if (!definesUid) {
-				//createSerialisableUID();
+				// createSerialisableUID();
 			}
 		}
 		super.visitEnd();
@@ -227,8 +221,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 				serialUID = c.getSerialVersionUID();
 			}
 		} catch (ClassNotFoundException e) {
-			logger.info("Failed to add serialId to class " + className + ": "
-					+ e.getMessage());
+			logger.info("Failed to add serialId to class " + className + ": " + e.getMessage());
 		}
 
 	}
@@ -239,32 +232,27 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		if (serialUID < 0)
 			return;
 		/*
-		 * If the class is serializable, then adding a hashCode will change the serialVersionUID
-		 * if it is not defined in the class. Hence, if it is not defined, we have to define it to
-		 * avoid problems in serialising the class.
+		 * If the class is serializable, then adding a hashCode will change the
+		 * serialVersionUID if it is not defined in the class. Hence, if it is
+		 * not defined, we have to define it to avoid problems in serialising
+		 * the class.
 		 */
 		logger.info("Adding serialId to class " + className);
-		visitField(
-				Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
-				"serialVersionUID", "J", null, serialUID);
+		visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null,
+				serialUID);
 	}
 
 	private void createEmptyStaticReset() {
-		logger.info("Creating brand-new static initializer in class "
-				+ className);
-		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC
-				| Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC, ClassResetter.STATIC_RESET, "()V", null,
-				null);
+		logger.info("Creating brand-new static initializer in class " + className);
+		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
+				ClassResetter.STATIC_RESET, "()V", null, null);
 		mv.visitCode();
 		for (StaticField staticField : static_fields) {
 
-			if (!finalFields.contains(staticField.name)
-					&& !staticField.name.startsWith("__cobertura")
+			if (!finalFields.contains(staticField.name) && !staticField.name.startsWith("__cobertura")
 					&& !staticField.name.startsWith("$jacoco")) {
 
-				logger.info("Adding bytecode for initializing field "
-						+ staticField.name);
-
+				logger.info("Adding bytecode for initializing field " + staticField.name);
 
 				if (staticField.value != null) {
 					mv.visitLdcInsn(staticField.value);
@@ -293,8 +281,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 						break;
 					}
 				}
-				mv.visitFieldInsn(Opcodes.PUTSTATIC, className,
-						staticField.name, staticField.desc);
+				mv.visitFieldInsn(Opcodes.PUTSTATIC, className, staticField.name, staticField.desc);
 
 			}
 		}

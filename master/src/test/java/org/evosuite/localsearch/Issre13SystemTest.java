@@ -97,6 +97,8 @@ public class Issre13SystemTest extends SystemTestBase {
 	@Test
 	public void testOnSpecificTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
 		Properties.TARGET_CLASS = DseBar.class.getCanonicalName();
+		Properties.DSE_PROBABILITY = 1.0; // force using DSE
+		
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
 		Class<?> fooClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(DseFoo.class.getCanonicalName());
 		GenericClass clazz = new GenericClass(sut);

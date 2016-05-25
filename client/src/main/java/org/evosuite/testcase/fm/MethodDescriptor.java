@@ -155,13 +155,13 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             return false;
         }
 
-        if(Properties.getTargetClass() != null) {
+        if(Properties.hasTargetClassBeenLoaded() ) {
             //null can happen in some unit tests
 
             if(!Modifier.isPublic(modifiers)) {
                 assert !Modifier.isPrivate(modifiers); //previous checks
 
-                String sutName = Properties.getTargetClass().getName();
+                String sutName = Properties.TARGET_CLASS;
 
                 int lastIndexMethod = className.lastIndexOf('.');
                 int lastIndexSUT = sutName.lastIndexOf('.');

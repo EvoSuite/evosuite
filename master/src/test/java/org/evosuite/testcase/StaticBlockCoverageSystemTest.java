@@ -19,49 +19,46 @@
  */
 package org.evosuite.testcase;
 
+import java.util.Map;
+
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.staticfield.StaticFoo;
+import com.examples.with.different.packagename.staticfield.StaticBlockCoverage;
 
-public class ResetStaticFieldSystemTest extends SystemTestBase {
+public class StaticBlockCoverageSystemTest extends SystemTestBase {
 
-	private boolean reset_statick_field__property;
-	
 	@Before
-	public void saveProperties() {
-		reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
+	public void setUpProperties() {
 		Properties.RESET_STATIC_FIELDS = true;
-		Properties.RESET_STATIC_FIELD_GETS = true;
-	}
-
-	@After
-	public void restoreProperties() {
-		Properties.RESET_STATIC_FIELDS = reset_statick_field__property ;
 	}
 
 	@Test
 	public void test() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = StaticFoo.class.getCanonicalName();
+		String targetClass = StaticBlockCoverage.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		String[] command = new String[] {"-generateSuite", "-class", targetClass };
+		Properties.CRITERION = new Criterion[]{Criterion.LINE};
+		
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
+
+		System.out.println(best.toString());
+		
 		double best_fitness = best.getFitness();
-		Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
+		Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness , 0.0001);
 		
 	}
 

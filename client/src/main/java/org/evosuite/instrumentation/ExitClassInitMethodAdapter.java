@@ -27,7 +27,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.evosuite.runtime.classhandling.ResetManager;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -65,7 +65,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 	public void visitInsn(int opcode) {
 		if (opcode == Opcodes.RETURN && (methodName.equals("<clinit>"))) {
 
-			String executionTracerClassName = ResetManager.class.getName()
+			String executionTracerClassName = ExecutionTracer.class.getName()
 					.replace('.', '/');
 			String executionTracerDescriptor = Type.getMethodDescriptor(
 					Type.VOID_TYPE, Type.getType(String.class));
@@ -94,7 +94,7 @@ public class ExitClassInitMethodAdapter extends MethodVisitor {
 	public void visitEnd() {
 		if (methodName.equals("<clinit>")) {
 			super.visitLabel(endingTryLabel);
-			String executionTracerClassName = ResetManager.class.getName()
+			String executionTracerClassName = ExecutionTracer.class.getName()
 					.replace('.', '/');
 			String executionTracerDescriptor = Type.getMethodDescriptor(
 					Type.VOID_TYPE, Type.getType(String.class));

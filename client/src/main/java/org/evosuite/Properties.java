@@ -119,9 +119,20 @@ public class Properties {
 	@Parameter(key = "reset_static_fields", group = "Test Creation", description = "Call static constructors only after each static field was modified")
 	public static boolean RESET_STATIC_FIELDS = true;
 
+	/** Constant <code>RESET_STATIC_FINAL_FIELDS =false</code> */
+	@Parameter(key = "reset_static_final_fields", group = "Test Creation", description = "Remove the static modifier in target fields")
+	public static boolean RESET_STATIC_FINAL_FIELDS = true;
+	
 	@Parameter(key = "reset_static_field_gets", group = "Test Creation", description = "Call static constructors also after each static field was read")
 	public static boolean RESET_STATIC_FIELD_GETS = false;
 
+	@Parameter(key = "reset_all_classes_during_test_generation", group = "Test Creation", description = "Test Generation does not apply the selective method of selection of class re-initalization")
+	public static boolean RESET_ALL_CLASSES_DURING_TEST_GENERATION = false;
+
+	@Parameter(key = "reset_all_classes_during_assertion_generation", group = "Test Creation", description = "Test Generation does not apply the selective method of selection of class re-initalization")
+	public static boolean RESET_ALL_CLASSES_DURING_ASSERTION_GENERATION = true;
+
+	
 	/** Constant <code>RESET_STANDARD_STREAMS =false</code> */
 	@Parameter(key = "reset_standard_streams", group = "Test Creation", description = "Restore System.out, System.in and DebugGraphics.logStream after test execution")
 	public static boolean RESET_STANDARD_STREAMS = false;
@@ -1509,7 +1520,7 @@ public class Properties {
 
 
 	public enum Strategy {
-		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, REGRESSIONTESTS, MOSUITE
+		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, REGRESSIONTESTS, MOSUITE, DSE
 	}
 	
 	/** Constant <code>REGRESSIONCP</code> */
@@ -2335,16 +2346,41 @@ public class Properties {
 		if(isOriginal)
 		 toReturnRegression = true;
 		
-		 Class<?> targetClass = getTargetClass();
+		 Class<?> targetClass = getTargetClass(true);
 		 
 		 toReturnRegression = false;
 		 return targetClass;
 	}
 
-	public static Class<?> getTargetClass() {
+	/**
+	 * Returns the target class. It required, it also executes the 
+	 * <clinit> class initialiser of the target class 
+	 * 
+	 * @return the initialised target class
+	 */
+	public static Class<?> getInitializedTargetClass() {
 		return getTargetClass(true);
 	}
+
+	/**
+	 * Returns the target class. If the class is not yet initialised, 
+	 * this method *does not* execute the <clinit> class initialiser of the target class. 
+	 * This method explicitly states that the <clinit> method is not executed 
+	 * because of this method.
+	 * 
+	 * @return the target class. The target class could be uninitialised
+	 */
+	public static Class<?> getTargetClassAndDontInitialise() {
+		return getTargetClass(false);
+	}
+
 	
+	/**
+	 * Returns true if there is a loaded target class object.
+	 * Warning: resetTargetClass() does not load the class, only
+	 * discards the previous target class object.
+	 * @return
+	 */
 	public static boolean hasTargetClassBeenLoaded() {
 		return TARGET_CLASS_INSTANCE != null;
 	}
@@ -2354,14 +2390,16 @@ public class Properties {
 	 *
 	 * @return a {@link java.lang.Class} object.
 	 */
-	public static Class<?> getTargetClass(boolean initialise) {
+	private static Class<?> getTargetClass(boolean initialise) {
 
 		if (TARGET_CLASS_INSTANCE != null
 				&& TARGET_CLASS_INSTANCE.getCanonicalName()
 						.equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
-		TARGET_CLASS_INSTANCE = null;
+		if (TARGET_CLASS_INSTANCE!=null) { 
+			TARGET_CLASS_INSTANCE = null;
+		}
 
 		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
 
