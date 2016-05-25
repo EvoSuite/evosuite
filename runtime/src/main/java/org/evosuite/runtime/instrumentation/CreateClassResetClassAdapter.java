@@ -174,7 +174,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			//       Does __STATIC_RESET need to be public?
 			//       <clinit> apparently can be private, resulting
 			//       in illegal modifiers
-			MethodVisitor visitMethod = super.visitMethod(methodAccess | Opcodes.ACC_STATIC,
+			MethodVisitor visitMethod = super.visitMethod(methodAccess | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
 					ClassResetter.STATIC_RESET, descriptor, signature,
 					exceptions);
 
@@ -253,7 +253,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		logger.info("Creating brand-new static initializer in class "
 				+ className);
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC
-				| Opcodes.ACC_STATIC, ClassResetter.STATIC_RESET, "()V", null,
+				| Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC, ClassResetter.STATIC_RESET, "()V", null,
 				null);
 		mv.visitCode();
 		for (StaticField staticField : static_fields) {
