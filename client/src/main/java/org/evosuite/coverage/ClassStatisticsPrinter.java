@@ -27,6 +27,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -35,6 +37,8 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.line.LineCoverageFactory;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
@@ -190,7 +194,17 @@ public class ClassStatisticsPrinter {
 			int numGoals = 0;
 			for (TestFitnessFactory<?> factory : factories) {
 				if (Properties.PRINT_GOALS) {
-  					for (TestFitnessFunction goal : factory.getCoverageGoals()) {
+					List<TestFitnessFunction> goals = (List<TestFitnessFunction>) factory.getCoverageGoals();
+					if (factory instanceof LineCoverageFactory) {
+						Collections.sort(goals, new Comparator<TestFitnessFunction>() {
+							@Override
+							public int compare(TestFitnessFunction l1, TestFitnessFunction l2) {
+								return Integer.compare(((LineCoverageTestFitness) l1).getLine(),
+														((LineCoverageTestFitness) l2).getLine());
+							}
+						});
+					}
+					for (TestFitnessFunction goal : goals) {
   					  allGoals.append(goal.toString() + java.lang.System.getProperty("line.separator"));
   					}
 				}
