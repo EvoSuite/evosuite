@@ -57,8 +57,10 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		final File tmp = new File(path);
 		tmp.mkdirs();
 
+		Properties.COVERAGE_MATRIX_FILENAME = path + File.separator + Properties.TARGET_CLASS + ".matrix";
+
 		try {
-			final File matrix = new File(path + File.separator + Properties.TARGET_CLASS + ".matrix");
+			final File matrix = new File(Properties.COVERAGE_MATRIX_FILENAME);
 			matrix.createNewFile();
 
 			FileWriter fw = new FileWriter(matrix.getAbsoluteFile());
