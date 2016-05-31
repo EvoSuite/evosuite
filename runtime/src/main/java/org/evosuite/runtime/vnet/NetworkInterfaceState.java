@@ -102,7 +102,7 @@ public class NetworkInterfaceState {
 	}
 
 	public byte[] getMacAddr(){
-		return mac.clone(); 
+		return mac!=null ? mac.clone() : null;
 	}
 	
 	public int getMTU(){
