@@ -204,6 +204,28 @@ public class SystemTestBase {
 		return ga;
 	}
 
+	protected GeneticAlgorithm<?>  doNonOptimalLineTest(Class<?> target){
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = target.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		Assert.assertNotEquals("Unexpected optimal coverage: ", 1d, best.getCoverage(), 0.001);
+
+		return ga;
+	}
+
+
+
 	protected OutputVariable getOutputVariable(RuntimeVariable rv){
 		if(!Properties.OUTPUT_VARIABLES.contains(rv.toString())){
 			throw new IllegalStateException("Properties.OUTPUT_VARIABLES needs to contain "+rv.toString());
