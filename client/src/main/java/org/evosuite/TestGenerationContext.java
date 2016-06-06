@@ -24,6 +24,7 @@ package org.evosuite;
 
 import java.util.List;
 
+import org.evosuite.assertion.InspectorManager;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.archive.TestsArchive;
@@ -232,5 +233,7 @@ public class TestGenerationContext {
 		final List<String> initializedClasses = ClassReInitializer.getInstance().getInitializedClasses();
 		ClassReInitializer.resetSingleton();
 		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
+		
+		InspectorManager.resetSingleton();
 	}
 }

@@ -21,11 +21,16 @@ package org.evosuite.assertion;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.mock.MockList;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
@@ -217,7 +222,7 @@ public class InspectorManager {
 
 	private void determineInspectors(Class<?> clazz) {
 		if (!TestUsageChecker.canUse(clazz)) {
-			inspectors.put(clazz, Collections.EMPTY_LIST);
+			inspectors.put(clazz, Collections.emptyList());
 		}
 		if (!TestUsageChecker.canUse(clazz))
 			return;

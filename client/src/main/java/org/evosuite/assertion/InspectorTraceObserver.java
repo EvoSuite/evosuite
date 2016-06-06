@@ -36,7 +36,6 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 
 	private static Pattern addressPattern = Pattern.compile(".*[\\w+\\.]+@[abcdef\\d]+.*", Pattern.MULTILINE);
 	
-	private final InspectorManager manager = InspectorManager.getInstance();
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
@@ -62,7 +61,7 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 
 		logger.debug("Checking for inspectors of " + var + " at statement "
 		        + statement.getPosition());
-		List<Inspector> inspectors = manager.getInspectors(var.getVariableClass());
+		List<Inspector> inspectors = InspectorManager.getInstance().getInspectors(var.getVariableClass());
 
 		InspectorTraceEntry entry = new InspectorTraceEntry(var);
 
@@ -112,7 +111,7 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 				if (e instanceof TimeoutException) {
 					logger.debug("Timeout during inspector call - deactivating inspector "
 					        + i.getMethodCall());
-					manager.removeInspector(var.getVariableClass(), i);
+					InspectorManager.getInstance().removeInspector(var.getVariableClass(), i);
 				}
 				logger.debug("Exception " + e + " / " + e.getCause());
 				if (e.getCause() != null
