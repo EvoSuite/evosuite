@@ -1412,11 +1412,15 @@ public class TestCodeVisitor extends TestVisitor {
 		result += " catch(" + getClassName(ex) + " e) {" + NEWLINE;
 
 		// adding the message of the exception
-		String exceptionMessage = "";
-		if (exception.getMessage() != null) {
-			exceptionMessage = exception.getMessage().replace("*/", "*_/");
-		} else {
-			exceptionMessage = "no message in exception (getMessage() returned null)";
+		String exceptionMessage;
+		try {
+			if (exception.getMessage() != null) {
+				exceptionMessage = exception.getMessage().replace("*/", "*_/");
+			} else {
+				exceptionMessage = "no message in exception (getMessage() returned null)";
+			}
+		} catch (Exception exceptionThownExecutionGetMessage) {
+			exceptionMessage = "no message (getMessage() has thrown an exception)";
 		}
 
 		String sourceClass = getSourceClassName(exception);
