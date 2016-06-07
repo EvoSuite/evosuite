@@ -68,7 +68,8 @@ public class Issre13SystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 500;
 		Properties.SEARCH_BUDGET = 100000;
 		Properties.RESET_STATIC_FIELD_GETS = true;
-
+		Properties.P_FUNCTIONAL_MOCKING = 0.0;
+		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 	}
 
 	@Test
