@@ -117,7 +117,7 @@ public class TestSuiteGenerator {
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 			// Here is where the <clinit> code should be invoked for the first time
-			DefaultTestCase test = buildLoadTargetClassTestCase();
+			DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
 			ExecutionResult execResult = TestCaseExecutor.getInstance().execute(test, Integer.MAX_VALUE);
 
 			if (hasThrownInitializerError(execResult)) {
@@ -260,31 +260,49 @@ public class TestSuiteGenerator {
 
 	private static void writeJUnitTestSuiteForFailedInitialization() throws EvosuiteError {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		DefaultTestCase test = buildLoadTargetClassTestCase();
+		DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
 		suite.addTest(test);
 		writeJUnitTestsAndCreateResult(suite);
 	}
 
 	/**
-	 * Creates a single Test Case that simply loads the target class. 
-	 * The test case uses Class.forName(TargetClassName)
+	 * Creates a single Test Case that only loads the target class. 
+	 * <code>
+	 * Thread currentThread = Thread.currentThread();
+	 * ClassLoader classLoader = currentThread.getClassLoader();
+	 * classLoader.load(className);
+	 * </code>
+	 * @param className the class to be loaded
 	 * @return
-	 * @throws EvosuiteError
+	 * @throws EvosuiteError if a reflection error happens while creating the test case
 	 */
-	private static DefaultTestCase buildLoadTargetClassTestCase() throws EvosuiteError {
+	private static DefaultTestCase buildLoadTargetClassTestCase(String className) throws EvosuiteError {
 		DefaultTestCase test = new DefaultTestCase();
 
-		StringPrimitiveStatement stmt0 = new StringPrimitiveStatement(test, Properties.TARGET_CLASS);
+		StringPrimitiveStatement stmt0 = new StringPrimitiveStatement(test, className);
 		VariableReference string0 = test.addStatement(stmt0);
 		try {
-			Method forNameMethod = Class.class.getMethod(FOR_NAME, String.class);
-			Statement statement = new MethodStatement(test,
-					new GenericMethod(forNameMethod, forNameMethod.getDeclaringClass()), null,
+			Method currentThreadMethod = Thread.class.getMethod("currentThread");
+			Statement currentThreadStmt = new MethodStatement(test,
+					new GenericMethod(currentThreadMethod, currentThreadMethod.getDeclaringClass()), null,
+					Collections.emptyList());
+			VariableReference currentThreadVar = test.addStatement(currentThreadStmt);
+
+			Method getContextClassLoaderMethod = Thread.class.getMethod("getContextClassLoader");
+			Statement getContextClassLoaderStmt = new MethodStatement(test,
+					new GenericMethod(getContextClassLoaderMethod, getContextClassLoaderMethod.getDeclaringClass()),
+					currentThreadVar, Collections.emptyList());
+			VariableReference contextClassLoaderVar = test.addStatement(getContextClassLoaderStmt);
+
+			Method loadClassMethod = ClassLoader.class.getMethod("loadClass", String.class);
+			Statement loadClassStmt = new MethodStatement(test,
+					new GenericMethod(loadClassMethod, loadClassMethod.getDeclaringClass()), contextClassLoaderVar,
 					Collections.singletonList(string0));
-			test.addStatement(statement);
+			test.addStatement(loadClassStmt);
+
 			return test;
 		} catch (NoSuchMethodException | SecurityException e) {
-			throw new EvosuiteError("Unexpected exception while retrieving Class.forName(String) method");
+			throw new EvosuiteError("Unexpected exception while creating Class Initializer Test Case");
 		}
 	}
 

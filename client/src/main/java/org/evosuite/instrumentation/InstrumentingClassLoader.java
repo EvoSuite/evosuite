@@ -25,8 +25,10 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -227,6 +229,11 @@ public class InstrumentingClassLoader extends ClassLoader {
 	
 	public BytecodeInstrumentation getInstrumentation() {
 		return instrumentation;
+	}
+	
+	public Set<String> getLoadedClasses() {
+		HashSet<String> loadedClasses = new HashSet<String>(this.classes.keySet());
+		return loadedClasses;
 	}
 
 }
