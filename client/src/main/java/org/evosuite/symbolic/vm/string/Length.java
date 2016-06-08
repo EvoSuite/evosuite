@@ -22,7 +22,7 @@ package org.evosuite.symbolic.vm.string;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -37,7 +37,7 @@ public final class Length extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullReference symb_str = this.getSymbReceiver();
+		NonNullExpression symb_str = this.getSymbReceiver();
 		String conc_str = (String) this.getConcReceiver();
 		int res = this.getConcIntRetVal();
 

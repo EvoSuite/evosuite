@@ -30,7 +30,7 @@ import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -48,7 +48,7 @@ public final class StringBuffer_SetLength extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullReference symb_str_buffer = this.getSymbReceiver();
+		NonNullExpression symb_str_buffer = this.getSymbReceiver();
 		StringBuffer conc_str_buffer = (StringBuffer) this.getConcReceiver();
 
 		IntegerValue newSymbLength = this.getSymbIntegerArgument(0);

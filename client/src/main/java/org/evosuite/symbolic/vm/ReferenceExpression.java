@@ -24,19 +24,14 @@ package org.evosuite.symbolic.vm;
  * @author galeotti
  *
  */
-public final class NullReference implements Reference {
+public interface ReferenceExpression {
 
-	private final static NullReference singleton = new NullReference();
-
-	private NullReference() {
-	}
-
-	public static NullReference getInstance() {
-		return singleton;
-	}
-
-	@Override
-	public String toString() {
-		return "NULL";
-	}
+	/**
+	 * Returns the concrete object for this reference. The object is stored as a
+	 * weak reference. A weak reference returns null if only weak references
+	 * have access to the object
+	 * 
+	 * @return
+	 */
+	public Object getWeakConcreteObject();
 }

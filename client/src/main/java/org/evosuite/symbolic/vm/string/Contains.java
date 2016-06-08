@@ -22,7 +22,7 @@ package org.evosuite.symbolic.vm.string;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -39,13 +39,13 @@ public final class Contains extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		String conc_left = (String) this.getConcReceiver();
-		NonNullReference symb_left = this.getSymbReceiver();
+		NonNullExpression symb_left = this.getSymbReceiver();
 
 		StringValue left_expr = env.heap.getField(Types.JAVA_LANG_STRING,
 				SymbolicHeap.$STRING_VALUE, conc_left, symb_left, conc_left);
 
 		CharSequence conc_right = (CharSequence) this.getConcArgument(0);
-		NonNullReference symb_right = (NonNullReference) this
+		NonNullExpression symb_right = (NonNullExpression) this
 				.getSymbArgument(0);
 
 		if (conc_right instanceof String) {

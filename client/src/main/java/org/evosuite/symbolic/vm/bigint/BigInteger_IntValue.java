@@ -22,7 +22,7 @@ package org.evosuite.symbolic.vm.bigint;
 import java.math.BigInteger;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -39,7 +39,7 @@ public final class BigInteger_IntValue extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		BigInteger conc_big_integer = (BigInteger) this.getConcReceiver();
-		NonNullReference symb_big_integer = this.getSymbReceiver();
+		NonNullExpression symb_big_integer = this.getSymbReceiver();
 		int res =  this.getConcIntRetVal();
 		
 		IntegerValue integer_expr = this.env.heap.getField(

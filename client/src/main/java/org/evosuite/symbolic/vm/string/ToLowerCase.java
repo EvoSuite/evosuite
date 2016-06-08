@@ -22,7 +22,7 @@ package org.evosuite.symbolic.vm.string;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -39,12 +39,12 @@ public final class ToLowerCase extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// object receiver
-		NonNullReference symb_str = this.getSymbReceiver();
+		NonNullExpression symb_str = this.getSymbReceiver();
 		String conc_str = (String) this.getConcReceiver();
 
 		// return value
 		String conc_ret_val = (String) this.getConcRetVal();
-		NonNullReference symb_ret_val = (NonNullReference) this.getSymbRetVal();
+		NonNullExpression symb_ret_val = (NonNullExpression) this.getSymbRetVal();
 
 		StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
 				SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);

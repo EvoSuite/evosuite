@@ -21,8 +21,8 @@ package org.evosuite.symbolic.vm.string.tokenizer;
 
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
+import org.evosuite.symbolic.vm.NonNullExpression;
+import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -41,27 +41,27 @@ public final class StringTokenizer_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// symbolic receiver (new object)
-		NonNullReference symb_str_tokenizer = (NonNullReference) this
+		NonNullExpression symb_str_tokenizer = (NonNullExpression) this
 				.getSymbReceiver();
 
 		// string argument
 		String conc_str = (String) this.getConcArgument(0);
-		Reference symb_str = this.getSymbArgument(0);
+		ReferenceExpression symb_str = this.getSymbArgument(0);
 
 		// delim argument
 		String conc_delim = (String) this.getConcArgument(1);
-		Reference symb_delim = this.getSymbArgument(1);
+		ReferenceExpression symb_delim = this.getSymbArgument(1);
 
-		if (symb_str instanceof NonNullReference
-				&& symb_delim instanceof NonNullReference) {
-			NonNullReference non_null_symb_string = (NonNullReference) symb_str;
+		if (symb_str instanceof NonNullExpression
+				&& symb_delim instanceof NonNullExpression) {
+			NonNullExpression non_null_symb_string = (NonNullExpression) symb_str;
 			assert conc_str != null;
 
 			StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 					SymbolicHeap.$STRING_VALUE, conc_str, non_null_symb_string,
 					conc_str);
 
-			NonNullReference non_null_symb_delim = (NonNullReference) symb_delim;
+			NonNullExpression non_null_symb_delim = (NonNullExpression) symb_delim;
 			assert conc_delim != null;
 
 			StringValue delimExpr = env.heap.getField(Types.JAVA_LANG_STRING,

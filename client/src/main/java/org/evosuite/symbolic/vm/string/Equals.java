@@ -22,8 +22,8 @@ package org.evosuite.symbolic.vm.string;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
+import org.evosuite.symbolic.vm.NonNullExpression;
+import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -41,19 +41,19 @@ public final class Equals extends SymbolicFunction {
 	public Object executeFunction() {
 
 		String conc_left = (String) this.getConcReceiver();
-		NonNullReference symb_left = this.getSymbReceiver();
+		NonNullExpression symb_left = this.getSymbReceiver();
 
 		Object conc_right = this.getConcArgument(0);
-		Reference symb_right = this.getSymbArgument(0);
+		ReferenceExpression symb_right = this.getSymbArgument(0);
 
 		boolean res = this.getConcBooleanRetVal();
 
 		StringValue left_expr = env.heap.getField(Types.JAVA_LANG_STRING,
 				SymbolicHeap.$STRING_VALUE, conc_left, symb_left, conc_left);
 
-		if (symb_right instanceof NonNullReference
+		if (symb_right instanceof NonNullExpression
 				&& conc_right instanceof String) {
-			NonNullReference non_null_symb_right = (NonNullReference) symb_right;
+			NonNullExpression non_null_symb_right = (NonNullExpression) symb_right;
 			String conc_right_str = (String) conc_right;
 
 			StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,

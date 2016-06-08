@@ -23,7 +23,7 @@ import java.math.BigInteger;
 
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -39,7 +39,7 @@ public final class BigInteger_Ctor extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		String conc_string = (String) this.getConcArgument(0);
-		NonNullReference str_ref = (NonNullReference) this.getSymbArgument(0);
+		NonNullExpression str_ref = (NonNullExpression) this.getSymbArgument(0);
 
 		StringValue symb_string = this.env.heap.getField(
 				Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
@@ -47,7 +47,7 @@ public final class BigInteger_Ctor extends SymbolicFunction {
 
 		if (symb_string.containsSymbolicVariable()) {
 
-			NonNullReference symb_big_integer = (NonNullReference) env
+			NonNullExpression symb_big_integer = (NonNullExpression) env
 					.topFrame().operandStack.peekRef();
 
 			BigInteger bigInteger = new BigInteger(conc_string);

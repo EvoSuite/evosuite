@@ -28,8 +28,8 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
+import org.evosuite.symbolic.vm.NonNullExpression;
+import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -52,10 +52,10 @@ public abstract class StartsWith extends SymbolicFunction {
 		public Object executeFunction() {
 
 			// receiver
-			NonNullReference symb_receiver = this.getSymbReceiver();
+			NonNullExpression symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 			// prefix argument
-			Reference symb_prefix = this.getSymbArgument(0);
+			ReferenceExpression symb_prefix = this.getSymbArgument(0);
 			String conc_prefix = (String) this.getConcArgument(0);
 
 			// return value
@@ -65,8 +65,8 @@ public abstract class StartsWith extends SymbolicFunction {
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_receiver, symb_receiver, conc_receiver);
 
-			if (symb_prefix instanceof NonNullReference) {
-				NonNullReference non_null_symb_prefix = (NonNullReference) symb_prefix;
+			if (symb_prefix instanceof NonNullExpression) {
+				NonNullExpression non_null_symb_prefix = (NonNullExpression) symb_prefix;
 
 				StringValue prefixExpr = env.heap.getField(
 						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
@@ -102,10 +102,10 @@ public abstract class StartsWith extends SymbolicFunction {
 		public Object executeFunction() {
 
 			// receiver
-			NonNullReference symb_receiver = this.getSymbReceiver();
+			NonNullExpression symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 			// prefix argument
-			Reference symb_prefix = this.getSymbArgument(0);
+			ReferenceExpression symb_prefix = this.getSymbArgument(0);
 			String conc_prefix = (String) this.getConcArgument(0);
 			// toffset argument
 			IntegerValue offsetExpr = this.getSymbIntegerArgument(1);
@@ -117,8 +117,8 @@ public abstract class StartsWith extends SymbolicFunction {
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_receiver, symb_receiver, conc_receiver);
 
-			if (symb_prefix instanceof NonNullReference) {
-				NonNullReference non_null_symb_prefix = (NonNullReference) symb_prefix;
+			if (symb_prefix instanceof NonNullExpression) {
+				NonNullExpression non_null_symb_prefix = (NonNullExpression) symb_prefix;
 
 				StringValue prefixExpr = env.heap.getField(
 						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,

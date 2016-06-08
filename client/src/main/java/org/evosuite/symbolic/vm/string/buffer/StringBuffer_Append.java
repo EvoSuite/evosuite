@@ -26,9 +26,9 @@ import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.Reference;
+import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
@@ -62,7 +62,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_str_buffer = this.getSymbReceiver();
+			NonNullExpression symb_str_buffer = this.getSymbReceiver();
 			StringBuffer conc_str_buffer = (StringBuffer) this
 					.getConcReceiver();
 
@@ -97,7 +97,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_str_buffer = this.getSymbReceiver();
+			NonNullExpression symb_str_buffer = this.getSymbReceiver();
 			StringBuffer conc_str_buffer = (StringBuffer) this
 					.getConcReceiver();
 
@@ -132,7 +132,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_str_buffer = this.getSymbReceiver();
+			NonNullExpression symb_str_buffer = this.getSymbReceiver();
 			StringBuffer conc_str_buffer = (StringBuffer) this
 					.getConcReceiver();
 
@@ -167,7 +167,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_str_buffer = this.getSymbReceiver();
+			NonNullExpression symb_str_buffer = this.getSymbReceiver();
 			StringBuffer conc_str_buffer = (StringBuffer) this
 					.getConcReceiver();
 
@@ -202,7 +202,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_str_buffer = this.getSymbReceiver();
+			NonNullExpression symb_str_buffer = this.getSymbReceiver();
 			StringBuffer conc_str_buffer = (StringBuffer) this
 					.getConcReceiver();
 
@@ -237,7 +237,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_str_buffer = this.getSymbReceiver();
+			NonNullExpression symb_str_buffer = this.getSymbReceiver();
 			StringBuffer conc_str_buffer = (StringBuffer) this
 					.getConcReceiver();
 
@@ -274,7 +274,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_str_buffer = this.getSymbReceiver();
+			NonNullExpression symb_str_buffer = this.getSymbReceiver();
 			StringBuffer conc_str_buffer = (StringBuffer) this
 					.getConcReceiver();
 
@@ -283,7 +283,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 					SymbolicHeap.$STRING_BUFFER_CONTENTS, conc_str_buffer,
 					symb_str_buffer, stringValBeforeExecution);
 
-			Reference symb_str = this.getSymbArgument(0);
+			ReferenceExpression symb_str = this.getSymbArgument(0);
 			String conc_str = (String) this.getConcArgument(0);
 
 			StringValue symb_str_value;
@@ -291,7 +291,7 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 				symb_str_value = ExpressionFactory
 						.buildNewStringConstant(NULL_STRING);
 			} else {
-				NonNullReference symb_non_null_str = (NonNullReference) symb_str;
+				NonNullExpression symb_non_null_str = (NonNullExpression) symb_str;
 				symb_str_value = env.heap.getField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_str,
 						symb_non_null_str, conc_str);

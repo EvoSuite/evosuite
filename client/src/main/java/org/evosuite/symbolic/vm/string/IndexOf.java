@@ -28,8 +28,8 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
+import org.evosuite.symbolic.vm.NonNullExpression;
+import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -52,7 +52,7 @@ public abstract class IndexOf extends SymbolicFunction {
 		public Object executeFunction() {
 
 			String conc_left = (String) this.getConcReceiver();
-			NonNullReference symb_left = this.getSymbReceiver();
+			NonNullExpression symb_left = this.getSymbReceiver();
 
 			StringValue left_expr = env.heap
 					.getField(Types.JAVA_LANG_STRING,
@@ -83,7 +83,7 @@ public abstract class IndexOf extends SymbolicFunction {
 		public Object executeFunction() {
 
 			String conc_left = (String) this.getConcReceiver();
-			NonNullReference symb_left = this.getSymbReceiver();
+			NonNullExpression symb_left = this.getSymbReceiver();
 
 			StringValue left_expr = env.heap
 					.getField(Types.JAVA_LANG_STRING,
@@ -120,7 +120,7 @@ public abstract class IndexOf extends SymbolicFunction {
 		public Object executeFunction() {
 
 			String conc_left = (String) this.getConcReceiver();
-			NonNullReference symb_left = this.getSymbReceiver();
+			NonNullExpression symb_left = this.getSymbReceiver();
 
 			StringValue left_expr = env.heap
 					.getField(Types.JAVA_LANG_STRING,
@@ -128,7 +128,7 @@ public abstract class IndexOf extends SymbolicFunction {
 							conc_left);
 
 			String conc_right = (String) this.getConcArgument(0);
-			NonNullReference symb_right = (NonNullReference) this
+			NonNullExpression symb_right = (NonNullExpression) this
 					.getSymbArgument(0);
 
 			StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,
@@ -159,7 +159,7 @@ public abstract class IndexOf extends SymbolicFunction {
 		public Object executeFunction() {
 
 			String conc_left = (String) this.getConcReceiver();
-			NonNullReference symb_left = this.getSymbReceiver();
+			NonNullExpression symb_left = this.getSymbReceiver();
 
 			StringValue left_expr = env.heap
 					.getField(Types.JAVA_LANG_STRING,
@@ -167,13 +167,13 @@ public abstract class IndexOf extends SymbolicFunction {
 							conc_left);
 
 			String conc_right = (String) this.getConcArgument(0);
-			Reference symb_right = this.getSymbArgument(0);
+			ReferenceExpression symb_right = this.getSymbArgument(0);
 			IntegerValue fromIndexExpr = this.getSymbIntegerArgument(1);
 
 			int res = this.getConcIntRetVal();
 
-			if (symb_right instanceof NonNullReference) {
-				NonNullReference symb_non_null_right = (NonNullReference) symb_right;
+			if (symb_right instanceof NonNullExpression) {
+				NonNullExpression symb_non_null_right = (NonNullExpression) symb_right;
 				StringValue right_expr = env.heap.getField(
 						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 						conc_right, symb_non_null_right, conc_right);

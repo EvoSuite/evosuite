@@ -29,7 +29,7 @@ import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -50,7 +50,7 @@ public abstract class Substring extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_receiver = this.getSymbReceiver();
+			NonNullExpression symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 
 			IntegerValue beginIndexExpr = this.getSymbIntegerArgument(0);
@@ -60,7 +60,7 @@ public abstract class Substring extends SymbolicFunction {
 					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
 					conc_receiver);
 
-			NonNullReference symb_ret_val = (NonNullReference) this
+			NonNullExpression symb_ret_val = (NonNullExpression) this
 					.getSymbRetVal();
 			String conc_ret_val = (String) this.getConcRetVal();
 
@@ -86,7 +86,7 @@ public abstract class Substring extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_receiver = this.getSymbReceiver();
+			NonNullExpression symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 
 			IntegerValue beginIndexExpr = this.getSymbIntegerArgument(0);
@@ -95,7 +95,7 @@ public abstract class Substring extends SymbolicFunction {
 					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
 					conc_receiver);
 
-			NonNullReference symb_ret_val = (NonNullReference) this
+			NonNullExpression symb_ret_val = (NonNullExpression) this
 					.getSymbRetVal();
 			String conc_ret_val = (String) this.getConcRetVal();
 

@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.string.builder;
 
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -37,7 +37,7 @@ public final class StringBuilder_ToString extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullReference symb_str_builder = (NonNullReference) this
+		NonNullExpression symb_str_builder = (NonNullExpression) this
 				.getSymbReceiver();
 
 		// receiver
@@ -47,7 +47,7 @@ public final class StringBuilder_ToString extends SymbolicFunction {
 		String res = (String) this.getConcRetVal();
 
 		if (res != null) {
-			NonNullReference symb_ret_val = (NonNullReference) this
+			NonNullExpression symb_ret_val = (NonNullExpression) this
 					.getSymbRetVal();
 
 			StringValue symb_value = env.heap.getField(

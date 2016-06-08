@@ -186,7 +186,7 @@ public final class SymbolicEnvironment {
 			boolean isInstrumented = isInstrumented(mainMethod);
 			fakeMainCallerFrame.invokeInstrumentedCode(isInstrumented);
 			String[] emptyStringArray = new String[] {};
-			Reference emptyStringRef = heap.getReference(emptyStringArray);
+			ReferenceExpression emptyStringRef = heap.getReference(emptyStringArray);
 			fakeMainCallerFrame.operandStack.pushRef(emptyStringRef);
 		}
 		this.pushFrame(fakeMainCallerFrame);

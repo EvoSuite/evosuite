@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -35,7 +35,7 @@ public final class J_LongValue extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullReference symb_long = this.getSymbReceiver();
+		NonNullExpression symb_long = this.getSymbReceiver();
 		Long conc_long = (Long) this.getConcReceiver();
 
 		long conc_long_value = this.getConcLongRetVal();

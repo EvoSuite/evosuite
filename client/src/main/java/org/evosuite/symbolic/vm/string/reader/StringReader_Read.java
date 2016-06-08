@@ -23,7 +23,7 @@ import java.io.StringReader;
 
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -40,7 +40,7 @@ public final class StringReader_Read extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullReference symb_str_reader = this.getSymbReceiver();
+		NonNullExpression symb_str_reader = this.getSymbReceiver();
 		StringReader conc_str_reader = (StringReader) this.getConcReceiver();
 
 		StringReaderExpr stringReaderExpr = (StringReaderExpr) env.heap

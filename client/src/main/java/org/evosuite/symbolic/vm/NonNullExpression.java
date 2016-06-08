@@ -28,15 +28,16 @@ import org.objectweb.asm.Type;
  * @author galeotti
  * 
  */
-public class NonNullReference implements Reference {
+public class NonNullExpression implements ReferenceExpression {
 
 	private final int instanceId;
 	private final Type objectType;
 
 	private WeakReference<Object> weakReference;
 	private int concIdentityHashCode;
-
-	public NonNullReference(Type objectType, int instanceId) {
+	private boolean isInitialized = false;
+	
+	public NonNullExpression(Type objectType, int instanceId) {
 		this.objectType = objectType;
 		this.instanceId = instanceId;
 
@@ -50,16 +51,13 @@ public class NonNullReference implements Reference {
 	}
 
 	public void initializeReference(Object obj) {
-		if (obj == null) {
-			throw new IllegalArgumentException(
-					"Cannot initialize a NonNullReference with the null value");
-		}
-		if (weakReference != null) {
+		if (this.isInitialized) {
 			throw new IllegalStateException("Reference already initialized!");
 		}
 
 		this.weakReference = new WeakReference<Object>(obj);
 		this.concIdentityHashCode = System.identityHashCode(obj);
+		this.isInitialized = true;
 	}
 
 	public boolean isInitialized() {

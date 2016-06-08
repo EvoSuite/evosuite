@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -34,7 +34,7 @@ public final class I_Init extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		IntegerValue bv32 = this.getSymbIntegerArgument(0);
-		NonNullReference symb_integer = this.getSymbReceiver();
+		NonNullExpression symb_integer = this.getSymbReceiver();
 		env.heap.putField(Types.JAVA_LANG_INTEGER, SymbolicHeap.$INT_VALUE,
 				null/* conc_integer */, symb_integer, bv32);
 

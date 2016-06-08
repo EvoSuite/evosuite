@@ -246,7 +246,7 @@ public final class CallVM extends AbstractVM {
 				 */
 				Class<?> clazz = classLoader.getClassForName(className);
 				Type objectType = Type.getType(clazz);
-				NonNullReference newObject = this.env.heap.newReference(objectType);
+				NonNullExpression newObject = this.env.heap.newReference(objectType);
 				frame.localsTable.setRefLocal(0, newObject);
 			}
 		} else {
@@ -335,7 +335,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_RECEIVER(Object value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			Reference ref = env.heap.getReference(value);
+			ReferenceExpression ref = env.heap.getReference(value);
 			env.topFrame().localsTable.setRefLocal(0, ref);
 		}
 	}
@@ -403,7 +403,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_PARAM(int nr, int index, Object conc_ref) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			Reference symb_ref = env.heap.getReference(conc_ref);
+			ReferenceExpression symb_ref = env.heap.getReference(conc_ref);
 			env.topFrame().localsTable.setRefLocal(index, symb_ref);
 		}
 	}
@@ -598,7 +598,7 @@ public final class CallVM extends AbstractVM {
 			it.next();
 		}
 		ReferenceOperand ref_operand = (ReferenceOperand) it.next();
-		Reference symb_receiver = ref_operand.getReference();
+		ReferenceExpression symb_receiver = ref_operand.getReference();
 		env.heap.initializeReference(conc_receiver, symb_receiver);
 
 		if (nullReferenceViolation(conc_receiver, symb_receiver))
@@ -609,7 +609,7 @@ public final class CallVM extends AbstractVM {
 		chooseReceiverType(className, conc_receiver, methDesc, virtualMethod);
 	}
 
-	private boolean nullReferenceViolation(Object conc_receiver, Reference symb_receiver) {
+	private boolean nullReferenceViolation(Object conc_receiver, ReferenceExpression symb_receiver) {
 		return conc_receiver == null;
 	}
 
@@ -793,7 +793,7 @@ public final class CallVM extends AbstractVM {
 			 * We are returning from uninstrumented code. This is the only way
 			 * of storing the method return value to the symbolic state.
 			 */
-			Reference symb_ref = env.heap.getReference(res);
+			ReferenceExpression symb_ref = env.heap.getReference(res);
 			env.topFrame().operandStack.pushRef(symb_ref);
 		}
 	}
@@ -913,7 +913,7 @@ public final class CallVM extends AbstractVM {
 		int operand_index = stackParamCount - 1;
 		Operand op = getOperand(operand_index);
 		ReferenceOperand ref_op = (ReferenceOperand) op;
-		Reference symb_ref = ref_op.getReference();
+		ReferenceExpression symb_ref = ref_op.getReference();
 
 		env.heap.initializeReference(conc_ref, symb_ref);
 	}

@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -36,7 +36,7 @@ public final class S_ShortValue extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullReference symb_short = this.getSymbReceiver();
+		NonNullExpression symb_short = this.getSymbReceiver();
 		Short conc_short = (Short) this.getConcReceiver();
 
 		short conc_short_value = this.getConcShortRetVal();

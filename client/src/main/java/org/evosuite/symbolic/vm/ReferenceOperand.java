@@ -26,13 +26,13 @@ package org.evosuite.symbolic.vm;
  */
 public class ReferenceOperand implements SingleWordOperand {
 
-	private final Reference ref;
+	private final ReferenceExpression ref;
 
-	public ReferenceOperand(Reference o) {
+	public ReferenceOperand(ReferenceExpression o) {
 		this.ref = o;
 	}
 
-	public Reference getReference() {
+	public ReferenceExpression getReference() {
 		return this.ref;
 	}
 

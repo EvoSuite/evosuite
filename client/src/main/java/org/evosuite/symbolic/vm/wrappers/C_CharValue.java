@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -36,7 +36,7 @@ public final class C_CharValue extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullReference symb_character = this.getSymbReceiver();
+		NonNullExpression symb_character = this.getSymbReceiver();
 		Character conc_character = (Character) this.getConcReceiver();
 		char conc_char_value = this.getConcCharRetVal();
 

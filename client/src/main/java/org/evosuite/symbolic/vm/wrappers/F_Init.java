@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -35,7 +35,7 @@ public final class F_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		RealValue fp32 = this.getSymbRealArgument(0);
-		NonNullReference symb_float = this.getSymbReceiver();
+		NonNullExpression symb_float = this.getSymbReceiver();
 		env.heap.putField(Types.JAVA_LANG_FLOAT, SymbolicHeap.$FLOAT_VALUE,
 				null/* conc_float */, symb_float, fp32);
 		// return void

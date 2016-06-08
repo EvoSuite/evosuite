@@ -403,7 +403,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 			String desc) {
 		functionUnderExecution = getFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
-			Reference symb_receiver = getReceiverFromStack();
+			ReferenceExpression symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
 			if (Type.getArgumentTypes(desc).length == 0) {
 				callBeforeExecution(functionUnderExecution);
@@ -411,7 +411,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		}
 	}
 
-	private Reference getReceiverFromStack() {
+	private ReferenceExpression getReceiverFromStack() {
 		String desc = this.functionUnderExecution.getDesc();
 		Type[] argTypes = Type.getArgumentTypes(desc);
 		Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
@@ -445,7 +445,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		return op.getRealExpression();
 	}
 
-	private Reference getReferenceFromStack(int moves) {
+	private ReferenceExpression getReferenceFromStack(int moves) {
 		ReferenceOperand op = (ReferenceOperand) getOperandFromStack(moves);
 		return op.getReference();
 	}
@@ -496,16 +496,16 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		}
 
 		if (functionUnderExecution != null) {
-			Reference symb_ret_val = this.env.topFrame().operandStack.peekRef();
+			ReferenceExpression symb_ret_val = this.env.topFrame().operandStack.peekRef();
 			functionUnderExecution.setReturnValue(conc_ret_val, symb_ret_val);
-			Reference new_symb_ret_val = (Reference) functionUnderExecution
+			ReferenceExpression new_symb_ret_val = (ReferenceExpression) functionUnderExecution
 					.executeFunction();
 			this.replaceTopRef(new_symb_ret_val);
 		}
 		functionUnderExecution = null;
 	}
 
-	private void replaceTopRef(Reference ref) {
+	private void replaceTopRef(ReferenceExpression ref) {
 		env.topFrame().operandStack.popRef();
 		env.topFrame().operandStack.pushRef(ref);
 	}
@@ -627,7 +627,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	public void INVOKESPECIAL(String owner, String name, String desc) {
 		functionUnderExecution = getFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
-			Reference symb_receiver = getReceiverFromStack();
+			ReferenceExpression symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(
 					null /* receiver not yet ready */, symb_receiver);
 			if (Type.getArgumentTypes(desc).length == 0) {
@@ -649,7 +649,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 			String desc) {
 		functionUnderExecution = getFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
-			Reference symb_receiver = getReceiverFromStack();
+			ReferenceExpression symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
 			if (Type.getArgumentTypes(desc).length == 0) {
 				callBeforeExecution(functionUnderExecution);
@@ -665,7 +665,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 			String name, String desc) {
 		functionUnderExecution = getFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
-			Reference symb_receiver = getReceiverFromStack();
+			ReferenceExpression symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
 			if (Type.getArgumentTypes(functionUnderExecution.getDesc()).length == 0) {
 				callBeforeExecution(functionUnderExecution);
@@ -766,7 +766,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
 			Object conc_arg) {
 		if (functionUnderExecution != null) {
-			Reference symb_arg = getReferenceFromStack(nr);
+			ReferenceExpression symb_arg = getReferenceFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
 			beforeExecuteFunction(nr);
 

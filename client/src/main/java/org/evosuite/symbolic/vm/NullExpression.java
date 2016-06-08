@@ -24,6 +24,27 @@ package org.evosuite.symbolic.vm;
  * @author galeotti
  *
  */
-public interface Reference {
+public final class NullExpression implements ReferenceExpression {
 
+	private final static NullExpression singleton = new NullExpression();
+
+	private NullExpression() {
+	}
+
+	public static NullExpression getInstance() {
+		return singleton;
+	}
+
+	@Override
+	public String toString() {
+		return "NULL";
+	}
+
+	/**
+	 * A Null Constant always returns null
+	 */
+	@Override
+	public Object getWeakConcreteObject() {
+		return null;
+	}
 }

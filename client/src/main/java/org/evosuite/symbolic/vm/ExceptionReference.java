@@ -26,7 +26,7 @@ import org.objectweb.asm.Type;
  * @author galeotti
  * 
  */
-public final class ExceptionReference extends NonNullReference {
+public final class ExceptionReference extends NonNullExpression {
 
 	private ExceptionReference() {
 		super(Type.getType(Exception.class), -1);
