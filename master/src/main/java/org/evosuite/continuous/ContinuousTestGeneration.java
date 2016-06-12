@@ -21,6 +21,8 @@ package org.evosuite.continuous;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -196,6 +198,17 @@ public class ContinuousTestGeneration {
 		return description;
 	}
 
+	public static File resolveExportFolder(String baseFolder, String exportFolder){
+
+		Path exp = Paths.get(exportFolder);
+		if(exp.isAbsolute()){
+			return exp.toFile();
+		} else {
+			return Paths.get(baseFolder,exportFolder).toAbsolutePath().toFile();
+		}
+	}
+
+
 	public static boolean exportToFolder(String baseFolder, String exportFolder) throws IOException {
 		File basedir = new File(baseFolder);
 		File evoFolder = StorageManager.getBestTestFolder(basedir);
@@ -207,7 +220,9 @@ public class ContinuousTestGeneration {
 			return false;
 		}
 
-		File target = new File(basedir.getAbsolutePath()+File.separator+exportFolder);
+		File target = resolveExportFolder(baseFolder, exportFolder);
+
+
 		//FileUtils.copyDirectory(evoFolder, target); //This did not overwrite old files!
 		FileIOUtils.copyDirectoryAndOverwriteFilesIfNeeded(evoFolder,target);
 		return true;

@@ -74,7 +74,7 @@ public class ExportMojo extends AbstractMojo{
 			throw new MojoFailureException(msg);
 		}
 
-		File target = new File(basedir.getAbsolutePath()+File.separator+targetFolder);
+		File target = ContinuousTestGeneration.resolveExportFolder(basedir.getAbsolutePath(), targetFolder);
 		getLog().info("Exported tests to "+target);
 	}
 
