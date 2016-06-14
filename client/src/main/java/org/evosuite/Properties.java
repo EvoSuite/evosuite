@@ -21,6 +21,7 @@ package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.lm.MutationType;
+import org.evosuite.regression.RegressionMeasure;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
@@ -1519,9 +1520,7 @@ public class Properties {
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
 
 
-	public enum Strategy {
-		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, REGRESSIONTESTS, MOSUITE, DSE
-	}
+	/*** Evosuite regression testing properties ***/
 	
 	/** Constant <code>REGRESSIONCP</code> */
 	@Parameter(key = "regressioncp", group = "Runtime", description = "Regression testing classpath")
@@ -1540,12 +1539,22 @@ public class Properties {
 	public static int REGRESSION_ANALYSIS_OBJECTDISTANCE = 0;
 	
 	/** Constant <code>REGRESSION_DIFFERENT_BRANCHES</code> */
+	@Deprecated
 	@Parameter(key = "regression_different_branches", group = "Runtime", description = "Classes under test have different branch orders")
 	public static boolean REGRESSION_DIFFERENT_BRANCHES = false;
 	
+	/** Constant <code>REGRESSION_BRANCH_DISTANCE</code> */
+    @Parameter(key = "regression_different_branches", group = "Runtime", description = "Enable control-flow distance measurement for regression testing")
+    public static boolean REGRESSION_BRANCH_DISTANCE = false;
+	
 	/** Constant <code>REGRESSION_USE_FITNESS</code> */
+	@Deprecated
 	@Parameter(key = "regression_use_fitness", group = "Runtime", description = "Which fitness values will be used")
 	public static int REGRESSION_USE_FITNESS = 4;
+	
+	/** Constant <code>REGRESSION_FITNESS</code> */
+    @Parameter(key = "regression_fitness", group = "Runtime", description = "Set fitness function for EvosuiteR. [Defaults to Random search]")
+    public static RegressionMeasure REGRESSION_FITNESS = RegressionMeasure.RANDOM;
 	
 	/** Constant <code>REGRESSION_ANALYZE</code> */
 	@Parameter(key = "regression_analyze", group = "Runtime", description = "Analyze the classes under test, to ensure the effectiveness of evosuite")
@@ -1563,6 +1572,19 @@ public class Properties {
 	@Parameter(key = "regression_diversity", group = "Runtime", description = "Include diversity fitness measurement")
 	public static boolean REGRESSION_DIVERSITY = false;
 
+	/** Constant <code>REGRESSION_SKIP_SIMILAR</code> */
+    @Parameter(key = "regression_skip_similar", group = "Runtime", description = "Skip running EvosuiteR on similar classes")
+    public static boolean REGRESSION_SKIP_SIMILAR = false;
+    
+    /** Constant <code>REGRESSION_STATISTICS</code> */
+    @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")
+    public static boolean REGRESSION_STATISTICS = false;
+	
+	
+	public enum Strategy {
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE
+	}
+	
 	/** Constant <code>STRATEGY</code> */
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
 	public static Strategy STRATEGY = Strategy.EVOSUITE;
@@ -2419,7 +2441,7 @@ public class Properties {
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
 			
 
-			if (STRATEGY == Strategy.REGRESSION || STRATEGY == Strategy.REGRESSIONTESTS) {
+			if (STRATEGY == Strategy.REGRESSION) {
 				TARGET_REGRESSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
                         TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 			}
@@ -2537,7 +2559,7 @@ public class Properties {
 	 * whether or not the regression mode is running
 	 */
 	public static boolean isRegression(){
-		boolean isRegression = (STRATEGY == Strategy.REGRESSION || STRATEGY == Strategy.REGRESSIONTESTS);
+		boolean isRegression = (STRATEGY == Strategy.REGRESSION);
 		return isRegression;
 	}
 

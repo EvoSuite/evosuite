@@ -165,7 +165,7 @@ public class TestSuiteGenerator {
 			return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 		}
 
-		if (Properties.isRegression()) {
+		if (Properties.isRegression() && !Properties.REGRESSION_SKIP_SIMILAR) {
 			// Sanity checks
 			if (Properties.getTargetClassRegression(true) == null) {
 				logger.error("class {} was not on the regression projectCP", Properties.TARGET_CLASS);
@@ -691,7 +691,7 @@ public class TestSuiteGenerator {
 			suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
 
 			// If in regression mode, create a separate copy of the tests
-			if (!RegressionSearchListener.statsID.equals("")) {
+			if (!RegressionSearchListener.statsID.equals("") && Properties.REGRESSION_STATISTICS) {
 				File evosuiterTestDir = new File("evosuiter-stats");
 
 				boolean madeDir = false;
