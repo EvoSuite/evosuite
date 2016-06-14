@@ -8,7 +8,7 @@ dependencies:
     
 test:
   override:
-    - mvn --fail-never dependency:resolve  install
+    - mvn --fail-never dependency:resolve -DskipITs  install
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/generated/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
