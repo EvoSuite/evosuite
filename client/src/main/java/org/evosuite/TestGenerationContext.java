@@ -40,6 +40,7 @@ import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.classhandling.ModifiedTargetStaticFields;
 import org.evosuite.runtime.instrumentation.MethodCallReplacementCache;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.evosuite.runtime.javaee.db.DBManager;
@@ -235,5 +236,6 @@ public class TestGenerationContext {
 		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
 		
 		InspectorManager.resetSingleton();
+		ModifiedTargetStaticFields.resetSingleton();
 	}
 }

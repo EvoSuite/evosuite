@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.evosuite.runtime.classhandling.ClassResetter;
+import org.evosuite.runtime.classhandling.ModifiedTargetStaticFields;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -107,6 +108,12 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	private final List<StaticField> static_fields = new LinkedList<StaticField>();
 
+	/**
+	 * This list saves the static fields whose <code>final</code> modifier was 
+	 * removed in the target class
+	 */
+	private final ArrayList<String> modifiedStaticFields = new ArrayList<String>();
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -134,6 +141,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 		if (!isInterface && removeFinalModifierOnStaticFields) {
 			int newAccess = access & (~Opcodes.ACC_FINAL);
+			modifiedStaticFields.add(name);
 			return super.visitField(newAccess, name, desc, signature, value);
 		} else {
 			if (hasFinalModifier(access))
@@ -208,6 +216,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			if (!definesUid) {
 				// createSerialisableUID();
 			}
+		}
+		if (!modifiedStaticFields.isEmpty()) {
+			ModifiedTargetStaticFields.getInstance().addFinalFields(modifiedStaticFields);
 		}
 		super.visitEnd();
 	}
