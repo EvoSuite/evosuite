@@ -74,6 +74,7 @@ import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.*;
 import org.evosuite.utils.ArrayUtil;
@@ -294,11 +295,20 @@ public class TestSuiteGenerator {
 					currentThreadVar, Collections.emptyList());
 			VariableReference contextClassLoaderVar = test.addStatement(getContextClassLoaderStmt);
 
-			Method loadClassMethod = ClassLoader.class.getMethod("loadClass", String.class);
-			Statement loadClassStmt = new MethodStatement(test,
-					new GenericMethod(loadClassMethod, loadClassMethod.getDeclaringClass()), contextClassLoaderVar,
-					Collections.singletonList(string0));
-			test.addStatement(loadClassStmt);
+//			Method loadClassMethod = ClassLoader.class.getMethod("loadClass", String.class);
+//			Statement loadClassStmt = new MethodStatement(test,
+//					new GenericMethod(loadClassMethod, loadClassMethod.getDeclaringClass()), contextClassLoaderVar,
+//					Collections.singletonList(string0));
+//			test.addStatement(loadClassStmt);
+
+			BooleanPrimitiveStatement stmt1 = new BooleanPrimitiveStatement(test, true);
+			VariableReference boolean0 = test.addStatement(stmt1);
+			
+			Method forNameMethod = Class.class.getMethod("forName",String.class, boolean.class, ClassLoader.class);
+			Statement forNameStmt = new MethodStatement(test,
+					new GenericMethod(forNameMethod, forNameMethod.getDeclaringClass()), null,
+					Arrays.<VariableReference>asList(string0, boolean0, contextClassLoaderVar));
+			test.addStatement(forNameStmt);
 
 			return test;
 		} catch (NoSuchMethodException | SecurityException e) {
