@@ -1,6 +1,6 @@
 package com.examples.with.different.packagename.clinit;
 
-public class FinalField {
+public class FinalPrimitiveField {
 
 	public static final int final_value = 10;
 	

@@ -642,7 +642,7 @@ public class TestClusterGenerator {
 						continue;
 
 					if (fields.contains(field.getName())) {
-						if (!Modifier.isFinal(field.getModifiers())) {
+						if (!isFinalField(field)) {
 							logger.debug("Is not final");
 							cluster.addTestCall(new GenericField(field, clazz));
 						}

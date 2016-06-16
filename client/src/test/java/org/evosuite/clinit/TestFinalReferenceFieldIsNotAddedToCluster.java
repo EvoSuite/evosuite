@@ -17,9 +17,10 @@ import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.clinit.FinalField;
+import com.examples.with.different.packagename.clinit.FinalPrimitiveField;
+import com.examples.with.different.packagename.clinit.FinalReferenceField;
 
-public class TestFinalFieldIsNotAddedToCluster {
+public class TestFinalReferenceFieldIsNotAddedToCluster {
 
 	/**
 	 * As RESET_STATIC_FINAL_FIELDS=true removes the <code>final</code> modifier
@@ -32,7 +33,7 @@ public class TestFinalFieldIsNotAddedToCluster {
 	 */
 	@Test
 	public void test() throws ClassNotFoundException, RuntimeException {
-		Properties.TARGET_CLASS = FinalField.class.getCanonicalName();
+		Properties.TARGET_CLASS = FinalReferenceField.class.getCanonicalName();
 		Properties.RESET_STATIC_FINAL_FIELDS = true;
 
 		ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
