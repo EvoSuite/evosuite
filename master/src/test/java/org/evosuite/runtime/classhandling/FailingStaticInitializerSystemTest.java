@@ -36,18 +36,22 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.staticfield.FailingStaticInitializer;
+import com.examples.with.different.packagename.test.AssignmentTest;
 
 public class FailingStaticInitializerSystemTest extends SystemTestBase {
 
 
 	@Test
 	public void test() throws IOException {
-		String targetClass = FailingStaticInitializer.class.getCanonicalName();
+		final String targetClass = FailingStaticInitializer.class.getCanonicalName();
 		Properties.TEST_DIR = System.getProperty("user.dir");
 		Properties.TARGET_CLASS = targetClass;
-
+		Properties.CLASS_PREFIX = targetClass.substring(0,
+				targetClass.lastIndexOf('.'));
+		
 		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1)
 				+ Properties.JUNIT_SUFFIX;
+		
 		String junitFileName = Properties.TEST_DIR + File.separatorChar
 				+ Properties.CLASS_PREFIX.replace('.', File.separatorChar) + File.separatorChar + name + ".java";
 		
