@@ -26,6 +26,7 @@ import java.util.Map;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.vm.apache.regex.Perl5Matcher_Matches;
 import org.evosuite.symbolic.vm.bigint.BigInteger_Ctor;
 import org.evosuite.symbolic.vm.bigint.BigInteger_DivideAndRemainder;

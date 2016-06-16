@@ -43,6 +43,9 @@ import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.GetFieldExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -68,10 +71,8 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 		case MUL:
 		case DIV:
 		case REM: {
-			boolean isLeftSymbolic = n.getLeftOperand()
-					.containsSymbolicVariable();
-			boolean isRightSymbolic = n.getRightOperand()
-					.containsSymbolicVariable();
+			boolean isLeftSymbolic = n.getLeftOperand().containsSymbolicVariable();
+			boolean isRightSymbolic = n.getRightOperand().containsSymbolicVariable();
 
 			return isLeftSymbolic && isRightSymbolic;
 		}
@@ -225,10 +226,8 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 		switch (n.getOperator()) {
 		case MUL:
 		case DIV: {
-			boolean isLeftSymbolic = n.getLeftOperand()
-					.containsSymbolicVariable();
-			boolean isRightSymbolic = n.getRightOperand()
-					.containsSymbolicVariable();
+			boolean isLeftSymbolic = n.getLeftOperand().containsSymbolicVariable();
+			boolean isRightSymbolic = n.getRightOperand().containsSymbolicVariable();
 
 			return isLeftSymbolic && isRightSymbolic;
 		}
@@ -345,6 +344,24 @@ final class NonLinearExpressionVisitor implements ExpressionVisitor<Boolean, Voi
 	public Boolean visit(StringReaderExpr n, Void arg) {
 		Boolean ret_val = n.getString().accept(this, null);
 		return ret_val;
+	}
+
+	@Override
+	public Boolean visit(ReferenceConstant referenceConstant, Void arg) {
+		throw new UnsupportedOperationException(
+				"Removal of Non-Linear expressions for ReferenceConstant is not yet implemented!");
+	}
+
+	@Override
+	public Boolean visit(ReferenceVariable r, Void arg) {
+		throw new UnsupportedOperationException(
+				"Removal of Non-Linear expressions for ReferenceVariable is not yet implemented!");
+	}
+
+	@Override
+	public Boolean visit(GetFieldExpression r, Void arg) {
+		throw new UnsupportedOperationException(
+				"Removal of Non-Linear expressions for GetFieldExpression is not yet implemented!");
 	}
 
 }

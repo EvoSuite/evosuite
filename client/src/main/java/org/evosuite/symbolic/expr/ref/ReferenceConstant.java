@@ -17,27 +17,40 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.vm;
+package org.evosuite.symbolic.expr.ref;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
+import java.util.Set;
 
+import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.ExpressionVisitor;
+import org.evosuite.symbolic.expr.Variable;
 import org.objectweb.asm.Type;
 
 /**
+ * This class represents a reference that is not symbolic (e.g. a new Object()
+ * somewhere)
  * 
  * @author galeotti
  * 
  */
-public class NonNullExpression implements ReferenceExpression {
+public final class ReferenceConstant extends AbstractExpression<Object> implements ReferenceExpression {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4288259851884045452L;
 	private final int instanceId;
 	private final Type objectType;
 
 	private WeakReference<Object> weakReference;
 	private int concIdentityHashCode;
 	private boolean isInitialized = false;
-	
-	public NonNullExpression(Type objectType, int instanceId) {
+
+	public ReferenceConstant(Type objectType, int instanceId) {
+		super(null, 1, false);
+
 		this.objectType = objectType;
 		this.instanceId = instanceId;
 
@@ -58,6 +71,8 @@ public class NonNullExpression implements ReferenceExpression {
 		this.weakReference = new WeakReference<Object>(obj);
 		this.concIdentityHashCode = System.identityHashCode(obj);
 		this.isInitialized = true;
+
+		this.concreteValue = obj;
 	}
 
 	public boolean isInitialized() {
@@ -66,15 +81,13 @@ public class NonNullExpression implements ReferenceExpression {
 
 	public Object getWeakConcreteObject() {
 		if (!isInitialized())
-			throw new IllegalStateException(
-					"Object has to be initialized==true for this method to be invoked");
+			throw new IllegalStateException("Object has to be initialized==true for this method to be invoked");
 		return this.weakReference.get();
 	}
 
 	public int getConcIdentityHashCode() {
 		if (!isInitialized())
-			throw new IllegalStateException(
-					"Object has to be initialized==true for this method to be invoked");
+			throw new IllegalStateException("Object has to be initialized==true for this method to be invoked");
 		return this.concIdentityHashCode;
 	}
 
@@ -89,5 +102,15 @@ public class NonNullExpression implements ReferenceExpression {
 	public boolean isString() {
 		Type stringType = Type.getType(String.class);
 		return this.objectType.equals(stringType);
+	}
+
+	@Override
+	public Set<Variable<?>> getVariables() {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public <K, V> K accept(ExpressionVisitor<K, V> v, V arg) {
+		return v.visit(this, arg);
 	}
 }

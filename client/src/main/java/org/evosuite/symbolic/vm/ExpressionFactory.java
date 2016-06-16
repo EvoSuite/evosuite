@@ -26,7 +26,11 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringConstant;
+import org.objectweb.asm.Type;
+
 
 /**
  * 
@@ -317,5 +321,12 @@ public abstract class ExpressionFactory {
 			return buildNewIntegerConstant(0);
 
 		return new IntegerBinaryExpression(left, Operator.REM, right, con);
+	}
+
+	public static ReferenceExpression buildNewNullExpression() {
+		final Type objectType = Type.getType(Object.class);
+		final ReferenceConstant referenceConstant = new ReferenceConstant(objectType, 0);
+		referenceConstant.initializeReference(null);
+		return referenceConstant;
 	}
 }

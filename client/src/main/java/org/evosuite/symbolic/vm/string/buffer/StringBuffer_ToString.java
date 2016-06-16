@@ -19,8 +19,8 @@
  */
 package org.evosuite.symbolic.vm.string.buffer;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -36,7 +36,7 @@ public final class StringBuffer_ToString extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullExpression symb_str_buffer = this.getSymbReceiver();
+		ReferenceConstant symb_str_buffer = this.getSymbReceiver();
 		StringBuffer conc_str_buffer = (StringBuffer) this.getConcReceiver();
 
 		// retrieve symbolic value from heap
@@ -47,7 +47,7 @@ public final class StringBuffer_ToString extends SymbolicFunction {
 				symb_str_buffer, conc_value);
 
 		String conc_ret_val = (String) this.getConcRetVal();
-		NonNullExpression symb_ret_val = (NonNullExpression) this.getSymbRetVal();
+		ReferenceConstant symb_ret_val = (ReferenceConstant) this.getSymbRetVal();
 
 		env.heap.putField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 				conc_ret_val, symb_ret_val, symb_value);

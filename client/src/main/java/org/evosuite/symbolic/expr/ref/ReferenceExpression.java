@@ -17,34 +17,24 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.vm;
+package org.evosuite.symbolic.expr.ref;
+
+import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.SymbolicValue;
 
 /**
  * 
  * @author galeotti
  *
  */
-public final class NullExpression implements ReferenceExpression {
-
-	private final static NullExpression singleton = new NullExpression();
-
-	private NullExpression() {
-	}
-
-	public static NullExpression getInstance() {
-		return singleton;
-	}
-
-	@Override
-	public String toString() {
-		return "NULL";
-	}
+public interface ReferenceExpression extends Expression<Object>, SymbolicValue{
 
 	/**
-	 * A Null Constant always returns null
+	 * Returns the concrete object for this reference. The object is stored as a
+	 * weak reference. A weak reference returns null if only weak references
+	 * have access to the object
+	 * 
+	 * @return
 	 */
-	@Override
-	public Object getWeakConcreteObject() {
-		return null;
-	}
+	public Object getWeakConcreteObject();
 }

@@ -30,6 +30,8 @@ import java.util.LinkedList;
 
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.symbolic.instrument.ConcolicMethodAdapter;
 import org.objectweb.asm.Type;
@@ -136,7 +138,8 @@ public final class CallVM extends AbstractVM {
 		 * instruction adds the corresponding exception. The handler will store
 		 * the exception to the locals table
 		 */
-		env.topFrame().operandStack.pushRef(ExceptionReference.getInstance());
+		ReferenceConstant exception_reference = new ReferenceConstant(Type.getType(Exception.class), -1);
+		env.topFrame().operandStack.pushRef(exception_reference);
 	}
 
 	private boolean discardFramesClassInitializer(String className, String methName) {
@@ -246,7 +249,7 @@ public final class CallVM extends AbstractVM {
 				 */
 				Class<?> clazz = classLoader.getClassForName(className);
 				Type objectType = Type.getType(clazz);
-				NonNullExpression newObject = this.env.heap.newReference(objectType);
+				ReferenceConstant newObject = this.env.heap.newReference(objectType);
 				frame.localsTable.setRefLocal(0, newObject);
 			}
 		} else {

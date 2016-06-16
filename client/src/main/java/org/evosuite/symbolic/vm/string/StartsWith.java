@@ -27,9 +27,9 @@ import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -52,7 +52,7 @@ public abstract class StartsWith extends SymbolicFunction {
 		public Object executeFunction() {
 
 			// receiver
-			NonNullExpression symb_receiver = this.getSymbReceiver();
+			ReferenceConstant symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 			// prefix argument
 			ReferenceExpression symb_prefix = this.getSymbArgument(0);
@@ -65,8 +65,8 @@ public abstract class StartsWith extends SymbolicFunction {
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_receiver, symb_receiver, conc_receiver);
 
-			if (symb_prefix instanceof NonNullExpression) {
-				NonNullExpression non_null_symb_prefix = (NonNullExpression) symb_prefix;
+			if (symb_prefix instanceof ReferenceConstant) {
+				ReferenceConstant non_null_symb_prefix = (ReferenceConstant) symb_prefix;
 
 				StringValue prefixExpr = env.heap.getField(
 						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
@@ -102,7 +102,7 @@ public abstract class StartsWith extends SymbolicFunction {
 		public Object executeFunction() {
 
 			// receiver
-			NonNullExpression symb_receiver = this.getSymbReceiver();
+			ReferenceConstant symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 			// prefix argument
 			ReferenceExpression symb_prefix = this.getSymbArgument(0);
@@ -117,8 +117,8 @@ public abstract class StartsWith extends SymbolicFunction {
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_receiver, symb_receiver, conc_receiver);
 
-			if (symb_prefix instanceof NonNullExpression) {
-				NonNullExpression non_null_symb_prefix = (NonNullExpression) symb_prefix;
+			if (symb_prefix instanceof ReferenceConstant) {
+				ReferenceConstant non_null_symb_prefix = (ReferenceConstant) symb_prefix;
 
 				StringValue prefixExpr = env.heap.getField(
 						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,

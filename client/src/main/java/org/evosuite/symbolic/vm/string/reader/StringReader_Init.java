@@ -20,9 +20,9 @@
 package org.evosuite.symbolic.vm.string.reader;
 
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -41,15 +41,15 @@ public final class StringReader_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// symbolic receiver (new object)
-		NonNullExpression symb_str_reader = (NonNullExpression) this
+		ReferenceConstant symb_str_reader = (ReferenceConstant) this
 				.getSymbReceiver();
 
 		// string argument
 		String conc_str = (String) this.getConcArgument(0);
 		ReferenceExpression symb_str = this.getSymbArgument(0);
 
-		if (symb_str instanceof NonNullExpression) {
-			NonNullExpression non_null_symb_string = (NonNullExpression) symb_str;
+		if (symb_str instanceof ReferenceConstant) {
+			ReferenceConstant non_null_symb_string = (ReferenceConstant) symb_str;
 			assert conc_str != null;
 
 			StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,

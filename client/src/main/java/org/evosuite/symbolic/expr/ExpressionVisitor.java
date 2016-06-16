@@ -39,6 +39,9 @@ import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.GetFieldExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -114,5 +117,11 @@ public interface ExpressionVisitor<K, V> {
 	public K visit(NextTokenizerExpr n, V arg) ;
 
 	public K visit(StringNextTokenExpr n, V arg);
+
+	public K visit(ReferenceConstant r, V arg);
+
+	public K visit(ReferenceVariable r, V arg);
+
+	public K visit(GetFieldExpression r, V arg);
 
 }

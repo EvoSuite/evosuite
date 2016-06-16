@@ -22,10 +22,10 @@ package org.evosuite.symbolic.vm.apache.regex;
 import org.apache.oro.text.regex.Pattern;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -46,7 +46,7 @@ public final class Perl5Matcher_Matches extends SymbolicFunction {
 		// .getSymbReceiver();
 		boolean res = this.getConcBooleanRetVal();
 
-		NonNullExpression symb_string_ref = (NonNullExpression) this
+		ReferenceConstant symb_string_ref = (ReferenceConstant) this
 				.getSymbArgument(0);
 		// Reference symb_pattern_ref = this.getSymbArgument(1);
 

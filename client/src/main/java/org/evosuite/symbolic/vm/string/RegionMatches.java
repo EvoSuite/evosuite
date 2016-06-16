@@ -25,8 +25,8 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -43,7 +43,7 @@ public final class RegionMatches extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullExpression symb_receiver = (NonNullExpression) this
+		ReferenceConstant symb_receiver = (ReferenceConstant) this
 				.getSymbReceiver();
 		String conc_receiver = (String) this.getConcReceiver();
 		StringValue stringReceiverExpr = env.heap.getField(
@@ -53,7 +53,7 @@ public final class RegionMatches extends SymbolicFunction {
 		IntegerValue ignoreCaseExpr = this.getSymbIntegerArgument(0);
 		IntegerValue toffsetExpr = this.getSymbIntegerArgument(1);
 
-		NonNullExpression symb_other = (NonNullExpression) this
+		ReferenceConstant symb_other = (ReferenceConstant) this
 				.getSymbArgument(2);
 		String conc_other = (String) this.getConcArgument(2);
 		StringValue otherExpr = env.heap.getField(Types.JAVA_LANG_STRING,

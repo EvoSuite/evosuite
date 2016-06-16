@@ -41,6 +41,9 @@ import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.GetFieldExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -658,5 +661,23 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		throw new IllegalStateException(
 				"NextTokenizerExpr is not implemented yet");
 	}
+
+	@Override
+	public SmtExpr visit(ReferenceConstant referenceConstant, Void arg) {
+		throw new UnsupportedOperationException("Translation to Z3 of ReferenceConstant is not yet implemented!");
+	}
+
+	@Override
+	public SmtExpr visit(ReferenceVariable r, Void arg) {
+		throw new UnsupportedOperationException("Translation to Z3 of ReferenceVariable is not yet implemented!");
+
+	}
+
+	@Override
+	public SmtExpr visit(GetFieldExpression r, Void arg) {
+		throw new UnsupportedOperationException("Translation to Z3 of GetFieldExpression is not yet implemented!");
+
+	}
+
 
 }

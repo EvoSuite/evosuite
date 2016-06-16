@@ -23,6 +23,8 @@ import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
  * This class represents the execution of a concrete method (Math.abs(), new
@@ -162,8 +164,8 @@ public abstract class SymbolicFunction {
 	 * 
 	 * @return a NonNullReference with the symbolic object receiver.
 	 */
-	final protected NonNullExpression getSymbReceiver() {
-		return (NonNullExpression) symb_receiver;
+	final protected ReferenceConstant getSymbReceiver() {
+		return (ReferenceConstant) symb_receiver;
 	}
 
 	/**

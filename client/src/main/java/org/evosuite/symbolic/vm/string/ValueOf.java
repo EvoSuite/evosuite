@@ -20,10 +20,10 @@
 package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -50,7 +50,7 @@ public abstract class ValueOf extends SymbolicFunction {
 				StringValue symbExpr = new IntegerToStringCast(symb_arg,
 						conc_ret_val);
 
-				NonNullExpression symb_non_null_ret_val = (NonNullExpression) symb_ret_val;
+				ReferenceConstant symb_non_null_ret_val = (ReferenceConstant) symb_ret_val;
 
 				env.heap.putField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_ret_val,
@@ -84,13 +84,13 @@ public abstract class ValueOf extends SymbolicFunction {
 			if (conc_arg != null && conc_arg instanceof String) {
 
 				String conc_str_arg = (String) conc_arg;
-				NonNullExpression symb_non_null_str = (NonNullExpression) symb_arg;
+				ReferenceConstant symb_non_null_str = (ReferenceConstant) symb_arg;
 
 				StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_str_arg,
 						symb_non_null_str, conc_str_arg);
 
-				NonNullExpression symb_non_null_ret_val = (NonNullExpression) symb_ret_val;
+				ReferenceConstant symb_non_null_ret_val = (ReferenceConstant) symb_ret_val;
 
 				env.heap.putField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_ret_val,

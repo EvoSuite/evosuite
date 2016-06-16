@@ -47,6 +47,9 @@ import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.GetFieldExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -102,10 +105,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			if (rewriteNonLinearExpressions) {
 				if (left.isSymbolic() && right.isSymbolic()) {
 					long rightValue = e.getRightOperand().getConcreteValue();
-					SmtExpr conc_right = SmtExprBuilder
-							.mkIntConstant(rightValue);
-					SmtExpr rewrite_expr = SmtExprBuilder.mkIntDiv(left,
-							conc_right);
+					SmtExpr conc_right = SmtExprBuilder.mkIntConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkIntDiv(left, conc_right);
 					return rewrite_expr;
 				}
 			}
@@ -118,10 +119,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			if (rewriteNonLinearExpressions) {
 				if (left.isSymbolic() && right.isSymbolic()) {
 					long rightValue = e.getRightOperand().getConcreteValue();
-					SmtExpr conc_right = SmtExprBuilder
-							.mkIntConstant(rightValue);
-					SmtExpr rewrite_expr = SmtExprBuilder.mkMul(left,
-							conc_right);
+					SmtExpr conc_right = SmtExprBuilder.mkIntConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkMul(left, conc_right);
 					return rewrite_expr;
 				}
 			}
@@ -142,10 +141,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			if (rewriteNonLinearExpressions) {
 				if (left.isSymbolic() && right.isSymbolic()) {
 					long rightValue = e.getRightOperand().getConcreteValue();
-					SmtExpr conc_right = SmtExprBuilder
-							.mkIntConstant(rightValue);
-					SmtExpr rewrite_expr = SmtExprBuilder.mkMod(left,
-							conc_right);
+					SmtExpr conc_right = SmtExprBuilder.mkIntConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkMod(left, conc_right);
 					return rewrite_expr;
 				}
 			}
@@ -212,19 +209,16 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 		}
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ e.getOperator());
+			throw new UnsupportedOperationException("Not implemented yet! " + e.getOperator());
 		}
 		}
 	}
 
 	private static SmtExpr mkBV2Int(SmtExpr bv) {
 		SmtExpr bv2nat = SmtExprBuilder.mkBV2Nat(bv);
-		SmtIntConstant maxIntValue = SmtExprBuilder
-				.mkIntConstant(Integer.MAX_VALUE);
+		SmtIntConstant maxIntValue = SmtExprBuilder.mkIntConstant(Integer.MAX_VALUE);
 		SmtExpr condExpr = SmtExprBuilder.mkLe(bv2nat, maxIntValue);
-		SmtExpr bvMinusOne = SmtExprBuilder.mkInt2BV(32,
-				SmtExprBuilder.mkIntConstant(-1));
+		SmtExpr bvMinusOne = SmtExprBuilder.mkInt2BV(32, SmtExprBuilder.mkIntConstant(-1));
 		SmtExpr xor = SmtExprBuilder.mkBVXOR(bv, bvMinusOne);
 		SmtExpr bvOne = SmtExprBuilder.mkInt2BV(32, SmtExprBuilder.ONE_INT);
 		SmtExpr bvAdd = SmtExprBuilder.mkBVADD(xor, bvOne);
@@ -273,9 +267,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkIntConstant(longValue);
 		}
 		default:
-			throw new IllegalArgumentException("The operator "
-					+ e.getOperator()
-					+ " is not a valid for integer unary expressions");
+			throw new IllegalArgumentException(
+					"The operator " + e.getOperator() + " is not a valid for integer unary expressions");
 		}
 	}
 
@@ -356,10 +349,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 				if (left.isSymbolic() && right.isSymbolic()) {
 					RealValue r = (RealValue) e.getRightOperand();
 					double rightValue = r.getConcreteValue();
-					SmtExpr conc_right = SmtExprBuilder
-							.mkRealConstant(rightValue);
-					SmtExpr rewrite_expr = SmtExprBuilder.mkRealDiv(left,
-							conc_right);
+					SmtExpr conc_right = SmtExprBuilder.mkRealConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkRealDiv(left, conc_right);
 					return rewrite_expr;
 				}
 			}
@@ -372,10 +363,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 				if (left.isSymbolic() && right.isSymbolic()) {
 					RealValue r = (RealValue) e.getRightOperand();
 					double rightValue = r.getConcreteValue();
-					SmtExpr conc_right = SmtExprBuilder
-							.mkRealConstant(rightValue);
-					SmtExpr rewrite_expr = SmtExprBuilder.mkMul(left,
-							conc_right);
+					SmtExpr conc_right = SmtExprBuilder.mkRealConstant(rightValue);
+					SmtExpr rewrite_expr = SmtExprBuilder.mkMul(left, conc_right);
 					return rewrite_expr;
 				}
 			}
@@ -416,8 +405,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ e.getOperator());
+			throw new UnsupportedOperationException("Not implemented yet! " + e.getOperator());
 		}
 		}
 
@@ -449,8 +437,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(operand, zero_rational);
 			SmtExpr minus_expr = SmtExprBuilder.mkNeg(operand);
 
-			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, operand,
-					minus_expr);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, operand, minus_expr);
 			return ite_expr;
 		}
 		// trigonometric
@@ -484,8 +471,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 		case GETEXPONENT:
 		case ROUND: {
-			throw new IllegalArgumentException("The Operation "
-					+ e.getOperator() + " does not return a real expression!");
+			throw new IllegalArgumentException(
+					"The Operation " + e.getOperator() + " does not return a real expression!");
 		}
 
 		default:
@@ -554,33 +541,27 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr startIndex = right;
 			SmtExpr endIndex = others.get(0);
 			SmtExpr offset = SmtExprBuilder.mkSub(endIndex, startIndex);
-			SmtExpr substring = SmtExprBuilder.mkStrSubstring(left, startIndex,
-					offset);
+			SmtExpr substring = SmtExprBuilder.mkStrSubstring(left, startIndex, offset);
 			return substring;
 		}
 		case REPLACEC: {
 			long concreteTarget = (Long) rightOperand.getConcreteValue();
-			long concreteReplacement = (Long) othersOperands.get(0)
-					.getConcreteValue();
+			long concreteReplacement = (Long) othersOperands.get(0).getConcreteValue();
 
 			String targetString = String.valueOf((char) concreteTarget);
-			String replacementString = String
-					.valueOf((char) concreteReplacement);
+			String replacementString = String.valueOf((char) concreteReplacement);
 
 			SmtExpr target = SmtExprBuilder.mkStringConstant(targetString);
-			SmtExpr replacement = SmtExprBuilder
-					.mkStringConstant(replacementString);
+			SmtExpr replacement = SmtExprBuilder.mkStringConstant(replacementString);
 
-			SmtExpr replace = SmtExprBuilder.mkStrReplace(left, target,
-					replacement);
+			SmtExpr replace = SmtExprBuilder.mkStrReplace(left, target, replacement);
 			return replace;
 		}
 		case REPLACECS: {
 			SmtExpr target = right;
 			SmtExpr replacement = others.get(0);
 
-			SmtExpr replace = SmtExprBuilder.mkStrReplace(left, target,
-					replacement);
+			SmtExpr replace = SmtExprBuilder.mkStrReplace(left, target, replacement);
 			return replace;
 
 		}
@@ -591,8 +572,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return strConstant;
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 
 	}
@@ -605,8 +585,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	 * @param others
 	 * @return
 	 */
-	private static boolean isNull(SmtExpr left, SmtExpr right,
-			List<SmtExpr> others) {
+	private static boolean isNull(SmtExpr left, SmtExpr right, List<SmtExpr> others) {
 		if (left == null || right == null) {
 			return true;
 		}
@@ -637,8 +616,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkStringConstant(stringValue);
 		}
 		default:
-			throw new IllegalArgumentException("The operation " + op
-					+ " is not a unary string operation");
+			throw new IllegalArgumentException("The operation " + op + " is not a unary string operation");
 		}
 	}
 
@@ -683,12 +661,9 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case APPEND_BOOLEAN: {
 			SmtIntConstant zero = SmtExprBuilder.ZERO_INT;
 			SmtExpr eqZero = SmtExprBuilder.mkEq(right, zero);
-			SmtStringConstant falseConstantExpr = SmtExprBuilder
-					.mkStringConstant(String.valueOf(Boolean.FALSE));
-			SmtStringConstant trueConstantExpr = SmtExprBuilder
-					.mkStringConstant(String.valueOf(Boolean.TRUE));
-			SmtExpr ite = SmtExprBuilder.mkITE(eqZero, falseConstantExpr,
-					trueConstantExpr);
+			SmtStringConstant falseConstantExpr = SmtExprBuilder.mkStringConstant(String.valueOf(Boolean.FALSE));
+			SmtStringConstant trueConstantExpr = SmtExprBuilder.mkStringConstant(String.valueOf(Boolean.TRUE));
+			SmtExpr ite = SmtExprBuilder.mkITE(eqZero, falseConstantExpr, trueConstantExpr);
 			SmtExpr concatExpr = SmtExprBuilder.mkStrConcat(left, ite);
 			return concatExpr;
 		}
@@ -703,8 +678,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return strConstant;
 		}
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 		}
 	}
@@ -733,25 +707,21 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (op) {
 		case EQUALS: {
 			SmtExpr equalsFormula = SmtExprBuilder.mkEq(left, right);
-			SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(equalsFormula,
-					oneConstant, zeroConstant);
+			SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(equalsFormula, oneConstant, zeroConstant);
 			return ifThenElseFormula;
 		}
 		case ENDSWITH: {
 			SmtExpr endsWithExpr = SmtExprBuilder.mkStrSuffixOf(right, left);
-			SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(endsWithExpr,
-					oneConstant, zeroConstant);
+			SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(endsWithExpr, oneConstant, zeroConstant);
 			return ifThenElseFormula;
 		}
 		case CONTAINS: {
 			SmtExpr equalsFormula = SmtExprBuilder.mkStrContains(left, right);
-			SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(equalsFormula,
-					oneConstant, zeroConstant);
+			SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(equalsFormula, oneConstant, zeroConstant);
 			return ifThenElseFormula;
 		}
 		case STARTSWITH: {
-			throw new IllegalArgumentException(
-					"Illegal StringBinaryComparison operator " + op);
+			throw new IllegalArgumentException("Illegal StringBinaryComparison operator " + op);
 		}
 		case PATTERNMATCHES: {
 			String regex = e.getLeftOperand().getConcreteValue();
@@ -765,10 +735,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 				SmtExpr intConst = SmtExprBuilder.mkIntConstant(longValue);
 				return intConst;
 			} else {
-				SmtExpr strInRegExp = SmtExprBuilder.mkStrInRegExp(right,
-						regExpSmtExpr);
-				SmtExpr iteExpr = SmtExprBuilder.mkITE(strInRegExp,
-						SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
+				SmtExpr strInRegExp = SmtExprBuilder.mkStrInRegExp(right, regExpSmtExpr);
+				SmtExpr iteExpr = SmtExprBuilder.mkITE(strInRegExp, SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
 				return iteExpr;
 			}
 		}
@@ -780,8 +748,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return intConst;
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 	}
 
@@ -811,15 +778,13 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 		case INDEXOFS: {
 			SmtExpr zeroIndex = SmtExprBuilder.mkIntConstant(0);
-			SmtExpr indexOf = SmtExprBuilder.mkStrIndexOf(left, right,
-					zeroIndex);
+			SmtExpr indexOf = SmtExprBuilder.mkStrIndexOf(left, right, zeroIndex);
 			return indexOf;
 		}
 		case INDEXOFC: {
 			SmtExpr zeroIndex = SmtExprBuilder.mkIntConstant(0);
 			SmtExpr charExpr = SmtExprBuilder.mkIntToChar(right);
-			SmtExpr indexOf = SmtExprBuilder.mkStrIndexOf(left, charExpr,
-					zeroIndex);
+			SmtExpr indexOf = SmtExprBuilder.mkStrIndexOf(left, charExpr, zeroIndex);
 			return indexOf;
 		}
 		case LASTINDEXOFC:
@@ -831,8 +796,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet!"
-					+ e.getOperator());
+			throw new UnsupportedOperationException("Not implemented yet!" + e.getOperator());
 		}
 
 		}
@@ -870,10 +834,8 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			if (indexExpr.equals(SmtExprBuilder.ZERO_INT)) {
 				SmtIntConstant oneExpr = SmtExprBuilder.ONE_INT;
 				SmtIntConstant zeroExpr = SmtExprBuilder.ZERO_INT;
-				SmtExpr startsWithFormula = SmtExprBuilder.mkStrPrefixOf(right,
-						left);
-				SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(
-						startsWithFormula, oneExpr, zeroExpr);
+				SmtExpr startsWithFormula = SmtExprBuilder.mkStrPrefixOf(right, left);
+				SmtExpr ifThenElseFormula = SmtExprBuilder.mkITE(startsWithFormula, oneExpr, zeroExpr);
 				return ifThenElseFormula;
 
 			} else {
@@ -886,8 +848,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case EQUALSIGNORECASE:
 		case ENDSWITH:
 		case CONTAINS: {
-			throw new IllegalArgumentException(
-					"Illegal StringMultipleComparison operator " + op);
+			throw new IllegalArgumentException("Illegal StringMultipleComparison operator " + op);
 		}
 		case REGIONMATCHES:
 		case PATTERNMATCHES:
@@ -897,8 +858,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return intConst;
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 	}
 
@@ -943,8 +903,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return intNum;
 		}
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 		}
 	}
@@ -957,8 +916,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	 * @param others
 	 * @return
 	 */
-	private static boolean isSymbolic(SmtExpr left, SmtExpr right,
-			List<SmtExpr> others) {
+	private static boolean isSymbolic(SmtExpr left, SmtExpr right, List<SmtExpr> others) {
 		if (left.isSymbolic() || right.isSymbolic()) {
 			return true;
 		}
@@ -1007,22 +965,19 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkIntConstant(longValue);
 		}
 		default:
-			throw new IllegalArgumentException("The operator "
-					+ e.getOperator()
-					+ " is not a string operation returning an integer");
+			throw new IllegalArgumentException(
+					"The operator " + e.getOperator() + " is not a string operation returning an integer");
 		}
 	}
 
 	@Override
 	public SmtExpr visit(RealComparison e, Void v) {
-		throw new IllegalStateException(
-				"RealComparison should be removed during normalization");
+		throw new IllegalStateException("RealComparison should be removed during normalization");
 	}
 
 	@Override
 	public SmtExpr visit(IntegerComparison e, Void v) {
-		throw new IllegalStateException(
-				"IntegerComparison should be removed during normalization");
+		throw new IllegalStateException("IntegerComparison should be removed during normalization");
 	}
 
 	@Override
@@ -1047,15 +1002,13 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(NewTokenizerExpr e, Void v) {
-		throw new IllegalStateException(
-				"NewTokenizerExpr should not be visited");
+		throw new IllegalStateException("NewTokenizerExpr should not be visited");
 
 	}
 
 	@Override
 	public SmtExpr visit(NextTokenizerExpr e, Void v) {
-		throw new IllegalStateException(
-				"NextTokenizerExpr should not be visited");
+		throw new IllegalStateException("NextTokenizerExpr should not be visited");
 	}
 
 	@Override
@@ -1076,6 +1029,21 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		long longValue = e.getConcreteValue();
 		SmtExpr intConst = SmtExprBuilder.mkIntConstant(longValue);
 		return intConst;
+	}
+
+	@Override
+	public SmtExpr visit(ReferenceConstant referenceConstant, Void arg) {
+		throw new UnsupportedOperationException("Translation to CVC4 of ReferenceConstant is not yet implemented!");
+	}
+
+	@Override
+	public SmtExpr visit(ReferenceVariable r, Void arg) {
+		throw new UnsupportedOperationException("Translation to CVC4 of ReferenceVariable is not yet implemented!");
+	}
+
+	@Override
+	public SmtExpr visit(GetFieldExpression r, Void arg) {
+		throw new UnsupportedOperationException("Translation to CVC4 of GetFieldExpression is not yet implemented!");
 	}
 
 }

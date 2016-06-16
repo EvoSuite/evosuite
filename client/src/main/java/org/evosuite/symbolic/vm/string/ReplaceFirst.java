@@ -24,10 +24,10 @@ import java.util.Collections;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -45,7 +45,7 @@ public final class ReplaceFirst extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// receiver
-		NonNullExpression symb_receiver = this.getSymbReceiver();
+		ReferenceConstant symb_receiver = this.getSymbReceiver();
 		String conc_receiver = (String) this.getConcReceiver();
 		// regex argument
 		ReferenceExpression symb_regex = this.getSymbArgument(0);
@@ -61,22 +61,22 @@ public final class ReplaceFirst extends SymbolicFunction {
 				Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 				conc_receiver, symb_receiver, conc_receiver);
 
-		if (symb_regex instanceof NonNullExpression
-				&& symb_replacement instanceof NonNullExpression) {
+		if (symb_regex instanceof ReferenceConstant
+				&& symb_replacement instanceof ReferenceConstant) {
 
-			NonNullExpression non_null_symb_regex = (NonNullExpression) symb_regex;
+			ReferenceConstant non_null_symb_regex = (ReferenceConstant) symb_regex;
 			StringValue regexExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 					SymbolicHeap.$STRING_VALUE, conc_regex,
 					non_null_symb_regex, conc_regex);
 
-			NonNullExpression non_null_symb_replacement = (NonNullExpression) symb_replacement;
+			ReferenceConstant non_null_symb_replacement = (ReferenceConstant) symb_replacement;
 			StringValue replacementExpr = env.heap.getField(
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_replacement, non_null_symb_replacement,
 					conc_replacement);
 
-			if (symb_ret_val instanceof NonNullExpression) {
-				NonNullExpression non_null_symb_ret_val = (NonNullExpression) symb_ret_val;
+			if (symb_ret_val instanceof ReferenceConstant) {
+				ReferenceConstant non_null_symb_ret_val = (ReferenceConstant) symb_ret_val;
 
 				StringMultipleExpression symb_value = new StringMultipleExpression(
 						stringReceiverExpr, Operator.REPLACEFIRST, regexExpr,

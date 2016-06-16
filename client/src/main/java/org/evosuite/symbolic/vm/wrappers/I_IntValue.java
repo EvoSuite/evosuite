@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -35,7 +35,7 @@ public final class I_IntValue extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullExpression symb_integer = this.getSymbReceiver();
+		ReferenceConstant symb_integer = this.getSymbReceiver();
 		Integer conc_integer = (Integer) this.getConcReceiver();
 		int conc_int_value = this.getConcIntRetVal();
 
