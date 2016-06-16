@@ -141,7 +141,10 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 		if (!isInterface && removeFinalModifierOnStaticFields) {
 			int newAccess = access & (~Opcodes.ACC_FINAL);
-			modifiedStaticFields.add(name);
+			if (newAccess!=access) {
+				// this means that the field was modified
+				modifiedStaticFields.add(name);
+			}
 			return super.visitField(newAccess, name, desc, signature, value);
 		} else {
 			if (hasFinalModifier(access))
