@@ -166,7 +166,7 @@ public class TestSuiteGenerator {
 			return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 		}
 
-		if (Properties.isRegression() && !Properties.REGRESSION_SKIP_SIMILAR) {
+		if (Properties.isRegression() && Properties.REGRESSION_SKIP_SIMILAR) {
 			// Sanity checks
 			if (Properties.getTargetClassRegression(true) == null) {
 				logger.error("class {} was not on the regression projectCP", Properties.TARGET_CLASS);
