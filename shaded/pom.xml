@@ -23,6 +23,14 @@
     <build>
         <plugins>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration combine.children="append">
+                    <includeDependencySources>true</includeDependencySources>
+                </configuration>
+            </plugin>
+
             <!-- be sure classes get shaded -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
