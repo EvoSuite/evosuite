@@ -14,9 +14,9 @@
     <!-- We just want to make a "copy" of runtime with the right modified dependencies and manifest file -->
     <dependencies>
         <dependency>
-         <groupId>org.evosuite</groupId>
-         <artifactId>evosuite-runtime</artifactId>
-         <version>${project.version}</version>
+            <groupId>org.evosuite</groupId>
+            <artifactId>evosuite-runtime</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -29,6 +29,14 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration combine.children="append">
+                    <includeDependencySources>true</includeDependencySources>
+                </configuration>
+            </plugin>
 
             <!-- be sure classes get shaded -->
             <plugin>
@@ -93,7 +101,6 @@
             </plugin>
 
         </plugins>
-
 
 
     </build>
