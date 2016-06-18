@@ -436,37 +436,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- TODO removed once finalized deployment to Central -->
-    <!--<repositories>-->
-        <!--<repository>-->
-            <!--<releases>-->
-                <!--<enabled>true</enabled>-->
-                <!--<checksumPolicy>warn</checksumPolicy>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-                <!--<updatePolicy>never</updatePolicy>-->
-                <!--<checksumPolicy>fail</checksumPolicy>-->
-            <!--</snapshots>-->
-            <!--<id>EvoSuite</id>-->
-            <!--<name>EvoSuite Repository</name>-->
-            <!--<url>http://www.evosuite.org/m2/</url>-->
-            <!--<layout>default</layout>-->
-        <!--</repository>-->
-
-        <!--&lt;!&ndash; <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>-->
-            <!--</repository> &ndash;&gt;-->
-    <!--</repositories>-->
-
-
-    <!--&lt;!&ndash; Once we publish EvoSuite as open source, we should rather deploy to MavenCentral &ndash;&gt;-->
-    <!--<distributionManagement>-->
-        <!--<repository>-->
-            <!--<id>EvoSuite</id>-->
-            <!--<name>EvoSuite Repository</name>-->
-            <!--<url>${deployURL}</url>-->
-        <!--</repository>-->
-    <!--</distributionManagement>-->
 
     <distributionManagement>
         <snapshotRepository>
@@ -633,10 +602,8 @@
                 <configuration>
                     <source>1.8</source>
                     <additionalparam>-Xdoclint:none</additionalparam>
-                    <!--<includeDependencySources>true</includeDependencySources>-->
                 </configuration>
             </plugin>
-            <!-- TODO Update URL. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
