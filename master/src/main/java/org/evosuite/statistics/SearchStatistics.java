@@ -266,15 +266,23 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		}
 		return variableNames;
 	}
+	
+	/**
+	 * Shorthand for getOutputVariables(individual, false)
+	 */
+	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
+		return getOutputVariables(individual, false);
+	}
 
 	/**
 	 * Extract output variables from input <code>individual</code>.
 	 * Add also all the other needed search-level variables. 
 	 * 
 	 * @param individual
+	 * @param skip_missing whether or not to skip missing output variables
 	 * @return <code>null</code> if some data is missing
 	 */
-	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
+	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual, boolean skip_missing) {
 		Map<String, OutputVariable<?>> variables = new LinkedHashMap<String, OutputVariable<?>>();
 		
 		for(String variableName : getOutputVariableNames()) {
@@ -295,8 +303,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				for(OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
 					variables.put(var.getName(), var); 
 				}
-			}
-			else {
+			} else if(skip_missing) {
+				// if variable doesn't exist, return an empty value instead
+				variables.put(variableName, new OutputVariable<String>(variableName, ""));
+			} else {
 				logger.error("No obtained value for output variable: "+variableName);
 				return null;
 			}
@@ -351,6 +361,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 					map = getOutputVariables(individual);
 					counter++;
 				}
+			}
+			
+			if(map == null && Properties.IGNORE_MISSING_STATISTICS){
+				map = getOutputVariables(individual, true);
 			}
 
 			if(map == null) {

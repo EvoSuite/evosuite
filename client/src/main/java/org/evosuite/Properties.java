@@ -1082,6 +1082,9 @@ public class Properties {
 
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
+	
+	@Parameter(key = "ignore_missing_statistics", group = "Output", description = "Return an empty string for missing output variables")
+	public static boolean IGNORE_MISSING_STATISTICS = false;
 
 	@Parameter(key = "float_precision", group = "Output", description = "Precision to use in float comparisons and assertions")
 	public static float FLOAT_PRECISION = 0.01F;
