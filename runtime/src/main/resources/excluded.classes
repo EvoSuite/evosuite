@@ -18,7 +18,7 @@ lombok.
 java.
 javax.
 javafx.
-jdk.internal.
+jdk.
 junit.framework.
 major.mutation.
 net.sourceforge.cobertura.
