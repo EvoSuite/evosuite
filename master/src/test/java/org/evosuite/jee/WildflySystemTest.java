@@ -5,11 +5,12 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.utils.Randomness;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class WildflySystemTest extends SystemTestBase{
 
-    @Test
+    @Test @Ignore
     public void testTransactionServlet(){
         Properties.JEE = true;
         Properties.SEARCH_BUDGET = 100_000;
