@@ -10,7 +10,8 @@ import org.junit.Test;
 
 public class WildflySystemTest extends SystemTestBase{
 
-    @Test @Ignore
+
+    @Test(timeout = 60_000) //@Ignore
     public void testTransactionServlet(){
         Properties.JEE = true;
         Properties.SEARCH_BUDGET = 100_000;
