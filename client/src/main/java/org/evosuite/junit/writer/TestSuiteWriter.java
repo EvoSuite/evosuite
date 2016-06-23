@@ -38,8 +38,6 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.FunctionalMockStatement;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
 import org.junit.runner.RunWith;
@@ -470,17 +468,6 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(NEWLINE);
 
         return builder.toString();
-    }
-
-    private boolean doesUseMocks(List<ExecutionResult> results) {
-        for(ExecutionResult er : results){
-            for(Statement st : er.test){
-                if(st instanceof FunctionalMockStatement){
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
 
