@@ -85,8 +85,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     logger.warn(
         "initialising regression Suite Fitness... #################################################");
     if (Properties.REGRESSION_ANALYZE) {
-      Properties.REGRESSION_USE_FITNESS = 1;
-      Properties.REGRESSION_DIFFERENT_BRANCHES = true;
+      Properties.REGRESSION_FITNESS = RegressionMeasure.COVERAGE;
     }
 
     // populate a temp branch distance map with initial data for all
@@ -139,66 +138,50 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
       // Only execute test if it hasn't been changed
       if (testChromosome.isChanged() || testChromosome.getLastExecutionResult() == null) {
 
-        Map<String, Map<Integer, String>> testDiversityMap =
-            new HashMap<String, Map<Integer, String>>();
-        for (int i = 0; i < testChromosome.getTestCase().size(); i++) {
-          Statement x = testChromosome.getTestCase().getStatement(i);
-          if (x instanceof MethodStatement) {
-            MethodStatement methodCall = (MethodStatement) x;
-            VariableReference callee = methodCall.getCallee();
-            if (callee == null)
-              continue;
-            int calleePosition = callee.getStPosition();
-            String calleeClass = callee.getClassName();
-            String methodCallName = methodCall.getMethod().getName();
+        // record diversity
+        // diversity is based on the test case statements, and doesn't used with execution results
+        if (Properties.REGRESSION_DIVERSITY) {
+          Map<String, Map<Integer, String>> testDiversityMap =
+              new HashMap<String, Map<Integer, String>>();
+          for (int i = 0; i < testChromosome.getTestCase().size(); i++) {
+            Statement x = testChromosome.getTestCase().getStatement(i);
+            if (x instanceof MethodStatement) {
+              MethodStatement methodCall = (MethodStatement) x;
+              VariableReference callee = methodCall.getCallee();
+              if (callee == null)
+                continue;
+              int calleePosition = callee.getStPosition();
+              String calleeClass = callee.getClassName();
+              String methodCallName = methodCall.getMethod().getName();
 
-            Map<Integer, String> calleeMap = testDiversityMap.get(calleeClass);
-            if (calleeMap == null)
-              calleeMap = new HashMap<Integer, String>();
+              Map<Integer, String> calleeMap = testDiversityMap.get(calleeClass);
+              if (calleeMap == null)
+                calleeMap = new HashMap<Integer, String>();
 
-            String calledMethods = calleeMap.get(calleePosition);
-            if (calledMethods == null)
-              calledMethods = "";
+              String calledMethods = calleeMap.get(calleePosition);
+              if (calledMethods == null)
+                calledMethods = "";
 
-            calledMethods += methodCallName;
+              calledMethods += methodCallName;
 
-            calleeMap.put(calleePosition, calledMethods);
-            testDiversityMap.put(calleeClass, calleeMap);
+              calleeMap.put(calleePosition, calledMethods);
+              testDiversityMap.put(calleeClass, calleeMap);
+            }
           }
-        }
 
-        c.diversityMap = testDiversityMap;
+          c.diversityMap = testDiversityMap;
+        }
 
         ExecutionResult result = TestCaseExecutor.runTest(testChromosome.getTestCase());
         // result.objectPool.addAll(observer.currentObjectMapPool);
-        switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
-          case 3:
-            // methodObserver.regressionFlag(true);
-            break;
-          case 0:
-          default:
-            observer.regressionFlag(true);
-            break;
-
-        }
+        observer.regressionFlag(true);
 
         ExecutionResult otherResult = TestCaseExecutor.runTest(otherChromosome.getTestCase());
         /*
          * otherResult.objectPool .addAll(observer.currentRegressionObjectMapPool);
          */
-        switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
-          case 3:
-            /*
-             * methodObserver.regressionFlag(false); methodObserver.off = true;
-             */
-            break;
-          case 0:
-          default:
-            observer.regressionFlag(false);
-            observer.off = true;
-            break;
-
-        }
+        observer.regressionFlag(false);
+        observer.off = true;
 
         double objectDistance = getTestObjectDistance(observer.currentObjectMapPool,
             observer.currentRegressionObjectMapPool);
@@ -215,6 +198,8 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
           otherChromosome.setChanged(false);
         }
       }
+
+
       if (Properties.REGRESSION_DIVERSITY) {
         long startTime = System.nanoTime();
         for (Entry<String, Map<Integer, String>> dEntry : c.diversityMap.entrySet()) {
@@ -246,30 +231,12 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
    */
   @Override
   public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
-    if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
-      switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
-        case 3:
-          // TestCaseExecutor.getInstance().addObserver(methodObserver);
-        case 0:
-        default:
-          TestCaseExecutor.getInstance().addObserver(observer);
-          break;
 
-      }
-    }
-    // TODO Auto-generated method stub
     if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
-      switch (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE) {
-        case 3:
-          // methodObserver.clearPools();
-          break;
-        case 0:
-        default:
-          observer.clearPools();
-          break;
-
-      }
+      TestCaseExecutor.getInstance().addObserver(observer);
+      observer.clearPools();
     }
+
     double distance = 0.0;
     double fitness = 0.0;
 
@@ -297,6 +264,8 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
       ExecutionResult result2 = rtc.getTheSameTestForTheOtherClassLoader().getLastExecutionResult();
 
+
+      // calculating exception difference
       int numExceptionOrig = result1.getNumberOfThrownExceptions();
       int numExceptionReg = result2.getNumberOfThrownExceptions();
 
@@ -313,12 +282,14 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
       startTime = System.nanoTime();
 
+      // branch distance
       if (useMeasure(RegressionMeasure.BRANCH_DISTANCE)) {
         this.getBranchDistance(result1.getTrace().getMethodCalls(),
             result2.getTrace().getMethodCalls());
       }
       RegressionSearchListener.branchDistanceTime += System.nanoTime() - startTime;
 
+      // object distance
       objectDistances.add(result1.regressionObjectDistance);
 
     }
@@ -368,34 +339,28 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     }
 
 
-    switch (Properties.REGRESSION_USE_FITNESS) {
-      case 6:
+    switch (Properties.REGRESSION_FITNESS) {
+      case COVERAGE_OLD:
         fitness += coverage_old;
         break;
-      case 5:
-        fitness += coverage;
+      case COVERAGE_NEW:
+        fitness += coverage_new;
+        break;
+      case BRANCH_DISTANCE:
         fitness += branchDfitness;
         break;
-      case 4:
-        fitness += coverage;
+      case STATE_DIFFERENCE:
         fitness += objectDfitness;
         break;
-      case 3:
-        fitness += branchDfitness;
-        break;
-      case 2:
-        fitness += objectDfitness;
-        break;
-      case 1:
+      case COVERAGE:
         fitness += coverage;
         break;
-      case 0:
+      case ALL_MEASURES:
       default:
         fitness += coverage;
         fitness += branchDfitness;
         fitness += objectDfitness;
         break;
-
     }
 
     // * (max_branch_fitness_valueO + max_branch_fitness_valueR);
@@ -431,8 +396,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
         RegressionSearchListener.analysisReport =
             "Coverage: Failed | Orig: " + covered_old + "% | New: " + covered_new + "%";
       }
-
-
     }
 
 
@@ -744,6 +707,10 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
       case COVERAGE_NEW:
         if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_NEW)
           return true;
+        break;
+      case STATE_DIFFERENCE:
+        if (m == RegressionMeasure.STATE_DIFFERENCE)
+          flag = true;
         break;
       case BRANCH_DISTANCE:
         if (m == RegressionMeasure.BRANCH_DISTANCE && Properties.REGRESSION_BRANCH_DISTANCE)

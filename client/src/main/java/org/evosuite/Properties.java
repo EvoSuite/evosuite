@@ -1547,13 +1547,8 @@ public class Properties {
 	public static boolean REGRESSION_DIFFERENT_BRANCHES = false;
 	
 	/** Constant <code>REGRESSION_BRANCH_DISTANCE</code> */
-    @Parameter(key = "regression_different_branches", group = "Runtime", description = "Enable control-flow distance measurement for regression testing")
+    @Parameter(key = "regression_branch_distance", group = "Runtime", description = "Enable control-flow distance measurement for regression testing")
     public static boolean REGRESSION_BRANCH_DISTANCE = false;
-	
-	/** Constant <code>REGRESSION_USE_FITNESS</code> */
-	@Deprecated
-	@Parameter(key = "regression_use_fitness", group = "Runtime", description = "Which fitness values will be used")
-	public static int REGRESSION_USE_FITNESS = 4;
 	
 	/** Constant <code>REGRESSION_FITNESS</code> */
     @Parameter(key = "regression_fitness", group = "Runtime", description = "Set fitness function for EvosuiteR. [Defaults to Random search]")
@@ -1578,6 +1573,10 @@ public class Properties {
 	/** Constant <code>REGRESSION_SKIP_SIMILAR</code> */
     @Parameter(key = "regression_skip_similar", group = "Runtime", description = "Skip running EvosuiteR on similar classes")
     public static boolean REGRESSION_SKIP_SIMILAR = false;
+    
+    /** Constant <code>REGRESSION_SKIP_DIFFERENT_CFG</code> */
+    @Parameter(key = "regression_skip_different_cfg", group = "Runtime", description = "Skip running EvosuiteR on classes with different control-flow-graph")
+    public static boolean REGRESSION_SKIP_DIFFERENT_CFG = false;
     
     /** Constant <code>REGRESSION_STATISTICS</code> */
     @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")

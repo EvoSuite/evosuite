@@ -83,7 +83,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
             
         
 		// Regression random strategy switch. 
-		if (Properties.REGRESSION_USE_FITNESS == 10 || Properties.REGRESSION_FITNESS == RegressionMeasure.RANDOM) {
+		if (Properties.REGRESSION_FITNESS == RegressionMeasure.RANDOM) {
 			 return generateRandomRegressionTests();
 		}
 

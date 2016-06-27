@@ -169,11 +169,13 @@ public class TestSuiteGenerator {
 		if (Properties.isRegression() && Properties.REGRESSION_SKIP_SIMILAR) {
 			// Sanity checks
 			if (Properties.getTargetClassRegression(true) == null) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
 				logger.error("class {} was not on the regression projectCP", Properties.TARGET_CLASS);
 				return TestGenerationResultBuilder.buildErrorResult("Could not load target regression class");
 			}
 			if (!ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
 					.hasClass(Properties.TARGET_CLASS)) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
 				logger.error("class {} was not on the regression_cp", Properties.TARGET_CLASS);
 				return TestGenerationResultBuilder.buildErrorResult(
 						"Class " + Properties.TARGET_CLASS + " did not exist on regression classpath");
@@ -185,10 +187,22 @@ public class TestSuiteGenerator {
 			// If classes are different, no point in continuing.
 			// TODO: report it to master to create a nice regression report
 			if (!areDifferent) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
 				logger.error("class {} was equal on both versions", Properties.TARGET_CLASS);
 				return TestGenerationResultBuilder.buildErrorResult(
 						"Class " + Properties.TARGET_CLASS + " was not changed between the two versions");
 			}
+		}
+		
+		if (Properties.isRegression() && Properties.REGRESSION_SKIP_DIFFERENT_CFG) {
+		    // Does the class have the same CFG across the two versions of the program?
+  		    boolean sameBranches = RegressionClassDiff.sameCFG();
+  		            
+            if (!sameBranches) {
+                Properties.IGNORE_MISSING_STATISTICS = false;
+                logger.error("The number of branches were different on both versions.");
+                return TestGenerationResultBuilder.buildErrorResult("The number of branches were different on both versions.");
+            }
 		}
 
 		TestSuiteChromosome testCases = generateTests();

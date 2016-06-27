@@ -91,15 +91,16 @@ public class RegressionSuiteMinimizer {
 		sendStats(regressionSuite);
 
 		// Sanity check
-		if (regressionSuite.size() == 0 && testCount > 0)
+		if (regressionSuite.size() == 0 && testCount > 0){
 			ClientServices.getInstance().getClientNode()
 					.trackOutputVariable(RuntimeVariable.RSM_OverMinimized, 1);
-
-		// Adding tests back to the original test suite
-		suite.clearTests();
-		for (TestChromosome t : regressionSuite.getTestChromosomes()) {
-			RegressionTestChromosome rtc = (RegressionTestChromosome) t;
-			suite.addTest(rtc.getTheTest());
+		} else {
+    		// Adding tests back to the original test suite (if minimization didn't remove all tests)
+    		suite.clearTests();
+    		for (TestChromosome t : regressionSuite.getTestChromosomes()) {
+    			RegressionTestChromosome rtc = (RegressionTestChromosome) t;
+    			suite.addTest(rtc.getTheTest());
+    		}
 		}
 
 		logger.warn("Minimized Length: {} ", suite.totalLengthOfTestCases());

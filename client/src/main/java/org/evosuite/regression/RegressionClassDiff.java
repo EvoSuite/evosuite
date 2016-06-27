@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +34,8 @@ import java.util.Map.Entry;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -148,6 +152,31 @@ public class RegressionClassDiff {
       e.printStackTrace();
     }
     return methodInstructionsMap;
+  }
+  
+  public static boolean sameCFG(){
+    Collection<Branch> branchesOriginal = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllBranches();
+    Collection<Branch> branchesRegression = BranchPool.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getAllBranches();
+    
+    if (branchesOriginal.size() != branchesRegression.size()) {
+        return false;
+    }
+    
+    Iterator<Branch> branchesOriginalIterator = branchesOriginal.iterator();
+    Iterator<Branch> branchesRegressionIterator = branchesRegression.iterator();
+    
+    boolean sameBranches = true;
+
+    while(branchesOriginalIterator.hasNext()){
+      Branch bOrig = branchesOriginalIterator.next();
+      Branch bReg = branchesRegressionIterator.next();
+      
+      if(bOrig.getInstruction().getInstructionId() != bReg.getInstruction().getInstructionId()){
+        sameBranches = false;
+        break;
+      }
+    }
+    return sameBranches;
   }
 
 }
