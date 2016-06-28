@@ -38,6 +38,7 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
@@ -71,8 +72,10 @@ public class RegressionClassDiff {
 
     boolean different = false;
 
-    Map<String, List<Integer>> methodInstructionsA = RegressionClassDiff.getClassInstructions(originalClassIS);
-    Map<String, List<Integer>> methodInstructionsB = RegressionClassDiff.getClassInstructions(regressionClassIS);
+    Map<String, List<Integer>> methodInstructionsA =
+        RegressionClassDiff.getClassInstructions(originalClassIS);
+    Map<String, List<Integer>> methodInstructionsB =
+        RegressionClassDiff.getClassInstructions(regressionClassIS);
 
     int sizeA = methodInstructionsA.size();
     int sizeB = methodInstructionsB.size();
@@ -101,8 +104,8 @@ public class RegressionClassDiff {
       logger.debug("Different Classes: classA {}", methodInstructionsA);
       logger.debug("Different Classes: classB {}", methodInstructionsB);
     }
-    
-    
+
+
 
     return different;
   }
@@ -153,30 +156,81 @@ public class RegressionClassDiff {
     }
     return methodInstructionsMap;
   }
-  
-  public static boolean sameCFG(){
-    Collection<Branch> branchesOriginal = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllBranches();
-    Collection<Branch> branchesRegression = BranchPool.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getAllBranches();
-    
+
+  public static boolean sameCFG() {
+    Collection<Branch> branchesOriginal = BranchPool
+        .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllBranches();
+    Collection<Branch> branchesRegression =
+        BranchPool.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
+            .getAllBranches();
+
     if (branchesOriginal.size() != branchesRegression.size()) {
-        return false;
+      logger.error("Different number of branches between two versions: {} vs {}", branchesOriginal.size(), branchesRegression.size());
+      return false;
     }
-    
+
     Iterator<Branch> branchesOriginalIterator = branchesOriginal.iterator();
     Iterator<Branch> branchesRegressionIterator = branchesRegression.iterator();
-    
+
     boolean sameBranches = true;
 
-    while(branchesOriginalIterator.hasNext()){
+    while (branchesOriginalIterator.hasNext()) {
       Branch bOrig = branchesOriginalIterator.next();
       Branch bReg = branchesRegressionIterator.next();
-      
-      if(bOrig.getInstruction().getInstructionId() != bReg.getInstruction().getInstructionId()){
+
+      int bOrigOpcode = bOrig.getInstruction().getASMNode().getOpcode();
+      int bRegOpcode = bReg.getInstruction().getASMNode().getOpcode();
+
+      // Are branches from the same family of branches?
+      if (RegressionClassDiff.getBranchFamily(bOrigOpcode) == RegressionClassDiff
+          .getBranchFamily(bRegOpcode)) {
+        logger.error("Different family found between branches: {} vs {}", bOrigOpcode, bRegOpcode);
         sameBranches = false;
         break;
       }
+
+
+
     }
     return sameBranches;
+  }
+
+  public static String getBranchFamily(int opcode) {
+    // The default family is the opcode itself
+    // Admittedly we could've use ints/enums for performance, but strings should be interned anyway
+    String family = "" + opcode;
+    switch (opcode) {
+      // copmpare int with zero
+      case Opcodes.IFEQ:
+      case Opcodes.IFNE:
+      case Opcodes.IFLT:
+      case Opcodes.IFGE:
+      case Opcodes.IFGT:
+      case Opcodes.IFLE:
+        family = "int_zero";
+        break;
+      // copmpare int with int
+      case Opcodes.IF_ICMPEQ:
+      case Opcodes.IF_ICMPNE:
+      case Opcodes.IF_ICMPLT:
+      case Opcodes.IF_ICMPGE:
+      case Opcodes.IF_ICMPGT:
+      case Opcodes.IF_ICMPLE:
+        family = "int_int";
+        break;
+      // copmpare reference with reference
+      case Opcodes.IF_ACMPEQ:
+      case Opcodes.IF_ACMPNE:
+        family = "ref_ref";
+        break;
+      // compare reference with null
+      case Opcodes.IFNULL:
+      case Opcodes.IFNONNULL:
+        family = "ref_null";
+        break;
+
+    }
+    return family;
   }
 
 }

@@ -200,8 +200,8 @@ public class TestSuiteGenerator {
   		            
             if (!sameBranches) {
                 Properties.IGNORE_MISSING_STATISTICS = false;
-                logger.error("The number of branches were different on both versions.");
-                return TestGenerationResultBuilder.buildErrorResult("The number of branches were different on both versions.");
+                logger.error("Could not match the branches across the two versions.");
+                return TestGenerationResultBuilder.buildErrorResult("Could not match the branches across the two versions.");
             }
 		}
 
