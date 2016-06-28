@@ -182,7 +182,7 @@ public class RegressionClassDiff {
       int bRegOpcode = bReg.getInstruction().getASMNode().getOpcode();
 
       // Are branches from the same family of branches?
-      if (RegressionClassDiff.getBranchFamily(bOrigOpcode) == RegressionClassDiff
+      if (RegressionClassDiff.getBranchFamily(bOrigOpcode) != RegressionClassDiff
           .getBranchFamily(bRegOpcode)) {
         logger.error("Different family found between branches: {} vs {}", bOrigOpcode, bRegOpcode);
         sameBranches = false;
