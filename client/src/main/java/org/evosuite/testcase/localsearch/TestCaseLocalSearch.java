@@ -33,9 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
- * LocalSearch interface.
- * </p>
+ * Applies local search to a given Test Case (a TestChromosome) using 
+ * a local search objective for test cases.
  * 
  * @author Gordon Fraser
  */
@@ -43,7 +42,11 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestCaseLocalSearch.class);
 	
-
+	/**
+	 * The factory method that returns the type of Local Search 
+	 * that is supposed to be applied on the Test Case
+	 * @return
+	 */
 	public static TestCaseLocalSearch getLocalSearch() {
 		if(Properties.LOCAL_SEARCH_SELECTIVE) {
 			return new SelectiveTestCaseLocalSearch();
@@ -52,6 +55,13 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 		}
 	}
 	
+	/**
+	 * This method allows to  reset all primitive values before 
+	 * trying again a local search on the same test case.
+	 * 
+	 * @param test the test case that will have their primitive values
+	 * changed to random primitive values.
+	 */
 	public static void randomizePrimitives(TestCase test) {
 		for(Statement s : test) {
 			if(s instanceof PrimitiveStatement<?>) {

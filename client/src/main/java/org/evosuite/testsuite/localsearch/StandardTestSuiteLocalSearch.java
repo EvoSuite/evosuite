@@ -34,9 +34,14 @@ import org.evosuite.utils.Randomness;
 
 public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
+	/**
+	 * Applies local search to the current individual targeting 
+	 * the objective passed as parameter
+	 */
 	@Override
 	public boolean doSearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
+		
 		updateFitness(individual, objective);
 		double fitnessBefore = individual.getFitness();
 		//logger.info("Test suite before local search: " + individual);
@@ -85,6 +90,15 @@ public class StandardTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	}
 
 
+	/**
+	 * Apply local searh to each test case of this test suite using
+	 * the objective as target for the local search.
+	 * If local search was already applied to a test case, then
+	 * randomize all primitives before applying local search again.
+	 * 
+	 * @param individual
+	 * @param objective
+	 */
 	private void doRegularSearch(TestSuiteChromosome individual,
 	        LocalSearchObjective<TestSuiteChromosome> objective) {
 		List<TestChromosome> tests = individual.getTestChromosomes();

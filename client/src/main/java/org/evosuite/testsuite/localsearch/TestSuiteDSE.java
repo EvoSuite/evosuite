@@ -478,7 +478,7 @@ public class TestSuiteDSE {
 	 * @param variables
 	 *            a {@link java.util.Set} object.
 	 */
-	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
+	private static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		variables.addAll(expr.getVariables());
 	}
 

@@ -54,8 +54,9 @@ public class StandardTestCaseLocalSearch extends TestCaseLocalSearch {
 		//We count down to make the code work when lines are
 		//added during the search (see NullReferenceSearch).
 
+		final double nextDouble = Randomness.nextDouble();
         boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.TEST &&
-                Randomness.nextDouble() < Properties.DSE_PROBABILITY;
+                nextDouble < Properties.DSE_PROBABILITY;
 
 		for (int i = lastPosition; i >= 0; i--) {
 			if (LocalSearchBudget.getInstance().isFinished())

@@ -212,7 +212,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 	/**
 	 * Apply local search, starting from the best individual and continue
-	 * applying it to all individuals until the local search budget is used up
+	 * applying it to all individuals until the local search budget is used up.
+	 * 
+	 * The population list is re-ordered if needed.
 	 */
 	protected void applyLocalSearch() {
 		if (!shouldApplyLocalSearch())
@@ -232,8 +234,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 				break;
 			}
 
-			if (individual.localSearch(localObjective))
+			if (individual.localSearch(localObjective)) {
 				improvement = true;
+			}
 		}
 		
 		if (improvement) {
@@ -245,6 +248,50 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			updateProbability(Properties.LOCAL_SEARCH_ADAPTATION_RATE);
 			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
 		}
+
+		if (improvement) {
+			// If an improvement occurred to one of the individuals, it could
+			// be the case that the improvement was so good, that the individual
+			// has surpassed to the previous individual, which makes the population
+			// list not sorted any more. 
+			if (!populationIsSorted()) {
+				this.sortPopulation();
+			}
+		}
+	}
+
+	/**
+	 * Returns true if the population is sorted according to the fitness 
+	 * values.
+	 * 
+	 * @return true if the population is sorted (or empty)
+	 */
+	private boolean populationIsSorted() {
+		Chromosome previousIndividual = null;
+		for (Chromosome currentIndividual : this.population) {
+			if (previousIndividual!=null) {
+				if (!isBetterOrEqual(previousIndividual, currentIndividual)) {
+					// at least two individuals are not sorted
+					return false;
+				}
+			}
+			previousIndividual = currentIndividual;
+		}
+		// the population is sorted (or empty)
+		return true;
+	}
+
+	/**
+	 * Returns true if the fitness functions are maximization functions
+	 * or false if all fitness functions are minimisation functions.
+	 * It expects that all fitnessFunctions are minimising or maximising,
+	 * it cannot happen that minimization and maximization functions are
+	 * together.
+	 * 
+	 * @return
+	 */
+	private boolean isMaximizationFunction() {
+		return fitnessFunctions.get(0).isMaximizationFunction();
 	}
 
 	private void updateProbability(double delta){
@@ -786,7 +833,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if (Properties.SHUFFLE_GOALS)
 			Randomness.shuffle(population);
 
-		if (fitnessFunctions.get(0).isMaximizationFunction()) {
+		if (isMaximizationFunction()) {
 			Collections.sort(population, Collections.reverseOrder());
 		} else {
 			Collections.sort(population);
@@ -943,9 +990,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	/**
-	 * <p>
-	 * isBetterOrEqual
-	 * </p>
+	 * Returns true if the <code>chromosome1</code> is better or equal than 
+	 * <code>chromosome2</code> according to the compound fitness function.
 	 * 
 	 * @param chromosome1
 	 *            a {@link org.evosuite.ga.Chromosome} object.

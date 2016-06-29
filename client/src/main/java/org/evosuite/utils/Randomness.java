@@ -173,10 +173,10 @@ public class Randomness implements Serializable {
 
 	/**
 	 * <p>
-	 * nextDouble
+	 * returns a randomly generated double in the range [0,1]
 	 * </p>
 	 * 
-	 * @return a double.
+	 * @return a double between 0.0 and 1.0
 	 */
 	public static double nextDouble() {
 		return random.nextDouble();

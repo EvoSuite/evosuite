@@ -34,7 +34,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * LocalSearchBudget class.
+ * This singleton class provides support for updating the amount of LS budget 
+ * that was consumed during the current application of LS.
  * </p>
  * 
  * @author Gordon Fraser
@@ -110,22 +111,29 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 		return isFinished;
 	}
 
+	/**
+	 * Reports that a fitness evaluation was consumed
+	 */
 	public void countFitnessEvaluation() {
 		fitnessEvaluations++;
 	}
 
+	/**
+	 * Reports that Local search on an specific test has been concluded.
+	 */
 	public void countLocalSearchOnTest() {
 		tests++;
 	}
 	
+	/**
+	 * Reports that local search on a whole test suite has been finished.
+	 */
 	public void countLocalSearchOnTestSuite() {
 		suites++;
 	}
 
 	/**
-	 * <p>
-	 * localSearchStarted
-	 * </p>
+	 * Indicates that the application of LS to the current population has started.
 	 */
 	public void localSearchStarted() {
 		startTime     = System.currentTimeMillis();

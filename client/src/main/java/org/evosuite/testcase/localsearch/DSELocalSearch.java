@@ -66,6 +66,11 @@ public class DSELocalSearch extends StatementLocalSearch {
 		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase().clone();
 		List<BranchCondition> conditions = ConcolicExecution.executeConcolic(clone_test_case);
 		logger.info("Done symbolic execution");
+		
+		if (conditions.isEmpty()) {
+			return false;
+		}
+		
 		for (BranchCondition c : conditions) {
 			logger.info(" -> " + c.getLocalConstraint());
 		}
