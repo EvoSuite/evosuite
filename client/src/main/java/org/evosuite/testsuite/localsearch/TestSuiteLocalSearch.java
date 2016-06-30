@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.DSEType;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearch;
@@ -40,6 +41,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +56,14 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	}
 	
 	public static TestSuiteLocalSearch getLocalSearch() {
-		if(Properties.LOCAL_SEARCH_SELECTIVE)
-			return new SelectiveTestSuiteLocalSearch();
-		else
-			return new StandardTestSuiteLocalSearch();
+		final boolean useDSE =(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE &&
+				Randomness.nextDouble() < Properties.DSE_PROBABILITY);
+		
+		if (useDSE) {
+			return new DSETestSuiteLocalSearch();
+		} else {
+			return new AVMTestSuiteLocalSearch();
+		}
 	}
 	
 	/**

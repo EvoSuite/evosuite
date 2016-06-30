@@ -31,12 +31,16 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.utils.Randomness;
 
+@Deprecated
 public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
 	@Override
 	public boolean doSearch(TestChromosome individual,
 			LocalSearchObjective<TestChromosome> objective) {
 
+        final boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.TEST &&
+                Randomness.nextDouble() < Properties.DSE_PROBABILITY;
+        
 		logger.info("Applying local search on test case");
 
 		boolean improved = false;
@@ -55,9 +59,6 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 		logger.info("Checking {} mutations", individual.getMutationHistory().size());
 		MutationHistory<TestMutationHistoryEntry> history = new MutationHistory<>();
 		history.set(individual.getMutationHistory());
-
-        boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.TEST &&
-                Randomness.nextDouble() < Properties.DSE_PROBABILITY;
 
         for (TestMutationHistoryEntry mutation : individual.getMutationHistory()) {
 			if (LocalSearchBudget.getInstance().isFinished())
@@ -100,7 +101,7 @@ public class SelectiveTestCaseLocalSearch extends TestCaseLocalSearch {
 
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
-			DSELocalSearch dse = new DSELocalSearch();
+			DSEStatementLocalSearch dse = new DSEStatementLocalSearch();
 			assert improved==false;
 			improved = dse.doSearch(individual, targetPositions,
 			             (LocalSearchObjective<TestChromosome>) objective);

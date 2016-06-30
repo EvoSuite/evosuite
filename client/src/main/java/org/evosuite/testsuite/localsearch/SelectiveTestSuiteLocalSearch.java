@@ -41,6 +41,7 @@ import org.evosuite.utils.Randomness;
  * Apply local search only to individuals that changed fitness
  * 
  */
+@Deprecated
 public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 	private boolean applyDSE(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
@@ -118,6 +119,9 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	public boolean doSearch(TestSuiteChromosome individual,
 			LocalSearchObjective<TestSuiteChromosome> objective) {
 
+		final boolean useDSE = 	(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE) && 
+            (Randomness.nextDouble() < Properties.DSE_PROBABILITY);
+		
 		if (!individual.hasFitnessChanged()) {
 			logger.info("Fitness has not changed, so not applying local search");
 			return false;
@@ -132,11 +136,9 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		if(Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
 			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
 
-		if(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE) {
-			// Apply standard DSE on entire suite if it has relevant mutations
-            if(Randomness.nextDouble() < Properties.DSE_PROBABILITY) {
-                return applyDSE(individual, objective);
-            }
+		// Apply standard DSE on entire suite if it has relevant mutations
+		if(useDSE) {
+			return applyDSE(individual, objective);
 		} 
 
 		// Determine tests that were changed

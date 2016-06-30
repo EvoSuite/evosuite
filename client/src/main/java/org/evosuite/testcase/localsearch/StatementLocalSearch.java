@@ -97,7 +97,7 @@ public abstract class StatementLocalSearch {
 
         if (useDSE) {
             if (statement instanceof PrimitiveStatement<?>) {
-                return new DSELocalSearch();
+                return new DSEStatementLocalSearch();
             } else {
                 return null;
             }

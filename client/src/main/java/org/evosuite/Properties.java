@@ -433,6 +433,7 @@ public class Properties {
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double LOCAL_SEARCH_PROBABILITY = 1.0;
 
+	@Deprecated
 	@Parameter(key = "local_search_selective", group = "Local Search", description = "Apply local search only to individuals that changed fitness")
 	public static boolean LOCAL_SEARCH_SELECTIVE = false;
 

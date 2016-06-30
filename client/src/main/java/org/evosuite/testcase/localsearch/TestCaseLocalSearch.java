@@ -23,12 +23,14 @@
 package org.evosuite.testcase.localsearch;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.DSEType;
 import org.evosuite.ga.localsearch.LocalSearch;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.NullStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +50,13 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 	 * @return
 	 */
 	public static TestCaseLocalSearch getLocalSearch() {
-		if(Properties.LOCAL_SEARCH_SELECTIVE) {
-			return new SelectiveTestCaseLocalSearch();
-		} else {
-			return new StandardTestCaseLocalSearch();
+		final double nextDouble = Randomness.nextDouble();
+        boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.TEST &&
+                nextDouble < Properties.DSE_PROBABILITY;
+        if (useDSE) {
+        	return new DSETestCaseLocalSearch();
+        } else {
+			return new AVMTestCaseLocalSearch();
 		}
 	}
 	

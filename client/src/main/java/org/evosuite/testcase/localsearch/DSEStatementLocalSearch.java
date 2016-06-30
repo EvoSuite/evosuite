@@ -49,9 +49,9 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DSELocalSearch extends StatementLocalSearch {
+public class DSEStatementLocalSearch extends StatementLocalSearch {
 
-	private static final Logger logger = LoggerFactory.getLogger(DSELocalSearch.class);
+	private static final Logger logger = LoggerFactory.getLogger(DSEStatementLocalSearch.class);
 
 
 	public boolean doSearch(TestChromosome test, Set<Integer> statements,
