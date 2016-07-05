@@ -222,6 +222,8 @@ public abstract class AssertionGenerator {
 
 			TestGenerationContext.getInstance().resetContext();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			// We need to reset the target Class since it requires a different instrumentation
+			// for handling assertion generation.
 			Properties.resetTargetClass();
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
