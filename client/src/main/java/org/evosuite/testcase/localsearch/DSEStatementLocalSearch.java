@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.localsearch;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +55,9 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 	private static final Logger logger = LoggerFactory.getLogger(DSEStatementLocalSearch.class);
 
 
+	/**
+	 * Applies DSE to the test 
+	 */
 	public boolean doSearch(TestChromosome test, Set<Integer> statements,
 			LocalSearchObjective<TestChromosome> objective) {
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
@@ -106,28 +110,28 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 			}
 			logger.info("Is relevant for " + targets);
 
-			List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-			constraints.addAll(condition.getReachingConstraints());
+			List<Constraint<?>> query = new LinkedList<Constraint<?>>();
+			query.addAll(condition.getReachingConstraints());
 
 			Constraint<?> targetConstraint = condition.getLocalConstraint().negate();
-			constraints.add(targetConstraint);
+			query.add(targetConstraint);
 
 			// Cone of influence reduction
-			constraints = reduce(constraints);
+			query = reduce(query);
 
 			logger.info("Trying to solve: ");
-			for (Constraint<?> c : constraints) {
+			for (Constraint<?> c : query) {
 				logger.info("  " + c);
 			}
 
-			DSEStats.getInstance().reportNewConstraints(constraints);
+			DSEStats.getInstance().reportNewConstraints(query);
 
 			// Get solution
 			Solver solver = SolverFactory.getInstance().buildNewSolver();
 
 			long startSolvingTime = System.currentTimeMillis();
 			SolverCache solverCache = SolverCache.getInstance();
-			SolverResult solverResult = solverCache.solve(solver, constraints);
+			SolverResult solverResult = solverCache.solve(solver, query);
 			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
 			DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 
@@ -168,9 +172,7 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 
 	@Override
 	public boolean doSearch(TestChromosome test, int statement, LocalSearchObjective<TestChromosome> objective) {
-		Set<Integer> statements = new HashSet<Integer>();
-		statements.add(statement);
-		return doSearch(test, statements, objective);
+		return doSearch(test, Collections.singleton(statement), objective);
 	}
 
 	private boolean isRelevant(Constraint<?> constraint, Set<VariableReference> targets) {

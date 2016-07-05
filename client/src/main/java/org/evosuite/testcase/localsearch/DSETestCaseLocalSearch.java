@@ -11,70 +11,73 @@ import org.evosuite.testcase.TestChromosome;
 
 public class DSETestCaseLocalSearch extends TestCaseLocalSearch {
 
+	/**
+	 * Applies DSE local search on a test case using the passed local search
+	 * objective
+	 * 
+	 * @param testChromosome the test case chromosome
+	 * @param localSearchObjective the fitness functions for the test chromosome
+	 */
 	@Override
-	public boolean doSearch(TestChromosome individual,
-			LocalSearchObjective<TestChromosome> objective) {
+	public boolean doSearch(TestChromosome testChromosome, LocalSearchObjective<TestChromosome> localSearchObjective) {
 
-        
-		logger.info("Test before local search: " + individual.getTestCase().toCode());
-		
+		logger.info("Test before local search: " + testChromosome.getTestCase().toCode());
+
 		// Only apply local search up to the point where an exception was thrown
 		// TODO: Check whether this conflicts with test expansion
-		int lastPosition = individual.size() - 1;
-		if (individual.getLastExecutionResult() != null && !individual.isChanged()) {
-			Integer lastPos = individual.getLastExecutionResult().getFirstPositionOfThrownException();
+		int lastPosition = testChromosome.size() - 1;
+		if (testChromosome.getLastExecutionResult() != null && !testChromosome.isChanged()) {
+			Integer lastPos = testChromosome.getLastExecutionResult().getFirstPositionOfThrownException();
 			if (lastPos != null)
 				lastPosition = lastPos.intValue();
 		}
-		TestCase test = individual.getTestCase();
-		Set<Integer> targetPositions = new HashSet<Integer>();
+		TestCase test = testChromosome.getTestCase();
+		Set<Integer> targetStatementIndexes = new HashSet<Integer>();
 
-		//We count down to make the code work when lines are
-		//added during the search (see NullReferenceSearch).
-
-
+		// We count down to make the code work when lines are
+		// added during the search (see NullReferenceSearch).
 
 		for (int i = lastPosition; i >= 0; i--) {
 			if (LocalSearchBudget.getInstance().isFinished())
 				break;
 
-			if(objective.isDone()) {
+			if (localSearchObjective.isDone()) {
 				break;
 			}
-			
-			if (i >= individual.size()) {
+
+			if (i >= testChromosome.size()) {
 				logger.warn("Test size decreased unexpectedly during local search, aborting local search");
-				logger.warn(individual.getTestCase().toCode());
+				logger.warn(testChromosome.getTestCase().toCode());
 				break;
 			}
 			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
 			if (!test.hasReferences(test.getStatement(i).getReturnValue())
 					&& !test.getStatement(i).getReturnClass().equals(targetClass)) {
-				logger.info("Return value of statement " + i
-						+ " is not referenced and not SUT, not doing local search");
+				logger.info(
+						"Return value of statement " + i + " is not referenced and not SUT, not doing local search");
 				continue;
 			}
 
-			targetPositions.add(i);
+			targetStatementIndexes.add(i);
 
 		}
-		
+
 		boolean improved = false;
-		if (!targetPositions.isEmpty()) {
-			logger.info("Yes, now applying the search at positions {}!", targetPositions);
-			DSEStatementLocalSearch dse = new DSEStatementLocalSearch();
-			improved = dse.doSearch(individual, targetPositions,
-			             (LocalSearchObjective<TestChromosome>) objective);
+		if (!targetStatementIndexes.isEmpty()) {
+			logger.info("Yes, now applying the search at positions {}!", targetStatementIndexes);
+			DSEStatementLocalSearch dseStatementLocalSearch = new DSEStatementLocalSearch();
+			improved = dseStatementLocalSearch.doSearch(testChromosome, targetStatementIndexes, localSearchObjective);
 		}
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTest();
 
-		// logger.warn("Test after local search: " + individual.getTestCase().toCode());
+		// logger.warn("Test after local search: " +
+		// individual.getTestCase().toCode());
 
 		// Return true iif search was successful
 		return improved;
-		
+
 		// TODO: Handle arrays in local search
 		// TODO: mutating an int might have an effect on array lengths
 	}

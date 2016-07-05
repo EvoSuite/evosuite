@@ -49,7 +49,7 @@ public abstract class TestCaseLocalSearch implements LocalSearch<TestChromosome>
 	 * that is supposed to be applied on the Test Case
 	 * @return
 	 */
-	public static TestCaseLocalSearch getLocalSearch() {
+	public static TestCaseLocalSearch selectTestCaseLocalSearch() {
 		final double nextDouble = Randomness.nextDouble();
         boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.TEST &&
                 nextDouble < Properties.DSE_PROBABILITY;

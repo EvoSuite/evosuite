@@ -107,7 +107,7 @@ public class LocalSearchArraySystemTest extends SystemTestBase {
 		suite.addTest(test);
 		//assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 		
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);

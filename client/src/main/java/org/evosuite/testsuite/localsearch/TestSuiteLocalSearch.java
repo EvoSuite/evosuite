@@ -66,7 +66,13 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 		}
 	}
 
-	public static TestSuiteLocalSearch getLocalSearch() {
+	/**
+	 * Decides the kind of local search that will be applied to the Test Suite.
+	 * 
+	 * @return a <code>TestSuiteLocalSearch</code> instance to use for local
+	 *         search
+	 */
+	public static TestSuiteLocalSearch selectTestSuiteLocalSearch() {
 		final boolean useDSE = (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE
 				&& Randomness.nextDouble() < Properties.DSE_PROBABILITY);
 

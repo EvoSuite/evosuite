@@ -249,7 +249,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		return localSearch.doSearch(this, (LocalSearchObjective<TestSuiteChromosome>) objective);
 	}
 	
