@@ -48,24 +48,35 @@ import org.slf4j.LoggerFactory;
 public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChromosome> {
 
 	protected static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearch.class);
-	
-	protected void updateFitness(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
-		for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
-			((TestSuiteFitnessFunction)ff).getFitness(individual);
+
+	/**
+	 * Updates the given list of fitness functions using for the individual
+	 * passed as a parameter
+	 *
+	 * @param individual
+	 *            an individual
+	 * 
+	 * @param fitnessFunctions
+	 *            the list of fitness functions to be updated
+	 */
+	protected void updateFitness(TestSuiteChromosome individual,
+			List<FitnessFunction<? extends Chromosome>> fitnessFunctions) {
+		for (FitnessFunction<? extends Chromosome> ff : fitnessFunctions) {
+			((TestSuiteFitnessFunction) ff).getFitness(individual);
 		}
 	}
-	
+
 	public static TestSuiteLocalSearch getLocalSearch() {
-		final boolean useDSE =(Properties.LOCAL_SEARCH_DSE == DSEType.SUITE &&
-				Randomness.nextDouble() < Properties.DSE_PROBABILITY);
-		
+		final boolean useDSE = (Properties.LOCAL_SEARCH_DSE == DSEType.SUITE
+				&& Randomness.nextDouble() < Properties.DSE_PROBABILITY);
+
 		if (useDSE) {
 			return new DSETestSuiteLocalSearch();
 		} else {
 			return new AVMTestSuiteLocalSearch();
 		}
 	}
-	
+
 	/**
 	 * Before applying DSE we expand test cases, such that each primitive value
 	 * is used at only exactly one position as a parameter
@@ -73,7 +84,8 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 	 * @param individual
 	 * @return
 	 */
-	protected void expandTestSuite(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
+	protected void expandTestSuite(TestSuiteChromosome individual,
+			LocalSearchObjective<TestSuiteChromosome> objective) {
 		logger.debug("Expanding tests for local search");
 
 		TestSuiteChromosome newTestSuite = new TestSuiteChromosome();
@@ -81,18 +93,16 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 
 			// First make sure we are up to date with the execution
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
-				test.setLastExecutionResult(TestCaseExecutor.runTest(test
-						.getTestCase()));
+				test.setLastExecutionResult(TestCaseExecutor.runTest(test.getTestCase()));
 				test.setChanged(false);
 			}
 
 			// We skip tests that have problems
-			if (test.getLastExecutionResult().hasTimeout()
-					|| test.getLastExecutionResult().hasTestException()) {
+			if (test.getLastExecutionResult().hasTimeout() || test.getLastExecutionResult().hasTestException()) {
 				logger.info("Skipping test with timeout or exception");
 				continue;
 			}
-			
+
 			// If local search has already been applied on the original test
 			// then we also set that flag on the expanded test
 			boolean hasLocalSearchBeenApplied = test.hasLocalSearchBeenApplied();
@@ -100,33 +110,34 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 			TestCase expandedTest = expandTestCase(newTest);
 			TestChromosome expandedTestChromosome = newTestSuite.addTest(expandedTest);
 			expandedTestChromosome.setLocalSearchApplied(hasLocalSearchBeenApplied);
-		}		
+		}
 		List<TestChromosome> oldTests = individual.getTestChromosomes();
 		oldTests.clear();
 		oldTests.addAll(newTestSuite.getTestChromosomes());
 		individual.setChanged(true);
-		for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
-			((TestSuiteFitnessFunction)ff).getFitness(individual);
+		for (FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+			((TestSuiteFitnessFunction) ff).getFitness(individual);
 		}
 	}
-	
+
 	private TestCase expandTestCase(TestCase test) {
-		if(!Properties.LOCAL_SEARCH_EXPAND_TESTS)
+		if (!Properties.LOCAL_SEARCH_EXPAND_TESTS)
 			return test;
-		
+
 		TestCaseExpander expander = new TestCaseExpander();
 		return expander.expandTestCase(test);
 	}
-	
+
 	/**
 	 * Ensure that all branches are executed twice
 	 */
-	protected void ensureDoubleExecution(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
+	protected void ensureDoubleExecution(TestSuiteChromosome individual,
+			LocalSearchObjective<TestSuiteChromosome> objective) {
 		logger.debug("Ensuring double execution");
-		
+
 		Set<TestChromosome> duplicates = new HashSet<TestChromosome>();
 		TestSuiteFitnessFunction defaultFitness = (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0);
-		
+
 		Map<Integer, Integer> covered = new HashMap<Integer, Integer>();
 		Map<Integer, TestChromosome> testMap = new HashMap<Integer, TestChromosome>();
 		for (TestChromosome test : individual.getTestChromosomes()) {
@@ -138,17 +149,17 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 				test.setChanged(false);
 			}
 
-			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().getPredicateExecutionCount().entrySet()) {
+			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().getPredicateExecutionCount()
+					.entrySet()) {
 				if (!covered.containsKey(entry.getKey())) {
 					covered.put(entry.getKey(), 0);
 				}
-				covered.put(entry.getKey(),
-				            covered.get(entry.getKey()) + entry.getValue());
+				covered.put(entry.getKey(), covered.get(entry.getKey()) + entry.getValue());
 				testMap.put(entry.getKey(), test);
 			}
 		}
 
-		for(Entry<Integer, Integer> entry : covered.entrySet()) {
+		for (Entry<Integer, Integer> entry : covered.entrySet()) {
 			int branchId = entry.getKey();
 			int count = entry.getValue();
 			if (count == 1) {
@@ -161,23 +172,22 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 		}
 
 		if (!duplicates.isEmpty()) {
-			logger.info("Adding " + duplicates.size()
-			        + " tests to cover branches sufficiently");
+			logger.info("Adding " + duplicates.size() + " tests to cover branches sufficiently");
 			for (TestChromosome test : duplicates) {
 				individual.addTest(test);
 			}
 			individual.setChanged(true);
-			for(FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
-				((TestSuiteFitnessFunction)ff).getFitness(individual);
+			for (FitnessFunction<? extends Chromosome> ff : objective.getFitnessFunctions()) {
+				((TestSuiteFitnessFunction) ff).getFitness(individual);
 			}
 		}
 	}
-	
+
 	private Set<Integer> getCoveredTrueBranches(TestSuiteChromosome suite) {
 		Set<Integer> covered = new LinkedHashSet<Integer>();
-		for(TestChromosome testChromosome : suite.getTestChromosomes()) {
+		for (TestChromosome testChromosome : suite.getTestChromosomes()) {
 			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
-			if(lastResult != null) {
+			if (lastResult != null) {
 				covered.addAll(lastResult.getTrace().getCoveredTrueBranches());
 			}
 		}
@@ -186,9 +196,9 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 
 	private Set<Integer> getCoveredFalseBranches(TestSuiteChromosome suite) {
 		Set<Integer> covered = new LinkedHashSet<Integer>();
-		for(TestChromosome testChromosome : suite.getTestChromosomes()) {
+		for (TestChromosome testChromosome : suite.getTestChromosomes()) {
 			ExecutionResult lastResult = testChromosome.getLastExecutionResult();
-			if(lastResult != null) {
+			if (lastResult != null) {
 				covered.addAll(lastResult.getTrace().getCoveredFalseBranches());
 			}
 		}
@@ -203,30 +213,33 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 
 		BranchCoverageMap branchMap = BranchCoverageMap.getInstance();
 
-		Set<Integer> uncoveredTrueBranches  = new LinkedHashSet<Integer>(branchMap.getCoveredTrueBranches());
+		Set<Integer> uncoveredTrueBranches = new LinkedHashSet<Integer>(branchMap.getCoveredTrueBranches());
 		Set<Integer> uncoveredFalseBranches = new LinkedHashSet<Integer>(branchMap.getCoveredFalseBranches());
-		
+
 		uncoveredTrueBranches.removeAll(getCoveredTrueBranches(individual));
 		uncoveredFalseBranches.removeAll(getCoveredFalseBranches(individual));
-		
-		for(Integer branchId : uncoveredTrueBranches) {
+
+		for (Integer branchId : uncoveredTrueBranches) {
 			individual.addTest(branchMap.getTestCoveringTrue(branchId).clone());
 		}
-		for(Integer branchId : uncoveredFalseBranches) {
+		for (Integer branchId : uncoveredFalseBranches) {
 			individual.addTest(branchMap.getTestCoveringFalse(branchId).clone());
 		}
 	}
-	
+
 	/**
-	 * Indicates if the fitness of the individual has improved with respected to 
+	 * Indicates if the fitness of the individual has improved with respected to
 	 * parameter <code>fitnessBefore</code>
 	 * 
-	 * @param fitnessBefore the previous fitness of the individual
-	 * @param individual the individual
-	 * @param objective the local search objective 
-	 * @return true if fitness improved, false otherwise 
+	 * @param fitnessBefore
+	 *            the previous fitness of the individual
+	 * @param individual
+	 *            the individual
+	 * @param objective
+	 *            the local search objective
+	 * @return true if fitness improved, false otherwise
 	 */
-	protected boolean hasImproved(double fitnessBefore, TestSuiteChromosome individual, 
+	protected boolean hasImproved(double fitnessBefore, TestSuiteChromosome individual,
 			LocalSearchObjective<TestSuiteChromosome> objective) {
 		return objective.isMaximizationObjective() ? fitnessBefore < individual.getFitness()
 				: fitnessBefore > individual.getFitness();

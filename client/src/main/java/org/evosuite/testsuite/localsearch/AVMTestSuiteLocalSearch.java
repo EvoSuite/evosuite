@@ -23,9 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.localsearch.AVMTestCaseLocalSearch;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -45,14 +48,14 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	 * passed as parameter
 	 */
 	@Override
-	public boolean doSearch(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
+	public boolean doSearch(TestSuiteChromosome suite, LocalSearchObjective<TestSuiteChromosome> localSearchObjective) {
 
-		updateFitness(individual, objective);
-		double fitnessBefore = individual.getFitness();
+		updateFitness(suite, localSearchObjective.getFitnessFunctions());
+		double fitnessBefore = suite.getFitness();
 		// logger.info("Test suite before local search: " + individual);
 
-		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(individual.getTestChromosomes());
-		List<TestChromosome> tests = individual.getTestChromosomes();
+		List<TestChromosome> originalTests = new ArrayList<TestChromosome>(suite.getTestChromosomes());
+		List<TestChromosome> tests = suite.getTestChromosomes();
 		/*
 		 * When we apply local search, due to budget constraints we might not be
 		 * able to evaluate all the test cases in a test suite. When we apply LS
@@ -63,15 +66,15 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		Randomness.shuffle(tests);
 
 		if (Properties.LOCAL_SEARCH_ENSURE_DOUBLE_EXECUTION)
-			ensureDoubleExecution(individual, objective);
+			ensureDoubleExecution(suite, localSearchObjective);
 
 		if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE)
-			restoreBranchCoverage(individual, (TestSuiteFitnessFunction) objective.getFitnessFunctions().get(0));
+			restoreBranchCoverage(suite, (TestSuiteFitnessFunction) localSearchObjective.getFitnessFunctions().get(0));
 
 		if (Properties.LOCAL_SEARCH_EXPAND_TESTS)
-			expandTestSuite(individual, objective);
+			expandTestSuite(suite, localSearchObjective);
 
-		doAVMSearch(individual, objective);
+		doAVMSearchOnTestChromosomes(suite, localSearchObjective);
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
 
@@ -85,11 +88,11 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		// + fitnessBefore + " and now is " + individual.getFitness();
 
 		// Return true if fitness has improved
-		boolean hasImproved = hasImproved(fitnessBefore, individual, objective);
+		boolean hasImproved = hasImproved(fitnessBefore, suite, localSearchObjective);
 		if (!hasImproved) {
 			// restore original tests
-			individual.clearTests();
-			individual.addTests(originalTests);
+			suite.clearTests();
+			suite.addTests(originalTests);
 		}
 		return hasImproved;
 	}
@@ -100,25 +103,22 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	 * applied to a test case, then randomize all primitives before applying
 	 * local search again.
 	 * 
-	 * @param individual
-	 * @param objective
+	 * @param suite
+	 * @param localSearchObjective
 	 */
-	private void doAVMSearch(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
-		List<TestChromosome> tests = individual.getTestChromosomes();
-		for (int i = 0; i < tests.size(); i++) {
-			TestChromosome test = tests.get(i);
+	private void doAVMSearchOnTestChromosomes(TestSuiteChromosome suite,
+			LocalSearchObjective<TestSuiteChromosome> localSearchObjective) {
+		List<TestChromosome> tests = suite.getTestChromosomes();
+		for (int testIndex = 0; testIndex < tests.size(); testIndex++) {
+			final TestChromosome test = tests.get(testIndex);
 
 			// If we have already tried local search before on this test
 			// without success, we reset all primitive values before trying
 			// again
 			if (test.hasLocalSearchBeenApplied()) {
 				TestCaseLocalSearch.randomizePrimitives(test.getTestCase());
-				updateFitness(individual, objective);
+				updateFitness(suite, localSearchObjective.getFitnessFunctions());
 			}
-
-			logger.debug("Local search on test " + i + ", current fitness: " + individual.getFitness());
-			TestSuiteLocalSearchObjective testObjective = TestSuiteLocalSearchObjective
-					.getTestSuiteLocalSearchObjective(objective.getFitnessFunctions(), individual, i);
 
 			if (LocalSearchBudget.getInstance().isFinished()) {
 				logger.debug("Local search budget used up: " + Properties.LOCAL_SEARCH_BUDGET_TYPE);
@@ -126,9 +126,10 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			}
 			logger.debug("Local search budget not yet used up");
 
-			boolean improved = test.localSearch(testObjective);
+			boolean improved;
+			improved = applyLocalSearchOnTestCase(suite, testIndex, test, localSearchObjective);
 			if (improved) {
-				updateFitness(individual, objective);
+				updateFitness(suite, localSearchObjective.getFitnessFunctions());
 			} else {
 				// fitness cannot be worse than before by construction
 				// no need to update fitness
@@ -137,6 +138,27 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 			test.setLocalSearchApplied(true);
 		}
 
+	}
+
+	/**
+	 * Applies local search on the test case, using the suite fitness as a local search objective.
+	 * 
+	 * @param suite 
+	 * @param testCaseIndex
+	 * @param testCase
+	 * @param localSearchObjective
+	 * @return
+	 */
+	private static boolean applyLocalSearchOnTestCase(TestSuiteChromosome suite, int testCaseIndex, TestChromosome testCase,
+			LocalSearchObjective<TestSuiteChromosome> localSearchObjective) {
+		logger.debug("Local search on test " + testCaseIndex + ", current fitness: " + suite.getFitness());
+		final List<FitnessFunction<? extends Chromosome>> fitnessFunctions = localSearchObjective.getFitnessFunctions();
+		TestSuiteLocalSearchObjective testCaseLocalSearchObjective = TestSuiteLocalSearchObjective
+				.buildNewTestSuiteLocalSearchObjective(fitnessFunctions, suite, testCaseIndex);
+
+		TestCaseLocalSearch testCaselocalSearch = new AVMTestCaseLocalSearch();
+		boolean improved = testCaselocalSearch.doSearch(testCase, testCaseLocalSearchObjective);
+		return improved;
 	}
 
 }

@@ -102,7 +102,7 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 
 	private boolean applyLocalSearchToTest(TestChromosome clone, TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
 		individual.addTest(clone);
-		TestSuiteLocalSearchObjective testObjective = TestSuiteLocalSearchObjective.getTestSuiteLocalSearchObjective(objective.getFitnessFunctions(),
+		TestSuiteLocalSearchObjective testObjective = TestSuiteLocalSearchObjective.buildNewTestSuiteLocalSearchObjective(objective.getFitnessFunctions(),
 				individual, individual.size() - 1);
 		logger.info("Applying local search to test: " + clone.getTestCase().toCode());
 		SelectiveTestCaseLocalSearch localSearch = new SelectiveTestCaseLocalSearch();
@@ -149,7 +149,7 @@ public class SelectiveTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		for(TestChromosome clone : candidates) {
 			boolean candidateHasImproved = applyLocalSearchToTest(clone, individual, objective);
 			if (candidateHasImproved) {
-				updateFitness(individual, objective);
+				updateFitness(individual, objective.getFitnessFunctions());
 			}
 		}
 

@@ -16,7 +16,7 @@ public class DSETestSuiteLocalSearch extends TestSuiteLocalSearch {
 	@Override
 	public boolean doSearch(TestSuiteChromosome individual, LocalSearchObjective<TestSuiteChromosome> objective) {
 
-		updateFitness(individual, objective);
+		updateFitness(individual, objective.getFitnessFunctions());
 		double fitnessBefore = individual.getFitness();
 		// logger.info("Test suite before local search: " + individual);
 
