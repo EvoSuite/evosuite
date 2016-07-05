@@ -180,7 +180,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 }
             }
         } else {
-            logger.warn("Could not load the SUT");
+            logger.warn("The target class should be loaded before invoking this method");
         }
 
         return true;
