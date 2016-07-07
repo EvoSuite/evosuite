@@ -109,7 +109,7 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 			}
 			logger.debug("Local search budget not yet used up");
 
-			if (isCoveredTwoWays(condition.getClassName(), condition.getMethodName(), condition.getBranchIndex())) {
+			if (isCoveredTwoWays(test, condition.getBranchIndex())) {
 				// If the branch is covered, we do not
 				// need to apply DSE on this
 				continue;
@@ -191,21 +191,30 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 	 * @param branchIndex
 	 * @return
 	 */
-	private boolean isCoveredTwoWays(String className, String methodName, int branchIndex) {
-		
+	private boolean isCoveredTwoWays(TestChromosome test, int branchIndex) {
+
 		Set<Integer> trueIndexes = new HashSet<Integer>();
 		Set<Integer> falseIndexes = new HashSet<Integer>();
-		for (ExecutionResult execResult : this.suite.getLastExecutionResults()) {
-			Set<Integer> trueIndexesInTrace = execResult.getTrace().getCoveredTrueBranches();
-			Set<Integer> falseIndexesInTrace = execResult.getTrace().getCoveredFalseBranches();
-			
-			trueIndexes.addAll(trueIndexesInTrace);
-			falseIndexes.addAll(falseIndexesInTrace);
+
+		if (suite != null) {
+			for (ExecutionResult execResult : this.suite.getLastExecutionResults()) {
+				Set<Integer> trueIndexesInTrace = execResult.getTrace().getCoveredTrueBranches();
+				Set<Integer> falseIndexesInTrace = execResult.getTrace().getCoveredFalseBranches();
+
+				trueIndexes.addAll(trueIndexesInTrace);
+				falseIndexes.addAll(falseIndexesInTrace);
+			}
+		} else {
+			ExecutionResult execResult = test.getLastExecutionResult();
+			Set<Integer> trueIndexesInTest = execResult.getTrace().getCoveredTrueBranches();
+			Set<Integer> falseIndexesInTest = execResult.getTrace().getCoveredFalseBranches();
+			trueIndexes.addAll(trueIndexesInTest);
+			falseIndexes.addAll(falseIndexesInTest);
 		}
-		
-		final boolean trueIsCovered =trueIndexes.contains(branchIndex);
-		final boolean falseIsCovered =falseIndexes.contains(branchIndex);
-		
+
+		final boolean trueIsCovered = trueIndexes.contains(branchIndex);
+		final boolean falseIsCovered = falseIndexes.contains(branchIndex);
+
 		return trueIsCovered && falseIsCovered;
 	}
 
