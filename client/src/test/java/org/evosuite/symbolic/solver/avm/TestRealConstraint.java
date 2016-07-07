@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver.avm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -37,6 +37,7 @@ import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestRealConstraint extends RandomizedTC {

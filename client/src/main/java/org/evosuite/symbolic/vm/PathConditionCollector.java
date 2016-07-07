@@ -21,56 +21,72 @@ package org.evosuite.symbolic.vm;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 
 /**
+ * Collects a path condition during concolic execution
  * 
  * @author galeotti
  * 
  */
-public final class PathConstraint {
+public final class PathConditionCollector {
 
-	private BranchCondition previousBranchCondition = null;
-
-	private final Stack<BranchCondition> branchConditions = new Stack<BranchCondition>();
+	private final List<BranchCondition> branchConditions = new LinkedList<BranchCondition>();
 
 	private final LinkedList<Constraint<?>> currentSupportingConstraints = new LinkedList<Constraint<?>>();
 
-	private Constraint<?> normalizeConstraint(IntegerConstraint c) {
+	private static Constraint<?> normalizeConstraint(IntegerConstraint c) {
 		return ConstraintNormalizer.normalize(c);
 	}
 
-	public void pushSupportingConstraint(IntegerConstraint c) {
-
+	/**
+	 * Add a supporting constraint to the current branch condition When the
+	 * branch condition is currently added, then these supporting constraints
+	 * will be added to the new branch condition
+	 * 
+	 * @param c
+	 */
+	public void addSupportingConstraint(IntegerConstraint c) {
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 		currentSupportingConstraints.add(normalizedConstraint);
-
 	}
 
-	public void pushBranchCondition(String className, String methName, int branchIndex,
-	        IntegerConstraint c) {
+	/**
+	 * Add a new constraint to a branch condition
+	 * 
+	 * @param className
+	 *            the class name where the branch is
+	 * @param methName
+	 *            the method where the branch is
+	 * @param branchIndex
+	 *            the branch index
+	 * @param c
+	 *            the constraint for the branch condition
+	 */
+	public void addBranchCondition(String className, String methName, int branchIndex, IntegerConstraint c) {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
 		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
-		        currentSupportingConstraints);
+				currentSupportingConstraints);
 
-		BranchCondition new_branch = new BranchCondition(previousBranchCondition,
-		        className, methName, branchIndex, normalizedConstraint,
-		        branch_supporting_constraints);
+		BranchCondition new_branch = new BranchCondition(className, methName, branchIndex, normalizedConstraint,
+				branch_supporting_constraints);
 
-		previousBranchCondition = new_branch;
-
-		branchConditions.push(new_branch);
+		branchConditions.add(new_branch);
 
 		currentSupportingConstraints.clear();
 	}
 
-	public List<BranchCondition> getBranchConditions() {
+	/**
+	 * Returns the collected list of branch conditions during concolic execution
+	 * 
+	 * @return
+	 */
+	public List<BranchCondition> getPathCondition() {
 		return new LinkedList<BranchCondition>(branchConditions);
 	}
 

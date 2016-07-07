@@ -17,9 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver.avm;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -31,30 +33,34 @@ import org.evosuite.Properties.LocalSearchBudgetType;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
-import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.Test;
 
-public class TestConstraintSolver3 extends RandomizedTC {
+public class TestConstraintSolver2 extends RandomizedTC {
 
-	private static final String INIT_STRING = "125";
-	private static final int EXPECTED_INTEGER = 126;
+	private static final String INIT_STRING = "abc_e";
+	private static final String EXPECTED_STRING = "abcbb";
 
 	private static Collection<Constraint<?>> buildConstraintSystem() {
 
 		StringVariable var0 = new StringVariable("var0", INIT_STRING);
 
-		StringToIntegerCast castStr = new StringToIntegerCast(var0, (long) Integer.parseInt(INIT_STRING));
+		StringConstant const0 = new StringConstant(EXPECTED_STRING);
 
-		IntegerConstant const126 = new IntegerConstant(EXPECTED_INTEGER);
+		StringBinaryComparison strEqual = new StringBinaryComparison(var0, Operator.EQUALS, const0, (long) 0);
 
-		IntegerConstraint constr1 = new IntegerConstraint(castStr, Comparator.EQ, const126);
+		IntegerConstant const_zero = new IntegerConstant(0);
+
+		StringConstraint constr1 = new StringConstraint(strEqual, Comparator.NE, const_zero);
 
 		return Arrays.<Constraint<?>> asList(constr1);
 	}
@@ -76,20 +82,28 @@ public class TestConstraintSolver3 extends RandomizedTC {
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		try {
-			SolverResult result = solver.solve(constraints);
-			if (result.isUNSAT()) {
-				fail("search was unsuccessfull");
-			} else {
-				Map<String, Object> model = result.getModel();
-				Object var0 = model.get("var0");
-				System.out.println("Expected: " + EXPECTED_INTEGER);
-				System.out.println("Found: " + var0);
+			SolverResult solverResult = solver.solve(constraints);
+			assertTrue(solverResult.isSAT());
+			Map<String, Object> model = solverResult.getModel();
+			assertNotNull(model);
 
-				assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
-			}
+			Object var0 = model.get("var0");
+			System.out.println("Expected: " + EXPECTED_STRING);
+			System.out.println("Found: " + var0);
+
+			assertEquals(EXPECTED_STRING, var0);
 		} catch (SolverTimeoutException e) {
 			fail();
 		}
 
 	}
+
+	public void test2() {
+		String l1 = "hello";
+		String l2 = "world";
+		if (l1.equals(l2)) {
+			System.out.println("xx");
+		}
+	}
+
 }

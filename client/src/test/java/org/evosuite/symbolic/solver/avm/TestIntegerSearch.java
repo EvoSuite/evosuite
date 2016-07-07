@@ -20,7 +20,7 @@
 /**
  * 
  */
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver.avm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -47,6 +47,7 @@ import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.After;
 import org.junit.Test;
 

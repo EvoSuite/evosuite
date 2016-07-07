@@ -595,7 +595,7 @@ public class TestChromosome extends ExecutableChromosome {
 		        + " target branches");
 
 		// Try to solve negated constraint
-		TestCase newTest = ConcolicMutation.negateCondition(branch, test);
+		TestCase newTest = ConcolicMutation.negateCondition(branches, branch, test);
 
 		// If successful, add resulting test to test suite
 		if (newTest != null) {

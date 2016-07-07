@@ -136,6 +136,9 @@ public abstract class TestSuiteLocalSearch implements LocalSearch<TestSuiteChrom
 
 	/**
 	 * Ensure that all branches are executed twice
+	 * For each branch such that exists only one test case in 
+	 * the suite that covers that branch, it creates a duplicate
+	 * of that test case.
 	 */
 	protected void ensureDoubleExecution(TestSuiteChromosome individual,
 			LocalSearchObjective<TestSuiteChromosome> objective) {

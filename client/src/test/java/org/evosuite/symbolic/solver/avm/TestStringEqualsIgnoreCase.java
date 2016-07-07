@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver.avm;
 
 import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertNotNull;
@@ -37,6 +37,7 @@ import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.junit.Test;
 
 public class TestStringEqualsIgnoreCase extends RandomizedTC {

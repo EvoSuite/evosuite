@@ -32,6 +32,7 @@ import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
@@ -45,6 +46,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -52,72 +54,83 @@ import org.slf4j.LoggerFactory;
 
 public class DSEStatementLocalSearch extends StatementLocalSearch {
 
+	private final TestSuiteChromosome suite;
+
+	public DSEStatementLocalSearch() {
+		this(null);
+	}
+
+	public DSEStatementLocalSearch(TestSuiteChromosome suite) {
+		this.suite = suite;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(DSEStatementLocalSearch.class);
 
-
 	/**
-	 * Applies DSE to the test 
+	 * Applies DSE to the test
 	 */
-	public boolean doSearch(TestChromosome test, Set<Integer> statements,
+	public boolean doSearch(final TestChromosome test, Set<Integer> statementIndexes,
 			LocalSearchObjective<TestChromosome> objective) {
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
 		logger.info(test.getTestCase().toCode());
-		logger.info("Starting symbolic execution");
+		logger.info("Starting concolic execution");
 		// Backup copy
 		// test.getMutationHistory().clear();
-		test.clone(); // I am not sure what is the purpose of this 
+		test.clone(); // I am not sure what is the purpose of this
 
 		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase().clone();
-		List<BranchCondition> conditions = ConcolicExecution.executeConcolic(clone_test_case);
-		logger.info("Done symbolic execution");
-		
-		if (conditions.isEmpty()) {
+		List<BranchCondition> branchConditions = ConcolicExecution.executeConcolic(clone_test_case);
+		final PathCondition collectedPathCondition = new PathCondition(branchConditions);
+
+		logger.info("Done concolic execution");
+
+		if (collectedPathCondition.isEmpty()) {
 			return false;
 		}
-		
-		for (BranchCondition c : conditions) {
-			logger.info(" -> " + c.getLocalConstraint());
+
+		for (BranchCondition c : collectedPathCondition.getBranchConditions()) {
+			logger.info(" -> " + c.getConstraint());
 		}
 
-		Set<VariableReference> targets = new HashSet<VariableReference>();
-		for (Integer position : statements) {
-			targets.add(test.getTestCase().getStatement(position).getReturnValue());
+		Set<VariableReference> symbolicVariables = new HashSet<VariableReference>();
+		for (Integer position : statementIndexes) {
+			final VariableReference variableReference = test.getTestCase().getStatement(position).getReturnValue();
+			symbolicVariables.add(variableReference);
 		}
 
-		logger.info("Checking {} conditions", conditions.size());
+		logger.info("Checking {} conditions", collectedPathCondition.size());
 		int num = 0;
-		for (BranchCondition condition : conditions) {
-			
+		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
+			BranchCondition condition = collectedPathCondition.get(conditionIndex);
+
 			if (LocalSearchBudget.getInstance().isFinished()) {
-				logger.debug("Local search budget used up: "
-				        + Properties.LOCAL_SEARCH_BUDGET_TYPE);
+				logger.debug("Local search budget used up: " + Properties.LOCAL_SEARCH_BUDGET_TYPE);
 				break;
 			}
 			logger.debug("Local search budget not yet used up");
-			
-			
-			logger.info("Current condition: " + num + "/" + conditions.size() + ": " + condition.getLocalConstraint());
+
+			if (isCoveredTwoWays(condition.getClassName(), condition.getMethodName(), condition.getBranchIndex())) {
+				// If the branch is covered, we do not
+				// need to apply DSE on this
+				continue;
+			}
+
+			logger.info("Current condition: " + num + "/" + collectedPathCondition.size() + ": "
+					+ condition.getConstraint());
 			num++;
 			// Determine if this a branch condition depending on the target
 			// statement
-			Constraint<?> currentConstraint = condition.getLocalConstraint();
+			Constraint<?> currentConstraint = condition.getConstraint();
 
-			if (!isRelevant(currentConstraint, targets)) {
+			if (!isRelevant(currentConstraint, symbolicVariables)) {
 				// if(!isRelevant(currentConstraint, test.getTestCase(),
 				// statement)) {
-				logger.info("Is not relevant for " + targets);
+				logger.info("Is not relevant for " + symbolicVariables);
 				continue;
 			}
-			logger.info("Is relevant for " + targets);
+			logger.info("Is relevant for " + symbolicVariables);
 
-			List<Constraint<?>> query = new LinkedList<Constraint<?>>();
-			query.addAll(condition.getReachingConstraints());
-
-			Constraint<?> targetConstraint = condition.getLocalConstraint().negate();
-			query.add(targetConstraint);
-
-			// Cone of influence reduction
-			query = reduce(query);
+			List<Constraint<?>> query = buildQuery(collectedPathCondition, conditionIndex);
 
 			logger.info("Trying to solve: ");
 			for (Constraint<?> c : query) {
@@ -170,11 +183,61 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 		return false;
 	}
 
-	@Override
-	public boolean doSearch(TestChromosome test, int statement, LocalSearchObjective<TestChromosome> objective) {
-		return doSearch(test, Collections.singleton(statement), objective);
+	/**
+	 * Returns if the true and false branches for this were already covered
+	 * 
+	 * @param className
+	 * @param methodName
+	 * @param branchIndex
+	 * @return
+	 */
+	private boolean isCoveredTwoWays(String className, String methodName, int branchIndex) {
+		
+		Set<Integer> trueIndexes = new HashSet<Integer>();
+		Set<Integer> falseIndexes = new HashSet<Integer>();
+		for (ExecutionResult execResult : this.suite.getLastExecutionResults()) {
+			Set<Integer> trueIndexesInTrace = execResult.getTrace().getCoveredTrueBranches();
+			Set<Integer> falseIndexesInTrace = execResult.getTrace().getCoveredFalseBranches();
+			
+			trueIndexes.addAll(trueIndexesInTrace);
+			falseIndexes.addAll(falseIndexesInTrace);
+		}
+		
+		final boolean trueIsCovered =trueIndexes.contains(branchIndex);
+		final boolean falseIsCovered =falseIndexes.contains(branchIndex);
+		
+		return trueIsCovered && falseIsCovered;
 	}
 
+	/**
+	 * Creates a Solver query give a branch condition
+	 * 
+	 * @param condition
+	 * @return
+	 */
+	private List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndex) {
+		// negate target branch condition
+		PathCondition negatedPathCondition = pc.negate(conditionIndex);
+		// get constraints for negated path condition
+		List<Constraint<?>> query = negatedPathCondition.getConstraints();
+		// Compute cone of influence reduction
+		List<Constraint<?>> simplified_query = reduce(query);
+
+		return simplified_query;
+	}
+
+	@Override
+	public boolean doSearch(TestChromosome test, int statementIndex, LocalSearchObjective<TestChromosome> objective) {
+		return doSearch(test, Collections.singleton(statementIndex), objective);
+	}
+
+	/**
+	 * Returns true iff the constraint has at least one variable that is
+	 * 
+	 * @param constraint
+	 * @param targets
+	 * @return
+	 */
 	private boolean isRelevant(Constraint<?> constraint, Set<VariableReference> targets) {
 		Set<Variable<?>> variables = constraint.getVariables();
 		Set<String> targetNames = new HashSet<String>();
@@ -222,7 +285,7 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 					PrimitiveStatement p = getStatement(newTest, name);
 					// logger.warn("New string value for " + name + " is " +
 					// val);
-					assert(p != null) : "Could not find variable " + name + " in test: " + newTest.toCode()
+					assert (p != null) : "Could not find variable " + name + " in test: " + newTest.toCode()
 							+ " / Orig test: " + test.toCode() + ", seed: " + Randomness.getSeed();
 					if (p.getValue().getClass().equals(Character.class))
 						p.setValue((char) Integer.parseInt(val.toString()));
@@ -234,7 +297,7 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 					PrimitiveStatement p = getStatement(newTest, name);
 					// logger.warn("New double value for " + name + " is " +
 					// value);
-					assert(p != null) : "Could not find variable " + name + " in test: " + newTest.toCode()
+					assert (p != null) : "Could not find variable " + name + " in test: " + newTest.toCode()
 							+ " / Orig test: " + test.toCode() + ", seed: " + Randomness.getSeed();
 
 					if (p.getValue().getClass().equals(Double.class))

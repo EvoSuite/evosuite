@@ -74,7 +74,7 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 		if (Properties.LOCAL_SEARCH_EXPAND_TESTS)
 			expandTestSuite(suite, localSearchObjective);
 
-		doAVMSearchOnTestChromosomes(suite, localSearchObjective);
+		applyAVM(suite, localSearchObjective);
 
 		LocalSearchBudget.getInstance().countLocalSearchOnTestSuite();
 
@@ -106,8 +106,7 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	 * @param suite
 	 * @param localSearchObjective
 	 */
-	private void doAVMSearchOnTestChromosomes(TestSuiteChromosome suite,
-			LocalSearchObjective<TestSuiteChromosome> localSearchObjective) {
+	private void applyAVM(TestSuiteChromosome suite, LocalSearchObjective<TestSuiteChromosome> localSearchObjective) {
 		List<TestChromosome> tests = suite.getTestChromosomes();
 		for (int testIndex = 0; testIndex < tests.size(); testIndex++) {
 			final TestChromosome test = tests.get(testIndex);
@@ -141,16 +140,17 @@ public class AVMTestSuiteLocalSearch extends TestSuiteLocalSearch {
 	}
 
 	/**
-	 * Applies local search on the test case, using the suite fitness as a local search objective.
+	 * Applies local search on the test case, using the suite fitness as a local
+	 * search objective.
 	 * 
-	 * @param suite 
+	 * @param suite
 	 * @param testCaseIndex
 	 * @param testCase
 	 * @param localSearchObjective
 	 * @return
 	 */
-	private static boolean applyLocalSearchOnTestCase(TestSuiteChromosome suite, int testCaseIndex, TestChromosome testCase,
-			LocalSearchObjective<TestSuiteChromosome> localSearchObjective) {
+	private static boolean applyLocalSearchOnTestCase(TestSuiteChromosome suite, int testCaseIndex,
+			TestChromosome testCase, LocalSearchObjective<TestSuiteChromosome> localSearchObjective) {
 		logger.debug("Local search on test " + testCaseIndex + ", current fitness: " + suite.getFitness());
 		final List<FitnessFunction<? extends Chromosome>> fitnessFunctions = localSearchObjective.getFitnessFunctions();
 		TestSuiteLocalSearchObjective testCaseLocalSearchObjective = TestSuiteLocalSearchObjective

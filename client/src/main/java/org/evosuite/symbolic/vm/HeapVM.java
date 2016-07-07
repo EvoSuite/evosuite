@@ -54,9 +54,9 @@ public final class HeapVM extends AbstractVM {
 
 	private final ConcolicInstrumentingClassLoader classLoader;
 
-	private final PathConstraint pc;
+	private final PathConditionCollector pc;
 
-	public HeapVM(SymbolicEnvironment env, PathConstraint pc,
+	public HeapVM(SymbolicEnvironment env, PathConditionCollector pc,
 			ConcolicInstrumentingClassLoader classLoader) {
 		this.env = env;
 		this.pc = pc;
@@ -828,7 +828,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| indexTooBigConstraint.getRightOperand()
 							.containsSymbolicVariable())
-				this.pc.pushSupportingConstraint(indexTooBigConstraint);
+				this.pc.addSupportingConstraint(indexTooBigConstraint);
 			return true;
 		} else {
 			indexTooBigConstraint = ConstraintFactory.lt(symb_index,
@@ -837,7 +837,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| indexTooBigConstraint.getRightOperand()
 							.containsSymbolicVariable())
-				this.pc.pushSupportingConstraint(indexTooBigConstraint);
+				this.pc.addSupportingConstraint(indexTooBigConstraint);
 			return false;
 		}
 	}
@@ -860,7 +860,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_index_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.pushSupportingConstraint(negative_index_constraint);
+				pc.addSupportingConstraint(negative_index_constraint);
 			return true;
 		} else {
 			negative_index_constraint = ConstraintFactory.gte(symb_index,
@@ -869,7 +869,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_index_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.pushSupportingConstraint(negative_index_constraint);
+				pc.addSupportingConstraint(negative_index_constraint);
 			return false;
 		}
 	}
@@ -884,7 +884,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_array_length_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.pushSupportingConstraint(negative_array_length_constraint);
+				pc.addSupportingConstraint(negative_array_length_constraint);
 			return true;
 		} else {
 			negative_array_length_constraint = ConstraintFactory.gte(
@@ -893,7 +893,7 @@ public final class HeapVM extends AbstractVM {
 					.containsSymbolicVariable()
 					|| negative_array_length_constraint.getRightOperand()
 							.containsSymbolicVariable())
-				pc.pushSupportingConstraint(negative_array_length_constraint);
+				pc.addSupportingConstraint(negative_array_length_constraint);
 			return false;
 		}
 	}

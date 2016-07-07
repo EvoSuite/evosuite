@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.search;
+package org.evosuite.symbolic.solver.avm;
 
 import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 import static org.junit.Assert.assertEquals;
@@ -38,6 +38,7 @@ import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
@@ -69,30 +70,33 @@ public class TestStringSearch2 extends RandomizedTC {
 	}
 
 	@Test
-	public void testCreatePathConstraint() throws SecurityException,
-			NoSuchMethodException {
+	public void testCreatePathConstraint() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(11, branch_conditions.size());
 	}
 
 	@Test
-	public void testSolvePathConstraint() throws SecurityException,
-			NoSuchMethodException {
+	public void testSolvePathConstraint() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 
-		BranchCondition last_branch = branch_conditions.get(branch_conditions
-				.size() - 1);
-
 		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.addAll(last_branch.getReachingConstraints());
-		constraints.add(last_branch.getLocalConstraint().negate());
+
+		for (int i = 0; i < branch_conditions.size() - 1; i++) {
+			BranchCondition b = branch_conditions.get(i);
+			constraints.addAll(b.getSupportingConstraints());
+			constraints.add(b.getConstraint());
+		}
+
+		BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 1);
+		constraints.addAll(last_branch.getSupportingConstraints());
+		constraints.add(last_branch.getConstraint().negate());
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solve(solver,constraints);
+			solution = solve(solver, constraints);
 			assertNotNull(solution);
 			System.out.println(solution);
 		} catch (SolverTimeoutException e) {
@@ -102,22 +106,25 @@ public class TestStringSearch2 extends RandomizedTC {
 	}
 
 	@Test
-	public void testSolveIndexOfConstant() throws SecurityException,
-			NoSuchMethodException {
+	public void testSolveIndexOfConstant() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase("V*X-:o%tp");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 
-		BranchCondition last_branch = branch_conditions.get(branch_conditions
-				.size() - 2);
-
 		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.addAll(last_branch.getReachingConstraints());
-		constraints.add(last_branch.getLocalConstraint().negate());
+		for (int i = 0; i < branch_conditions.size() - 2; i++) {
+			BranchCondition b = branch_conditions.get(i);
+			constraints.addAll(b.getSupportingConstraints());
+			constraints.add(b.getConstraint());
+		}
+		BranchCondition last_branch = branch_conditions.get(branch_conditions.size() - 2);
+
+		constraints.addAll(last_branch.getSupportingConstraints());
+		constraints.add(last_branch.getConstraint().negate());
 
 		EvoSuiteSolver solver = new EvoSuiteSolver();
 		Map<String, Object> solution;
 		try {
-			solution = solve(solver,constraints);
+			solution = solve(solver, constraints);
 			assertNotNull(solution);
 			System.out.println(solution);
 		} catch (SolverTimeoutException e) {
@@ -126,12 +133,10 @@ public class TestStringSearch2 extends RandomizedTC {
 
 	}
 
-	private DefaultTestCase buildTestCase(String stringVal)
-			throws SecurityException, NoSuchMethodException {
+	private DefaultTestCase buildTestCase(String stringVal) throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 		VariableReference string0 = tc.appendStringPrimitive(stringVal);
-		Method method = StringSearch2.class.getMethod("checkPathURN",
-				String.class);
+		Method method = StringSearch2.class.getMethod("checkPathURN", String.class);
 		tc.appendMethod(null, method, string0);
 		return tc.getDefaultTestCase();
 	}
@@ -146,8 +151,7 @@ public class TestStringSearch2 extends RandomizedTC {
 		System.out.println(tc.toCode());
 
 		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = ConcolicExecution
-				.executeConcolic(tc);
+		List<BranchCondition> branch_conditions = ConcolicExecution.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
 		return branch_conditions;

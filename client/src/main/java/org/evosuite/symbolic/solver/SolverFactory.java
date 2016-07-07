@@ -20,8 +20,8 @@
 package org.evosuite.symbolic.solver;
 
 import org.evosuite.Properties;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.evosuite.symbolic.solver.cvc4.CVC4Solver;
-import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
 
