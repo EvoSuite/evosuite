@@ -391,7 +391,7 @@ public class Properties {
 	public static int DSE_VARIABLE_RESETS = 2;
 
 	public enum DSEType {
-		/** apply DSE per primitive */
+		/** apply DSE per statement */
 		STATEMENT,
 		/** apply DSE with all primitives in a test */
 		TEST,
