@@ -450,7 +450,7 @@ public class Properties {
 	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = false; // Not needed with archive
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Parameter used to adapt at runtime the probability of applying local search")
-	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
+	public static double LOCAL_SEARCH_ADAPTATION_RATE = 2.0;
 
 	@Parameter(key = "local_search_budget", group = "Local Search", description = "Maximum budget usable for improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 5;
