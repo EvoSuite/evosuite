@@ -14,4 +14,9 @@ public class MockUUID implements StaticReplacementMock {
 	public static UUID randomUUID() {
 		return org.evosuite.runtime.Random.randomUUID();
 	}
+	
+	public static UUID fromString(String s) {
+		return org.evosuite.runtime.Random.randomUUID();
+	}
+
 }
