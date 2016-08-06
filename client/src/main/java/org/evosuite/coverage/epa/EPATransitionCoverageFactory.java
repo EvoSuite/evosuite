@@ -38,3 +38,5 @@ public class EPATransitionCoverageFactory extends AbstractFitnessFactory<EPATran
 		return coverage_goals;
 	}
 }
+
+// ooooo |

@@ -43,3 +43,4 @@ org.apache.lucene.analysis.util.AnalysisSPILoader
 org.apache.lucene.analysis.util.CharFilterFactory
 org.apache.struts.util.MessageResources
 org.dom4j.DefaultDocumentFactory   
+org.pitest.

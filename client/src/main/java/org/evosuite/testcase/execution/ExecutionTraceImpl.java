@@ -19,6 +19,7 @@
 package org.evosuite.testcase.execution;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -1708,18 +1710,19 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 
 	/**
-	 * The observed transitions for each distinct object of the target class so
+	 * The observed epaTransitions for each distinct object of the target class so
 	 * far (at the test case level). We use identityHashCode to identify those
-	 * transitions.
+	 * epaTransitions.
 	 */
-	private final IdentityHashMap<Object, LinkedList<EPATransition>> transitions = new IdentityHashMap<Object, LinkedList<EPATransition>>();
+	private final IdentityHashMap<Object, LinkedList<EPATransition>> epaTransitions = new IdentityHashMap<>();
+	private final IdentityHashMap<Object, LinkedList<EPATransition>> epaErrorTransitions = new IdentityHashMap<>();
 	
 	@Override
-	public void appendNewTransition(Object object, EPATransition transition) throws MalformedEPATraceException{
-		if (!this.transitions.containsKey(object)) {
-			this.transitions.put(object, new LinkedList<EPATransition>());
+	public void appendNewEpaTransition(Object object, EPATransition transition) throws MalformedEPATraceException{
+		if (!this.epaTransitions.containsKey(object)) {
+			this.epaTransitions.put(object, new LinkedList<>());
 		}
-		final LinkedList<EPATransition> objectTrace = this.transitions.get(object);
+		final LinkedList<EPATransition> objectTrace = this.epaTransitions.get(object);
 		if (!objectTrace.isEmpty()) {
 			EPAState lastDestinationStateInTrace = objectTrace.getLast().getDestinationState();
 			if (!lastDestinationStateInTrace.equals(transition.getOriginState())) {
@@ -1731,9 +1734,24 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 
 	@Override
+	public void appendNewEpaError(Object object, EPATransition transition) throws MalformedEPATraceException{
+		if (!this.epaErrorTransitions.containsKey(object)) {
+			this.epaErrorTransitions.put(object, new LinkedList<>());
+		}
+		this.epaErrorTransitions.get(object).add(transition);
+	}
+	
+	@Override
+	public Set<EPATransition> getEPAErrorTransitions() {
+		return this.epaErrorTransitions.values().stream()
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
+	}
+	
+	@Override
 	public Set<EPATrace> getEPATraces() {
 		final HashSet<EPATrace> traces = new HashSet<EPATrace>();
-		for (LinkedList<EPATransition> epaTransitionList : this.transitions.values()) {
+		for (LinkedList<EPATransition> epaTransitionList : this.epaTransitions.values()) {
 			EPATrace trace = new EPATrace(new LinkedList<EPATransition>(epaTransitionList));
 			traces.add(trace);
 		}

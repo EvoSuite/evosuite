@@ -5,9 +5,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -18,7 +15,6 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.testcase.execution.EvosuiteError;
-import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -256,37 +252,41 @@ public class EPAMonitor {
 	}
 
 	private void appendNewEpaTransition(Object object, EPATransition transition) throws MalformedEPATraceException {
-		ExecutionTrace executionTrace = ExecutionTracer.getExecutionTracer().getTrace();
-		executionTrace.appendNewTransition(object, transition);
+		ExecutionTracer.getExecutionTracer().getTrace().appendNewEpaTransition(object, transition);
+	}
+
+	private void appendNewEpaError(Object object, EPATransition transition) throws MalformedEPATraceException {
+		ExecutionTracer.getExecutionTracer().getTrace().appendNewEpaError(object, transition);
 	}
 
 	private void afterMethod(String className, String fullMethodName, Object calleeObject) throws EvosuiteError {
 		try {
-			if (this.methodToActionMap.containsKey(fullMethodName)) {
-
-				String top = call_stack.pop();
-				final String classNameAndFullMethodName = className + "." + fullMethodName;
-				if (!top.equals(classNameAndFullMethodName)) {
-					throw new EvosuiteError(
-							"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
-				}
-
-				final String actionName = this.methodToActionMap.get(fullMethodName);
-				if (!hasPreviousEpaState(calleeObject)) {
-					// this object should have been seen previously!
-					throw new MalformedEPATraceException("Object has no previous EPA State!");
-				}
-				final EPAState previousEpaState = getPreviousEpaState(calleeObject);
-				final EPAState currentEpaState = getCurrentState(calleeObject);
-				final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
-				this.appendNewEpaTransition(calleeObject, transition);
+			String top = call_stack.pop();
+			final String classNameAndFullMethodName = className + "." + fullMethodName;
+			if (!top.equals(classNameAndFullMethodName)) {
+				throw new EvosuiteError(
+						"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
+			}
+			if (!hasPreviousEpaState(calleeObject)) {
+				// this object should have been seen previously!
+				throw new MalformedEPATraceException("Object has no previous EPA State!");
 			}
 
+			final boolean validAction = this.methodToActionMap.containsKey(fullMethodName);
+			final String actionName = validAction ? this.methodToActionMap.get(fullMethodName): fullMethodName; 
+			final EPAState previousEpaState = getPreviousEpaState(calleeObject);
+			final EPAState currentEpaState = getCurrentState(calleeObject);
+			final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
+
+			if (this.automata.getTransitions().contains(transition)) {
+				this.appendNewEpaTransition(calleeObject, transition);
+			} else {
+				this.appendNewEpaError(calleeObject, transition);
+			}
 		} catch (MalformedEPATraceException | InvocationTargetException e) {
 			throw new EvosuiteError(e);
 		}
 	}
-
 
 
 	/**
