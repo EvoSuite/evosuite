@@ -92,17 +92,6 @@ public abstract class StatementLocalSearch {
 
     public static StatementLocalSearch getLocalSearchFor(Statement statement) {
 
-        boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.STATEMENT &&
-                Randomness.nextDouble() < Properties.DSE_PROBABILITY;
-
-        if (useDSE) {
-            if (statement instanceof PrimitiveStatement<?>) {
-                return new DSEStatementLocalSearch();
-            } else {
-                return null;
-            }
-        }
-
         StatementLocalSearch search = null;
         if (statement instanceof NullStatement) {
             if (Properties.LOCAL_SEARCH_REFERENCES == false)

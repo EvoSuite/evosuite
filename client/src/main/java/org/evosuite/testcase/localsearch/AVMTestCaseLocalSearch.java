@@ -27,6 +27,7 @@ import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.statements.Statement;
 
 /**
  * Applies the AVM local search algorithm described in
@@ -72,18 +73,18 @@ public class AVMTestCaseLocalSearch extends TestCaseLocalSearch {
 			}
 			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
-			if (!test.hasReferences(test.getStatement(i).getReturnValue())
-					&& !test.getStatement(i).getReturnClass().equals(targetClass)) {
+			final Statement statement = test.getStatement(i);
+
+			if (!test.hasReferences(statement.getReturnValue()) && !statement.getReturnClass().equals(targetClass)) {
 				logger.info(
 						"Return value of statement " + i + " is not referenced and not SUT, not doing local search");
 				continue;
 			}
 
-			StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(test.getStatement(i));
-
+			StatementLocalSearch search = StatementLocalSearch.getLocalSearchFor(statement);
 			if (search != null) {
-				logger.info("Applying local search of type " + search.getClass() + " to statement "
-						+ test.getStatement(i) + " / " + individual.getTestCase().getStatement(i));
+				logger.info("Applying local search of type " + search.getClass() + " to statement " + statement + " / "
+						+ individual.getTestCase().getStatement(i));
 				if (search.doSearch(individual, i, (LocalSearchObjective<TestChromosome>) objective)) {
 					improved = true;
 				}
@@ -91,6 +92,12 @@ public class AVMTestCaseLocalSearch extends TestCaseLocalSearch {
 				logger.debug("Old position was: " + i + ", adjusting to: " + (i + search.getPositionDelta()));
 				i += search.getPositionDelta();
 				test = individual.getTestCase();
+			} else {
+				/*
+				 * No statement local search has been produced for this
+				 * statement. Skipping.
+				 */
+				continue;
 			}
 		}
 

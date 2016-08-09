@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.localsearch;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -52,25 +53,57 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DSEStatementLocalSearch extends StatementLocalSearch {
+/**
+ * Attempts to create a new test case by applying DSE. The algorithm
+ * systematically negates all uncovered branches trying to satisfy the missing
+ * branches.
+ * 
+ * @author galeotti
+ *
+ */
+public class DSETestGenerator {
 
 	private final TestSuiteChromosome suite;
 
-	public DSEStatementLocalSearch() {
+	/**
+	 * Creates a new test generator with no suite. Only the test case will be
+	 * used
+	 */
+	public DSETestGenerator() {
 		this(null);
 	}
 
-	public DSEStatementLocalSearch(TestSuiteChromosome suite) {
+	/**
+	 * Creates a new test generator using a test suite. The test case will be
+	 * added to the test suite.
+	 * 
+	 * @param suite
+	 */
+	public DSETestGenerator(TestSuiteChromosome suite) {
 		this.suite = suite;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(DSEStatementLocalSearch.class);
+	private static final Logger logger = LoggerFactory.getLogger(DSETestGenerator.class);
 
 	/**
-	 * Applies DSE to the test
+	 * Applies DSE to the passed test using as symbolic variables only those
+	 * that are declared in the set of statement indexes. The objective is used
+	 * to detect if the DSE has improved the fitness.
+	 * 
+	 * @param test
+	 *            the test case to be used as parameterised unit test
+	 * 
+	 * @param statementIndexes
+	 *            a set with statement indexes with primitive value declarations
+	 *            that can be used as symbolic variables. This set must be
+	 *            non-empty.
+	 * 
+	 * @param objective
+	 *            the local search objective to measure fitness improvement.
 	 */
-	public boolean doSearch(final TestChromosome test, Set<Integer> statementIndexes,
+	public TestChromosome generateNewTest(final TestChromosome test, Set<Integer> statementIndexes,
 			LocalSearchObjective<TestChromosome> objective) {
+
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
 		logger.info(test.getTestCase().toCode());
 		logger.info("Starting concolic execution");
@@ -85,7 +118,7 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 		logger.info("Done concolic execution");
 
 		if (collectedPathCondition.isEmpty()) {
-			return false;
+			return null;
 		}
 
 		for (BranchCondition c : collectedPathCondition.getBranchConditions()) {
@@ -99,7 +132,11 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 		}
 
 		logger.info("Checking {} conditions", collectedPathCondition.size());
-		int num = 0;
+
+		List<Integer> conditionIndexesNotCoveredTwoWays = computeConditionIndexesNotCoveredTwoWays(test,
+				collectedPathCondition);
+
+		//
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
 			BranchCondition condition = collectedPathCondition.get(conditionIndex);
 
@@ -109,15 +146,13 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 			}
 			logger.debug("Local search budget not yet used up");
 
-			if (isCoveredTwoWays(test, condition.getBranchIndex())) {
-				// If the branch is covered, we do not
-				// need to apply DSE on this
+			if (!conditionIndexesNotCoveredTwoWays.contains(conditionIndex)) {
+				// skip branches covered two ways
 				continue;
 			}
 
-			logger.info("Current condition: " + num + "/" + collectedPathCondition.size() + ": "
+			logger.info("Current condition: " + conditionIndex + "/" + collectedPathCondition.size() + ": "
 					+ condition.getConstraint());
-			num++;
 			// Determine if this a branch condition depending on the target
 			// statement
 			Constraint<?> currentConstraint = condition.getConstraint();
@@ -164,12 +199,13 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 				logger.info("New test: " + newTest.toCode());
 				test.setTestCase(newTest);
 				// test.clearCachedMutationResults(); // TODO Mutation
-				test.clearCachedResults();
+				test.clearCachedResults(); 
 
 				if (objective.hasImproved(test)) {
 					DSEStats.getInstance().reportNewTestUseful();
 					logger.info("Solution improves fitness, finishing DSE");
-					return true;
+					/* new test was created */
+					return test;
 				} else {
 					DSEStats.getInstance().reportNewTestUnuseful();
 					test.setTestCase(oldTest);
@@ -180,11 +216,38 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 				}
 			}
 		}
-		return false;
+		/* no new test was created */
+		return null;
 	}
 
 	/**
-	 * Returns if the true and false branches for this were already covered
+	 * Compute the set of branch conditions in the path condition that are not
+	 * covered two ways. If the test case belongs to a whole test suite, the
+	 * coverage of the whole test suite is used, otherwise, only the coverage of
+	 * the single test case.
+	 * 
+	 * @param test
+	 *            the original test case
+	 * @param collectedPathCondition
+	 *            a path condition obtained from concolic execution
+	 * @return
+	 */
+	private List<Integer> computeConditionIndexesNotCoveredTwoWays(final TestChromosome test,
+			final PathCondition collectedPathCondition) {
+		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<Integer>();
+		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
+			BranchCondition b = collectedPathCondition.get(conditionIndex);
+			if (!isCoveredTwoWays(test, b.getBranchIndex())) {
+				conditionIndexesNotCoveredTwoWays.add(conditionIndex);
+			}
+		}
+		return conditionIndexesNotCoveredTwoWays;
+	}
+
+	/**
+	 * Returns if the true and false branches for this were already covered. If
+	 * the test case belongs to a whole test suite, then the coverage of the
+	 * test suite is used, otherwise the single test case is used.
 	 * 
 	 * @param className
 	 * @param methodName
@@ -233,11 +296,6 @@ public class DSEStatementLocalSearch extends StatementLocalSearch {
 		List<Constraint<?>> simplified_query = reduce(query);
 
 		return simplified_query;
-	}
-
-	@Override
-	public boolean doSearch(TestChromosome test, int statementIndex, LocalSearchObjective<TestChromosome> objective) {
-		return doSearch(test, Collections.singleton(statementIndex), objective);
 	}
 
 	/**

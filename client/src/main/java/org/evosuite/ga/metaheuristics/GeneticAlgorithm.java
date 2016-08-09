@@ -241,11 +241,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		
 		if (improvement) {
 			DSEStats.getInstance().reportNewIncrease();
-			updateProbability(-Properties.LOCAL_SEARCH_ADAPTATION_RATE);
+			updateProbability(true);
 			logger.debug("Increasing probability of applying LS to " + localSearchProbability);
 		} else {
 			DSEStats.getInstance().reportNewDecrease();
-			updateProbability(Properties.LOCAL_SEARCH_ADAPTATION_RATE);
+			updateProbability(false);
 			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
 		}
 
@@ -294,9 +294,17 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		return fitnessFunctions.get(0).isMaximizationFunction();
 	}
 
-	private void updateProbability(double delta){
-		localSearchProbability = Math.pow(
-				1.0 + ((1.0 - localSearchProbability) / localSearchProbability) * Math.exp(delta), -1.0);
+	protected void updateProbability(boolean improvement){
+		if (improvement) {
+			localSearchProbability *= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			localSearchProbability = Math.min(localSearchProbability, 1.0);
+		} else {
+			localSearchProbability /= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			localSearchProbability = Math.max(localSearchProbability, Double.MIN_VALUE);
+		}
+		// localSearchProbability = Math.pow(
+		// 1.0 + ((1.0 - localSearchProbability) / localSearchProbability) *
+		// Math.exp(delta), -1.0);
 	}
 	
 	
