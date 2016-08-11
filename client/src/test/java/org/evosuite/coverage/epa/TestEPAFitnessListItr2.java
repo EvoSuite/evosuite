@@ -51,7 +51,7 @@ public class TestEPAFitnessListItr2 extends TestEPATransitionCoverage {
 
 	@Test
 	public void testSingleTrace() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
-			FileNotFoundException, ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
+			ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
 		final String xmlFilename = String.join(File.separator, System.getProperty("user.dir"), "src", "test",
 				"resources", "epas", "ListItr.xml");
 		final File epaXMLFile = new File(xmlFilename);
@@ -82,7 +82,7 @@ public class TestEPAFitnessListItr2 extends TestEPATransitionCoverage {
 		double suiteFitness = suite.getFitness();
 		assertTrue(suiteFitness == fitnessValue);
 
-		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS, xmlFilename);
+		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS, EPAFactory.buildEPA(xmlFilename));
 		List<EPATransitionCoverageTestFitness> goals = factory.getCoverageGoals();
 		assertEquals(69, goals.size());
 

@@ -85,12 +85,12 @@ public class TestEPAGoalsListItr extends TestEPATransitionCoverage {
 
 	@Test
 	public void testGoalsCovered() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
-			FileNotFoundException, ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
+			ParserConfigurationException, SAXException, IOException, MalformedEPATraceException {
 		Properties.TARGET_CLASS = ListItr.class.getName();
 		Properties.EPA_XML_PATH = LIST_ITR_EPA_XML;
 
 		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
-				Properties.EPA_XML_PATH);
+				EPAFactory.buildEPA(Properties.EPA_XML_PATH));
 		List<EPATransitionCoverageTestFitness> goals = factory.getCoverageGoals();
 		assertEquals(69, goals.size());
 

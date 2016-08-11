@@ -251,7 +251,7 @@ public class EPAMonitor {
 
 	}
 
-	private void appendNewEpaTransition(Object object, EPATransition transition) throws MalformedEPATraceException {
+	private void appendNewEpaTransition(Object object, EPATransition transition) {
 		ExecutionTracer.getExecutionTracer().getTrace().appendNewEpaTransition(object, transition);
 	}
 
@@ -278,11 +278,7 @@ public class EPAMonitor {
 			final EPAState currentEpaState = getCurrentState(calleeObject);
 			final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
 
-			if (this.automata.getTransitions().contains(transition)) {
-				this.appendNewEpaTransition(calleeObject, transition);
-			} else {
-				this.appendNewEpaError(calleeObject, transition);
-			}
+			this.appendNewEpaTransition(calleeObject, transition);
 		} catch (MalformedEPATraceException | InvocationTargetException e) {
 			throw new EvosuiteError(e);
 		}

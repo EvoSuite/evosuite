@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,7 +37,15 @@ public abstract class EPAFactory {
 	private static final String STATE = "state";
 	private static final String NAME = "name";
 	private static final String INITIAL_STATE = "initial_state";
-	public static EPA buildEPA(String xmlFilename) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+	
+	public static EPA buildEPAOrError(String xmlFilename) {
+		try {
+			buildEPA(xmlFilename);
+		} catch (SAXException | ParserConfigurationException | IOException e) {
+			throw new EvosuiteError(e);
+		}
+	}
+	public static EPA buildEPA(String xmlFilename) throws ParserConfigurationException, SAXException, IOException {
 		return buildEPA(new FileInputStream(xmlFilename));
 	}
 	

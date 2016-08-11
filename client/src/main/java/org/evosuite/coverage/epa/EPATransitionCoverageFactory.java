@@ -1,29 +1,18 @@
 package org.evosuite.coverage.epa;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.xml.sax.SAXException;
 
 public class EPATransitionCoverageFactory extends AbstractFitnessFactory<EPATransitionCoverageTestFitness> {
 
 	private final EPA epa;
 	private final String className;
 
-	public EPATransitionCoverageFactory(String className, String epaXMLFilename) {
-		Objects.requireNonNull(epaXMLFilename, "epa XML Filename cannot be null");
+	public EPATransitionCoverageFactory(String className, EPA epa) {
 		this.className = className;
-		try {
-			this.epa = EPAFactory.buildEPA(epaXMLFilename);
-		} catch (ParserConfigurationException | SAXException | IOException e) {
-			throw new EvosuiteError(e);
-		}
+		this.epa = epa;
 	}
 
 	@Override

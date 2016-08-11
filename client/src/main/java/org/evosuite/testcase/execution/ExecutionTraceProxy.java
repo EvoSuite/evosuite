@@ -607,7 +607,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	}
 
 	@Override
-	public void appendNewEpaTransition(Object object, EPATransition transition) throws MalformedEPATraceException {
+	public void appendNewEpaTransition(Object object, EPATransition transition) {
 		trace.appendNewEpaTransition(object, transition);
 	}
 

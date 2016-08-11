@@ -616,10 +616,7 @@ public interface ExecutionTrace {
 	 * @param transition
 	 * @throws MalformedEPATraceException 
 	 */
-	public void appendNewEpaTransition(Object object, EPATransition transition) throws MalformedEPATraceException;
-
-	public void appendNewEpaError(Object object, EPATransition transition) throws MalformedEPATraceException;
-
+	public void appendNewEpaTransition(Object object, EPATransition transition);
 
 	/**
 	 * Returns the observed EPA traces in the current execution trace
@@ -627,5 +624,4 @@ public interface ExecutionTrace {
 	 */
 	public Set<EPATrace> getEPATraces();
 
-	Set<EPATransition> getEPAErrorTransitions();
 }

@@ -22,12 +22,14 @@ import java.util.stream.Collectors;
 /**
  * Created by pantonio on 7/17/16.
  */
-public class EPASuiteFitness extends TestSuiteFitnessFunction {
+public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -9069407017356785315L;
-	protected final EPA epa;
+
+	private final EPA epa;
+
 	protected final Map<String, EPATransitionCoverageTestFitness> coverage_goal_map;
 
 	public EPASuiteFitness(String epaXMLFilename) {
@@ -40,16 +42,20 @@ public class EPASuiteFitness extends TestSuiteFitnessFunction {
 			checkEPAActionNames(target_epa, Properties.TARGET_CLASS);
 
 			this.epa = target_epa;
-			this.coverage_goal_map = buildCoverageGoalMap(epaXMLFilename);
+			this.coverage_goal_map = buildCoverageGoalMap(getGoalFactory());
 
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
 		}
 	}
 
-	protected static Map<String, EPATransitionCoverageTestFitness> buildCoverageGoalMap(String epaXMLFilename) {
-		EPATransitionCoverageFactory goalFactory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
-				epaXMLFilename);
+	public EPA getEPA() {
+		return epa;
+	}
+
+	protected abstract EPATransitionCoverageFactory getGoalFactory();
+
+	protected static Map<String, EPATransitionCoverageTestFitness> buildCoverageGoalMap(EPATransitionCoverageFactory goalFactory) {
 		Map<String, EPATransitionCoverageTestFitness> coverage_goal_map = new HashMap<String, EPATransitionCoverageTestFitness>();
 		for (EPATransitionCoverageTestFitness goal : goalFactory.getCoverageGoals()) {
 			coverage_goal_map.put(goal.getGoalName(), goal);
@@ -117,7 +123,6 @@ public class EPASuiteFitness extends TestSuiteFitnessFunction {
 		for (ExecutionResult result : executionResults) {
 
 			Collection<? extends EPATrace> newEpaTraces = result.getTrace().getEPATraces();
-			epaErrorTransitions.addAll(result.getTrace().getEPAErrorTransitions());
 			epaTraces.addAll(newEpaTraces);
 
 			for (EPATrace trace : newEpaTraces) {

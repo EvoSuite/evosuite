@@ -50,13 +50,13 @@ public class TestEPATransitionCoverageGoals extends TestEPATransitionCoverage {
 	}
 
 	@Test
-	public void testGoalsCovered() throws ClassNotFoundException, NoSuchMethodException, SecurityException {
+	public void testGoalsCovered() throws ClassNotFoundException, NoSuchMethodException, SecurityException, IOException, SAXException, ParserConfigurationException {
 		Properties.TARGET_CLASS = MyBoundedStack.class.getName();
 		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPATRANSITION };
 
 		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
-				Properties.EPA_XML_PATH);
+				EPAFactory.buildEPA(Properties.EPA_XML_PATH));
 		List<EPATransitionCoverageTestFitness> goals = factory.getCoverageGoals();
 		assertEquals(7, goals.size());
 

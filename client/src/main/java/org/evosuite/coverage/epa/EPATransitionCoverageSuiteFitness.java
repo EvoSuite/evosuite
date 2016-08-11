@@ -38,4 +38,10 @@ public class EPATransitionCoverageSuiteFitness extends EPASuiteFitness {
 		super(epaXMLFilename);
 	}
 
+	@Override
+	protected EPATransitionCoverageFactory getGoalFactory() {
+		return new EPATransitionCoverageFactory(Properties.TARGET_CLASS, getEPA());
+	}
+
+
 }

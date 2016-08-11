@@ -19,7 +19,6 @@
 package org.evosuite.testcase.execution;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -43,10 +41,8 @@ import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
-import org.evosuite.coverage.epa.EPAState;
 import org.evosuite.coverage.epa.EPATrace;
 import org.evosuite.coverage.epa.EPATransition;
-import org.evosuite.coverage.epa.MalformedEPATraceException;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
@@ -1718,36 +1714,13 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	private final IdentityHashMap<Object, LinkedList<EPATransition>> epaErrorTransitions = new IdentityHashMap<>();
 	
 	@Override
-	public void appendNewEpaTransition(Object object, EPATransition transition) throws MalformedEPATraceException{
+	public void appendNewEpaTransition(Object object, EPATransition transition) {
 		if (!this.epaTransitions.containsKey(object)) {
 			this.epaTransitions.put(object, new LinkedList<>());
 		}
-		final LinkedList<EPATransition> objectTrace = this.epaTransitions.get(object);
-		if (!objectTrace.isEmpty()) {
-			EPAState lastDestinationStateInTrace = objectTrace.getLast().getDestinationState();
-			if (!lastDestinationStateInTrace.equals(transition.getOriginState())) {
-				throw new MalformedEPATraceException("Trace is not connected! " + lastDestinationStateInTrace + " and "
-						+ transition.getOriginState());
-			}
-		}
-		objectTrace.add(transition);		
+		this.epaTransitions.get(object).add(transition);		
 	}
 
-	@Override
-	public void appendNewEpaError(Object object, EPATransition transition) throws MalformedEPATraceException{
-		if (!this.epaErrorTransitions.containsKey(object)) {
-			this.epaErrorTransitions.put(object, new LinkedList<>());
-		}
-		this.epaErrorTransitions.get(object).add(transition);
-	}
-	
-	@Override
-	public Set<EPATransition> getEPAErrorTransitions() {
-		return this.epaErrorTransitions.values().stream()
-				.flatMap(Collection::stream)
-				.collect(Collectors.toSet());
-	}
-	
 	@Override
 	public Set<EPATrace> getEPATraces() {
 		final HashSet<EPATrace> traces = new HashSet<EPATrace>();
