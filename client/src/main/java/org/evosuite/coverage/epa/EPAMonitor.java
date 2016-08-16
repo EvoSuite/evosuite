@@ -255,10 +255,6 @@ public class EPAMonitor {
 		ExecutionTracer.getExecutionTracer().getTrace().appendNewEpaTransition(object, transition);
 	}
 
-	private void appendNewEpaError(Object object, EPATransition transition) throws MalformedEPATraceException {
-		ExecutionTracer.getExecutionTracer().getTrace().appendNewEpaError(object, transition);
-	}
-
 	private void afterMethod(String className, String fullMethodName, Object calleeObject) throws EvosuiteError {
 		try {
 			String top = call_stack.pop();

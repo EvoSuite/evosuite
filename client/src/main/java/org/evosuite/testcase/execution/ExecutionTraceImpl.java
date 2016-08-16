@@ -1711,8 +1711,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * epaTransitions.
 	 */
 	private final IdentityHashMap<Object, LinkedList<EPATransition>> epaTransitions = new IdentityHashMap<>();
-	private final IdentityHashMap<Object, LinkedList<EPATransition>> epaErrorTransitions = new IdentityHashMap<>();
-	
+
 	@Override
 	public void appendNewEpaTransition(Object object, EPATransition transition) {
 		if (!this.epaTransitions.containsKey(object)) {
@@ -1725,7 +1724,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Set<EPATrace> getEPATraces() {
 		final HashSet<EPATrace> traces = new HashSet<EPATrace>();
 		for (LinkedList<EPATransition> epaTransitionList : this.epaTransitions.values()) {
-			EPATrace trace = new EPATrace(new LinkedList<EPATransition>(epaTransitionList));
+			EPATrace trace = new EPATrace(new LinkedList<>(epaTransitionList));
 			traces.add(trace);
 		}
 		return traces;

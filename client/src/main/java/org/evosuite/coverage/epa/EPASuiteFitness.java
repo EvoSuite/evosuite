@@ -4,24 +4,16 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-/**
- * Created by pantonio on 7/17/16.
- */
 public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * 
@@ -30,7 +22,7 @@ public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 
 	private final EPA epa;
 
-	protected final Map<String, EPATransitionCoverageTestFitness> coverage_goal_map;
+	private final Map<String, EPATransitionCoverageTestFitness> coverageGoalMap;
 
 	public EPASuiteFitness(String epaXMLFilename) {
 		if (epaXMLFilename == null) {
@@ -42,25 +34,29 @@ public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 			checkEPAActionNames(target_epa, Properties.TARGET_CLASS);
 
 			this.epa = target_epa;
-			this.coverage_goal_map = buildCoverageGoalMap(getGoalFactory());
+			this.coverageGoalMap = buildCoverageGoalMap(getGoalFactory(this.epa));
 
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
 		}
 	}
 
+	public Map<String, EPATransitionCoverageTestFitness> getCoverageGoalMap() {
+		return coverageGoalMap;
+	}
+
 	public EPA getEPA() {
 		return epa;
 	}
 
-	protected abstract EPATransitionCoverageFactory getGoalFactory();
+	protected abstract EPAFitnessFactory getGoalFactory(EPA epa);
 
-	protected static Map<String, EPATransitionCoverageTestFitness> buildCoverageGoalMap(EPATransitionCoverageFactory goalFactory) {
-		Map<String, EPATransitionCoverageTestFitness> coverage_goal_map = new HashMap<String, EPATransitionCoverageTestFitness>();
+	private static Map<String, EPATransitionCoverageTestFitness> buildCoverageGoalMap(EPAFitnessFactory goalFactory) {
+		Map<String, EPATransitionCoverageTestFitness> coverageGoalMap = new HashMap<>();
 		for (EPATransitionCoverageTestFitness goal : goalFactory.getCoverageGoals()) {
-			coverage_goal_map.put(goal.getGoalName(), goal);
+			coverageGoalMap.put(goal.getGoalName(), goal);
 		}
-		return coverage_goal_map;
+		return coverageGoalMap;
 	}
 
 	protected static void checkEPAStates(EPA epa, String className) {
@@ -96,61 +92,22 @@ public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 		}
 	}
 
-	/**
-	 * Fitness value is the number of uncovered EPA transitions
-	 */
 	@Override
-	public final double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
-		return getFitnessFromAnalysis(suite, getAnalysis(suite));
-	}
+	public final double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suiteChromosome) {
+		final Collection<EPATransitionCoverageTestFitness> goals = getCoverageGoalMap().values();
+		final long coveredGoalsCount = goals.stream()
+				// A goal is covered by the suite if it's covered by at least one test case
+				.filter(goal -> runTestSuite(suiteChromosome).stream()
+						.filter(goal::isCovered)
+						.findAny()
+						.isPresent())
+				.count();
 
-	private double getFitnessFromAnalysis(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, Map<String, Integer> analysis) {
-		final Integer uncoveredTransitions = analysis.get("uncoveredTransitions");
-		final Integer coveredTransitions = analysis.get("coveredTransitions");
-		final double fitness = uncoveredTransitions;
-		updateIndividual(this, suite, fitness);
-		suite.setCoverage(this, coveredTransitions / analysis.get("epaTransitionSize"));
-
-		suite.setNumOfCoveredGoals(this, coveredTransitions);
-		suite.setNumOfNotCoveredGoals(this, uncoveredTransitions);
+		final double fitness = goals.size() - coveredGoalsCount;
+		updateIndividual(this, suiteChromosome, fitness);
+		suiteChromosome.setCoverage(this, coveredGoalsCount / goals.size());
+		suiteChromosome.setNumOfCoveredGoals(this, (int) coveredGoalsCount);
+		suiteChromosome.setNumOfNotCoveredGoals(this, (int) (goals.size() - coveredGoalsCount));
 		return fitness;
-	}
-
-	private Map<String, Integer> getAnalysis(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
-		List<ExecutionResult> executionResults = runTestSuite(suite);
-		List<EPATrace> epaTraces = new ArrayList<>();
-		List<EPATransition> epaErrorTransitions = new ArrayList<>();
-		for (ExecutionResult result : executionResults) {
-
-			Collection<? extends EPATrace> newEpaTraces = result.getTrace().getEPATraces();
-			epaTraces.addAll(newEpaTraces);
-
-			for (EPATrace trace : newEpaTraces) {
-				for (EPATransition transition : trace.getEpaTransitions()) {
-					String transitionName = transition.getTransitionName();
-					if (!this.coverage_goal_map.containsKey(transitionName)) {
-						logger.debug("goal for transition " + transition.toString() + " was not found!");
-						break; // discard rest of trace
-					}
-					EPATransitionCoverageTestFitness goal = this.coverage_goal_map.get(transitionName);
-					result.test.addCoveredGoal(goal);
-				}
-			}
-
-		}
-
-		final Set<EPATransition> tracedEpaTransitions = epaTraces.stream()
-				.map(EPATrace::getEpaTransitions)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toSet());
-
-		final int covered_transitions = tracedEpaTransitions.size();
-		
-		final Map<String, Integer> epaTransitionsAnalysis = new HashMap<>();
-		epaTransitionsAnalysis.put("epaTransitionSize", epa.getTransitions().size());
-		epaTransitionsAnalysis.put("coveredTransitions", covered_transitions);
-		epaTransitionsAnalysis.put("errorTransitions", epaErrorTransitions.size());
-		epaTransitionsAnalysis.put("uncoveredTransitions", epa.getTransitions().size() - covered_transitions);
-		return epaTransitionsAnalysis;
 	}
 }
