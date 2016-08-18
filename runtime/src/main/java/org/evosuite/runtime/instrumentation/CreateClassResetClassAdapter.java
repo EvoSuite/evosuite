@@ -264,7 +264,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		for (StaticField staticField : static_fields) {
 
 			if (!finalFields.contains(staticField.name) && !staticField.name.startsWith("__cobertura")
-					&& !staticField.name.startsWith("$jacoco")) {
+					&& !staticField.name.startsWith("$jacoco")
+					&& !staticField.name.startsWith("$VRc") // Old Emma
+					) {
 
 				logger.info("Adding bytecode for initializing field " + staticField.name);
 
