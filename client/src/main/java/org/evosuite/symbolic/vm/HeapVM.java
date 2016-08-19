@@ -293,7 +293,7 @@ public final class HeapVM extends AbstractVM {
 		 */
 		Class<?> clazz = classLoader.getClassForName(className);
 		Type objectType = Type.getType(clazz);
-		ReferenceConstant newObject = this.env.heap.newReference(objectType);
+		ReferenceConstant newObject = this.env.heap.buildNewReferenceConstant(objectType);
 		env.topFrame().operandStack.pushRef(newObject);
 	}
 
@@ -512,7 +512,7 @@ public final class HeapVM extends AbstractVM {
 				.getClass();
 
 		Type arrayType = Type.getType(array_class);
-		ReferenceConstant symb_array_ref = this.env.heap.newReference(arrayType);
+		ReferenceConstant symb_array_ref = this.env.heap.buildNewReferenceConstant(arrayType);
 
 		env.heap.putField("", ARRAY_LENGTH, null, symb_array_ref,
 				symb_array_length);
@@ -551,7 +551,7 @@ public final class HeapVM extends AbstractVM {
 
 		Type arrayType = Type.getType(array_class);
 		
-		ReferenceConstant symb_array_ref = env.heap.newReference(arrayType);
+		ReferenceConstant symb_array_ref = env.heap.buildNewReferenceConstant(arrayType);
 
 		env.heap.putField("", ARRAY_LENGTH, null, symb_array_ref,
 				symb_array_length);
@@ -593,7 +593,7 @@ public final class HeapVM extends AbstractVM {
 		Type multiArrayType = Type.getType(arrayTypeDesc);
 		// push delayed object
 		ReferenceConstant newMultiArray = this.env.heap
-				.newReference(multiArrayType); // @FIXME
+				.buildNewReferenceConstant(multiArrayType); // @FIXME
 		env.topFrame().operandStack.pushRef(newMultiArray);
 	}
 

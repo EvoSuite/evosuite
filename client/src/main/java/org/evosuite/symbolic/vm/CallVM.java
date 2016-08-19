@@ -249,7 +249,7 @@ public final class CallVM extends AbstractVM {
 				 */
 				Class<?> clazz = classLoader.getClassForName(className);
 				Type objectType = Type.getType(clazz);
-				ReferenceConstant newObject = this.env.heap.newReference(objectType);
+				ReferenceConstant newObject = this.env.heap.buildNewReferenceConstant(objectType);
 				frame.localsTable.setRefLocal(0, newObject);
 			}
 		} else {

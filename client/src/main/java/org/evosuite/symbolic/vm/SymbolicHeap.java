@@ -87,7 +87,7 @@ public final class SymbolicHeap {
 	 * 
 	 * @return
 	 */
-	public ReferenceConstant newReference(Type objectType) {
+	public ReferenceConstant buildNewReferenceConstant(Type objectType) {
 
 		if (objectType.getClassName() == null)
 			throw new IllegalArgumentException();
@@ -115,12 +115,6 @@ public final class SymbolicHeap {
 	 * Expression<?> contains at least one symbolic variable.
 	 */
 	private final Map<FieldKey, Expression<?>> symb_static_fields = new HashMap<FieldKey, Expression<?>>();
-
-	/**
-	 * This counter is used to count the number of operations before GC() is
-	 * executed
-	 */
-	private int modCount;
 
 	/**
 	 * Updates an instance field. The symbolic expression is stored iif it is
@@ -435,13 +429,18 @@ public final class SymbolicHeap {
 		return symb_value;
 	}
 
+	/**
+	 * Initializes a reference using a concrete object
+	 * 
+	 * @param conc_ref
+	 * @param symb_ref
+	 */
 	public void initializeReference(Object conc_ref, ReferenceExpression symb_ref) {
 		if (conc_ref != null) {
-			ReferenceConstant symb_non_null_ref = (ReferenceConstant) symb_ref;
-			if (!symb_non_null_ref.isInitialized()) {
-				symb_non_null_ref.initializeReference(conc_ref);
+			if (!symb_ref.isInitialized()) {
+				symb_ref.initializeReference(conc_ref);
 				int identityHashCode = System.identityHashCode(conc_ref);
-				nonNullRefs.put(identityHashCode, symb_non_null_ref);
+				nonNullRefs.put(identityHashCode, symb_ref);
 			}
 		}
 	}
