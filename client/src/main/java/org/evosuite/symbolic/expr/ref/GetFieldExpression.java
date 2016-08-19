@@ -2,11 +2,11 @@ package org.evosuite.symbolic.expr.ref;
 
 import java.util.Set;
 
-import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
+import org.objectweb.asm.Type;
 
-public final class GetFieldExpression extends AbstractExpression<Object> implements ReferenceExpression {
+public final class GetFieldExpression extends ReferenceExpression {
 
 	/**
 	 * 
@@ -17,12 +17,33 @@ public final class GetFieldExpression extends AbstractExpression<Object> impleme
 
 	private final String fieldName;
 
-	public GetFieldExpression(Object concreteValue, ReferenceExpression receiverExpr, String fieldName) {
-		super(concreteValue, 1 + receiverExpr.getSize(), receiverExpr.containsSymbolicVariable());
+	/**
+	 * Creates a symbolic expression of the form "expr.F" where expr is the
+	 * <code>ReferenceExpression</code>, F is the string <code>fieldName</code>
+	 * and the concrete value of the symbolic expression "expr.F" is
+	 * <code>concreteValue</code>
+	 * 
+	 * @param receiverExpr
+	 *            the symbolic expression of the receiver object
+	 * @param fieldName
+	 *            the field name
+	 * @param concreteValue
+	 *            the concrete object for the symbolic expression expr.F
+	 */
+	public GetFieldExpression(Type objectType, int instanceId, ReferenceExpression receiverExpr, String fieldName,
+			Object concreteValue) {
+		super(objectType, instanceId, 1 + receiverExpr.getSize(), receiverExpr.containsSymbolicVariable());
 		this.receiverExpr = receiverExpr;
 		this.fieldName = fieldName;
+		this.initializeReference(concreteValue);
 	}
 
+	/**
+	 * Returns the set of all the variables in the receiver expression (the expr
+	 * in expr.F)
+	 * 
+	 * @return
+	 */
 	@Override
 	public Set<Variable<?>> getVariables() {
 		return this.receiverExpr.getVariables();
@@ -33,15 +54,20 @@ public final class GetFieldExpression extends AbstractExpression<Object> impleme
 		return v.visit(this, arg);
 	}
 
-	@Override
-	public Object getWeakConcreteObject() {
-		return this.getConcreteValue();
-	}
-
+	/**
+	 * Returns the receiver expression (the expr in expr.F)
+	 * 
+	 * @return
+	 */
 	public ReferenceExpression getReceiverExpr() {
 		return receiverExpr;
 	}
 
+	/**
+	 * Returns the field name (the F in expr.F)
+	 * 
+	 * @return
+	 */
 	public String getFieldName() {
 		return fieldName;
 	}

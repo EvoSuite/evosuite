@@ -19,89 +19,32 @@
  */
 package org.evosuite.symbolic.expr.ref;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Set;
 
-import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Variable;
 import org.objectweb.asm.Type;
 
 /**
  * This class represents a reference that is not symbolic (e.g. a new Object()
- * somewhere)
+ * somewhere during the execution of the code). After the NEW operation, the
+ * concrete reference cannot be accessed until the <init> method finishes.
+ * Therefore, we have to initialize the <code>ReferenceConstant</code> after the
+ * <init> method ends.
  * 
  * @author galeotti
  * 
  */
-public final class ReferenceConstant extends AbstractExpression<Object> implements ReferenceExpression {
+public final class ReferenceConstant extends ReferenceExpression {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4288259851884045452L;
-	private final int instanceId;
-	private final Type objectType;
-
-	private WeakReference<Object> weakReference;
-	private int concIdentityHashCode;
-	private boolean isInitialized = false;
 
 	public ReferenceConstant(Type objectType, int instanceId) {
-		super(null, 1, false);
-
-		this.objectType = objectType;
-		this.instanceId = instanceId;
-
-		weakReference = null;
-		concIdentityHashCode = -1;
-	}
-
-	@Override
-	public String toString() {
-		return this.getClassName() + "$" + this.instanceId;
-	}
-
-	public void initializeReference(Object obj) {
-		if (this.isInitialized) {
-			throw new IllegalStateException("Reference already initialized!");
-		}
-
-		this.weakReference = new WeakReference<Object>(obj);
-		this.concIdentityHashCode = System.identityHashCode(obj);
-		this.isInitialized = true;
-
-		this.concreteValue = obj;
-	}
-
-	public boolean isInitialized() {
-		return this.weakReference != null;
-	}
-
-	public Object getWeakConcreteObject() {
-		if (!isInitialized())
-			throw new IllegalStateException("Object has to be initialized==true for this method to be invoked");
-		return this.weakReference.get();
-	}
-
-	public int getConcIdentityHashCode() {
-		if (!isInitialized())
-			throw new IllegalStateException("Object has to be initialized==true for this method to be invoked");
-		return this.concIdentityHashCode;
-	}
-
-	public boolean isCollectable() {
-		return this.isInitialized() && this.getWeakConcreteObject() == null;
-	}
-
-	public String getClassName() {
-		return this.objectType.getClassName();
-	}
-
-	public boolean isString() {
-		Type stringType = Type.getType(String.class);
-		return this.objectType.equals(stringType);
+		super(objectType, instanceId, 1,false);
 	}
 
 	@Override

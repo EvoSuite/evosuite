@@ -1092,7 +1092,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 				} else {
 
-					if (symb_ref.getWeakConcreteObject()==null) {
+					if (symb_ref.getConcreteValue() == null) {
 						// although this will lead in the JVM to a NPE, we push
 						// a dummy
 						// value to prevent the DSE VM from crashing
@@ -1360,12 +1360,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression urlRef;
 		if (conc_url == null) {
 			urlRef = env.heap.getReference(null);
-			if (urlRef.getWeakConcreteObject()!=null) {
+			if (urlRef.getConcreteValue() != null) {
 				throw new IllegalStateException("Expected null concrete value");
 			}
 		} else {
 			urlRef = (ReferenceConstant) env.heap.getReference(conc_url);
-			if (urlRef.getWeakConcreteObject()==null) {
+			if (urlRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete value");
 			}
 		}
@@ -1383,12 +1383,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression addressRef;
 		if (conc_remote_address == null) {
 			addressRef = env.heap.getReference(null);
-			if (addressRef.getWeakConcreteObject()!=null) {
+			if (addressRef.getConcreteValue() != null) {
 				throw new IllegalStateException("Expected null concrete value");
 			}
 		} else {
 			addressRef = env.heap.getReference(conc_remote_address);
-			if (addressRef.getWeakConcreteObject()==null) {
+			if (addressRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete value");
 			}
 		}
@@ -1405,12 +1405,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression addressRef;
 		if (conc_local_address == null) {
 			addressRef = env.heap.getReference(null);
-			if (addressRef.getWeakConcreteObject()!=null) {
+			if (addressRef.getConcreteValue() != null) {
 				throw new IllegalStateException("Expected null concrete object");
 			}
 		} else {
 			addressRef = env.heap.getReference(conc_local_address);
-			if (addressRef.getWeakConcreteObject()==null) {
+			if (addressRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete object");
 			}
 		}
@@ -1448,7 +1448,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		VariableReference lhs = s.getReturnValue();
 		String lhs_name = lhs.getName();
 		ReferenceExpression nullConstant = ExpressionFactory.buildNewNullExpression();
-		symb_references.put(lhs_name,nullConstant);
+		symb_references.put(lhs_name, nullConstant);
 	}
 
 	private void after(FunctionalMockStatement statement, Scope scope) {
@@ -1861,12 +1861,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression fileRef;
 		if (conc_evosuite_file == null) {
 			fileRef = env.heap.getReference(null);
-			if (fileRef.getWeakConcreteObject()!=null) {
-				throw new IllegalStateException("Expecred null concrete object");
+			if (fileRef.getConcreteValue() != null) {
+				throw new IllegalStateException("Expected null concrete object");
 			}
 		} else {
 			fileRef = (ReferenceConstant) env.heap.getReference(conc_evosuite_file);
-			if (fileRef.getWeakConcreteObject()==null) {
+			if (fileRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete object");
 			}
 		}

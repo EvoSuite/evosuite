@@ -336,7 +336,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 		}
 
-		ReferenceConstant symb_receiver = (ReferenceConstant) receiver_ref;
+		ReferenceExpression symb_receiver = receiver_ref;
 
 		Type type = Type.getType(desc);
 
@@ -456,7 +456,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 		}
 
-		ReferenceConstant symb_receiver = (ReferenceConstant) receiver_ref;
+		ReferenceExpression symb_receiver = (ReferenceExpression) receiver_ref;
 
 		/**
 		 * Compute new symbolic state
@@ -611,7 +611,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		int conc_array_length = Array.getLength(conc_array);
-		ReferenceConstant symb_array_ref = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array_ref = (ReferenceExpression) array_ref;
 
 		IntegerValue symb_array_length = (IntegerValue) env.heap.getField("",
 				ARRAY_LENGTH, conc_array, symb_array_ref, conc_array_length);
@@ -646,7 +646,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = (ReferenceExpression) array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -681,7 +681,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = (ReferenceExpression) array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -717,7 +717,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = (ReferenceExpression) array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -760,7 +760,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 		}
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = (ReferenceExpression) array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -796,7 +796,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = (ReferenceExpression) array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -921,7 +921,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -966,7 +966,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1002,7 +1002,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1045,7 +1045,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array =array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1079,7 +1079,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1112,7 +1112,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array =  array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1146,7 +1146,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array =  array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1185,7 +1185,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1220,7 +1220,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1254,7 +1254,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
@@ -1288,7 +1288,7 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		/* out of bound index */
-		ReferenceConstant symb_array = (ReferenceConstant) array_ref;
+		ReferenceExpression symb_array = array_ref;
 		int conc_array_length = Array.getLength(conc_array);
 		IntegerValue symb_array_length = env.heap.getField("", ARRAY_LENGTH,
 				conc_array, symb_array, conc_array_length);
