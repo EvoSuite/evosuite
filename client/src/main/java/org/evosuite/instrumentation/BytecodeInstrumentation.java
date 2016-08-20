@@ -25,6 +25,7 @@ import java.util.Collections;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
@@ -203,7 +204,8 @@ public class BytecodeInstrumentation {
 
             cv = new RemoveFinalClassAdapter(cv);
             
-            if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)) {
+            if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION) ||
+                    ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)) {
             	cv = new EPAMonitorClassAdapter(cv, className);
             }
 

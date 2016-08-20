@@ -40,7 +40,7 @@ public abstract class EPAFactory {
 	
 	public static EPA buildEPAOrError(String xmlFilename) {
 		try {
-			buildEPA(xmlFilename);
+			return buildEPA(xmlFilename);
 		} catch (SAXException | ParserConfigurationException | IOException e) {
 			throw new EvosuiteError(e);
 		}

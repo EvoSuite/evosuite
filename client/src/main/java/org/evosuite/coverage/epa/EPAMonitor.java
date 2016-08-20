@@ -172,7 +172,7 @@ public class EPAMonitor {
 		}
 	}
 
-	private Stack<String> call_stack = new Stack<String>();
+	private Stack<String> call_stack = new Stack<>();
 
 	private void beforeConstructor(String className, String fullMethodName, Object object) {
 		if (this.constructorToActionMap.containsKey(fullMethodName)) {

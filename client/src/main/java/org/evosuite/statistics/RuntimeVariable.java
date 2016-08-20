@@ -370,7 +370,6 @@ public enum RuntimeVariable {
 	TotalNumberOfConstraints,
 	/* -------------------------------------------------------------------- */
 	/** The coverage of an EPA */ 
-	
 	EpaTransitionCoverage,
 	/* -------------------------------------------------------------------- */
 	/** The number of SAT answers to Solver queries */ 

@@ -33,6 +33,8 @@ import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPAErrorFactory;
+import org.evosuite.coverage.epa.EPAErrorSuiteFitness;
 import org.evosuite.coverage.epa.EPAFactory;
 import org.evosuite.coverage.epa.EPATransitionCoverageFactory;
 import org.evosuite.coverage.epa.EPATransitionCoverageSuiteFitness;
@@ -135,6 +137,8 @@ public class FitnessFunctions {
 			return new InputCoverageSuiteFitness();
 		case EPATRANSITION:
 			return new EPATransitionCoverageSuiteFitness(Properties.EPA_XML_PATH);
+		case EPAERROR:
+			return new EPAErrorSuiteFitness(Properties.EPA_XML_PATH);
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
 		default:
@@ -199,6 +203,8 @@ public class FitnessFunctions {
 			return new InputCoverageFactory();
 		case EPATRANSITION:
 			return new EPATransitionCoverageFactory(Properties.TARGET_CLASS, EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
+		case EPAERROR:
+			return new EPAErrorFactory(Properties.TARGET_CLASS, EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
 		default:
