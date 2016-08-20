@@ -105,7 +105,8 @@ public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 
 		final double fitness = goals.size() - coveredGoalsCount;
 		updateIndividual(this, suiteChromosome, fitness);
-		suiteChromosome.setCoverage(this, coveredGoalsCount / goals.size());
+		final double coverage = (goals.size() > 0) ? (coveredGoalsCount / (double) goals.size()) : 0;
+		suiteChromosome.setCoverage(this, coverage);
 		suiteChromosome.setNumOfCoveredGoals(this, (int) coveredGoalsCount);
 		suiteChromosome.setNumOfNotCoveredGoals(this, (int) (goals.size() - coveredGoalsCount));
 		return fitness;

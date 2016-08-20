@@ -256,27 +256,30 @@ public class EPAMonitor {
 	}
 
 	private void afterMethod(String className, String fullMethodName, Object calleeObject) throws EvosuiteError {
-		try {
-			String top = call_stack.pop();
-			final String classNameAndFullMethodName = className + "." + fullMethodName;
-			if (!top.equals(classNameAndFullMethodName)) {
-				throw new EvosuiteError(
-						"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
-			}
-			if (!hasPreviousEpaState(calleeObject)) {
-				// this object should have been seen previously!
-				throw new MalformedEPATraceException("Object has no previous EPA State!");
-			}
+		// If method is not an action, then we don't consider it
+		if (this.methodToActionMap.containsKey(fullMethodName)) {
+			try {
 
-			final boolean validAction = this.methodToActionMap.containsKey(fullMethodName);
-			final String actionName = validAction ? this.methodToActionMap.get(fullMethodName): fullMethodName; 
-			final EPAState previousEpaState = getPreviousEpaState(calleeObject);
-			final EPAState currentEpaState = getCurrentState(calleeObject);
-			final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
+				String top = call_stack.pop();
+				final String classNameAndFullMethodName = className + "." + fullMethodName;
+				if (!top.equals(classNameAndFullMethodName)) {
+					throw new EvosuiteError(
+							"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
+				}
+				if (!hasPreviousEpaState(calleeObject)) {
+					// this object should have been seen previously!
+					throw new MalformedEPATraceException("Object has no previous EPA State!");
+				}
 
-			this.appendNewEpaTransition(calleeObject, transition);
-		} catch (MalformedEPATraceException | InvocationTargetException e) {
-			throw new EvosuiteError(e);
+				final String actionName = this.methodToActionMap.get(fullMethodName);
+				final EPAState previousEpaState = getPreviousEpaState(calleeObject);
+				final EPAState currentEpaState = getCurrentState(calleeObject);
+				final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
+
+				this.appendNewEpaTransition(calleeObject, transition);
+			} catch (MalformedEPATraceException | InvocationTargetException e) {
+				throw new EvosuiteError(e);
+			}
 		}
 	}
 
