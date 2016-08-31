@@ -2241,7 +2241,7 @@ public class Properties {
 	 *            a {@link java.lang.String} object.
 	 * @param value
 	 *            an array of {@link java.lang.String} objects.
-	 * @throws org.evosuite.Properties#NoSuchParameterException
+	 * @throws org.evosuite.Properties.NoSuchParameterException
 	 *             if any.
 	 * @throws java.lang.IllegalArgumentException
 	 *             if any.
