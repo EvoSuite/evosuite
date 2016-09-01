@@ -24,6 +24,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Take care of all instrumentation that is necessary to trace executions
- * 
+ *
  * @author Gordon Fraser
  */
 public class ExecutionPathClassAdapter extends ClassVisitor {
@@ -51,11 +52,14 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	/** Skip methods on enums - at least some */
 	private boolean isEnum = false;
 
+	/** Skip default constructors on anonymous classes */
+	private boolean isAnonymous = false;
+
 	/**
 	 * <p>
 	 * Constructor for ExecutionPathClassAdapter.
 	 * </p>
-	 * 
+	 *
 	 * @param visitor
 	 *            a {@link org.objectweb.asm.ClassVisitor} object.
 	 * @param className
@@ -76,11 +80,13 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 		super.visit(version, access, name, signature, superName, interfaces);
 		if (superName.equals("java/lang/Enum"))
 			isEnum = true;
+		if(TestClusterUtils.isAnonymousClass(name))
+			isAnonymous = true;
 	}
 
 	/*
 	 * Set default access rights to public access rights
-	 * 
+	 *
 	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
@@ -106,6 +112,14 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 			return mv;
 
 		if (isEnum && (name.equals("valueOf") || name.equals("values"))) {
+			return mv;
+		}
+
+		// Default constructors of anonymous classes are synthetic
+		// but the Java Compiler is inconsistent in whether it has
+		// line numbers, so we skip it.
+		// https://bugs.openjdk.java.net/browse/JDK-8061778
+		if (isAnonymous && name.equals("<init>")) {
 			return mv;
 		}
 		
