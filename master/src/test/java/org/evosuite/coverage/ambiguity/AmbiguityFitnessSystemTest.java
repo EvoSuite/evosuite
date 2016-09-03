@@ -144,7 +144,7 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		Assert.assertNotNull(result);
 
 		List<?> goals = AmbiguityCoverageFactory.getGoals();
-		assertEquals(11, goals.size());
+		assertEquals(12, goals.size());
 
 		GeneticAlgorithm<?> ga = result.get(0).get(0).getGeneticAlgorithm();
 		Assert.assertNotNull(ga);
@@ -173,7 +173,7 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		Assert.assertNotNull(result);
 
 		List<?> goals = AmbiguityCoverageFactory.getGoals();
-		assertEquals(11, goals.size());
+		assertEquals(12, goals.size());
 
 		GeneticAlgorithm<?> ga = result.get(0).get(0).getGeneticAlgorithm();
 		Assert.assertNotNull(ga);
@@ -198,7 +198,7 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		assertNotNull(result);
 
 		List<?> goals = AmbiguityCoverageFactory.getGoals();
-		assertEquals(11, goals.size());
+		assertEquals(12, goals.size());
 
 		GeneticAlgorithm<?> ga = result.get(0).get(0).getGeneticAlgorithm();
 		assertNotNull(ga);

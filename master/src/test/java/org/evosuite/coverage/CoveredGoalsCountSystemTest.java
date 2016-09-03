@@ -128,8 +128,8 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
         assertEquals(targetClass, rows.get(1)[0]); // TARGET_CLASS
         assertEquals("BRANCH;LINE;ONLYMUTATION", rows.get(1)[1]); // criterion
         assertEquals("1.0", rows.get(1)[2]); // Coverage
-        assertEquals("57", rows.get(1)[3]); // Covered_Goals
-        assertEquals("57", rows.get(1)[4]); // Total_Goals
+        assertEquals("58", rows.get(1)[3]); // Covered_Goals
+        assertEquals("58", rows.get(1)[4]); // Total_Goals
     }
 
     @Test

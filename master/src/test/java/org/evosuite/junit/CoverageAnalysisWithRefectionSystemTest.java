@@ -108,8 +108,8 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         assertTrue(rows.size() == 2);
         reader.close();
 
-        assertEquals("13", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
-        assertEquals("1.0", CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name()));
+        assertEquals("14", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
+        assertEquals(0.93, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name())), 0.01);
 
         // Assert that all test cases have passed
 
@@ -122,7 +122,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
         assertTrue(lines.size() == 1);
 
-        assertEquals(13 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
+        assertEquals(13 + 1 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
 	}
 
