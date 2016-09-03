@@ -233,4 +233,37 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         Assert.assertTrue( best.getCoverage() < 1d);
     }
 
+    @Test
+    public void testGenericsInPrivateMethods() throws IOException {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = PrivateMethodWithGenerics.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.P_REFLECTION_ON_PRIVATE = 0.9;
+        Properties.REFLECTION_START_PERCENT = 0.0;
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println(best.toString());
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
+
+    @Test
+    public void testGenericsInPrivateMethodWithTypeVariable() throws IOException {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = PrivateMethodWithTypeVariable.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+        Properties.P_REFLECTION_ON_PRIVATE = 0.9;
+        Properties.REFLECTION_START_PERCENT = 0.0;
+
+        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        Object result = evosuite.parseCommandLine(command);
+        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.println(best.toString());
+        assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+    }
 }
