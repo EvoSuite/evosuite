@@ -21,7 +21,11 @@ package com.examples.with.different.packagename;
 
 public class ClassWithAnonymousClass {
 
+  public ClassWithAnonymousClass() {}
+
   public class MyCompareClass {
+
+    public MyCompareClass() {}
 
     public void sort(java.util.List<String> l) {
       java.util.Collections.sort(l, new java.util.Comparator<String>() {

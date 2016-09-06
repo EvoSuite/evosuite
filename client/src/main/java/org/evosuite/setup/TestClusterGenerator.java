@@ -542,6 +542,12 @@ public class TestClusterGenerator {
 								genericMethod);
 				} else {
 					logger.debug("Method cannot be used: " + method);
+
+					// If we do reflection on private methods, we still need to consider dependencies
+					if(Properties.P_REFLECTION_ON_PRIVATE > 0 && method.getDeclaringClass().equals(clazz)) {
+						GenericMethod genericMethod = new GenericMethod(method, clazz);
+						addDependencies(genericMethod, 1);
+					}
 				}
 			}
 

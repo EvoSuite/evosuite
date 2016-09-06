@@ -1939,12 +1939,12 @@ public class TestFactory {
             Method method = reflectionFactory.nextMethod();
             List<Type> list = new ArrayList<>();
             list.add(reflectionFactory.getReflectedClass());
-            list.addAll(Arrays.asList(method.getParameterTypes()));
+            list.addAll(Arrays.asList(method.getGenericParameterTypes()));
 
-            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false, true);
+            parameters = satisfyParameters(test, null, list, position, recursionDepth + 1, true, false, true);
             VariableReference callee = parameters.remove(0);
 
-			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method,
                         callee, parameters, Modifier.isStatic(method.getModifiers()));
         }
 
@@ -2003,7 +2003,7 @@ public class TestFactory {
 
 			parameters = satisfyParameters(test, callee, list,position, recursionDepth + 1, true, false, true);
 
-			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method,
 					callee, parameters, Modifier.isStatic(method.getModifiers()));
 		}
 

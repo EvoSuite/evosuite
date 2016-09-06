@@ -139,15 +139,15 @@ public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
         assertTrue(CsvJUnitData.getValue(rows, "TARGET_CLASS").equals(Calculator.class.getCanonicalName()));
         assertTrue(CsvJUnitData.getValue(rows, "criterion").equals(Properties.Criterion.BRANCH.toString() + ";" + Properties.Criterion.LINE.toString()));
 
-        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Coverage.name())), 0.88, 0.01);
-        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Covered_Goals.name())), 8, 0);
-        assertEquals(Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name())), 9, 0);
+        assertEquals(0.8, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Coverage.name())), 0.01);
+        assertEquals(8, (int)Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Covered_Goals.name())));
+        assertEquals(10, (int)Integer.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name())));
 
-        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverage.name())), 0.8, 0.0);
-        assertEquals(Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name())), 1.0, 0.0);
+        assertEquals(0.8, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverage.name())), 0.0);
+        assertEquals(0.8, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name())), 0.0);
 
-        assertTrue(CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverageBitString.name()).equals("10111"));
-        assertTrue(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverageBitString.name()).equals("1111"));
+        assertEquals("10111", CsvJUnitData.getValue(rows, RuntimeVariable.BranchCoverageBitString.name()));
+        assertEquals("01111", CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverageBitString.name()));
 	}
 
 	@Test
