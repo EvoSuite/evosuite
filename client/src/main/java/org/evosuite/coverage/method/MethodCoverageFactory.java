@@ -61,25 +61,36 @@ public class MethodCoverageFactory extends
 
         String className = Properties.TARGET_CLASS;
 		Class<?> clazz = Properties.getTargetClassAndDontInitialise();
-        if (clazz != null) {
-            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor<?> c : allConstructors) {
-                if (TestUsageChecker.canUse(c)) {
-                    String methodName = "<init>" + Type.getConstructorDescriptor(c);
-                    logger.info("Adding goal for constructor " + className + "." + methodName);
-                    goals.add(new MethodCoverageTestFitness(className, methodName));
-                }
-            }
-            Method[] allMethods = clazz.getDeclaredMethods();
-            for (Method m : allMethods) {
-                if (TestUsageChecker.canUse(m)) {
-                    String methodName = m.getName() + Type.getMethodDescriptor(m);
-                    logger.info("Adding goal for method " + className + "." + methodName);
-                    goals.add(new MethodCoverageTestFitness(className, methodName));
-                }
-            }
+		if (clazz != null) {
+			goals.addAll(getCoverageGoals(clazz, className));
+	        Class<?>[] innerClasses = clazz.getDeclaredClasses();
+	        for (Class<?> innerClass : innerClasses) {
+		        String innerClassName = innerClass.getCanonicalName();
+		        goals.addAll(getCoverageGoals(innerClass, innerClassName));
+	        }
         }
 		goalComputationTime = System.currentTimeMillis() - start;
+		return goals;
+	}
+
+	private List<MethodCoverageTestFitness> getCoverageGoals(Class<?> clazz, String className) {
+		List<MethodCoverageTestFitness> goals = new ArrayList<MethodCoverageTestFitness>();
+		Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+		for (Constructor<?> c : allConstructors) {
+			if (TestUsageChecker.canUse(c)) {
+				String methodName = "<init>" + Type.getConstructorDescriptor(c);
+				logger.info("Adding goal for constructor " + className + "." + methodName);
+				goals.add(new MethodCoverageTestFitness(className, methodName));
+			}
+		}
+		Method[] allMethods = clazz.getDeclaredMethods();
+		for (Method m : allMethods) {
+			if (TestUsageChecker.canUse(m)) {
+				String methodName = m.getName() + Type.getMethodDescriptor(m);
+				logger.info("Adding goal for method " + className + "." + methodName);
+				goals.add(new MethodCoverageTestFitness(className, methodName));
+			}
+		}
 		return goals;
 	}
 

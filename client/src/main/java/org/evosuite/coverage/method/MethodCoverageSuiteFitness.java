@@ -84,23 +84,32 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
         String className = Properties.TARGET_CLASS;
 		Class<?> clazz = Properties.getTargetClassAndDontInitialise();
         if (clazz != null) {
-            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor<?> c : allConstructors) {
-                if (TestUsageChecker.canUse(c)) {
-                    String descriptor = Type.getConstructorDescriptor(c);
-                    logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
-                    methods.add(c.getDeclaringClass().getName() + ".<init>" + descriptor);
-                }
-            }
-            Method[] allMethods = clazz.getDeclaredMethods();
-            for (Method m : allMethods) {
-                if (TestUsageChecker.canUse(m)) {
-                    String descriptor = Type.getMethodDescriptor(m);
-                    logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
-                    methods.add(m.getDeclaringClass().getName() + "." + m.getName() + descriptor);
-                }
-            }
+			determineMethods(clazz, className);
+	        Class<?>[] innerClasses = clazz.getDeclaredClasses();
+	        for (Class<?> innerClass : innerClasses) {
+		        String innerClassName = innerClass.getCanonicalName();
+		        determineMethods(innerClass, innerClassName);
+	        }
         }
+    }
+
+    protected void determineMethods(Class<?> clazz, String className) {
+	    Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+	    for (Constructor<?> c : allConstructors) {
+		    if (TestUsageChecker.canUse(c)) {
+			    String descriptor = Type.getConstructorDescriptor(c);
+			    logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
+			    methods.add(c.getDeclaringClass().getCanonicalName() + ".<init>" + descriptor);
+		    }
+	    }
+	    Method[] allMethods = clazz.getDeclaredMethods();
+	    for (Method m : allMethods) {
+		    if (TestUsageChecker.canUse(m)) {
+			    String descriptor = Type.getMethodDescriptor(m);
+			    logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
+			    methods.add(m.getDeclaringClass().getCanonicalName() + "." + m.getName() + descriptor);
+		    }
+	    }
     }
 
 	/**

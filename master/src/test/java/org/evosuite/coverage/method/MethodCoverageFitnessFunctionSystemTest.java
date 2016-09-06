@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.method;
 
+import com.examples.with.different.packagename.ClassWithInnerClass;
 import com.examples.with.different.packagename.Compositional;
 
 import com.examples.with.different.packagename.contracts.EqualsHashCode;
@@ -28,6 +29,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -36,6 +38,8 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.FlagExample3;
 import com.examples.with.different.packagename.SingleMethod;
+
+import java.util.List;
 
 /**
  * @author Jose Miguel Rojas
@@ -154,7 +158,6 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		String targetClass = EqualsHashCode.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.METHOD };
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -164,6 +167,25 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
 		Assert.assertEquals(4, goals);
 
+		System.out.println("EvolvedTestSuite:\n" + best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void systemTestMethodCoverageInnerClasses(){
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ClassWithInnerClass.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
+		Assert.assertEquals(4, goals);
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
