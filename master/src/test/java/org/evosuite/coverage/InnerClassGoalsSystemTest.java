@@ -82,9 +82,10 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		// Lines 6, 7, 8 in foo, plus line 10 for the (implicit) return statement at the end of the method
-		// Lines 14, 15, 17 in inner class foo
-		Assert.assertEquals(8, goals ); // Line 8 is the default constructor, but why doesn't it always show up?
+
+		// lines of 'ClassWithInnerClass': 22, 25, 26, 27, 29
+		// lines of 'ClassWithInnerClass$AnInnerClass': 31, 33, 34, 36 
+		Assert.assertEquals(9, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -137,7 +138,10 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(8, goals ); // 7 or 8?
+
+		// lines of 'ClassWithPrivateInnerClass': 22, 24, 25, 26, 28
+		// lines of 'ClassWithPrivateInnerClass$AnInnerClass': 30, 32, 33, 35
+		Assert.assertEquals(9, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -193,7 +197,10 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		System.out.println(best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(8, goals ); // 7 or 8?
+
+		// lines of 'ClassWithPrivateNonStaticInnerClass': 22, 25, 26, 27, 29
+		// lines of 'ClassWithPrivateNonStaticInnerClass$AnInnerClass': 31, 33, 34, 36
+		Assert.assertEquals(9, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }

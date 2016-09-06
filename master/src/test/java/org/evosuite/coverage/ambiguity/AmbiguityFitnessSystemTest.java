@@ -204,17 +204,18 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		assertNotNull(ga);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		// goals { 5,6,9,10,11,12,15,16,19,20,22 }
+
+		// goals of 'IndirectlyCoverableBranches': 22, 24, 25, 28, 29, 30, 31, 34, 35, 38, 39, 41
 		//
 		// minimum ambiguity:
-		// {5}, {6}, {9,10,11,12}, {15,16}, {19,20}, {22}
-		double ambiguity = 0.0; // {5}
-		ambiguity += 0.0; // {6}
-		ambiguity += (4.0 / ((double) goals.size())) * (3.0 /2.0); // {9,10,11,12}
-		ambiguity += (2.0 / ((double) goals.size())) * (1.0 /2.0); // {15,16}
-		ambiguity += (2.0 / ((double) goals.size())) * (1.0 /2.0); // {19,20}
-		ambiguity += 0.0; // {22}
-		assertEquals(0.7272, ambiguity, 0.0001);
+		// {22}, {24}, {25}, {28,29,30,31}, {34,35}, {38,39,41}
+		double ambiguity = 0.0; // {22}
+		ambiguity += 0.0; // {24}
+		ambiguity += 0.0; // {25}
+		ambiguity += (4.0 / ((double) goals.size())) * (3.0 / 2.0); // {28,29,30,31}
+		ambiguity += (2.0 / ((double) goals.size())) * (1.0 / 2.0); // {34,35}
+		ambiguity += (3.0 / ((double) goals.size())) * (2.0 / 2.0); // {38,39,41}
+		assertEquals(0.8333, ambiguity, 0.0001);
 		//assertEquals(ambiguity * 1.0 / ((double) goals.size()), best.getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class), 0.001);
 		assertEquals(FitnessFunction.normalize(ambiguity), best.getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class), 0.001);
 	}
