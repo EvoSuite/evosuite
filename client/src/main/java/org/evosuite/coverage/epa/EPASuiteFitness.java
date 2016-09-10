@@ -4,6 +4,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.xml.sax.SAXException;
@@ -12,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
@@ -95,12 +97,15 @@ public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public final double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suiteChromosome) {
 		final Collection<EPATransitionCoverageTestFitness> goals = getCoverageGoalMap().values();
+		final List<ExecutionResult> executionResults = runTestSuite(suiteChromosome);
 		final long coveredGoalsCount = goals.stream()
 				// A goal is covered by the suite if it's covered by at least one test case
-				.filter(goal -> runTestSuite(suiteChromosome).stream()
-						.filter(goal::isCovered)
-						.findAny()
-						.isPresent())
+				.filter(goal -> {
+					return executionResults.stream()
+							.filter(goal::isCovered)
+							.findAny()
+							.isPresent();
+				})
 				.count();
 
 		final double fitness = goals.size() - coveredGoalsCount;

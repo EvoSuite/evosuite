@@ -371,6 +371,8 @@ public enum RuntimeVariable {
 	/* -------------------------------------------------------------------- */
 	/** The coverage of an EPA */ 
 	EpaTransitionCoverage,
+	/** The coverage of an EPA */
+	EpaErrorCoverage,
 	/* -------------------------------------------------------------------- */
 	/** The number of SAT answers to Solver queries */ 
 	NumberOfSATQueries,

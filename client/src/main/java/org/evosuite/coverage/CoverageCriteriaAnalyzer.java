@@ -179,6 +179,8 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.BranchCoverage;
             case EPATRANSITION:
             	return RuntimeVariable.EpaTransitionCoverage;
+            case EPAERROR:
+                return RuntimeVariable.EpaErrorCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
             default:
@@ -346,6 +348,8 @@ public class CoverageCriteriaAnalyzer {
                 return null;
             case EPATRANSITION:
             	return RuntimeVariable.EpaTransitionCoverage;
+            case EPAERROR:
+                return RuntimeVariable.EpaErrorCoverage;
             default:
                 logger.debug("Criterion not supported: " + criterion);
                 return null;

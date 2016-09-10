@@ -22,6 +22,7 @@
  */
 package org.evosuite;
 
+import org.evosuite.Properties.Criterion;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.archive.TestsArchive;
@@ -221,7 +222,8 @@ public class TestGenerationContext {
 		
 		DSEStats.clear();
 		
-		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)) {
+		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)) {
 			EPAMonitor.reset();
 		}
 	}
