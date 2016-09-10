@@ -1,6 +1,11 @@
 package org.evosuite.coverage.epa;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
+
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * This fitness function counts the degree of covered transitions. It is a
@@ -8,7 +13,6 @@ import org.evosuite.Properties;
  * were covered.
  *
  * @author galeotti
- *
  */
 public class EPAErrorSuiteFitness extends EPASuiteFitness {
 
@@ -21,4 +25,14 @@ public class EPAErrorSuiteFitness extends EPASuiteFitness {
 		return new EPAErrorFactory(Properties.TARGET_CLASS, epa);
 	}
 
+	public ExecutionResult runTest(TestCase test) {
+		final ExecutionResult executionResult = super.runTest(test);
+		executionResult.setCoveredEPAErrors(
+				getCoverageGoalMap().entrySet().stream()
+						.filter(entry -> entry.getValue().isCovered(executionResult))
+						.collect(Collectors.toMap(Entry::getKey, Entry::getValue))
+		);
+
+		return executionResult;
+	}
 }

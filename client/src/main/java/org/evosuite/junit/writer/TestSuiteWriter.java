@@ -27,6 +27,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.coverage.epa.EPATransitionCoverageTestFitness;
 import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
@@ -687,6 +688,19 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(BLOCK_SPACE);
             builder.append("future.get(" + time + ", TimeUnit.MILLISECONDS);");
             builder.append(NEWLINE);
+        }
+
+        final Map<String, EPATransitionCoverageTestFitness> coveredEPAErrors = result.getCoveredEPAErrors();
+        if (!coveredEPAErrors.isEmpty()) {
+            coveredEPAErrors.keySet().forEach(transitionName -> {
+                builder.append(BLOCK_SPACE)
+                        .append("// Invalid EPA Transition: ")
+                        .append(transitionName)
+                        .append(NEWLINE);
+
+            });
+            builder.append("fail(\"Invalid EPA Transitions\");")
+                    .append(NEWLINE);
         }
 
         // ---------   end of the body ----------------------------

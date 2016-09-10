@@ -21,6 +21,7 @@ package org.evosuite.testcase.execution;
 
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.epa.EPATrace;
+import org.evosuite.coverage.epa.EPATransitionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.mutation.Mutation;
@@ -43,6 +44,8 @@ public class ExecutionResult implements Cloneable {
 
 	/** Map statement number to raised exception */
 	protected Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+
+	private Map<String, EPATransitionCoverageTestFitness> coveredEPAErrors = new HashMap<>();
 
 	/**
 	 * Record for each exception if it was explicitly thrown
@@ -129,6 +132,14 @@ public class ExecutionResult implements Cloneable {
 		for (Integer position : data.keySet()) {
 			reportNewThrownException(position, data.get(position));
 		}
+	}
+
+	public Map<String, EPATransitionCoverageTestFitness> getCoveredEPAErrors() {
+		return coveredEPAErrors;
+	}
+
+	public void setCoveredEPAErrors(Map<String, EPATransitionCoverageTestFitness> coveredEPAErrors) {
+		this.coveredEPAErrors = coveredEPAErrors;
 	}
 
 	/**
