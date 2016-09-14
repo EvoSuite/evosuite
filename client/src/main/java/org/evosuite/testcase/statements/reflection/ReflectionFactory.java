@@ -72,6 +72,9 @@ public class ReflectionFactory {
                     && !f.isSynthetic()
                     && (toSkip==null || ! toSkip.contains(f))
                     && !f.getName().equals("serialVersionUID")
+                    // read/writeObject must not be invoked directly, otherwise it raises a java.io.NotActiveException
+                    && !f.getName().equals("writeObject")
+                    && !f.getName().equals("readObject")
                     // final primitives cannot be changed
                     && !(Modifier.isFinal(f.getModifiers()) && f.getType().isPrimitive())
                     // changing final strings also doesn't make much sense
