@@ -19,12 +19,7 @@
  */
 package org.evosuite.coverage.line;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
@@ -248,7 +243,12 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			targetClasses.add(ff.getTargetClass());
 		}
 		for(String className : targetClasses) {
-			for(BytecodeInstruction bi : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className)) {
+			List<BytecodeInstruction> instructions = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className);
+			if(instructions == null) {
+				logger.info("No instructions known for class {} (is it an enum?)", className);
+				continue;
+			}
+			for(BytecodeInstruction bi : instructions) {
 				if(bi.getBasicBlock() == null) {
 					// Labels get no basic block. TODO - why?
 					continue;
