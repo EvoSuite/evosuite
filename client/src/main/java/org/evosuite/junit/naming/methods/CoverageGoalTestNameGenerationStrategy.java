@@ -152,10 +152,10 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         boolean changed = true;
         while(changed) {
             setTestNames(testToGoals);
-            Map<String, Set<TestCase>> testNameMap = determineDuplicateNames();
+            Map<String, Set<TestCase>> dupTestNameMap = determineDuplicateNames();
             // For each duplicate set, add new test goals
             changed = false;
-            for (Map.Entry<String, Set<TestCase>> entry : testNameMap.entrySet()) {
+            for (Map.Entry<String, Set<TestCase>> entry : dupTestNameMap.entrySet()) {
                 if(entry.getKey().length() >= MAX_CHARS) {
                     continue;
                 }
@@ -822,8 +822,59 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         else if(argumentTypes.length == 1) {
             return methodNameWithoutDescriptor + STR_TAKING + capitalize(getShortClassName(argumentTypes[0].getClassName()));
         }
-        else
-            return methodNameWithoutDescriptor + STR_TAKING + argumentTypes.length + STR_ARGUMENTS;
+        else {
+            // is there any other implementation of the same method with same number of arguments?
+            Set<String> otherMethods = new HashSet<>();
+            otherMethods.addAll(methodCount.get(methodNameWithoutDescriptor));
+            otherMethods.remove(methodName);
+            boolean sameCardinality = false;
+            for (String otherMethod : otherMethods) {
+                String otherDesc = otherMethod.substring(otherMethod.indexOf('('));
+                Type[] otherArgTypes = Type.getArgumentTypes(otherDesc);
+                if (otherArgTypes.length == argumentTypes.length) {
+                    sameCardinality = true;
+                    break;
+                }
+            }
+            if (sameCardinality) { // synthesise descriptor based on arguments' types
+                return methodNameWithoutDescriptor + STR_TAKING + getTypeArgumentsDescription(argumentTypes);
+            } else // only method with this number of arguments
+                return methodNameWithoutDescriptor + STR_TAKING + argumentTypes.length + STR_ARGUMENTS;
+        }
+    }
+
+    /**
+     * Concatenate argument types when there is more than one arguments
+     * @param argumentTypes
+     * @return
+     */
+    private String getTypeArgumentsDescription(Type[] argumentTypes) {
+        assert (argumentTypes.length > 1);
+
+        Map<String,Integer> typeDescs = new LinkedHashMap<>();
+        for (Type t : argumentTypes) {
+            String d = capitalize(getShortClassName(t.getClassName()));
+            if (! typeDescs.containsKey(d))
+                typeDescs.put(d, 1);
+            else
+                typeDescs.put(d, typeDescs.get(d) + 1);
+        }
+
+        StringBuilder builder = new StringBuilder();
+        Object[] args = typeDescs.keySet().toArray();
+        for (int i = 0; i < args.length; i ++ ){
+            String arg = (String)args[i];
+            if (args.length > 1 && i == args.length - 1)
+                builder.append(STR_AND);
+            if (typeDescs.get(arg) == 1)
+                builder.append(typeDescs.get(arg));
+            else {
+                builder.append(Integer.toString(typeDescs.get(arg)));
+                builder.append(arg);
+                builder.append('s');
+            }
+        }
+        return builder.toString();
     }
 
     /**
