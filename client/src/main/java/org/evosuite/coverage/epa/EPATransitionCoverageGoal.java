@@ -16,10 +16,21 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	private final EPA epa;
 	private final String className;
 
+	private boolean error;
+
 	public EPATransitionCoverageGoal(String className, EPA epa, EPATransition t) {
+		this(className, epa, t, false);
+	}
+
+	public EPATransitionCoverageGoal(String className, EPA epa, EPATransition t, boolean error) {
 		this.transition = t;
 		this.epa = epa;
 		this.className = className;
+		this.error = error;
+	}
+
+	public boolean isError() {
+		return error;
 	}
 
 	public String getMethodName() {

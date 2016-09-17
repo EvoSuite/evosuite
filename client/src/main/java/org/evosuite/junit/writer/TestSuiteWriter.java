@@ -54,6 +54,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
@@ -690,16 +691,21 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(NEWLINE);
         }
 
-        final Map<String, EPATransitionCoverageTestFitness> coveredEPAErrors = result.getCoveredEPAErrors();
-        if (!coveredEPAErrors.isEmpty()) {
-            coveredEPAErrors.keySet().forEach(transitionName -> {
-                builder.append(BLOCK_SPACE)
-                        .append("// Invalid EPA Transition: ")
-                        .append(transitionName)
-                        .append(NEWLINE);
+        final List<EPATransitionCoverageTestFitness> invalidEPATransitions = test.getCoveredGoals().stream()
+                .filter(testFitnessFunction -> testFitnessFunction instanceof EPATransitionCoverageTestFitness)
+                .map(testFitnessFunction -> ((EPATransitionCoverageTestFitness) testFitnessFunction))
+                .filter(EPATransitionCoverageTestFitness::isGoalError)
+                .collect(Collectors.toList());
 
-            });
-            builder.append("fail(\"Invalid EPA Transitions\");")
+        // Make test fail if there are invalid EPA transitions
+        if (!invalidEPATransitions.isEmpty()) {
+                invalidEPATransitions.forEach(epaTransitionCoverageTestFitness -> builder.append(BLOCK_SPACE)
+                    .append("// Invalid EPA Transition: ")
+                    .append(epaTransitionCoverageTestFitness.getGoalName())
+                    .append(NEWLINE));
+
+            builder.append(BLOCK_SPACE)
+                    .append("fail(\"Invalid EPA Transitions\");")
                     .append(NEWLINE);
         }
 

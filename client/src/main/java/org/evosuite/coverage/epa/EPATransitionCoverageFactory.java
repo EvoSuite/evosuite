@@ -9,7 +9,14 @@ public class EPATransitionCoverageFactory extends EPAFitnessFactory {
 	}
 
 	@Override
+	protected EPATransitionCoverageTestFitness getCoverageGoalFromTransition(EPATransition t) {
+		return new EPATransitionCoverageTestFitness(new EPATransitionCoverageGoal(getClassName(), getEpa(), t));
+	}
+
+	@Override
 	protected Set<EPATransition> getGoalTransitions() {
 		return getEpa().getTransitions();
 	}
+
+	
 }

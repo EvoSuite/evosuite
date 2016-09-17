@@ -10,6 +10,11 @@ public class EPAErrorFactory extends EPAFitnessFactory {
 	}
 
 	@Override
+	protected EPATransitionCoverageTestFitness getCoverageGoalFromTransition(EPATransition t) {
+		return new EPATransitionCoverageTestFitness(new EPATransitionCoverageGoal(getClassName(), getEpa(), t, true));
+	}
+
+	@Override
 	protected Set<EPATransition> getGoalTransitions() {
 		final EPA epa = getEpa();
 		final Set<EPAState> states = epa.getStates();

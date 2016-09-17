@@ -24,15 +24,4 @@ public class EPAErrorSuiteFitness extends EPASuiteFitness {
 	protected EPAFitnessFactory getGoalFactory(EPA epa) {
 		return new EPAErrorFactory(Properties.TARGET_CLASS, epa);
 	}
-
-	public ExecutionResult runTest(TestCase test) {
-		final ExecutionResult executionResult = super.runTest(test);
-		executionResult.setCoveredEPAErrors(
-				getCoverageGoalMap().entrySet().stream()
-						.filter(entry -> entry.getValue().isCovered(executionResult))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue))
-		);
-
-		return executionResult;
-	}
 }
