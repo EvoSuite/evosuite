@@ -950,6 +950,9 @@ public class TestSuiteGenerator {
 		case TRYCATCH:
 			LoggingUtils.getEvoLogger().info("  - Try-Catch Branch Coverage");
 			break;
+		case REGRESSION:
+		    LoggingUtils.getEvoLogger().info("  - Regression");
+            break;
 		default:
 			throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
 		}
