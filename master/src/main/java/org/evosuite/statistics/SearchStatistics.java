@@ -756,7 +756,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
         @Override
         public Double getValue(TestSuiteChromosome individual) {
-            return individual.getFitnessInstanceOf(RhoCoverageSuiteFitness.class);
+            Double d = individual.getFitnessInstanceOf(RhoCoverageSuiteFitness.class);
+            return d > 1.0 ? 0.0 : d;
         }
     }
 
