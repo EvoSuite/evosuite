@@ -182,6 +182,6 @@ public class StatisticsSender {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Branches_Instrumented, coveredInstrumentedBranches.size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.Covered_Lines, coveredLines);
+				RuntimeVariable.Covered_Lines, coveredLines.size());
 	}
 }
