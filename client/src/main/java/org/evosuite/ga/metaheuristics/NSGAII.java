@@ -118,7 +118,9 @@ public class NSGAII<T extends Chromosome>
             // Evaluate
             for (final FitnessFunction<T> ff : this.getFitnessFunctions()) {
                 ff.getFitness(offspring1);
+                notifyEvaluation(offspring1);
                 ff.getFitness(offspring2);
+                notifyEvaluation(offspring2);
             }
 
             offspringPopulation.add(offspring1);
@@ -167,8 +169,8 @@ public class NSGAII<T extends Chromosome>
 
             remain = 0;
         }
-        //archive
-        updateFitnessFunctionsAndValues();
+        //archive // TODO does it make any sense to use an archive with NSGA-II?
+        /*updateFitnessFunctionsAndValues();
 		for (T t : population) {
 			if(t.isToBeUpdated()){
 			    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
@@ -176,7 +178,7 @@ public class NSGAII<T extends Chromosome>
 				}
 			    t.isToBeUpdated(false);
 			}
-		}
+		}*/
 		//
         currentIteration++;
     }
