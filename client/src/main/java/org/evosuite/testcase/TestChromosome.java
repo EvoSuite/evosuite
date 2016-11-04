@@ -179,14 +179,13 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 		for (int i = position2; i < other.size(); i++) {
 			testFactory.appendStatement(offspring.test,
-			                            ((TestChromosome) other).test.getStatement(i));
+					((TestChromosome) other).test.getStatement(i));
 		}
 		if (!Properties.CHECK_MAX_LENGTH
-		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
+				|| offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
+			setChanged(true);
 		}
-
-		setChanged(true);
 	}
 
 	/**
