@@ -52,44 +52,39 @@ public class MOSADominanceComparator<T extends Chromosome> implements Comparator
 	 *            Object representing the second test cases.
 	 * @return -1, or 0, or 1 if object1 dominates object2, both are non-dominated, or solution1 is dominated by solution2, respectively.
 	 */
+	@SuppressWarnings("unchecked")
 	public int compare(Object object1, Object object2) {
 		if (object1 == null)
 			return 1;
 		else if (object2 == null)
 			return -1;
-
+		
 		T solution1 = (T) object1;
 		T solution2 = (T) object2;
-
-		int dominate1 = 0; // dominate1 indicates if some objective of solution1
-						// dominates the same objective in solution2. dominate2
-		int dominate2 = 0; // is the complementary of dominate1.
-		int flag;
+		
+		boolean dominate1 = false; // dominate1 indicates if some objective of solution1
+								   // dominates the same objective in solution2. dominate2
+		boolean dominate2 = false; // is the complementary of dominate1.
 
 		double value1, value2;
 		for (FitnessFunction<T> entry : objectives) {
-			value1 = solution1.getFitness(entry); 
+			value1 = solution1.getFitness(entry);
 			value2 = solution2.getFitness(entry); 
 			if (value1 < value2)
-                flag = -1;
+                dominate1 = true;
             else if (value1 > value2)
-                flag = 1;
-            else
-                flag = 0;
-
-            if (flag == -1)
-                dominate1 = 1;
-            if (flag == 1)
-                dominate2 = 1;
+                dominate2 = true;
+            
+            if (dominate1 && dominate2)
+            	break;
         }
 
         if (dominate1 == dominate2)
-            return 0; // no one dominate the other
-        if (dominate1 == 1)
-            return -1; // chromosome1 dominate
+            return 0; // no one dominates the other
+        if (dominate1)
+            return -1; // chromosome1 dominates
 
-        return 1; // chromosome2 dominate
+        return 1; // chromosome2 dominates
 	} // compare
-	
-} // PreferenceCriterion
+} // Dominance Comparator 
 
