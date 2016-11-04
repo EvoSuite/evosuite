@@ -330,6 +330,16 @@ public class Properties {
 		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA
 	}
 
+	// MOSA PROPERTIES
+	public enum RankingType {
+		// Preference sorting is the ranking strategy proposed in
+		PREFERENCE_SORTING, 
+		FAST_NON_DOMINATED_SORTING
+	}
+
+	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
+	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
+
 	/** Constant <code>ALGORITHM</code> */
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;

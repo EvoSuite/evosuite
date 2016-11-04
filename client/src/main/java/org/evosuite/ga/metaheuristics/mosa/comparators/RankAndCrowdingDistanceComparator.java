@@ -1,23 +1,4 @@
-/**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
- * contributors
- *
- * This file is part of EvoSuite.
- *
- * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3.0 of the License, or
- * (at your option) any later version.
- *
- * EvoSuite is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-package org.evosuite.ga.metaheuristics.mosa;
+package org.evosuite.ga.metaheuristics.mosa.comparators;
 
 import java.util.Comparator;
 
@@ -37,7 +18,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements 
 	 * @param comparator
 	 */
 	public RankAndCrowdingDistanceComparator() {
-		
+
 	}
 
 	/**
@@ -49,6 +30,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements 
 	 *            Object representing the second <code>Solution</code>.
 	 * @return -1, or 0, or 1 according to the non-dominated ranks
 	 */
+	@SuppressWarnings("unchecked")
 	public int compare(Object object1, Object object2) {
 		if (object1 == null)
 			return 1;
@@ -66,8 +48,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements 
 			return -1;
 		else if (solution2.getDistance()>solution1.getDistance())
 			return +1;
-		else
-			return 0;
+		return 0;
 	} // compare
 } // DominanceComparator
 
