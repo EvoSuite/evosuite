@@ -21,6 +21,7 @@ package org.evosuite.runtime;
 
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.InjectionList;
+import org.evosuite.runtime.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,7 @@ public class PrivateAccess {
 
         if(tagsToCheck != null){
             boolean match = false;
-            for(Annotation ann : field.getDeclaredAnnotations()){
+            for(Annotation ann : ReflectionUtils.getDeclaredAnnotations(field)){
                 Class<? extends Annotation> tag = ann.annotationType();
                 if(InjectionList.isValidForInjection(tag, tagsToCheck)){
                     match = true;

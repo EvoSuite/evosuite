@@ -36,6 +36,7 @@ import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.StaticReplacementMethod;
 import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
+import org.evosuite.runtime.util.ReflectionUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -420,7 +421,7 @@ public class MethodCallReplacementCache {
 					+ mockClass + " is not an instance of " + target);
 		}
 
-		for (Constructor<?> constructor : mockClass.getDeclaredConstructors()) {
+		for (Constructor<?> constructor : ReflectionUtils.getDeclaredConstructors(mockClass)) {
 			String desc = Type.getConstructorDescriptor(constructor);
 			addSpecialReplacementCall(new MethodCallReplacement(target.getCanonicalName().replace('.', '/'), "<init>",
 					desc, Opcodes.INVOKESPECIAL, mockClass.getCanonicalName().replace('.', '/'), "<init>", desc, false,

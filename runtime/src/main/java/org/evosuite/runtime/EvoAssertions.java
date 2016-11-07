@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime;
 
+import org.evosuite.runtime.util.ReflectionUtils;
 import org.junit.internal.AssumptionViolatedException;
 
 import java.lang.annotation.Annotation;
@@ -87,7 +88,7 @@ public class EvoAssertions {
             throw new AssertionError("Cannot load/analyze class "+sourceClass);
         }
 
-        for(Annotation annotation : klass.getAnnotations()){
+        for(Annotation annotation : ReflectionUtils.getAnnotations(klass)){
             if(annotation.getClass().getName().equals(name)){
                 return;
             }

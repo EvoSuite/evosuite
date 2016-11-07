@@ -22,6 +22,7 @@ package org.evosuite.runtime.javaee.injection;
 import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.runtime.util.ReflectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -79,12 +80,10 @@ public class InjectionCache {
             return null;
         }
 
-        try {
-            return klass.getDeclaredField(cache.get(klass.getName()));
-        } catch (NoSuchFieldException e) {
-            //should never happen
-            return null;
-        }
+        // it should never return null
+        Field field = ReflectionUtils.getDeclaredField(klass, cache.get(klass.getName()));
+        assert field != null;
+        return field;
     }
 
     public  boolean hasField( Class<?> klass) throws IllegalArgumentException{
@@ -94,11 +93,11 @@ public class InjectionCache {
         String className = klass.getName();
         if(! cache.containsKey(className)){
             String fieldName = null;
-            outer : for(Field field : klass.getDeclaredFields()){
+            outer : for(Field field : ReflectionUtils.getDeclaredFields(klass)){
                 if(! fieldClass.isAssignableFrom(field.getType()) ){
                     continue;
                 }
-                for(Annotation annotation : field.getDeclaredAnnotations()){
+                for(Annotation annotation : ReflectionUtils.getDeclaredAnnotations(field)){
                     for(Class<? extends Annotation> valid : annotations){
                         if(valid.isAssignableFrom(annotation.getClass())){
                             fieldName = field.getName();

@@ -28,6 +28,7 @@ import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.javaee.javax.enterprise.event.EvoEvent;
 import org.evosuite.runtime.javaee.javax.transaction.EvoUserTransaction;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.runtime.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,8 +294,8 @@ public class Injector {
         String className = clazz.getName();
         if(! postConstructCache.containsKey(className)){
             Method pc = null;
-            outer : for(Method m : clazz.getDeclaredMethods()){
-                for(Annotation annotation : m.getDeclaredAnnotations()){
+            outer : for(Method m : ReflectionUtils.getDeclaredMethods(clazz)){
+                for(Annotation annotation : ReflectionUtils.getDeclaredAnnotations(m)){
                     if(annotation instanceof PostConstruct){
                         pc = m;
                         pc.setAccessible(true);

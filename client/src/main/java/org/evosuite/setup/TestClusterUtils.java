@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.util.ReflectionUtils;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.Type;
@@ -186,12 +187,8 @@ public class TestClusterUtils {
 		Map<String, Constructor<?>> helper = new TreeMap<>();
 
 		Set<Constructor<?>> constructors = new LinkedHashSet<>();
-		try {
-			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
-			}
-		} catch (Throwable t) {
-			logger.info("Error while analyzing class " + clazz + ": " + t);
+		for (Constructor<?> c : ReflectionUtils.getDeclaredConstructors(clazz)) {
+			helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
 		}
 		for (Constructor<?> c : helper.values()) {
 			constructors.add(c);
@@ -216,19 +213,14 @@ public class TestClusterUtils {
 			}
 
 		}
-		for (Class<?> in : clazz.getInterfaces()) {
+		for (Class<?> in : ReflectionUtils.getInterfaces(clazz)) {
 			for (Field f : getFields(in)) {
 				helper.put(f.toGenericString(), f);
 			}
 		}
 
-		try {
-			for (Field f : clazz.getDeclaredFields()) {
-				helper.put(f.toGenericString(), f);
-			}
-		} catch (NoClassDefFoundError e) {
-			// TODO: What shall we do?
-			logger.info("Error while trying to load fields of class " + clazz.getName()+ ": " + e);
+		for (Field f : ReflectionUtils.getDeclaredFields(clazz)) {
+			helper.put(f.toGenericString(), f);
 		}
 		fields.addAll(helper.values());
 
@@ -236,7 +228,7 @@ public class TestClusterUtils {
 	}
 
 	public static boolean hasStaticGenerator(Class<?> clazz) {
-		for(Method m : clazz.getMethods()) {
+		for(Method m : ReflectionUtils.getMethods(clazz)) {
 			if(Modifier.isStatic(m.getModifiers())) {
 				if(clazz.isAssignableFrom(m.getReturnType())) {
 					return true;
@@ -258,15 +250,10 @@ public class TestClusterUtils {
 		}
 
 		Set<Field> fields = new LinkedHashSet<>();
-		try {
-			for (Field f : clazz.getFields()) {
-				if (TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers())) {
-					fields.add(f);
-				}
+		for (Field f : ReflectionUtils.getFields(clazz)) {
+			if (TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers())) {
+				fields.add(f);
 			}
-		} catch (Throwable t) {
-			logger.info("Error while accessing fields of class " + clazz.getName()
-			        + " - check allowed permissions: " + t);
 		}
 
 		accessibleFieldCache.put(clazz, fields);
@@ -294,20 +281,14 @@ public class TestClusterUtils {
 				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 		}
-		for (Class<?> in : clazz.getInterfaces()) {
+		for (Class<?> in : ReflectionUtils.getInterfaces(clazz)) {
 			for (Method m : getMethods(in)) {
 				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 		}
 
-		try {
-			for (Method m : clazz.getDeclaredMethods()) {
-				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
-			}
-		} catch (NoClassDefFoundError e) {
-			// TODO: What shall we do?
-			logger.info("Error while trying to load methods of class " + clazz.getName()
-			        + ": " + e);
+		for (Method m : ReflectionUtils.getDeclaredMethods(clazz)) {
+			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 		}
 
 		Set<Method> methods = new LinkedHashSet<>();
@@ -317,7 +298,7 @@ public class TestClusterUtils {
 	}
 
 	public static Method getMethod(Class<?> clazz, String methodName, String desc) {
-		for (Method method : clazz.getMethods()) {
+		for (Method method : ReflectionUtils.getMethods(clazz)) {
 			if (method.getName().equals(methodName)
 					&& Type.getMethodDescriptor(method).equals(desc))
 				return method;
