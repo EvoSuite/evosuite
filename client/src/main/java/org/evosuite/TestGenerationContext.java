@@ -154,6 +154,7 @@ public class TestGenerationContext {
 			DBManager.getInstance().setSutClassLoader(classLoader);
 		}
 
+		TestCaseExecutor.getInstance().newObservers();
 		TestCaseExecutor.pullDown();
 
 		ExecutionTracer.getExecutionTracer().clear();
