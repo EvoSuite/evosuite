@@ -84,8 +84,10 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 
 		// lines of 'ClassWithInnerClass': 22, 25, 26, 27, 29
-		// lines of 'ClassWithInnerClass$AnInnerClass': 31, 33, 34, 36 
-		Assert.assertEquals(9, goals);
+		// lines of 'ClassWithInnerClass$AnInnerClass': 31, 33, 34, 36
+		//
+		// The number of lines actually differs dependent on the JVM platform...
+		Assert.assertTrue ( 9 <= goals && goals <= 10);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -141,7 +143,9 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		// lines of 'ClassWithPrivateInnerClass': 22, 24, 25, 26, 28
 		// lines of 'ClassWithPrivateInnerClass$AnInnerClass': 30, 32, 33, 35
-		Assert.assertEquals(9, goals);
+		//
+		// The number of lines actually differs dependent on the JVM platform...
+		Assert.assertTrue ( 9 <= goals && goals <= 10);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -200,7 +204,9 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		// lines of 'ClassWithPrivateNonStaticInnerClass': 22, 25, 26, 27, 29
 		// lines of 'ClassWithPrivateNonStaticInnerClass$AnInnerClass': 31, 33, 34, 36
-		Assert.assertEquals(9, goals);
+		//
+		// The number of lines actually differs dependent on the JVM platform...
+		Assert.assertTrue ( 9 <= goals && goals <= 10);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }
