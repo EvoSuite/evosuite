@@ -46,6 +46,7 @@ import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.operators.selection.TournamentSelection;
 import org.evosuite.ga.metaheuristics.RandomSearch;
+import org.evosuite.ga.metaheuristics.SPEA2;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
@@ -126,6 +127,9 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
             return new NSGAII<TestChromosome>(factory);
+        case SPEA2:
+            logger.info("Chosen search algorithm: SPEA2");
+            return new SPEA2<TestChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA<TestChromosome>(factory);

@@ -728,7 +728,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			return bestIndividuals;
 		}
 
-		if (Properties.ALGORITHM == Algorithm.NSGAII)
+		if (Properties.ALGORITHM == Algorithm.NSGAII ||
+		    Properties.ALGORITHM == Algorithm.SPEA2)
 			return population;
 
 		// Assume population is sorted

@@ -86,6 +86,7 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 		switch(Properties.ALGORITHM) {
 		case MONOTONICGA:
 		case NSGAII:
+		case SPEA2:
 		case ONEPLUSONEEA:
 		case RANDOM:
 		case STANDARDGA:

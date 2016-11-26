@@ -37,6 +37,7 @@ import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.RandomSearch;
+import org.evosuite.ga.metaheuristics.SPEA2;
 import org.evosuite.ga.metaheuristics.SteadyStateGA;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
@@ -181,6 +182,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case NSGAII:
             logger.info("Chosen search algorithm: NSGAII");
             return new NSGAII<TestSuiteChromosome>(factory);
+        case SPEA2:
+            logger.info("Chosen search algorithm: SPEA2");
+            return new SPEA2<TestSuiteChromosome>(factory);
         case MOSA:
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);
