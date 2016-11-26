@@ -31,6 +31,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.junit.Assert;
@@ -63,8 +64,18 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         testPrivateConstructor();
     }
 
+    @Test
+    public void testPrivateConstructorWithAndWithoutMinimize() {
+        Properties.MINIMIZE = true;
+        testPrivateConstructor();
+        Properties.MINIMIZE = false;
+        TestSuiteChromosome best = testPrivateConstructor();
+        double cov = best.getCoverageInstanceOf(LineCoverageSuiteFitness.class);
 
-    private void testPrivateConstructor(){
+        Assert.assertEquals("Non-optimal coverage: ", 1d, cov, 0.001);
+    }
+
+    private TestSuiteChromosome testPrivateConstructor(){
 
         Properties.P_REFLECTION_ON_PRIVATE = 0.9;
         Properties.REFLECTION_START_PERCENT = 0.0;
@@ -77,7 +88,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         assertTrue(! best.getTests().isEmpty());
 
         double cov = best.getCoverageInstanceOf(MethodCoverageSuiteFitness.class);
-        Assert.assertEquals("Non-optimal coverage: ", 1d, cov, 0.001);
+        Assert.assertEquals("Non-optimal method coverage: ", 1d, cov, 0.001);
 
         Optional<FitnessFunction<?>> ff = ga.getFitnessFunctions().stream()
                 .filter(m -> m instanceof MethodCoverageSuiteFitness)
@@ -87,14 +98,15 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         assertEquals(1, best.getNumOfCoveredGoals(ff.get()));
 
         cov = best.getCoverageInstanceOf(MethodTraceCoverageSuiteFitness.class);
-        Assert.assertEquals("Non-optimal coverage: ", 1d, cov, 0.001);
+        Assert.assertEquals("Non-optimal method trace coverage: ", 1d, cov, 0.001);
         ff = ga.getFitnessFunctions().stream()
                 .filter(m -> m instanceof MethodTraceCoverageSuiteFitness)
                 .findAny();
 
 
-        assertEquals(2, best.getNumOfCoveredGoals(ff.get()));
+        assertEquals(1, best.getNumOfCoveredGoals(ff.get()));
 
+        return best;
     }
 
     protected GeneticAlgorithm<?>  do100percentLineTestOnStandardCriteriaWithMethodTrace(Class<?> target){
@@ -104,9 +116,8 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
 
         Properties.TARGET_CLASS = targetClass;
         List<Properties.Criterion> criteria = new ArrayList<>(Arrays.asList(standardCriteria));
-        criteria.add(Properties.Criterion.METHODTRACE); // Include method trace so we can check for method invocations
+        criteria.add(Properties.Criterion.METHODTRACE);
         Properties.CRITERION = criteria.toArray(Properties.CRITERION);
-
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
