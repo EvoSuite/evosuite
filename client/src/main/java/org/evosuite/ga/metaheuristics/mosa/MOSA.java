@@ -184,7 +184,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		if (archive.containsKey(covered)){
 			int bestSize = this.archive.get(covered).size();
 			int size = solution.size();
-			if (bestSize < size)
+			if (size < bestSize)
 				this.archive.put(covered, solution);
 		} else {
 			archive.put(covered, solution);
