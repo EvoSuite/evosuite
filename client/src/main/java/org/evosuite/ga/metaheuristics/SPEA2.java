@@ -73,16 +73,6 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
   @Override
   protected void evolve() {
     /*
-     * Selection
-     */
-
-    List<T> union = new ArrayList<T>(2 * Properties.POPULATION);
-    union.addAll(this.population);
-    union.addAll(this.archive);
-    this.computeStrength(union);
-    this.archive = this.environmentalSelection(union);
-
-    /*
      * Reproduction
      */
 
@@ -143,8 +133,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     // Generate an initial population P0
     this.generateInitialPopulation(Properties.POPULATION);
-    // and create the empty archive
-    // TODO is the archive's size same as the regular population?
+    // and create an empty archive of the same size
     this.archive = new ArrayList<T>(Properties.POPULATION);
 
     for (T element : this.population) {
@@ -153,6 +142,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
         notifyEvaluation(element);
       }
     }
+    this.updateArchive();
 
     this.notifyIteration();
   }
@@ -166,14 +156,22 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
     while (!isFinished()) {
       this.evolve();
       this.notifyIteration();
+      this.updateArchive();
     }
 
     // replace population object with archive, so that when 'getBestIndividuals()'
     // function is called, the correct list of solutions is returned
-    this.population.clear();
-    this.population.addAll(this.archive);
+    this.population = this.archive;
 
     this.notifySearchFinished();
+  }
+
+  private void updateArchive() {
+    List<T> union = new ArrayList<T>(2 * Properties.POPULATION);
+    union.addAll(population);
+    union.addAll(this.archive);
+    this.computeStrength(union);
+    this.archive = this.environmentalSelection(union);
   }
 
   /**

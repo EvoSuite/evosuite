@@ -37,7 +37,6 @@ import org.evosuite.ga.problems.metrics.Metrics;
 import org.evosuite.ga.problems.metrics.Spacing;
 import org.evosuite.ga.problems.multiobjective.ZDT4;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -334,13 +333,11 @@ public class SPEA2Test {
     GenerationalDistance gd = new GenerationalDistance();
     double gdd = gd.evaluate(front, trueParetoFront);
     System.out.println("GenerationalDistance: " + gdd);
-    Assert.assertEquals(0.00, gdd, 0.01);
+    assertEquals(0.00, gdd, 0.01);
 
     Spacing sp = new Spacing();
     double spd = sp.evaluate(front);
-    double spdt = sp.evaluate(trueParetoFront);
-    System.out.println(
-        "SpacingFront (" + spd + ") - SpacingTrueFront (" + spdt + ") = " + Math.abs(spd - spdt));
-    Assert.assertEquals(0.23, Math.abs(spd - spdt), 0.01);
+    System.out.println("SpacingFront: " + spd);
+    assertEquals(0.71, spd, 0.01);
   }
 }
