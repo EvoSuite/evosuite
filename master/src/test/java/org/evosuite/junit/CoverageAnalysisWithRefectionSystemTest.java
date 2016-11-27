@@ -165,8 +165,10 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         reader.close();
 
         // The number of lines seems to be different depending on the compiler
-        assertTrue("Expected 32 or 33 lines, but found: "+CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()), CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("32") ||
-        		CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("33"));
+        assertTrue("Expected 32-34lines, but found: "+CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()),
+                CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("32") ||
+                        CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("33") ||
+            		CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("34"));
 
         // Assert that all test cases have passed
 
@@ -180,7 +182,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         assertEquals(1, lines.size());
 
         // The number of lines seems to be different depending on the compiler
-        assertTrue("Expected lines to be 32 or 33, but got: "+(lines.get(0).replace(" ", "").length()), 33 - lines.get(0).replace(" ", "").length() <= 1); // number of goals + test result ('+' pass, '-' fail)
+        assertTrue("Expected lines to be 32-34, but got: "+(lines.get(0).replace(" ", "").length()), 34 - lines.get(0).replace(" ", "").length() <= 2); // number of goals + test result ('+' pass, '-' fail)
         assertTrue("Expected line to end with +, but line is: "+lines.get(0).replace(" ", ""), lines.get(0).replace(" ", "").endsWith("+"));
 	}
 
