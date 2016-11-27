@@ -81,6 +81,9 @@ public class SPEA2SystemTest extends SystemTestBase {
       front[i][1] = c.getFitness(rho);
     }
 
-    assertEquals(2.32, new Spacing().evaluate(front), 0.01);
+    Spacing sp = new Spacing();
+    double[] max = sp.getMaximumValues(front);
+    double[] min = sp.getMinimumValues(front);
+    assertEquals(0.33, sp.evaluate(sp.getNormalizedFront(front, max, min)), 0.01);
   }
 }
