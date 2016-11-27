@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.evosuite.Properties;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -179,9 +180,11 @@ public class ConstantInliner extends ExecutionObserver {
 				} else if (var.isString() && object != null) {
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
 					try {
-						String val = StringEscapeUtils.unescapeJava(object.toString());
-						value.setValue(val);
-						statement.replace(var, value);
+						String val = StringEscapeUtils.unescapeJava(new String(object.toString()));
+						if(val.length() < Properties.MAX_STRING) {
+							value.setValue(val);
+							statement.replace(var, value);
+						}
 					} catch (IllegalArgumentException e) {
 						// Exceptions may happen if strings are not valid
 						// unicode
