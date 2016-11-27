@@ -577,6 +577,11 @@ public class Properties {
 	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
 	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
 
+	/** Constant <code>WRITE_INDIVIDUALS=false</code> */
+	@Parameter(key = "write_individuals", group = "Search Algorithm",
+	    description = "Write to a file all fitness values of each individual on each iteration of a GA")
+	public static boolean WRITE_INDIVIDUALS = false;
+
 	/** Constant <code>SEARCH_BUDGET=60</code> */
 	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)

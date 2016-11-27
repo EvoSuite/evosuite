@@ -19,6 +19,11 @@
  */
 package org.evosuite.ga.metaheuristics;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -736,6 +741,73 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		bestIndividuals.add(population.get(0));
 		return bestIndividuals;
 	}
+
+    /**
+     * Write to a file all fitness values of each individuals.
+     *
+     * @param solutions a list of {@link org.evosuite.ga.Chromosome} object(s).
+     */
+    public void writeIndividuals(List<T> individuals) {
+      if (!Properties.WRITE_INDIVIDUALS) {
+        return;
+      }
+
+      File dir = new File(Properties.REPORT_DIR);
+      if (!dir.exists()) {
+        if (!dir.mkdirs()) {
+          throw new RuntimeException("Cannot create report dir: " + Properties.REPORT_DIR);
+        }
+      }
+
+      try {
+        File populationFile = new File(
+            Properties.REPORT_DIR + File.separator + "pareto_" + this.currentIteration + ".csv");
+        populationFile.createNewFile();
+
+        FileWriter fw = new FileWriter(populationFile.getAbsoluteFile());
+        BufferedWriter bw = new BufferedWriter(fw);
+        PrintWriter out = new PrintWriter(bw);
+
+        // header
+        List<String> l_string = new ArrayList<String>();
+
+        if (Properties.ALGORITHM == Algorithm.NSGAII) {
+          l_string.add("rank");
+        } else if (Properties.ALGORITHM == Algorithm.SPEA2) {
+          l_string.add("strength");
+        }
+
+        for (int i = 0; i < this.fitnessFunctions.size(); i++) {
+          l_string.add(this.fitnessFunctions.get(i).getClass().getSimpleName());
+        }
+        out.println(String.join(",", l_string));
+
+        // content
+        for (int j = 0; j < individuals.size(); j++) {
+          l_string.clear();
+
+          T individual = individuals.get(j);
+          if (Properties.ALGORITHM == Algorithm.NSGAII) {
+            l_string.add(Integer.toString(individual.getRank()));
+          } else if (Properties.ALGORITHM == Algorithm.SPEA2) {
+            l_string.add(Double.toString(individual.getDistance()));
+          }
+
+          for (int i = 0; i < this.fitnessFunctions.size(); i++) {
+            l_string.add(Double.toString(individual.getFitness(this.fitnessFunctions.get(i))));
+          }
+
+          out.println(String.join(",", l_string));
+        }
+
+        out.close();
+        bw.close();
+        fw.close();
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
 
 	/**
 	 * Set a new factory method

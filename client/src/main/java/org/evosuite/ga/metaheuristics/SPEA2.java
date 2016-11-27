@@ -124,6 +124,8 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     this.population.clear();
     this.population.addAll(offspringPopulation);
+
+    this.currentIteration++;
   }
 
   @Override
@@ -143,6 +145,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
       }
     }
     this.updateArchive();
+    this.writeIndividuals(this.archive);
 
     this.notifyIteration();
   }
@@ -155,8 +158,9 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     while (!isFinished()) {
       this.evolve();
-      this.notifyIteration();
       this.updateArchive();
+      this.notifyIteration();
+      this.writeIndividuals(this.archive);
     }
 
     // replace population object with archive, so that when 'getBestIndividuals()'
