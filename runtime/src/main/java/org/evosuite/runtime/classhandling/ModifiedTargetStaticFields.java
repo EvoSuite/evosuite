@@ -66,7 +66,7 @@ public class ModifiedTargetStaticFields {
 	 * @return
 	 */
 	public boolean containsField(String name) {
-		logger.debug("Checkinf if a static field was modified or not:" + name);
+		logger.debug("Checking if a static field was modified or not:" + name);
 		return finalFields.contains(name);
 	}
 

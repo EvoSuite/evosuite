@@ -975,7 +975,8 @@ public class TestClusterGenerator {
 						GenericField genericField = new GenericField(field, clazz);
 						cluster.addGenerator(new GenericClass(field.getGenericType()), // .getWithWildcardTypes(),
 								genericField);
-						if (!Modifier.isFinal(field.getModifiers())) {
+						final boolean isFinalField = isFinalField(field);
+						if (!isFinalField) {
 							cluster.addModifier(clazz, // .getWithWildcardTypes(),
 									genericField);
 							addDependencies(genericField, recursionLevel + 1);
