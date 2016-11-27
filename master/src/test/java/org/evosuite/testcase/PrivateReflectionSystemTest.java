@@ -69,6 +69,7 @@ public class PrivateReflectionSystemTest extends SystemTestBase {
         Properties.MINIMIZE = true;
         testPrivateConstructor();
         Properties.MINIMIZE = false;
+        TestCaseExecutor.getInstance().newObservers();
         TestSuiteChromosome best = testPrivateConstructor();
         double cov = best.getCoverageInstanceOf(LineCoverageSuiteFitness.class);
 

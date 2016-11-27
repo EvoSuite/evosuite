@@ -46,10 +46,6 @@ public class PrivateMethodStatement extends MethodStatement {
 
 	private static final long serialVersionUID = -4555899888145880432L;
 
-    private String className;
-
-    private String methodName;
-
     private GenericMethod reflectedMethod;
 
     private boolean isStaticMethod = false;
@@ -66,8 +62,6 @@ public class PrivateMethodStatement extends MethodStatement {
         List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
         this.method.setTypeParameters(parameterTypes);
-        this.methodName = methodName;
-        this.className = klass.getCanonicalName();
     }
 
     private static List<VariableReference> getReflectionParams(TestCase tc, Class<?> klass , Method method,

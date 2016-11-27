@@ -38,6 +38,7 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
@@ -90,7 +91,7 @@ public class SystemTestBase {
 	public void resetStaticVariables() {
 		RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(false);
 		RuntimeSettings.applyUIDTransformation = false;
-
+		TestCaseExecutor.getInstance().newObservers();
 		TestGenerationContext.getInstance().resetContext();
 		ClassReInitializer.resetSingleton();
 		System.setProperties(currentProperties);
