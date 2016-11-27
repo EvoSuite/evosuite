@@ -126,7 +126,7 @@ public class EnvironmentDataSystemTest extends SystemTestBase {
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
 		System.out.println("Test suite: "+suite);
-		assertEquals(0.0, fitness.getFitness(suite), 0.1F);
+		assertEquals("Local search failed to cover class", 0.0, fitness.getFitness(suite), 0.1F);
 		BranchCoverageMap.getInstance().searchFinished(null);
 	}
 
