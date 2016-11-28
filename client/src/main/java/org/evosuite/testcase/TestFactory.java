@@ -45,6 +45,7 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.jee.InjectionSupport;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
@@ -826,7 +827,6 @@ public class TestFactory {
 		//needed a copy because hasGenerator(c) does modify that set...
 		List<GenericClass> classes = castClasses.stream()
 				.filter(c -> TestCluster.getInstance().hasGenerator(c) || c.isString())
-				.sorted()
 				.collect(Collectors.toList());
 		classes.add(new GenericClass(Object.class));
 
@@ -1692,9 +1692,14 @@ public class TestFactory {
 			if(test.getStatement(r.getStPosition()) instanceof FunctionalMockStatement){
 				// we should ensure that a FM should never be a callee
 				replacement.remove();
-			} else if (var.equals(r.getAdditionalVariableReference()))
+			} else if (var.equals(r.getAdditionalVariableReference())) {
 				replacement.remove();
-			else if (r instanceof ArrayReference) {
+			} else if(var.isFieldReference()) {
+				FieldReference fref = (FieldReference)var;
+				if(fref.getField().isFinal()) {
+					replacement.remove();
+				}
+			} else if (r instanceof ArrayReference) {
 				if (maxIndex >= ((ArrayReference) r).getArrayLength())
 					replacement.remove();
 			} else if (!replacingPrimitive) {

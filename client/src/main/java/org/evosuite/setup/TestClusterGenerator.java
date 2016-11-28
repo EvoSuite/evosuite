@@ -692,7 +692,7 @@ public class TestClusterGenerator {
 	 * @param the field to check
 	 * @return 
 	 */
-	private static boolean isFinalField(Field field) {
+	public static boolean isFinalField(Field field) {
 		if (Properties.RESET_STATIC_FINAL_FIELDS) {
 			if (Modifier.isFinal(field.getModifiers())) {
 				return true;
