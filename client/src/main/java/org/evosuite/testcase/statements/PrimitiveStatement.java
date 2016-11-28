@@ -33,7 +33,6 @@ import org.evosuite.testcase.statements.numeric.*;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.Randomness;
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -256,7 +255,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      */
     @Override
     public Set<VariableReference> getVariableReferences() {
-        Set<VariableReference> references = new HashSet<VariableReference>();
+        Set<VariableReference> references = new LinkedHashSet<>();
         references.add(retval);
         return references;
     }

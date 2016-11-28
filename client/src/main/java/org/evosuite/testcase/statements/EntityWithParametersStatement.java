@@ -109,8 +109,10 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
     @Override
     public void replace(VariableReference var1, VariableReference var2) {
 
-        if (retval.equals(var1))
+        if (retval.equals(var1)) {
             retval = var2;
+            // TODO: Notify listener?
+        }
 
         for (int i = 0; i < parameters.size(); i++) {
 

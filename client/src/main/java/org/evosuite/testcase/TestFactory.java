@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -82,7 +81,7 @@ public class TestFactory {
 	/**
 	 * Keep track of objects we are already trying to generate to avoid cycles
 	 */
-	private transient Set<GenericAccessibleObject<?>> currentRecursion = new HashSet<GenericAccessibleObject<?>>();
+	private transient Set<GenericAccessibleObject<?>> currentRecursion = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	/** Singleton instance */
 	private static TestFactory instance = null;
@@ -827,6 +826,7 @@ public class TestFactory {
 		//needed a copy because hasGenerator(c) does modify that set...
 		List<GenericClass> classes = castClasses.stream()
 				.filter(c -> TestCluster.getInstance().hasGenerator(c) || c.isString())
+				.sorted()
 				.collect(Collectors.toList());
 		classes.add(new GenericClass(Object.class));
 
@@ -1085,7 +1085,7 @@ public class TestFactory {
 
 		objects.remove(statement.getReturnValue());
 		logger.debug("Found assignable objects: " + objects.size());
-		Set<GenericAccessibleObject<?>> currentArrayRecursion = new HashSet<>(currentRecursion);
+		Set<GenericAccessibleObject<?>> currentArrayRecursion = new LinkedHashSet<>(currentRecursion);
 
 		for (int i = 0; i < statement.size(); i++) {
 			currentRecursion.clear();

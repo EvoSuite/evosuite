@@ -19,7 +19,7 @@
  */
 package org.evosuite.setup;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +136,7 @@ public class PutStaticMethodCollector {
 	@SuppressWarnings("unchecked")
 	public Set<MethodIdentifier> collectMethods() {
 
-		Set<MethodIdentifier> methods = new HashSet<MethodIdentifier>();
+		Set<MethodIdentifier> methods = new LinkedHashSet<MethodIdentifier>();
 
 		for (String calledClassName : getStaticFields.keySet()) {
 			ClassNode classNode = DependencyAnalysis

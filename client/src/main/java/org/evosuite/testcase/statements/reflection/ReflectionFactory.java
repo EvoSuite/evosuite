@@ -54,7 +54,7 @@ public class ReflectionFactory {
         fields = new ArrayList<>();
         methods = new ArrayList<>();
 
-        for(Method m : target.getDeclaredMethods()){
+        for(Method m : Reflection.getDeclaredMethods(target)){
             if(Modifier.isPrivate(m.getModifiers()) && !m.isBridge() && !m.isSynthetic()){
                 //only interested in private methods, as the others can be called directly
                 methods.add(m);
@@ -67,7 +67,7 @@ public class ReflectionFactory {
             toSkip = Injector.getAllFieldsToInject(target);
         }
 
-        for(Field f : target.getDeclaredFields()){
+        for(Field f : Reflection.getDeclaredFields(target)){
             if(Modifier.isPrivate(f.getModifiers())
                     && !f.isSynthetic()
                     && (toSkip==null || ! toSkip.contains(f))

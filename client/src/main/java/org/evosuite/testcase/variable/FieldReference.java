@@ -317,6 +317,12 @@ public class FieldReference extends VariableReferenceImpl {
 			return field.getOwnerClass().getSimpleName() + "." + field.getName();
 	}
 
+	@Override
+	public String toString() {
+		return "FieldReference: "+getName()+", Statement " + getStPosition() + ", type "
+				+ type.getTypeName();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 

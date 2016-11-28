@@ -87,6 +87,9 @@ public class VariableReferenceImpl implements VariableReference {
 	 * 
 	 * The position of the statement, defining this VariableReference, in the
 	 * testcase.
+	 *
+	 * TODO: Notify change listener also when return value changes
+	 *
 	 */
 	@Override
 	public synchronized int getStPosition() {

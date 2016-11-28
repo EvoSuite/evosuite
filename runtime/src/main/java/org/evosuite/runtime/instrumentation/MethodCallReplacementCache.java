@@ -355,7 +355,7 @@ public class MethodCallReplacementCache {
 		 * replace "fooInstance.bar(x)" with "MockFooClass.bar(fooInstance,x)"
 		 */
 
-		for (Method m : target.getMethods()) {
+		for (Method m : ReflectionUtils.getMethods(target)) {
 			if (Modifier.isStatic(m.getModifiers())) {
 				continue;
 			}

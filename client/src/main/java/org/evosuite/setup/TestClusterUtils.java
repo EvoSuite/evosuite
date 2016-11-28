@@ -22,6 +22,7 @@ package org.evosuite.setup;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.runtime.Reflection;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.ReflectionUtils;
 import org.junit.Test;
@@ -187,7 +188,7 @@ public class TestClusterUtils {
 		Map<String, Constructor<?>> helper = new TreeMap<>();
 
 		Set<Constructor<?>> constructors = new LinkedHashSet<>();
-		for (Constructor<?> c : ReflectionUtils.getDeclaredConstructors(clazz)) {
+		for (Constructor<?> c : Reflection.getDeclaredConstructors(clazz)) {
 			helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
 		}
 		for (Constructor<?> c : helper.values()) {
@@ -213,13 +214,13 @@ public class TestClusterUtils {
 			}
 
 		}
-		for (Class<?> in : ReflectionUtils.getInterfaces(clazz)) {
+		for (Class<?> in : Reflection.getInterfaces(clazz)) {
 			for (Field f : getFields(in)) {
 				helper.put(f.toGenericString(), f);
 			}
 		}
 
-		for (Field f : ReflectionUtils.getDeclaredFields(clazz)) {
+		for (Field f : Reflection.getDeclaredFields(clazz)) {
 			helper.put(f.toGenericString(), f);
 		}
 		fields.addAll(helper.values());
@@ -250,7 +251,7 @@ public class TestClusterUtils {
 		}
 
 		Set<Field> fields = new LinkedHashSet<>();
-		for (Field f : ReflectionUtils.getFields(clazz)) {
+		for (Field f : Reflection.getFields(clazz)) {
 			if (TestUsageChecker.canUse(f) && !Modifier.isFinal(f.getModifiers())) {
 				fields.add(f);
 			}
@@ -281,13 +282,13 @@ public class TestClusterUtils {
 				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 		}
-		for (Class<?> in : ReflectionUtils.getInterfaces(clazz)) {
+		for (Class<?> in : Reflection.getInterfaces(clazz)) {
 			for (Method m : getMethods(in)) {
 				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 			}
 		}
 
-		for (Method m : ReflectionUtils.getDeclaredMethods(clazz)) {
+		for (Method m : Reflection.getDeclaredMethods(clazz)) {
 			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
 		}
 
@@ -298,7 +299,7 @@ public class TestClusterUtils {
 	}
 
 	public static Method getMethod(Class<?> clazz, String methodName, String desc) {
-		for (Method method : ReflectionUtils.getMethods(clazz)) {
+		for (Method method : Reflection.getMethods(clazz)) {
 			if (method.getName().equals(methodName)
 					&& Type.getMethodDescriptor(method).equals(desc))
 				return method;

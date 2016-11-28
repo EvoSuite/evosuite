@@ -29,7 +29,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -1011,7 +1010,7 @@ public class TestClusterGenerator {
 	// ----------------------
 
 	private static Set<Class<?>> loadClasses(Collection<String> classNames) {
-		Set<Class<?>> loadedClasses = new HashSet<>();
+		Set<Class<?>> loadedClasses = new LinkedHashSet<>();
 		for (String subClass : classNames) {
 			try {
 				Class<?> subClazz = Class.forName(subClass, false,

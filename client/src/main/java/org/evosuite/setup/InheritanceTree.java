@@ -23,8 +23,6 @@
 package org.evosuite.setup;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -51,8 +49,8 @@ public class InheritanceTree {
 
 	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
 
-	private  Set<String> interfacesSet = new HashSet<>();
-	private  Set<String> abstractClassesSet = new HashSet<>();
+	private  Set<String> interfacesSet = new LinkedHashSet<>();
+	private  Set<String> abstractClassesSet = new LinkedHashSet<>();
 
 	private Map<String, Set<String>> analyzedMethods;
 		
@@ -61,11 +59,11 @@ public class InheritanceTree {
 
 	private void initialiseMap(){
 		if (analyzedMethods == null)
-			analyzedMethods = new HashMap<>();
+			analyzedMethods = new LinkedHashMap<>();
 		if(interfacesSet==null)
-			interfacesSet = new HashSet<>();
+			interfacesSet = new LinkedHashSet<>();
 		if(abstractClassesSet ==null)
-			abstractClassesSet = new HashSet<>();
+			abstractClassesSet = new LinkedHashSet<>();
 	}
 	
 	public boolean isClassDefined(String className){
@@ -111,7 +109,7 @@ public class InheritanceTree {
 		classname = classname.replace(File.separator, ".");
 		Set<String> tmp = analyzedMethods.get(classname);
 		if(tmp==null)
-			analyzedMethods.put(classname, tmp = new HashSet<>());
+			analyzedMethods.put(classname, tmp = new LinkedHashSet<>());
 		tmp.add(methodname+descriptor);
 	}
 	
@@ -149,7 +147,7 @@ public class InheritanceTree {
 
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
             LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		Set<String> result = new LinkedHashSet<String>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
@@ -165,7 +163,7 @@ public class InheritanceTree {
 		String classNameWithDots = ResourceList.getClassNameFromResourcePath(className);
 		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
 			LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);

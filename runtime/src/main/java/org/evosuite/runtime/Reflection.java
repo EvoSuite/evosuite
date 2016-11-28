@@ -83,7 +83,11 @@ public class Reflection {
 	public static Annotation[] getDeclaredAnnotations(Class<?> clazz) throws SecurityException {
 		return sortArrayInPlace(ReflectionUtils.getDeclaredAnnotations(clazz));
 	}
-	
+
+	public static Annotation[] getDeclaredAnnotations(Field field) throws SecurityException {
+		return sortArrayInPlace(ReflectionUtils.getDeclaredAnnotations(field));
+	}
+
 	public static Class<?>[] getDeclaredClasses(Class<?> clazz) throws SecurityException {
 		return sortArrayInPlace(ReflectionUtils.getDeclaredClasses(clazz));
 	}

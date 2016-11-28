@@ -1098,7 +1098,8 @@ public class TestCluster {
 				 */
 				Set<GenericAccessibleObject<?>> set = candidates.stream()
 						.filter(p -> p.isStatic() || p.isConstructor())
-						.collect(Collectors.toSet());
+						.sorted()
+						.collect(Collectors.toCollection(() -> new LinkedHashSet<GenericAccessibleObject<?>>()));
 				if(! set.isEmpty()){
 					candidates = set;
 				}
