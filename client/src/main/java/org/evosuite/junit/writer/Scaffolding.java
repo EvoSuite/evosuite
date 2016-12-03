@@ -647,7 +647,7 @@ public class Scaffolding {
 		}
 
 		bd.append(METHOD_SPACE);
-		bd.append("public void setSystemProperties() {\n");
+		bd.append("public static void setSystemProperties() {\n");
 		bd.append(" \n");
 		if (TestSuiteWriterUtils.shouldResetProperties(results)) {
 			/*
@@ -749,7 +749,9 @@ public class Scaffolding {
 
 		if (Properties.RESET_STATIC_FIELDS) {
 			bd.append(BLOCK_SPACE);
-			bd.append(JDKClassResetter.class.getName() + ".init(); \n");
+			bd.append(JDKClassResetter.class.getName() + ".init();\n");
+			bd.append(BLOCK_SPACE);
+			bd.append("setSystemProperties();\n");
 			bd.append(BLOCK_SPACE);
 			bd.append(InitializingListener.INITIALIZE_CLASSES_METHOD + "();" + "\n");
 		}
