@@ -28,6 +28,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * This class is responsible for the bytecode instrumentation
  * needed for the generated JUnit test cases.
@@ -89,6 +91,17 @@ public class RuntimeInstrumentation {
 		return true;
 	}
 
+	public boolean isAlreadyInstrumented(ClassReader reader) {
+		ClassNode classNode = new ClassNode();
+
+		int readFlags = ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE;
+		reader.accept(classNode, readFlags);
+		for(String interfaceName : ((List<String>)classNode.interfaces)) {
+			if(InstrumentedClass.class.getName().equals(interfaceName.replace('/', '.')))
+				return true;
+		}
+		return false;
+	}
 
 	public byte[] transformBytes(ClassLoader classLoader, String className,
 			ClassReader reader, boolean skipInstrumentation) {
