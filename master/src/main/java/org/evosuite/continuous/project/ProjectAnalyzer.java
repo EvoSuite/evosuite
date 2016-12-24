@@ -172,7 +172,7 @@ public class ProjectAnalyzer {
 				}
 			} catch (ClassNotFoundException e) {
 				logger.error(""+e,e);
-			} catch(ExceptionInInitializerError | NoClassDefFoundError e){
+			} catch(ExceptionInInitializerError | NoClassDefFoundError | UnsatisfiedLinkError e){
                 /**
                  * TODO: for now we skip it, but at a certain point
                  * we should able to handle it, especially if it
