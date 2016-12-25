@@ -22,6 +22,7 @@
  */
 package org.evosuite.instrumentation.mutation;
 
+import java.io.FileDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -37,7 +38,6 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.TestClusterUtils;
-import org.evosuite.setup.TestUsageChecker;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -506,7 +506,9 @@ public class ReplaceVariable implements MutationOperator {
 			                               ReplaceVariable.class.getClassLoader());
 
 			for (Field field : TestClusterUtils.getFields(clazz)) {
-				if (!TestUsageChecker.canUse(field))
+				// We have to use a special version of canUse to avoid
+				// that we access the CUT before it is fully initialised
+				if (!canUse(field))
 					continue;
 
 				Type type = Type.getType(field.getType());
@@ -610,6 +612,53 @@ public class ReplaceVariable implements MutationOperator {
 		return list;
 	}
 
+	/**
+	 * This replicates TestUsageChecker.canUse but we need to avoid that
+	 * we try to access Properties.getTargetClassAndDontInitialise
+	 *
+	 * @param f
+	 * @return
+	 */
+	public static boolean canUse(Field f) {
+
+		if (f.getDeclaringClass().equals(java.lang.Object.class))
+			return false;// handled here to avoid printing reasons
+
+		if (f.getDeclaringClass().equals(java.lang.Thread.class))
+			return false;// handled here to avoid printing reasons
+
+		if (f.isSynthetic()) {
+			logger.debug("Skipping synthetic field " + f.getName());
+			return false;
+		}
+
+		if (f.getName().startsWith("ajc$")) {
+			logger.debug("Skipping AspectJ field " + f.getName());
+			return false;
+		}
+
+		// in, out, err
+		if(f.getDeclaringClass().equals(FileDescriptor.class)) {
+			return false;
+		}
+
+		if (Modifier.isPublic(f.getModifiers())) {
+			// It may still be the case that the field is defined in a non-visible superclass of the class
+			// we already know we can use. In that case, the compiler would be fine with accessing the
+			// field, but reflection would start complaining about IllegalAccess!
+			// Therefore, we set the field accessible to be on the safe side
+			TestClusterUtils.makeAccessible(f);
+			return true;
+		}
+
+		// If default access rights, then check if this class is in the same package as the target class
+		if (!Modifier.isPrivate(f.getModifiers())) {
+			TestClusterUtils.makeAccessible(f);
+			return true;
+		}
+
+		return false;
+	}
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
