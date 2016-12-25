@@ -23,12 +23,7 @@
 package org.evosuite.setup;
 
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.utils.LoggingUtils;
@@ -149,7 +144,9 @@ public class InheritanceTree {
             LoggingUtils.logWarnAtMostOnce(logger, "Class not in inheritance graph: " + classNameWithDots);
 			return new LinkedHashSet<>();
 		}
-		Set<String> result = new LinkedHashSet<String>();
+
+		// TreeSet so that classes are sorted by name and thus deterministic across platforms
+		Set<String> result = new TreeSet<String>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
 		        inheritanceGraph, classNameWithDots);
 		while (bfi.hasNext()) {
@@ -167,7 +164,9 @@ public class InheritanceTree {
 		}
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);
-		Set<String> result = new LinkedHashSet<>();
+
+		// TreeSet so that classes are sorted by name and thus deterministic across platforms
+		Set<String> result = new TreeSet<>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
 		        reverseGraph, classNameWithDots);
 		while (bfi.hasNext()) {
