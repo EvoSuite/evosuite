@@ -31,6 +31,8 @@ public class PAFM_SystemTest extends SystemTestBase {
     @Test
     public void testPAFM_old(){
         Properties.SEARCH_BUDGET = 100_000;
+        Properties.P_FUNCTIONAL_MOCKING = 0.8;
+        Properties.P_REFLECTION_ON_PRIVATE = 0.5;
         do100percentLineTest(PAFM_old.class);
     }
 
@@ -38,6 +40,8 @@ public class PAFM_SystemTest extends SystemTestBase {
     @Test
     public void testPAFM(){
         Properties.SEARCH_BUDGET = 100_000;
+        Properties.P_FUNCTIONAL_MOCKING = 0.8;
+        Properties.P_REFLECTION_ON_PRIVATE = 0.5;
         do100percentLineTest(PAFM.class);
     }
 }
