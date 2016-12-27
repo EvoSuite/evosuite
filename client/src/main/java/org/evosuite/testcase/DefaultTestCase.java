@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
@@ -985,6 +986,113 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void removeAssertions() {
 		for (Statement s : statements) {
 			s.removeAssertions();
+		}
+	}
+
+	private boolean methodNeedsDownCast(MethodStatement methodStatement, VariableReference var, Class<?> abstractClass) {
+		if(!methodStatement.isStatic() && methodStatement.getCallee().equals(var)) {
+			if(!methodStatement.getMethod().getDeclaringClass().isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		List<VariableReference> parameters = methodStatement.getParameterReferences();
+		Class<?>[] parameterTypes = methodStatement.getMethod().getRawParameterTypes();
+		for(int i = 0; i < parameters.size(); i++) {
+			VariableReference param = parameters.get(i);
+			if(param.equals(var) && !parameterTypes[i].isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean constructorNeedsDownCast(ConstructorStatement constructorStatement, VariableReference var, Class<?> abstractClass) {
+		List<VariableReference> parameters = constructorStatement.getParameterReferences();
+		Class<?>[] parameterTypes = constructorStatement.getConstructor().getConstructor().getParameterTypes();
+		for(int i = 0; i < parameters.size(); i++) {
+			VariableReference param = parameters.get(i);
+			if(param.equals(var) && !parameterTypes[i].isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean fieldNeedsDownCast(FieldReference fieldReference, VariableReference var, Class<?> abstractClass) {
+		if(fieldReference.getSource().equals(var)) {
+			if(!fieldReference.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean fieldNeedsDownCast(FieldStatement fieldStatement, VariableReference var, Class<?> abstractClass) {
+		if(!fieldStatement.isStatic() && fieldStatement.getSource().equals(var)) {
+			if(!fieldStatement.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean assertionsNeedDownCast(Statement s, VariableReference var, Class<?> abstractClass) {
+		for(Assertion assertion : s.getAssertions()) {
+			if(assertion instanceof InspectorAssertion) {
+				InspectorAssertion inspectorAssertion = (InspectorAssertion)assertion;
+				if(inspectorAssertion.getSource().equals(var)) {
+					if(!inspectorAssertion.getInspector().getMethod().getDeclaringClass().isAssignableFrom(abstractClass)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public void removeDownCasts() {
+		for(Statement s : statements) {
+			if(s instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement)s;
+				VariableReference retVal = s.getReturnValue();
+				Class<?> variableClass = retVal.getVariableClass();
+				Class<?> methodReturnClass = ms.getMethod().getRawGeneratedType();
+				if(!variableClass.equals(methodReturnClass) && methodReturnClass.isAssignableFrom(variableClass)) {
+					logger.debug("Found downcast from {} to {}", methodReturnClass.getName(), variableClass);
+					for(VariableReference ref : getReferences(retVal)) {
+						Statement usageStatement = statements.get(ref.getStPosition());
+						if(assertionsNeedDownCast(usageStatement, retVal, methodReturnClass)) {
+							return;
+						}
+						if(usageStatement instanceof MethodStatement) {
+							if(methodNeedsDownCast((MethodStatement)usageStatement, retVal, methodReturnClass)) {
+								return;
+							}
+						} else if(usageStatement instanceof ConstructorStatement) {
+							if(constructorNeedsDownCast((ConstructorStatement)usageStatement, retVal, methodReturnClass)) {
+								return;
+							}
+
+						} else if(usageStatement instanceof FieldStatement) {
+							if(fieldNeedsDownCast((FieldStatement)usageStatement, retVal, methodReturnClass)) {
+								return;
+							}
+						}
+						if(ref.isFieldReference()) {
+							if(fieldNeedsDownCast((FieldReference)ref, retVal, methodReturnClass)) {
+								return;
+							}
+						}
+					}
+					logger.debug("Downcast not needed, replacing with {}", ms.getMethod().getReturnType());
+					retVal.setType(ms.getMethod().getReturnType());
+				}
+			}
 		}
 	}
 

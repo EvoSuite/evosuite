@@ -231,6 +231,9 @@ public class TestSuiteWriter implements Opcodes {
             throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
         }
 
+        // Avoid downcasts that could break
+        removeUnnecessaryDownCasts(results);
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
@@ -281,7 +284,15 @@ public class TestSuiteWriter implements Opcodes {
         bd.append("}\n");
     	return bd.toString();
     }
-    
+
+    private void removeUnnecessaryDownCasts(List<ExecutionResult> results) {
+        for(ExecutionResult result : results) {
+            if(result.test instanceof DefaultTestCase) {
+                ((DefaultTestCase)result.test).removeDownCasts();
+            }
+        }
+    }
+
     /**
      * Create JUnit file for given class name
      *
@@ -619,6 +630,7 @@ public class TestSuiteWriter implements Opcodes {
 
         // No code after an exception should be printed as it would break compilability
         TestCase test = testCases.get(id);
+
         Integer pos = result.getFirstPositionOfThrownException();
         if (pos != null) {
             if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
