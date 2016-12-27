@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.Mutation;
@@ -653,8 +654,12 @@ public class ReplaceVariable implements MutationOperator {
 
 		// If default access rights, then check if this class is in the same package as the target class
 		if (!Modifier.isPrivate(f.getModifiers())) {
-			TestClusterUtils.makeAccessible(f);
-			return true;
+			String packageName = ClassUtils.getPackageName(f.getDeclaringClass());
+
+			if (packageName.equals(Properties.CLASS_PREFIX)) {
+				TestClusterUtils.makeAccessible(f);
+				return true;
+			}
 		}
 
 		return false;
