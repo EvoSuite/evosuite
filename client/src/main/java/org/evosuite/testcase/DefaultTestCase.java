@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
+import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
@@ -51,10 +53,12 @@ import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
+import org.jboss.jandex.PrimitiveType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
+import org.springframework.util.ClassUtils;
 
 /**
  * A test case is a list of statements
@@ -991,7 +995,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private boolean methodNeedsDownCast(MethodStatement methodStatement, VariableReference var, Class<?> abstractClass) {
 		if(!methodStatement.isStatic() && methodStatement.getCallee().equals(var)) {
-			if(!methodStatement.getMethod().getDeclaringClass().isAssignableFrom(abstractClass)) {
+			if(!ClassUtils.hasMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes())) {
 				// Need downcast for real
 				return true;
 			}
@@ -1043,12 +1047,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private boolean assertionsNeedDownCast(Statement s, VariableReference var, Class<?> abstractClass) {
 		for(Assertion assertion : s.getAssertions()) {
-			if(assertion instanceof InspectorAssertion) {
+			if(assertion instanceof InspectorAssertion && assertion.getSource().equals(var)) {
 				InspectorAssertion inspectorAssertion = (InspectorAssertion)assertion;
-				if(inspectorAssertion.getSource().equals(var)) {
-					if(!inspectorAssertion.getInspector().getMethod().getDeclaringClass().isAssignableFrom(abstractClass)) {
-						return true;
-					}
+				Method inspectorMethod = inspectorAssertion.getInspector().getMethod();
+				if(!ClassUtils.hasMethod(abstractClass, inspectorMethod.getName(), inspectorMethod.getParameterTypes())) {
+					return true;
+				}
+			} else if(assertion instanceof PrimitiveFieldAssertion && assertion.getSource().equals(var)) {
+				PrimitiveFieldAssertion fieldAssertion = (PrimitiveFieldAssertion)assertion;
+				if(!fieldAssertion.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
+					return true;
 				}
 			}
 		}
@@ -1064,6 +1072,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 				Class<?> methodReturnClass = ms.getMethod().getRawGeneratedType();
 				if(!variableClass.equals(methodReturnClass) && methodReturnClass.isAssignableFrom(variableClass)) {
 					logger.debug("Found downcast from {} to {}", methodReturnClass.getName(), variableClass);
+					if(assertionsNeedDownCast(ms, retVal, methodReturnClass)) {
+						return;
+					}
 					for(VariableReference ref : getReferences(retVal)) {
 						Statement usageStatement = statements.get(ref.getStPosition());
 						if(assertionsNeedDownCast(usageStatement, retVal, methodReturnClass)) {

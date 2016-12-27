@@ -28,4 +28,8 @@ public class DowncastExample {
             return false;
         }
     }
+
+    public AbstractSuperclass getAbstractFoo() {
+        return new ConcreteSubclass();
+    }
 }

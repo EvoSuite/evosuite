@@ -1,9 +1,14 @@
 package org.evosuite.testcase;
 
+import com.examples.with.different.packagename.test.AbstractSuperclass;
+import com.examples.with.different.packagename.test.ConcreteSubclass;
 import com.examples.with.different.packagename.test.DowncastExample;
-import org.evosuite.assertion.PrimitiveAssertion;
+import org.evosuite.assertion.*;
 import org.evosuite.symbolic.TestCaseBuilder;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.variable.FieldReference;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.generic.GenericField;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -45,6 +50,120 @@ public class DowncastTest  {
         test.getStatement(boolean0.getStPosition()).addAssertion(assertion);
         test.removeDownCasts();
         assertEquals(Integer.class, test.getStatement(2).getReturnClass());
+    }
+
+    @Test
+    public void testDownCastUnnecessaryForInspectorAssertion() throws NoSuchMethodException {
+        TestCaseBuilder builder = new TestCaseBuilder();
+        VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getAbstractFoo"));
+        num0.setType(ConcreteSubclass.class); // This would be set during execution
+
+        DefaultTestCase test = builder.getDefaultTestCase();
+
+        Inspector inspector = new Inspector(ConcreteSubclass.class, ConcreteSubclass.class.getMethod("getFoo"));
+        InspectorAssertion assertion = new InspectorAssertion(inspector, test.getStatement(num0.getStPosition()), num0, true);
+
+        test.getStatement(num0.getStPosition()).addAssertion(assertion);
+        test.removeDownCasts();
+        System.out.println(test);
+        assertEquals(AbstractSuperclass.class, test.getStatement(1).getReturnClass());
+    }
+
+    @Test
+    public void testDownCastNecessaryForInspectorAssertion() throws NoSuchMethodException {
+        TestCaseBuilder builder = new TestCaseBuilder();
+        VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getAbstractFoo"));
+        num0.setType(ConcreteSubclass.class); // This would be set during execution
+
+        DefaultTestCase test = builder.getDefaultTestCase();
+
+        Inspector inspector = new Inspector(ConcreteSubclass.class, ConcreteSubclass.class.getMethod("getBar"));
+        InspectorAssertion assertion = new InspectorAssertion(inspector, test.getStatement(num0.getStPosition()), num0, true);
+
+        test.getStatement(num0.getStPosition()).addAssertion(assertion);
+        test.removeDownCasts();
+        System.out.println(test);
+        assertEquals(ConcreteSubclass.class, test.getStatement(1).getReturnClass());
+    }
+
+    @Test
+    public void testDownCastUnnecessaryForField() throws NoSuchMethodException, NoSuchFieldException {
+        TestCaseBuilder builder = new TestCaseBuilder();
+        VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getAbstractFoo"));
+        num0.setType(ConcreteSubclass.class); // This would be set during execution
+
+        DefaultTestCase test = builder.getDefaultTestCase();
+
+        PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
+        assertion.setValue(true);
+        assertion.setSource(num0);
+        assertion.setField(AbstractSuperclass.class.getField("fieldInAbstractClass"));
+
+        test.getStatement(num0.getStPosition()).addAssertion(assertion);
+        test.removeDownCasts();
+        System.out.println(test);
+        assertEquals(AbstractSuperclass.class, test.getStatement(1).getReturnClass());
+    }
+
+    @Test
+    public void testDownCastNecessaryForField() throws NoSuchMethodException, NoSuchFieldException {
+        TestCaseBuilder builder = new TestCaseBuilder();
+        VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getAbstractFoo"));
+        num0.setType(ConcreteSubclass.class); // This would be set during execution
+
+        DefaultTestCase test = builder.getDefaultTestCase();
+
+        PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
+        assertion.setValue(true);
+        assertion.setSource(num0);
+        assertion.setField(ConcreteSubclass.class.getField("fieldInConcreteClass"));
+
+        test.getStatement(num0.getStPosition()).addAssertion(assertion);
+        test.removeDownCasts();
+        System.out.println(test);
+        assertEquals(ConcreteSubclass.class, test.getStatement(1).getReturnClass());
+    }
+
+    @Test
+    public void testFieldReferenceNeedsDowncast() throws NoSuchMethodException, NoSuchFieldException {
+        TestCaseBuilder builder = new TestCaseBuilder();
+        VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getAbstractFoo"));
+        num0.setType(ConcreteSubclass.class); // This would be set during execution
+        VariableReference bool0 = builder.appendBooleanPrimitive(true);
+        DefaultTestCase test = builder.getDefaultTestCase();
+
+        FieldReference fr = new FieldReference(test, new GenericField(ConcreteSubclass.class.getField("fieldInConcreteClass"), ConcreteSubclass.class), num0);
+        AssignmentStatement statement = new AssignmentStatement(test, fr, bool0);
+        test.addStatement(statement);
+
+        test.removeDownCasts();
+        System.out.println(test);
+        FieldReference fr2 = (FieldReference)test.getStatement(3).getReturnValue();
+        assertEquals(ConcreteSubclass.class, fr2.getSource().getVariableClass());
+    }
+
+    @Test
+    public void testFieldReferenceDoesNotNeedDowncast() throws NoSuchMethodException, NoSuchFieldException {
+        TestCaseBuilder builder = new TestCaseBuilder();
+        VariableReference var = builder.appendConstructor(DowncastExample.class.getConstructor());
+        VariableReference num0 = builder.appendMethod(var, DowncastExample.class.getMethod("getAbstractFoo"));
+        num0.setType(ConcreteSubclass.class); // This would be set during execution
+        VariableReference bool0 = builder.appendBooleanPrimitive(true);
+        DefaultTestCase test = builder.getDefaultTestCase();
+
+        FieldReference fr = new FieldReference(test, new GenericField(AbstractSuperclass.class.getField("fieldInAbstractClass"), AbstractSuperclass.class), num0);
+        AssignmentStatement statement = new AssignmentStatement(test, fr, bool0);
+        test.addStatement(statement);
+
+        test.removeDownCasts();
+        System.out.println(test);
+        FieldReference fr2 = (FieldReference)test.getStatement(3).getReturnValue();
+        assertEquals(AbstractSuperclass.class, fr2.getSource().getVariableClass());
     }
 
 }
