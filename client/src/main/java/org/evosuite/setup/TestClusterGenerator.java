@@ -50,6 +50,7 @@ import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.runtime.classhandling.ModifiedTargetStaticFields;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassAnalyzer;
 import org.evosuite.seeding.CastClassManager;
@@ -628,10 +629,13 @@ public class TestClusterGenerator {
 
 				Class<?> clazz;
 				try {
+					Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 					clazz = TestClusterUtils.getClass(className);
 				} catch (ExceptionInInitializerError ex) {
 					logger.debug("Class class init caused exception " + className);
 					continue;
+				} finally {
+					Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 				}
 				if (clazz == null) {
 					logger.debug("Class not found " + className);
