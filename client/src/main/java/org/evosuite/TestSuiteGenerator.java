@@ -343,7 +343,8 @@ public class TestSuiteGenerator {
 		// down
 		// the rest of the process, and may lead to invalid tests
 		testSuite.getTestChromosomes()
-				.removeIf(t -> t.getLastExecutionResult() != null && t.getLastExecutionResult().hasTimeout());
+				.removeIf(t -> t.getLastExecutionResult() != null && (t.getLastExecutionResult().hasTimeout() ||
+																	  t.getLastExecutionResult().hasTestException()));
 
 		if (Properties.CTG_SEEDS_FILE_OUT != null) {
 			TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
