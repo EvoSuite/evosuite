@@ -98,10 +98,19 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 					if(length >= 32767) {
 						return;
 					}
+					// Avoid asserting anything on values referring to mockito proxy objects
+					if(((String)object).toLowerCase().contains("EnhancerByMockito")) {
+						return;
+					}
+					// The word "hashCode" is also suspicious
+					if(((String)object).toLowerCase().contains("hashcode")) {
+						return;
+					}
 					// Check if there is a reference that would make the test fail
 					if(addressPattern.matcher((String)object).find()) {
 						return;
 					}
+
 				}
 				logger.debug("Observed value " + object + " for statement "
 				        + statement.getCode());

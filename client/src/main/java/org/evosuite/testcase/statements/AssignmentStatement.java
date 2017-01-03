@@ -23,14 +23,13 @@ import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
@@ -191,7 +190,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 			@Override
 			public Set<Class<? extends Throwable>> throwableExceptions() {
-				Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
+				Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
 				t.add(AssertionError.class);
 				return t;
 			}
@@ -346,6 +345,8 @@ public class AssignmentStatement extends AbstractStatement {
 				if (!value.isPrimitive() && !(value instanceof NullReference)) {
 					// add fields of this object to list
 					for (Field field : TestClusterUtils.getAccessibleFields(value.getVariableClass())) {
+						if(TestClusterGenerator.isFinalField(field))
+							continue;
 						FieldReference f = new FieldReference(tc, new GenericField(field,
 						        value.getGenericClass()), value);
 						if (f.getDepth() <= 2) {

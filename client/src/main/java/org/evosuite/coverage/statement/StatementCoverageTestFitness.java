@@ -85,24 +85,31 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
 		if (branchFitnesses.isEmpty())
-			throw new IllegalStateException(
-			        "expect to know at least one fitness for goalInstruction");
-
-		double r = Double.MAX_VALUE;
-
-		for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
-			double newFitness = branchFitness.getFitness(individual, result);
-			if (newFitness == 0.0) {
-				lastCoveringFitness = branchFitness;
-				return 0.0;
-			}
-			if (newFitness < r)
-				r = newFitness;
-		}
-
-		lastCoveringFitness = null;
-
-		return r;
+            throw new IllegalStateException(
+                    "expect to know at least one fitness for goalInstruction");
+ 
+        if (result.hasTimeout() || result.hasTestException()){
+            updateIndividual(this, individual, Double.MAX_VALUE);
+            return Double.MAX_VALUE;
+        }
+        
+        double r = Double.MAX_VALUE;
+ 
+        for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
+            double newFitness = branchFitness.getFitness(individual, result);
+            if (newFitness == 0.0) {
+                lastCoveringFitness = branchFitness;
+                return 0.0;
+            }
+            if (newFitness < r)
+                r = newFitness;
+        }
+ 
+        lastCoveringFitness = null;
+ 
+        updateIndividual(this, individual, r);
+        
+        return r;
 	}
 
 	/**
@@ -168,19 +175,21 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		StatementCoverageTestFitness other = (StatementCoverageTestFitness) obj;
-		if (goalInstruction.getInstructionId() != other.goalInstruction.getInstructionId()) {
-				return false;
-		}
-		return true;
-	}
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        StatementCoverageTestFitness other = (StatementCoverageTestFitness) obj;
+        if (this.goalInstruction == null) {
+            if (other.goalInstruction != null)
+                return false;
+        } else if (!goalInstruction.equals(other.goalInstruction))
+            return false;
+        return true;
+    }
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()

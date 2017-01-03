@@ -52,7 +52,10 @@ public class MockRuntimeException extends RuntimeException  implements OverrideM
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
-			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+			if(super.getStackTrace().length > 0) {
+				// stack trace may be empty
+				delegate.setOriginForDelegate(super.getStackTrace()[0]);
+			}
 		}
 		return delegate;
 	}
@@ -62,25 +65,37 @@ public class MockRuntimeException extends RuntimeException  implements OverrideM
 	public MockRuntimeException() {
 		super();
 		delegate = new MockThrowable();
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 	
 	public MockRuntimeException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 
 	public MockRuntimeException(Throwable cause) {
 		super(cause);
 		delegate = new MockThrowable(cause);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 
 	public MockRuntimeException(String message, Throwable cause) {
 		super(message, cause);
 		delegate = new MockThrowable(message, cause);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 	
 	protected MockRuntimeException(String message, Throwable cause,
@@ -88,7 +103,10 @@ public class MockRuntimeException extends RuntimeException  implements OverrideM
 			boolean writableStackTrace) {
 		super(message,cause,enableSuppression,writableStackTrace);
 		delegate = new MockThrowable(message, cause, enableSuppression, writableStackTrace);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 	
 	

@@ -34,7 +34,7 @@ import org.evosuite.symbolic.vm.HeapVM;
 import org.evosuite.symbolic.vm.JumpVM;
 import org.evosuite.symbolic.vm.LocalsVM;
 import org.evosuite.symbolic.vm.OtherVM;
-import org.evosuite.symbolic.vm.PathConstraint;
+import org.evosuite.symbolic.vm.PathConditionCollector;
 import org.evosuite.symbolic.vm.SymbolicFunctionVM;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.testcase.DefaultTestCase;
@@ -92,7 +92,7 @@ public abstract class ConcolicExecution {
 		 * Path constraint and symbolic environment
 		 */
 		SymbolicEnvironment env = new SymbolicEnvironment(classLoader);
-		PathConstraint pc = new PathConstraint();
+		PathConditionCollector pc = new PathConditionCollector();
 
 		/**
 		 * VM listeners
@@ -140,7 +140,7 @@ public abstract class ConcolicExecution {
 		}
 		VM.disableCallBacks(); // ignore all callbacks from now on
 		
-		List<BranchCondition> branches = pc.getBranchConditions();
+		List<BranchCondition> branches = pc.getPathCondition();
 		logger.info("Concolic execution ended with " + branches.size()
 				+ " branches collected");
 		if (!result.noThrownExceptions()) {
@@ -169,7 +169,7 @@ public abstract class ConcolicExecution {
 				nrOfConstraints++;
 			}
 
-			Constraint<?> constraint = branchCondition.getLocalConstraint();
+			Constraint<?> constraint = branchCondition.getConstraint();
 			constraint.getLeftOperand().accept(exprExecutor,null);
 			constraint.getRightOperand().accept(exprExecutor,null);
 			nrOfConstraints++;

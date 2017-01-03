@@ -19,8 +19,8 @@
  */
 package org.evosuite.setup;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,8 +44,8 @@ public class GetStaticGraph {
 	private static final Logger logger = LoggerFactory
 			.getLogger(GetStaticGraph.class);
 
-	private final Set<StaticFieldReadEntry> staticFieldReads = new HashSet<StaticFieldReadEntry>();
-	private final Set<StaticMethodCallEntry> staticMethodCalls = new HashSet<StaticMethodCallEntry>();
+	private final Set<StaticFieldReadEntry> staticFieldReads = new LinkedHashSet<StaticFieldReadEntry>();
+	private final Set<StaticMethodCallEntry> staticMethodCalls = new LinkedHashSet<StaticMethodCallEntry>();
 
 	/**
 	 * Returns if there is a static method call egde (INVOKESTATIC bytecode 
@@ -158,7 +158,7 @@ public class GetStaticGraph {
 	 * @return
 	 */
 	public Set<String> getSourceClasses() {
-		Set<String> sourceClasses = new HashSet<String>();
+		Set<String> sourceClasses = new LinkedHashSet<String>();
 		for (StaticFieldReadEntry entry : staticFieldReads) {
 			sourceClasses.add(entry.getSourceClass().replace('/', '.'));
 		}
@@ -176,7 +176,7 @@ public class GetStaticGraph {
 	 * @return
 	 */
 	public Set<String> getTargetClasses() {
-		Set<String> targetClasses = new HashSet<String>();
+		Set<String> targetClasses = new LinkedHashSet<String>();
 		for (StaticFieldReadEntry entry : staticFieldReads) {
 			targetClasses.add(entry.getTargetClass().replace('/', '.'));
 		}
@@ -193,11 +193,11 @@ public class GetStaticGraph {
 	 * @return
 	 */
 	public Map<String, Set<String>> getStaticFields() {
-		Map<String, Set<String>> staticFields = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> staticFields = new LinkedHashMap<String, Set<String>>();
 		for (StaticFieldReadEntry read : this.staticFieldReads) {
 			String className = read.getTargetClass().replace('/', '.');
 			if (!staticFields.containsKey(className)) {
-				staticFields.put(className, new HashSet<String>());
+				staticFields.put(className, new LinkedHashSet<String>());
 			}
 			staticFields.get(className).add(read.getTargetField());
 		}

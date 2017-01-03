@@ -21,9 +21,9 @@ package org.evosuite.symbolic.vm.regex;
 
 import java.util.regex.Matcher;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -42,7 +42,7 @@ public final class Pattern_Matcher extends SymbolicFunction {
 
 		// receiver
 		@SuppressWarnings("unused")
-		NonNullExpression symb_receiver = this.getSymbReceiver();
+		ReferenceConstant symb_receiver = this.getSymbReceiver();
 
 		// argument
 		CharSequence conc_char_seq = (CharSequence) this.getConcArgument(0);
@@ -50,11 +50,11 @@ public final class Pattern_Matcher extends SymbolicFunction {
 
 		// return value
 		Matcher conc_matcher = (Matcher) this.getConcRetVal();
-		NonNullExpression symb_matcher = (NonNullExpression) this.getSymbRetVal();
+		ReferenceConstant symb_matcher = (ReferenceConstant) this.getSymbRetVal();
 
 		if (conc_char_seq != null && conc_char_seq instanceof String) {
-			assert symb_char_seq instanceof NonNullExpression;
-			NonNullExpression symb_string = (NonNullExpression)symb_char_seq;
+			assert symb_char_seq instanceof ReferenceConstant;
+			ReferenceConstant symb_string = (ReferenceConstant)symb_char_seq;
 			
 			String string = (String) conc_char_seq;
 			StringValue symb_input = env.heap.getField(Types.JAVA_LANG_STRING,

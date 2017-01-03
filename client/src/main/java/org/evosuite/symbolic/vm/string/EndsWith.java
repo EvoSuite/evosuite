@@ -21,8 +21,8 @@ package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -40,13 +40,13 @@ public final class EndsWith extends SymbolicFunction {
 	public Object executeFunction() {
 
 		String conc_left = (String) this.getConcReceiver();
-		NonNullExpression symb_left = this.getSymbReceiver();
+		ReferenceConstant symb_left = this.getSymbReceiver();
 
 		StringValue left_expr = env.heap.getField(Types.JAVA_LANG_STRING,
 				SymbolicHeap.$STRING_VALUE, conc_left, symb_left, conc_left);
 
 		String conc_right = (String) this.getConcArgument(0);
-		NonNullExpression symb_right = (NonNullExpression) this
+		ReferenceConstant symb_right = (ReferenceConstant) this
 				.getSymbArgument(0);
 
 		StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,

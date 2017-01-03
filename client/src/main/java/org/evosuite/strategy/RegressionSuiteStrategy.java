@@ -37,6 +37,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.regression.RegressionAssertionCounter;
+import org.evosuite.regression.RegressionMeasure;
 import org.evosuite.regression.RegressionSearchListener;
 import org.evosuite.regression.RegressionTestChromosome;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
@@ -72,9 +73,17 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Testsuite_Diversity, 0);
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 		
+        // Disable test archive
+        Properties.TEST_ARCHIVE = false;
+        
+        // Disable functional mocking stuff (due to incompatibilities)
+        Properties.P_FUNCTIONAL_MOCKING = 0;
+        Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT = 0;
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0;
+            
+        
 		// Regression random strategy switch. 
-        // TODO: create dedicated property for search algorithm.
-		if (Properties.REGRESSION_USE_FITNESS == 10) {
+		if (Properties.REGRESSION_FITNESS == RegressionMeasure.RANDOM) {
 			 return generateRandomRegressionTests();
 		}
 

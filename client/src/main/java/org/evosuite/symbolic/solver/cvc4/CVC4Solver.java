@@ -117,7 +117,7 @@ public final class CVC4Solver extends SubProcessSolver {
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}
-		
+
 		CVC4QueryPrinter printer = new CVC4QueryPrinter();
 		String smtQueryStr = printer.print(smtQuery);
 
@@ -255,6 +255,25 @@ public final class CVC4Solver extends SubProcessSolver {
 		cmd += "  --rewrite-divk"; // rewrite-divk rewrites division (or
 									// modulus) by a constant value
 		cmd += " --lang smt"; // query language is SMT-LIB
+		cmd += " --finite-model-find";
+		/**
+		 * Option --finite-model-find has two effects:
+		 * 
+		 * 1. It extends the ground UF solver to
+		 * "UF + finite cardinality constraints", as described in this paper:
+		 * http://homepage.cs.uiowa.edu/~ajreynol/cav13.pdf This is used to
+		 * minimize the size of the interpretation of uninterpreted sorts.
+		 * 
+		 * 2. It modifies the quantifier instantiation heuristics, as described
+		 * in this paper: http://homepage.cs.uiowa.edu/~ajreynol/cade24.pdf In
+		 * particular, it disables E-matching and enables
+		 * "model-based quantifier instantiation", which is the strategy that
+		 * enables CVC4 to answer "SAT" in the presence of universally
+		 * quantified formulas.
+		 * 
+		 * More details on both of these points can be found in Sections 5.2 -
+		 * 5.4 of http://homepage.cs.uiowa.edu/~ajreynol/thesis.pdf.
+		 */
 		cmd += " --tlimit=" + cvcTimeout; // set timeout to cvcTimeout
 		return cmd;
 	}

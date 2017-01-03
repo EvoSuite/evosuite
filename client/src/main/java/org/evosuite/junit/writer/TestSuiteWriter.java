@@ -38,8 +38,6 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.FunctionalMockStatement;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
 import org.junit.runner.RunWith;
@@ -233,6 +231,9 @@ public class TestSuiteWriter implements Opcodes {
             throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
         }
 
+        // Avoid downcasts that could break
+        removeUnnecessaryDownCasts(results);
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
@@ -241,8 +242,7 @@ public class TestSuiteWriter implements Opcodes {
             generated.add(file);
         } else {
             for (int i = 0; i < testCases.size(); i++) {
-                String testSuiteName = name.substring(0, name.length() - "Test".length()) + "_" + i + "_Test";
-                File file = new File(dir + "/" + testSuiteName + ".java");
+                File file = new File(dir + "/" + name + "_" + i + ".java"); // e.g., dir/Foo_ESTest_0.java
                 //executor.newObservers();
                 String testCode = getOneUnitTestInAFile(name, i, results);
                 FileIOUtils.writeFile(testCode, file);
@@ -284,7 +284,15 @@ public class TestSuiteWriter implements Opcodes {
         bd.append("}\n");
     	return bd.toString();
     }
-    
+
+    private void removeUnnecessaryDownCasts(List<ExecutionResult> results) {
+        for(ExecutionResult result : results) {
+            if(result.test instanceof DefaultTestCase) {
+                ((DefaultTestCase)result.test).removeDownCasts();
+            }
+        }
+    }
+
     /**
      * Create JUnit file for given class name
      *
@@ -301,7 +309,7 @@ public class TestSuiteWriter implements Opcodes {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append(getHeader(name, results));
+        builder.append(getHeader(name, name, results));
 
         if (!Properties.TEST_SCAFFOLDING) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
@@ -332,10 +340,10 @@ public class TestSuiteWriter implements Opcodes {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append(getHeader(name + "_" + testId, results));
+        builder.append(getHeader(name + "_" + testId, name, results));
 
         if (!Properties.TEST_SCAFFOLDING) {
-            builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
+            builder.append(new Scaffolding().getBeforeAndAfterMethods(name + "_" + testId, wasSecurityException, results));
         }
 
         builder.append(testToString(testId, testId, results.get(testId)));
@@ -472,26 +480,16 @@ public class TestSuiteWriter implements Opcodes {
         return builder.toString();
     }
 
-    private boolean doesUseMocks(List<ExecutionResult> results) {
-        for(ExecutionResult er : results){
-            for(Statement st : er.test){
-                if(st instanceof FunctionalMockStatement){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
 
     /**
      * JUnit file header
      *
-     * @param name    a {@link java.lang.String} object.
-     * @param results a {@link java.util.List} object.
+     * @param test_name           a {@link java.lang.String} object.
+     * @param scaffolding_name    a {@link java.lang.String} object.
+     * @param results             a {@link java.util.List} object.
      * @return a {@link java.lang.String} object.
      */
-    protected String getHeader(String name, List<ExecutionResult> results) {
+    protected String getHeader(String test_name, String scaffolding_name, List<ExecutionResult> results) {
         StringBuilder builder = new StringBuilder();
         builder.append("/*");
         builder.append(NEWLINE);
@@ -518,10 +516,10 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(getRunner());
         }
 
-        builder.append(adapter.getClassDefinition(name));
+        builder.append(adapter.getClassDefinition(test_name));
 
         if (Properties.TEST_SCAFFOLDING) {
-            builder.append(" extends " + Scaffolding.getFileName(name));
+            builder.append(" extends " + Scaffolding.getFileName(scaffolding_name));
         }
 
         builder.append(" {");
@@ -632,6 +630,7 @@ public class TestSuiteWriter implements Opcodes {
 
         // No code after an exception should be printed as it would break compilability
         TestCase test = testCases.get(id);
+
         Integer pos = result.getFirstPositionOfThrownException();
         if (pos != null) {
             if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {

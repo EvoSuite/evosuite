@@ -39,12 +39,11 @@ import org.evosuite.symbolic.expr.bv.RealToIntegerCast;
 import org.evosuite.symbolic.expr.fp.IntegerToRealCast;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.NullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 import org.evosuite.symbolic.vm.wrappers.Types;
@@ -120,7 +119,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		VM.CALL_RESULT(onwer, INIT, desc);
 		VariableReference varRef = stmt.getReturnValue();
 
-		NonNullExpression nonNullRef = (NonNullExpression) env.topFrame().operandStack.popRef();
+		ReferenceConstant nonNullRef = (ReferenceConstant) env.topFrame().operandStack.popRef();
 		String varName = varRef.getName();
 		symb_references.put(varName, nonNullRef);
 
@@ -279,7 +278,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				VM.MULTIANEWARRAY(arrayTypeDesc, arrayRef.getArrayDimensions());
 
 			}
-			NonNullExpression symb_array = (NonNullExpression) env.topFrame().operandStack.popRef();
+			ReferenceConstant symb_array = (ReferenceConstant) env.topFrame().operandStack.popRef();
 			env.heap.initializeReference(conc_array, symb_array);
 
 			String varRef_name = arrayRef.getName();
@@ -368,7 +367,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	private ReferenceExpressionPair readArray(ArrayIndex rhs, Scope scope) {
 		ArrayReference arrayReference = rhs.getArray();
-		NonNullExpression symb_array = (NonNullExpression) symb_references.get(arrayReference.getName());
+		ReferenceConstant symb_array = (ReferenceConstant) symb_references.get(arrayReference.getName());
 		int conc_index = rhs.getArrayIndex();
 		Class<?> componentClass = arrayReference.getComponentClass();
 
@@ -378,54 +377,54 @@ public class SymbolicObserver extends ExecutionObserver {
 			if (componentClass.equals(int.class)) {
 				int conc_value = Array.getInt(conc_array, conc_index);
 				IntegerValue expr = env.heap.array_load(symb_array, conc_index, conc_value);
-				NonNullExpression newIntegerRef = newIntegerReference(conc_value, expr);
+				ReferenceConstant newIntegerRef = newIntegerReference(conc_value, expr);
 				return new ReferenceExpressionPair(newIntegerRef, expr);
 			} else if (componentClass.equals(char.class)) {
 				char conc_value = Array.getChar(conc_array, conc_index);
 				IntegerValue expr = env.heap.array_load(symb_array, conc_index, conc_value);
-				NonNullExpression newCharacterRef = newCharacterReference(conc_value, expr);
+				ReferenceConstant newCharacterRef = newCharacterReference(conc_value, expr);
 				return new ReferenceExpressionPair(newCharacterRef, expr);
 			} else if (componentClass.equals(boolean.class)) {
 				boolean conc_value = Array.getBoolean(conc_array, conc_index);
 				IntegerValue expr = env.heap.array_load(symb_array, conc_index, conc_value ? 1 : 0);
-				NonNullExpression newBooleanRef = newBooleanReference(conc_value, expr);
+				ReferenceConstant newBooleanRef = newBooleanReference(conc_value, expr);
 				return new ReferenceExpressionPair(newBooleanRef, expr);
 			} else if (componentClass.equals(byte.class)) {
 				byte conc_value = Array.getByte(conc_array, conc_index);
 				IntegerValue expr = env.heap.array_load(symb_array, conc_index, conc_value);
-				NonNullExpression newByteRef = newByteReference(conc_value, expr);
+				ReferenceConstant newByteRef = newByteReference(conc_value, expr);
 				return new ReferenceExpressionPair(newByteRef, expr);
 			} else if (componentClass.equals(short.class)) {
 				short conc_value = Array.getShort(conc_array, conc_index);
 				IntegerValue expr = env.heap.array_load(symb_array, conc_index, conc_value);
-				NonNullExpression newShortRef = newShortReference(conc_value, expr);
+				ReferenceConstant newShortRef = newShortReference(conc_value, expr);
 				return new ReferenceExpressionPair(newShortRef, expr);
 			} else if (componentClass.equals(long.class)) {
 				long conc_value = Array.getLong(conc_array, conc_index);
 				IntegerValue expr = env.heap.array_load(symb_array, conc_index, conc_value);
-				NonNullExpression newLongRef = newLongReference(conc_value, expr);
+				ReferenceConstant newLongRef = newLongReference(conc_value, expr);
 				return new ReferenceExpressionPair(newLongRef, expr);
 			} else if (componentClass.equals(float.class)) {
 				float conc_value = Array.getFloat(conc_array, conc_index);
 				RealValue expr = env.heap.array_load(symb_array, conc_index, conc_value);
-				NonNullExpression newFloatRef = newFloatReference(conc_value, expr);
+				ReferenceConstant newFloatRef = newFloatReference(conc_value, expr);
 				return new ReferenceExpressionPair(newFloatRef, expr);
 			} else if (componentClass.equals(double.class)) {
 				double conc_value = Array.getDouble(conc_array, conc_index);
 				RealValue expr = env.heap.array_load(symb_array, conc_index, conc_value);
-				NonNullExpression newDoubleRef = newDoubleReference(conc_value, expr);
+				ReferenceConstant newDoubleRef = newDoubleReference(conc_value, expr);
 				return new ReferenceExpressionPair(newDoubleRef, expr);
 			} else {
 				Object conc_value = Array.get(conc_array, conc_index);
 				if (conc_value instanceof String) {
 					StringValue expr = env.heap.array_load(symb_array, conc_index, (String) conc_value);
-					NonNullExpression newStringRef = newStringReference((String) conc_value, expr);
+					ReferenceConstant newStringRef = newStringReference((String) conc_value, expr);
 					return new ReferenceExpressionPair(newStringRef, expr);
 				} else {
 					ReferenceExpression ref = env.heap.getReference(conc_value);
 
 					if (conc_value != null && isWrapper(conc_value)) {
-						NonNullExpression nonNullRef = (NonNullExpression) ref;
+						ReferenceConstant nonNullRef = (ReferenceConstant) ref;
 						Expression<?> expr = findOrCreate(conc_value, nonNullRef);
 						return new ReferenceExpressionPair(ref, expr);
 					} else {
@@ -462,49 +461,49 @@ public class SymbolicObserver extends ExecutionObserver {
 			if (fieldClazz.equals(int.class)) {
 				int conc_value = field.getInt(null);
 				IntegerValue expr = env.heap.getStaticField(owner, name, conc_value);
-				NonNullExpression newIntegerRef = newIntegerReference(conc_value, expr);
+				ReferenceConstant newIntegerRef = newIntegerReference(conc_value, expr);
 				return new ReferenceExpressionPair(newIntegerRef, expr);
 
 			} else if (fieldClazz.equals(char.class)) {
 				char conc_value = field.getChar(null);
 				IntegerValue expr = env.heap.getStaticField(owner, name, conc_value);
-				NonNullExpression newCharacterRef = newCharacterReference(conc_value, expr);
+				ReferenceConstant newCharacterRef = newCharacterReference(conc_value, expr);
 				return new ReferenceExpressionPair(newCharacterRef, expr);
 
 			} else if (fieldClazz.equals(long.class)) {
 				long conc_value = field.getLong(null);
 				IntegerValue expr = env.heap.getStaticField(owner, name, conc_value);
-				NonNullExpression newLongRef = newLongReference(conc_value, expr);
+				ReferenceConstant newLongRef = newLongReference(conc_value, expr);
 				return new ReferenceExpressionPair(newLongRef, expr);
 
 			} else if (fieldClazz.equals(short.class)) {
 				short conc_value = field.getShort(null);
 				IntegerValue expr = env.heap.getStaticField(owner, name, conc_value);
-				NonNullExpression newShortRef = newShortReference(conc_value, expr);
+				ReferenceConstant newShortRef = newShortReference(conc_value, expr);
 				return new ReferenceExpressionPair(newShortRef, expr);
 
 			} else if (fieldClazz.equals(byte.class)) {
 				byte conc_value = field.getByte(null);
 				IntegerValue expr = env.heap.getStaticField(owner, name, conc_value);
-				NonNullExpression newByteRef = newByteReference(conc_value, expr);
+				ReferenceConstant newByteRef = newByteReference(conc_value, expr);
 				return new ReferenceExpressionPair(newByteRef, expr);
 
 			} else if (fieldClazz.equals(boolean.class)) {
 				boolean conc_value = field.getBoolean(null);
 				IntegerValue expr = env.heap.getStaticField(owner, name, conc_value ? 1 : 0);
-				NonNullExpression newBooleanRef = newBooleanReference(conc_value, expr);
+				ReferenceConstant newBooleanRef = newBooleanReference(conc_value, expr);
 				return new ReferenceExpressionPair(newBooleanRef, expr);
 
 			} else if (fieldClazz.equals(float.class)) {
 				float conc_value = field.getFloat(null);
 				RealValue expr = env.heap.getStaticField(owner, name, conc_value);
-				NonNullExpression newFloatRef = newFloatReference(conc_value, expr);
+				ReferenceConstant newFloatRef = newFloatReference(conc_value, expr);
 				return new ReferenceExpressionPair(newFloatRef, expr);
 
 			} else if (fieldClazz.equals(double.class)) {
 				double conc_value = field.getDouble(null);
 				RealValue expr = env.heap.getStaticField(owner, name, conc_value);
-				NonNullExpression newDoubleRef = newDoubleReference(conc_value, expr);
+				ReferenceConstant newDoubleRef = newDoubleReference(conc_value, expr);
 				return new ReferenceExpressionPair(newDoubleRef, expr);
 
 			} else {
@@ -512,12 +511,12 @@ public class SymbolicObserver extends ExecutionObserver {
 				if (conc_value instanceof String) {
 					String string = (String) conc_value;
 					StringValue expr = env.heap.getStaticField(owner, name, string);
-					NonNullExpression newStringRef = newStringReference(string, expr);
+					ReferenceConstant newStringRef = newStringReference(string, expr);
 					return new ReferenceExpressionPair(newStringRef, expr);
 				} else {
 					ReferenceExpression ref = env.heap.getReference(conc_value);
 					if (conc_value != null && isWrapper(conc_value)) {
-						NonNullExpression nonNullRef = (NonNullExpression) ref;
+						ReferenceConstant nonNullRef = (ReferenceConstant) ref;
 						Expression<?> expr = findOrCreate(conc_value, nonNullRef);
 						return new ReferenceExpressionPair(ref, expr);
 					} else {
@@ -540,7 +539,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		Class<?> fieldClazz = field.getType();
 
 		String source_name = source.getName();
-		NonNullExpression symb_receiver = (NonNullExpression) symb_references.get(source_name);
+		ReferenceConstant symb_receiver = (ReferenceConstant) symb_references.get(source_name);
 
 		try {
 			Object conc_receiver = source.getObject(scope);
@@ -548,55 +547,55 @@ public class SymbolicObserver extends ExecutionObserver {
 			if (fieldClazz.equals(int.class)) {
 				int conc_value = field.getInt(conc_receiver);
 				IntegerValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value);
-				NonNullExpression newIntegerRef = newIntegerReference(conc_value, expr);
+				ReferenceConstant newIntegerRef = newIntegerReference(conc_value, expr);
 				return new ReferenceExpressionPair(newIntegerRef, expr);
 			} else if (fieldClazz.equals(char.class)) {
 				char conc_value = field.getChar(conc_receiver);
 				IntegerValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value);
-				NonNullExpression newCharacterRef = newCharacterReference(conc_value, expr);
+				ReferenceConstant newCharacterRef = newCharacterReference(conc_value, expr);
 				return new ReferenceExpressionPair(newCharacterRef, expr);
 			} else if (fieldClazz.equals(long.class)) {
 				long conc_value = field.getLong(conc_receiver);
 				IntegerValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value);
-				NonNullExpression newLongRef = newLongReference(conc_value, expr);
+				ReferenceConstant newLongRef = newLongReference(conc_value, expr);
 				return new ReferenceExpressionPair(newLongRef, expr);
 			} else if (fieldClazz.equals(short.class)) {
 				short conc_value = field.getShort(conc_receiver);
 				IntegerValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value);
-				NonNullExpression newShortRef = newShortReference(conc_value, expr);
+				ReferenceConstant newShortRef = newShortReference(conc_value, expr);
 				return new ReferenceExpressionPair(newShortRef, expr);
 			} else if (fieldClazz.equals(byte.class)) {
 				byte conc_value = field.getByte(conc_receiver);
 				IntegerValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value);
-				NonNullExpression newByteRef = newByteReference(conc_value, expr);
+				ReferenceConstant newByteRef = newByteReference(conc_value, expr);
 				return new ReferenceExpressionPair(newByteRef, expr);
 			} else if (fieldClazz.equals(boolean.class)) {
 				boolean conc_value = field.getBoolean(conc_receiver);
 				IntegerValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value ? 1 : 0);
-				NonNullExpression newBooleanRef = newBooleanReference(conc_value, expr);
+				ReferenceConstant newBooleanRef = newBooleanReference(conc_value, expr);
 				return new ReferenceExpressionPair(newBooleanRef, expr);
 			} else if (fieldClazz.equals(float.class)) {
 				float conc_value = field.getFloat(conc_receiver);
 				RealValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value);
-				NonNullExpression newFloatRef = newFloatReference(conc_value, expr);
+				ReferenceConstant newFloatRef = newFloatReference(conc_value, expr);
 				return new ReferenceExpressionPair(newFloatRef, expr);
 			} else if (fieldClazz.equals(double.class)) {
 				double conc_value = field.getDouble(conc_receiver);
 				RealValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, conc_value);
-				NonNullExpression newDoubleRef = newDoubleReference(conc_value, expr);
+				ReferenceConstant newDoubleRef = newDoubleReference(conc_value, expr);
 				return new ReferenceExpressionPair(newDoubleRef, expr);
 			} else {
 				Object conc_value = field.get(conc_receiver);
 				if (conc_value instanceof String) {
 					String string = (String) conc_value;
 					StringValue expr = env.heap.getField(owner, name, conc_receiver, symb_receiver, string);
-					NonNullExpression newStringRef = newStringReference(string, expr);
+					ReferenceConstant newStringRef = newStringReference(string, expr);
 					return new ReferenceExpressionPair(newStringRef, expr);
 				} else {
 					ReferenceExpression ref = env.heap.getReference(conc_value);
 
 					if (conc_value != null && isWrapper(conc_value)) {
-						NonNullExpression nonNullRef = (NonNullExpression) ref;
+						ReferenceConstant nonNullRef = (ReferenceConstant) ref;
 						Expression<?> expr = findOrCreate(conc_value, nonNullRef);
 						return new ReferenceExpressionPair(ref, expr);
 					} else {
@@ -649,7 +648,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			String array_name = arrayReference.getName();
 			ReferenceExpression symb_ref = symb_references.get(array_name);
-			NonNullExpression symb_array = (NonNullExpression) symb_ref;
+			ReferenceConstant symb_array = (ReferenceConstant) symb_ref;
 			env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
 
 		} else {
@@ -694,7 +693,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				} catch (CodeUnderTestException e) {
 					throw new RuntimeException(e);
 				}
-				NonNullExpression symb_receiver = (NonNullExpression) symb_references.get(source_name);
+				ReferenceConstant symb_receiver = (ReferenceConstant) symb_references.get(source_name);
 				env.heap.putField(className, fieldName, conc_receiver, symb_receiver, symb_value);
 			} else {
 				/* write symbolic expression to static field */
@@ -1093,7 +1092,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 				} else {
 
-					if (symb_ref.getWeakConcreteObject()==null) {
+					if (symb_ref.getConcreteValue() == null) {
 						// although this will lead in the JVM to a NPE, we push
 						// a dummy
 						// value to prevent the DSE VM from crashing
@@ -1101,7 +1100,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 					} else {
 						// auto unboxing reference
-						NonNullExpression non_null_symb_ref = (NonNullExpression) symb_ref;
+						ReferenceConstant non_null_symb_ref = (ReferenceConstant) symb_ref;
 						Object conc_object = scope.getObject(varRef);
 						Expression<?> unboxed_expr = unboxReference(argType, conc_object, non_null_symb_ref);
 						pushValue(argType, unboxed_expr);
@@ -1117,7 +1116,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		}
 	}
 
-	private Expression<?> unboxReference(Type argType, Object conc_object, NonNullExpression non_null_symb_ref) {
+	private Expression<?> unboxReference(Type argType, Object conc_object, ReferenceConstant non_null_symb_ref) {
 		switch (argType.getSort()) {
 		case Type.BOOLEAN: {
 			Expression<?> symb_expr = env.heap.getField(Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
@@ -1361,12 +1360,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression urlRef;
 		if (conc_url == null) {
 			urlRef = env.heap.getReference(null);
-			if (urlRef.getWeakConcreteObject()!=null) {
+			if (urlRef.getConcreteValue() != null) {
 				throw new IllegalStateException("Expected null concrete value");
 			}
 		} else {
-			urlRef = (NonNullExpression) env.heap.getReference(conc_url);
-			if (urlRef.getWeakConcreteObject()==null) {
+			urlRef = (ReferenceConstant) env.heap.getReference(conc_url);
+			if (urlRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete value");
 			}
 		}
@@ -1384,12 +1383,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression addressRef;
 		if (conc_remote_address == null) {
 			addressRef = env.heap.getReference(null);
-			if (addressRef.getWeakConcreteObject()!=null) {
+			if (addressRef.getConcreteValue() != null) {
 				throw new IllegalStateException("Expected null concrete value");
 			}
 		} else {
 			addressRef = env.heap.getReference(conc_remote_address);
-			if (addressRef.getWeakConcreteObject()==null) {
+			if (addressRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete value");
 			}
 		}
@@ -1406,12 +1405,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression addressRef;
 		if (conc_local_address == null) {
 			addressRef = env.heap.getReference(null);
-			if (addressRef.getWeakConcreteObject()!=null) {
+			if (addressRef.getConcreteValue() != null) {
 				throw new IllegalStateException("Expected null concrete object");
 			}
 		} else {
 			addressRef = env.heap.getReference(conc_local_address);
-			if (addressRef.getWeakConcreteObject()==null) {
+			if (addressRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete object");
 			}
 		}
@@ -1448,8 +1447,8 @@ public class SymbolicObserver extends ExecutionObserver {
 	private void after(NullStatement s, Scope scope) {
 		VariableReference lhs = s.getReturnValue();
 		String lhs_name = lhs.getName();
-
-		symb_references.put(lhs_name, NullExpression.getInstance());
+		ReferenceExpression nullConstant = ExpressionFactory.buildNewNullExpression();
+		symb_references.put(lhs_name, nullConstant);
 	}
 
 	private void after(FunctionalMockStatement statement, Scope scope) {
@@ -1476,7 +1475,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 				if (res != null && res instanceof String) {
 					String string = (String) res;
-					NonNullExpression newStringRef = (NonNullExpression) env.heap.getReference(string);
+					ReferenceConstant newStringRef = (ReferenceConstant) env.heap.getReference(string);
 					StringValue str_expr = env.heap.getField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE, string,
 							newStringRef, string);
 					symb_references.put(varName, newStringRef);
@@ -1484,7 +1483,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				} else {
 					symb_references.put(varName, ref);
 					if (res != null && isWrapper(res)) {
-						NonNullExpression nonNullRef = (NonNullExpression) ref;
+						ReferenceConstant nonNullRef = (ReferenceConstant) ref;
 						Expression<?> expr = findOrCreate(res, nonNullRef);
 						symb_expressions.put(varName, expr);
 					}
@@ -1530,12 +1529,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
-		NonNullExpression shortRef = newShortReference(short_instance, integerVariable);
+		ReferenceConstant shortRef = newShortReference(short_instance, integerVariable);
 		symb_references.put(varRefName, shortRef);
 	}
 
-	private NonNullExpression newShortReference(Short conc_short, IntegerValue symb_value) {
-		NonNullExpression shortRef = (NonNullExpression) env.heap.getReference(conc_short);
+	private ReferenceConstant newShortReference(Short conc_short, IntegerValue symb_value) {
+		ReferenceConstant shortRef = (ReferenceConstant) env.heap.getReference(conc_short);
 		env.heap.putField(Types.JAVA_LANG_SHORT, SymbolicHeap.$SHORT_VALUE, conc_short, shortRef, symb_value);
 		return shortRef;
 	}
@@ -1553,12 +1552,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
-		NonNullExpression longRef = newLongReference(long_instance, integerVariable);
+		ReferenceConstant longRef = newLongReference(long_instance, integerVariable);
 		symb_references.put(varRefName, longRef);
 	}
 
-	private NonNullExpression newLongReference(Long conc_long, IntegerValue symb_value) {
-		NonNullExpression longRef = (NonNullExpression) env.heap.getReference(conc_long);
+	private ReferenceConstant newLongReference(Long conc_long, IntegerValue symb_value) {
+		ReferenceConstant longRef = (ReferenceConstant) env.heap.getReference(conc_long);
 		env.heap.putField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE, conc_long, longRef, symb_value);
 		return longRef;
 	}
@@ -1576,12 +1575,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
-		NonNullExpression floatRef = newFloatReference(float_instance, realVariable);
+		ReferenceConstant floatRef = newFloatReference(float_instance, realVariable);
 		symb_references.put(varRefName, floatRef);
 	}
 
-	private NonNullExpression newFloatReference(Float conc_float, RealValue symb_value) {
-		NonNullExpression floatRef = (NonNullExpression) env.heap.getReference(conc_float);
+	private ReferenceConstant newFloatReference(Float conc_float, RealValue symb_value) {
+		ReferenceConstant floatRef = (ReferenceConstant) env.heap.getReference(conc_float);
 		env.heap.putField(Types.JAVA_LANG_FLOAT, SymbolicHeap.$FLOAT_VALUE, conc_float, floatRef, symb_value);
 		return floatRef;
 	}
@@ -1600,12 +1599,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
-		NonNullExpression charRef = newCharacterReference(character0, integerVariable);
+		ReferenceConstant charRef = newCharacterReference(character0, integerVariable);
 		symb_references.put(varRefName, charRef);
 	}
 
-	private NonNullExpression newCharacterReference(Character conc_char, IntegerValue symb_value) {
-		NonNullExpression charRef = (NonNullExpression) env.heap.getReference(conc_char);
+	private ReferenceConstant newCharacterReference(Character conc_char, IntegerValue symb_value) {
+		ReferenceConstant charRef = (ReferenceConstant) env.heap.getReference(conc_char);
 		env.heap.putField(Types.JAVA_LANG_CHARACTER, SymbolicHeap.$CHAR_VALUE, conc_char, charRef, symb_value);
 		return charRef;
 	}
@@ -1623,13 +1622,13 @@ public class SymbolicObserver extends ExecutionObserver {
 			throw new EvosuiteError(e);
 		}
 
-		NonNullExpression byteRef = newByteReference(byte_instance, integerVariable);
+		ReferenceConstant byteRef = newByteReference(byte_instance, integerVariable);
 
 		symb_references.put(varRefName, byteRef);
 	}
 
-	private NonNullExpression newByteReference(Byte conc_byte, IntegerValue symb_value) {
-		NonNullExpression byteRef = (NonNullExpression) env.heap.getReference(conc_byte);
+	private ReferenceConstant newByteReference(Byte conc_byte, IntegerValue symb_value) {
+		ReferenceConstant byteRef = (ReferenceConstant) env.heap.getReference(conc_byte);
 		env.heap.putField(Types.JAVA_LANG_BYTE, SymbolicHeap.$BYTE_VALUE, conc_byte, byteRef, symb_value);
 		return byteRef;
 	}
@@ -1647,12 +1646,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		}
 
 		symb_expressions.put(varRefName, integerVariable);
-		NonNullExpression booleanRef = newBooleanReference(boolean_instance, integerVariable);
+		ReferenceConstant booleanRef = newBooleanReference(boolean_instance, integerVariable);
 		symb_references.put(varRefName, booleanRef);
 	}
 
-	private NonNullExpression newBooleanReference(Boolean conc_boolean, IntegerValue symb_value) {
-		NonNullExpression booleanRef = (NonNullExpression) env.heap.getReference(conc_boolean);
+	private ReferenceConstant newBooleanReference(Boolean conc_boolean, IntegerValue symb_value) {
+		ReferenceConstant booleanRef = (ReferenceConstant) env.heap.getReference(conc_boolean);
 		env.heap.putField(Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE, conc_boolean, booleanRef, symb_value);
 		return booleanRef;
 	}
@@ -1670,12 +1669,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
-		NonNullExpression doubleRef = newDoubleReference(double_instance, realVariable);
+		ReferenceConstant doubleRef = newDoubleReference(double_instance, realVariable);
 		symb_references.put(varRefName, doubleRef);
 	}
 
-	private NonNullExpression newDoubleReference(Double conc_double, RealValue symb_value) {
-		NonNullExpression doubleRef = (NonNullExpression) env.heap.getReference(conc_double);
+	private ReferenceConstant newDoubleReference(Double conc_double, RealValue symb_value) {
+		ReferenceConstant doubleRef = (ReferenceConstant) env.heap.getReference(conc_double);
 		env.heap.putField(Types.JAVA_LANG_DOUBLE, SymbolicHeap.$DOUBLE_VALUE, conc_double, doubleRef, symb_value);
 		return doubleRef;
 	}
@@ -1697,7 +1696,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Integer res = (Integer) varRef.getObject(scope);
 				VM.CALL_RESULT(res.intValue(), owner, name, desc);
 				IntegerValue intExpr = env.topFrame().operandStack.popBv32();
-				NonNullExpression newIntegerRef = newIntegerReference(res, intExpr);
+				ReferenceConstant newIntegerRef = newIntegerReference(res, intExpr);
 				symb_references.put(varName, newIntegerRef);
 				symb_expressions.put(varName, intExpr);
 
@@ -1705,7 +1704,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Boolean res = (Boolean) varRef.getObject(scope);
 				VM.CALL_RESULT(res.booleanValue(), owner, name, desc);
 				IntegerValue intExpr = env.topFrame().operandStack.popBv32();
-				NonNullExpression newBooleanRef = newBooleanReference(res, intExpr);
+				ReferenceConstant newBooleanRef = newBooleanReference(res, intExpr);
 				symb_references.put(varName, newBooleanRef);
 				symb_expressions.put(varName, intExpr);
 
@@ -1713,7 +1712,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Double res = (Double) varRef.getObject(scope);
 				VM.CALL_RESULT(res.doubleValue(), owner, name, desc);
 				RealValue realExpr = env.topFrame().operandStack.popFp64();
-				NonNullExpression newDoubleRef = newDoubleReference(res, realExpr);
+				ReferenceConstant newDoubleRef = newDoubleReference(res, realExpr);
 				symb_references.put(varName, newDoubleRef);
 				symb_expressions.put(varName, realExpr);
 
@@ -1721,7 +1720,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Float res = (Float) varRef.getObject(scope);
 				VM.CALL_RESULT(res.floatValue(), owner, name, desc);
 				RealValue realExpr = env.topFrame().operandStack.popFp32();
-				NonNullExpression newFloatRef = newFloatReference(res, realExpr);
+				ReferenceConstant newFloatRef = newFloatReference(res, realExpr);
 				symb_references.put(varName, newFloatRef);
 				symb_expressions.put(varName, realExpr);
 
@@ -1729,7 +1728,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Long res = (Long) varRef.getObject(scope);
 				VM.CALL_RESULT(res.longValue(), owner, name, desc);
 				IntegerValue intExpr = env.topFrame().operandStack.popBv64();
-				NonNullExpression newBooleanRef = newLongReference(res, intExpr);
+				ReferenceConstant newBooleanRef = newLongReference(res, intExpr);
 				symb_references.put(varName, newBooleanRef);
 				symb_expressions.put(varName, intExpr);
 
@@ -1737,7 +1736,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Short res = (Short) varRef.getObject(scope);
 				VM.CALL_RESULT(res.shortValue(), owner, name, desc);
 				IntegerValue intExpr = env.topFrame().operandStack.popBv32();
-				NonNullExpression newShortRef = newShortReference(res, intExpr);
+				ReferenceConstant newShortRef = newShortReference(res, intExpr);
 				symb_references.put(varName, newShortRef);
 				symb_expressions.put(varName, intExpr);
 
@@ -1745,7 +1744,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Byte res = (Byte) varRef.getObject(scope);
 				VM.CALL_RESULT(res.byteValue(), owner, name, desc);
 				IntegerValue intExpr = env.topFrame().operandStack.popBv32();
-				NonNullExpression newByteRef = newByteReference(res, intExpr);
+				ReferenceConstant newByteRef = newByteReference(res, intExpr);
 				symb_references.put(varName, newByteRef);
 				symb_expressions.put(varName, intExpr);
 
@@ -1753,7 +1752,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				Character res = (Character) varRef.getObject(scope);
 				VM.CALL_RESULT(res.charValue(), owner, name, desc);
 				IntegerValue intExpr = env.topFrame().operandStack.popBv32();
-				NonNullExpression newCharacterRef = newCharacterReference(res, intExpr);
+				ReferenceConstant newCharacterRef = newCharacterReference(res, intExpr);
 				symb_references.put(varName, newCharacterRef);
 				symb_expressions.put(varName, intExpr);
 
@@ -1766,7 +1765,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				if (res != null && res instanceof String) {
 
 					String string = (String) res;
-					NonNullExpression newStringRef = (NonNullExpression) env.heap.getReference(string);
+					ReferenceConstant newStringRef = (ReferenceConstant) env.heap.getReference(string);
 					StringValue str_expr = env.heap.getField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE, string,
 							newStringRef, string);
 					symb_references.put(varName, newStringRef);
@@ -1774,7 +1773,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				} else {
 					symb_references.put(varName, ref);
 					if (res != null && isWrapper(res)) {
-						NonNullExpression nonNullRef = (NonNullExpression) ref;
+						ReferenceConstant nonNullRef = (ReferenceConstant) ref;
 						Expression<?> expr = findOrCreate(res, nonNullRef);
 						symb_expressions.put(varName, expr);
 					}
@@ -1789,7 +1788,7 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	}
 
-	private Expression<?> findOrCreate(Object conc_ref, NonNullExpression symb_ref) {
+	private Expression<?> findOrCreate(Object conc_ref, ReferenceConstant symb_ref) {
 		if (conc_ref instanceof Boolean) {
 			Boolean boolean0 = (Boolean) conc_ref;
 			int conc_val = boolean0.booleanValue() ? 1 : 0;
@@ -1849,7 +1848,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
-		NonNullExpression stringRef = newStringReference(string_instance, stringVariable);
+		ReferenceConstant stringRef = newStringReference(string_instance, stringVariable);
 		symb_references.put(varRefName, stringRef);
 	}
 
@@ -1862,12 +1861,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		ReferenceExpression fileRef;
 		if (conc_evosuite_file == null) {
 			fileRef = env.heap.getReference(null);
-			if (fileRef.getWeakConcreteObject()!=null) {
-				throw new IllegalStateException("Expecred null concrete object");
+			if (fileRef.getConcreteValue() != null) {
+				throw new IllegalStateException("Expected null concrete object");
 			}
 		} else {
-			fileRef = (NonNullExpression) env.heap.getReference(conc_evosuite_file);
-			if (fileRef.getWeakConcreteObject()==null) {
+			fileRef = (ReferenceConstant) env.heap.getReference(conc_evosuite_file);
+			if (fileRef.getConcreteValue() == null) {
 				throw new IllegalStateException("Expected non-null concrete object");
 			}
 		}
@@ -1875,8 +1874,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		symb_references.put(varRefName, fileRef);
 	}
 
-	private NonNullExpression newStringReference(String conc_string, StringValue str_expr) {
-		NonNullExpression stringRef = (NonNullExpression) env.heap.getReference(conc_string);
+	private ReferenceConstant newStringReference(String conc_string, StringValue str_expr) {
+		ReferenceConstant stringRef = (ReferenceConstant) env.heap.getReference(conc_string);
 		env.heap.putField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE, conc_string, stringRef, str_expr);
 		return stringRef;
 	}
@@ -1901,12 +1900,12 @@ public class SymbolicObserver extends ExecutionObserver {
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
-		NonNullExpression integerRef = newIntegerReference(integer_instance, integerVariable);
+		ReferenceConstant integerRef = newIntegerReference(integer_instance, integerVariable);
 		symb_references.put(varRefName, integerRef);
 	}
 
-	private NonNullExpression newIntegerReference(Integer conc_integer, IntegerValue symb_value) {
-		NonNullExpression integerRef = (NonNullExpression) env.heap.getReference(conc_integer);
+	private ReferenceConstant newIntegerReference(Integer conc_integer, IntegerValue symb_value) {
+		ReferenceConstant integerRef = (ReferenceConstant) env.heap.getReference(conc_integer);
 		env.heap.putField(Types.JAVA_LANG_INTEGER, SymbolicHeap.$INT_VALUE, conc_integer, integerRef, symb_value);
 		return integerRef;
 	}

@@ -19,9 +19,7 @@
  */
 package org.evosuite.symbolic;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.symbolic.expr.Constraint;
@@ -38,20 +36,17 @@ public class BranchCondition {
 	private final String methodName;
 	private final int branchIndex;
 
-	private final BranchCondition previousBranchCondition;
-
-	private final Constraint<?> localConstraint;
+	private final Constraint<?> constraint;
 
 	private final List<Constraint<?>> supportingConstraints;
 
 	/**
-	 * <p>
-	 * Constructor for BranchCondition.
-	 * </p>
+	 * A branch condition is identified by the className, methodName and
+	 * branchIndex belonging to the class in the SUT, the target constraint and
+	 * all the suporting constraint for that particular branch (zero checks,
+	 * etc)
 	 * 
-	 * @param previousBranchCondition
-	 *            TODO
-	 * @param localConstraint
+	 * @param constraint
 	 *            TODO
 	 * @param supportingConstraints
 	 *            a {@link java.util.Set} object.
@@ -60,17 +55,14 @@ public class BranchCondition {
 	 * @param ins
 	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(BranchCondition previousBranchCondition, String className,
-	        String methodName, int branchIndex, Constraint<?> localConstraint,
-	        List<Constraint<?>> supportingConstraints) {
+	public BranchCondition(String className, String methodName, int branchIndex, Constraint<?> constraint,
+			List<Constraint<?>> supportingConstraints) {
 
 		this.className = ResourceList.getClassNameFromResourcePath(className);
 		this.methodName = methodName;
 		this.branchIndex = branchIndex;
 
-		this.previousBranchCondition = previousBranchCondition;
-
-		this.localConstraint = localConstraint;
+		this.constraint = constraint;
 		this.supportingConstraints = supportingConstraints;
 	}
 
@@ -82,7 +74,7 @@ public class BranchCondition {
 			ret += " " + c + "\n";
 		}
 
-		ret += this.localConstraint;
+		ret += this.constraint;
 		return ret;
 	}
 
@@ -98,35 +90,14 @@ public class BranchCondition {
 		return className + "." + methodName;
 	}
 
-	private BranchCondition getPreviousBranchCondition() {
-		return previousBranchCondition;
-	}
-
 	/**
-	 * Returns a set of all the reaching constraints
+	 * Returns the constraint for actual branch. This constraint has to be
+	 * negated to take another path.
 	 * 
 	 * @return
 	 */
-	public Set<Constraint<?>> getReachingConstraints() {
-		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
-		constraints.addAll(supportingConstraints);
-
-		BranchCondition current = previousBranchCondition;
-		while (current != null) {
-			constraints.addAll(current.supportingConstraints);
-			constraints.add(current.localConstraint);
-			current = current.getPreviousBranchCondition();
-		}
-		return constraints;
-	}
-
-	/**
-	 * Returns the constraint for actual branch
-	 * 
-	 * @return
-	 */
-	public Constraint<?> getLocalConstraint() {
-		return localConstraint;
+	public Constraint<?> getConstraint() {
+		return constraint;
 	}
 
 	/**
@@ -138,5 +109,13 @@ public class BranchCondition {
 	 */
 	public List<Constraint<?>> getSupportingConstraints() {
 		return supportingConstraints;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public int getBranchIndex() {
+		return branchIndex;
 	}
 }

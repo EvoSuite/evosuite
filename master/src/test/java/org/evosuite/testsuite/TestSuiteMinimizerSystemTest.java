@@ -172,6 +172,6 @@ public class TestSuiteMinimizerSystemTest extends SystemTestBase {
         Assert.assertEquals(1.0, c.getCoverage(line), 0.0);
 
         Assert.assertEquals(6.0, c.getNumOfCoveredGoals(onlybranch), 0.0);
-        Assert.assertEquals(9.0, c.getNumOfCoveredGoals(line), 0.0);
+        Assert.assertEquals(10.0, c.getNumOfCoveredGoals(line), 0.0);
 	}
 }

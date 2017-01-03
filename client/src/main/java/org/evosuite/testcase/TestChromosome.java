@@ -179,14 +179,13 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 		for (int i = position2; i < other.size(); i++) {
 			testFactory.appendStatement(offspring.test,
-			                            ((TestChromosome) other).test.getStatement(i));
+					((TestChromosome) other).test.getStatement(i));
 		}
 		if (!Properties.CHECK_MAX_LENGTH
-		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
+				|| offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
+			setChanged(true);
 		}
-
-		setChanged(true);
 	}
 
 	/**
@@ -283,7 +282,7 @@ public class TestChromosome extends ExecutableChromosome {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		TestCaseLocalSearch localSearch = TestCaseLocalSearch.getLocalSearch();
+		TestCaseLocalSearch localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
 		return localSearch.doSearch(this,
 		                            (LocalSearchObjective<TestChromosome>) objective);
 	}
@@ -538,7 +537,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 *
 	 * @return
 	 */
-	private boolean mutationInsert() {
+	public boolean mutationInsert() {
 		boolean changed = false;
 		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
@@ -595,7 +594,7 @@ public class TestChromosome extends ExecutableChromosome {
 		        + " target branches");
 
 		// Try to solve negated constraint
-		TestCase newTest = ConcolicMutation.negateCondition(branch, test);
+		TestCase newTest = ConcolicMutation.negateCondition(branches, branch, test);
 
 		// If successful, add resulting test to test suite
 		if (newTest != null) {

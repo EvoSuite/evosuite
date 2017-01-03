@@ -23,11 +23,11 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -48,12 +48,12 @@ public abstract class StringBuilder_Append extends SymbolicFunction {
 	public final Object executeFunction() {
 		// string builder
 		StringBuilder conc_str_builder = (StringBuilder) this.getConcReceiver();
-		NonNullExpression symb_str_builder = (NonNullExpression) this
+		ReferenceConstant symb_str_builder = (ReferenceConstant) this
 				.getSymbReceiver();
 
 		// return value
 		StringBuilder res = (StringBuilder) this.getConcRetVal();
-		NonNullExpression symb_res = (NonNullExpression) this.getSymbRetVal();
+		ReferenceConstant symb_res = (ReferenceConstant) this.getSymbRetVal();
 
 		StringValue leftExpr = this.env.heap.getField(
 				Types.JAVA_LANG_STRING_BUILDER,
@@ -126,7 +126,7 @@ public abstract class StringBuilder_Append extends SymbolicFunction {
 				rightExpr = ExpressionFactory
 						.buildNewStringConstant(NULL_STRING);
 			} else {
-				NonNullExpression symb_string = (NonNullExpression) symb_str;
+				ReferenceConstant symb_string = (ReferenceConstant) symb_str;
 				rightExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_str, symb_string,
 						conc_str);

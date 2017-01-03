@@ -35,13 +35,12 @@ public abstract class DefaultTestCaseConcolicExecutor {
 
 	
 	public static Collection<Constraint<?>> execute(DefaultTestCase tc) {
-		Collection<Constraint<?>> constraints;
 		List<BranchCondition> pc = getPathCondition(tc);
 	
-		constraints = new LinkedList<Constraint<?>>();
+		Collection<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		for (BranchCondition condition : pc) {
-			constraints.addAll(condition.getReachingConstraints());
-			Constraint<?> constraint = condition.getLocalConstraint();
+			constraints.addAll(condition.getSupportingConstraints());
+			Constraint<?> constraint = condition.getConstraint();
 			constraints.add(constraint);
 		}
 		return constraints;

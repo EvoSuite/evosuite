@@ -29,7 +29,7 @@ import org.junit.Test;
  */
 public class DBSystemTest extends SystemTestBase {
 
-    @Test
+    @Test(timeout = 60_000) // This test case hanged in Jenkins
     public void testSimpleDBInteraction(){
         Properties.JEE = true;
         do100percentLineTest(SimpleDBInteraction.class);

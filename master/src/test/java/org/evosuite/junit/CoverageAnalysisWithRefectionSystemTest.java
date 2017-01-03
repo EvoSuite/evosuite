@@ -108,8 +108,8 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         assertTrue(rows.size() == 2);
         reader.close();
 
-        assertEquals("13", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
-        assertEquals("1.0", CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name()));
+        assertEquals("14", CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()));
+        assertEquals(0.93, Double.valueOf(CsvJUnitData.getValue(rows, RuntimeVariable.LineCoverage.name())), 0.01);
 
         // Assert that all test cases have passed
 
@@ -122,7 +122,7 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
         assertTrue(lines.size() == 1);
 
-        assertEquals(13 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
+        assertEquals(13 + 1 + 1, lines.get(0).replace(" ", "").length()); // number of goals + test result ('+' pass, '-' fail)
         assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
 	}
 
@@ -165,8 +165,10 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         reader.close();
 
         // The number of lines seems to be different depending on the compiler
-        assertTrue(CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("32") || 
-        		CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("33"));
+        assertTrue("Expected 32-34lines, but found: "+CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()),
+                CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("32") ||
+                        CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("33") ||
+            		CsvJUnitData.getValue(rows, RuntimeVariable.Total_Goals.name()).equals("34"));
 
         // Assert that all test cases have passed
 
@@ -177,11 +179,11 @@ public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
         System.out.println("matrix_file: " + matrix_file);
 
         List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(matrix_file));
-        assertTrue(lines.size() == 1);
+        assertEquals(1, lines.size());
 
         // The number of lines seems to be different depending on the compiler
-        assertTrue(33 - lines.get(0).replace(" ", "").length() <= 1); // number of goals + test result ('+' pass, '-' fail)
-        assertTrue(lines.get(0).replace(" ", "").endsWith("+"));
+        assertTrue("Expected lines to be 32-34, but got: "+(lines.get(0).replace(" ", "").length()), 34 - lines.get(0).replace(" ", "").length() <= 2); // number of goals + test result ('+' pass, '-' fail)
+        assertTrue("Expected line to end with +, but line is: "+lines.get(0).replace(" ", ""), lines.get(0).replace(" ", "").endsWith("+"));
 	}
 
 	@Test

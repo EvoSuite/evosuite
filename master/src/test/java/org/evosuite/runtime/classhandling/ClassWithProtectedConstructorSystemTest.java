@@ -26,14 +26,15 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
@@ -43,6 +44,15 @@ import static org.junit.Assert.assertFalse;
  */
 public class ClassWithProtectedConstructorSystemTest extends SystemTestBase {
 
+	private Path testPath;
+
+	@Before
+	public void setupTempDir() throws IOException {
+		Properties.JUNIT_TESTS = true;
+		testPath = Files.createTempDirectory("foobar");
+		Properties.TEST_DIR = testPath.toString();
+	}
+
 	@Test
 	public void shouldNotGenerateTryCatchForIllegalAccessException() throws IOException {
 
@@ -50,26 +60,41 @@ public class ClassWithProtectedConstructorSystemTest extends SystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = com.examples.with.different.packagename.listclasses.ClassWithProtectedMethods.class.getCanonicalName();
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		// write test suite
-		TestCaseExecutor.initExecutor();
-		TestSuiteWriter writer = new TestSuiteWriter();
-		writer.insertAllTests(best.getTests());
 		String name = targetClass.substring(targetClass.lastIndexOf(".") + 1) + Properties.JUNIT_SUFFIX;
-		writer.writeTestSuite(name, Properties.TEST_DIR, Collections.EMPTY_LIST);
 
 		// check that the test suite was created
 		String junitFile = Properties.TEST_DIR + File.separatorChar +
 				Properties.CLASS_PREFIX.replace('.', File.separatorChar) + File.separatorChar +
 				name + ".java";
 		Path path = Paths.get(junitFile);
-		Assert.assertTrue("Test Suite does not exist", Files.exists(path));
+		Assert.assertTrue("Test Suite does not exist: "+path, Files.exists(path));
+		System.out.println(path.toString());
 
 		String testCode = new String(Files.readAllBytes(path));
+		Files.delete(path);
 		System.out.println(testCode);
-		assertFalse("IllegalAccesException should not occur", testCode.contains("catch(IllegalAccessException e)"));
+		assertFalse("IllegalAccessException should not occur", testCode.contains("catch(IllegalAccessException e)"));
+	}
+
+	@After
+	public void removeTempDir() throws IOException {
+		Files.walkFileTree(testPath, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Files.delete(file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				Files.delete(dir);
+				return FileVisitResult.CONTINUE;
+			}
+		});
 	}
 }

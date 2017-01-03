@@ -25,10 +25,10 @@ import java.util.Collections;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -51,7 +51,7 @@ public abstract class Replace extends SymbolicFunction {
 		public Object executeFunction() {
 
 			// string receiver
-			NonNullExpression symb_receiver = this.getSymbReceiver();
+			ReferenceConstant symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 
 			// old char
@@ -68,9 +68,9 @@ public abstract class Replace extends SymbolicFunction {
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_receiver, symb_receiver, conc_receiver);
 
-			if (symb_ret_val instanceof NonNullExpression) {
+			if (symb_ret_val instanceof ReferenceConstant) {
 
-				NonNullExpression non_null_symb_ret_val = (NonNullExpression) symb_ret_val;
+				ReferenceConstant non_null_symb_ret_val = (ReferenceConstant) symb_ret_val;
 
 				StringMultipleExpression symb_value = new StringMultipleExpression(
 						stringReceiverExpr, Operator.REPLACEC, oldCharExpr,
@@ -98,7 +98,7 @@ public abstract class Replace extends SymbolicFunction {
 		public Object executeFunction() {
 
 			// string receiver
-			NonNullExpression symb_receiver = this.getSymbReceiver();
+			ReferenceConstant symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 
 			// old string
@@ -119,13 +119,13 @@ public abstract class Replace extends SymbolicFunction {
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_receiver, symb_receiver, conc_receiver);
 
-			if (symb_old_str instanceof NonNullExpression
-					&& symb_new_str instanceof NonNullExpression
-					&& symb_ret_val instanceof NonNullExpression) {
+			if (symb_old_str instanceof ReferenceConstant
+					&& symb_new_str instanceof ReferenceConstant
+					&& symb_ret_val instanceof ReferenceConstant) {
 
-				NonNullExpression non_null_symb_old_str = (NonNullExpression) symb_old_str;
-				NonNullExpression non_null_symb_new_str = (NonNullExpression) symb_new_str;
-				NonNullExpression non_null_symb_ret_val = (NonNullExpression) symb_ret_val;
+				ReferenceConstant non_null_symb_old_str = (ReferenceConstant) symb_old_str;
+				ReferenceConstant non_null_symb_new_str = (ReferenceConstant) symb_new_str;
+				ReferenceConstant non_null_symb_ret_val = (ReferenceConstant) symb_ret_val;
 
 				if (conc_old_char_seq instanceof String
 						&& conc_new_char_seq instanceof String) {

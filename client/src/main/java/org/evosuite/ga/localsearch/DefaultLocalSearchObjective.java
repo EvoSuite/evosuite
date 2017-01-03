@@ -30,7 +30,10 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
 /**
- * <p>DefaultLocalSearchObjective class.</p>
+ * The Default local search objective only stores a list of fitness functions. 
+ * It cannot be used to check if an individual has changed, improved or if the objective
+ * has been reached. 
+ * 
  *
  * @author Gordon Fraser
  */
@@ -43,17 +46,19 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 	// TODO: This assumes we are not doing NSGA-II
 	private boolean isMaximization = false;
 	
+	/**
+	 * This operation should not be invoked for this class
+	 */
 	@Override
 	public boolean isDone() {
-		return false;
+		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.LocalSearchObjective#hasImproved(org.evosuite.ga.Chromosome)
+	/**
+	 * This operation should not be invoked for this class
 	 */
-	/** {@inheritDoc} */
 	@Override
-	public boolean hasImproved(T individual) {
+	public boolean hasImproved(T chromosome) {
 		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
 	
@@ -86,21 +91,20 @@ public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalS
 		return fitnessFunctions;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)
+
+	/**
+	 * This operation should not be invoked for this class
 	 */
-	/** {@inheritDoc} */
 	@Override
-	public int hasChanged(T individual) {
+	public int hasChanged(T chromosome) {
 		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.LocalSearchObjective#hasNotWorsened(org.evosuite.ga.Chromosome)
+	/**
+	 * This operation should not be invoked for this class
 	 */
-	/** {@inheritDoc} */
 	@Override
-	public boolean hasNotWorsened(T individual) {
+	public boolean hasNotWorsened(T chromosome) {
 		throw new UnsupportedOperationException("Not implemented for default objective");
 	}
 

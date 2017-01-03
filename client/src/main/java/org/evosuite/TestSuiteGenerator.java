@@ -74,6 +74,7 @@ import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.*;
 import org.evosuite.utils.ArrayUtil;
@@ -165,14 +166,16 @@ public class TestSuiteGenerator {
 			return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
 		}
 
-		if (Properties.isRegression()) {
+		if (Properties.isRegression() && Properties.REGRESSION_SKIP_SIMILAR) {
 			// Sanity checks
 			if (Properties.getTargetClassRegression(true) == null) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
 				logger.error("class {} was not on the regression projectCP", Properties.TARGET_CLASS);
 				return TestGenerationResultBuilder.buildErrorResult("Could not load target regression class");
 			}
 			if (!ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
 					.hasClass(Properties.TARGET_CLASS)) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
 				logger.error("class {} was not on the regression_cp", Properties.TARGET_CLASS);
 				return TestGenerationResultBuilder.buildErrorResult(
 						"Class " + Properties.TARGET_CLASS + " did not exist on regression classpath");
@@ -184,10 +187,22 @@ public class TestSuiteGenerator {
 			// If classes are different, no point in continuing.
 			// TODO: report it to master to create a nice regression report
 			if (!areDifferent) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
 				logger.error("class {} was equal on both versions", Properties.TARGET_CLASS);
 				return TestGenerationResultBuilder.buildErrorResult(
 						"Class " + Properties.TARGET_CLASS + " was not changed between the two versions");
 			}
+		}
+		
+		if (Properties.isRegression() && Properties.REGRESSION_SKIP_DIFFERENT_CFG) {
+		    // Does the class have the same CFG across the two versions of the program?
+  		    boolean sameBranches = RegressionClassDiff.sameCFG();
+  		            
+            if (!sameBranches) {
+                Properties.IGNORE_MISSING_STATISTICS = false;
+                logger.error("Could not match the branches across the two versions.");
+                return TestGenerationResultBuilder.buildErrorResult("Could not match the branches across the two versions.");
+            }
 		}
 
 		TestSuiteChromosome testCases = generateTests();
@@ -294,11 +309,20 @@ public class TestSuiteGenerator {
 					currentThreadVar, Collections.emptyList());
 			VariableReference contextClassLoaderVar = test.addStatement(getContextClassLoaderStmt);
 
-			Method loadClassMethod = ClassLoader.class.getMethod("loadClass", String.class);
-			Statement loadClassStmt = new MethodStatement(test,
-					new GenericMethod(loadClassMethod, loadClassMethod.getDeclaringClass()), contextClassLoaderVar,
-					Collections.singletonList(string0));
-			test.addStatement(loadClassStmt);
+//			Method loadClassMethod = ClassLoader.class.getMethod("loadClass", String.class);
+//			Statement loadClassStmt = new MethodStatement(test,
+//					new GenericMethod(loadClassMethod, loadClassMethod.getDeclaringClass()), contextClassLoaderVar,
+//					Collections.singletonList(string0));
+//			test.addStatement(loadClassStmt);
+
+			BooleanPrimitiveStatement stmt1 = new BooleanPrimitiveStatement(test, true);
+			VariableReference boolean0 = test.addStatement(stmt1);
+			
+			Method forNameMethod = Class.class.getMethod("forName",String.class, boolean.class, ClassLoader.class);
+			Statement forNameStmt = new MethodStatement(test,
+					new GenericMethod(forNameMethod, forNameMethod.getDeclaringClass()), null,
+					Arrays.<VariableReference>asList(string0, boolean0, contextClassLoaderVar));
+			test.addStatement(forNameStmt);
 
 			return test;
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -319,7 +343,8 @@ public class TestSuiteGenerator {
 		// down
 		// the rest of the process, and may lead to invalid tests
 		testSuite.getTestChromosomes()
-				.removeIf(t -> t.getLastExecutionResult() != null && t.getLastExecutionResult().hasTimeout());
+				.removeIf(t -> t.getLastExecutionResult() != null && (t.getLastExecutionResult().hasTimeout() ||
+																	  t.getLastExecutionResult().hasTestException()));
 
 		if (Properties.CTG_SEEDS_FILE_OUT != null) {
 			TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
@@ -691,7 +716,7 @@ public class TestSuiteGenerator {
 			suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
 
 			// If in regression mode, create a separate copy of the tests
-			if (!RegressionSearchListener.statsID.equals("")) {
+			if (!RegressionSearchListener.statsID.equals("") && Properties.REGRESSION_STATISTICS) {
 				File evosuiterTestDir = new File("evosuiter-stats");
 
 				boolean madeDir = false;
@@ -926,6 +951,9 @@ public class TestSuiteGenerator {
 		case TRYCATCH:
 			LoggingUtils.getEvoLogger().info("  - Try-Catch Branch Coverage");
 			break;
+		case REGRESSION:
+		    LoggingUtils.getEvoLogger().info("  - Regression");
+            break;
 		default:
 			throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
 		}

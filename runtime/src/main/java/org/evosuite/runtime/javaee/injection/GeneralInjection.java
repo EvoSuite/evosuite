@@ -19,7 +19,9 @@
  */
 package org.evosuite.runtime.javaee.injection;
 
+import org.evosuite.runtime.Reflection;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.runtime.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -71,13 +73,13 @@ public class GeneralInjection {
         if(fields==null){
             fields = new ArrayList<>();
 
-            for(Field f : klass.getDeclaredFields()){
+            for(Field f : Reflection.getDeclaredFields(klass)){
                 Class<?> fieldClass = f.getType();
                 if(specials.containsKey(fieldClass)){
                     //this is already handled, so skip it
                     continue;
                 }
-                for(Annotation annotation : f.getDeclaredAnnotations()){
+                for(Annotation annotation : Reflection.getDeclaredAnnotations(f)){
                     Class<? extends Annotation> annotationClass = annotation.annotationType();
                     if(InjectionList.isValidForInjection(annotationClass)){
                         fields.add(f);

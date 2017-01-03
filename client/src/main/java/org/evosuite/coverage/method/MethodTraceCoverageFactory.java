@@ -21,6 +21,7 @@ package org.evosuite.coverage.method;
 
 import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -82,27 +83,38 @@ public class MethodTraceCoverageFactory extends
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        if (clazz != null) {
-            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor<?> c : allConstructors) {
-                if (isUsable(c)) {
-                    String methodName = "<init>" + Type.getConstructorDescriptor(c);
-                    logger.info("Adding goal for constructor " + className + "." + methodName);
-                    goals.add(new MethodTraceCoverageTestFitness(className, methodName));
-                }
-            }
-            Method[] allMethods = clazz.getDeclaredMethods();
-            for (Method m : allMethods) {
-                if (isUsable(m)) {
-                    String methodName = m.getName() + Type.getMethodDescriptor(m);
-                    logger.info("Adding goal for method " + className + "." + methodName);
-                    goals.add(new MethodTraceCoverageTestFitness(className, methodName));
-                }
-            }
-        }
+		if (clazz != null) {
+			goals.addAll(getCoverageGoals(clazz, className));
+			Class<?>[] innerClasses = clazz.getDeclaredClasses();
+			for (Class<?> innerClass : innerClasses) {
+				String innerClassName = innerClass.getCanonicalName();
+				goals.addAll(getCoverageGoals(innerClass, innerClassName));
+			}
+		}
         goalComputationTime = System.currentTimeMillis() - start;
         return goals;
     }
+
+	private List<MethodTraceCoverageTestFitness> getCoverageGoals(Class<?> clazz, String className) {
+		List<MethodTraceCoverageTestFitness> goals = new ArrayList<>();
+		Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
+		for (Constructor<?> c : allConstructors) {
+			if (TestUsageChecker.canUse(c)) {
+				String methodName = "<init>" + Type.getConstructorDescriptor(c);
+				logger.info("Adding goal for constructor " + className + "." + methodName);
+				goals.add(new MethodTraceCoverageTestFitness(className, methodName));
+			}
+		}
+		Method[] allMethods = clazz.getDeclaredMethods();
+		for (Method m : allMethods) {
+			if (TestUsageChecker.canUse(m)) {
+				String methodName = m.getName() + Type.getMethodDescriptor(m);
+				logger.info("Adding goal for method " + className + "." + methodName);
+				goals.add(new MethodTraceCoverageTestFitness(className, methodName));
+			}
+		}
+		return goals;
+	}
 
 	/**
 	 * Create a fitness function for branch coverage aimed at covering the root

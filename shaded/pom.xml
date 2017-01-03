@@ -27,6 +27,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration combine.children="append">
+                    <!-- Need for release -->
                     <includeDependencySources>true</includeDependencySources>
                 </configuration>
             </plugin>

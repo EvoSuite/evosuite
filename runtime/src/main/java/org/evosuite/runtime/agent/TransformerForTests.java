@@ -76,6 +76,11 @@ public class TransformerForTests implements ClassFileTransformer {
 
             logger.debug("Going to instrument: "+classWithDots);
 
+			if(instrumenter.isAlreadyInstrumented(new ClassReader(classfileBuffer))) {
+				logger.debug("Skipping transformation of {} as it is already instrumented", classWithDots);
+				return classfileBuffer;
+			}
+
 			return instrumenter.transformBytes(loader, className, reader, false); // TODO: Need to set skip instrumentation for test class
 		}
 	}

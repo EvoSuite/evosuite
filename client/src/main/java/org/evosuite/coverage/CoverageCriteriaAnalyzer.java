@@ -148,9 +148,9 @@ public class CoverageCriteriaAnalyzer {
             case STATEMENT:
                 return RuntimeVariable.StatementCoverage;
             case RHO:
-                return RuntimeVariable.RhoCoverage;
+                return RuntimeVariable.RhoScore;
             case AMBIGUITY:
-                return RuntimeVariable.AmbiguityCoverage;
+                return RuntimeVariable.AmbiguityScore;
             case STRONGMUTATION:
             case MUTATION:
                 return RuntimeVariable.MutationScore;

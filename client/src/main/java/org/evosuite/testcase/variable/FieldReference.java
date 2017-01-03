@@ -274,8 +274,15 @@ public class FieldReference extends VariableReferenceImpl {
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2) {
 		if (source != null) {
-			if (source.equals(var1))
+			if (source.equals(var1)) {
+				if(var2 instanceof ConstantValue) {
+					if(((ConstantValue) var2).getValue() == null) {
+						// No explicit null dereference, it would just lead to a compile error
+						return;
+					}
+				}
 				source = var2;
+			}
 			else
 				source.replaceAdditionalVariableReference(var1, var2);
 		}
@@ -315,6 +322,12 @@ public class FieldReference extends VariableReferenceImpl {
 			return source.getName() + "." + field.getName();
 		else
 			return field.getOwnerClass().getSimpleName() + "." + field.getName();
+	}
+
+	@Override
+	public String toString() {
+		return "FieldReference: "+getName()+", Statement " + getStPosition() + ", type "
+				+ type.getTypeName();
 	}
 
 	/**

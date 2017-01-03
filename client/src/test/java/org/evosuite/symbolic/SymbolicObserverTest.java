@@ -54,7 +54,7 @@ public class SymbolicObserverTest {
 					.getSupportingConstraints()) {
 				System.out.println(constr.toString());
 			}
-			System.out.println(branchCondition.getLocalConstraint().toString());
+			System.out.println(branchCondition.getConstraint().toString());
 
 		}
 	}

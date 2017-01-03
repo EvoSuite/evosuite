@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,6 +45,7 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.jee.InjectionSupport;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
@@ -82,7 +82,7 @@ public class TestFactory {
 	/**
 	 * Keep track of objects we are already trying to generate to avoid cycles
 	 */
-	private transient Set<GenericAccessibleObject<?>> currentRecursion = new HashSet<GenericAccessibleObject<?>>();
+	private transient Set<GenericAccessibleObject<?>> currentRecursion = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	/** Singleton instance */
 	private static TestFactory instance = null;
@@ -1085,7 +1085,7 @@ public class TestFactory {
 
 		objects.remove(statement.getReturnValue());
 		logger.debug("Found assignable objects: " + objects.size());
-		Set<GenericAccessibleObject<?>> currentArrayRecursion = new HashSet<>(currentRecursion);
+		Set<GenericAccessibleObject<?>> currentArrayRecursion = new LinkedHashSet<>(currentRecursion);
 
 		for (int i = 0; i < statement.size(); i++) {
 			currentRecursion.clear();
@@ -1692,9 +1692,14 @@ public class TestFactory {
 			if(test.getStatement(r.getStPosition()) instanceof FunctionalMockStatement){
 				// we should ensure that a FM should never be a callee
 				replacement.remove();
-			} else if (var.equals(r.getAdditionalVariableReference()))
+			} else if (var.equals(r.getAdditionalVariableReference())) {
 				replacement.remove();
-			else if (r instanceof ArrayReference) {
+			} else if(var.isFieldReference()) {
+				FieldReference fref = (FieldReference)var;
+				if(fref.getField().isFinal()) {
+					replacement.remove();
+				}
+			} else if (r instanceof ArrayReference) {
 				if (maxIndex >= ((ArrayReference) r).getArrayLength())
 					replacement.remove();
 			} else if (!replacingPrimitive) {
@@ -1939,12 +1944,12 @@ public class TestFactory {
             Method method = reflectionFactory.nextMethod();
             List<Type> list = new ArrayList<>();
             list.add(reflectionFactory.getReflectedClass());
-            list.addAll(Arrays.asList(method.getParameterTypes()));
+            list.addAll(Arrays.asList(method.getGenericParameterTypes()));
 
-            parameters = satisfyParameters(test, null,list,position, recursionDepth + 1, true, false, true);
+            parameters = satisfyParameters(test, null, list, position, recursionDepth + 1, true, false, true);
             VariableReference callee = parameters.remove(0);
 
-			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method,
                         callee, parameters, Modifier.isStatic(method.getModifiers()));
         }
 
@@ -2003,7 +2008,7 @@ public class TestFactory {
 
 			parameters = satisfyParameters(test, callee, list,position, recursionDepth + 1, true, false, true);
 
-			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method.getName(),
+			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method,
 					callee, parameters, Modifier.isStatic(method.getModifiers()));
 		}
 

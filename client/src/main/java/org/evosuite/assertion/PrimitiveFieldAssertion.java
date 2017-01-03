@@ -47,6 +47,10 @@ public class PrimitiveFieldAssertion extends Assertion {
 		return field;
 	}
 
+	public void setField(Field field) {
+		this.field = field;
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public String getCode() {

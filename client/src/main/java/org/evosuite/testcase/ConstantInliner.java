@@ -27,11 +27,14 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.evosuite.Properties;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.FieldStatement;
+import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
@@ -179,9 +182,11 @@ public class ConstantInliner extends ExecutionObserver {
 				} else if (var.isString() && object != null) {
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
 					try {
-						String val = StringEscapeUtils.unescapeJava(object.toString());
-						value.setValue(val);
-						statement.replace(var, value);
+						String val = StringEscapeUtils.unescapeJava(new String(object.toString()));
+						if(val.length() < Properties.MAX_STRING) {
+							value.setValue(val);
+							statement.replace(var, value);
+						}
 					} catch (IllegalArgumentException e) {
 						// Exceptions may happen if strings are not valid
 						// unicode
@@ -205,6 +210,19 @@ public class ConstantInliner extends ExecutionObserver {
 					// TODO: Ignoring exceptions during getObject, but keeping
 					// the assertion for now
 					if (object == null) {
+						if(statement instanceof MethodStatement) {
+							MethodStatement ms = (MethodStatement)statement;
+							if(var.equals(ms.getCallee())) {
+								// Don't put null in callee's, the compiler will not accept it
+								continue;
+							}
+						} else if(statement instanceof FieldStatement) {
+							FieldStatement fs = (FieldStatement)statement;
+							if(var.equals(fs.getSource())) {
+								// Don't put null in source, the compiler will not accept it
+								continue;
+							}
+						}
 						ConstantValue value = new ConstantValue(test, var.getGenericClass());
 						value.setValue(null);
 						// logger.info("Statement before inlining: " +

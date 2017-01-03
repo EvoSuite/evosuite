@@ -29,6 +29,7 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
 import org.evosuite.runtime.mock.java.util.MockLocale;
 import org.evosuite.runtime.mock.java.util.MockTimeZone;
+import org.evosuite.runtime.mock.java.util.prefs.MockPreferences;
 import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -82,6 +83,7 @@ public class Runtime {
             ThreadCounter.getInstance().resetSingleton();
             MockTimeZone.reset();
             MockLocale.reset();
+			MockPreferences.resetPreferences();
 			JComponent.setDefaultLocale(Locale.getDefault());
 		}
 

@@ -33,6 +33,7 @@ import org.evosuite.utils.generic.GenericMethod;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,38 +46,38 @@ public class PrivateMethodStatement extends MethodStatement {
 
 	private static final long serialVersionUID = -4555899888145880432L;
 
-    private String className;
-
-    private String methodName;
+    private GenericMethod reflectedMethod;
 
     private boolean isStaticMethod = false;
 
-	public PrivateMethodStatement(TestCase tc, Class<?> klass , String methodName, VariableReference callee, List<VariableReference> params, boolean isStatic) {
+	public PrivateMethodStatement(TestCase tc, Class<?> klass, Method method, VariableReference callee, List<VariableReference> params, boolean isStatic) {
         super(
                 tc,
                 new GenericMethod(PrivateAccess.getCallMethod(params.size()),PrivateAccess.class),
                 null, //it is static
-                getReflectionParams(tc,klass,methodName,callee,params)
+                getReflectionParams(tc,klass,method,callee,params)
         );
+        reflectedMethod = new GenericMethod(method, klass);
         isStaticMethod = isStatic;
         List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
         this.method.setTypeParameters(parameterTypes);
-        this.methodName = methodName;
-        this.className = klass.getCanonicalName();
     }
 
-    private static List<VariableReference> getReflectionParams(TestCase tc, Class<?> klass , String methodName,
+    private static List<VariableReference> getReflectionParams(TestCase tc, Class<?> klass , Method method,
                                                                VariableReference callee, List<VariableReference> inputs) {
 
         List<VariableReference> list = new ArrayList<>(3 + inputs.size()*2);
         list.add(new ConstantValue(tc,new GenericClass(Class.class),klass));
         list.add(callee);
-        list.add(new ConstantValue(tc, new GenericClass(String.class), methodName));
+        list.add(new ConstantValue(tc, new GenericClass(String.class), method.getName()));
 
-        for(VariableReference vr : inputs){
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        assert(parameterTypes.length == inputs.size());
+        for(int parameterNum = 0; parameterNum < parameterTypes.length; parameterNum++) {
+            VariableReference vr = inputs.get(parameterNum);
             list.add(vr);
-            list.add(new ConstantValue(tc,new GenericClass(Class.class),vr.getVariableClass()));
+            list.add(new ConstantValue(tc,new GenericClass(Class.class), parameterTypes[parameterNum]));
         }
 
         return list;
@@ -100,7 +101,7 @@ public class PrivateMethodStatement extends MethodStatement {
         VariableReference newCallee = parameters.get(1).copy(newTestCase, offset);
         Class<?> klass = (Class<?>)((ConstantValue)parameters.get(0)).getValue(); // TODO: Make this nice
 
-        pm = new PrivateMethodStatement(newTestCase, klass, methodName, newCallee, newParams, isStaticMethod);
+        pm = new PrivateMethodStatement(newTestCase, klass, reflectedMethod.getMethod(), newCallee, newParams, isStaticMethod);
 
         assert pm.parameters.size() == this.parameters.size();
 

@@ -42,6 +42,7 @@ import java.util.LinkedHashSet;
 import java.util.PropertyPermission;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.FileHandler;
 import java.util.logging.LoggingPermission;
 
 import javax.management.MBeanPermission;
@@ -1222,6 +1223,25 @@ public class MSecurityManager extends SecurityManager {
 		return true;
 	}
 
+	/**
+	 * Check if this is an access of a file needed for FileHandler, or its parent directory check
+	 * @param fp
+	 * @return
+	 */
+	private boolean isFileHandlerCall(FilePermission fp) {
+		if(fp.getName().contains(FILE_HANDLER_NAME_PATTERN))
+			return true;
+		if (fp.getActions().equals("write")) {
+			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+				if(e.getClassName().equals(FileHandler.class.getName()) && e.getMethodName().equals("isParentWritable")) {
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	protected boolean checkFilePermission(FilePermission fp) {
 		String action = fp.getActions();
 		if (action == null) {
@@ -1242,7 +1262,7 @@ public class MSecurityManager extends SecurityManager {
 
 			//we need at least one real file with all permissions, otherwise the VFS will not work
 			boolean isTmpFile = fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath());
-			boolean isFileHandlerFile = fp.getName().contains(FILE_HANDLER_NAME_PATTERN);
+			boolean isFileHandlerFile = isFileHandlerCall(fp);
 
 			if(isFileHandlerFile){
 				/*
@@ -1255,8 +1275,14 @@ public class MSecurityManager extends SecurityManager {
 				//File tmpFile = new File(fp.getName());
 				//tmpFile.deleteOnExit(); //Note: we cannot do it here, otherwise we end up in a infinite recursion...
 				//filesToDelete.add(tmpFile);
+				/*
+				 * Note: As we do not delete the files, they will remain on the FS. FileHandler will then create
+				 * a new file the next time, but once it runs out of IDs, it will check if the parent directory
+				 * is writable, which would cause a security exception. We therefore either have to delete the file
+				 * or check the stack trace to see if we are in FileHandler.isParentWritable
+				 *
+				 */
 			}
-
 			if(isTmpFile || isFileHandlerFile){
 				return true;
 			}

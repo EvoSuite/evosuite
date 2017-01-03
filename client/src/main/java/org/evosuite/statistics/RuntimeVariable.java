@@ -118,12 +118,10 @@ public enum RuntimeVariable {
 	RhoScore,
 	RhoScore_T0,
 	RhoScoreTimeline,
-	RhoCoverage,
 	/** The obtained ambiguity coverage */
 	AmbiguityScore,
 	AmbiguityScore_T0,
 	AmbiguityScoreTimeline,
-	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
 	/** Coverage of instrumented branches */

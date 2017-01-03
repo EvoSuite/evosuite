@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 
 import org.evosuite.dse.AbstractVM;
@@ -38,12 +39,12 @@ import org.evosuite.dse.AbstractVM;
 public final class JumpVM extends AbstractVM {
 	private final SymbolicEnvironment env;
 
-	private final PathConstraint pc;
+	private final PathConditionCollector pc;
 
 	/**
 	 * Constructor
 	 */
-	public JumpVM(SymbolicEnvironment env, PathConstraint pc) {
+	public JumpVM(SymbolicEnvironment env, PathConditionCollector pc) {
 		this.env = env;
 		this.pc = pc;
 	}
@@ -151,7 +152,7 @@ public final class JumpVM extends AbstractVM {
 		// add branch condition iif local constraint is concrete
 		if (cnstr.getLeftOperand().containsSymbolicVariable()
 				|| cnstr.getRightOperand().containsSymbolicVariable())
-			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
+			pc.addBranchCondition(className, methName, branchIndex, cnstr);
 	}
 
 	@Override
@@ -181,7 +182,7 @@ public final class JumpVM extends AbstractVM {
 		// add branch condition iif local constraint is concrete
 		if (cnstr.getLeftOperand().containsSymbolicVariable()
 				|| cnstr.getRightOperand().containsSymbolicVariable())
-			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
+			pc.addBranchCondition(className, methName, branchIndex, cnstr);
 	}
 
 	@Override
@@ -313,13 +314,13 @@ public final class JumpVM extends AbstractVM {
 			IntegerConstraint cnstrt = constraints.get(i);
 			if (cnstrt.getLeftOperand().containsSymbolicVariable()
 					|| cnstrt.getRightOperand().containsSymbolicVariable())
-				pc.pushSupportingConstraint(cnstrt);
+				pc.addSupportingConstraint(cnstrt);
 		}
 		// add branch condition iif local constraint is concrete
 		IntegerConstraint cnstr = constraints.get(constraints.size() - 1);
 		if (cnstr.getLeftOperand().containsSymbolicVariable()
 				|| cnstr.getRightOperand().containsSymbolicVariable())
-			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
+			pc.addBranchCondition(className, methName, branchIndex, cnstr);
 	}
 
 	/**
@@ -363,14 +364,14 @@ public final class JumpVM extends AbstractVM {
 			IntegerConstraint cnstrnt = constraints.get(i);
 			if (cnstrnt.getLeftOperand().containsSymbolicVariable()
 					|| cnstrnt.getRightOperand().containsSymbolicVariable())
-				pc.pushSupportingConstraint(cnstrnt);
+				pc.addSupportingConstraint(cnstrnt);
 		}
 
 		// add branch condition iif local constraint is concrete
 		IntegerConstraint cnstr = constraints.get(constraints.size() - 1);
 		if (cnstr.getLeftOperand().containsSymbolicVariable()
 				|| cnstr.getRightOperand().containsSymbolicVariable()) {
-			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
+			pc.addBranchCondition(className, methName, branchIndex, cnstr);
 		}
 
 	}

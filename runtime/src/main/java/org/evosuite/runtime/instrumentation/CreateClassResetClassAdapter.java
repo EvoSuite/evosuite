@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.evosuite.runtime.classhandling.ClassResetter;
+import org.evosuite.runtime.classhandling.ModifiedTargetStaticFields;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -36,19 +37,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Duplicate static initializers in methods, such that we can explicitly restore
- * the initial state of classes.
+ * This visitor duplicates static initializers (i.e. <clinit>) into a new method
+ * __STATIC_RESET() method, such that we can explicitly restore the initial
+ * state of the class.
  * 
  * @author Gordon Fraser
  */
 public class CreateClassResetClassAdapter extends ClassVisitor {
 
+	/**
+	 * This flag indicates that final static fields should be transformed into
+	 * non-final static fields.
+	 */
+	private final boolean removeFinalModifierOnStaticFields;
+
+	/**
+	 * This flag indicates that any update on final static fields should be
+	 * removed.
+	 */
 	private boolean removeUpdatesOnFinalFields = true;
 
+	/**
+	 * Allows to define if the current transformation should remove any updated
+	 * on those static fields that are final fields. If the
+	 * <code>removeFinalModifierOnStaticFields</code> is active, then no update
+	 * is removed since all static final fields are transformed into non-final
+	 * fields.
+	 * 
+	 * @param removeUpdatesOnFinalFields
+	 */
 	public void setRemoveUpdatesOnFinalFields(boolean removeUpdatesOnFinalFields) {
 		this.removeUpdatesOnFinalFields = removeUpdatesOnFinalFields;
 	}
 
+	/**
+	 * The current class name being visited
+	 */
 	private final String className;
 
 	/** Constant <code>static_classes</code> */
@@ -56,31 +80,52 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(CreateClassResetClassAdapter.class);
 
+	/**
+	 * Indicates if the current class being visited is an interface
+	 */
 	private boolean isInterface = false;
 
+	/**
+	 * Indicates if the current class being visited is an anonymous classs
+	 */
 	private boolean isAnonymous = false;
 
+	/**
+	 * Indicates if the <clinit> method was already found during the visit of
+	 * this class
+	 */
 	private boolean clinitFound = false;
 
 	private boolean definesUid = false;
-
-	private boolean resetMethodAdded = false;
-
 	private long serialUID = -1L;
 
+	/**
+	 * Indicates if the __STATIC_RESET() method has been already added to this
+	 * class definition
+	 */
+	private boolean resetMethodAdded = false;
+
+	/**
+	 * The final fields of this class
+	 */
 	private final List<String> finalFields = new ArrayList<String>();
+
+	/**
+	 * Indicates if the current class being visited is an enumeration
+	 */
+	private boolean isEnum = false;
 
 	private static final Pattern ANONYMOUS_MATCHER1 = Pattern.compile(".*\\$\\d+.*$");
 
 	/**
-	 * <p>
-	 * Constructor for StaticInitializationClassAdapter.
-	 * </p>
+	 * Creates a new <code>CreateClassResetClassAdapter</code> instance
 	 * 
 	 * @param visitor
-	 *            a {@link org.objectweb.asm.ClassVisitor} object.
 	 * @param className
-	 *            a {@link java.lang.String} object.
+	 *            the class name to be visited
+	 * @param removeFinalModifierOnStaticFields
+	 *            if this parameter is true, all final static fields are
+	 *            translated into non-final static fields
 	 */
 	public CreateClassResetClassAdapter(ClassVisitor visitor, String className,
 			boolean removeFinalModifierOnStaticFields) {
@@ -89,7 +134,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		this.removeFinalModifierOnStaticFields = removeFinalModifierOnStaticFields;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * Detects if the current class is an anonymous class
+	 */
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
@@ -97,21 +144,55 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		if (ANONYMOUS_MATCHER1.matcher(name).matches()) {
 			isAnonymous = true;
 		}
+		if (superName.equals(java.lang.Enum.class.getName().replace(".", "/"))) {
+			isEnum = true;
+		}
 	}
 
+	/**
+	 * This class represents a static field that was declared in the current
+	 * visited class.
+	 * 
+	 * @author galeotti
+	 *
+	 */
 	static class StaticField {
+		/**
+		 * Name of the static field
+		 */
 		String name;
+
+		/**
+		 * Field descriptor (ie type) of the static field
+		 */
 		String desc;
+
+		/**
+		 * Initial value (if any) for the static field
+		 */
 		Object value;
+
+		@Override
+		public String toString() {
+			return "StaticField [name=" + name + "]";
+		}
 	}
 
+	/**
+	 * The list of the static fields declared in the class being visited
+	 */
 	private final List<StaticField> static_fields = new LinkedList<StaticField>();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String,
-	 * java.lang.String, java.lang.String, java.lang.Object)
+	/**
+	 * This list saves the static fields whose <code>final</code> modifier was
+	 * removed in the target class
+	 */
+	private final ArrayList<String> modifiedStaticFields = new ArrayList<String>();
+
+	/**
+	 * During the visit of each field, static fields are collected. If the
+	 * <code>removeFinalModifierOnStaticFields</code> is active, final static
+	 * fields are transformed into non-final static fields.
 	 */
 	/** {@inheritDoc} */
 	@Override
@@ -132,8 +213,12 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 			static_fields.add(staticField);
 		}
 
-		if (!isInterface && removeFinalModifierOnStaticFields) {
+		if (!isEnum && !isInterface && removeFinalModifierOnStaticFields) {
 			int newAccess = access & (~Opcodes.ACC_FINAL);
+			if (newAccess != access) {
+				// this means that the field was modified
+				modifiedStaticFields.add(name);
+			}
 			return super.visitField(newAccess, name, desc, signature, value);
 		} else {
 			if (hasFinalModifier(access))
@@ -143,15 +228,25 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		}
 	}
 
+	/**
+	 * Returns true iif the access modifiers has a final modifier
+	 * 
+	 * @param access
+	 * @return
+	 */
 	private boolean hasFinalModifier(int access) {
 		return (access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL;
 	}
 
+	/**
+	 * Returns true iif the access modifiers has a static modifier
+	 * 
+	 * @param access
+	 * @return
+	 */
 	private boolean hasStaticModifier(int access) {
 		return (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 	}
-
-	private final boolean removeFinalModifierOnStaticFields;
 
 	/** {@inheritDoc} */
 	@Override
@@ -195,6 +290,10 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		return mv;
 	}
 
+	/**
+	 * After all the class code was visited, If no <clinit> was found, an empty
+	 * __STATIC_RESET() method is synthesized.
+	 */
 	@Override
 	public void visitEnd() {
 		if (!clinitFound && !isInterface && !isAnonymous && !resetMethodAdded) {
@@ -209,9 +308,13 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 				// createSerialisableUID();
 			}
 		}
+		if (!modifiedStaticFields.isEmpty()) {
+			ModifiedTargetStaticFields.getInstance().addFinalFields(modifiedStaticFields);
+		}
 		super.visitEnd();
 	}
 
+	@Deprecated
 	private void determineSerialisableUID() {
 		try {
 			Class<?> clazz = Class.forName(className.replace('/', '.'), false,
@@ -226,6 +329,7 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 
 	}
 
+	@Deprecated
 	// This method is a code clone from MethodCallReplacementClassAdapter
 	private void createSerialisableUID() {
 		// Only add this for serialisable classes
@@ -242,6 +346,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 				serialUID);
 	}
 
+	/**
+	 * Creates an empty __STATIC_RESET method where no <clinit> was found.
+	 */
 	private void createEmptyStaticReset() {
 		logger.info("Creating brand-new static initializer in class " + className);
 		MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
@@ -250,7 +357,9 @@ public class CreateClassResetClassAdapter extends ClassVisitor {
 		for (StaticField staticField : static_fields) {
 
 			if (!finalFields.contains(staticField.name) && !staticField.name.startsWith("__cobertura")
-					&& !staticField.name.startsWith("$jacoco")) {
+					&& !staticField.name.startsWith("$jacoco") && !staticField.name.startsWith("$VRc") // Old
+																										// Emma
+			) {
 
 				logger.info("Adding bytecode for initializing field " + staticField.name);
 

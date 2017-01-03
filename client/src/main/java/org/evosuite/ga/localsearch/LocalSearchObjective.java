@@ -27,51 +27,71 @@ import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
-
 /**
- * <p>LocalSearchObjective interface.</p>
+ * Represents a local search objective that will be used during local search to
+ * assess the success (or failure) of a local search to a given chromosome 
+ * (it could be TestSuiteChromosome or TestChromosome).
+ * 
+ * The local search objective contains a list of fitness functions that are used
+ * to compute the fitness of an individual.
  *
  * @author Gordon Fraser
  */
 public interface LocalSearchObjective<T extends Chromosome> {
 
+	/**
+	 * true if the objective was achieved
+	 * 
+	 * @return
+	 */
 	public boolean isDone();
-	
+
+	/**
+	 * Returns true if all the fitness functions are maximising functions
+	 * (Observe that it is not possible to store simoustaneously maximising and
+	 * minimising fitness functions)
+	 * 
+	 * @return
+	 */
 	public boolean isMaximizationObjective();
-	
-	/**
-	 * <p>hasImproved</p>
-	 *
-	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a boolean.
-	 */
-	public boolean hasImproved(T individual);
 
 	/**
-	 * <p>hasNotWorsened</p>
+	 * Returns true if the individual has improved due to the applied local
+	 * search
 	 *
-	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
+	 * @param chromosome
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	public boolean hasNotWorsened(T individual);
+	public boolean hasImproved(T chromosome);
 
 	/**
-	 * <p>hasChanged</p>
+	 * Returns true if the individual has not worsened due to the applied local
+	 * search
 	 *
-	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
+	 * @param chromosome
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @return a boolean.
+	 */
+	public boolean hasNotWorsened(T chromosome);
+
+	/**
+	 * Returns true if the individual has changed since local search started
+	 *
+	 * @param chromosome
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	public int hasChanged(T individual);
+	public int hasChanged(T chromosome);
 
 	public void addFitnessFunction(FitnessFunction<? extends Chromosome> fitness);
-	
+
 	/**
-	 * <p>getFitnessFunction</p>
+	 * Returns a list with all the fitness functions stored in this local search
+	 * objective
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
 	public List<FitnessFunction<? extends Chromosome>> getFitnessFunctions();
-	
-	
 
 }

@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -48,35 +49,6 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 
 	private final static Logger logger = LoggerFactory.getLogger(MethodTraceCoverageSuiteFitness.class);
 
-	@Override
-    protected void determineMethods() {
-        String className = Properties.TARGET_CLASS;
-        Class<?> clazz = null;
-        try {
-            clazz = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (clazz != null) {
-            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor<?> c : allConstructors) {
-                if (MethodTraceCoverageFactory.isUsable(c)) {
-                    String descriptor = Type.getConstructorDescriptor(c);
-                    logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
-                    methods.add(c.getDeclaringClass().getName() + ".<init>" + descriptor);
-                }
-            }
-            Method[] allMethods = clazz.getDeclaredMethods();
-            for (Method m : allMethods) {
-                if (MethodTraceCoverageFactory.isUsable(m)) {
-                    String descriptor = Type.getMethodDescriptor(m);
-                    logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
-                    methods.add(m.getDeclaringClass().getName() + "." + m.getName() + descriptor);
-                }
-            }
-        }
-    }
-
 	/**
 	 * Initialize the set of known coverage goals
 	 */
@@ -95,7 +67,7 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 	 * constructor might not be included in the execution trace
 	 * 
 	 * @param results
-	 * @param callCount
+	 * @param calledMethods
 	 */
 	@Override
 	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
@@ -134,7 +106,7 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 	 * Iterate over all execution results and summarize statistics
 	 * 
 	 * @param results
-	 * @param callCount
+	 * @param calledMethods
 	 * @return
 	 */
 	@Override
@@ -149,13 +121,14 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 			}
 
 			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
-				if(!methods.contains(entry.getKey())||removedMethods.contains(entry.getKey())) continue;
-				if (methodCoverageMap.containsKey(entry.getKey())) {
-					calledMethods.add(entry.getKey());
-					result.test.addCoveredGoal(methodCoverageMap.get(entry.getKey()));					
+				String canonicalName = entry.getKey().replace('$','.'); // Goals contain canonical method names
+				if(!methods.contains(canonicalName)||removedMethods.contains(canonicalName)) continue;
+				if (methodCoverageMap.containsKey(canonicalName)) {
+					calledMethods.add(canonicalName);
+					result.test.addCoveredGoal(methodCoverageMap.get(canonicalName));
 					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, methodCoverageMap.get(entry.getKey()), result);
-						toRemoveMethods.add(entry.getKey());
+						TestsArchive.instance.putTest(this, methodCoverageMap.get(canonicalName), result);
+						toRemoveMethods.add(canonicalName);
 						suite.isToBeUpdated(true);
 					}
                 }

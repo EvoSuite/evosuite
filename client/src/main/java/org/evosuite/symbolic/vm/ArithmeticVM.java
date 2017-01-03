@@ -46,9 +46,9 @@ public final class ArithmeticVM extends AbstractVM {
 
 	private final SymbolicEnvironment env;
 
-	private final PathConstraint pathConstraint;
+	private final PathConditionCollector pathConstraint;
 
-	public ArithmeticVM(SymbolicEnvironment env, PathConstraint pathConstraint) {
+	public ArithmeticVM(SymbolicEnvironment env, PathConditionCollector pathConstraint) {
 		this.env = env;
 		this.pathConstraint = pathConstraint;
 	}
@@ -63,7 +63,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		if (zeroCheck.getLeftOperand().containsSymbolicVariable()
 				|| zeroCheck.getRightOperand().containsSymbolicVariable())
-			pathConstraint.pushSupportingConstraint(zeroCheck);
+			pathConstraint.addSupportingConstraint(zeroCheck);
 
 		if (valueConcrete == 0) {
 			// JVM will throw an exception

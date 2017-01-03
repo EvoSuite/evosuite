@@ -35,7 +35,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.search.EvoSuiteSolver;
+import org.evosuite.symbolic.solver.avm.EvoSuiteSolver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
@@ -96,9 +96,15 @@ public class TestConstraintSolver {
 		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
 
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-		constraints.addAll(last_branch.getReachingConstraints());
-
-		Constraint<?> lastConstraint = last_branch.getLocalConstraint();
+		
+		for(int i=0; i<lastBranchIndex; i++) {
+			BranchCondition c = branch_conditions.get(i);
+			constraints.addAll(c.getSupportingConstraints());
+			constraints.add(c.getConstraint());
+		}
+		
+		constraints.addAll(last_branch.getSupportingConstraints());
+		Constraint<?> lastConstraint = last_branch.getConstraint();
 
 		Constraint<?> targetConstraint = lastConstraint.negate();
 

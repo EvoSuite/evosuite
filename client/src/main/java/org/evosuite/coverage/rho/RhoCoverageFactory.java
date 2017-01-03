@@ -19,6 +19,14 @@
  */
 package org.evosuite.coverage.rho;
 
+import org.evosuite.Properties;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -28,17 +36,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-
-import org.evosuite.Properties;
-import org.evosuite.coverage.line.LineCoverageTestFitness;
-import org.evosuite.instrumentation.LinePool;
-import org.evosuite.rmi.ClientServices;
-import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.utils.LoggingUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -54,7 +51,7 @@ public class RhoCoverageFactory extends
 	/**
 	 * 
 	 */
-	private static List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();;
+	private static List<LineCoverageTestFitness> goals = new ArrayList<LineCoverageTestFitness>();
 	
 	/**
 	 * Variables to calculate Rho value
@@ -104,13 +101,13 @@ public class RhoCoverageFactory extends
 			}
 
 			rho = ((double) number_of_ones) / ((double) number_of_test_cases) / ((double) goals.size());
-			LoggingUtils.getEvoLogger().info("RhoScore of an existing test suite: " + rho);
+			logger.debug("RhoScore of an existing test suite: " + rho);
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.RhoScore_T0, rho);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Size_T0, number_of_test_cases);
 
 			rho = Math.abs(0.5 - rho);
-			LoggingUtils.getEvoLogger().info("(RhoScore - 0.5) of an existing test suite: " + rho);
+			logger.debug("(RhoScore - 0.5) of an existing test suite: " + rho);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -141,13 +138,7 @@ public class RhoCoverageFactory extends
 			return goals;
 		}
 
-		for(String className : LinePool.getKnownClasses()) {
-			Set<Integer> lines = LinePool.getLines(className);
-			for (Integer line : lines) {
-				logger.info("Adding goal for method " + className + ". Line " + line + ".");
-				goals.add(new LineCoverageTestFitness(className, Properties.TARGET_METHOD, line));
-			}
-		}
+		goals = RhoAux.getLineGoals();
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
 		if (Properties.USE_EXISTING_COVERAGE) {

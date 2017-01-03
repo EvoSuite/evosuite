@@ -96,48 +96,59 @@ public class RegressionSearchListener implements SearchListener {
 	 * .ga.metaheuristics.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
-		String statsDirName = "evosuiter-stats";
-		File statsDir = new File(statsDirName);
-		int filecount = 0;
-		if (statsDir.exists() && statsDir.isDirectory()) {
-			filecount = statsDir.list().length;
-		} else {
-			statsDir.mkdirs();
-		}
-
-		Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-
-		// Format: $rand_seed_$file-count-in-current-dir_$CUT-name.csv
-		statsFile = new File(statsDirName
-				+ "/"
-				+ ((Properties.RANDOM_SEED == null) ? "0_" : Properties.RANDOM_SEED + "_") 
-				+ (filecount) + "" + "_" 
-				+ targetClass.getSimpleName() + ".csv");
-
-		// if file exists, append time!
-		if (statsFile.exists())
-			statsFile = new File(statsFile.getName().replace(".csv", "_" + System.currentTimeMillis() + ".csv"));
-		
-		// remove extension
-		statsID = statsFile.getName().replaceFirst("[.][^.]+$", "");
-
-
-		try {
-			String data = "fitness,test_count,test_size,branch_distance,object_distance,coverage,exception_diff,total_exceptions,coverage_old,coverage_new,executed_statements,age,time,assertions,state,exec_time,assert_time,cover_time,state_diff_time,branch_time,obj_time";
-			statsFileWriter = new BufferedWriter(new FileWriter(statsFile));
-			//FileUtils.writeStringToFile(statsFile, data, false);
-			statsFileWriter.write(data);
-			statsFileWriter.flush();
-		} catch (IOException e) {
-			skipWritingStats = true;
-			e.printStackTrace();
-		} catch(Throwable t){
-			// something happened, we don't care :-)
-			t.printStackTrace();
-		}
-		startTime = System.currentTimeMillis();
-	}
+    public void searchStarted(GeneticAlgorithm<?> algorithm) {
+      Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+  
+      // Set an initial unique statsID
+      statsID = ((Properties.RANDOM_SEED == null) ? "0_" : Properties.RANDOM_SEED + "_")
+          + (System.currentTimeMillis()) + "" + "_" + targetClass.getSimpleName();
+  
+      // Create the statistics directory and file
+      if (Properties.REGRESSION_STATISTICS) {
+        String statsDirName = "evosuiter-stats";
+        File statsDir = new File(statsDirName);
+        int filecount = 0;
+        if (statsDir.exists() && statsDir.isDirectory()) {
+          filecount = statsDir.list().length;
+        } else {
+          statsDir.mkdirs();
+        }
+  
+  
+        // Format: $rand_seed_$file-count-in-current-dir_$CUT-name.csv
+        statsFile = new File(statsDirName + "/"
+            + ((Properties.RANDOM_SEED == null) ? "0_" : Properties.RANDOM_SEED + "_") + (filecount)
+            + "" + "_" + targetClass.getSimpleName() + ".csv");
+  
+        // if file exists, append time!
+        if (statsFile.exists())
+          statsFile = new File(
+              statsFile.getName().replace(".csv", "_" + System.currentTimeMillis() + ".csv"));
+  
+        // remove extension
+        statsID = statsFile.getName().replaceFirst("[.][^.]+$", "");
+  
+  
+        try {
+          String data =
+              "fitness,test_count,test_size,branch_distance,object_distance,coverage,exception_diff,total_exceptions,coverage_old,coverage_new,executed_statements,age,time,assertions,state,exec_time,assert_time,cover_time,state_diff_time,branch_time,obj_time";
+          statsFileWriter = new BufferedWriter(new FileWriter(statsFile));
+          // FileUtils.writeStringToFile(statsFile, data, false);
+          statsFileWriter.write(data);
+          statsFileWriter.flush();
+        } catch (IOException e) {
+          skipWritingStats = true;
+          e.printStackTrace();
+        } catch (Throwable t) {
+          // something happened, we don't care :-)
+          t.printStackTrace();
+        }
+      } else {
+        skipWritingStats = true;
+      }
+      
+      startTime = System.currentTimeMillis();
+    }
 
 	@Override
 	public void iteration(GeneticAlgorithm<?> algorithm) {

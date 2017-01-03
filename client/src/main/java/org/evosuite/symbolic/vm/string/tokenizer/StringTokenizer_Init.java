@@ -19,10 +19,10 @@
  */
 package org.evosuite.symbolic.vm.string.tokenizer;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
-import org.evosuite.symbolic.vm.NonNullExpression;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -41,7 +41,7 @@ public final class StringTokenizer_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// symbolic receiver (new object)
-		NonNullExpression symb_str_tokenizer = (NonNullExpression) this
+		ReferenceConstant symb_str_tokenizer = (ReferenceConstant) this
 				.getSymbReceiver();
 
 		// string argument
@@ -52,16 +52,16 @@ public final class StringTokenizer_Init extends SymbolicFunction {
 		String conc_delim = (String) this.getConcArgument(1);
 		ReferenceExpression symb_delim = this.getSymbArgument(1);
 
-		if (symb_str instanceof NonNullExpression
-				&& symb_delim instanceof NonNullExpression) {
-			NonNullExpression non_null_symb_string = (NonNullExpression) symb_str;
+		if (symb_str instanceof ReferenceConstant
+				&& symb_delim instanceof ReferenceConstant) {
+			ReferenceConstant non_null_symb_string = (ReferenceConstant) symb_str;
 			assert conc_str != null;
 
 			StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 					SymbolicHeap.$STRING_VALUE, conc_str, non_null_symb_string,
 					conc_str);
 
-			NonNullExpression non_null_symb_delim = (NonNullExpression) symb_delim;
+			ReferenceConstant non_null_symb_delim = (ReferenceConstant) symb_delim;
 			assert conc_delim != null;
 
 			StringValue delimExpr = env.heap.getField(Types.JAVA_LANG_STRING,

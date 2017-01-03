@@ -30,11 +30,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
-import org.evosuite.instrumentation.LinePool;
+import org.evosuite.coverage.rho.RhoAux;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -132,13 +131,7 @@ public class AmbiguityCoverageFactory extends
 			return goals;
 		}
 
-		for(String className : LinePool.getKnownClasses()) {
-			Set<Integer> lines = LinePool.getLines(className);
-			for (Integer line : lines) {
-				logger.info("Adding goal for method " + className + ". Line " + line + ".");
-				goals.add(new LineCoverageTestFitness(className, Properties.TARGET_METHOD, line));
-			}
-		}
+		goals = RhoAux.getLineGoals();
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
 		max_ambiguity_score = (1.0) // goals.size() / goals.size()

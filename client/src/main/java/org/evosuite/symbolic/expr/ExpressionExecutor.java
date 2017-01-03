@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.expr;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -46,6 +47,9 @@ import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.GetFieldExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -60,12 +64,17 @@ import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * returns the concrete evaluation for a given expression.
+ * 
+ * @author galeotti
+ *
+ */
 public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 	private static final long TRUE_VALUE = 1L;
 	private static final long FALSE_VALUE = 0L;
-	protected static final Logger log = LoggerFactory
-			.getLogger(ExpressionExecutor.class);
+	protected static final Logger log = LoggerFactory.getLogger(ExpressionExecutor.class);
 
 	@Override
 	public Object visit(IntegerBinaryExpression n, Void arg) {
@@ -143,8 +152,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		case GETNUMERICVALUE:
 			return (long) Character.getNumericValue((char) leftVal);
 		case ISLETTER:
-			return Character.isLetter((char) leftVal) ? TRUE_VALUE
-					: FALSE_VALUE;
+			return Character.isLetter((char) leftVal) ? TRUE_VALUE : FALSE_VALUE;
 		case ISDIGIT:
 			return Character.isDigit((char) leftVal) ? TRUE_VALUE : FALSE_VALUE;
 
@@ -264,8 +272,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 			return (long) first.charAt(indx);
 		}
 		default:
-			log.warn("StringBinaryToIntegerExpression: unimplemented operator! Operator"
-					+ op.toString());
+			log.warn("StringBinaryToIntegerExpression: unimplemented operator! Operator" + op.toString());
 			return null;
 		}
 
@@ -282,8 +289,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		case STARTSWITH:
 			long start = (Long) other_v.get(0).accept(this, null);
 
-			return first.startsWith(second, (int) start) ? TRUE_VALUE
-					: FALSE_VALUE;
+			return first.startsWith(second, (int) start) ? TRUE_VALUE : FALSE_VALUE;
 
 		case REGIONMATCHES:
 			long frstStart = (Long) other_v.get(0).accept(this, null);
@@ -291,9 +297,8 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 			long length = (Long) other_v.get(2).accept(this, null);
 			long ignoreCase = (Long) other_v.get(3).accept(this, null);
 
-			return first.regionMatches(ignoreCase != 0, (int) frstStart,
-					second, (int) secStart, (int) length) ? TRUE_VALUE
-					: FALSE_VALUE;
+			return first.regionMatches(ignoreCase != 0, (int) frstStart, second, (int) secStart, (int) length)
+					? TRUE_VALUE : FALSE_VALUE;
 		default:
 			log.warn("StringMultipleComparison: unimplemented operator!");
 			return null;
@@ -331,8 +336,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 			return (long) first.lastIndexOf(secStr, (int) thrdLong);
 
 		default:
-			log.warn("StringMultipleToIntegerExpression: unimplemented operator: "
-					+ op);
+			log.warn("StringMultipleToIntegerExpression: unimplemented operator: " + op);
 			return null;
 		}
 	}
@@ -561,8 +565,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 		}
 
 		default:
-			log.warn("StringBinaryExpression: unimplemented operator! Operator"
-					+ op.toString());
+			log.warn("StringBinaryExpression: unimplemented operator! Operator" + op.toString());
 			return null;
 		}
 
@@ -640,8 +643,7 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 	@Override
 	public Object visit(HasMoreTokensExpr n, Void arg) {
-		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr()
-				.accept(this, null);
+		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr().accept(this, null);
 		return tokenizer.hasMoreTokens() ? TRUE_VALUE : FALSE_VALUE;
 	}
 
@@ -655,17 +657,45 @@ public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
 
 	@Override
 	public Object visit(NextTokenizerExpr n, Void arg) {
-		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr()
-				.accept(this, null);
+		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr().accept(this, null);
 		tokenizer.nextToken();
 		return tokenizer;
 	}
 
 	@Override
 	public Object visit(StringNextTokenExpr n, Void arg) {
-		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr()
-				.accept(this, null);
+		StringTokenizer tokenizer = (StringTokenizer) n.getTokenizerExpr().accept(this, null);
 		return tokenizer.nextToken();
+	}
+
+	@Override
+	public Object visit(ReferenceConstant r, Void arg) {
+		return r.getConcreteValue();
+	}
+
+	@Override
+	public Object visit(ReferenceVariable r, Void arg) {
+		return r.getConcreteValue();
+	}
+
+	@Override
+	public Object visit(GetFieldExpression r, Void arg) {
+		final Object conc_receiver = r.getReceiverExpr().accept(this, arg);
+		final String field_name = r.getFieldName();
+		if (conc_receiver == null) {
+			// TODO
+			throw new UnsupportedOperationException("How the null case should be handled?");
+		}
+		try {
+			Field field = conc_receiver.getClass().getField(field_name);
+			final boolean isAccessible = field.isAccessible();
+			field.setAccessible(true);
+			Object ret_value = field.get(conc_receiver);
+			field.setAccessible(isAccessible);
+			return ret_value;
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

@@ -19,8 +19,8 @@
  */
 package org.evosuite.symbolic.vm.string.buffer;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -45,8 +45,8 @@ public abstract class StringBuffer_Init extends SymbolicFunction {
 		 */
 		@Override
 		public Object executeFunction() {
-			NonNullExpression symb_str_buffer = this.getSymbReceiver();
-			NonNullExpression symb_string = (NonNullExpression) this
+			ReferenceConstant symb_str_buffer = this.getSymbReceiver();
+			ReferenceConstant symb_string = (ReferenceConstant) this
 					.getSymbArgument(0);
 			String conc_string = (String) this.getConcArgument(0);
 

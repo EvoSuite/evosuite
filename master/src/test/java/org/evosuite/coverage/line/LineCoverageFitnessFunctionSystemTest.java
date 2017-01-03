@@ -94,7 +94,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(1, goals );
+		Assert.assertEquals(2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -116,7 +116,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(1, goals );
+		Assert.assertEquals(2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -138,7 +138,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(1, goals );
+		Assert.assertEquals(2, goals );
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -161,7 +161,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(4, goals );
+		Assert.assertEquals(5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -184,7 +184,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(4, goals );
+		Assert.assertEquals(5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -211,7 +211,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(5, goals );
+		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -238,7 +238,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(5, goals );
+		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -266,7 +266,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(5, goals );
+		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		// Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
 	}
@@ -294,7 +294,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(5, goals );
+		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
@@ -321,7 +321,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(5, goals );
+		Assert.assertEquals(6, goals );
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -348,7 +348,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		for (LineCoverageTestFitness goal : goals)
 			System.out.println(goal);
 
-		assertEquals(7, goals.size());
+		assertEquals(8, goals.size());
 	}
 
 	@Test
@@ -374,7 +374,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		for (LineCoverageTestFitness goal : goals)
 			System.out.println(goal);
 
-		assertEquals(7, goals.size());
+		assertEquals(8, goals.size());
 	}
 
 	@Test

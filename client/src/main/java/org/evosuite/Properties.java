@@ -21,6 +21,7 @@ package org.evosuite;
 
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.lm.MutationType;
+import org.evosuite.regression.RegressionMeasure;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
@@ -304,7 +305,7 @@ public class Properties {
 
     @Parameter(key = "p_reflection_on_private", group = "Test Creation", description = "Probability [0,1] of using reflection to set private fields or call private methods")
     @DoubleValue(min = 0.0, max = 1.0)
-    public static double P_REFLECTION_ON_PRIVATE = 0.5;
+    public static double P_REFLECTION_ON_PRIVATE = 0.0; // Optimal value: 0.5
 
     @Parameter(key = "reflection_start_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which reflection fields/methods handling is activated")
     @DoubleValue(min = 0.0, max = 1.0)
@@ -312,7 +313,7 @@ public class Properties {
 
 	@Parameter(key = "p_functional_mocking", group = "Test Creation", description = "Probability [0,1] of using functional mocking (eg Mockito) when creating object instances")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double P_FUNCTIONAL_MOCKING = 0.8;
+	public static double P_FUNCTIONAL_MOCKING = 0.0; // Optimal value: 0.8
 
 	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -326,8 +327,18 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2
 	}
+
+	// MOSA PROPERTIES
+	public enum RankingType {
+		// Preference sorting is the ranking strategy proposed in
+		PREFERENCE_SORTING, 
+		FAST_NON_DOMINATED_SORTING
+	}
+
+	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
+	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
 	/** Constant <code>ALGORITHM</code> */
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
@@ -390,7 +401,7 @@ public class Properties {
 	public static int DSE_VARIABLE_RESETS = 2;
 
 	public enum DSEType {
-		/** apply DSE per primitive */
+		/** apply DSE per statement */
 		STATEMENT,
 		/** apply DSE with all primitives in a test */
 		TEST,
@@ -432,6 +443,7 @@ public class Properties {
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double LOCAL_SEARCH_PROBABILITY = 1.0;
 
+	@Deprecated
 	@Parameter(key = "local_search_selective", group = "Local Search", description = "Apply local search only to individuals that changed fitness")
 	public static boolean LOCAL_SEARCH_SELECTIVE = false;
 
@@ -448,7 +460,7 @@ public class Properties {
 	public static boolean LOCAL_SEARCH_RESTORE_COVERAGE = false; // Not needed with archive
 
 	@Parameter(key = "local_search_adaptation_rate", group = "Local Search", description = "Parameter used to adapt at runtime the probability of applying local search")
-	public static double LOCAL_SEARCH_ADAPTATION_RATE = 0.33;
+	public static double LOCAL_SEARCH_ADAPTATION_RATE = 2.0;
 
 	@Parameter(key = "local_search_budget", group = "Local Search", description = "Maximum budget usable for improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 5;
@@ -564,6 +576,11 @@ public class Properties {
 	/** Constant <code>POPULATION_LIMIT</code> */
 	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
 	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
+
+	/** Constant <code>WRITE_INDIVIDUALS=false</code> */
+	@Parameter(key = "write_individuals", group = "Search Algorithm",
+	    description = "Write to a file all fitness values of each individual on each iteration of a GA")
+	public static boolean WRITE_INDIVIDUALS = false;
 
 	/** Constant <code>SEARCH_BUDGET=60</code> */
 	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
@@ -1081,6 +1098,9 @@ public class Properties {
 
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
+	
+	@Parameter(key = "ignore_missing_statistics", group = "Output", description = "Return an empty string for missing output variables")
+	public static boolean IGNORE_MISSING_STATISTICS = false;
 
 	@Parameter(key = "float_precision", group = "Output", description = "Precision to use in float comparisons and assertions")
 	public static float FLOAT_PRECISION = 0.01F;
@@ -1153,7 +1173,7 @@ public class Properties {
     public static boolean VIRTUAL_NET = true;
 
     @Parameter(key = "use_separate_classloader", group = "Sandbox", description = "Usa a separate classloader in the final test cases")
-    public static boolean USE_SEPARATE_CLASSLOADER = false;
+    public static boolean USE_SEPARATE_CLASSLOADER = true;
 
 
     // ---------------------------------------------------------------
@@ -1519,9 +1539,7 @@ public class Properties {
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
 
 
-	public enum Strategy {
-		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, REGRESSIONTESTS, MOSUITE, DSE
-	}
+	/*** Evosuite regression testing properties ***/
 	
 	/** Constant <code>REGRESSIONCP</code> */
 	@Parameter(key = "regressioncp", group = "Runtime", description = "Regression testing classpath")
@@ -1540,12 +1558,17 @@ public class Properties {
 	public static int REGRESSION_ANALYSIS_OBJECTDISTANCE = 0;
 	
 	/** Constant <code>REGRESSION_DIFFERENT_BRANCHES</code> */
+	@Deprecated
 	@Parameter(key = "regression_different_branches", group = "Runtime", description = "Classes under test have different branch orders")
 	public static boolean REGRESSION_DIFFERENT_BRANCHES = false;
 	
-	/** Constant <code>REGRESSION_USE_FITNESS</code> */
-	@Parameter(key = "regression_use_fitness", group = "Runtime", description = "Which fitness values will be used")
-	public static int REGRESSION_USE_FITNESS = 4;
+	/** Constant <code>REGRESSION_BRANCH_DISTANCE</code> */
+    @Parameter(key = "regression_branch_distance", group = "Runtime", description = "Enable control-flow distance measurement for regression testing")
+    public static boolean REGRESSION_BRANCH_DISTANCE = false;
+	
+	/** Constant <code>REGRESSION_FITNESS</code> */
+    @Parameter(key = "regression_fitness", group = "Runtime", description = "Set fitness function for EvosuiteR. [Defaults to Random search]")
+    public static RegressionMeasure REGRESSION_FITNESS = RegressionMeasure.RANDOM;
 	
 	/** Constant <code>REGRESSION_ANALYZE</code> */
 	@Parameter(key = "regression_analyze", group = "Runtime", description = "Analyze the classes under test, to ensure the effectiveness of evosuite")
@@ -1563,6 +1586,23 @@ public class Properties {
 	@Parameter(key = "regression_diversity", group = "Runtime", description = "Include diversity fitness measurement")
 	public static boolean REGRESSION_DIVERSITY = false;
 
+	/** Constant <code>REGRESSION_SKIP_SIMILAR</code> */
+    @Parameter(key = "regression_skip_similar", group = "Runtime", description = "Skip running EvosuiteR on similar classes")
+    public static boolean REGRESSION_SKIP_SIMILAR = false;
+    
+    /** Constant <code>REGRESSION_SKIP_DIFFERENT_CFG</code> */
+    @Parameter(key = "regression_skip_different_cfg", group = "Runtime", description = "Skip running EvosuiteR on classes with different control-flow-graph")
+    public static boolean REGRESSION_SKIP_DIFFERENT_CFG = false;
+    
+    /** Constant <code>REGRESSION_STATISTICS</code> */
+    @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")
+    public static boolean REGRESSION_STATISTICS = false;
+	
+	
+	public enum Strategy {
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE
+	}
+	
 	/** Constant <code>STRATEGY</code> */
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
 	public static Strategy STRATEGY = Strategy.EVOSUITE;
@@ -1589,9 +1629,6 @@ public class Properties {
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 50 * 1000 * 1000;
 
-
-	@Parameter(key = "max_perm_size", group = "Runtime", description = "MaxPermSize (in MB) for the client process")
-	public static int MAX_PERM_SIZE = 256;
 
 	/** Constant <code>CLIENT_ON_THREAD=false</code> */
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
@@ -2219,7 +2256,7 @@ public class Properties {
 	 *            a {@link java.lang.String} object.
 	 * @param value
 	 *            an array of {@link java.lang.String} objects.
-	 * @throws org.evosuite.Properties#NoSuchParameterException
+	 * @throws org.evosuite.Properties.NoSuchParameterException
 	 *             if any.
 	 * @throws java.lang.IllegalArgumentException
 	 *             if any.
@@ -2419,7 +2456,7 @@ public class Properties {
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
 			
 
-			if (STRATEGY == Strategy.REGRESSION || STRATEGY == Strategy.REGRESSIONTESTS) {
+			if (STRATEGY == Strategy.REGRESSION) {
 				TARGET_REGRESSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
                         TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
 			}
@@ -2537,7 +2574,7 @@ public class Properties {
 	 * whether or not the regression mode is running
 	 */
 	public static boolean isRegression(){
-		boolean isRegression = (STRATEGY == Strategy.REGRESSION || STRATEGY == Strategy.REGRESSIONTESTS);
+		boolean isRegression = (STRATEGY == Strategy.REGRESSION);
 		return isRegression;
 	}
 

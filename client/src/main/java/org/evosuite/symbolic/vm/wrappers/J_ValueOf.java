@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -36,7 +36,7 @@ public final class J_ValueOf extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		IntegerValue int_value = this.getSymbIntegerArgument(0);
-		NonNullExpression symb_long = (NonNullExpression) this.getSymbRetVal();
+		ReferenceConstant symb_long = (ReferenceConstant) this.getSymbRetVal();
 		Long conc_long = (Long) this.getConcRetVal();
 		env.heap.putField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE,
 				conc_long, symb_long, int_value);

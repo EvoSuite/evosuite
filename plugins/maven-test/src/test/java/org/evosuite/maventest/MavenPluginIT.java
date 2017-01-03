@@ -21,6 +21,8 @@ import static org.junit.Assert.fail;
 
 public class MavenPluginIT {
 
+    private static final long timeoutInMs = 3 * 60 * 1_000;
+
     private final Path projects = Paths.get("projects");
     private final Path simple = projects.resolve("SimpleModule");
     private final Path dependency = projects.resolve("ModuleWithOneDependency");
@@ -45,7 +47,7 @@ public class MavenPluginIT {
     }
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testCompile() throws Exception{
         Verifier verifier  = getVerifier(projects);
         verifier.executeGoal("compile");
@@ -54,7 +56,7 @@ public class MavenPluginIT {
     }
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testESClean() throws Exception{
         Verifier verifier  = getVerifier(simple);
         verifier.addCliOption("evosuite:clean");
@@ -65,7 +67,7 @@ public class MavenPluginIT {
     }
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testSimpleClass() throws Exception{
 
         String cut = "org.maven_test_project.sm.SimpleClass";
@@ -85,7 +87,7 @@ public class MavenPluginIT {
         verifyLogFilesExist(simple,cut);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testSimpleMultiCore() throws Exception {
 
         String a = "org.maven_test_project.sm.SimpleClass";
@@ -111,7 +113,7 @@ public class MavenPluginIT {
     }
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testModuleWithDependency() throws Exception{
 
         String cut = "org.maven_test_project.mwod.OneDependencyClass";
@@ -123,7 +125,7 @@ public class MavenPluginIT {
         verifyLogFilesExist(dependency, cut);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testExportWithTests() throws Exception {
 
         Verifier verifier  = getVerifier(dependency);
@@ -137,7 +139,7 @@ public class MavenPluginIT {
         verifyLogFilesExist(dependency,"org.maven_test_project.mwod.OneDependencyClass");
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testExportWithTestsWithAgent() throws Exception {
 
         Verifier verifier  = getVerifier(dependency);
@@ -152,7 +154,7 @@ public class MavenPluginIT {
         verifyESTestsRunFor(verifier,cut);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testExportWithTestsWithAgentNoFork() throws Exception {
 
         Verifier verifier  = getVerifier(dependency);
@@ -168,7 +170,7 @@ public class MavenPluginIT {
     }
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testEnv() throws Exception{
         Verifier verifier  = getVerifier(env);
         addGenerateAndExportOption(verifier);
@@ -184,25 +186,25 @@ public class MavenPluginIT {
     //--- JaCoCo --------------------------------------------------------------
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJaCoCoNoEnv() throws Exception{
         testVerifyNoEnv("jacoco");
         verifyJaCoCoFileExists(dependency);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJaCoCoWithEnv() throws Exception{
         testVerfiyWithEnv("jacoco");
         verifyJaCoCoFileExists(env);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJaCoCoPass() throws Exception{
         testCoveragePass("jacoco");
         verifyJaCoCoFileExists(coverage);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJaCoCoFail() throws Exception{
         testCoverageFail("jacoco");
         verifyJaCoCoFileExists(coverage);
@@ -212,25 +214,25 @@ public class MavenPluginIT {
     //--- JMockit --------------------------------------------------------------
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJMockitNoEnv() throws Exception{
         testVerifyNoEnv("jmockit", 1);
         verifyJMockitFolderExists(dependency);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJMockitWithEnv() throws Exception{
         testVerfiyWithEnv("jmockit", 1);
         verifyJMockitFolderExists(env);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJMockitPass() throws Exception{
         testCoveragePass("jmockit");
         verifyJMockitFolderExists(coverage);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testJMockitFail() throws Exception{
         testCoverageFail("jmockit");
         verifyJMockitFolderExists(coverage);
@@ -239,13 +241,13 @@ public class MavenPluginIT {
 
     //--- PowerMock --------------------------------------------------------------
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testPowerMockNoEnv() throws Exception{
         testVerifyNoEnv("powermock",1);
     }
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testPowerMockWithEnv() throws Exception{
         testVerfiyWithEnv("powermock",1);
     }
@@ -254,25 +256,25 @@ public class MavenPluginIT {
 
     //--- Cobertura --------------------------------------------------------------
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testCoberturaNoEnv() throws Exception{
         testVerifyNoEnv("cobertura");
         verifyCoberturaFileExists(dependency);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testCoberturaWithEnv() throws Exception{
         testVerfiyWithEnv("cobertura");
         verifyCoberturaFileExists(env);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testCoberturaPass() throws Exception{
         testCoveragePass("cobertura");
         verifyCoberturaFileExists(coverage);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testCoberturaFail() throws Exception{
         testCoverageFail("cobertura");
         verifyCoberturaFileExists(coverage);
@@ -280,26 +282,26 @@ public class MavenPluginIT {
 
     //--- PIT --------------------------------------------------------------
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testPitNoEnv() throws Exception{
         testVerifyNoEnv("pit");
         verifyPitFolderExists(dependency);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testPitWithEnv() throws Exception{
         testVerfiyWithEnv("pit");
         verifyPitFolderExists(env);
     }
 
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testPitPass() throws Exception{
         testCoveragePass("pit");
         verifyPitFolderExists(coverage);
     }
 
-    @Test
+    @Test(timeout = timeoutInMs)
     public void testPitFail() throws Exception{
         testCoverageFail("pit,pitOneTest"); //PIT has its filters for test execution
         verifyPitFolderExists(coverage);

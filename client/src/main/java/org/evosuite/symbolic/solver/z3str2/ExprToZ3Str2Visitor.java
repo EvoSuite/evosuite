@@ -46,6 +46,9 @@ import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.GetFieldExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.RealToStringCast;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
@@ -151,8 +154,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 		}
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ e.getOperator());
+			throw new UnsupportedOperationException("Not implemented yet! " + e.getOperator());
 		}
 		}
 
@@ -160,8 +162,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(IntegerComparison e, Void v) {
-		throw new IllegalStateException(
-				"IntegerComparison should be removed during normalization");
+		throw new IllegalStateException("IntegerComparison should be removed during normalization");
 	}
 
 	@Override
@@ -218,8 +219,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(intExpr, zero);
 			SmtExpr minus_expr = SmtExprBuilder.mkNeg(intExpr);
 
-			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, intExpr,
-					minus_expr);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, intExpr, minus_expr);
 			return ite_expr;
 		default:
 			throw new UnsupportedOperationException("Not implemented yet!" + e.getOperator());
@@ -335,8 +335,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		}
 
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ e.getOperator());
+			throw new UnsupportedOperationException("Not implemented yet! " + e.getOperator());
 		}
 		}
 
@@ -379,8 +378,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr gte_than_zero = SmtExprBuilder.mkGe(intExpr, zero_rational);
 			SmtExpr minus_expr = SmtExprBuilder.mkNeg(intExpr);
 
-			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, intExpr,
-					minus_expr);
+			SmtExpr ite_expr = SmtExprBuilder.mkITE(gte_than_zero, intExpr, minus_expr);
 			return ite_expr;
 		}
 		// trigonometric
@@ -458,8 +456,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkConcat(left, concreteRightConstant);
 		}
 		case APPEND_REAL: {
-			double doubleValue = (Double) e.getRightOperand()
-					.getConcreteValue();
+			double doubleValue = (Double) e.getRightOperand().getConcreteValue();
 			String concreteRight = String.valueOf(doubleValue);
 			SmtExpr concreteRightConstant = mkStringConstant(concreteRight);
 			return SmtExprBuilder.mkConcat(left, concreteRightConstant);
@@ -469,8 +466,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkConcat(left, right);
 		}
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 		}
 
@@ -546,8 +542,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr string = left;
 			SmtExpr target = right;
 			SmtExpr replacement = others.get(0);
-			SmtExpr substringExpr = SmtExprBuilder.mkReplace(string, target,
-					replacement);
+			SmtExpr substringExpr = SmtExprBuilder.mkReplace(string, target, replacement);
 			return substringExpr;
 		}
 
@@ -555,8 +550,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr string = left;
 			SmtExpr fromExpr = right;
 			SmtExpr toExpr = others.get(0);
-			SmtExpr substringExpr = SmtExprBuilder.mkSubstring(string,
-					fromExpr, toExpr);
+			SmtExpr substringExpr = SmtExprBuilder.mkSubstring(string, fromExpr, toExpr);
 			return substringExpr;
 		}
 		case REPLACEC:
@@ -566,8 +560,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return mkStringConstant(stringValue);
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 
 	}
@@ -583,8 +576,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return mkStringConstant(stringValue);
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 	}
 
@@ -609,8 +601,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(RealComparison n, Void arg) {
-		throw new IllegalStateException(
-				"RealComparison should be removed during normalization");
+		throw new IllegalStateException("RealComparison should be removed during normalization");
 
 	}
 
@@ -635,28 +626,26 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (op) {
 		case EQUALS: {
 			SmtExpr equalsFormula = SmtExprBuilder.mkEq(left, right);
-			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(equalsFormula,
-					SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(equalsFormula, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
 		}
 		case ENDSWITH: {
 			SmtExpr endsWithExpr = SmtExprBuilder.mkEndsWith(left, right);
-			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(endsWithExpr,
-					SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(endsWithExpr, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
 		}
 		case CONTAINS: {
 			SmtExpr containsExpr = SmtExprBuilder.mkContains(left, right);
-			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(containsExpr,
-					SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(containsExpr, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
 		}
 		case STARTSWITH: {
 			SmtExpr startsWithExpr = SmtExprBuilder.mkStartsWith(left, right);
-			SmtExpr eqTrue = SmtExprBuilder.mkEq(startsWithExpr,
-					SmtExprBuilder.TRUE);
-			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(eqTrue,
-					SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
+			SmtExpr eqTrue = SmtExprBuilder.mkEq(startsWithExpr, SmtExprBuilder.TRUE);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(eqTrue, SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
 		}
 		case EQUALSIGNORECASE:
@@ -668,8 +657,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return intConst;
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 
 	}
@@ -700,8 +688,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case CHARAT: {
 			SmtExpr startExpr = right;
 			SmtExpr lengthExpr = SmtExprBuilder.ONE_INT;
-			SmtExpr charAtExpr = SmtExprBuilder.mkSubstring(left, startExpr,
-					lengthExpr);
+			SmtExpr charAtExpr = SmtExprBuilder.mkSubstring(left, startExpr, lengthExpr);
 			SmtExpr charToInt = SmtExprBuilder.mkCharToInt(charAtExpr);
 			return charToInt;
 		}
@@ -714,8 +701,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkIntConstant(longValue);
 		}
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet!"
-					+ e.getOperator());
+			throw new UnsupportedOperationException("Not implemented yet!" + e.getOperator());
 		}
 		}
 
@@ -763,16 +749,15 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case STARTSWITH: {
 			// discard index (over-approximate solution)
 			SmtExpr startsWithExpr = SmtExprBuilder.mkStartsWith(left, right);
-			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(startsWithExpr,
-					SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(startsWithExpr, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
 		}
 		case EQUALS:
 		case EQUALSIGNORECASE:
 		case ENDSWITH:
 		case CONTAINS: {
-			throw new IllegalArgumentException(
-					"Illegal StringMultipleComparison operator " + op);
+			throw new IllegalArgumentException("Illegal StringMultipleComparison operator " + op);
 		}
 		case REGIONMATCHES:
 		case PATTERNMATCHES:
@@ -782,8 +767,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return intConst;
 		}
 		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 	}
 
@@ -806,8 +790,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkIntConstant(longValue);
 		}
 		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
 		}
 		}
 	}
@@ -858,8 +841,22 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	@Override
 	public SmtExpr visit(NextTokenizerExpr n, Void arg) {
 		// TODO
-		throw new IllegalStateException(
-				"NextTokenizerExpr is not implemented yet");
+		throw new IllegalStateException("NextTokenizerExpr is not implemented yet");
+	}
+
+	@Override
+	public SmtExpr visit(ReferenceConstant referenceConstant, Void arg) {
+		throw new UnsupportedOperationException("Translation to Z3-Str2 of ReferenceConstant is not yet implemented!");
+	}
+
+	@Override
+	public SmtExpr visit(ReferenceVariable r, Void arg) {
+		throw new UnsupportedOperationException("Translation to Z3-Str2 of ReferenceVariable is not yet implemented!");
+	}
+
+	@Override
+	public SmtExpr visit(GetFieldExpression r, Void arg) {
+		throw new UnsupportedOperationException("Translation to Z3-Str2 of GetFieldExpression is not yet implemented!");
 	}
 
 }

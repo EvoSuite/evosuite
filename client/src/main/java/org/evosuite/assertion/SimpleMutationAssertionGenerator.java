@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
@@ -53,6 +54,14 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 	public void addAssertions(TestSuiteChromosome suite) {
 		
 		setupClassLoader(suite);
+		
+		if (!Properties.hasTargetClassBeenLoaded()) {
+	        // Need to load class explicitly since it was re-instrumented
+			Properties.getTargetClassAndDontInitialise();
+	        if (!Properties.hasTargetClassBeenLoaded()) {
+	        	logger.warn("Could not initialize SUT before Assertion generation" );
+	        }
+		}
 		
 		Set<Integer> tkilled = new HashSet<>();
 		int numTest = 0;

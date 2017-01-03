@@ -32,6 +32,7 @@ import java.lang.reflect.Type;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 
 import com.googlecode.gentyref.GenericTypeReflector;
@@ -167,6 +168,10 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	@Override
 	public boolean isStatic() {
 		return Modifier.isStatic(field.getModifiers());
+	}
+
+	public boolean isFinal() {
+		return TestClusterGenerator.isFinalField(field);
 	}
 
 	/* (non-Javadoc)

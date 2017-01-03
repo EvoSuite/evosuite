@@ -246,7 +246,7 @@
                 <!-- MIT -->
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.20</version>
+                <version>1.7.22</version>
             </dependency>
             <dependency>
                 <!-- EPL/LGPL -->
@@ -318,7 +318,7 @@
                 <!-- Apache 2 -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.3.2</version>
+                <version>3.5</version>
                 <!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder
                     in 92_jcvi-javacommon -->
             </dependency>
@@ -326,7 +326,7 @@
                 <!-- Apache 2 -->
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.4</version>
+                <version>2.5</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
@@ -405,7 +405,7 @@
                 <!-- HSQLDB License	http://hsqldb.org/web/hsqlLicense.html, based on BSD -->
                 <groupId>org.hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-                <version>2.3.3</version>
+                <version>2.3.4</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
@@ -436,37 +436,17 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- TODO removed once finalized deployment to Central -->
-    <!--<repositories>-->
-        <!--<repository>-->
-            <!--<releases>-->
-                <!--<enabled>true</enabled>-->
-                <!--<checksumPolicy>warn</checksumPolicy>-->
-            <!--</releases>-->
-            <!--<snapshots>-->
-                <!--<enabled>true</enabled>-->
-                <!--<updatePolicy>never</updatePolicy>-->
-                <!--<checksumPolicy>fail</checksumPolicy>-->
-            <!--</snapshots>-->
-            <!--<id>EvoSuite</id>-->
-            <!--<name>EvoSuite Repository</name>-->
-            <!--<url>http://www.evosuite.org/m2/</url>-->
-            <!--<layout>default</layout>-->
-        <!--</repository>-->
 
-        <!--&lt;!&ndash; <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url>-->
-            <!--</repository> &ndash;&gt;-->
-    <!--</repositories>-->
-
-
-    <!--&lt;!&ndash; Once we publish EvoSuite as open source, we should rather deploy to MavenCentral &ndash;&gt;-->
-    <!--<distributionManagement>-->
-        <!--<repository>-->
-            <!--<id>EvoSuite</id>-->
-            <!--<name>EvoSuite Repository</name>-->
-            <!--<url>${deployURL}</url>-->
-        <!--</repository>-->
-    <!--</distributionManagement>-->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <distributionManagement>
         <snapshotRepository>
@@ -495,7 +475,7 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.3</version>
+                <version>1.6.7</version>
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>
@@ -564,12 +544,12 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.10</version>
+                <version>1.12</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
                 <configuration>
                     <xmlOutput>true</xmlOutput>
                     <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
@@ -629,14 +609,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>2.10.4</version>
                 <configuration>
                     <source>1.8</source>
                     <additionalparam>-Xdoclint:none</additionalparam>
                     <!--<includeDependencySources>true</includeDependencySources>-->
                 </configuration>
             </plugin>
-            <!-- TODO Update URL. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -645,7 +624,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
+                <version>3.0.1</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
@@ -660,7 +639,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1</version>
                 <configuration>
                     <includePom>true</includePom>
                     <excludes>
@@ -731,7 +710,7 @@
                     <!-- This is used differently in "runtime" pom-->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>3.0.2</version>
                 </plugin>
                 <!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.7.1.201405082137</version> <executions> <execution> <id>default-prepare-agent</id>
@@ -742,7 +721,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.5</version>
+                    <version>3.5.1</version>
                 </plugin>
                 <!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution
                     see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->

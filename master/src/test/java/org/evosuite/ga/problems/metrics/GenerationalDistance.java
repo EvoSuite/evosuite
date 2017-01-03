@@ -37,49 +37,6 @@ package org.evosuite.ga.problems.metrics;
 public class GenerationalDistance extends Metrics
 {
     private static int P = 2;
-    private static int NUMBER_FITNESSES = 2;
-
-    private double[] getMaximumValues(double[][] front)
-    {
-        double[] maximumValue = new double[NUMBER_FITNESSES];
-        for (int i = 0; i < NUMBER_FITNESSES; i++)
-            maximumValue[i] = Double.NEGATIVE_INFINITY;
-
-        for (double[] aFront : front)
-            for (int j = 0; j < aFront.length; j++)
-                if (aFront[j] > maximumValue[j])
-                    maximumValue[j] = aFront[j];
-
-        return maximumValue;
-    }
-
-    private double[] getMinimumValues(double[][] front)
-    {
-        double[] minimumValue = new double[NUMBER_FITNESSES];
-        for (int i = 0; i < NUMBER_FITNESSES; i++)
-            minimumValue[i] = Double.MAX_VALUE;
-
-        for (double[] aFront : front)
-            for (int j = 0; j < aFront.length; j++)
-                if (aFront[j] < minimumValue[j])
-                    minimumValue[j] = aFront[j];
-
-        return minimumValue;
-    }
-
-    private double[][] getNormalizedFront(double[][] front, double[] maximumValue, double[] minimumValue)
-    {
-        double[][] normalizedFront = new double[front.length][];
-
-        for (int i = 0; i < front.length; i++)
-        {
-            normalizedFront[i] = new double[front[i].length];
-            for (int j = 0; j < front[i].length; j++)
-                normalizedFront[i][j] = (front[i][j] - minimumValue[j]) / (maximumValue[j] - minimumValue[j]);
-        }
-
-        return normalizedFront;
-    }
 
     /**
      * Gets the distance between a point and the nearest one in a given front

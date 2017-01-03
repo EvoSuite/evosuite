@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.vm;
 
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
+
 /**
  * 
  * @author galeotti

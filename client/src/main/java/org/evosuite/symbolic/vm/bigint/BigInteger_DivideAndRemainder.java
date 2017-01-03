@@ -23,10 +23,10 @@ import java.lang.reflect.Array;
 import java.math.BigInteger;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.NonNullExpression;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.ReferenceExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
@@ -44,11 +44,11 @@ public final class BigInteger_DivideAndRemainder extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		BigInteger conc_left_big_integer = (BigInteger) this.getConcReceiver();
-		NonNullExpression symb_left_big_integer = this.getSymbReceiver();
+		ReferenceConstant symb_left_big_integer = this.getSymbReceiver();
 
 		BigInteger conc_right_big_integer = (BigInteger) this
 				.getConcArgument(0);
-		NonNullExpression symb_right_big_integer = (NonNullExpression) this
+		ReferenceConstant symb_right_big_integer = (ReferenceConstant) this
 				.getSymbArgument(0);
 
 		Object res = this.getConcRetVal();
@@ -74,7 +74,7 @@ public final class BigInteger_DivideAndRemainder extends SymbolicFunction {
 				BigInteger conc_quotient = (BigInteger) Array.get(res,
 						QUOTIENT_ARRAY_INDEX);
 
-				NonNullExpression symb_quotient = (NonNullExpression) this.env.heap
+				ReferenceConstant symb_quotient = (ReferenceConstant) this.env.heap
 						.getReference(conc_quotient);
 
 				IntegerValue symb_div_value = ExpressionFactory.div(
@@ -89,7 +89,7 @@ public final class BigInteger_DivideAndRemainder extends SymbolicFunction {
 				BigInteger conc_remainder = (BigInteger) Array.get(res,
 						REMAINDER_ARRAY_INDEX);
 
-				NonNullExpression symb_remainder = (NonNullExpression) this.env.heap
+				ReferenceConstant symb_remainder = (ReferenceConstant) this.env.heap
 						.getReference(conc_remainder);
 
 				IntegerValue symb_rem_value = ExpressionFactory.rem(
