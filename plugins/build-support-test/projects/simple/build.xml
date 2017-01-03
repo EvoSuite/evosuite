@@ -10,7 +10,7 @@
 
     <!-- this needs to be set with -D. Done automatically from tests.
         Uncomment (and update) if open from IDE  -->
-    <!--<property name="evosuiteVersion" value="1.0.4-SNAPSHOT" />-->
+    <!--<property name="evosuiteVersion" value="1.0.5-SNAPSHOT" />-->
     <property name="EvoSuiteCompiledTestFolder" value="build/tests" />
 
 

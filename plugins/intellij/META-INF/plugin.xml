@@ -22,7 +22,7 @@
 <idea-plugin version="2">
   <id>org.evosuite.plugin.intellij</id>
   <name>EvoSuite Plugin</name>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.5-SNAPSHOT</version>
   <vendor email="arcuri82@gmail.com" url="http://www.evosuite.org">EvoSuite</vendor>
 
   <description><![CDATA[

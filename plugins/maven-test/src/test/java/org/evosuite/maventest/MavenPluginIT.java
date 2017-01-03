@@ -420,7 +420,7 @@ public class MavenPluginIT {
         Verifier verifier  = new Verifier(targetProject.toAbsolutePath().toString());
         Properties props = new Properties(System.getProperties());
         //update version if run from IDE instead of Maven
-        props.put("evosuiteVersion", System.getProperty("evosuiteVersion","1.0.4-SNAPSHOT"));
+        props.put("evosuiteVersion", System.getProperty("evosuiteVersion","1.0.5-SNAPSHOT"));
         verifier.setSystemProperties(props);
         return verifier;
     }

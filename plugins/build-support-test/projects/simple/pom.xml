@@ -15,7 +15,7 @@
 
         <!-- this needs to be set with -D. Done automatically from tests.
         Uncomment (and update) if open from IDE  -->
-        <!--<evosuiteVersion>1.0.4-SNAPSHOT</evosuiteVersion>-->
+        <!--<evosuiteVersion>1.0.5-SNAPSHOT</evosuiteVersion>-->
     </properties>
 
 

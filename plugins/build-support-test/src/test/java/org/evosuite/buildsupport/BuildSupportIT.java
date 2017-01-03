@@ -33,7 +33,7 @@ public class BuildSupportIT {
 
     private String getEvoSuiteVersion(){
         //update version if run from IDE instead of Maven
-        return System.getProperty("evosuiteVersion","1.0.4-SNAPSHOT");
+        return System.getProperty("evosuiteVersion","1.0.5-SNAPSHOT");
     }
 
     @Before
