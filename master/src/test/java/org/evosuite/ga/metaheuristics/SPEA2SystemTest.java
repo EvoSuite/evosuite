@@ -26,13 +26,17 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.problems.metrics.Spacing;
+import org.evosuite.utils.Randomness;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.BMICalculator;
 import com.examples.with.different.packagename.Calculator;
 
 import java.util.ArrayList;
@@ -45,8 +49,12 @@ import java.util.List;
  */
 public class SPEA2SystemTest extends SystemTestBase {
 
-  @Test
-  public void generateSomeTestsWithSPEA2() {
+  @Before
+  public void reset() {
+    RhoCoverageFactory.getGoals().clear();
+  }
+
+  public double[][] test(String targetClass) {
     Properties.CRITERION = new Criterion[2];
     Properties.CRITERION[0] = Criterion.BRANCH;
     Properties.CRITERION[1] = Criterion.RHO;
@@ -56,10 +64,11 @@ public class SPEA2SystemTest extends SystemTestBase {
     Properties.SELECTION_FUNCTION = Properties.SelectionFunction.BINARY_TOURNAMENT;
     Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
     Properties.SEARCH_BUDGET = 10;
+    Properties.MINIMIZE = false;
+    Randomness.setSeed(10);
 
     EvoSuite evosuite = new EvoSuite();
 
-    String targetClass = Calculator.class.getCanonicalName();
     Properties.TARGET_CLASS = targetClass;
 
     String[] command = new String[] {"-generateSuite", "-class", targetClass};
@@ -81,9 +90,33 @@ public class SPEA2SystemTest extends SystemTestBase {
       front[i][1] = c.getFitness(rho);
     }
 
+    return front;
+  }
+
+  @Test
+  public void minimalSolution() {
+    String targetClass = Calculator.class.getCanonicalName();
+    double[][] front = test(targetClass);
+
+    assertEquals(0.0, front[0][0], 0.0);
+    assertEquals(0.0, front[0][1], 0.0);
+
     Spacing sp = new Spacing();
     double[] max = sp.getMaximumValues(front);
     double[] min = sp.getMinimumValues(front);
+
     assertEquals(0.33, sp.evaluate(sp.getNormalizedFront(front, max, min)), 0.01);
+  }
+
+  @Test
+  public void nonMinimalSolution() {
+    String targetClass = BMICalculator.class.getCanonicalName();
+    double[][] front = test(targetClass);
+
+    Spacing sp = new Spacing();
+    double[] max = sp.getMaximumValues(front);
+    double[] min = sp.getMinimumValues(front);
+
+    assertEquals(0.48, sp.evaluate(sp.getNormalizedFront(front, max, min)), 0.01);
   }
 }
