@@ -6,15 +6,15 @@
   <parent>
     <groupId>org.evosuite.plugins</groupId>
     <artifactId>evosuite-plugins</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.4</version>
   </parent>
 
   <artifactId>evosuite-eclipse-plugin</artifactId>
   <packaging>pom</packaging>
 
   <properties>
-    <tycho-version>0.24.0</tycho-version>
-    <eclipse-repo.url>http://download.eclipse.org/releases/mars</eclipse-repo.url>
+    <tycho-version>0.26.0</tycho-version>
+    <eclipse-repo.url>http://download.eclipse.org/releases/neon</eclipse-repo.url>
   </properties>
 
   <repositories>
