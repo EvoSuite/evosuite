@@ -47,8 +47,13 @@ public class ConstantPoolManager {
 	}
 
 	private void init() {
-		pools = new ConstantPool[] { new StaticConstantPool(), new StaticConstantPool(),
-		        new DynamicConstantPool() };
+		if(!Properties.VARIABLE_POOL) {
+			pools = new ConstantPool[]{new StaticConstantPool(), new StaticConstantPool(),
+					new DynamicConstantPool()};
+		} else {
+			pools = new ConstantPool[]{new StaticConstantVariableProbabilityPool(), new StaticConstantVariableProbabilityPool(),
+					new DynamicConstantVariableProbabilityPool()};
+		}
 
 		initDefaultProbabilities();
 	}

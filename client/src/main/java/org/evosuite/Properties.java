@@ -173,6 +173,10 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double DYNAMIC_POOL = 0.5;
 
+	@Parameter(key = "variable_pool", group = "Test Creation", description = "Set probability of a constant based on the number of occurrences")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static boolean VARIABLE_POOL = false;
+
 	/** Constant <code>DYNAMIC_SEEDING=false</code> */
 	@Deprecated
 	@Parameter(key = "dynamic_seeding", group = "Test Creation", description = "Use numeric dynamic seeding")
