@@ -45,7 +45,6 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.jee.InjectionSupport;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;

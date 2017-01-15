@@ -48,7 +48,7 @@ public class RandomInsertion implements InsertionStrategy {
 
 		/*
 			TODO: if allow inserting a UUT method in the middle of a test,
-			 we need to handle case of not breaking any initialzing bounded variable
+			 we need to handle case of not breaking any initializing bounded variable
 		 */
 		int max = lastPosition;
 		if (max == test.size())
@@ -74,7 +74,7 @@ public class RandomInsertion implements InsertionStrategy {
 		if (insertUUT) {
 			// Insert a call to the UUT at the end
 			position = test.size();
-			success = TestFactory.getInstance().insertRandomCall(test, position);
+			success = TestFactory.getInstance().insertRandomCall(test, lastPosition + 1);
 		} else if (insertEnv) {
 			/*
 				Insert a call to the environment. As such call is likely to depend on many constraints,

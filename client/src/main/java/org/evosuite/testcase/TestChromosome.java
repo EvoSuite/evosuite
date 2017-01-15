@@ -301,8 +301,8 @@ public class TestChromosome extends ExecutableChromosome {
 			changed = true;
 		}
 
-		int lastPosition = getLastMutatableStatement();
 		if(Properties.CHOP_MAX_LENGTH && size() >= Properties.CHROMOSOME_LENGTH) {
+			int lastPosition = getLastMutatableStatement();
 			test.chop(lastPosition + 1);
 		}
 
