@@ -19,7 +19,11 @@
  */
 package org.evosuite.utils;
 
+import org.evosuite.*;
+
 import java.util.*;
+import java.util.Properties;
+
 public abstract class ListUtil {
 	/**
 	 * <p>tail</p>
@@ -75,5 +79,27 @@ public abstract class ListUtil {
 		ArrayList<T> result = new ArrayList<T>(list);
 		Collections.shuffle(result, rnd);
 		return result;
+	}
+
+	private static int getIndex(List<?> population) {
+		double r = Randomness.nextDouble();
+		double d = org.evosuite.Properties.RANK_BIAS
+				- Math.sqrt((org.evosuite.Properties.RANK_BIAS * org.evosuite.Properties.RANK_BIAS)
+				- (4.0 * (org.evosuite.Properties.RANK_BIAS - 1.0) * r));
+		int length = population.size();
+
+		d = d / 2.0 / (org.evosuite.Properties.RANK_BIAS - 1.0);
+
+		//this is not needed because population is sorted based on Maximization
+		//if(maximize)
+		//	d = 1.0 - d; // to do that if we want to have Maximisation
+
+		int index = (int) (length * d);
+		return index;
+	}
+
+	public static <T> T selectRankBiased(List<T> list) {
+		int index = getIndex(list);
+		return list.get(index);
 	}
 }

@@ -405,6 +405,12 @@ public enum TestsArchive implements Archive<TestSuiteChromosome>, Serializable {
 		return methodMap.get(methodKey).isEmpty();
 	}
 
+	public int getNumRemainingGoals(String methodKey) {
+		if(!methodMap.containsKey(methodKey))
+			return 0;
+		return methodMap.get(methodKey).size();
+	}
+
 	protected void removeTestCall(String className, String methodName) {
 		TestCluster cluster = TestCluster.getInstance();
 		List<GenericAccessibleObject<?>> calls = cluster.getTestCalls();

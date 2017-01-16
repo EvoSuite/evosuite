@@ -1193,6 +1193,12 @@ public class Properties {
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
 
+	@Parameter(key = "sort_calls", description = "Sort SUT methods by remaining coverage to bias search towards uncovered parts")
+	public static boolean SORT_CALLS = false;
+
+	@Parameter(key = "sort_objects", description = "Sort objects in a test to make calls on objects closer to SUT more likely")
+	public static boolean SORT_OBJECTS = false;
+
 	/** Constant <code>INHERITANCE_FILE=""</code> */
 	@Parameter(key = "inheritance_file", description = "Cached version of inheritance tree")
 	public static String INHERITANCE_FILE = "";

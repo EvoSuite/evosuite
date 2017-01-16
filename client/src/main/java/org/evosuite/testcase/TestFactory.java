@@ -2110,8 +2110,7 @@ public class TestFactory {
                 logger.debug("Going to insert random reflection call");
 				return insertRandomReflectionCall(test,position, 0);
             }
-
-			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall();
+			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall(test);
 			if (o == null) {
 				logger.warn("Have no target methods to test");
 				return false;
@@ -2191,41 +2190,6 @@ public class TestFactory {
 		}
 	}
 
-	/**
-	 * Insert a random call at given position for an object defined before this
-	 * position
-	 *
-	 * @param test
-	 * @param position
-	 */
-	public boolean insertRandomCallOnObject(TestCase test, int position) {
-		// Select a random variable
-		VariableReference var = selectVariableForCall(test, position);
-//		VariableReference var = selectRandomVariableForCall(test, position);
-
-		boolean success = false;
-
-		// Add call for this variable at random position
-		if (var != null) {
-			logger.debug("Inserting call at position " + position + ", chosen var: "
-			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
-			        + var.getClassName());
-			success = insertRandomCallOnObjectAt(test, var, position);
-		}
-
-		if(!success) {
-            if(reflectionFactory==null){
-    			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-                reflectionFactory = new ReflectionFactory(targetClass);
-            }
-
-            if(TestCluster.getInstance().getNumTestCalls() > 0 || (reflectionFactory.hasPrivateFieldsOrMethods() && TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT)) {
-                logger.debug("Adding new call on UUT because var was null");
-                success = insertRandomCall(test, position);
-            }
-		}
-		return success;
-	}
 
 	public boolean insertRandomCallOnObjectAt(TestCase test, VariableReference var, int position) {
 
@@ -2360,73 +2324,5 @@ public class TestFactory {
 		return parameters;
 	}
 
-	/**
-	 * Randomly select one of the variables in the test defined up to position
-	 * to insert a call for
-	 *
-	 * @param test
-	 * @param position
-	 * @return
-	 */
-	private VariableReference selectVariableForCall(TestCase test, int position) {
-		if (test.isEmpty() || position == 0)
-			return null;
 
-		double sum = 0.0;
-		for (int i = 0; i < position; i++) {
-			//			sum += 1d / (10 * test.getStatement(i).getReturnValue().getDistance() + 1d);
-			sum += 1d / (test.getStatement(i).getReturnValue().getDistance() + 1d);
-			if (logger.isDebugEnabled()) {
-				logger.debug(test.getStatement(i).getCode() + ": Distance = "
-				        + test.getStatement(i).getReturnValue().getDistance());
-			}
-		}
-
-		double rnd = Randomness.nextDouble() * sum;
-
-		for (int i = 0; i < position; i++) {
-			double dist = 1d / (test.getStatement(i).getReturnValue().getDistance() + 1d);
-
-			if (dist >= rnd
-			        && !(test.getStatement(i).getReturnValue() instanceof NullReference)
-			        && !(test.getStatement(i).getReturnValue().isPrimitive())
-			        && !(test.getStatement(i).getReturnValue().isVoid())
-			        && !(test.getStatement(i) instanceof PrimitiveStatement))
-				return test.getStatement(i).getReturnValue();
-			else
-				rnd = rnd - dist;
-		}
-
-		if (position > 0)
-			position = Randomness.nextInt(position);
-
-		VariableReference var = test.getStatement(position).getReturnValue();
-		if (!(var instanceof NullReference) && !var.isVoid()
-		        && !(test.getStatement(position) instanceof PrimitiveStatement)
-		        && !var.isPrimitive())
-			return var;
-		else
-			return null;
-	}
-
-	private VariableReference selectRandomVariableForCall(TestCase test, int position) {
-		if (test.isEmpty() || position == 0)
-			return null;
-
-		List<VariableReference> allVariables = test.getObjects(position);
-		Set<VariableReference> candidateVariables = new LinkedHashSet<VariableReference>();
-		for(VariableReference var : allVariables) {
-			if (!(var instanceof NullReference) &&
-					!var.isVoid() &&
-					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
-					!var.isPrimitive())
-				candidateVariables.add(var);
-		}
-		if(candidateVariables.isEmpty()) {
-			return null;
-		} else {
-			VariableReference choice = Randomness.choice(candidateVariables);
-			return choice;
-		}
-	}
 }

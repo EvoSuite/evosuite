@@ -849,7 +849,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasObject(Type type, int position) {
-		for (int i = 0; i < position; i++) {
+		for (int i = 0; i < position && i < size(); i++) {
 			Statement st = statements.get(i);
 			if (st.getReturnValue() == null)
 				continue; // Nop

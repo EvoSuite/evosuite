@@ -19,11 +19,12 @@
  */
 package org.evosuite.testcase.mutation;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
@@ -33,14 +34,19 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.ListUtil;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RandomInsertion implements InsertionStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(RandomInsertion.class);
-	
+
 	@Override
 	public int insertStatement(TestCase test, int lastPosition) {
 		double r = Randomness.nextDouble();
@@ -102,9 +108,9 @@ public class RandomInsertion implements InsertionStrategy {
 
 					if (lastUsage > var.getStPosition() + 1) {
 						position = Randomness.nextInt(var.getStPosition(), // call has to be after the object is created
-								lastUsage) + 1;
+								lastUsage) + 1; // TODO: Should it be lastUsage-1 ?
 					} else {
-						position = lastUsage;
+						position = lastUsage; // TODO: Should it be lastUsage-1 ?
 					}
 				}
 
@@ -147,7 +153,7 @@ public class RandomInsertion implements InsertionStrategy {
 			return null;
 
 		List<VariableReference> allVariables = test.getObjects(position);
-		Set<VariableReference> candidateVariables = new LinkedHashSet<>();
+		List<VariableReference> candidateVariables = new ArrayList<>();
 
 		for(VariableReference var : allVariables) {
 
@@ -174,9 +180,11 @@ public class RandomInsertion implements InsertionStrategy {
 
 		if(candidateVariables.isEmpty()) {
 			return null;
+		} else if(Properties.SORT_OBJECTS) {
+			candidateVariables = candidateVariables.stream().sorted(Comparator.comparingInt(item -> item.getDistance())).collect(Collectors.toList());
+			return ListUtil.selectRankBiased(candidateVariables);
 		} else {
-			VariableReference choice = Randomness.choice(candidateVariables);
-			return choice;
+			return Randomness.choice(candidateVariables);
 		}
 	}
 
