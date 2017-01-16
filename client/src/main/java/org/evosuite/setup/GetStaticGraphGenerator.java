@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class creates a StaticUsageGraph by trasversing the INVOKESTATIC/GETSTATIC relation
+ * This class creates a StaticUsageGraph by traversing the INVOKESTATIC/GETSTATIC relation
  * among instrumentable classes. 
  * 
  * @author Juan Galeotti
