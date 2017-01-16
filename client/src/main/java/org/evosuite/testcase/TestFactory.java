@@ -123,20 +123,31 @@ public class TestFactory {
 
 		try {
 			if (call.isMethod()) {
-				addMethodFor(test,
-				             callee,
-				             (GenericMethod) call.copyWithNewOwner(callee.getGenericClass()),
-				             position);
+				GenericMethod method = (GenericMethod)call;
+				if(call.isStatic() || !method.getDeclaringClass().isAssignableFrom(callee.getVariableClass())) {
+					// Static methods / methods in other classes can be modifiers of the SUT if the SUT depends on static fields
+					addMethod(test, method, position, 0);
+				} else {
+					addMethodFor(test,
+							callee,
+							(GenericMethod) call.copyWithNewOwner(callee.getGenericClass()),
+							position);
+				}
 			} else if (call.isField()) {
-				addFieldFor(test,
-				            callee,
-				            (GenericField) call.copyWithNewOwner(callee.getGenericClass()),
-				            position);
+				// A modifier for the SUT could also be a static field in another class
+				if(call.isStatic()) {
+					addFieldAssignment(test, (GenericField) call, position, 0);
+				} else {
+					addFieldFor(test,
+							callee,
+							(GenericField) call.copyWithNewOwner(callee.getGenericClass()),
+							position);
+				}
 			}
 			return true;
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this!
-			logger.debug("Inserting call {} has failed. Removing statements", call);
+			logger.debug("Inserting call {} has failed: {} Removing statements", call, e);
 			// TODO: Doesn't work if position != test.size()
 			int lengthDifference = test.size() - previousLength;
 

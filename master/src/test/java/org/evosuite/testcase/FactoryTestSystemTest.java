@@ -90,7 +90,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		List<GenericAccessibleObject<?>> testCalls = TestCluster.getInstance().getTestCalls();
 		System.out.println(testCalls.toString());
 		assertEquals("Expected 5 test calls, but got: " + testCalls.size() + ": "
-		        + testCalls, 5, testCalls.size());
+		        + testCalls, 4, testCalls.size());
 	}
 
 	@Test

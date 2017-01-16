@@ -90,7 +90,6 @@ public class RandomInsertion implements InsertionStrategy {
 			success = (position >= 0);
 		} else if (insertParam){
 			// Insert a call to a parameter
-
 			VariableReference var = selectRandomVariableForCall(test, lastPosition);
 			if (var != null) {
 				int lastUsage = var.getStPosition();
@@ -161,7 +160,7 @@ public class RandomInsertion implements InsertionStrategy {
 					!var.isVoid() &&
 					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
 					!var.isPrimitive() &&
-					test.hasReferences(var) &&
+					(test.hasReferences(var) || var.getVariableClass().equals(Properties.getInitializedTargetClass()))&&
 					/* Note: this check has been added only recently,
 						to avoid having added calls to UUT in the middle of the test
 					 */
