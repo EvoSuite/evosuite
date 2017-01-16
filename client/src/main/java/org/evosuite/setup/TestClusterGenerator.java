@@ -564,8 +564,9 @@ public class TestClusterGenerator {
 					final boolean isFinalField = isFinalField(field);
 					if (!isFinalField) {
 						logger.debug("Is not final");
-						if (field.getDeclaringClass().equals(clazz))
-							cluster.addTestCall(new GenericField(field, clazz));
+						// Setting fields does not contribute to coverage, so we will only count it as a modifier
+						// if (field.getDeclaringClass().equals(clazz))
+						//	cluster.addTestCall(new GenericField(field, clazz));
 						cluster.addModifier(new GenericClass(clazz), genericField);
 					} else {
 						logger.debug("Is final");
@@ -653,7 +654,10 @@ public class TestClusterGenerator {
 					if (fields.contains(field.getName())) {
 						if (!isFinalField(field)) {
 							logger.debug("Is not final");
-							cluster.addTestCall(new GenericField(field, clazz));
+							// cluster.addTestCall(new GenericField(field, clazz));
+							// Count static field as modifier of SUT, not as test call:
+							GenericField genericField = new GenericField(field, clazz);
+							cluster.addModifier(new GenericClass(Properties.getTargetClassAndDontInitialise()), genericField);
 						}
 					}
 				}
@@ -679,7 +683,9 @@ public class TestClusterGenerator {
 
 				GenericMethod genericMethod = new GenericMethod(method, clazz);
 
-				cluster.addTestCall(genericMethod);
+				// Setting static fields is a modifier of a SUT
+				// cluster.addTestCall(genericMethod);
+				cluster.addModifier(new GenericClass(Properties.getTargetClassAndDontInitialise()), genericMethod);
 
 			}
 		}
