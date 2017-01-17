@@ -1272,16 +1272,20 @@ public class TestCluster {
 	        throws ConstructionFailedException {
 		List<GenericAccessibleObject<?>> candidateTestMethods = new ArrayList<>(testMethods);
 
-		// If test already has a SUT call, remove all constructors
-		if(doesTestHaveSUTInstance(test)) {
-			candidateTestMethods = filterConstructors(candidateTestMethods);
-		}
-
 		if(candidateTestMethods.isEmpty()) {
 			logger.debug("No more calls");
 			// TODO: return null, or throw ConstructionFailedException?
 			return null;
 		}
+
+		// If test already has a SUT call, remove all constructors
+		if(doesTestHaveSUTInstance(test)) {
+			candidateTestMethods = filterConstructors(candidateTestMethods);
+			// It may happen that all remaining test calls are constructors. In this case it's ok.
+			if(candidateTestMethods.isEmpty())
+				candidateTestMethods = new ArrayList<>(testMethods);
+		}
+
 
 		if(Properties.SORT_CALLS) {
 			candidateTestMethods = sortCalls(candidateTestMethods);
