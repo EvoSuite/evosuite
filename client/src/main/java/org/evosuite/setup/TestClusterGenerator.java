@@ -170,9 +170,12 @@ public class TestClusterGenerator {
 
 		Set<Class<?>> toAdd = new LinkedHashSet<>();
 
-		analyzedClasses.stream().flatMap(c -> Injector.getAllFieldsToInject(c).stream()).map(f -> f.getType())
-				.forEach(t -> addInjectionRecursively(t, toAdd, blackList));
-
+		try {
+			analyzedClasses.stream().flatMap(c -> Injector.getAllFieldsToInject(c).stream()).map(f -> f.getType())
+					.forEach(t -> addInjectionRecursively(t, toAdd, blackList));
+		} catch(Throwable t) {
+			logger.warn("Error during initialisation of injection dependencies: "+t+", continuing anyway.");
+		}
 		toAdd.stream().forEach(c -> dependencies.add(new DependencyPair(0, new GenericClass(c).getRawClass())));
 		resolveDependencies(blackList);
 	}
