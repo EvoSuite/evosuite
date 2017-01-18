@@ -313,6 +313,8 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		if (!branchGoals.isEmpty()) {
 			suite.setCoverage(this, (double) numCoveredGoals / (double) branchGoals.size());
+		} else {
+			suite.setCoverage(this, 1);
 		}
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
 		suite.setNumOfNotCoveredGoals(this, branchGoals.size() - numCoveredGoals);
