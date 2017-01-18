@@ -105,6 +105,13 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	    Method[] allMethods = clazz.getDeclaredMethods();
 	    for (Method m : allMethods) {
 		    if (TestUsageChecker.canUse(m)) {
+		    	if(clazz.isEnum()) {
+					if (m.getName().equals("valueOf") || m.getName().equals("values")
+							|| m.getName().equals("ordinal")) {
+						logger.debug("Excluding valueOf for Enum " + m.toString());
+						continue;
+					}
+				}
 			    String descriptor = Type.getMethodDescriptor(m);
 			    logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
 			    methods.add(m.getDeclaringClass().getCanonicalName() + "." + m.getName() + descriptor);

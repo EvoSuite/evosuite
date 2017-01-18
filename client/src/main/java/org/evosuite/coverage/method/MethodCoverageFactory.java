@@ -86,6 +86,13 @@ public class MethodCoverageFactory extends
 		Method[] allMethods = clazz.getDeclaredMethods();
 		for (Method m : allMethods) {
 			if (TestUsageChecker.canUse(m)) {
+				if(clazz.isEnum()) {
+					if (m.getName().equals("valueOf") || m.getName().equals("values")
+							|| m.getName().equals("ordinal")) {
+						logger.debug("Excluding valueOf for Enum " + m.toString());
+						continue;
+					}
+				}
 				String methodName = m.getName() + Type.getMethodDescriptor(m);
 				logger.info("Adding goal for method " + className + "." + methodName);
 				goals.add(new MethodCoverageTestFitness(className, methodName));
