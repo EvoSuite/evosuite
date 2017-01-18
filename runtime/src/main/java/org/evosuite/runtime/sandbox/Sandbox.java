@@ -87,7 +87,7 @@ public class Sandbox {
 		initializeSecurityManagerForSUT(null);
 	}
 
-	public static void addPriviligedThread(Thread t) {
+	public static void addPrivilegedThread(Thread t) {
 		if (manager != null)
 			manager.addPrivilegedThread(t);
 	}

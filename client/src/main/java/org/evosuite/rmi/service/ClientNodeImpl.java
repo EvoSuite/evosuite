@@ -366,7 +366,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				}
 			};
             statisticsThread.setName("Statistics sender in client process");
-			Sandbox.addPriviligedThread(statisticsThread);
+			Sandbox.addPrivilegedThread(statisticsThread);
 			statisticsThread.start();
 
 		} catch (Exception e) {

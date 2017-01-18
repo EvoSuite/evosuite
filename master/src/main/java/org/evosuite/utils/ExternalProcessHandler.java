@@ -269,7 +269,7 @@ public class ExternalProcessHandler {
 			};
 			clientRunningOnThread.setName("client");
 			clientRunningOnThread.start();
-            Sandbox.addPriviligedThread(clientRunningOnThread);
+            Sandbox.addPrivilegedThread(clientRunningOnThread);
 		}
 
 		startSignalHandler();
