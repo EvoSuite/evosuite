@@ -60,18 +60,19 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		/* TODO: Would be nice to use a prefix here */
-		for(String className : LinePool.getKnownClasses()) {		
-			lines.addAll(LinePool.getLines(className));
-		}
-		logger.info("Total line coverage goals: " + lines);
+//		for(String className : LinePool.getKnownClasses()) {
+//			lines.addAll(LinePool.getLines(className));
+//		}
 
 		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
+			lines.add(goal.getLine());
 			linesCoverageMap.put(goal.getLine(), goal);
 			if(Properties.TEST_ARCHIVE)
 				TestsArchive.instance.addGoalToCover(this, goal);
 		}
-		
+		logger.info("Total line coverage goals: " + lines);
+
 		initializeControlDependencies();
 	}
 	
