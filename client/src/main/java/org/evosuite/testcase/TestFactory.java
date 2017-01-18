@@ -1215,9 +1215,8 @@ public class TestFactory {
 					logger.debug("We have no generator for class {}", type);
 				}
 
-				if(!canReuseVariables){
-					throw new ConstructionFailedException("Cannot currently instantiate type "+type);
-				}
+				if(canReuseVariables){
+//					throw new ConstructionFailedException("Cannot currently instantiate type "+type);
 
 				/*
 					It could happen that there is no current valid generator for 'position', but valid
@@ -1226,26 +1225,27 @@ public class TestFactory {
 					In such case, we should just re-use an existing variable if it exists, as long as
 					it is not a functional mock (which can be used only once)
 				 */
-				for(int i=position-1; i>=0; i--) {
-					Statement statement = test.getStatement(i);
-					VariableReference var = statement.getReturnValue();
+					for(int i=position-1; i>=0; i--) {
+						Statement statement = test.getStatement(i);
+						VariableReference var = statement.getReturnValue();
 
-					if(!allowNull && ConstraintHelper.isNull(var,test)){
-						continue;
-					}
+						if(!allowNull && ConstraintHelper.isNull(var,test)){
+							continue;
+						}
 
-					if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
-						logger.debug("Reusing variable at position {}",var.getStPosition());
-						return var;
+						if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
+							logger.debug("Reusing variable at position {}",var.getStPosition());
+							return var;
+						}
 					}
 				}
 
-				if (canUseFunctionalMocks && Properties.P_FUNCTIONAL_MOCKING > 0 && FunctionalMockStatement.canBeFunctionalMocked(type)) {
+				if (canUseFunctionalMocks && (Properties.MOCK_IF_NO_GENERATOR || Properties.P_FUNCTIONAL_MOCKING > 0) && FunctionalMockStatement.canBeFunctionalMocked(type)) {
 				/*
 					Even if mocking is not active yet in this phase, if we have
 					no generator for a type, we use mocking directly
 				 */
-					logger.debug("Using mock for type {}",type);
+					logger.debug("Using mock for type {}", type);
 					ret = addFunctionalMock(test, type, position, recursionDepth + 1);
 				} else {
 					throw new ConstructionFailedException("Have no generator for "+ type+" canUseFunctionalMocks="+canUseFunctionalMocks+", canBeMocked: "+FunctionalMockStatement.canBeFunctionalMocked(type));
@@ -1373,7 +1373,7 @@ public class TestFactory {
 		if (clazz.isEnum() || clazz.isPrimitive() || clazz.isWrapperType() || clazz.isObject() ||
 				clazz.isClass() || EnvironmentStatements.isEnvironmentData(clazz.getRawClass()) ||
 				clazz.isString() || clazz.isArray() || TestCluster.getInstance().hasGenerator(parameterType) ||
-				Properties.P_FUNCTIONAL_MOCKING > 0) {
+				Properties.P_FUNCTIONAL_MOCKING > 0 || Properties.MOCK_IF_NO_GENERATOR) {
 
 			logger.debug(" Generating new object of type {}", parameterType);
 

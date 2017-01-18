@@ -319,6 +319,9 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double P_FUNCTIONAL_MOCKING = 0.0; // Optimal value: 0.8
 
+	@Parameter(key = "mock_if_no_generator", group = "Test Creation", description = "Allow mock objects if there are no generators")
+	public static boolean MOCK_IF_NO_GENERATOR = true;
+
 	@Parameter(key = "functional_mocking_percent", group = "Test Creation", description = "Percentage [0,1] of search budget after which functional mocking can be activated. Mocking of missing concrete classes will be activated immediately regardless of this parameter")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double FUNCTIONAL_MOCKING_PERCENT = 0.5;
