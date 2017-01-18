@@ -233,7 +233,7 @@ public class Scaffolding {
 
 		generateInitializeClasses(name, bd);
 
-		generateMockInitialization(bd, results);
+		generateMockInitialization(name, bd, results);
 
 		if (Properties.RESET_STATIC_FIELDS) {
 			generateResetClasses(name, bd);
@@ -251,7 +251,7 @@ public class Scaffolding {
 	 * @param bd
 	 * @param results
      */
-	private void generateMockInitialization(StringBuilder bd, List<ExecutionResult> results) {
+	private void generateMockInitialization(String testClassName, StringBuilder bd, List<ExecutionResult> results) {
 		if(! TestSuiteWriterUtils.doesUseMocks(results)){
 			return;
 		}
@@ -260,7 +260,7 @@ public class Scaffolding {
 		bd.append("@BeforeClass \n");
 
 		bd.append(METHOD_SPACE);
-		bd.append("public static void initMocksToAvoidTimeoutsInTheTests() { \n");
+		bd.append("public static void initMocksToAvoidTimeoutsInTheTests() throws ClassNotFoundException { \n");
 
 		Set<String> mockStatements = new LinkedHashSet<>();
 		for(ExecutionResult er : results) {
@@ -268,7 +268,7 @@ public class Scaffolding {
 				if (st instanceof FunctionalMockStatement) {
 					FunctionalMockStatement fms = (FunctionalMockStatement) st;
 					String name = new GenericClass(fms.getReturnType()).getRawClass().getCanonicalName();
-					mockStatements.add("mock("+name+".class);");
+					mockStatements.add("mock(Class.forName(\""+name+"\", false, "+testClassName + ".class.getClassLoader()));");
 				}
 			}
 		}
