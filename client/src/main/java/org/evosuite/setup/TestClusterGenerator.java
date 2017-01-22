@@ -438,6 +438,12 @@ public class TestClusterGenerator {
 				try {
 					logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name + "," + icn.outerName);
 					String innerClassName = ResourceList.getClassNameFromResourcePath(icn.name);
+					if(!innerClassName.startsWith(Properties.TARGET_CLASS)) {
+						// TODO: Why does ASM report inner classes that are not actually inner classes?
+						// Let's ignore classes that don't start with the SUT name for now.
+						logger.debug("Ignoring inner class that is outside SUT {}", innerClassName);
+						continue;
+					}
 					Class<?> innerClass = TestGenerationContext.getInstance().getClassLoaderForSUT()
 							.loadClass(innerClassName);
 					// if (!canUse(innerClass))
@@ -454,7 +460,7 @@ public class TestClusterGenerator {
 							&& !innerClassName.contains("Map$Entry")) {
 						// && !innerClassName.matches(".*\\$\\d+(\\$.*)?$")) {
 
-						logger.info("Adding inner class " + innerClassName);
+						logger.info("Adding inner class {}", innerClassName);
 						targetClasses.add(innerClass);
 						ClassNode innerClassNode = DependencyAnalysis.getClassNode(innerClassName);
 						innerClasses.addAll(innerClassNode.innerClasses);
