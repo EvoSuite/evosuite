@@ -106,10 +106,16 @@ public class RandomInsertion implements InsertionStrategy {
 				} else {
 
 					if (lastUsage > var.getStPosition() + 1) {
-						position = Randomness.nextInt(var.getStPosition(), // call has to be after the object is created
-								lastUsage) + 1; // TODO: Should it be lastUsage-1 ?
+						// If there is more than 1 statement where it is used, we randomly choose a position
+						position = Randomness.nextInt(var.getStPosition() + 1, // call has to be after the object is created
+								lastUsage                // but before the last usage
+						);
+					} else if(lastUsage == var.getStPosition()) {
+						// The variable isn't used
+						position = lastUsage + 1;
 					} else {
-						position = lastUsage; // TODO: Should it be lastUsage-1 ?
+						// The variable is used at only one position, we insert at exactly that position
+						position = lastUsage;
 					}
 				}
 
