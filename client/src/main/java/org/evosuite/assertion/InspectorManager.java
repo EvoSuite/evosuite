@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.setup.TestUsageChecker;
@@ -145,7 +146,8 @@ public class InspectorManager {
 
 		if (!method.getReturnType().isPrimitive()
 				&& !method.getReturnType().equals(String.class)
-				&& !method.getReturnType().isEnum()) {
+				&& !method.getReturnType().isEnum()
+				&& !ClassUtils.isPrimitiveWrapper(method.getReturnType())) {
 			return false;
 		}
 
