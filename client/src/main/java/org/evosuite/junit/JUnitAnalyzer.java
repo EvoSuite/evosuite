@@ -67,7 +67,7 @@ public class JUnitAnalyzer {
 	private static final String CLASS = ".class";
 
 	
-	private static final NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
+	private static NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
 	
 	/**
 	 * Try to compile each test separately, and remove the ones that cannot be
@@ -166,6 +166,8 @@ public class JUnitAnalyzer {
                 return numUnstable;
             }
 
+            // Create a new classloader so that each test gets freshly loaded classes
+			loader = new NonInstrumentingClassLoader();
             Class<?>[] testClasses = loadTests(generated);
 
 			if (testClasses == null) {
@@ -293,7 +295,6 @@ public class JUnitAnalyzer {
 		try {
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
 			Thread.currentThread().setContextClassLoader(testClasses[0].getClassLoader());
-
 			JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
 			result = runner.run(testClasses);
 		} finally {
