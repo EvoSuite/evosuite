@@ -696,6 +696,12 @@ public class Properties {
     @IntValue(min = 0)
     public static int ASSERTION_TIMEOUT = 60;
 
+    @Parameter(key="assertion_minimization_fallback", group = "Search Algorithm", description = "Percentage of tests expected to have assertions at fallback check time")
+    public static double ASSERTION_MINIMIZATION_FALLBACK = 1/2d;
+
+	@Parameter(key="assertion_minimization_fallback_time", group = "Search Algorithm", description = "Percentage of tests applied to minimisation before checking fallback. 1.0 for no fallback.")
+	public static double ASSERTION_MINIMIZATION_FALLBACK_TIME = 2/3d;
+
 	@Parameter(key = "junit_check_timeout", group = "Search Algorithm", description = "Seconds allowed for checking the generated JUnit files (e.g., compilation and stability)")
 	@IntValue(min = 0)
 	public static int JUNIT_CHECK_TIMEOUT = 60;
