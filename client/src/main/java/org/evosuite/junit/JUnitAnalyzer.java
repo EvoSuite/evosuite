@@ -306,7 +306,8 @@ public class JUnitAnalyzer {
 
 		if(wasSandboxOn){
 			//only activate Sandbox if it was already active before
-			Sandbox.initializeSecurityManagerForSUT(privileged);
+			if(!Sandbox.isSecurityManagerInitialized())
+				Sandbox.initializeSecurityManagerForSUT(privileged);
 		} else {
 			if(Sandbox.isSecurityManagerInitialized()){
 				logger.warn("EvoSuite problem: tests set up a security manager, but they do not remove it after execution");
