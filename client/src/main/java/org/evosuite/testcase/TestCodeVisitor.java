@@ -1346,7 +1346,6 @@ public class TestCodeVisitor extends TestVisitor {
 				callee_str = "(" + name + ")";
 			}
 		}
-
 		if (method.isStatic()) {
 			callee_str += getClassName(method.getMethod().getDeclaringClass());
 		} else {
@@ -1362,7 +1361,11 @@ public class TestCodeVisitor extends TestVisitor {
 						callee_str += getVariableName(callee);						
 					} catch(NoSuchMethodException e) {
 						// If not we need to cast to the subtype
-						callee_str += "((" + getTypeName(method.getMethod().getDeclaringClass()) + ") "+ getVariableName(callee) +")";						
+						callee_str += "((" + getTypeName(method.getMethod().getDeclaringClass()) + ") " + getVariableName(callee) + ")";
+						// TODO: Here we could check if this is actually possible
+						// ...but what would we do?
+						// if(!ClassUtils.getAllSuperclasses(method.getMethod().getDeclaringClass()).contains(callee.getVariableClass())) {
+						//}
 					}
 				} else {
 					callee_str += getVariableName(callee);
