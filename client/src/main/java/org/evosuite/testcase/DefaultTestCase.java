@@ -994,10 +994,17 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	private boolean methodNeedsDownCast(MethodStatement methodStatement, VariableReference var, Class<?> abstractClass) {
+
 		if(!methodStatement.isStatic() && methodStatement.getCallee().equals(var)) {
 			if(!ClassUtils.hasMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes())) {
 				// Need downcast for real
 				return true;
+			} else {
+				Method superClassMethod = ClassUtils.getMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes());
+				if(!methodStatement.getMethod().getRawGeneratedType().equals(superClassMethod.getReturnType())) {
+					// Overriding can also change return value, in which case we need to keep the downcast
+					return true;
+				}
 			}
 		}
 		List<VariableReference> parameters = methodStatement.getParameterReferences();
