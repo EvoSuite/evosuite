@@ -269,7 +269,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 			return false;
 		try {
 			Constructor<?> otherConstructor = declaringClass.getConstructor(parameterTypes);
-			if (otherConstructor != null)
+			if (otherConstructor != null && !otherConstructor.equals(constructor))
 				return true;
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
