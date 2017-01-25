@@ -267,7 +267,7 @@ public class Scaffolding {
 			for (Statement st : er.test) {
 				if (st instanceof FunctionalMockStatement) {
 					FunctionalMockStatement fms = (FunctionalMockStatement) st;
-					String name = new GenericClass(fms.getReturnType()).getRawClass().getCanonicalName();
+					String name = new GenericClass(fms.getReturnType()).getRawClass().getTypeName();
 					mockStatements.add("mock(Class.forName(\""+name+"\", false, "+testClassName + ".class.getClassLoader()));");
 				}
 			}
