@@ -1409,7 +1409,28 @@ public class TestCodeVisitor extends TestVisitor {
 		Class<?> ex = getExceptionClassToUse(exception);
 
 		// preparing the catch block
-		result += " catch(" + getClassName(ex) + " e) {" + NEWLINE;
+		if(!(exception instanceof RuntimeException) && !(exception instanceof Error)) {
+			// This is a checked exception.
+			if(statement.isDeclaredException(exception)) {
+				result += " catch(" + getClassName(ex) + " e) {" + NEWLINE;
+			}
+			else {
+				// A checked exception that is not declared cannot be thrown according to the JVM spec.
+				// And yet, it is possible, which is probably a bug in Java. See class org.apache.commons.lang3.time.FastDatePrinter:
+				//     @Override
+				//     public <B extends Appendable> B format(final Date date, final B buf) {
+				//     	final Calendar c = newCalendar();  // hard code GregorianCalendar
+				//     	c.setTime(date);
+				//     	return applyRules(c, buf);
+				//     }
+				// Passing in a PipeWriter will lead to an IOException.
+				// As a workaround, we'll just check for Throwable
+				//
+				result += " catch(" + getClassName(Throwable.class) + " e) {" + NEWLINE;
+			}
+		} else {
+			result += " catch(" + getClassName(ex) + " e) {" + NEWLINE;
+		}
 
 		// adding the message of the exception
 		String exceptionMessage;
