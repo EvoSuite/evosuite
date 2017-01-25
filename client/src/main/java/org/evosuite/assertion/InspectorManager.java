@@ -120,7 +120,7 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.awt.event.InvocationEvent",
 				Arrays.asList(new String[] { "getWhen"}));
-		blackList.put("java.util.StringBuffer",
+		blackList.put("java.lang.StringBuffer",
 				Arrays.asList(new String[] { "capacity"}));
 	}
 
