@@ -1388,6 +1388,9 @@ public class TestCluster {
 	 * @return
 	 */
 	private boolean isSpecialCase(GenericClass clazz) {
+		if(clazz.getRawClass().equals(Properties.getInitializedTargetClass()))
+			return false;
+
 		if (clazz.isAssignableTo(Collection.class))
 			return true;
 

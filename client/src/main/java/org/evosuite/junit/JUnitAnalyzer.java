@@ -193,6 +193,13 @@ public class JUnitAnalyzer {
 						}
 					}
 				}
+
+				// On the Sheffield cluster, the "well-known fle is not secure" issue is impossible to understand,
+				// so it might be best to ignore it for now.
+				if(testName.equals("initializationError") && failure.getMessage().contains("Failed to attach Java Agent")) {
+					logger.warn("Likely error with EvoSuite instrumentation, ignoring");
+					continue failure_loop;
+				}
 				
 				if(testName == null){
 					/*
@@ -306,7 +313,8 @@ public class JUnitAnalyzer {
 
 		if(wasSandboxOn){
 			//only activate Sandbox if it was already active before
-			Sandbox.initializeSecurityManagerForSUT(privileged);
+			if(!Sandbox.isSecurityManagerInitialized())
+				Sandbox.initializeSecurityManagerForSUT(privileged);
 		} else {
 			if(Sandbox.isSecurityManagerInitialized()){
 				logger.warn("EvoSuite problem: tests set up a security manager, but they do not remove it after execution");
