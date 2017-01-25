@@ -297,6 +297,7 @@ public class TestGeneration {
 			cmdLine.add("-Dcom.sun.management.jmxremote.ssl=false");
 		}
 		cmdLine.add("-XX:MaxJavaStackTraceDepth=1000000");
+		cmdLine.add("-XX:+StartAttachListener");
 
 		for (String arg : args) {
 			if (!arg.startsWith("-DCP=")) {
