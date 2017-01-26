@@ -356,8 +356,23 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (var instanceof FieldReference) {
 			VariableReference source = ((FieldReference) var).getSource();
 			GenericField field = ((FieldReference) var).getField();
-			if (source != null)
-				return getVariableName(source) + "." + field.getName();
+			if (source != null) {
+				String ret = "";
+				if(!source.isAssignableTo(field.getField().getDeclaringClass())) {
+					try {
+						// If the concrete source class has that field then it's ok
+						source.getVariableClass().getDeclaredField(field.getName());
+						ret = getVariableName(source);
+					} catch(NoSuchFieldException e) {
+						// If not we need to cast to the subtype
+						 ret= "((" + getTypeName(field.getField().getDeclaringClass()) + ") "+ getVariableName(source) +")";
+					}
+				} else {
+					ret += getVariableName(source);
+				}
+
+				return ret + "." + field.getName();
+			}
 			else
 				return getClassName(field.getField().getDeclaringClass()) + "."
 				        + field.getName();
@@ -1378,7 +1393,7 @@ public class TestCodeVisitor extends TestVisitor {
 				if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
 					try {
 						// If the concrete callee class has that method then it's ok
-						callee.getVariableClass().getMethod(method.getName(), method.getRawParameterTypes()); 
+						callee.getVariableClass().getDeclaredMethod(method.getName(), method.getRawParameterTypes());
 						callee_str += getVariableName(callee);						
 					} catch(NoSuchMethodException e) {
 						// If not we need to cast to the subtype
