@@ -36,7 +36,7 @@ public class EPATransitionCoverageTestFitness extends TestFitnessFunction {
 			EPATransitionCoverageTestFitness otherEPATransitionFitness = (EPATransitionCoverageTestFitness) other;
 			return goal.compareTo(otherEPATransitionFitness.goal);
 		}
-		return 0;
+		return compareClassName(other);
 	}
 
 	@Override
