@@ -100,6 +100,28 @@ public class TestSuiteGenerator {
 	private static final String FOR_NAME = "forName";
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
+
+	private void initializeTargetClass() throws Throwable {
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		// Here is where the <clinit> code should be invoked for the first time
+		DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
+		ExecutionResult execResult = TestCaseExecutor.getInstance().execute(test, Integer.MAX_VALUE);
+
+		if (hasThrownInitializerError(execResult)) {
+			// create single test suite with Class.forName()
+			writeJUnitTestSuiteForFailedInitialization();
+			ExceptionInInitializerError ex = getInitializerError(execResult);
+			throw ex;
+		} else if (!execResult.getAllThrownExceptions().isEmpty()) {
+			// some other exception has been thrown during initialization
+			Throwable t = execResult.getAllThrownExceptions().iterator().next();
+			throw t;
+		}
+
+		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
+		LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
+	}
+
 	/**
 	 * Generate a test suite for the target class
 	 * 
@@ -116,31 +138,40 @@ public class TestSuiteGenerator {
 
 		TestCaseExecutor.initExecutor();
 		try {
-			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-			// Here is where the <clinit> code should be invoked for the first time
-			DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
-			ExecutionResult execResult = TestCaseExecutor.getInstance().execute(test, Integer.MAX_VALUE);
-
-			if (hasThrownInitializerError(execResult)) {
-				// create single test suite with Class.forName()
-				writeJUnitTestSuiteForFailedInitialization();
-				ExceptionInInitializerError ex = getInitializerError(execResult);
-				throw ex;
-			} else if (!execResult.getAllThrownExceptions().isEmpty()) {
-				// some other exception has been thrown during initialization
-				Throwable t = execResult.getAllThrownExceptions().iterator().next();
-				throw t;
-			}
-			
-			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
-			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
-
+			initializeTargetClass();
 		} catch (Throwable e) {
 
-			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
-					+ (e.getMessage() != null ? e.getMessage() : e.toString()));
-			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
-			return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
+			// If the bytecode for a method exceeds 64K, Java will complain
+			// Very often this is due to mutation instrumentation, so this dirty
+			// hack adds a fallback mode without mutation.
+			// This currently breaks statistics and assertions, so we have to also set these properties
+			String message = e.getMessage();
+			if(message != null && message.contains("Method code too large")) {
+				LoggingUtils.getEvoLogger().info("* Instrumentation exceeds Java's 64K limit per method in target class");
+				Properties.Criterion[] newCriteria = Arrays.stream(Properties.CRITERION).filter(t -> !t.equals(Properties.Criterion.STRONGMUTATION) && !t.equals(Properties.Criterion.WEAKMUTATION) && !t.equals(Properties.Criterion.MUTATION)).toArray(Properties.Criterion[]::new);
+				if(newCriteria.length < Properties.CRITERION.length) {
+					TestGenerationContext.getInstance().resetContext();
+					LoggingUtils.getEvoLogger().info("* Attempting re-instrumentation without mutation");
+					Properties.CRITERION = newCriteria;
+					if(Properties.NEW_STATISTICS) {
+						LoggingUtils.getEvoLogger().info("* Deactivating EvoSuite statistics because of instrumentation problem");
+						Properties.NEW_STATISTICS = false;
+					}
+
+					try {
+						initializeTargetClass();
+					} catch(Throwable t) {
+						LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
+								+ (e.getMessage() != null ? e.getMessage() : e.toString()));
+						logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
+						return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
+					}
+					if(Properties.ASSERTIONS && Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
+						LoggingUtils.getEvoLogger().info("* Deactivating assertion minimization because mutation instrumentation does not work");
+						Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+					}
+				}
+			}
 		} finally {
 			if (Properties.RESET_STATIC_FIELDS) {
 				configureClassReInitializer();
