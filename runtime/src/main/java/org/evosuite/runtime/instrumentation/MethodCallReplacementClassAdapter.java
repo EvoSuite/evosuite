@@ -150,7 +150,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	public void visitEnd() {
 		if(canChangeSignature && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
 
-			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
+//			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 
 			if(superClassName.equals("java.lang.Object")) { //TODO: why only if superclass is Object??? unclear
 				Method hashCodeMethod = Method.getMethod("int hashCode()");

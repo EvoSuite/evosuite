@@ -53,7 +53,7 @@ public class ModifiedTargetStaticFields {
 	public void addFinalFields(Collection<String> newFinalFields) {
 		for (String finalField : newFinalFields) {
 			if (!finalFields.contains(finalField)) {
-				logger.debug("Adding new field to ModifiedTargetStaticFields:" + newFinalFields);
+				// logger.debug("Adding new field to ModifiedTargetStaticFields:" + newFinalFields);
 				finalFields.add(finalField);
 			}
 		}
@@ -66,7 +66,7 @@ public class ModifiedTargetStaticFields {
 	 * @return
 	 */
 	public boolean containsField(String name) {
-		logger.debug("Checking if a static field was modified or not:" + name);
+		// logger.debug("Checking if a static field was modified or not:" + name);
 		return finalFields.contains(name);
 	}
 
