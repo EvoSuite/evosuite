@@ -22,6 +22,7 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.awt.*;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -185,11 +186,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 					logger.info("Adding serialId to class "+className);
 					visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
 				}
-			} catch(ClassNotFoundException e) {
+			} catch(ClassNotFoundException | NoClassDefFoundError | HeadlessException | ExceptionInInitializerError e) {
 				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
-			} catch (NoClassDefFoundError e) {
-				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
-				
 			} finally {
 				Thread.currentThread().setContextClassLoader(threadCL);
 			}
