@@ -145,6 +145,8 @@ public class TestSuiteGenerator {
 			// Very often this is due to mutation instrumentation, so this dirty
 			// hack adds a fallback mode without mutation.
 			// This currently breaks statistics and assertions, so we have to also set these properties
+			boolean error = true;
+
 			String message = e.getMessage();
 			if(message != null && message.contains("Method code too large")) {
 				LoggingUtils.getEvoLogger().info("* Instrumentation exceeds Java's 64K limit per method in target class");
@@ -160,11 +162,9 @@ public class TestSuiteGenerator {
 
 					try {
 						initializeTargetClass();
+						error = false;
 					} catch(Throwable t) {
-						LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
-								+ (e.getMessage() != null ? e.getMessage() : e.toString()));
-						logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
-						return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
+						// No-op, error handled below
 					}
 					if(Properties.ASSERTIONS && Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
 						LoggingUtils.getEvoLogger().info("* Deactivating assertion minimization because mutation instrumentation does not work");
@@ -172,6 +172,14 @@ public class TestSuiteGenerator {
 					}
 				}
 			}
+
+		    if(error) {
+				LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
+						+ (e.getMessage() != null ? e.getMessage() : e.toString()));
+				logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
+				return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
+			}
+
 		} finally {
 			if (Properties.RESET_STATIC_FIELDS) {
 				configureClassReInitializer();
