@@ -555,7 +555,11 @@ public class TestSuiteGenerator {
 			FailingTestSet.sendStatistics();
 		}
 
-		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
+		if(Properties.NO_RUNTIME_DEPENDENCY) {
+			LoggingUtils.getEvoLogger().info("* Property NO_RUNTIME_DEPENDENCY is set to true - skipping JUnit compile check");
+			LoggingUtils.getEvoLogger().info("* WARNING: Not including the runtime dependencies is likely to lead to flaky tests!");
+		}
+		else if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
 			compileAndCheckTests(testSuite);
 		}
 
