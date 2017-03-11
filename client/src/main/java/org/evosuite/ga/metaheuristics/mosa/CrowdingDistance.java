@@ -136,8 +136,8 @@ public class CrowdingDistance<T extends Chromosome> {
 				} 
 			}
 
-			if (max == min)
-				continue;
+			//if (max == min)
+			//	continue;
 			
 			for (T test : minSet){
 				double numer = (front.size() - minSet.size());
