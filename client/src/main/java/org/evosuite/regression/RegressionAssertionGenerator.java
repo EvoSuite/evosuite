@@ -55,8 +55,7 @@ public class RegressionAssertionGenerator extends AssertionGenerator {
 
 	@Override
 	public void addAssertions(TestCase test) {
-		// TODO Auto-generated method stub
-
+		assert false: "Not implemented";
 	}
 
 	public RegressionAssertionGenerator() {
@@ -76,12 +75,10 @@ public class RegressionAssertionGenerator extends AssertionGenerator {
 	 * 
 	 * @param test
 	 *            The test case that should be executed
-	 * @param mutant
-	 *            The mutant on which the test case shall be executed
 	 */
 	@Override
 	public ExecutionResult runTest(TestCase test) {
-		ExecutionResult result = new ExecutionResult(test, null);
+		ExecutionResult result; //new ExecutionResult(test, null);
 		// resetObservers();
 		comparisonObserver.clear();
 		sameObserver.clear();

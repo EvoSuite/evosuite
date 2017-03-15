@@ -54,7 +54,7 @@ public class RegressionTestFitnessFunction extends
 	/**
 	 * Execute a test case
 	 * 
-	 * @param test
+	 * @param testChromosome
 	 *            The test case to execute
 	 * @return Result of the execution
 	 */

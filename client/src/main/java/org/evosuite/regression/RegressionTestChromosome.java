@@ -256,7 +256,7 @@ public class RegressionTestChromosome extends TestChromosome {
 	/**
 	 * <p>Setter for the field <code>lastRegressionExecutionResult</code>.</p>
 	 *
-	 * @param lastRegressionExecutionResult a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @param lastExecutionResult a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 */
 	public void setLastRegressionExecutionResult(ExecutionResult lastExecutionResult) {
 		theSameTestForTheOtherClassLoader.setLastExecutionResult(lastExecutionResult);

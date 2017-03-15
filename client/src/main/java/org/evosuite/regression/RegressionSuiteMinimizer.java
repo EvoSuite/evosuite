@@ -47,10 +47,10 @@ import org.slf4j.LoggerFactory;
 
 public class RegressionSuiteMinimizer {
 
-	private final static Logger logger = LoggerFactory
+	private transient final static Logger logger = LoggerFactory
 			.getLogger(RegressionSuiteMinimizer.class);
 
-	RegressionAssertionGenerator rgen = new RegressionAssertionGenerator();
+	private RegressionAssertionGenerator regressionAssertionGenerator = new RegressionAssertionGenerator();
 
 	public void minimize(TestSuiteChromosome suite) {
 		ClientServices.getInstance().getClientNode()
@@ -163,8 +163,8 @@ public class RegressionSuiteMinimizer {
 		TestChromosome otherChromosome = regressionTest
 				.getTheSameTestForTheOtherClassLoader();
 
-		ExecutionResult result = rgen.runTest(testChromosome.getTestCase());
-		ExecutionResult otherResult = rgen.runTest(otherChromosome
+		ExecutionResult result = regressionAssertionGenerator.runTest(testChromosome.getTestCase());
+		ExecutionResult otherResult = regressionAssertionGenerator.runTest(otherChromosome
 				.getTestCase());
 
 		regressionTest.setLastExecutionResult(result);

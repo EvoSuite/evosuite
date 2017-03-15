@@ -55,7 +55,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
   private double bestFitness = Double.MAX_VALUE;
 
-  Map<Integer, Integer> branchIdMap = new HashMap<Integer, Integer>();
+  Map<Integer, Integer> branchIdMap = new HashMap<>();
 
   private HashMap<Integer, Double> tempBranchDistanceMap;
 
@@ -121,7 +121,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
   private int uniqueCalls;
 
-  protected void executeChangedTestsAndUpdateResults(
+  private void executeChangedTestsAndUpdateResults(
       AbstractTestSuiteChromosome<? extends ExecutableChromosome> s) {
     observer.clearPools();
     diversityMap.clear();
@@ -678,22 +678,8 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
   }
 
-  /*
-   * Table for name:
-   * 
-   * @ a: all measures
-   * 
-   * @ s: state difference
-   * 
-   * @ b: branch distance
-   * 
-   * @ c: coverage
-   * 
-   * @ o: coverage old
-   * 
-   * @ n: coverage new
-   */
-  public boolean useMeasure(RegressionMeasure m) {
+
+  private boolean useMeasure(RegressionMeasure m) {
     boolean flag = false;
     if (m == Properties.REGRESSION_FITNESS)
       return true;
@@ -741,7 +727,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
    */
   @Override
   public boolean isMaximizationFunction() {
-    // TODO Auto-generated method stub
     return false;
   }
 

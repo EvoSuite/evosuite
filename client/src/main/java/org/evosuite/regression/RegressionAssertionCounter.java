@@ -209,7 +209,7 @@ public class RegressionAssertionCounter {
 			ExecutionResult result1 = rgen.runTest(regressionTest.getTheTest().getTestCase());
 			// enable_a=true;
 			// logger.warn("Fitness is: {}", regressionTest.getFitness());
-			// rgen = new RegressionAssertionGenerator();
+			// regressionAssertionGenerator = new RegressionAssertionGenerator();
 			ExecutionResult result2 = rgen.runTest(regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase());
 			// enable_a = false;
 			execEndTime = System.currentTimeMillis();

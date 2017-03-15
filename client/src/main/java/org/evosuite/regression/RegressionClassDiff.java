@@ -114,7 +114,7 @@ public class RegressionClassDiff {
    * Get bytecode instructions for the class based on the following format: Method -> List of
    * instructions
    */
-  public static Map<String, List<Integer>> getClassInstructions(InputStream classAsInputStream) {
+  private static Map<String, List<Integer>> getClassInstructions(InputStream classAsInputStream) {
     HashMap<String, List<Integer>> methodInstructionsMap = new HashMap<>();
     try {
       ClassReader reader = new ClassReader(classAsInputStream);
@@ -195,7 +195,7 @@ public class RegressionClassDiff {
     return sameBranches;
   }
 
-  public static String getBranchFamily(int opcode) {
+  private static String getBranchFamily(int opcode) {
     // The default family is the opcode itself
     // Admittedly we could've use ints/enums for performance, but strings should be interned anyway
     String family = "" + opcode;
