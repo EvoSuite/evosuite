@@ -103,8 +103,7 @@ public class RegressionExecutionObserver extends ExecutionObserver {
 				currentObjectMapPool.add(ovars.getObjectVariables());
 		}
 
-		RegressionSearchListener.odCollectionTime += System.nanoTime()
-				- startTime;
+		RegressionSearchListener.odCollectionTime += System.nanoTime() - startTime;
 	}
 
 	@Override
