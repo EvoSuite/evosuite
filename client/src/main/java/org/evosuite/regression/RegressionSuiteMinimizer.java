@@ -19,15 +19,6 @@
  */
 package org.evosuite.regression;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.evosuite.TimeController;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
@@ -45,12 +36,22 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 public class RegressionSuiteMinimizer {
 
   private transient final static Logger logger = LoggerFactory
       .getLogger(RegressionSuiteMinimizer.class);
 
-  private RegressionAssertionGenerator regressionAssertionGenerator = new RegressionAssertionGenerator();
+  private RegressionAssertionGenerator
+      regressionAssertionGenerator = new RegressionAssertionGenerator();
 
   public void minimize(TestSuiteChromosome suite) {
     track(RuntimeVariable.Result_Size, suite.size());
@@ -332,7 +333,7 @@ public class RegressionSuiteMinimizer {
    * Get a simple (and unique looking) exception name
    */
   public static String simpleExceptionName(RegressionTestChromosome test, Integer statementPos,
-      Throwable ex) {
+                                           Throwable ex) {
     if (ex == null) {
       return "";
     }

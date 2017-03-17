@@ -19,16 +19,6 @@
  */
 package org.evosuite.regression;
 
-import java.lang.reflect.Modifier;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
@@ -42,6 +32,13 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Modifier;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import dk.brics.automaton.RegExp;
 
 /*
@@ -154,7 +151,7 @@ public class RegressionAssertionCounter {
   }
 
   public static int getNumAssertions(Chromosome individual, Boolean removeAssertions,
-      Boolean noExecution) {
+                                     Boolean noExecution) {
     long startTime = System.nanoTime();
     RegressionAssertionGenerator rgen = new RegressionAssertionGenerator();
 
@@ -198,7 +195,8 @@ public class RegressionAssertionCounter {
   // public static boolean enable_a = false;
 
   private static int checkForAssertions(Boolean removeAssertions, Boolean noExecution,
-      RegressionAssertionGenerator rgen, RegressionTestChromosome regressionTest) {
+                                        RegressionAssertionGenerator rgen,
+                                        RegressionTestChromosome regressionTest) {
     long execStartTime = 0;
     long execEndTime = 0;
     int totalCount = 0;
@@ -286,7 +284,7 @@ public class RegressionAssertionCounter {
    * Calculate the number of different exceptions.
    */
   public static double compareExceptionDiffs(Map<Integer, Throwable> originalExceptionMapping,
-      Map<Integer, Throwable> regressionExceptionMapping) {
+                                             Map<Integer, Throwable> regressionExceptionMapping) {
 
     double exDiff = Math
         .abs((double) (originalExceptionMapping.size() - regressionExceptionMapping.size()));
@@ -410,8 +408,8 @@ public class RegressionAssertionCounter {
    * Add regression-diff comments for exception messages
    */
   public static void addExceptionAssertionComments(RegressionTestChromosome regressionTest,
-      Map<Integer, Throwable> originalExceptionMapping,
-      Map<Integer, Throwable> regressionExceptionMapping) {
+                                                   Map<Integer, Throwable> originalExceptionMapping,
+                                                   Map<Integer, Throwable> regressionExceptionMapping) {
     for (Entry<Integer, Throwable> origException : originalExceptionMapping.entrySet()) {
       if (!regressionExceptionMapping.containsKey(origException.getKey())) {
 
@@ -486,7 +484,7 @@ public class RegressionAssertionCounter {
           && !regressionTest.getTheTest().getTestCase().getStatement(regException.getKey())
           .getComment()
           .contains("original version")) {
-				/*
+                                /*
 				 * logger.warn(
 				 * "Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}"
 				 * , regException.getValue().getMessage(),
