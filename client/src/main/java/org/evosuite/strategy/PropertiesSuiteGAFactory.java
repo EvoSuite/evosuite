@@ -44,6 +44,7 @@ import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
 import org.evosuite.ga.metaheuristics.StandardGA;
 import org.evosuite.ga.metaheuristics.MonotonicGA;
+import org.evosuite.ga.metaheuristics.MuPlusLambdaEA;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.statistics.StatisticsListener;
@@ -139,6 +140,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 
 				return ga;
 			}
+		case MUPLUSLAMBDAEA:
+		    logger.info("Chosen search algorithm: (Mu+Lambda)EA");
+            {
+                MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory);
+                if (Properties.TEST_ARCHIVE)
+                    ga.setArchive(TestsArchive.instance);
+
+                return ga;
+            }
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{

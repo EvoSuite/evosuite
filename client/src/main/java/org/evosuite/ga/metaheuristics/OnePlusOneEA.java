@@ -19,20 +19,18 @@
  */
 package org.evosuite.ga.metaheuristics;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 
 /**
  * (1+1)EA
  *
  * @author Gordon Fraser
  */
-public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class OnePlusOneEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
 
 	private static final long serialVersionUID = 5229089847512798127L;
-
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OnePlusOneEA.class);
 
 	/**
 	 * Constructor
@@ -41,79 +39,6 @@ public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 	 */
 	public OnePlusOneEA(ChromosomeFactory<T> factory) {
 		super(factory);
-	}
-
-	/** {@inheritDoc} */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void evolve() {
-
-		T parent = population.get(0);
-		T offspring = (T)parent.clone();
-		offspring.updateAge(currentIteration);
-
-		notifyMutation(offspring);
-		do {
-			offspring.mutate();
-		} while (!offspring.isChanged());
-
-	    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-	        fitnessFunction.getFitness(offspring);
-	        notifyEvaluation(offspring);
-	    } 
-		notifyEvaluation(offspring);
-		//logger.info("New individual: " + offspring);
-
-		if (isBetterOrEqual(offspring, parent)) {
-			//logger.info("Replacing old population");
-			//if(isBetter(offspring, parent))
-			//	applyAdaptiveLocalSearch(offspring);
-
-			population.set(0, offspring);
-		} else {
-			//logger.info("Keeping old population");
-		}
-		currentIteration++;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void initializePopulation() {
-		notifySearchStarted();
-		currentIteration = 0;
-
-		// Only one parent
-		generateRandomPopulation(1);
-		getFitnessFunction().getFitness(population.get(0));
-		updateFitnessFunctionsAndValues();
-		this.notifyIteration();
-		logger.info("Initial fitness: " + population.get(0).getFitness());
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void generateSolution() {
-		if (population.isEmpty())
-			initializePopulation();
-
-		double fitness = population.get(0).getFitness();
-		while (!isFinished()) {
-			if ((getFitnessFunction().isMaximizationFunction() && getBestIndividual().getFitness() > fitness)
-			        || (!getFitnessFunction().isMaximizationFunction() && getBestIndividual().getFitness() < fitness)) {
-				logger.info("Current generation: " + getAge());
-				logger.info("Best fitness: " + getBestIndividual().getFitness());
-				fitness = population.get(0).getFitness();
-			}
-			evolve();
-
-			applyLocalSearch();
-
-			updateFitnessFunctionsAndValues();
-
-			this.notifyIteration();
-		}
-		
-		updateBestIndividualFromArchive();
-		notifySearchFinished();
+		Properties.MU = Properties.LAMBDA = 1;
 	}
 }
