@@ -1,10 +1,5 @@
-### Which of the following is this issue most relevant to?
-[(A) Bug/issue when generating tests, (B) EvoSuite's documentation/tutorial, (C) Feature request, (D) Other]
-
-
-
 ### Context
-*Please provide a detailed introduction to the issue itself, and what you were doing when the issue happened. Or, what do you want to achieve?*
+*Please provide below a detailed introduction to the issue itself, and describe what you were doing when the issue happened. Or, what do you want to achieve?*
 
 
 
