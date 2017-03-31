@@ -21,8 +21,11 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -239,6 +242,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
   private TestSuiteChromosome generateRandomRegressionTests() {
     LoggingUtils.getEvoLogger().info("* Using RANDOM regression test generation");
 
+    Properties.TEST_ARCHIVE = true;
+
     RegressionTestSuiteChromosome suite = new RegressionTestSuiteChromosome();
 
     PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
@@ -246,11 +251,14 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
     //statistics.searchStarted(suiteGA);
 
+    BranchCoverageSuiteFitness branchCoverageSuiteFitness = new BranchCoverageSuiteFitness(
+        TestGenerationContext.getInstance().getClassLoaderForSUT());
+
     regressionMonitor.searchStarted(suiteGA);
     RegressionTestChromosomeFactory factory = new RegressionTestChromosomeFactory();
     LoggingUtils.getEvoLogger().warn("*** generating RANDOM regression tests");
     // TODO: Shutdown hook?
-    List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+    List<TestFitnessFunction> goals = getGoals(true);
     track(RuntimeVariable.Total_Goals, goals.size());
 
     StoppingCondition stoppingCondition = getStoppingCondition();
@@ -288,6 +296,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
          */
         executedStatemets += test.size();
         numAssertions = RegressionAssertionCounter.getNumAssertions(clone);
+        branchCoverageSuiteFitness.getFitness(clone.getTestSuite());
         if (numAssertions > 0) {
           LoggingUtils.getEvoLogger().warn("Generated test with {} assertions.", numAssertions);
         }
@@ -321,6 +330,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
               usefulTestCount++;
               suite.addTest(test);
             }
+
           } else {
             LoggingUtils.getEvoLogger().warn("ignored assertions. tests were removed.");
           }
@@ -403,6 +413,9 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
             e.printStackTrace();
     }*/
 
+    goals = getGoals(false);
+    track(RuntimeVariable.Total_Goals, goals.size());
+
     suiteGA.printBudget();
 
     if (!(Properties.REGRESSION_RANDOM_STRATEGY == 2
@@ -416,6 +429,9 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
       bestSuites.addTest(t);
     }
 
+    /*TestSuiteChromosome testArchive = TestsArchive.instance
+        .createMergedSolution(new TestSuiteChromosome());*/
+
     track(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 
     return bestSuites;
@@ -423,6 +439,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
   private List<TestFitnessFunction> getGoals(boolean verbose) {
     List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
+    //LoggingUtils.getEvoLogger().warn("Factories: {}" , goalFactories);
     List<TestFitnessFunction> goals = new ArrayList<>();
 
     if (goalFactories.size() == 1) {
