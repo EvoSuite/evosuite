@@ -315,9 +315,9 @@ public class EPAMonitor {
 				}
 			}
 		}
-		if (currentState == null) {
-			throw new MalformedEPATraceException("Object has no EPA state!");
-		}
+//		if (currentState == null) {
+//			throw new MalformedEPATraceException("Object has no EPA state!");
+//		}
 		return currentState;
 	}
 
