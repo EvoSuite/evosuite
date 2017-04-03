@@ -49,9 +49,9 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     List<T> offsprings = new ArrayList<T>(Properties.LAMBDA);
 
     // create new offsprings by mutating current population
-    while (!isNextPopulationFull(offsprings)) {
-      for (T parent : this.population) {
-        T offspring = (T) parent.clone();
+    for (int i = 0; i < Properties.MU; i++) {
+      for (int j = 0; j < Properties.LAMBDA / Properties.MU; j++) {
+        T offspring = (T) this.population.get(i).clone();
         this.notifyMutation(offspring);
 
         do {
