@@ -71,16 +71,17 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     }
 
     for (int i = 0; i < this.population.size(); i++) {
-      T parent = this.population.get(i);
-      T bestOffspring = null;
+      T bestOffspring = this.population.get(i);
 
+      boolean offspring_is_better = false;
       for (T offspring : offsprings) {
-        if (isBetterOrEqual(offspring, parent)) {
+        if (isBetterOrEqual(offspring, bestOffspring)) {
           bestOffspring = offspring;
+          offspring_is_better = true;
         }
       }
 
-      if (bestOffspring != null) {
+      if (offspring_is_better) {
         // replace individual with a better one
         this.population.set(i, bestOffspring);
         // to prevent a population with only equal and dominant
