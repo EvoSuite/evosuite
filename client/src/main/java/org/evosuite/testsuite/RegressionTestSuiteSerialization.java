@@ -20,7 +20,10 @@
 package org.evosuite.testsuite;
 
 import org.evosuite.Properties;
+import org.evosuite.contracts.FailingTestSet;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.junit.JUnitAnalyzer;
+import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
@@ -34,49 +37,79 @@ import java.util.List;
 
 public class RegressionTestSuiteSerialization {
 
-	private static String regressionFile = Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS + ".regression";
+  private static String regressionFile =
+      Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS + ".regression";
 
-	public RegressionTestSuiteSerialization() {
-		// empty
-	}
+  private static String regressionArchiveFile =
+      Properties.SEED_DIR + File.separator + Properties.TARGET_CLASS + ".regression_archive";
 
-	public static void performRegressionAnalysis(TestSuiteChromosome testSuite) {
+  private static String JUNIT_ARCHIVE_SUFFIX = "_ESArchiveTest";
 
-		// load previous regression test suite
-		List<TestChromosome> previousSuite = TestSuiteSerialization.loadTests(regressionFile);
-		LoggingUtils.getEvoLogger().info("* previousSuite.size(): " + previousSuite.size());
+  public RegressionTestSuiteSerialization() {
+    // empty
+  }
 
-		// execute previous regression test chromosome
+  public static void performRegressionAnalysis(TestSuiteChromosome testSuite) {
 
-		// Store this value; if this option is true then the JUnit check
-        // would not succeed, as the JUnit classloader wouldn't find the class
-        boolean junitSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
-        Properties.USE_SEPARATE_CLASSLOADER = false;
+    // load previous regression test suite
+    List<TestChromosome> previousSuite = TestSuiteSerialization.loadTests(regressionFile);
+    LoggingUtils.getEvoLogger().info("* previousSuite.size(): " + previousSuite.size());
 
-		Iterator<TestChromosome> iter = previousSuite.iterator();
-		while (iter.hasNext()) {
-			TestCase tc = iter.next().getTestCase();
+    // execute previous regression test chromosome
 
-			List<TestCase> l = new ArrayList<TestCase>();
-			l.add(tc);
+    // Store this value; if this option is true then the JUnit check
+    // would not succeed, as the JUnit classloader wouldn't find the class
+    boolean junitSeparateClassLoader = Properties.USE_SEPARATE_CLASSLOADER;
+    Properties.USE_SEPARATE_CLASSLOADER = false;
 
-			JUnitAnalyzer.removeTestsThatDoNotCompile(l);
-			if (l.isEmpty()) {
-				// if TesCase 'tc' does not compile, just remove it
-				iter.remove();
-				continue ;
-			}
-		}
+    Iterator<TestChromosome> iter = previousSuite.iterator();
+    while (iter.hasNext()) {
+      TestCase tc = iter.next().getTestCase();
 
-		Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
+      List<TestCase> l = new ArrayList<TestCase>();
+      l.add(tc);
 
-		// write some statistics, e.g., number of failing test cases
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumRegressionTestCases, previousSuite.size());
+      JUnitAnalyzer.removeTestsThatDoNotCompile(l);
+      if (l.isEmpty()) {
+        // if TesCase 'tc' does not compile, just remove it
+        iter.remove();
+        continue;
+      }
+    }
 
-		// join previous regression test suite with new test suite
-		testSuite.addTests(previousSuite);
+    Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
 
-		// serialize
-		TestSuiteSerialization.saveTests(testSuite, new File(regressionFile));
-	}
+    // write some statistics, e.g., number of failing test cases
+    ClientServices.getInstance().getClientNode()
+        .trackOutputVariable(RuntimeVariable.NumRegressionTestCases, previousSuite.size());
+
+    // join previous regression test suite with new test suite
+    testSuite.addTests(previousSuite);
+
+    // serialize
+    TestSuiteSerialization.saveTests(testSuite, new File(regressionFile));
+  }
+
+  /**
+   * Keep the coverage-based archive of the generated tests for disposable testing
+   */
+  public static void storeRegressionArchive() {
+    TestSuiteChromosome testArchive = TestsArchive.instance
+        .createMergedSolution(new TestSuiteChromosome());
+
+    // Save the actual unit test suite archive
+    TestSuiteWriter suiteWriter = new TestSuiteWriter();
+    suiteWriter.insertTests(testArchive.getTests());
+
+    String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+    String testDir = Properties.TEST_DIR;
+
+    LoggingUtils.getEvoLogger().info(
+        "* Writing Archive JUnit test case '" + (name + JUNIT_ARCHIVE_SUFFIX) + "' to " + testDir);
+    suiteWriter
+        .writeTestSuite(name + JUNIT_ARCHIVE_SUFFIX, testDir, testArchive.getLastExecutionResults());
+
+    // Serialise the test suite archive
+    TestSuiteSerialization.saveTests(testArchive, new File(regressionArchiveFile));
+  }
 }

@@ -1616,6 +1616,10 @@ public class Properties {
     /** Constant <code>REGRESSION_STATISTICS</code> */
     @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")
     public static boolean REGRESSION_STATISTICS = false;
+
+	/** Constant <code>KEEP_REGRESSION_ARCHIVE</code> */
+	@Parameter(key = "keep_regression_archive", group = "Runtime", description = "Keep an archive of regression tests")
+	public static boolean KEEP_REGRESSION_ARCHIVE = false;
 	
 	
 	public enum Strategy {

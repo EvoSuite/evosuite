@@ -566,6 +566,10 @@ public class TestSuiteGenerator {
 		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
 			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
 		}
+
+		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
+			RegressionTestSuiteSerialization.storeRegressionArchive();
+		}
 	}
 
 	/**

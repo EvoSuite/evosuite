@@ -242,7 +242,9 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
   private TestSuiteChromosome generateRandomRegressionTests() {
     LoggingUtils.getEvoLogger().info("* Using RANDOM regression test generation");
 
-    Properties.TEST_ARCHIVE = true;
+    if (Properties.KEEP_REGRESSION_ARCHIVE) {
+      Properties.TEST_ARCHIVE = true;
+    }
 
     RegressionTestSuiteChromosome suite = new RegressionTestSuiteChromosome();
 
@@ -296,7 +298,9 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
          */
         executedStatemets += test.size();
         numAssertions = RegressionAssertionCounter.getNumAssertions(clone);
-        branchCoverageSuiteFitness.getFitness(clone.getTestSuite());
+        if (Properties.KEEP_REGRESSION_ARCHIVE) {
+          branchCoverageSuiteFitness.getFitness(clone.getTestSuite());
+        }
         if (numAssertions > 0) {
           LoggingUtils.getEvoLogger().warn("Generated test with {} assertions.", numAssertions);
         }
@@ -428,9 +432,6 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
     for (TestCase t : suite.getTests()) {
       bestSuites.addTest(t);
     }
-
-    /*TestSuiteChromosome testArchive = TestsArchive.instance
-        .createMergedSolution(new TestSuiteChromosome());*/
 
     track(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 
