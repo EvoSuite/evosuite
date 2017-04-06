@@ -2,7 +2,13 @@ package org.evosuite;
 
 import java.util.Map;
 import java.util.Set;
+import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.assertion.AssertionGenerator;
+import org.evosuite.assertion.CompleteAssertionGenerator;
+import org.evosuite.assertion.SimpleMutationAssertionGenerator;
+import org.evosuite.assertion.UnitAssertionGenerator;
+import org.evosuite.contracts.ContractChecker;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.rmi.ClientServices;
@@ -17,6 +23,7 @@ import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.strategy.WholeTestSuiteStrategy;
 import org.evosuite.symbolic.DSEStrategy;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 
@@ -248,5 +255,22 @@ public class TestSuiteGeneratorHelper {
     default:
       throw new RuntimeException("Unsupported strategy: " + Properties.STRATEGY);
     }
+  }
+
+  public static void addAssertions(TestSuiteChromosome tests) {
+    AssertionGenerator asserter;
+    ContractChecker.setActive(false);
+
+    if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
+      asserter = new SimpleMutationAssertionGenerator();
+    } else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
+      asserter = new CompleteAssertionGenerator();
+    } else
+      asserter = new UnitAssertionGenerator();
+
+    asserter.addAssertions(tests);
+
+    if (Properties.FILTER_ASSERTIONS)
+      asserter.filterFailingAssertions(tests);
   }
 }

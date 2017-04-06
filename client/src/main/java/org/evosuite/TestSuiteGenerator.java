@@ -22,10 +22,6 @@ package org.evosuite;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
-import org.evosuite.assertion.AssertionGenerator;
-import org.evosuite.assertion.CompleteAssertionGenerator;
-import org.evosuite.assertion.SimpleMutationAssertionGenerator;
-import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.contracts.ContractChecker;
@@ -522,7 +518,7 @@ public class TestSuiteGenerator {
 			if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
 				LoggingUtils.getEvoLogger().info("* Skipping assertion generation because not enough time is left");
 			} else {
-				addAssertions(testSuite);
+				TestSuiteGeneratorHelper.addAssertions(testSuite);
 			}
 			StatisticsSender.sendIndividualToMaster(testSuite); // FIXME: can we
 																// pass the list
@@ -546,11 +542,11 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
-			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
+			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);
 		}
 
 		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
-			RegressionTestSuiteSerialization.storeRegressionArchive();
+			RegressionSuiteSerializer.storeRegressionArchive();
 		}
 	}
 
@@ -744,23 +740,6 @@ public class TestSuiteGenerator {
 	 */
 	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite) {
 		return writeJUnitTestsAndCreateResult(testSuite, Properties.JUNIT_SUFFIX);
-	}
-
-	private void addAssertions(TestSuiteChromosome tests) {
-		AssertionGenerator asserter;
-		ContractChecker.setActive(false);
-
-		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
-			asserter = new SimpleMutationAssertionGenerator();
-		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
-			asserter = new CompleteAssertionGenerator();
-		} else
-			asserter = new UnitAssertionGenerator();
-
-		asserter.addAssertions(tests);
-
-		if (Properties.FILTER_ASSERTIONS)
-			asserter.filterFailingAssertions(tests);
 	}
 
 	private void writeObjectPool(TestSuiteChromosome suite) {
