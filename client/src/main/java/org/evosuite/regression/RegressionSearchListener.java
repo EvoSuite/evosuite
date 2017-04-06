@@ -440,8 +440,8 @@ public class RegressionSearchListener implements SearchListener {
   public void fitnessEvaluation(Chromosome individual) {
     if (isFirstRun) {
       isFirstRun = false;
-      int totalCount = RegressionAssertionCounter
-          .getNumAssertions(individual);
+      int totalCount = RegressionAssertionCounter.getNumAssertions(
+          (RegressionTestSuiteChromosome) individual);
       RegressionSearchListener.firstAssertionCount = totalCount;
     }
   }

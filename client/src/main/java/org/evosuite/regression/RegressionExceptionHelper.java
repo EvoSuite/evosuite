@@ -44,7 +44,7 @@ public class RegressionExceptionHelper {
    * Get a simple (and unique looking) exception name (exType or exThrowingMethodCall:exType)
    */
   public static String simpleExceptionName(RegressionTestChromosome test, Integer statementPos,
-                                           Throwable ex) {
+      Throwable ex) {
     if (ex == null) {
       return "";
     }
@@ -62,7 +62,7 @@ public class RegressionExceptionHelper {
   /**
    * Get signature based on the root cause from the stack trace
    * (uses: location of the error triggering line from CUT)
-   * @param throwable
+   *
    * @param CUT the class to expect the exception to be thrown from
    * @return signature string
    */
@@ -87,11 +87,11 @@ public class RegressionExceptionHelper {
   /**
    * Calculate the number of different exceptions, given two sets of exceptions.
    */
-  public static double compareExceptionDiffs(Map<Integer, Throwable> originalExceptionMapping,
-                                             Map<Integer, Throwable> regressionExceptionMapping) {
+  public static int compareExceptionDiffs(Map<Integer, Throwable> originalExceptionMapping,
+      Map<Integer, Throwable> regressionExceptionMapping) {
 
-    double exDiff = Math
-        .abs((double) (originalExceptionMapping.size() - regressionExceptionMapping.size()));
+    int exDiff = (int) Math
+        .abs((originalExceptionMapping.size() - regressionExceptionMapping.size()));
 
 
     /*
@@ -210,8 +210,8 @@ public class RegressionExceptionHelper {
    * Add regression-diff comments for exception messages
    */
   public static void addExceptionAssertionComments(RegressionTestChromosome regressionTest,
-                                                   Map<Integer, Throwable> originalExceptionMapping,
-                                                   Map<Integer, Throwable> regressionExceptionMapping) {
+      Map<Integer, Throwable> originalExceptionMapping,
+      Map<Integer, Throwable> regressionExceptionMapping) {
     for (Map.Entry<Integer, Throwable> origException : originalExceptionMapping.entrySet()) {
       if (!regressionExceptionMapping.containsKey(origException.getKey())) {
 
