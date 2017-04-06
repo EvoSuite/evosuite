@@ -19,6 +19,10 @@
  */
 package org.evosuite.regression;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.Chromosome;
@@ -39,10 +43,10 @@ import java.util.List;
  */
 public class RegressionAssertionCounter {
 
-  protected static final Logger logger = LoggerFactory
-      .getLogger(RegressionAssertionCounter.class);
+  protected static final Logger logger = LoggerFactory.getLogger(RegressionAssertionCounter.class);
 
-  private static List<List<String>> assertionComments = new ArrayList<>();
+  // Map from a test case statements' hashcode to assertions for that test
+  private static Map<Integer, List<String>> assertionComments = new HashMap<>();
 
   /*
    * Gets and removes the number of assertions for the individual
@@ -50,23 +54,24 @@ public class RegressionAssertionCounter {
   public static int getNumAssertions(Chromosome individual) {
     assertionComments.clear();
     int numAssertions = getNumAssertions(individual, true);
-    int oldNumAssertions = numAssertions;
 
     if (numAssertions > 0) {
       logger.debug("num assertions bigger than 0");
-      RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
 
-      List<TestCase> testCases = new ArrayList<TestCase>();
+      List<TestCase> testCases = new ArrayList<>();
 
       if (individual instanceof RegressionTestChromosome) {
         // clone.addTest((RegressionTestChromosome)individual);
         testCases.add(((RegressionTestChromosome) individual).getTheTest().getTestCase());
       } else {
+        // individual instance of RegressionTestSuiteChromosome
         RegressionTestSuiteChromosome ind = (RegressionTestSuiteChromosome) individual;
         testCases.addAll(ind.getTests());
       }
+
       logger.debug("tests are copied");
-      // List<TestCase> testCases = clone.getTests();
+
+      // reset num assertions
       numAssertions = 0;
 
       JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
@@ -75,54 +80,12 @@ public class RegressionAssertionCounter {
       int numUnstable = JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
       logger.debug("... handleTestsThatAreUnstable() = {}", numUnstable);
 
+      // after removing non compiling & unstable tests, do we still have tests left?
       if (testCases.size() > 0) {
         logger.debug("{} out of {} tests remaining!", testCases.size(),
             ((RegressionTestSuiteChromosome) individual).getTests().size());
-        clone = new RegressionTestSuiteChromosome();
 
-        for (TestCase t : testCases) {
-          // logger.warn("adding cloned test ...");
-          if (t.isUnstable()) {
-            logger.debug("skipping unstable test...");
-            continue;
-          }
-          RegressionTestChromosome rtc = new RegressionTestChromosome();
-          TestChromosome tc = new TestChromosome();
-          tc.setTestCase(t);
-          rtc.setTest(tc);
-          clone.addTest(rtc);
-        }
-
-        logger.debug("getting new num assertions ...");
-        List<List<String>> oldAssertionComments = new ArrayList<>(assertionComments);
-        assertionComments.clear();
-        numAssertions = getNumAssertions(clone, false);
-        if (oldAssertionComments.size() != assertionComments.size()) {
-          numAssertions = 0;
-          logger.error("Assertion test size mismatch: {} VS {}", oldAssertionComments.size(),
-              assertionComments.size());
-        } else {
-          for (int i = 0; i < oldAssertionComments.size(); i++) {
-            List<String> testAssertionCommentsOld = oldAssertionComments.get(i);
-            List<String> testAssertionCommentsNew = assertionComments.get(i);
-
-            if (testAssertionCommentsNew.size() != testAssertionCommentsOld.size()) {
-              numAssertions = 0;
-              logger.error("Assertion comment size mismatch: {} VS {}",
-                  testAssertionCommentsNew.size(), testAssertionCommentsOld.size());
-              break;
-            }
-
-            for (int j = 0; j < testAssertionCommentsOld.size(); j++) {
-              if (!testAssertionCommentsOld.get(j).equals(testAssertionCommentsNew.get(j))) {
-                numAssertions = 0;
-                logger.error("Assertion comment mismatch: [{}] VS [{}]",
-                    testAssertionCommentsOld.get(j), testAssertionCommentsNew.get(j));
-                break;
-              }
-            }
-          }
-        }
+        numAssertions = getNumStableAssertions(testCases);
 
         logger.debug("Keeping {} assertions.", numAssertions);
 
@@ -136,13 +99,52 @@ public class RegressionAssertionCounter {
 
   }
 
+  private static int getNumStableAssertions(List<TestCase> testCases) {
+    RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
+
+    for (TestCase t : testCases) {
+      // create a test suite clone of stable tests, and get the number of assertions again
+      if (t.isUnstable()) {
+        logger.debug("skipping unstable test...");
+        continue;
+      }
+      RegressionTestChromosome rtc = new RegressionTestChromosome();
+      TestChromosome tc = new TestChromosome();
+      tc.setTestCase(t);
+      rtc.setTest(tc);
+      clone.addTest(rtc);
+    }
+
+    logger.debug("getting new num assertions ...");
+
+    Map<Integer, List<String>> oldAssertionComments = new HashMap<>(assertionComments);
+    assertionComments.clear();
+
+    int numAssertions = getNumAssertions(clone, false);
+
+    for (Entry<Integer, List<String>> entry : assertionComments.entrySet()) {
+      List<String> newAssertions = entry.getValue();
+      List<String> oldAssertions = oldAssertionComments.get(entry.getKey());
+
+      if (oldAssertions == null || !newAssertions.equals(oldAssertions)) {
+        numAssertions -= newAssertions.size();
+      }
+    }
+    // if for some weird reason we remove more assertions than needed...
+    if (numAssertions < 0) {
+      numAssertions = 0;
+      logger.error("We removed more assertions than expected");
+    }
+    return numAssertions;
+  }
+
   public static int getNumAssertions(Chromosome individual, Boolean removeAssertions) {
     return getNumAssertions(individual, removeAssertions, false);
 
   }
 
   public static int getNumAssertions(Chromosome individual, Boolean removeAssertions,
-                                     Boolean noExecution) {
+      Boolean noExecution) {
     long startTime = System.nanoTime();
     RegressionAssertionGenerator rgen = new RegressionAssertionGenerator();
 
@@ -158,7 +160,7 @@ public class RegressionAssertionCounter {
 
     // RegressionTestSuiteChromosome ind = null;
 
-    RegressionSearchListener.previousTestSuite = new ArrayList<TestCase>();
+    RegressionSearchListener.previousTestSuite = new ArrayList<>();
     RegressionSearchListener.previousTestSuite.addAll(RegressionSearchListener.currentTestSuite);
     RegressionSearchListener.currentTestSuite.clear();
     if (individual instanceof RegressionTestChromosome) {
@@ -183,11 +185,9 @@ public class RegressionAssertionCounter {
     return totalCount;
   }
 
-  // public static boolean enable_a = false;
-
   private static int checkForAssertions(Boolean removeAssertions, Boolean noExecution,
-                                        RegressionAssertionGenerator rgen,
-                                        RegressionTestChromosome regressionTest) {
+      RegressionAssertionGenerator rgen,
+      RegressionTestChromosome regressionTest) {
     long execStartTime = 0;
     long execEndTime = 0;
     int totalCount = 0;
@@ -197,7 +197,6 @@ public class RegressionAssertionCounter {
       execStartTime = System.currentTimeMillis();
 
       ExecutionResult result1 = rgen.runTest(regressionTest.getTheTest().getTestCase());
-      // enable_a=true;
       // logger.warn("Fitness is: {}", regressionTest.getFitness());
       // regressionAssertionGenerator = new RegressionAssertionGenerator();
       ExecutionResult result2 = rgen
@@ -218,8 +217,9 @@ public class RegressionAssertionCounter {
       } else {
 
         // logger.warn("getting exdiff..");
-        double exDiff = RegressionExceptionHelper.compareExceptionDiffs(result1.getCopyOfExceptionMapping(),
-            result2.getCopyOfExceptionMapping());
+        double exDiff = RegressionExceptionHelper
+            .compareExceptionDiffs(result1.getCopyOfExceptionMapping(),
+                result2.getCopyOfExceptionMapping());
 
         if (exDiff > 0) {
           logger.debug("Had {} different exceptions! ({})", exDiff, totalCount);
@@ -248,12 +248,14 @@ public class RegressionAssertionCounter {
 
     if (assertionCount > 0) {
       List<Assertion> asses = regressionTest.getTheTest().getTestCase().getAssertions();
-      List<String> assComments = new ArrayList<>();
+      List<String> assertionComments = new ArrayList<>();
       for (Assertion ass : asses) {
         logger.warn("+++++ Assertion: {} {}", ass.getCode(), ass.getComment());
-        assComments.add(ass.getComment());
+        assertionComments.add(ass.getComment());
       }
-      RegressionAssertionCounter.assertionComments.add(assComments);
+      RegressionAssertionCounter.assertionComments
+          .put(regressionTest.getTheTest().getTestCase().toCode().hashCode(), assertionComments);
+      logger.warn("comments: {}", assertionComments);
 
       if (asses.size() == 0) {
         logger.warn("=========> NO ASSERTIONS!!!");
