@@ -156,6 +156,7 @@ public class RegressionSuiteSerializer {
     AssertionStrategy tmpStrategy = Properties.ASSERTION_STRATEGY;
     Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
     TestSuiteGeneratorHelper.addAssertions(testArchive);
+    Properties.ASSERTION_STRATEGY = tmpStrategy;
 
     return testArchive;
   }

@@ -30,12 +30,13 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import dk.brics.automaton.RegExp;
 
 public class RegressionExceptionHelper {
 
 
-  private static List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[]{
+  private static final List<Class<?>> INVALID_EXCEPTIONS = Arrays.asList(new Class<?>[]{
       StackOverflowError.class, // Might be thrown at different places
       AssertionError.class}     // Depends whether assertions are enabled or not
   );
@@ -44,7 +45,7 @@ public class RegressionExceptionHelper {
    * Get a simple (and unique looking) exception name (exType or exThrowingMethodCall:exType)
    */
   public static String simpleExceptionName(RegressionTestChromosome test, Integer statementPos,
-      Throwable ex) {
+                                           Throwable ex) {
     if (ex == null) {
       return "";
     }
@@ -62,7 +63,6 @@ public class RegressionExceptionHelper {
   /**
    * Get signature based on the root cause from the stack trace
    * (uses: location of the error triggering line from CUT)
-   *
    * @param CUT the class to expect the exception to be thrown from
    * @return signature string
    */
@@ -72,7 +72,7 @@ public class RegressionExceptionHelper {
     StackTraceElement[] stackTrace = throwable.getStackTrace();
     for (StackTraceElement el : stackTrace) {
       String elClass = el.getClassName();
-      if (elClass != CUT) {
+      if (!Objects.equals(elClass, CUT)) {
         continue;
       }
 
@@ -88,7 +88,7 @@ public class RegressionExceptionHelper {
    * Calculate the number of different exceptions, given two sets of exceptions.
    */
   public static int compareExceptionDiffs(Map<Integer, Throwable> originalExceptionMapping,
-      Map<Integer, Throwable> regressionExceptionMapping) {
+                                          Map<Integer, Throwable> regressionExceptionMapping) {
 
     int exDiff = (int) Math
         .abs((originalExceptionMapping.size() - regressionExceptionMapping.size()));
@@ -121,8 +121,7 @@ public class RegressionExceptionHelper {
           Throwable x = origException.getValue();
           Class<?> ex = getExceptionClassToUse(x);
           String sourceClass = getSourceClassName(x);
-          if (sourceClass != null && isValidSource(sourceClass) && isExceptionToAssertThrownBy(
-              ex)) {
+          if (sourceClass != null && isValidSource(sourceClass) && isExceptionToAssertValid(ex)) {
             // Get other exception throwing class and compare them
             Throwable otherX = regressionExceptionMapping.get(origException.getKey());
             String otherSourceClass = getSourceClassName(otherX);
@@ -210,108 +209,115 @@ public class RegressionExceptionHelper {
    * Add regression-diff comments for exception messages
    */
   public static void addExceptionAssertionComments(RegressionTestChromosome regressionTest,
-      Map<Integer, Throwable> originalExceptionMapping,
-      Map<Integer, Throwable> regressionExceptionMapping) {
-    for (Map.Entry<Integer, Throwable> origException : originalExceptionMapping.entrySet()) {
-      if (!regressionExceptionMapping.containsKey(origException.getKey())) {
+                                                   Map<Integer, Throwable> originalExceptionMapping,
+                                                   Map<Integer, Throwable> regressionExceptionMapping) {
+    for (Map.Entry<Integer, Throwable> original : originalExceptionMapping.entrySet()) {
+      int originalStatementPos = original.getKey();
+      Throwable originalException = original.getValue();
+      if (!regressionExceptionMapping.containsKey(originalStatementPos)) {
 
-        if (regressionTest.getTheTest().getTestCase().hasStatement(origException.getKey())
-            && !regressionTest.getTheTest().getTestCase().getStatement(origException.getKey())
-            .getComment()
-            .contains("modified version")) {
-          regressionTest.getTheTest().getTestCase().getStatement(origException.getKey())
-              .addComment(
-                  "EXCEPTION DIFF:\nThe modified version did not exhibit this exception:\n    "
-                      + origException.getValue().getClass().getName() + " : "
-                      + origException.getValue().getMessage() + "\n");
-          // regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(origException.getKey()).addComment("EXCEPTION
-          // DIFF:\nThe modified version did not exhibit this
-          // exception:\n "
-          // + origException.getValue().getMessage() + "\n");
+        if (testStatementCommentNotContains(regressionTest, originalStatementPos,
+            "modified version")) {
+          addExceptionDifferenceComment(regressionTest, originalException, originalStatementPos,
+              "The modified version did not exhibit this exception", false);
+          //FIXME: for some reason we're not adding this comment to the other version!
         }
       } else {
-        if (origException != null && origException.getValue() != null
-            && origException.getValue().getMessage() != null) {
+        if (originalException != null && originalException.getMessage() != null) {
           // compare the exception messages
-          if (!origException.getValue().getMessage()
-              .equals(regressionExceptionMapping.get(origException.getKey()).getMessage())) {
-            if (regressionTest.getTheTest().getTestCase().hasStatement(origException.getKey())
-                && !regressionTest.getTheTest().getTestCase().getStatement(origException.getKey())
-                .getComment().contains("EXCEPTION DIFF:")) {
-              regressionTest.getTheTest().getTestCase().getStatement(origException.getKey())
+          if (!originalException.getMessage()
+              .equals(regressionExceptionMapping.get(originalStatementPos).getMessage())) {
+            if (testStatementCommentNotContains(regressionTest, originalStatementPos,
+                "EXCEPTION DIFF:")) {
+              regressionTest.getTheTest().getTestCase().getStatement(originalStatementPos)
                   .addComment(
                       "EXCEPTION DIFF:\nDifferent Exceptions were thrown:\nOriginal Version:\n    "
-                          + origException.getValue().getClass().getName() + " : "
-                          + origException.getValue().getMessage() + "\nModified Version:\n    "
-                          + regressionExceptionMapping.get(origException.getKey()).getClass()
+                          + originalException.getClass().getName() + " : "
+                          + originalException.getMessage() + "\nModified Version:\n    "
+                          + regressionExceptionMapping.get(originalStatementPos).getClass()
                           .getName()
                           + " : "
-                          + regressionExceptionMapping.get(origException.getKey()).getMessage()
+                          + regressionExceptionMapping.get(originalStatementPos).getMessage()
                           + "\n");
             }
           } else {
             // Compare the classes throwing the exception
-            Throwable x = origException.getValue();
-            Class<?> ex = getExceptionClassToUse(x);
-            String sourceClass = getSourceClassName(x);
-            if (sourceClass != null && isValidSource(sourceClass) && isExceptionToAssertThrownBy(ex)
-                && regressionExceptionMapping.get(origException.getKey()) != null) {
-              Throwable otherX = regressionExceptionMapping.get(origException.getKey());
+            Class<?> ex = getExceptionClassToUse(originalException);
+            String sourceClass = getSourceClassName(originalException);
+            if (sourceClass != null && isValidSource(sourceClass) && isExceptionToAssertValid(ex)
+                && regressionExceptionMapping.get(originalStatementPos) != null) {
+              Throwable otherX = regressionExceptionMapping.get(originalStatementPos);
               String otherSourceClass = getSourceClassName(otherX);
               if (!sourceClass.equals(otherSourceClass)) {
-                if (regressionTest.getTheTest().getTestCase().hasStatement(origException.getKey())
-                    && !regressionTest.getTheTest().getTestCase()
-                    .getStatement(origException.getKey()).getComment()
-                    .contains("EXCEPTION DIFF:")) {
-                  regressionTest.getTheTest().getTestCase().getStatement(origException.getKey())
+                if (testStatementCommentNotContains(regressionTest, originalStatementPos,
+                    "EXCEPTION DIFF:")) {
+                  regressionTest.getTheTest().getTestCase().getStatement(originalStatementPos)
                       .addComment(
                           "EXCEPTION DIFF:\nExceptions thrown by different classes:\nOriginal Version:\n    "
                               + sourceClass + "\nModified Version:\n    "
                               + otherSourceClass + "\n");
                 }
-
               }
-
             }
           }
         }
 
         // If both show the same error, pop the error from the
         // regression exception map, to get to a diff.
-        regressionExceptionMapping.remove(origException.getKey());
+        regressionExceptionMapping.remove(originalStatementPos);
       }
     }
-    for (Map.Entry<Integer, Throwable> regException : regressionExceptionMapping.entrySet()) {
-      if (regressionTest.getTheTest().getTestCase().hasStatement(regException.getKey())
-          && !regressionTest.getTheTest().getTestCase().getStatement(regException.getKey())
-          .getComment()
-          .contains("original version")) {
-                                /*
-                                 * logger.warn(
-				 * "Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}"
-				 * , regException.getValue().getMessage(),
-				 * regressionTest.getTheTest().getTestCase(),
-				 * regException.getValue().toString());
-				 */
-        regressionTest.getTheTest().getTestCase().getStatement(regException.getKey())
-            .addComment(
-                "EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
-                    + regException.getValue().getClass().getName() + " : "
-                    + regException.getValue().getMessage() + "\n\n");
-        regressionTest.getTheSameTestForTheOtherClassLoader().getTestCase()
-            .getStatement(regException.getKey())
-            .addComment(
-                "EXCEPTION DIFF:\nThe original version did not exhibit this exception:\n    "
-                    + regException.getValue().getClass().getName() + " : "
-                    + regException.getValue().getMessage() + "\n\n");
+    for (Map.Entry<Integer, Throwable> regression : regressionExceptionMapping.entrySet()) {
+      Throwable regressionException = regression.getValue();
+      int regressionStatementPos = regression.getKey();
+      if (testStatementCommentNotContains(regressionTest, regressionStatementPos,
+          "original version")) {
+        /*
+         * logger.warn(
+         * "Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}"
+         * , regException.getValue().getMessage(),
+         * regressionTest.getTheTest().getTestCase(),
+         * regException.getValue().toString());
+         */
+        addExceptionDifferenceComment(regressionTest, regressionException, regressionStatementPos,
+            "The original version did not exhibit this exception", true);
       }
     }
   }
 
-  /*
-     * This part is "temporarily" copied over from TestCodeVisitor.
-     * Until they are made statically available to use in this class.
-     */
+  private static boolean testStatementCommentNotContains(RegressionTestChromosome test,
+                                                         int statementPos, String compareComment) {
+    return (test.getTheTest().getTestCase().hasStatement(statementPos)
+        && !test.getTheTest().getTestCase().getStatement(statementPos)
+        .getComment().contains(compareComment));
+  }
+
+  /**
+   * Add exception difference comment to test case, at given position
+   * @param test the test case to add the comment to
+   * @param t throwable (Exception) which has occurred
+   * @param statementPos the position to add the comment on
+   * @param comment the comment string
+   * @param addToTestForOtherClassLoader whether to add the same comment on the test on reg. CL
+   */
+  private static void addExceptionDifferenceComment(RegressionTestChromosome test, Throwable t,
+                                                    int statementPos, String comment,
+                                                    boolean addToTestForOtherClassLoader) {
+    String exceptionDiffComment = "EXCEPTION DIFF:\n" + comment + ":\n    "
+        + t.getClass().getName() + " : " + t.getMessage() + "\n\n";
+
+    test.getTheTest().getTestCase().getStatement(statementPos)
+        .addComment(exceptionDiffComment);
+    if (addToTestForOtherClassLoader) {
+      test.getTheSameTestForTheOtherClassLoader().getTestCase().getStatement(statementPos)
+          .addComment(exceptionDiffComment);
+    }
+  }
+
+  /**
+   * This part is "temporarily" copied over from TestCodeVisitor.
+   * Until they are made statically available to use in this class.
+   */
   private static String getSourceClassName(Throwable exception) {
     if (exception.getStackTrace().length == 0) {
       return null;
@@ -332,8 +338,8 @@ public class RegressionExceptionHelper {
         !sourceClass.startsWith("jdk.internal.");
   }
 
-  private static boolean isExceptionToAssertThrownBy(Class<?> exceptionClass) {
-    return !invalidExceptions.contains(exceptionClass);
+  private static boolean isExceptionToAssertValid(Class<?> exceptionClass) {
+    return !INVALID_EXCEPTIONS.contains(exceptionClass);
   }
 
   private static Class<?> getExceptionClassToUse(Throwable exception) {
