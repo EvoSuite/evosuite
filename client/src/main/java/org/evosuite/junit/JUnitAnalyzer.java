@@ -181,8 +181,7 @@ public class JUnitAnalyzer {
 				return numUnstable; //everything is OK
 			}
 
-			logger.error("" + result.getFailureCount() + " test cases failed");
-			
+
 			failure_loop: for (JUnitFailure failure : result.getFailures()) {
 				String testName = failure.getDescriptionMethodName();//TODO check if correct
 				for (int i = 0; i < tests.size(); i++) {
@@ -210,11 +209,11 @@ public class JUnitAnalyzer {
 					tests.clear();
 					return numUnstable;
 				}
-				
+
 				// On the Sheffield cluster, the "well-known fle is not secure" issue is impossible to understand,
 				// so it might be best to ignore it for now.
 				if(testName.equals("initializationError") && failure.getMessage().contains("Failed to attach Java Agent")) {
-					logger.warn("Likely error with EvoSuite instrumentation, ignoring");
+					logger.warn("Likely error with EvoSuite instrumentation, ignoring failure in test execution");
 					continue failure_loop;
 				}
 
