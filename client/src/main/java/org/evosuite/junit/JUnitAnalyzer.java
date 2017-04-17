@@ -194,13 +194,6 @@ public class JUnitAnalyzer {
 					}
 				}
 
-				// On the Sheffield cluster, the "well-known fle is not secure" issue is impossible to understand,
-				// so it might be best to ignore it for now.
-				if(testName.equals("initializationError") && failure.getMessage().contains("Failed to attach Java Agent")) {
-					logger.warn("Likely error with EvoSuite instrumentation, ignoring");
-					continue failure_loop;
-				}
-				
 				if(testName == null){
 					/*
 					 * this can happen if there is a failure in the scaffolding (eg @AfterClass/@BeforeClass).
@@ -218,6 +211,14 @@ public class JUnitAnalyzer {
 					return numUnstable;
 				}
 				
+				// On the Sheffield cluster, the "well-known fle is not secure" issue is impossible to understand,
+				// so it might be best to ignore it for now.
+				if(testName.equals("initializationError") && failure.getMessage().contains("Failed to attach Java Agent")) {
+					logger.warn("Likely error with EvoSuite instrumentation, ignoring");
+					continue failure_loop;
+				}
+
+
 				logger.warn("Found unstable test named " + testName + " -> "
 				        + failure.getExceptionClassName() + ": " + failure.getMessage());
 				
