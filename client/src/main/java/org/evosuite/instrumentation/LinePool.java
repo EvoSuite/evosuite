@@ -127,6 +127,10 @@ public class LinePool {
 			return lineMap.get(className).keySet();
 	}
 
+	public static void removeClass(String className) {
+		lineMap.remove(className);
+	}
+
 	public static void reset() {
 		lineMap.clear();
 	}

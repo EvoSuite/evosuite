@@ -15,7 +15,7 @@
  * not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.regression;
 
@@ -49,13 +49,13 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -1979463801167353053L;
 
   private double bestFitness = Double.MAX_VALUE;
 
-  Map<Integer, Integer> branchIdMap = new HashMap<Integer, Integer>();
+  Map<Integer, Integer> branchIdMap = new HashMap<>();
 
   private HashMap<Integer, Double> tempBranchDistanceMap;
 
@@ -121,7 +121,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
   private int uniqueCalls;
 
-  protected void executeChangedTestsAndUpdateResults(
+  private void executeChangedTestsAndUpdateResults(
       AbstractTestSuiteChromosome<? extends ExecutableChromosome> s) {
     observer.clearPools();
     diversityMap.clear();
@@ -141,26 +141,28 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
         // record diversity
         // diversity is based on the test case statements, and doesn't used with execution results
         if (Properties.REGRESSION_DIVERSITY) {
-          Map<String, Map<Integer, String>> testDiversityMap =
-              new HashMap<String, Map<Integer, String>>();
+          Map<String, Map<Integer, String>> testDiversityMap = new HashMap<>();
           for (int i = 0; i < testChromosome.getTestCase().size(); i++) {
             Statement x = testChromosome.getTestCase().getStatement(i);
             if (x instanceof MethodStatement) {
               MethodStatement methodCall = (MethodStatement) x;
               VariableReference callee = methodCall.getCallee();
-              if (callee == null)
+              if (callee == null) {
                 continue;
+              }
               int calleePosition = callee.getStPosition();
               String calleeClass = callee.getClassName();
               String methodCallName = methodCall.getMethod().getName();
 
               Map<Integer, String> calleeMap = testDiversityMap.get(calleeClass);
-              if (calleeMap == null)
+              if (calleeMap == null) {
                 calleeMap = new HashMap<Integer, String>();
+              }
 
               String calledMethods = calleeMap.get(calleePosition);
-              if (calledMethods == null)
+              if (calledMethods == null) {
                 calledMethods = "";
+              }
 
               calledMethods += methodCallName;
 
@@ -199,19 +201,19 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
         }
       }
 
-
       if (Properties.REGRESSION_DIVERSITY) {
         long startTime = System.nanoTime();
         for (Entry<String, Map<Integer, String>> dEntry : c.diversityMap.entrySet()) {
           Map<Integer, String> divInstance = diversityMap.get(dEntry.getKey());
-          if (divInstance == null)
+          if (divInstance == null) {
             diversityMap.put(dEntry.getKey(), dEntry.getValue());
-          else {
+          } else {
             Map<Integer, String> testMethodCalls = dEntry.getValue();
             for (Entry<Integer, String> mc : testMethodCalls.entrySet()) {
               String calls = divInstance.get(mc.getKey());
-              if (calls == null || calls.length() < mc.getValue().length())
+              if (calls == null || calls.length() < mc.getValue().length()) {
                 calls = mc.getValue();
+              }
               divInstance.put(mc.getKey(), calls);
             }
           }
@@ -264,15 +266,14 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
       ExecutionResult result2 = rtc.getTheSameTestForTheOtherClassLoader().getLastExecutionResult();
 
-
       // calculating exception difference
       int numExceptionOrig = result1.getNumberOfThrownExceptions();
       int numExceptionReg = result2.getNumberOfThrownExceptions();
 
-
       double execTimeDiff = Math.abs((double) (numExceptionOrig - numExceptionReg));
-      if (execTimeDiff > 0.003)
+      if (execTimeDiff > 0.003) {
         diffTime += execTimeDiff;
+      }
 
       double exDiff = Math.abs((double) (numExceptionOrig - numExceptionReg));
 
@@ -295,12 +296,11 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     }
     firstF = true;
 
-
-
     double objectDfitness = 0;
     if (useMeasure(RegressionMeasure.STATE_DIFFERENCE)) {
-      if (!objectDistances.isEmpty())
+      if (!objectDistances.isEmpty()) {
         distance = Collections.max(objectDistances);
+      }
       objectDfitness =
           (1.0 / (1.0 + distance)) * (max_branch_fitness_valueO + max_branch_fitness_valueR);
     }
@@ -313,7 +313,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
       testRegressionSuiteChromosome = suite.getTestSuiteForTheOtherClassLoader();
     }
 
-
     double coverage_old = 0, coverage_new = 0;
     if (useMeasure(RegressionMeasure.COVERAGE_OLD)) {
       coverage_old = bcFitness.getFitness(testSuiteChromosome);
@@ -324,7 +323,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     double coverage = coverage_old + coverage_new;
 
     RegressionSearchListener.coverageTime += System.nanoTime() - startTime;
-
 
     double branchDfitness = 0;
 
@@ -337,7 +335,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
       branchDfitness = totalBranchDistanceFitness;
     }
-
 
     switch (Properties.REGRESSION_FITNESS) {
       case COVERAGE_OLD:
@@ -375,7 +372,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
       fitness += diversityFitness;
     }
 
-
     String covered_old = String.format("%.2f", bcFitness.totalCovered * 100);
     String covered_new = String.format("%.2f", bcFitnessRegression.totalCovered * 100);
 
@@ -398,8 +394,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
       }
     }
 
-
-
     suite.fitnessData = fitness + "," + testSuiteChromosome.size() + ","
         + testSuiteChromosome.totalLengthOfTestCases() + "," + branchDfitness + "," + objectDfitness
         + "," + coverage + ",numDifferentExceptions," + totalExceptions + "," + covered_old + ","
@@ -418,7 +412,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     if (fitness < bestFitness) {
       bestFitness = fitness;
 
-
       logger.warn("OBJ distance: " + distance + " - fitness:" + fitness + " - branchDistance:"
           + totalBranchDistanceFitness + " - coverage:" + coverage + " - ex: "
           + numDifferentExceptions + " - tex: " + totalExceptions);
@@ -433,18 +426,16 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
           + (RegressionSearchListener.diversityCalculationTime + 1) / 1000000);
       logger.warn("Best Fitness " + fitness + ", number of tests: " + testSuiteChromosome.size()
           + ", total length: " + testSuiteChromosome
-              .totalLengthOfTestCases() /*
+          .totalLengthOfTestCases() /*
                                          * + ", max adds: " +maxAdds + ", total adds: " + totalAdds
                                          */);
     }
-
 
     return fitness;
   }
 
   /**
    * Calculate diversity among objects
-   * 
    */
   private void calculateDiversity() {
     long divStartTime = System.nanoTime();
@@ -496,7 +487,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
      * that was added)
      */
 
-    for (int i = 0, j = 0; i < methodCallsOrig.size() && j < methodCallsReg.size();) {
+    for (int i = 0, j = 0; i < methodCallsOrig.size() && j < methodCallsReg.size(); ) {
       MethodCall mO = methodCallsOrig.get(i);
       MethodCall mR = methodCallsReg.get(j);
 
@@ -506,7 +497,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
         List<Integer> branchesO = mO.branchTrace;
         List<Integer> branchesR = mR.branchTrace;
 
-        for (int k = 0, l = 0; k < branchesO.size() && l < branchesR.size();) {
+        for (int k = 0, l = 0; k < branchesO.size() && l < branchesR.size(); ) {
           Integer branchO = branchesO.get(k);
           Integer branchR = branchesR.get(l);
 
@@ -519,13 +510,13 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
               branchR = branchIdMap.get(branchO);
             } else {
 
-              if ((branchO == branchR))
+              if ((branchO == branchR)) {
                 k++;
+              }
               l++;
               continue;
             }
           }
-
 
           if (branchO == branchR) {
 
@@ -541,12 +532,14 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
             tempBranchDistance += (Math.abs(trueDisO) + Math.abs(falseDisO)) / 2.0;
 
-            if ((trueDisO == 0 && falseDisR == 0) || (falseDisO == 0 && trueDisR == 0))
+            if ((trueDisO == 0 && falseDisR == 0) || (falseDisO == 0 && trueDisR == 0)) {
               tempBranchDistance = 0;
+            }
 
             if (!branchDistanceMap.containsKey(branchO)
-                || branchDistanceMap.get(branchO) > tempBranchDistance)
+                || branchDistanceMap.get(branchO) > tempBranchDistance) {
               branchDistanceMap.put(branchO, tempBranchDistance);
+            }
 
             k++;
             l++;
@@ -575,7 +568,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
   }
 
 
-
   private double getTestObjectDistance(
       List<Map<Integer, Map<String, Map<String, Object>>>> originalMap,
       List<Map<Integer, Map<String, Map<String, Object>>>> regressionMap) {
@@ -591,8 +583,9 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     for (int j = 0; j < originalMap.size(); j++) {
       Map<Integer, Map<String, Map<String, Object>>> map1 = originalMap.get(j);
 
-      if (regressionMap.size() <= j)
+      if (regressionMap.size() <= j) {
         continue;
+      }
       Map<Integer, Map<String, Map<String, Object>>> map2 = regressionMap.get(j);
 
       for (Map.Entry<Integer, Map<String, Map<String, Object>>> map1_entry : map1.entrySet()) {
@@ -605,15 +598,17 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
         Map<String, Map<String, Object>> map1_values = map1_entry.getValue();
         Map<String, Map<String, Object>> map2_values = map2.get(map1_entry.getKey());
         // logger.warn("" + map1_values + map2_values);
-        if (map1_values == null || map2_values == null)
+        if (map1_values == null || map2_values == null) {
           continue;
+        }
         for (Map.Entry<String, Map<String, Object>> internal_map1_entries : map1_values
             .entrySet()) {
 
           Map<String, Object> map1_value = internal_map1_entries.getValue();
           Map<String, Object> map2_value = map2_values.get(internal_map1_entries.getKey());
-          if (map1_value == null || map2_value == null)
+          if (map1_value == null || map2_value == null) {
             continue;
+          }
 
           double objectDistance =
               ObjectDistanceCalculator.getObjectMapDistance(map1_value, map2_value);
@@ -631,7 +626,9 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
           if (!maxClassDistance.containsKey(internal_map1_entries.getKey())
               || (maxClassDistance.get(internal_map1_entries.getKey()) < objectDistance))
 
-            maxClassDistance.put(internal_map1_entries.getKey(), Double.valueOf(objectDistance));
+          {
+            maxClassDistance.put(internal_map1_entries.getKey(), objectDistance);
+          }
           /*
            * logger.warn(internal_map1_entries.getKey() + ": " + map1_value + " --VS-- "+
            * map2_value);
@@ -659,8 +656,9 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     }
 
     if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 5) {
-      if (maxClassDistance.size() > 0)
+      if (maxClassDistance.size() > 0) {
         temp_dis = temp_dis / (maxClassDistance.size());
+      }
     }
 
     if (Properties.REGRESSION_ANALYSIS_OBJECTDISTANCE == 6) {
@@ -678,55 +676,48 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
   }
 
-  /*
-   * Table for name:
-   * 
-   * @ a: all measures
-   * 
-   * @ s: state difference
-   * 
-   * @ b: branch distance
-   * 
-   * @ c: coverage
-   * 
-   * @ o: coverage old
-   * 
-   * @ n: coverage new
-   */
-  public boolean useMeasure(RegressionMeasure m) {
+
+  private boolean useMeasure(RegressionMeasure m) {
     boolean flag = false;
-    if (m == Properties.REGRESSION_FITNESS)
+    if (m == Properties.REGRESSION_FITNESS) {
       return true;
+    }
 
     // for more complicated measurements (that combine stuff)
     switch (Properties.REGRESSION_FITNESS) {
       case COVERAGE_OLD:
-        if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_OLD)
+        if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_OLD) {
           return true;
+        }
         break;
       case COVERAGE_NEW:
-        if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_NEW)
+        if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_NEW) {
           return true;
+        }
         break;
       case STATE_DIFFERENCE:
-        if (m == RegressionMeasure.STATE_DIFFERENCE)
+        if (m == RegressionMeasure.STATE_DIFFERENCE) {
           flag = true;
+        }
         break;
       case BRANCH_DISTANCE:
-        if (m == RegressionMeasure.BRANCH_DISTANCE && Properties.REGRESSION_BRANCH_DISTANCE)
+        if (m == RegressionMeasure.BRANCH_DISTANCE && Properties.REGRESSION_BRANCH_DISTANCE) {
           flag = true;
+        }
         break;
       case COVERAGE:
         if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.COVERAGE_OLD
-            || m == RegressionMeasure.COVERAGE_NEW)
+            || m == RegressionMeasure.COVERAGE_NEW) {
           flag = true;
+        }
         break;
       case ALL_MEASURES:
       default:
         if (m == RegressionMeasure.COVERAGE || m == RegressionMeasure.STATE_DIFFERENCE
             || (m == RegressionMeasure.BRANCH_DISTANCE && Properties.REGRESSION_BRANCH_DISTANCE)
-            || m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW)
+            || m == RegressionMeasure.COVERAGE_OLD || m == RegressionMeasure.COVERAGE_NEW) {
           flag = true;
+        }
         break;
 
     }
@@ -741,7 +732,6 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
    */
   @Override
   public boolean isMaximizationFunction() {
-    // TODO Auto-generated method stub
     return false;
   }
 
@@ -756,8 +746,9 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
     public String lcp(String s, String t) {
       int n = Math.min(s.length(), t.length());
       for (int i = 0; i < n; i++) {
-        if (s.charAt(i) != t.charAt(i))
+        if (s.charAt(i) != t.charAt(i)) {
           return s.substring(0, i);
+        }
       }
       return s.substring(0, n);
     }
@@ -782,16 +773,12 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
         String x = lcp(suffixes[i], suffixes[i + 1]);
         if (x.length() > lrs.length()) {
           lrs = x;
-          // SINA: Uncommenting the "optimization" `break` below will cause the function to return
-          // as
-          // soon as a substring is found
+          // SINA: Uncommenting the "optimization" `break` below will cause the function to return as soon as a substring is found
           // break;
         }
       }
       return lrs;
     }
-
-
   }
 
 }

@@ -530,7 +530,7 @@ public class Properties {
 	public static double P_STATEMENT_INSERTION = 0.5;
 
 	/** Constant <code>P_CHANGE_PARAMETER=0.1</code> */
-	@Parameter(key = "p_change_parameter", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
+	@Parameter(key = "p_change_parameter", group = "Search Algorithm", description = "Probability of replacing parameters when mutating a method or constructor statementa in a test case")
     @DoubleValue(min = 0.0, max = 1.0)
 	public static double P_CHANGE_PARAMETER = 0.1;
 
@@ -1616,6 +1616,10 @@ public class Properties {
     /** Constant <code>REGRESSION_STATISTICS</code> */
     @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")
     public static boolean REGRESSION_STATISTICS = false;
+
+	/** Constant <code>KEEP_REGRESSION_ARCHIVE</code> */
+	@Parameter(key = "keep_regression_archive", group = "Runtime", description = "Keep an archive of regression tests")
+	public static boolean KEEP_REGRESSION_ARCHIVE = false;
 	
 	
 	public enum Strategy {

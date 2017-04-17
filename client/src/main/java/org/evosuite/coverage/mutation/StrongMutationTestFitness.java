@@ -91,7 +91,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 				logger.debug("Executing test for mutant " + mutant.getId() + ": \n"
 				        + test.toCode());
 			else
-				logger.debug("Executing test witout mutant");
+				logger.debug("Executing test without mutant");
 
 			if (mutant != null)
 				MutationObserver.activateMutation(mutant);
@@ -280,6 +280,18 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		return num;
 	}
 
+	private void ensureExecutionResultHasTraces(TestChromosome individual, ExecutionResult result) {
+		if(result.getTraces().isEmpty() && observerClasses.length > 0) {
+			ExecutionResult newResult = runTest(individual.getTestCase());
+			for(Class<?> observerClass : observerClasses) {
+				OutputTrace<?> trace = newResult.getTrace(observerClass);
+				result.setTrace(trace, observerClass);
+			}
+		}
+
+
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
@@ -327,6 +339,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			// If infected check if it is also killed
 			else if (infectionDistance <= 0) {
 
+				// If the trace was generated without observers, we need to re-execute
+				ensureExecutionResultHasTraces(individual, result);
 				
 				logger.debug("Running test on mutant " + mutation.getId());
 				MutationExecutionResult mutationResult = individual.getLastExecutionResult(mutation);

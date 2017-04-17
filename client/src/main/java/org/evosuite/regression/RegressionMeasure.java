@@ -27,11 +27,11 @@ package org.evosuite.regression;
  * [Random Search] RANDOM
  */
 public enum RegressionMeasure {
-  ALL_MEASURES, 
-  STATE_DIFFERENCE, 
-  BRANCH_DISTANCE, 
-  COVERAGE, 
-  COVERAGE_OLD, 
-  COVERAGE_NEW, 
+  ALL_MEASURES,
+  STATE_DIFFERENCE,
+  BRANCH_DISTANCE,
+  COVERAGE,
+  COVERAGE_OLD,
+  COVERAGE_NEW,
   RANDOM
 }

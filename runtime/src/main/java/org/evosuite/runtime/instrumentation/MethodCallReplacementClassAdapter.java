@@ -22,6 +22,7 @@
  */
 package org.evosuite.runtime.instrumentation;
 
+import java.awt.*;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -150,7 +151,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	public void visitEnd() {
 		if(canChangeSignature && !definesHashCode && !isInterface && RuntimeSettings.mockJVMNonDeterminism) {
 
-			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
+//			logger.info("No hashCode defined for: "+className+", superclass = "+superClassName);
 
 			if(superClassName.equals("java.lang.Object")) { //TODO: why only if superclass is Object??? unclear
 				Method hashCodeMethod = Method.getMethod("int hashCode()");
@@ -185,11 +186,8 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 					logger.info("Adding serialId to class "+className);
 					visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "serialVersionUID", "J", null, serialID);
 				}
-			} catch(ClassNotFoundException e) {
+			} catch(ClassNotFoundException | NoClassDefFoundError | HeadlessException | ExceptionInInitializerError e) {
 				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
-			} catch (NoClassDefFoundError e) {
-				logger.warn("Failed to add serialId to class "+className+": "+e.getMessage());
-				
 			} finally {
 				Thread.currentThread().setContextClassLoader(threadCL);
 			}

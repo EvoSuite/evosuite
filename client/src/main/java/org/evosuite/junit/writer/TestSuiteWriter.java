@@ -251,7 +251,7 @@ public class TestSuiteWriter implements Opcodes {
             }
         }
 
-        if (Properties.TEST_SCAFFOLDING) {
+        if (Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             String scaffoldingName = Scaffolding.getFileName(name);
             File file = new File(dir + "/" + scaffoldingName + ".java");
             String scaffoldingContent = Scaffolding.getScaffoldingFileContent(name, results,
@@ -311,7 +311,7 @@ public class TestSuiteWriter implements Opcodes {
 
         builder.append(getHeader(name, name, results));
 
-        if (!Properties.TEST_SCAFFOLDING) {
+        if (!Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
         
@@ -412,7 +412,7 @@ public class TestSuiteWriter implements Opcodes {
             imports.add(ViolatedAssumptionAnswer.class);
         }
 
-        if(hasException) {
+        if(hasException && !Properties.NO_RUNTIME_DEPENDENCY) {
         	builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
         }
 
@@ -421,7 +421,7 @@ public class TestSuiteWriter implements Opcodes {
             imports.add(DebugGraphics.class);
         }
 
-        if (TestSuiteWriterUtils.needToUseAgent()) {
+        if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
             imports.add(EvoRunner.class);
             imports.add(EvoRunnerParameters.class);
             imports.add(RunWith.class);
@@ -461,7 +461,7 @@ public class TestSuiteWriter implements Opcodes {
             importNames.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
         }
 
-        if (!Properties.TEST_SCAFFOLDING) {
+        if (!Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             importNames.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
         }
 
@@ -512,13 +512,13 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(adapter.getImports());
         builder.append(getImports(results));
 
-        if (TestSuiteWriterUtils.needToUseAgent()) {
+        if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
             builder.append(getRunner());
         }
 
         builder.append(adapter.getClassDefinition(test_name));
 
-        if (Properties.TEST_SCAFFOLDING) {
+        if (Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             builder.append(" extends " + Scaffolding.getFileName(scaffolding_name));
         }
 

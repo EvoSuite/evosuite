@@ -19,24 +19,14 @@
  */
 package org.evosuite.coverage.io.output;
 
-import static org.evosuite.coverage.io.IOCoverageConstants.*;
-
-import org.evosuite.Properties;
-import org.evosuite.assertion.Inspector;
-import org.evosuite.assertion.InspectorManager;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.hibernate.result.Output;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * @author Jose Miguel Rojas

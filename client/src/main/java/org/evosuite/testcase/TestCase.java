@@ -41,8 +41,7 @@ import org.evosuite.utils.Listenable;
  * @author Gordon Fraser
  * @author Sebastian Steenbuck
  */
-public interface TestCase extends Iterable<Statement>, Cloneable,
-        Listenable<Void> {
+public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Void> {
 
 	/**
 	 * Get an unique id representing this test.

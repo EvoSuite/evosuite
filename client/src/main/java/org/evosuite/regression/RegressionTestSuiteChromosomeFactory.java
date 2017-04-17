@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.regression;
 
@@ -31,35 +31,37 @@ import org.evosuite.utils.Randomness;
 
 
 public class RegressionTestSuiteChromosomeFactory extends
-		TestSuiteChromosomeFactory {
+    TestSuiteChromosomeFactory {
 
-	private static final long serialVersionUID = -5460006842373221807L;
+  private static final long serialVersionUID = -5460006842373221807L;
 
-	/** Factory to manipulate and generate method sequences */
+  /** Factory to manipulate and generate method sequences */
 
-	/** {@inheritDoc} */
-	@Override
-	public TestSuiteChromosome getChromosome() {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public TestSuiteChromosome getChromosome() {
 
-		RegressionTestSuiteChromosome chromosome = new RegressionTestSuiteChromosome(
-				testChromosomeFactory);
+    RegressionTestSuiteChromosome chromosome = new RegressionTestSuiteChromosome(
+        testChromosomeFactory);
 
-		chromosome.clearTests();
-		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
-		tracker.modification(chromosome);
-		// ((AllMethodsChromosomeFactory)test_factory).clear();
+    chromosome.clearTests();
+    CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
+    tracker.modification(chromosome);
+    // ((AllMethodsChromosomeFactory)test_factory).clear();
 
-		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
-				Properties.MAX_INITIAL_TESTS + 1);
+    int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
+        Properties.MAX_INITIAL_TESTS + 1);
 
-		for (int i = 0; i < numTests; i++) {
-			TestChromosome test = testChromosomeFactory.getChromosome();
-			chromosome.addTest(test);
-		}
-		
-		// logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
-		// logger.trace("Generated new test suite:"+chromosome);
-		return chromosome;
-	}
+    for (int i = 0; i < numTests; i++) {
+      TestChromosome test = testChromosomeFactory.getChromosome();
+      chromosome.addTest(test);
+    }
+
+    // logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
+    // logger.trace("Generated new test suite:"+chromosome);
+    return chromosome;
+  }
 
 }

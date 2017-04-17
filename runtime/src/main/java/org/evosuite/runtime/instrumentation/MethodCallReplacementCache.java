@@ -269,6 +269,8 @@ public class MethodCallReplacementCache {
 		// java/lang/System
 		addReplacementCall(new MethodCallReplacement("java/lang/System", "exit", "(I)V", Opcodes.INVOKESTATIC,
 				PackageInfo.getNameWithSlash(org.evosuite.runtime.System.class), "exit", "(I)V", false, false));
+		addReplacementCall(new MethodCallReplacement("java/lang/System", "setSecurityManager", "(Ljava/lang/SecurityManager;)V", Opcodes.INVOKESTATIC,
+				PackageInfo.getNameWithSlash(org.evosuite.runtime.System.class), "setSecurityManager", "(Ljava/lang/SecurityManager;)V", false, false));
 		addReplacementCall(new MethodCallReplacement("java/lang/System", "currentTimeMillis", "()J",
 				Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(org.evosuite.runtime.System.class),
 				"currentTimeMillis", "()J", false, false));
@@ -375,7 +377,7 @@ public class MethodCallReplacementCache {
 			try {
 				mockClass.getMethod(m.getName(), parameters);
 			} catch (NoSuchMethodException e) {
-				logger.debug("Skipping method " + m.getName());
+				// logger.debug("Skipping method " + m.getName());
 				continue;
 			}
 
@@ -464,7 +466,7 @@ public class MethodCallReplacementCache {
 					+ " is not an instance of " + target);
 		}
 
-		logger.debug("Static Mock: " + mockClass.getCanonicalName() + " for " + target.getCanonicalName());
+		// logger.debug("Static Mock: " + mockClass.getCanonicalName() + " for " + target.getCanonicalName());
 		for (Method method : mockClass.getMethods()) {
 			String desc = Type.getMethodDescriptor(method);
 			addSpecialReplacementCall(new MethodCallReplacement(target.getCanonicalName().replace('.', '/'),

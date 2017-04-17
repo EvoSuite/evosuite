@@ -293,6 +293,15 @@ public class System {
 	}
 
 	/**
+	 * TODO: Reflection and class initialisation may cause setSecurityManager to be called by the SUT.
+	 * Until this is resolved, we avoid this using instrumentation
+	 * @param manager
+	 */
+	public static void setSecurityManager(SecurityManager manager) {
+		throw new SecurityException("Permission Denied");
+	}
+
+	/**
 	 * Reset runtime to initial state
 	 */
 	public static void resetRuntime() {

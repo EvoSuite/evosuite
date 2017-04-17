@@ -56,8 +56,8 @@ public class RegressionExecutionObserver extends ExecutionObserver {
 	 * Map - String: class of the object, of primitive object value.
 	 */
 	
-	public List<List<Map<Integer, Map<String, Map<String, Object>>>>> objectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
-	public List<List<Map<Integer, Map<String, Map<String, Object>>>>> regressionObjectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
+	private List<List<Map<Integer, Map<String, Map<String, Object>>>>> objectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
+	private List<List<Map<Integer, Map<String, Map<String, Object>>>>> regressionObjectMapPool = new ArrayList<List<Map<Integer, Map<String, Map<String, Object>>>>>();
 
 	public List<Map<Integer, Map<String, Map<String, Object>>>> currentObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
 	public List<Map<Integer, Map<String, Map<String, Object>>>> currentRegressionObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
@@ -69,8 +69,8 @@ public class RegressionExecutionObserver extends ExecutionObserver {
 	}
 
 	public void requestNewPools() {
-		currentObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
-		currentRegressionObjectMapPool = new ArrayList<Map<Integer, Map<String, Map<String, Object>>>>();
+		currentObjectMapPool = new ArrayList<>();
+		currentRegressionObjectMapPool = new ArrayList<>();
 	}
 
 	public void addToPools() {
@@ -103,8 +103,7 @@ public class RegressionExecutionObserver extends ExecutionObserver {
 				currentObjectMapPool.add(ovars.getObjectVariables());
 		}
 
-		RegressionSearchListener.odCollectionTime += System.nanoTime()
-				- startTime;
+		RegressionSearchListener.odCollectionTime += System.nanoTime() - startTime;
 	}
 
 	@Override

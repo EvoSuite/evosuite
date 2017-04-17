@@ -749,7 +749,7 @@ public class Scaffolding {
 			bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
 		}
 
-		if (Properties.RESET_STATIC_FIELDS) {
+		if (Properties.RESET_STATIC_FIELDS && Properties.REPLACE_CALLS) {
 			bd.append(BLOCK_SPACE);
 			bd.append(JDKClassResetter.class.getName() + ".init();\n");
 			bd.append(BLOCK_SPACE);
