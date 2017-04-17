@@ -790,7 +790,7 @@ public class MSecurityManager extends SecurityManager {
         String name = perm.getName();
 
         // TODO: Relaxing this a bit due to issues with statistics handling
-        if(action.contains("resolve") && name.equals(LOCALHOST_NAME) || name.contains(InetAddress.getLoopbackAddress().toString()))){
+        if(action.contains("resolve") && name.equals(LOCALHOST_NAME) || name.contains(InetAddress.getLoopbackAddress().toString())){
             /*
                 this kind of special: we do allow resolve of local host, although we do mock InetAddress.
                 This is due to all kind of indirect calls in Swing that we do not fully mock, eg like
