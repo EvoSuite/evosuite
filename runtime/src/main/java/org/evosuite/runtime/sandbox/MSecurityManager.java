@@ -717,7 +717,7 @@ public class MSecurityManager extends SecurityManager {
 			This would be a reason more to actually mock RMI in VNET
 		 */
 
-		if(! Thread.currentThread().getName().startsWith("RMI ")){
+		if(! Thread.currentThread().getName().startsWith("RMI ") && !Thread.currentThread().getName().equals("Statistics sender in client process")) {
 			return false;
 		}
 
@@ -789,7 +789,8 @@ public class MSecurityManager extends SecurityManager {
         String action = perm.getActions();
         String name = perm.getName();
 
-        if(action.equals("resolve") && name.equals(LOCALHOST_NAME)){
+        // TODO: Relaxing this a bit due to issues with statistics handling
+        if(action.contains("resolve") && name.equals(LOCALHOST_NAME) || name.contains(InetAddress.getLoopbackAddress().toString()))){
             /*
                 this kind of special: we do allow resolve of local host, although we do mock InetAddress.
                 This is due to all kind of indirect calls in Swing that we do not fully mock, eg like
