@@ -914,6 +914,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return isFailing;
 	}
 
+	@Override
+	public void setFailing() {
+		isFailing = true;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#isPrefix(org.evosuite.testcase.DefaultTestCase)
 	 */

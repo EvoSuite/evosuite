@@ -1362,7 +1362,7 @@ public class TestCodeVisitor extends TestVisitor {
 				result += getClassName(retval) + " ";
 			}
 		}
-		if (shouldUseTryCatch(exception)) {
+		if (shouldUseTryCatch(exception, statement.isDeclaredException(exception))) {
 			result += "try { " + NEWLINE + "  ";
 		}
 
@@ -1421,7 +1421,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 
-		if (shouldUseTryCatch(exception)) {
+		if (shouldUseTryCatch(exception, statement.isDeclaredException(exception))) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
@@ -1596,7 +1596,7 @@ public class TestCodeVisitor extends TestVisitor {
 		                                            constructor.isOverloaded(parameters),
 		                                            startPos);
 
-		if (shouldUseTryCatch(exception)) {
+		if (shouldUseTryCatch(exception, statement.isDeclaredException(exception))) {
 			String className = getClassName(retval);
 
 			// FIXXME: Workaround for primitives:
@@ -1623,7 +1623,7 @@ public class TestCodeVisitor extends TestVisitor {
 			        + "(" + parameterString + ");";
 		}
 
-		if (shouldUseTryCatch(exception)) {
+		if (shouldUseTryCatch(exception, statement.isDeclaredException(exception))) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
@@ -1637,11 +1637,12 @@ public class TestCodeVisitor extends TestVisitor {
 		addAssertions(statement);
 	}
 
-	private boolean shouldUseTryCatch(Throwable t){
+	private boolean shouldUseTryCatch(Throwable t, boolean isDeclared) {
 		return t != null
 				&& ! (t instanceof OutOfMemoryError)
 				&& ! (t instanceof TooManyResourcesException)
-				&& ! test.isFailing();
+				&& ! test.isFailing()
+				&& (Properties.CATCH_UNDECLARED_EXCEPTIONS || isDeclared);
 	}
 
 	/**

@@ -1354,6 +1354,9 @@ public class Properties {
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
 
+	@Parameter(key = "catch_undeclared_exceptions", description = "Use try/catch block for undeclared exceptions")
+	public static boolean CATCH_UNDECLARED_EXCEPTIONS = true;
+
 	@Parameter(key = "junit_theories", description = "Check JUnit theories as contracts")
 	public static String JUNIT_THEORIES = "";
 

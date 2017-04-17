@@ -301,6 +301,9 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isDeclaredException(Throwable t) {
+		if(t == null)
+			return false;
+
 		for (Class<?> declaredException : method.getMethod().getExceptionTypes()) {
 			if (declaredException.isAssignableFrom(t.getClass()))
 				return true;

@@ -22,11 +22,7 @@ package org.evosuite.testsuite;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
-import org.evosuite.contracts.ContractViolation;
-import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.exception.ExceptionCoverageFactory;
-import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.junit.writer.TestSuiteWriter;
@@ -139,25 +135,6 @@ public class TestSuiteMinimizer {
         }
     }
 
-    private void filterContractViolationGoals(List<TestFitnessFunction> goals) {
-        if(!Properties.CHECK_CONTRACTS)
-            return;
-
-        Collection<ContractViolation> cvs = FailingTestSet.getContractViolations();
-        Collection<ExceptionCoverageTestFitness> exceptionGoals = ExceptionCoverageFactory.getGoals().values();
-        for(ExceptionCoverageTestFitness goal : exceptionGoals) {
-            logger.info("Checking " + goal +" against "+cvs.size()+" violations");
-            for(ContractViolation cv : cvs) {
-                if(cv.isExceptionOfType(goal.getExceptionClass()) && cv.resultsFromMethod(goal.getTargetMethod())) {
-                    logger.info("Removing " + goal + " as it is covered by violation "+cv);
-                    goals.remove(goal);
-                    logger.info("Remaining goals: " + goals.size());
-                    break;
-                }
-            }
-        }
-    }
-
     /**
      * Minimize test suite with respect to the isCovered Method of the goals
      * defined by the supplied TestFitnessFactory
@@ -179,7 +156,6 @@ public class TestSuiteMinimizer {
             goals.addAll(ff.getCoverageGoals());
         }
         filterJUnitCoveredGoals(goals);
-        filterContractViolationGoals(goals);
 
         int currentGoal = 0;
         int numGoals = goals.size();

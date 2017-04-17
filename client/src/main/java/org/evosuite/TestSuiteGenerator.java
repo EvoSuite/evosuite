@@ -242,7 +242,7 @@ public class TestSuiteGenerator {
 
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		TestGenerationResult result = writeJUnitTestsAndCreateResult(testCases);
-
+		writeJUnitFailingTests();
 		TestCaseExecutor.pullDown();
 		/*
 		 * TODO: when we will have several processes running in parallel, we ll
@@ -526,13 +526,6 @@ public class TestSuiteGenerator {
 																// testsuitechromosomes?
 		}
 
-		if (Properties.CHECK_CONTRACTS) {
-			for (TestCase failing_test : FailingTestSet.getFailingTests()) {
-				testSuite.addTest(failing_test);
-			}
-			FailingTestSet.sendStatistics();
-		}
-
 		if(Properties.NO_RUNTIME_DEPENDENCY) {
 			LoggingUtils.getEvoLogger().info("* Property NO_RUNTIME_DEPENDENCY is set to true - skipping JUnit compile check");
 			LoggingUtils.getEvoLogger().info("* WARNING: Not including the runtime dependencies is likely to lead to flaky tests!");
@@ -700,12 +693,6 @@ public class TestSuiteGenerator {
 			TestSuiteWriter suiteWriter = new TestSuiteWriter();
 			suiteWriter.insertTests(tests);
 
-			if (Properties.CHECK_CONTRACTS) {
-				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
-				// suite.insertAllTests(FailingTestSet.getFailingTests());
-				FailingTestSet.writeJUnitTestSuite(suiteWriter);
-			}
-
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 
@@ -740,6 +727,36 @@ public class TestSuiteGenerator {
 	 */
 	public static TestGenerationResult writeJUnitTestsAndCreateResult(TestSuiteChromosome testSuite) {
 		return writeJUnitTestsAndCreateResult(testSuite, Properties.JUNIT_SUFFIX);
+	}
+
+	public void writeJUnitFailingTests() {
+		if (!Properties.CHECK_CONTRACTS)
+			return;
+
+		FailingTestSet.sendStatistics();
+
+		if (Properties.JUNIT_TESTS) {
+
+			TestSuiteWriter suiteWriter = new TestSuiteWriter();
+			//suiteWriter.insertTests(FailingTestSet.getFailingTests());
+
+			TestSuiteChromosome suite = new TestSuiteChromosome();
+			for(TestCase test : FailingTestSet.getFailingTests()) {
+				test.setFailing();
+				suite.addTest(test);
+			}
+
+			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+			String testDir = Properties.TEST_DIR;
+			LoggingUtils.getEvoLogger().info("* Writing failing test cases '" + (name + Properties.JUNIT_SUFFIX) + "' to " + testDir);
+			suiteWriter.insertAllTests(suite.getTests());
+			FailingTestSet.writeJUnitTestSuite(suiteWriter);
+
+			// TODO: Make suffix a property
+			suiteWriter.writeTestSuite(name + "_Failing" + Properties.JUNIT_SUFFIX, testDir, suite.getLastExecutionResults());
+
+
+		}
 	}
 
 	private void writeObjectPool(TestSuiteChromosome suite) {

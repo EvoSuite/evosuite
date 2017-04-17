@@ -393,6 +393,8 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 
 	public boolean isFailing();
 
+	public void setFailing();
+
 	/**
 	 * Check if the current test case does cover the given goal.
 	 * @param goal
