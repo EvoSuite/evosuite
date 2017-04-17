@@ -228,8 +228,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
-		throw new UnsupportedOperationException(
-		        "Method isAssignmentStatement not implemented!");
+		return false;
 	}
 
 	/** {@inheritDoc} */
