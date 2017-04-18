@@ -68,7 +68,7 @@ public class Injector {
      * Key -> class name,
      * Value -> @PostConstruct method, or null if none
      */
-    private static final Map<String, Method> postConstructCache = new LinkedHashMap<>();
+    private static final Map<Class<?>, Method> postConstructCache = new LinkedHashMap<>();
 
 
     private static final InjectionCache entityManagerCache =
@@ -276,7 +276,7 @@ public class Injector {
             throw new IllegalArgumentException("The class "+clazz.getName()+" does not have a @PostConstruct");
         }
 
-        Method m = postConstructCache.get(clazz.getName());
+        Method m = postConstructCache.get(clazz);
         assert m != null;
 
         try {
@@ -291,8 +291,8 @@ public class Injector {
 
     @EvoSuiteExclude
     public static boolean hasPostConstruct(Class<?> clazz){
-        String className = clazz.getName();
-        if(! postConstructCache.containsKey(className)){
+
+        if(! postConstructCache.containsKey(clazz)){
             Method pc = null;
             outer : for(Method m : ReflectionUtils.getDeclaredMethods(clazz)){
                 for(Annotation annotation : ReflectionUtils.getDeclaredAnnotations(m)){
@@ -303,10 +303,10 @@ public class Injector {
                     }
                 }
             }
-            postConstructCache.put(className,pc); //note: it can be null
+            postConstructCache.put(clazz,pc); //note: it can be null
         }
 
-        Method m = postConstructCache.get(className);
+        Method m = postConstructCache.get(clazz);
         return m != null;
     }
 }
