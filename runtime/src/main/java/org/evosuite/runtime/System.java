@@ -125,9 +125,21 @@ public class System {
 
 		if (perm.getActions().contains("write")) {
 
-			// We cannot restore these properties to ensure cross-OS compatibility, so they can't be written to
-			if(isSystemProperty(perm.getName())) {
-				return false;
+			if(!RuntimeSettings.mockJVMNonDeterminism) {
+				if(isSystemProperty(perm.getName())) {
+					// We cannot restore these properties to ensure cross-OS compatibility, so they can't be written to
+					return false;
+				} else {
+					return true;
+				}
+			} else {
+				// As we do not restore these properties to ensure cross-OS compatibility they should not be written to
+				// ...but that would break compatibility with exiting test sets, so ignoring it for now.
+				// This risks potentially unstable tests.
+				//
+				// if(isSystemProperty(perm.getName())) {
+				//	return false;
+				// }
 			}
 
 			synchronized (defaultProperties) {				
@@ -135,6 +147,7 @@ public class System {
 			}
 		} else {
 			String var = perm.getName();
+			// We cannot restore these properties to ensure cross-OS compatibility, so they can't be written to
 			if(!isSystemProperty(var)) {
 				synchronized (readProperties) {
 					readProperties.add(var);
