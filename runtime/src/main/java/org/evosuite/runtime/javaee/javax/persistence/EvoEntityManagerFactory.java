@@ -96,7 +96,7 @@ public class EvoEntityManagerFactory implements EntityManagerFactory{
     public void clearAllEntityManagers(){
         for(EvoEntityManager em : managers){
             if(em!=null){
-                if (!em.isJoinedToTransaction() && em.getTransaction().isActive()) {
+                if (em.isOpen() && !em.isJoinedToTransaction() && em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
                 if(em.isOpen()) {
