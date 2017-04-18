@@ -232,9 +232,9 @@
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
-                <groupId>net.sf.opencsv</groupId>
+                <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
-                <version>2.3</version>
+                <version>3.9</version>
             </dependency>
             <dependency>
                 <!-- BSD -->

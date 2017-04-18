@@ -44,7 +44,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.Compositional;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 
 public class RhoFitnessSystemTest extends SystemTestBase {
 

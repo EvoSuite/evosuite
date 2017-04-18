@@ -58,7 +58,7 @@ import com.examples.with.different.packagename.WordUtilsTest;
 import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
 import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 
 public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 

@@ -46,7 +46,7 @@ import com.examples.with.different.packagename.CalculatorTest;
 import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
 import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 
 public class CoverageAnalysisOfClassSystemTest extends SystemTestBase {
 

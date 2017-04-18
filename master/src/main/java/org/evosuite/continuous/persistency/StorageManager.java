@@ -57,7 +57,7 @@ import org.evosuite.xsd.TestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 
 /**
  * Class used to store all CTG info on disk

@@ -50,7 +50,7 @@ import com.examples.with.different.packagename.ClassPublicInterfaceTest;
 import com.examples.with.different.packagename.ClassWithPrivateInterfaces;
 import com.examples.with.different.packagename.ClassWithPrivateInterfacesTest;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 
 public class CoverageAnalysisWithRefectionSystemTest extends SystemTestBase {
 

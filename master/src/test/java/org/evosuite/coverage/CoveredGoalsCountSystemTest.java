@@ -19,7 +19,7 @@
  */
 package org.evosuite.coverage;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.PureEnum;
 import com.examples.with.different.packagename.mutation.MutationPropagation;
