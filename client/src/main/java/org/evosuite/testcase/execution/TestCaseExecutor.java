@@ -36,6 +36,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.JOptionPaneInputs;
@@ -298,6 +299,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		resetObservers();
 		ExecutionObserver.setCurrentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
+		Runtime.getInstance().resetRuntime();
 
 		long startTime = System.currentTimeMillis();
 

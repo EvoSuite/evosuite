@@ -186,7 +186,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
-		Runtime.getInstance().resetRuntime();
+		// TODO: Moved this to TestCaseExecutor so it is not part of the test execution timeout
+		//		Runtime.getInstance().resetRuntime();
 		ExecutionTracer.enable();
 
 		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(byteStream));
