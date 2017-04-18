@@ -90,9 +90,10 @@ public class ContractGenerationSystemTest extends SystemTestBase {
 
 		evosuite.parseCommandLine(command);
 
-		for(TestCase test : FailingTestSet.getFailingTests()) {
-			System.out.println(test.toCode());
-		}
+		// TODO: No executor in master, so this will fail
+//		for(TestCase test : FailingTestSet.getFailingTests()) {
+//			System.out.println(test.toCode());
+//		}
 		
 		// 1 Undeclared contract
 		// 1 JCrasher
@@ -186,9 +187,10 @@ public class ContractGenerationSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		evosuite.parseCommandLine(command);
-		for(TestCase test : FailingTestSet.getFailingTests()) {
-			System.out.println(test.toString());
-		}
+		// TODO: No executor in master, so this will fail
+		//for(TestCase test : FailingTestSet.getFailingTests()) {
+		//	System.out.println(test.toString());
+		//}
 
 		// Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
 		Assert.assertEquals(1,
