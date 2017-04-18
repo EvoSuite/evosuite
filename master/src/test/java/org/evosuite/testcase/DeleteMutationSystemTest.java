@@ -219,6 +219,10 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 						break;
 					}
 				} else {
+					// Can get stuck in a local optimum with just mutation
+					if(testNew.size() == 1) {
+						test1.setTestCase(getTwoIntTest(1, 1, 22, 22));
+					}
 					suite.deleteTest(testNew);
 					suite.addTest(test1);
 					fitness.getFitness(suite);
