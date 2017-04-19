@@ -1731,8 +1731,30 @@ public class TestCodeVisitor extends TestVisitor {
 		VariableReference retval = statement.getReturnValue();
 		VariableReference parameter = statement.getValue();
 
-		if (!retval.getVariableClass().equals(parameter.getVariableClass()))
-			cast = "(" + getClassName(retval) + ") ";
+		if (!retval.getVariableClass().equals(parameter.getVariableClass())) {
+			if (retval.isWrapperType() && parameter.isPrimitive()) {
+				cast = "(" + getTypeName(retval.getType()) + ") ";
+				if(!ClassUtils.primitiveToWrapper(parameter.getVariableClass()).equals(retval.getVariableClass())) {
+					cast += "(" + ClassUtils.wrapperToPrimitive(retval.getVariableClass()) + ")";
+				}
+
+			} else if (retval.isPrimitive()
+					&& parameter.isWrapperType()) {
+				cast = "(" + getTypeName(retval.getType()) + ") ";
+				if(!ClassUtils.primitiveToWrapper(retval.getVariableClass()).equals(parameter.getVariableClass())) {
+					cast += "(" + ClassUtils.wrapperToPrimitive(parameter.getVariableClass()) + ")";
+				}
+			} else if (retval.isWrapperType()
+					&& parameter.isWrapperType()) {
+				cast = "(" + getTypeName(retval.getType()) + ") ";
+				// Unbox first to make cast work
+				if(!ClassUtils.primitiveToWrapper(parameter.getVariableClass()).equals(retval.getVariableClass())) {
+					cast += "(" + ClassUtils.wrapperToPrimitive(retval.getVariableClass()) + ")";
+				}
+			} else {
+				cast = "(" + getClassName(retval) + ") ";
+			}
+		}
 
 		testCode += getVariableName(retval) + " = " + cast + getVariableName(parameter)
 		        + ";" + NEWLINE;

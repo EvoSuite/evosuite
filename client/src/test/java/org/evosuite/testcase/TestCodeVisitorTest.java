@@ -20,6 +20,9 @@
 package org.evosuite.testcase;
 
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.testcase.statements.ArrayStatement;
+import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
@@ -200,5 +203,45 @@ public class TestCodeVisitorTest {
         Assert.assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
         Assert.assertEquals("ExampleWithInnerClass.Foo", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.Foo.class));
         Assert.assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar.class));
+    }
+
+    @Test
+    public void testCastAndBoxingInArray() {
+        // short[] shortArray0 = new short[5];
+        // Long[] longArray0 = new Long[5];
+        // longArray0[0] = (Long) shortArray0[1]; <-- this gives a compile error
+        TestCase tc = new DefaultTestCase();
+        ArrayStatement shortArrayStatement = new ArrayStatement(tc, short[].class, 5);
+        tc.addStatement(shortArrayStatement);
+        ArrayStatement longArrayStatement = new ArrayStatement(tc, Long[].class, 5);
+        tc.addStatement(longArrayStatement);
+
+        ArrayIndex longIndex  = new ArrayIndex(tc, longArrayStatement.getArrayReference(), 0);
+        ArrayIndex shortIndex = new ArrayIndex(tc, shortArrayStatement.getArrayReference(), 1);
+        AssignmentStatement assignmentStatement = new AssignmentStatement(tc, longIndex, shortIndex);
+        tc.addStatement(assignmentStatement);
+        String code = tc.toCode();
+        System.out.println(tc);
+        assertFalse(code.contains("longArray0[0] = (Long) shortArray0[1]"));
+    }
+
+    @Test
+    public void testWrapperCastInArray() {
+        // Short[] shortArray0 = new Short[5];
+        // Integer[] integerArray0 = new Integer[9];
+        // integerArray0[0] = (Integer) shortArray0[3];
+        TestCase tc = new DefaultTestCase();
+        ArrayStatement shortArrayStatement = new ArrayStatement(tc, Short[].class, 5);
+        tc.addStatement(shortArrayStatement);
+        ArrayStatement intArrayStatement = new ArrayStatement(tc, Integer[].class, 9);
+        tc.addStatement(intArrayStatement);
+
+        ArrayIndex intIndex   = new ArrayIndex(tc, intArrayStatement.getArrayReference(), 0);
+        ArrayIndex shortIndex = new ArrayIndex(tc, shortArrayStatement.getArrayReference(), 3);
+        AssignmentStatement assignmentStatement = new AssignmentStatement(tc, intIndex, shortIndex);
+        tc.addStatement(assignmentStatement);
+        String code = tc.toCode();
+        System.out.println(tc);
+        assertFalse(code.contains("integerArray0[0] = (Integer) shortArray0[3]"));
     }
 }
