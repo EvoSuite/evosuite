@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.fm;
 
+import org.evosuite.utils.generic.GenericClass;
 import org.mockito.internal.invocation.InvocationImpl;
 import org.mockito.invocation.DescribedInvocation;
 import org.mockito.listeners.InvocationListener;
@@ -51,9 +52,14 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
      */
     private volatile boolean active = false;
 
-    private final Type retvalType;
+    private final GenericClass retvalType;
 
     public EvoInvocationListener(Type retvalType){
+        this.retvalType = new GenericClass(retvalType);
+    }
+
+
+    public EvoInvocationListener(GenericClass retvalType){
         this.retvalType = retvalType;
     }
 

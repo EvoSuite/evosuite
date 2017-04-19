@@ -586,7 +586,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                         InstantiationException, CodeUnderTestException {
 
                     // First create the listener
-                    listener = new EvoInvocationListener(retval.getType());
+                    listener = new EvoInvocationListener(retval.getGenericClass());
 
                     //then create the mock
                     Object ret;

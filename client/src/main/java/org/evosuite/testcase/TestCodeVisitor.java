@@ -1218,7 +1218,8 @@ public class TestCodeVisitor extends TestVisitor {
 
 			List<VariableReference> params = st.getParameters(md.getID());
 
-			Class<?> returnType = md.getMethod().getReturnType();
+			GenericClass returnType = md.getReturnClass();
+			// Class<?> returnType = md.getMethod().getReturnType();
 
 			String parameter_string;
 
@@ -1233,7 +1234,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 				//if return type is a primitive, then things can get complicated due to autoboxing :(
 
-				parameter_string = getParameterStringForFMthatReturnPrimitive(returnType, params);
+				parameter_string = getParameterStringForFMthatReturnPrimitive(returnType.getRawClass(), params);
 			}
 
 			//this does not work when throwing exception as default answer

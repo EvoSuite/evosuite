@@ -42,7 +42,7 @@ import java.lang.reflect.Type;
 /**
  * Created by Andrea Arcuri on 27/07/15.
  */
-public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializable{
+public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializable {
 
 	private static final long serialVersionUID = -6747363265640233704L;
 
@@ -56,9 +56,9 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
      */
     private int counter;
 
-    private transient volatile Method method;
+    private GenericMethod method;
 
-    private transient volatile String id; //derived field
+    private String id; //derived field
 
 
     /**
@@ -66,22 +66,22 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
      * @param method the one that is going to be mocked
      * @param retvalType type of the class the mocked method belongs to. The type might be parameterized (ie generics)
      */
-    public MethodDescriptor(Method method, Type retvalType){
+    public MethodDescriptor(Method method, GenericClass retvalType){
         Inputs.checkNull(method, retvalType);
-        this.method = method;
+        this.method = new GenericMethod(method, retvalType);
         methodName = method.getName();
         className = method.getDeclaringClass().getName();
-        inputParameterMatchers = initMatchers(method, retvalType);
+        inputParameterMatchers = initMatchers(this.method, retvalType);
     }
 
-    private MethodDescriptor(Method m, String methodName, String className, String inputParameterMatchers){
+    private MethodDescriptor(GenericMethod m, String methodName, String className, String inputParameterMatchers){
         this.method = m;
         this.methodName = methodName;
         this.className = className;
         this.inputParameterMatchers = inputParameterMatchers;
     }
 
-    private String initMatchers(Method method, Type retvalType) {
+    private String initMatchers(GenericMethod method, GenericClass retvalType) {
 
         String matchers = "";
         Type[] types = method.getParameterTypes();
@@ -133,9 +133,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
 
 
     public void changeClassLoader(ClassLoader loader) {
-    	GenericMethod gm = new GenericMethod(method, method.getDeclaringClass());
-    	gm.changeClassLoader(loader);
-    	method = gm.getMethod();
+        method.changeClassLoader(loader);
     }
 
     /**
@@ -145,7 +143,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
      */
     public boolean shouldBeMocked(){
 
-        int modifiers = method.getModifiers();
+        int modifiers = method.getMethod().getModifiers();
 
         if(method.getReturnType().equals(Void.TYPE) ||
                 method.getName().equals("equals") ||
@@ -193,7 +191,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
     }
 
     public int getNumberOfInputParameters(){
-        return getMethod().getParameterCount();
+        return method.getNumParameters();
     }
 
     public Object executeMatcher(int i) throws IllegalArgumentException{
@@ -240,8 +238,11 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
     }
     
     public GenericMethod getGenericMethodFor(GenericClass clazz) throws ConstructionFailedException {
-    	GenericMethod m  = new GenericMethod(method, clazz);
-        return m.getGenericInstantiation(clazz);
+        return method.getGenericInstantiation(clazz);
+    }
+
+    public GenericClass getReturnClass() {
+        return method.getGeneratedClass();
     }
 
     public Method getMethod(){
@@ -287,7 +288,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
         */
 
         assert method != null;
-        return method;
+        return method.getMethod();
     }
 
     public String getMethodName() {
@@ -329,41 +330,5 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
             return com;
         }
         return this.counter - o.counter;
-    }
-
-
-    //for Serialization
-    private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-        // Write/save additional fields
-        oos.writeObject(method.getDeclaringClass().getName());
-        oos.writeObject(method.getName());
-        oos.writeObject(org.objectweb.asm.Type.getMethodDescriptor(method));
-    }
-
-
-    //for Serialization
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-        ois.defaultReadObject();
-
-        // Read/initialize additional fields
-        Class<?> methodClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass((String) ois.readObject());
-
-        String methodName = (String) ois.readObject();
-        String methodDesc = (String) ois.readObject();
-
-        for (Method method : methodClass.getDeclaredMethods()) {
-            if (method.getName().equals(methodName)) {
-                if (org.objectweb.asm.Type.getMethodDescriptor(method).equals(methodDesc)) {
-                    this.method = method;
-                    return;
-                }
-            }
-        }
-
-        if (this.method==null) {
-            throw new IllegalStateException("Unknown method for " + methodName
-                    + " in class " + methodClass.getCanonicalName());
-        }
     }
 }

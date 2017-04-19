@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.fm;
 
+import org.evosuite.utils.generic.GenericClass;
 import org.junit.Test;
 
 import java.awt.*;
@@ -37,7 +38,7 @@ public class MethodDescriptorTest {
         Class<?> klass = Graphics2D.class;
         Method m = klass.getDeclaredMethod("getRenderingHint",RenderingHints.Key.class);
 
-        MethodDescriptor md = new MethodDescriptor(m,m.getReturnType());
+        MethodDescriptor md = new MethodDescriptor(m, new GenericClass(m.getReturnType()));
 
         String res = md.getInputParameterMatchers();
         assertTrue(res, res.contains("any("));
