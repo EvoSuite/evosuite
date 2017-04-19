@@ -1,5 +1,6 @@
 package org.evosuite.utils.generic;
 
+import com.examples.with.different.packagename.utils.generic.BigFraction;
 import com.examples.with.different.packagename.utils.generic.ClassWithOverloadedMethods;
 import com.examples.with.different.packagename.utils.generic.ClassWithoutOverloadedMethods;
 import org.evosuite.testcase.DefaultTestCase;
@@ -35,6 +36,24 @@ public class TestOverloading {
         ConstantValue intValue = new ConstantValue(test, int.class);
         VariableReference integerVar = new VariableReferenceImpl(test, Integer.class);
         List<VariableReference> parameters = Arrays.asList(intValue, integerVar);
+
+        assertTrue(genericConstructor1.isOverloaded(parameters));
+        assertTrue(genericConstructor2.isOverloaded(parameters));
+    }
+
+    @Test
+    public void testOverloadedConstructorBigFraction() {
+        Class<?> clazz = BigFraction.class;
+        Constructor<?> constructor1 = clazz.getConstructors()[0];
+        Constructor<?> constructor2 = clazz.getConstructors()[1];
+
+        GenericConstructor genericConstructor1 = new GenericConstructor(constructor1, clazz);
+        GenericConstructor genericConstructor2 = new GenericConstructor(constructor2, clazz);
+
+        TestCase test = new DefaultTestCase();
+        ConstantValue longValue = new ConstantValue(test, long.class);
+        ConstantValue intValue  = new ConstantValue(test, int.class);
+        List<VariableReference> parameters = Arrays.asList(longValue, intValue);
 
         assertTrue(genericConstructor1.isOverloaded(parameters));
         assertTrue(genericConstructor2.isOverloaded(parameters));
