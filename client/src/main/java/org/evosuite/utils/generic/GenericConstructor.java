@@ -30,6 +30,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
@@ -263,16 +264,35 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 			parameterClasses[num] = parameter.getVariableClass();
 			if (!parameterClasses[num].equals(parameterTypes[num])) {
 				isExact = false;
+				break;
 			}
 		}
 		if (isExact)
 			return false;
 		try {
-			Constructor<?> otherConstructor = declaringClass.getConstructor(parameterTypes);
-			if (otherConstructor != null && !otherConstructor.equals(constructor))
-				return true;
+			for(java.lang.reflect.Constructor<?> otherConstructor: declaringClass.getConstructors()) {
+				if (otherConstructor.equals(constructor))
+					continue;
+
+				// If the number of parameters is different we can uniquely identify the constructor
+				if(parameterTypes.length != otherConstructor.getParameterCount())
+					continue;
+
+				// Only if the parameters are assignable to both constructors do we need to care about overloading
+				boolean parametersEqual = true;
+				Class<?>[] otherParameterTypes = otherConstructor.getParameterTypes();
+				for(int i = 0; i < parameterClasses.length; i++) {
+					if(parameters.get(i).isAssignableTo(parameterTypes[i]) !=
+					   parameters.get(i).isAssignableTo(otherParameterTypes[i])) {
+						parametersEqual = false;
+						break;
+					}
+				}
+				if(parametersEqual) {
+					return true;
+				}
+			}
 		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
 		}
 
 		return false;
