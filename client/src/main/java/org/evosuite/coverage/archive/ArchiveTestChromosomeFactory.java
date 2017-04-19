@@ -25,6 +25,7 @@ import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteSerialization;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
     if (Properties.CTG_SEEDS_FILE_IN != null) {
       //This does happen in CTG
       seededTests = TestSuiteSerialization.loadTests(Properties.CTG_SEEDS_FILE_IN);
+      LoggingUtils.getEvoLogger().info("* Loaded {} tests from {}", seededTests.size(), Properties.CTG_SEEDS_FILE_IN);
     }
   }
 
