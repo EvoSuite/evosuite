@@ -918,6 +918,9 @@ public class Properties {
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "_ESTest";
 
+	@Parameter(key = "junit_failed_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name for failing tests")
+	public static String JUNIT_FAILED_SUFFIX = "_Failed_ESTest";
+
 	//WARN: do not change this value, as had to be hardcoded in quite a few places :( if really need to change it,
 	// all that code has to be changed as well
 	@Parameter(key = "scaffolding_suffix", group = "Output", description = "Suffix used to specify scaffolding files")

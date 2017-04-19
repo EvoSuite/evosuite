@@ -752,10 +752,7 @@ public class TestSuiteGenerator {
 			suiteWriter.insertAllTests(suite.getTests());
 			FailingTestSet.writeJUnitTestSuite(suiteWriter);
 
-			// TODO: Make suffix a property
-			suiteWriter.writeTestSuite(name + "_Failing" + Properties.JUNIT_SUFFIX, testDir, suite.getLastExecutionResults());
-
-
+			suiteWriter.writeTestSuite(name + Properties.JUNIT_FAILED_SUFFIX, testDir, suite.getLastExecutionResults());
 		}
 	}
 
