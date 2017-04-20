@@ -252,6 +252,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 				}
 			}
 		} catch (SecurityException e) {
+		} catch (NoClassDefFoundError e) {
 		}
 
 		return false;
