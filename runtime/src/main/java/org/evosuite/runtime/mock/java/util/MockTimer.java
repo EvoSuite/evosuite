@@ -38,8 +38,14 @@ public class MockTimer extends Timer implements OverrideMock{
 	 * explicitly kill all created instances
 	 */
 	public static synchronized void stopAllTimers(){
-		for(Timer timer : instances){
-			timer.cancel();
+		for(Timer timer : instances) {
+			try {
+				// Since SUT classes may inherit from MockTimer, this code (called from EvoSuite)
+				// may lead to SUT exceptions.
+				timer.cancel();
+			} catch(Throwable t) {
+				// Ignore, since this is only part of post-test cleanup
+			}
 		}
 		instances.clear();
 	}
