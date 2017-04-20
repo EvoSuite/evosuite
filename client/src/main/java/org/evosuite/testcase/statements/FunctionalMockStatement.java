@@ -24,6 +24,7 @@ import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.FalsePositiveException;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
@@ -666,7 +667,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                                     int k = i + index; //the position in flat parameter list
                                     if (k >= parameters.size()) {
-                                        throw new RuntimeException("EvoSuite ERROR: index " + k + " out of " + parameters.size());
+                                        //throw new RuntimeException("EvoSuite ERROR: index " + k + " out of " + parameters.size());
+                                        throw new CodeUnderTestException(new FalsePositiveException("EvoSuite ERROR: index " + k + " out of " + parameters.size()));
                                     }
 
                                     VariableReference parameterVar = parameters.get(i + index);
