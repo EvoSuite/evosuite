@@ -610,8 +610,26 @@ public class TestClusterGenerator {
 					}
 				} else {
 					logger.debug("Can't use field " + field);
+					// If reflection on private is used, we still need to make sure dependencies are handled
+					// TODO: Duplicate code here
+					if(Properties.P_REFLECTION_ON_PRIVATE > 0) {
+						if(Modifier.isPrivate(field.getModifiers())
+								&& !field.isSynthetic()
+								&& !field.getName().equals("serialVersionUID")
+								// primitives cannot be changed
+								&& !(field.getType().isPrimitive())
+								// changing final strings also doesn't make much sense
+								&& !(Modifier.isFinal(field.getModifiers()) && field.getType().equals(String.class))
+								//static fields lead to just too many problems... although this could be set as a parameter
+								&& !Modifier.isStatic(field.getModifiers())
+								) {
+							GenericField genericField = new GenericField(field, clazz);
+							addDependencies(genericField, 1);
+						}
+					}
 				}
 			}
+
 			analyzedClasses.add(clazz);
 			// TODO: Set to generic type rather than class?
 			cluster.getAnalyzedClasses().add(clazz);
