@@ -117,10 +117,10 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 
 		// Default constructors of anonymous classes are synthetic
 		// but the Java Compiler is inconsistent in whether it has
-		// line numbers, so we skip it.
+		// line numbers, so we skip it for most aspects.
 		// https://bugs.openjdk.java.net/browse/JDK-8061778
 		if (isAnonymous && name.equals("<init>")) {
-			return mv;
+			return new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
 		}
 		
 		if (isMutation()) {
