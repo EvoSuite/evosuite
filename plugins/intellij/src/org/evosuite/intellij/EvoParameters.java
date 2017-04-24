@@ -170,6 +170,7 @@ public class EvoParameters {
         return folder;
     }
 
+    // TODO: Could check if that folder exists and is set as a source folder
     public void setFolder(String folder) {
         this.folder = folder;
     }
