@@ -22,7 +22,6 @@ jdk.
 junit.framework.
 major.mutation.
 net.sourceforge.cobertura.
-org.apache.log4j.
 org.apache.commons.discovery.tools.DiscoverSingleton
 org.apache.commons.discovery.resource.ClassLoaders
 org.apache.commons.discovery.resource.classes.DiscoverClasses
