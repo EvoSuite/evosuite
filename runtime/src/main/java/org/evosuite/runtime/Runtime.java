@@ -109,7 +109,11 @@ public class Runtime {
 			 * NOTE: this is expensive (some seconds), but only the first time, so should not be a major bottleneck.
 			 */
 			if(DBManager.getInstance().isWasAccessed()) {
+				// DB Resetting may execute SUT code
+				boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
+				LoopCounter.getInstance().setActive(false);
 				DBManager.getInstance().initDB();
+				LoopCounter.getInstance().setActive(wasLoopCheckOn);
 			}
 		}
 

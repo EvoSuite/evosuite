@@ -299,12 +299,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		resetObservers();
 		ExecutionObserver.setCurrentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
-
-		// DB Resetting may execute SUT code
-		boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
-		LoopCounter.getInstance().setActive(false);
 		Runtime.getInstance().resetRuntime();
-		LoopCounter.getInstance().setActive(wasLoopCheckOn);
 
 		long startTime = System.currentTimeMillis();
 

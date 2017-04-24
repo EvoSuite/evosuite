@@ -33,7 +33,7 @@ org.apache.lucene.analysis.util.CharFilterFactory
 org.apache.maven.
 org.apache.struts.util.MessageResources
 org.apache.tools.ant.
-org.apache.xerces.dom3.
+org.apache.xerces.
 org.exsyst.
 org.jacoco.
 org.jcp.xml.dsig.internal.dom.
