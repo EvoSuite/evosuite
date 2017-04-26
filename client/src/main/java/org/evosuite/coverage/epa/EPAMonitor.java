@@ -268,7 +268,7 @@ public class EPAMonitor {
 				}
 				if (!hasPreviousEpaState(calleeObject)) {
 					// this object should have been seen previously!
-					throw new MalformedEPATraceException("Object has no previous EPA State!");
+					throw new MalformedEPATraceException("Object has no previous EPA State! Class " + className + " action " + fullMethodName);
 				}
 
 				final String actionName = this.methodToActionMap.get(fullMethodName);
