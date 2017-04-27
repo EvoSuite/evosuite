@@ -30,6 +30,8 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javassist.bytecode.Opcode;
+
 /**
  * Instrument classes to keep track of method entry and exit
  *
@@ -105,15 +107,30 @@ public class EPAMonitorMethodEntryExitAdapter extends AdviceAdapter {
 
 		if (isMethodAnnotedAsAnEpaActionMethod) {
 
+			if (opcode == Opcode.ATHROW) {
+				// duplicates the reference to the exception to be thrown
+				mv.visitInsn(Opcodes.DUP);
+			} else {
+				// because this is a return instruction, no exception is being
+				// thrown
+				mv.visitInsn(Opcodes.ACONST_NULL);
+			}
+
 			mv.visitLdcInsn(className);
 			mv.visitLdcInsn(fullMethodName);
 			if ((access & Opcodes.ACC_STATIC) > 0) {
+				// load null constant because this is a static method
 				mv.visitInsn(Opcodes.ACONST_NULL);
 			} else {
+				// load this reference
 				mv.visitVarInsn(Opcodes.ALOAD, 0);
 			}
+
+			// "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"
+			final String leftMethodDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(Exception.class),
+					Type.getType(String.class), Type.getType(String.class), Type.getType(Object.class));
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(EPAMonitor.class), "leftMethod",
-					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V", false);
+					leftMethodDescriptor, false);
 		}
 		super.onMethodExit(opcode);
 	}
