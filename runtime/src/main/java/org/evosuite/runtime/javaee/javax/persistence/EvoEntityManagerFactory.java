@@ -54,10 +54,15 @@ public class EvoEntityManagerFactory implements EntityManagerFactory{
     private EntityManagerFactory createEMFWithSpring(){
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
+
+        // DriverManagerDataSource uses the context classloader for some reason...
+        ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(EvoEntityManagerFactory.class.getClassLoader());
         dataSource.setDriverClassName(org.hsqldb.jdbcDriver.class.getName());
         dataSource.setUrl("jdbc:hsqldb:mem:.");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
+        Thread.currentThread().setContextClassLoader(cl1);
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);

@@ -20,6 +20,7 @@
 package org.evosuite.jee;
 
 import com.examples.with.different.packagename.jee.db.SimpleDBInteraction;
+import com.examples.with.different.packagename.jee.db.SimpleDBWrite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.junit.Test;
@@ -28,6 +29,12 @@ import org.junit.Test;
  * Created by Andrea Arcuri on 17/08/15.
  */
 public class DBSystemTest extends SystemTestBase {
+
+    @Test(timeout = 60_000) // This test case hanged in Jenkins
+    public void testSimpleDBWrite(){
+        Properties.JEE = true;
+        do100percentLineTest(SimpleDBWrite.class);
+    }
 
     @Test(timeout = 60_000) // This test case hanged in Jenkins
     public void testSimpleDBInteraction(){
