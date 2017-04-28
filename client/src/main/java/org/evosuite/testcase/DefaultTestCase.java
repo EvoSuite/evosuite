@@ -53,7 +53,6 @@ import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
-import org.jboss.jandex.PrimitiveType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
