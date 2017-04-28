@@ -19,13 +19,13 @@
  */
 package com.examples.with.different.packagename.sandbox;
 
-public class ReadLineSeparator {
+public class ReadTimezone {
 
 	static{
 		System.getProperty("debug");
 	}
 	
 	public String read(){
-		return System.getProperty("line.separator");
+		return System.getProperty("user.timezone");
 	}
 }
