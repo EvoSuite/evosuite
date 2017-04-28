@@ -411,13 +411,13 @@
                 <!-- Apache 2 -->
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-orm</artifactId>
-                <version>4.3.7.RELEASE</version>
+                <version>4.3.8.RELEASE</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>4.3.7.RELEASE</version>
+                <version>4.3.8.RELEASE</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
