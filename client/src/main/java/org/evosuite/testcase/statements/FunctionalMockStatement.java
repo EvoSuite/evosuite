@@ -54,6 +54,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.net.InetSocketAddress;
 import java.util.*;
 
 import static org.mockito.Mockito.mock;
@@ -213,6 +214,14 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 if a class has not been instrumented (eg because belonging to javax.*),
                 then if it is final we cannot mock it :(
                 recall that instrumentation does remove the final modifiers
+             */
+            return false;
+        }
+
+        if(InetSocketAddress.class.equals(rawClass)) {
+            /*
+             InetSocketAddress declares hashCode as final and thus cannot be mocked:
+             https://github.com/mockito/mockito/issues/310
              */
             return false;
         }
