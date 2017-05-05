@@ -1225,11 +1225,17 @@ public class TestCodeVisitor extends TestVisitor {
 
 			if(! returnType.isPrimitive()) {
 				Type[] types = new Type[params.size()];
+				boolean isOverloaded = false;
 				for (int i = 0; i < types.length; i++) {
-					types[i] = params.get(i).getType();
+					if(types.length > 1 && returnType.isArray()) {
+						types[i] = Object.class;
+						isOverloaded = true;
+					} else {
+						types[i] = params.get(i).getType();
+					}
 				}
 
-				parameter_string = getParameterString(types, params, false, false, 0);//TODO unsure of these parameters
+				parameter_string = getParameterString(types, params, false, isOverloaded, 0);//TODO unsure of these parameters
 			} else {
 
 				//if return type is a primitive, then things can get complicated due to autoboxing :(
