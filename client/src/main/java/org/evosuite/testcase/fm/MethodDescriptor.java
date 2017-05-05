@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.fm;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
@@ -26,6 +27,7 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.GenericUtils;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.List;
 
 
 /**
@@ -85,12 +88,14 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
 
         String matchers = "";
         Type[] types = method.getParameterTypes();
+        List<GenericClass> parameterClasses = method.getParameterClasses();
         for(int i=0; i<types.length; i++){
             if(i > 0){
                 matchers += " , ";
             }
 
             Type type = types[i];
+            GenericClass genericParameter = parameterClasses.get(i);
             if(type.equals(Integer.TYPE) || type.equals(Integer.class)){
                 matchers += "anyInt()";
             }else if(type.equals(Long.TYPE) || type.equals(Long.class)){
@@ -122,7 +127,8 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                         matchers += "any(" + ((Class)type).getCanonicalName() + ".class)";
                     } else {
                         //what to do here? is it even possible?
-                        matchers += "any(" + type.getTypeName() + ".class)";
+                        matchers += "any(" + genericParameter.getRawClass().getCanonicalName() + ".class)";
+                        // matchers += "any(" + type.getTypeName() + ".class)";
                     }
                 }
             }
