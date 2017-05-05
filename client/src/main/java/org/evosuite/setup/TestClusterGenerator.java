@@ -973,10 +973,11 @@ public class TestClusterGenerator {
 				if (TestUsageChecker.canUse(method, clazz.getRawClass()) && !method.getName().equals("hashCode")) {
 					logger.debug("Adding method " + clazz.getClassName() + "." + method.getName()
 							+ org.objectweb.asm.Type.getMethodDescriptor(method));
-					if (method.getTypeParameters().length > 0) {
-						logger.info("Type parameters in methods are not handled yet, skipping " + method);
-						continue;
-					}
+					// TODO: Generic methods cause some troubles, but
+//					if (method.getTypeParameters().length > 0) {
+//						logger.info("Type parameters in methods are not handled yet, skipping " + method);
+//						continue;
+//					}
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					try {
 						addDependencies(genericMethod, recursionLevel + 1);
