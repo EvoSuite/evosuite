@@ -133,11 +133,11 @@ public class NumberFormatter {
 					return className  + ((Enum<?>)value).name();
 				else
 					return "Enum.valueOf("+className + "class, \"" + value + "\")";
-			} catch (Exception e) {
+			} catch (Throwable t) {
 				if (((Enum<?>)value).name() != null)
 					return className  + ((Enum<?>)value).name();
 				else
-					return "Enum.valueOf("+className + "class /* "+e+" */, \"" + value + "\")";
+					return "Enum.valueOf("+className + "class /* "+t+" */, \"" + value + "\")";
 				// return className + "valueOf(\"" + value + "\")";
 			}
 		} else if(value.getClass().equals(Boolean.class)) {
