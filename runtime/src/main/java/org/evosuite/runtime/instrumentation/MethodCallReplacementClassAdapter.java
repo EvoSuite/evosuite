@@ -30,6 +30,7 @@ import java.util.Arrays;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -137,9 +138,13 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 			 */
 			
 			Class<?> mockSuperClass = MockList.getMockClass(superNameWithDots);
-			String mockSuperClassName = mockSuperClass.getCanonicalName().replace('.', '/');
-			
-			super.visit(version, access, name, signature, mockSuperClassName, interfaces);
+			if(StaticReplacementMock.class.isAssignableFrom(mockSuperClass)) {
+				super.visit(version, access, name, signature, superName, interfaces);
+
+			} else {
+				String mockSuperClassName = mockSuperClass.getCanonicalName().replace('.', '/');
+				super.visit(version, access, name, signature, mockSuperClassName, interfaces);
+			}
 		} else {
 			super.visit(version, access, name, signature, superName, interfaces);
 		}
