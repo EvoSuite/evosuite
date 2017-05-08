@@ -405,7 +405,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 	@Override
 	public String changeSessionId() throws IllegalStateException{
 		if(requestedSessionId == null){
-			new IllegalStateException("No current session id");
+			throw new IllegalStateException("No current session id");
 		}
 		requestedSessionId++;
 		return requestedSessionId.toString();
