@@ -465,6 +465,10 @@ public class TestSuiteWriter implements Opcodes {
             importNames.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
         }
 
+        // If a CodeUnderTestException happens, the test will be chopped before that exception
+        // but it would still be in the imports
+        importNames.remove(CodeUnderTestException.class.getCanonicalName());
+
         List<String> importsSorted = new ArrayList<>(importNames);
 
         Collections.sort(importsSorted);
