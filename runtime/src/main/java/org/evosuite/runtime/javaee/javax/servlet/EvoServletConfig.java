@@ -25,7 +25,6 @@ import org.evosuite.runtime.annotation.EvoSuiteInclude;
 
 import java.util.Enumeration;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 

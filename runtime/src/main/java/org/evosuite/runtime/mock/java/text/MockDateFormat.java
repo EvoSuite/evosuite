@@ -23,7 +23,6 @@ import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.evosuite.runtime.mock.java.util.MockCalendar;
 
 import java.text.DateFormat;
-import java.text.spi.DateFormatProvider;
 import java.util.Locale;
 
 /**

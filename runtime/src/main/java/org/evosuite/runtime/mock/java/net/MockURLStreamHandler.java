@@ -37,7 +37,7 @@ public abstract class MockURLStreamHandler extends URLStreamHandler implements O
 
 	@Override
 	protected synchronized InetAddress getHostAddress(URL u) {
-        if(! MockFramework.isEnabled()) {
+        if(!MockFramework.isEnabled()) {
             return super.getHostAddress(u);
         }
 

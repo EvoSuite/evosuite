@@ -20,13 +20,9 @@
 package org.evosuite.runtime;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 
 import org.evosuite.runtime.agent.InstrumentingAgent;

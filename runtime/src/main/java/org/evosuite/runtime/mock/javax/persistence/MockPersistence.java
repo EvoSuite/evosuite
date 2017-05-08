@@ -24,12 +24,7 @@ import org.evosuite.runtime.mock.OverrideMock;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUtil;
-import javax.persistence.spi.PersistenceProvider;
-import javax.persistence.spi.PersistenceProviderResolverHolder;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**

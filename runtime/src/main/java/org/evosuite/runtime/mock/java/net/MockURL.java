@@ -156,8 +156,8 @@ public class MockURL implements StaticReplacementMock{
 			aRef=true;
 		}
 
-		for (i = start ; !aRef && (i < limit) &&
-				((c = spec.charAt(i)) != '/') ; i++) {
+		for (i = start; !aRef && (i < limit) &&
+				((c = spec.charAt(i)) != '/'); i++) {
 			if (c == ':') {
 
 				String s = spec.substring(start, i).toLowerCase();

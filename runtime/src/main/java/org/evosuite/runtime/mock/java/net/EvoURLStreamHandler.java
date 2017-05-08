@@ -32,15 +32,15 @@ public class EvoURLStreamHandler extends MockURLStreamHandler{
 	public EvoURLStreamHandler(String protocol) throws IllegalArgumentException{
 		super();
 		
-		if(protocol==null || protocol.trim().isEmpty()){
+		if(protocol==null || protocol.trim().isEmpty()) {
 			throw new IllegalArgumentException("Null protocol");
 		}
 		
 		this.protocol = protocol.trim().toLowerCase();
 	}
 
-	public static boolean isValidProtocol(String protocol){
-		if(protocol==null){
+	public static boolean isValidProtocol(String protocol) {
+		if(protocol==null) {
 			return false;
 		}
 		
@@ -55,12 +55,12 @@ public class EvoURLStreamHandler extends MockURLStreamHandler{
 	@Override
 	protected URLConnection openConnection(URL u) throws IOException {
 
-		if(! u.getProtocol().trim().equalsIgnoreCase(this.protocol)){
+		if(!u.getProtocol().trim().equalsIgnoreCase(this.protocol)) {
 			//should never happen
 			throw new IOException("Error, protocol mismatch: "+u.getProtocol()+" != "+this.protocol);
 		}
 
-        if(protocol.equals("http") || protocol.equals("https")){
+        if(protocol.equals("http") || protocol.equals("https")) {
             return new EvoHttpURLConnection(u);
         }
 

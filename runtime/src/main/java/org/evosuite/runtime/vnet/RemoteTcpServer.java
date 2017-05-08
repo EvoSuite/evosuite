@@ -20,7 +20,6 @@
 package org.evosuite.runtime.vnet;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import org.evosuite.runtime.mock.java.net.SocketIn;
 import org.evosuite.runtime.mock.java.net.SocketOut;

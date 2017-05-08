@@ -20,18 +20,15 @@
 package org.evosuite.runtime.mock.java.net;
 
 import org.evosuite.runtime.mock.java.io.MockIOException;
-import org.evosuite.runtime.vnet.DNS;
 import org.evosuite.runtime.vnet.RemoteFile;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
 import java.security.Permission;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 

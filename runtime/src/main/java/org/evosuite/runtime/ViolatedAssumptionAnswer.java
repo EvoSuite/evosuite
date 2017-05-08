@@ -19,7 +19,6 @@
  */
 package org.evosuite.runtime;
 
-import org.evosuite.runtime.FalsePositiveException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 

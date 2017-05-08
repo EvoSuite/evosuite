@@ -22,8 +22,6 @@ package org.evosuite.runtime.mock.java.time.chrono;
 import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.evosuite.runtime.mock.java.time.MockClock;
 
-import java.time.Clock;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.chrono.HijrahChronology;
 import java.time.chrono.HijrahDate;

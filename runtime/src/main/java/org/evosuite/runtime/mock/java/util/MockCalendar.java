@@ -20,7 +20,6 @@
 package org.evosuite.runtime.mock.java.util;
 
 import org.evosuite.runtime.mock.OverrideMock;
-import sun.util.BuddhistCalendar;
 
 import java.text.DateFormat;
 import java.util.*;

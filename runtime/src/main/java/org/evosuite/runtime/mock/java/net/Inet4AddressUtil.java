@@ -19,11 +19,9 @@
  */
 package org.evosuite.runtime.mock.java.net;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Constructor;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 
 
 import org.slf4j.Logger;
