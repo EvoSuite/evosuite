@@ -227,7 +227,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			{
 				return Short.TYPE;
 			}
-			else if(type.equals("String") ||type.equals("Boolean") ||type.equals("Boolean") || type.equals("Short") ||type.equals("Long") ||
+			else if(type.equals("String") ||type.equals("Boolean") || type.equals("Short") ||type.equals("Long") ||
 					type.equals("Integer") || type.equals("Float") || type.equals("Double") ||type.equals("Byte") || 
 					type.equals("Character") )
 			{
