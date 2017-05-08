@@ -38,7 +38,6 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -111,7 +110,6 @@ public class TestChromosome extends ExecutableChromosome {
 		if (changed) {
 			clearCachedResults();
 		}
-		CurrentChromosomeTracker.getInstance().changed(this);
 	}
 
 	/**

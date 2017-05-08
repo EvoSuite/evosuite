@@ -24,7 +24,6 @@ package org.evosuite.regression;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.Randomness;
@@ -47,8 +46,6 @@ public class RegressionTestSuiteChromosomeFactory extends
         testChromosomeFactory);
 
     chromosome.clearTests();
-    CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
-    tracker.modification(chromosome);
     // ((AllMethodsChromosomeFactory)test_factory).clear();
 
     int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,

@@ -279,8 +279,6 @@ public class TestSuiteMinimizer {
      */
     private void minimizeSuite(TestSuiteChromosome suite) {
 
-        CurrentChromosomeTracker.getInstance().modification(suite);
-
         // Remove previous results as they do not contain method calls
         // in the case of whole suite generation
         for (ExecutableChromosome test : suite.getTestChromosomes()) {

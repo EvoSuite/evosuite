@@ -25,7 +25,6 @@ package org.evosuite.testsuite.factories;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 
@@ -63,8 +62,6 @@ public class FixedSizeTestSuiteChromosomeFactory implements
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
 		        new RandomLengthTestFactory());
 		chromosome.clearTests();
-		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
-		tracker.modification(chromosome);
 
 		for (int i = 0; i < size; i++) {
 			TestChromosome test = testChromosomeFactory.getChromosome();

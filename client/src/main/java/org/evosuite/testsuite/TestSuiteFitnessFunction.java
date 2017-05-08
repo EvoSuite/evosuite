@@ -89,7 +89,6 @@ public abstract class TestSuiteFitnessFunction extends
 	 */
 	protected List<ExecutionResult> runTestSuite(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
-		CurrentChromosomeTracker.getInstance().modification(suite);
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
 		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {
