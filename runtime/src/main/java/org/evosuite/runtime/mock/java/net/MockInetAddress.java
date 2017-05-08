@@ -226,7 +226,7 @@ public class MockInetAddress implements StaticReplacementMock{
 		 */
         InetAddress addr = getFirstValid(false);
         if(addr == null){
-            getLoopbackAddress();
+            addr = getLoopbackAddress();
         }
 		return addr;
 	}
