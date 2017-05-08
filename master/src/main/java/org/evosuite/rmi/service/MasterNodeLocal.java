@@ -22,9 +22,6 @@ package org.evosuite.rmi.service;
 import java.util.Collection;
 import java.util.Set;
 
-import org.evosuite.rmi.service.ClientNodeRemote;
-import org.evosuite.rmi.service.ClientState;
-import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.utils.Listenable;
 
 /**
