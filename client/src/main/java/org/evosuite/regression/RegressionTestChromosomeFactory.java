@@ -46,5 +46,4 @@ public class RegressionTestChromosomeFactory implements
     individual.setTest(testFactory.getChromosome());
     return individual;
   }
-
 }

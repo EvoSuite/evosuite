@@ -272,13 +272,7 @@ public class RegressionExceptionHelper {
       int regressionStatementPos = regression.getKey();
       if (testStatementCommentNotContains(regressionTest, regressionStatementPos,
           "original version")) {
-        /*
-         * logger.warn(
-         * "Regression Test with exception \"{}\" was: \n{}\n---------\nException:\n{}"
-         * , regException.getValue().getMessage(),
-         * regressionTest.getTheTest().getTestCase(),
-         * regException.getValue().toString());
-         */
+
         addExceptionDifferenceComment(regressionTest, regressionException, regressionStatementPos,
             "The original version did not exhibit this exception", true);
       }

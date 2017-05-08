@@ -19,12 +19,14 @@
  */
 package org.evosuite.strategy;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -34,7 +36,6 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.regression.RegressionAssertionCounter;
 import org.evosuite.regression.RegressionMeasure;
-import org.evosuite.regression.RegressionSearchListener;
 import org.evosuite.regression.RegressionTestChromosome;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosome;
@@ -52,13 +53,7 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 public class RegressionSuiteStrategy extends TestGenerationStrategy {
-
-  private final RegressionSearchListener regressionMonitor = new RegressionSearchListener();
 
   public final static ZeroFitnessStoppingCondition
       zero_fitness = new ZeroFitnessStoppingCondition();
@@ -72,7 +67,6 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
     track(RuntimeVariable.Exception_Difference, 0);
     track(RuntimeVariable.State_Distance, 0);
     track(RuntimeVariable.Testsuite_Diversity, 0);
-    track(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 
     // Disable test archive
     Properties.TEST_ARCHIVE = false;
@@ -105,10 +99,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
     // TODO: Argh, generics.
     algorithm.addFitnessFunctions((List) fitnessFunctions);
 
-    algorithm.addListener(regressionMonitor); // FIXME progressMonitor may
-    // cause
-    // client hang if EvoSuite is
-    // executed with -prefix!
+    //algorithm.addListener(regressionMonitor);
 
     if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
         || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
@@ -233,9 +224,6 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
     algorithm.printBudget();
 
-    // System.exit(0);
-    track(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
-
     return bestSuites;
   }
 
@@ -256,7 +244,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
     BranchCoverageSuiteFitness branchCoverageSuiteFitness = new BranchCoverageSuiteFitness(
         TestGenerationContext.getInstance().getClassLoaderForSUT());
 
-    regressionMonitor.searchStarted(suiteGA);
+    //regressionMonitor.searchStarted(suiteGA);
     RegressionTestChromosomeFactory factory = new RegressionTestChromosomeFactory();
     LoggingUtils.getEvoLogger().warn("*** generating RANDOM regression tests");
     // TODO: Shutdown hook?
@@ -358,41 +346,8 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
       if (firstTry || (System.currentTimeMillis() - startTime) >= 4000) {
         startTime = System.currentTimeMillis();
         simulatedAge++;
-        RegressionSearchListener.writeStats(
-            "\r\n"
-                + "0,"
-                + totalTestCount
-                + ","
-                + suite.totalLengthOfTestCases()
-                + ",0,0,0,0,"
-                + RegressionSearchListener.exceptionDiff
-                + ",0,0," + executedStatemets
-                + ","
-                + simulatedAge
-                + ","
-                + (System.currentTimeMillis() - RegressionSearchListener.startTime)
-                + "," + numAssertions + ","
-                + (firstTry ? "F" : "P") + ",,,,,,");
         firstTry = false;
       }
-    }
-
-    RegressionSearchListener.lastLine = "\r\n"
-        + "0,"
-        + totalTestCount //suite.size()
-        + ","
-        + suite.totalLengthOfTestCases()
-        + ",0,0,0,0,0,0,0," + executedStatemets
-        + ","
-        + (++simulatedAge)
-        + ","
-        + (System.currentTimeMillis() - RegressionSearchListener.startTime)
-        + "," + "ASSERTIONS" + "," + "L"
-        + ",0,0,0,0,0,0";
-
-    if (!Properties.MINIMIZE) {
-      RegressionSearchListener
-          .flushLastLine(numAssertions, totalTestCount, suite.totalLengthOfTestCases());
     }
 
     // regressionMonitor.searchFinished(suiteGA);
@@ -405,17 +360,6 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
     LoggingUtils.getEvoLogger().info("* Generated " + suite.size() + " tests with total length "
         + suite.totalLengthOfTestCases());
-
-    /*try {
-            File file = new File("results.txt");
-            System.out.println("\n\r" + numAssertions + ", "
-                            + suite.totalLengthOfTestCases());
-            FileUtils.writeStringToFile(file, "\r\n" + executedStatemets + ", "
-                            + suite.totalLengthOfTestCases(), true);
-    } catch (IOException e) {
-            assert false;
-            e.printStackTrace();
-    }*/
 
     goals = getGoals(false);
     track(RuntimeVariable.Total_Goals, goals.size());
@@ -432,8 +376,6 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
     for (TestCase t : suite.getTests()) {
       bestSuites.addTest(t);
     }
-
-    track(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
 
     return bestSuites;
   }

@@ -142,22 +142,16 @@ public class RegressionAssertionCounter {
   }
 
   public static int getNumAssertions(RegressionTestSuiteChromosome individual,
-      Boolean removeAssertions,
-      Boolean noExecution) {
-    long startTime = System.nanoTime();
+      Boolean removeAssertions, Boolean noExecution) {
+
     RegressionAssertionGenerator rgen = new RegressionAssertionGenerator();
 
     //(Hack) temporarily changing timeout to allow the assertions to run
     int oldTimeout = Properties.TIMEOUT;
     Properties.TIMEOUT *= 2;
     int totalCount = 0;
-    RegressionSearchListener.exceptionDiff = 0;
 
     logger.debug("Running assertion generator...");
-
-    RegressionSearchListener.previousTestSuite = new ArrayList<>();
-    RegressionSearchListener.previousTestSuite.addAll(RegressionSearchListener.currentTestSuite);
-    RegressionSearchListener.currentTestSuite.clear();
 
     for (TestChromosome regressionTest : individual.getTestChromosomes()) {
       RegressionTestChromosome rtc = (RegressionTestChromosome) regressionTest;
@@ -169,7 +163,7 @@ public class RegressionAssertionCounter {
     if (totalCount > 0) {
       logger.warn("Assertions generated for the individual: " + totalCount);
     }
-    RegressionSearchListener.assertionTime += System.nanoTime() - startTime;
+
     return totalCount;
   }
 
@@ -199,7 +193,6 @@ public class RegressionAssertionCounter {
         }
 
         totalCount += exceptionDiffs;
-        RegressionSearchListener.exceptionDiff += exceptionDiffs;
 
         for (Class<?> observerClass : RegressionAssertionGenerator.observerClasses) {
           if (result1.getTrace(observerClass) != null) {
@@ -229,9 +222,6 @@ public class RegressionAssertionCounter {
         logger.warn("Assertions ^^^^^^^^^");
       }
     }
-
-    RegressionSearchListener.currentTestSuite
-        .add(regressionTest.getTheTest().getTestCase().clone());
 
     if (removeAssertions) {
       regressionTest.getTheTest().getTestCase().removeAssertions();

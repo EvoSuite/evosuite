@@ -24,7 +24,7 @@ package org.evosuite.regression;
  * [GA] COVERAGE: Coverage old + Coverage new, 
  * [GA] COVERAGE_OLD, 
  * [GA] COVERAGE_NEW, 
- * [Random Search] RANDOM
+ * (default) [Random Search] RANDOM
  */
 public enum RegressionMeasure {
   ALL_MEASURES,

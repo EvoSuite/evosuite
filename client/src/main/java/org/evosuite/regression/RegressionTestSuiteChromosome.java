@@ -40,12 +40,6 @@ public class RegressionTestSuiteChromosome extends TestSuiteChromosome {
 
   private static final long serialVersionUID = 2279207996777829420L;
 
-  public String fitnessData = "0,0,0,0,0,0,0,0,0,0,0";
-
-  public double objDistance = 0.0;
-
-  public int diffExceptions = 0;
-
 
   public RegressionTestSuiteChromosome() {
     super();
@@ -112,12 +106,7 @@ public class RegressionTestSuiteChromosome extends TestSuiteChromosome {
    */
   @Override
   public TestSuiteChromosome clone() {
-    RegressionTestSuiteChromosome c = new RegressionTestSuiteChromosome(
-        this);
-    c.fitnessData = fitnessData;
-    // assert (c.testChromosomeFactory != null):
-    // "Chromosome Factory was null";
-    return c;
+    return new RegressionTestSuiteChromosome(this);
   }
 
   public List<TestCase> getTests() {

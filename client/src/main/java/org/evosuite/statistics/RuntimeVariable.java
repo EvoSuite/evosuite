@@ -260,7 +260,6 @@ public enum RuntimeVariable {
 	Exception_Difference,
 	State_Distance,
 	Testsuite_Diversity,
-	Regression_ID,
 	/** Timings */
 	Time_Assertion,
 	Time_Coverage,

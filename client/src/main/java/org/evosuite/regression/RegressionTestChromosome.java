@@ -50,15 +50,10 @@ public class RegressionTestChromosome extends TestChromosome {
 
   private TestChromosome theSameTestForTheOtherClassLoader;
 
-  public String fitnessData = "";
-
-  public double objDistance = 0.0;
-
-  public int diffExceptions = 0;
 
   private transient ClassLoader theClassLoader = null;
 
-  public Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer, String>>();
+  Map<String, Map<Integer, String>> diversityMap = new HashMap<String, Map<Integer, String>>();
 
   //public int assertionCount = 0;
   //public int exAssertionCount = 0;
@@ -105,8 +100,6 @@ public class RegressionTestChromosome extends TestChromosome {
     copy.theSameTestForTheOtherClassLoader = (TestChromosome) theSameTestForTheOtherClassLoader
         .clone();
     copy.setFitnessValues(getFitnessValues());
-    copy.fitnessData = fitnessData;
-    copy.objDistance = objDistance;
     copy.diversityMap.putAll(diversityMap);
     copy.exCommentsAdded = exCommentsAdded;
     return copy;
@@ -183,11 +176,8 @@ public class RegressionTestChromosome extends TestChromosome {
         TestCase t = new DefaultTestCase();
         theTest.setTestCase(t);
         updateClassloader();
-        return;
-      } catch (Error e) {
-        return;
       } catch (Throwable e) {
-        return;
+        e.printStackTrace();
       }
     }
   }
@@ -211,9 +201,6 @@ public class RegressionTestChromosome extends TestChromosome {
       theSameTestForTheOtherClassLoader = (TestChromosome) theTest.clone();
       ((DefaultTestCase) theSameTestForTheOtherClassLoader.getTestCase())
           .changeClassLoader(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
-      //	ClassLoader a = theTest.getClass().getClassLoader();
-      //	ClassLoader b = theSameTestForTheOtherClassLoader.getClass().getClassLoader();
-      //logger.warn("a {} b {} cl {} rcl {}",a,b,TestGenerationContext.getInstance().getClassLoaderForSUT(),TestGenerationContext.getInstance().getRegressionClassLoaderForSUT());
     }
   }
 

@@ -30,6 +30,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 
 /**
+ * @deprecated
  * @author Gordon Fraser
  */
 public class RegressionTestFitnessFunction extends

@@ -34,8 +34,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
-import org.evosuite.regression.RegressionClassDiff;
-import org.evosuite.regression.RegressionSearchListener;
+import org.evosuite.regression.bytecode.RegressionClassDiff;
 import org.evosuite.regression.RegressionSuiteMinimizer;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -698,24 +697,6 @@ public class TestSuiteGenerator {
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
-
-			// If in regression mode, create a separate copy of the tests
-			if (!RegressionSearchListener.statsID.equals("") && Properties.REGRESSION_STATISTICS) {
-				File evosuiterTestDir = new File("evosuiter-stats");
-
-				boolean madeDir = false;
-				if (!evosuiterTestDir.exists() || !evosuiterTestDir.isDirectory()) {
-					madeDir = evosuiterTestDir.mkdirs();
-				}
-				if (madeDir) {
-					String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
-
-					LoggingUtils.getEvoLogger()
-							.info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
-
-					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), Collections.EMPTY_LIST);
-				}
-			}
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}

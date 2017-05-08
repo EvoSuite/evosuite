@@ -29,9 +29,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.Randomness;
 
-
-public class RegressionTestSuiteChromosomeFactory extends
-    TestSuiteChromosomeFactory {
+public class RegressionTestSuiteChromosomeFactory extends TestSuiteChromosomeFactory {
 
   private static final long serialVersionUID = -5460006842373221807L;
 
@@ -43,13 +41,12 @@ public class RegressionTestSuiteChromosomeFactory extends
   @Override
   public TestSuiteChromosome getChromosome() {
 
-    RegressionTestSuiteChromosome chromosome = new RegressionTestSuiteChromosome(
-        testChromosomeFactory);
+    RegressionTestSuiteChromosome chromosome =
+        new RegressionTestSuiteChromosome(testChromosomeFactory);
 
     chromosome.clearTests();
     CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
     tracker.modification(chromosome);
-    // ((AllMethodsChromosomeFactory)test_factory).clear();
 
     int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
         Properties.MAX_INITIAL_TESTS + 1);
@@ -59,8 +56,6 @@ public class RegressionTestSuiteChromosomeFactory extends
       chromosome.addTest(test);
     }
 
-    // logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
-    // logger.trace("Generated new test suite:"+chromosome);
     return chromosome;
   }
 

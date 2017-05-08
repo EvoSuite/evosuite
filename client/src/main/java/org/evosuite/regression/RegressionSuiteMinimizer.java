@@ -104,30 +104,12 @@ public class RegressionSuiteMinimizer {
 
   private void sendStats(RegressionTestSuiteChromosome regressionSuite) {
     int assCount = 0;
-    /*
-     * int i=0; for (TestChromosome c :
-		 * regressionSuite.getTestChromosomes()) { RegressionTestChromosome test
-		 * = (RegressionTestChromosome) c; assCount += test.assertionCount;
-		 * if(test.exAssertionCount==0) continue;
-		 * logger.warn("adding exception comment for test{}:\n{}"
-		 * ,i,test.getTheTest()); //logger.wran("test{}") ExecutionResult
-		 * resultA = test.getLastExecutionResult(); ExecutionResult resultB =
-		 * test.getLastRegressionExecutionResult();
-		 * logger.warn("map1:\n{}map2:{}\n",resultA.getCopyOfExceptionMapping(),
-		 * resultB.getCopyOfExceptionMapping());
-		 * RegressionAssertionCounter.addExceptionAssertionComments(test,
-		 * resultA.getCopyOfExceptionMapping(),
-		 * resultB.getCopyOfExceptionMapping()); i++; }
-		 */
+
     assCount = numFailingAssertions(regressionSuite);
     track(RuntimeVariable.Generated_Assertions, assCount);
 
     track(RuntimeVariable.Minimized_Size, regressionSuite.size());
     track(RuntimeVariable.Minimized_Length, regressionSuite.totalLengthOfTestCases());
-
-    RegressionSearchListener.flushLastLine(assCount,
-        regressionSuite.size(),
-        regressionSuite.totalLengthOfTestCases());
   }
 
   private void executeSuite(RegressionTestSuiteChromosome regressionSuite) {

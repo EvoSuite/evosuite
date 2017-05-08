@@ -17,12 +17,10 @@
 /**
  * 
  */
-package org.evosuite.regression;
+package org.evosuite.regression.bytecode;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,12 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.evosuite.Properties;
+import java.util.Objects;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.result.TestGenerationResultBuilder;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -182,8 +179,8 @@ public class RegressionClassDiff {
       int bRegOpcode = bReg.getInstruction().getASMNode().getOpcode();
 
       // Are branches from the same family of branches?
-      if (RegressionClassDiff.getBranchFamily(bOrigOpcode) != RegressionClassDiff
-          .getBranchFamily(bRegOpcode)) {
+      if (!Objects.equals(RegressionClassDiff.getBranchFamily(bOrigOpcode), RegressionClassDiff
+          .getBranchFamily(bRegOpcode))) {
         logger.error("Different family found between branches: {} vs {}", bOrigOpcode, bRegOpcode);
         sameBranches = false;
         break;

@@ -469,8 +469,7 @@ public class ObjectDistanceCalculator {
         Collection<Field> fields = getAllFields(commonAncestor);
         double sum = 0;
         for (Field field : fields) {
-            sum += getObjectDistanceImpl(getFieldValue(field, p),
-                    getFieldValue(field, q));
+            sum += getObjectDistanceImpl(getFieldValue(field, p), getFieldValue(field, q));
         }
         if (sum == 0.0) {
             return sum;
