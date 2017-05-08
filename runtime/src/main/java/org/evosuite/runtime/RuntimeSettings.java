@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -115,19 +115,19 @@ public class RuntimeSettings {
      */
     public static boolean isRunningASystemTest = false;
 
-    public static boolean isUsingAnyMocking(){
-        return mockJVMNonDeterminism || useVFS || useVNET || mockGUI ;
+    public static boolean isUsingAnyMocking() {
+        return mockJVMNonDeterminism || useVFS || useVNET || mockGUI;
     }
 
-    public static void deactivateAllMocking(){
+    public static void deactivateAllMocking() {
         mockJVMNonDeterminism = false;
         mockGUI = false;
         useVNET = false;
         useVFS = false;
-        assert ! isUsingAnyMocking();
+        assert !isUsingAnyMocking();
     }
 
-    public static void activateAllMocking(){
+    public static void activateAllMocking() {
         mockJVMNonDeterminism = true;
         mockGUI = true;
         useVNET = true;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,12 +19,9 @@
  */
 package org.evosuite.runtime.vnet;
 
-import org.evosuite.runtime.mock.java.io.MockIOException;
 import org.evosuite.runtime.util.ByteDataInputStream;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class representing a file on a remote host.

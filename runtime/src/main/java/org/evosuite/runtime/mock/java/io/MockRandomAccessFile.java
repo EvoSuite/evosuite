@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,7 +21,6 @@ package org.evosuite.runtime.mock.java.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -32,7 +31,6 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
 import org.evosuite.runtime.mock.java.lang.MockNullPointerException;
-import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
 
 public class MockRandomAccessFile extends RandomAccessFile implements LeakingResource,  OverrideMock{
@@ -271,7 +269,7 @@ public class MockRandomAccessFile extends RandomAccessFile implements LeakingRes
 	public void write(byte b[], int off, int len) throws IOException {
 		if(!MockFramework.isEnabled()){
 			super.write(b, off, len);
-			return ;
+			return;
 		}
 
 		writeBytes(b, off, len);

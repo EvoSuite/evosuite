@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -72,25 +72,25 @@ public class MockFile extends File implements OverrideMock {
 		super(uri);
 	}
 
-	private static String combine(String parent, String child){
+	private static String combine(String parent, String child) {
 		if (child == null) {
 			throw new NullPointerException();
 		}
-		if(parent == null){
+		if(parent == null) {
 			return child;
 		}
-		if(parent.equals("")){
+		if(parent.equals("")) {
 			return VirtualFileSystem.getDefaultParent()+child;
 		}
 		return makeAbsolute(parent) + "/" + child;
 	}
 
-	private static String makeAbsolute(String path){
+	private static String makeAbsolute(String path) {
 
 		String base = VirtualFileSystem.getWorkingDirPath();
-		if(base.startsWith("/")){
+		if(base.startsWith("/")) {
 			//Mac/Linux
-			if(path.startsWith("/")){
+			if(path.startsWith("/")) {
 				return path;
 			} else {
 				return base + "/" + path;
@@ -99,7 +99,7 @@ public class MockFile extends File implements OverrideMock {
 			//Windows
 			//TODO: tmp, nasty hack, but anyway this class ll need refactoring when fully handling Java 8
 			String root = base.substring(0, 3); //eg, C:\
-			if(path.startsWith(root)){
+			if(path.startsWith(root)) {
 				return path;
 			} else{
 				return base + "/" + path;
@@ -129,14 +129,14 @@ public class MockFile extends File implements OverrideMock {
 	 */
 
 	public static File[] listRoots() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return File.listRoots();
 		}
 
 		//FIXME: this is not going to work if tests are executed on different machine
 		File[] roots = File.listRoots();
 		MockFile[] mocks = new MockFile[roots.length];
-		for(int i=0; i<roots.length; i++){
+		for(int i=0; i<roots.length; i++) {
 			mocks[i] = new MockFile(roots[i].getAbsolutePath());
 		}
 		return mocks; 
@@ -144,14 +144,14 @@ public class MockFile extends File implements OverrideMock {
 
 	public static File createTempFile(String prefix, String suffix, File directory)
 			throws IOException{
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return File.createTempFile(prefix, suffix, directory);
 		}
 
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded("");
 		
 		String path = VirtualFileSystem.getInstance().createTempFile(prefix, suffix, directory);
-		if(path==null){
+		if(path==null) {
 			throw new MockIOException();
 		}
 		return new MockFile(path); 
@@ -167,7 +167,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public String getAbsolutePath() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getAbsolutePath();
 		}
 		String absolute = makeAbsolute(getPath());
@@ -177,7 +177,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public int compareTo(File pathname) {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.compareTo(pathname);
 		}
 
@@ -186,7 +186,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public File getParentFile() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getParentFile();
 		}
 		
@@ -197,7 +197,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public File getAbsoluteFile() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getAbsoluteFile();
 		}
 
@@ -207,7 +207,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public File getCanonicalFile() throws IOException {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getCanonicalFile();
 		}
 		
@@ -220,12 +220,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean canRead() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.canRead();
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		return file.isReadPermission();
@@ -233,12 +233,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean setReadOnly() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.setReadOnly();
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		
@@ -251,12 +251,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean setReadable(boolean readable, boolean ownerOnly) {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.setReadable(readable, ownerOnly);
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		
@@ -266,12 +266,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean canWrite() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.canWrite();
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		
@@ -280,12 +280,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean setWritable(boolean writable, boolean ownerOnly) {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.setWritable(writable, ownerOnly);
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		
@@ -295,12 +295,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean setExecutable(boolean executable, boolean ownerOnly) {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.setExecutable(executable, ownerOnly);
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		
@@ -310,12 +310,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean canExecute() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.canExecute();
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		
@@ -324,7 +324,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean exists() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.exists();
 		}
 		
@@ -333,12 +333,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean isDirectory() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.isDirectory();
 		}
 		
 		FSObject file = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(file==null){
+		if(file==null) {
 			return false;
 		}
 		
@@ -347,7 +347,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean isFile() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.isFile();
 		}
 		return !isDirectory();
@@ -355,11 +355,11 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean isHidden() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.isHidden();
 		}
 		
-		if(getName().startsWith(".")){
+		if(getName().startsWith(".")) {
 			//this is not necessarily true in Windows
 			return true;
 		} else {
@@ -369,16 +369,16 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean setLastModified(long time) {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.setLastModified(time);
 		}
 		
-		if (time < 0){
+		if (time < 0) {
         		throw new MockIllegalArgumentException("Negative time");
         }
         
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(target==null){
+		if(target==null) {
 			return false;
 		}
 
@@ -387,12 +387,12 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public long lastModified() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.lastModified();
 		}
 		
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(target==null){
+		if(target==null) {
 			return 0;
 		}
 
@@ -401,16 +401,16 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public long length() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.length();
 		}
 		
 		FSObject target = VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
-		if(target==null){
+		if(target==null) {
 			return 0;
 		}
 
-		if(target.isFolder() || target.isDeleted()){
+		if(target.isFolder() || target.isDeleted()) {
 			return 0;
 		}
 		
@@ -423,7 +423,7 @@ public class MockFile extends File implements OverrideMock {
 	
 	@Override
 	public long getTotalSpace() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getTotalSpace();
 		}
 		return 0; //TODO
@@ -431,7 +431,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public long getFreeSpace() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getFreeSpace();
 		}
 		return 0; //TODO
@@ -439,7 +439,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public long getUsableSpace() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getUsableSpace();
 		}
 		return 0; //TODO
@@ -447,7 +447,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean createNewFile() throws IOException {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.createNewFile();
 		}
 		VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath()); 
@@ -456,7 +456,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean delete() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.delete();
 		}
 		return VirtualFileSystem.getInstance().deleteFSObject(getAbsolutePath()); 
@@ -464,7 +464,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean renameTo(File dest) {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.renameTo(dest);
 		}
 		boolean renamed = VirtualFileSystem.getInstance().rename(
@@ -476,11 +476,11 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public boolean mkdir() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.mkdir();
 		}
 		String parent = this.getParent();
-		if(parent==null || !VirtualFileSystem.getInstance().exists(parent)){
+		if(parent==null || !VirtualFileSystem.getInstance().exists(parent)) {
 			return false;
 		}
 		return VirtualFileSystem.getInstance().createFolder(getAbsolutePath());
@@ -488,7 +488,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public void deleteOnExit() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			super.deleteOnExit();
 		}
 		/*
@@ -498,10 +498,10 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public String[] list() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.list();
 		}
-		if(!isDirectory() || !exists()){
+		if(!isDirectory() || !exists()) {
 			return null; 
 		} else {
 			VFolder dir = (VFolder) VirtualFileSystem.getInstance().findFSObject(getAbsolutePath());
@@ -511,7 +511,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public File[] listFiles() {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.listFiles();
 		}
 		String[] ss = list();
@@ -526,7 +526,7 @@ public class MockFile extends File implements OverrideMock {
 
 	@Override
 	public File[] listFiles(FileFilter filter) {
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.listFiles(filter);
 		}
 		String ss[] = list();
@@ -543,7 +543,7 @@ public class MockFile extends File implements OverrideMock {
 
     @Override
     public String getCanonicalPath() throws IOException {
-        if(! MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             return super.getCanonicalPath();
         }
         VirtualFileSystem.getInstance().throwSimuledIOExceptionIfNeeded(getAbsolutePath());
@@ -552,7 +552,7 @@ public class MockFile extends File implements OverrideMock {
 
     @Override
     public URL toURL() throws MalformedURLException {
-        if(! MockFramework.isEnabled() || !RuntimeSettings.useVNET){
+        if(!MockFramework.isEnabled() || !RuntimeSettings.useVNET) {
             return super.toURL();
         }
         URL url = super.toURL();
@@ -563,7 +563,7 @@ public class MockFile extends File implements OverrideMock {
     // -------- unmodified methods --------------
 
 	@Override
-	public String getName(){
+	public String getName() {
 		return super.getName();
 	}
 

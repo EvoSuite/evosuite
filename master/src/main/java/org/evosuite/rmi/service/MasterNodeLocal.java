@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,9 +22,6 @@ package org.evosuite.rmi.service;
 import java.util.Collection;
 import java.util.Set;
 
-import org.evosuite.rmi.service.ClientNodeRemote;
-import org.evosuite.rmi.service.ClientState;
-import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.utils.Listenable;
 
 /**

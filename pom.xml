@@ -552,13 +552,12 @@
                 <configuration>
                     <header>src/etc/header.txt</header>
                     <properties>
-                        <year>2010-2016</year>
+                        <year>2010-2017</year>
                     </properties>
                     <excludes>
                         <exclude>DSC_LICENSE.txt</exclude>
                         <exclude>LICENSE.txt</exclude>
                         <exclude>IMPORTANT_README_FOR_DEVELOPERS.txt</exclude>
-                        <exclude>release_results/script/sf110.txt</exclude>
                         <exclude>removed/readme.txt</exclude>
                         <exclude>plugins/eclipse/README.txt</exclude>
                         <exclude>generated/**</exclude>
@@ -566,7 +565,7 @@
                         <exclude>**/.idea/**</exclude>
                         <exclude>**/*.js</exclude>
                         <exclude>**/*.css</exclude>
-                        <exclude>release_results/generated_files/**</exclude>
+                        <exclude>release_results/**</exclude>
                         <exclude>**/dk/brics/**</exclude>
                         <exclude>**/readme.txt</exclude>
                         <exclude>**/how_to.txt</exclude>

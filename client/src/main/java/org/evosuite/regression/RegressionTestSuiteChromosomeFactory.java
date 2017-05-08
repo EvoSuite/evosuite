@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,12 +24,13 @@ package org.evosuite.regression;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.Randomness;
 
-public class RegressionTestSuiteChromosomeFactory extends TestSuiteChromosomeFactory {
+
+public class RegressionTestSuiteChromosomeFactory extends
+    TestSuiteChromosomeFactory {
 
   private static final long serialVersionUID = -5460006842373221807L;
 
@@ -41,12 +42,10 @@ public class RegressionTestSuiteChromosomeFactory extends TestSuiteChromosomeFac
   @Override
   public TestSuiteChromosome getChromosome() {
 
-    RegressionTestSuiteChromosome chromosome =
-        new RegressionTestSuiteChromosome(testChromosomeFactory);
+    RegressionTestSuiteChromosome chromosome = new RegressionTestSuiteChromosome(
+        testChromosomeFactory);
 
     chromosome.clearTests();
-    CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
-    tracker.modification(chromosome);
 
     int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,
         Properties.MAX_INITIAL_TESTS + 1);
@@ -56,6 +55,8 @@ public class RegressionTestSuiteChromosomeFactory extends TestSuiteChromosomeFac
       chromosome.addTest(test);
     }
 
+    // logger.info("Covered methods: "+((AllMethodsChromosomeFactory)test_factory).covered.size());
+    // logger.trace("Generated new test suite:"+chromosome);
     return chromosome;
   }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,7 +20,6 @@
 package org.evosuite.runtime.mock.java.net;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -226,7 +225,7 @@ public class MockInetAddress implements StaticReplacementMock{
 		 */
         InetAddress addr = getFirstValid(false);
         if(addr == null){
-            getLoopbackAddress();
+            addr = getLoopbackAddress();
         }
 		return addr;
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,12 +24,9 @@ import org.evosuite.runtime.mock.java.util.MockCalendar;
 import org.evosuite.runtime.mock.java.util.MockDate;
 import org.evosuite.runtime.mock.java.util.MockTimeZone;
 
-import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.NumberFormat;
-import java.util.Calendar;
 import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * Created by gordon on 22/01/2016.

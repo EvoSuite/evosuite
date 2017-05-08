@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,7 +19,6 @@
  */
 package org.evosuite.runtime.mock.javax.naming;
 
-import com.sun.naming.internal.ResourceManager;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 
@@ -60,7 +59,7 @@ public class MockInitialContext extends javax.naming.InitialContext implements O
 
     @Override
     protected Context getDefaultInitCtx() throws NamingException{
-        if(! MockFramework.isEnabled()) {
+        if(!MockFramework.isEnabled()) {
             return super.getDefaultInitCtx();
         }
         return EvoNamingContext.getInstance();
@@ -68,7 +67,7 @@ public class MockInitialContext extends javax.naming.InitialContext implements O
 
     @Override
     protected Context getURLOrDefaultInitCtx(String name) throws NamingException {
-        if(! MockFramework.isEnabled()) {
+        if(!MockFramework.isEnabled()) {
             return super.getURLOrDefaultInitCtx(name);
         }
         return EvoNamingContext.getInstance();
@@ -76,7 +75,7 @@ public class MockInitialContext extends javax.naming.InitialContext implements O
 
     @Override
     protected Context getURLOrDefaultInitCtx(Name name)  throws NamingException {
-        if(! MockFramework.isEnabled()) {
+        if(!MockFramework.isEnabled()) {
             return super.getURLOrDefaultInitCtx(name);
         }
         return EvoNamingContext.getInstance();

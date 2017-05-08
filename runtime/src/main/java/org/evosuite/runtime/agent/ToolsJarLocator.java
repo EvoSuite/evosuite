@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -106,7 +106,7 @@ public class ToolsJarLocator {
 	}
 
 	private  ClassLoader considerPathInProperties() {
-		if(! manuallySpecifiedToolLocation.endsWith(".jar")){
+		if(!manuallySpecifiedToolLocation.endsWith(".jar")){
 			throw new RuntimeException("Property tools_jar_location does not point to a jar file: "+manuallySpecifiedToolLocation);
 		}
 
