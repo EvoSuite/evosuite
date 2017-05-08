@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+    Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
     contributors
 
     This file is part of EvoSuite.
@@ -20,7 +20,6 @@
     License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
 
 -->
-
 <!-- NOTE: ":-" is used for default values in case a variable is not defined 
 	Here we configure the logs for both the master and client nodes. The client 
 	nodes shouldn't print anything in their console, they should rather connect 
