@@ -289,7 +289,7 @@ public class DSEStats {
 		int integerRealStringConstraints = constraintTypeCounter.getIntegerRealAndStringConstraints();
 
 		if (total == 0) {
-			logger.info(String.format("* DSE)   no constraints", avg_constraint_size));
+			logger.info(String.format("* DSE)   no constraints {}", avg_constraint_size));
 		} else {
 			String line1 = String.format("* DSE)   Number of integer only constraints : %s / %s ", integerOnly, total);
 			String line2 = String.format("* DSE)   Number of real only constraints : %s", realOnly, total);
