@@ -19,9 +19,12 @@
  */
 package org.evosuite.testcase;
 
+import com.examples.with.different.packagename.AbstractEnumInInnerClass;
+import com.examples.with.different.packagename.AbstractEnumUser;
+import com.examples.with.different.packagename.EnumInInnerClass;
+import com.examples.with.different.packagename.EnumUser;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.testcase.statements.ArrayStatement;
-import org.evosuite.testcase.statements.AssignmentStatement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -35,6 +38,7 @@ import javax.servlet.http.HttpServlet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
@@ -243,5 +247,59 @@ public class TestCodeVisitorTest {
         String code = tc.toCode();
         System.out.println(tc);
         assertFalse(code.contains("integerArray0[0] = (Integer) shortArray0[3]"));
+    }
+
+    @Test
+    public void testInnerClassEnum() throws Throwable {
+
+        //first construct a test case for the Generic method
+        TestCase tc = new DefaultTestCase();
+        VariableReference userObject = TestFactory.getInstance().addConstructor(tc,
+                new GenericConstructor(EnumUser.class.getDeclaredConstructor(), EnumUser.class), 0, 0);
+
+        EnumPrimitiveStatement primitiveStatement = new EnumPrimitiveStatement(tc, EnumInInnerClass.AnEnum.class);
+        primitiveStatement.setValue(EnumInInnerClass.AnEnum.FOO);
+        VariableReference enumObject = tc.addStatement(primitiveStatement);
+
+        Method m = EnumUser.class.getDeclaredMethod("foo", EnumInInnerClass.AnEnum.class);
+        GenericMethod gm = new GenericMethod(m, EnumUser.class);
+        MethodStatement ms = new MethodStatement(tc, gm, userObject, Arrays.asList(enumObject));
+        tc.addStatement(ms);
+
+        //Finally, visit the test
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        tc.accept(visitor); //should not throw exception
+        String code = visitor.getCode();
+        assertTrue(code.contains("= EnumInInnerClass.AnEnum.FOO"));
+    }
+
+    /*
+     * There are some weird enum constructs in Closure, so we need to check that enum names
+     * don't contain the name of the anonymous class they might represent
+     */
+    @Test
+    public void testInnerClassAbstractEnum() throws NoSuchMethodException, ConstructionFailedException {
+
+        //first construct a test case for the Generic method
+        TestCase tc = new DefaultTestCase();
+        VariableReference userObject = TestFactory.getInstance().addConstructor(tc,
+                new GenericConstructor(AbstractEnumUser.class.getDeclaredConstructor(), AbstractEnumUser.class), 0, 0);
+
+        EnumPrimitiveStatement primitiveStatement = new EnumPrimitiveStatement(tc, AbstractEnumInInnerClass.AnEnum.class);
+        primitiveStatement.setValue(AbstractEnumInInnerClass.AnEnum.FOO);
+        VariableReference enumObject = tc.addStatement(primitiveStatement);
+
+        Method m = AbstractEnumUser.class.getDeclaredMethod("foo", AbstractEnumInInnerClass.AnEnum.class);
+        GenericMethod gm = new GenericMethod(m, AbstractEnumUser.class);
+        MethodStatement ms = new MethodStatement(tc, gm, userObject, Arrays.asList(enumObject));
+        tc.addStatement(ms);
+
+        //Finally, visit the test
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        tc.accept(visitor); //should not throw exception
+        String code = visitor.getCode();
+        System.out.println(code);
+        assertFalse(code.contains("= AbstractEnumInInnerClass.AnEnum.1.FOO"));
+        assertTrue(code.contains("= AbstractEnumInInnerClass.AnEnum.FOO"));
     }
 }

@@ -121,10 +121,15 @@ public class NumberFormatter {
 			// not return true apparently? So we check using instanceof as well.
 
 			String className;
+			Class<?> enumClass = value.getClass();
+			if(enumClass.isAnonymousClass()) {
+				enumClass = enumClass.getEnclosingClass();
+			}
+
 			if(visitor != null) {
-				className = visitor.getClassName(value.getClass());
+				className = visitor.getClassName(enumClass);
 			} else {
-				Class<?> clazz = value.getClass();
+				Class<?> clazz = enumClass;
 				className = clazz.getSimpleName();
 				while (clazz.getEnclosingClass() != null) {
 					String enclosingName = clazz.getEnclosingClass().getSimpleName();
