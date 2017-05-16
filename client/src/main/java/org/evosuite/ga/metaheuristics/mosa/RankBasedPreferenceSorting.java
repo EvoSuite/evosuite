@@ -136,7 +136,11 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	 * @see org.evosuite.ga.metaheuristics.mosa.Ranking#getSubfront(int)
 	 */
 	public List<T> getSubfront(int rank) {
-		return fronts.get(rank);
+		List<T> subFront = fronts.get(rank);
+		if (subFront == null) {
+			subFront = new ArrayList<T>();
+		}
+		return subFront;
 	} // getSubFront
 
 	/* (non-Javadoc)

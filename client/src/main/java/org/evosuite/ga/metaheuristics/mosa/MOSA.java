@@ -91,7 +91,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// Obtain the next front
 		front = ranking.getSubfront(index);
 
-		while ((remain > 0) && (remain >= front.size())) {
+		while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 			// Assign crowding distance to individuals
 			distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
 			// Add the individuals of this front
@@ -108,7 +108,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		} // while
 
 		// Remain is less than front(index).size, insert only the best one
-		if (remain > 0) { // front contains individuals to insert
+		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
 			Collections.sort(front, new OnlyCrowdingComparator());
 			for (int k = 0; k < remain; k++) {
