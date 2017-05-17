@@ -188,6 +188,14 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	@Override
+	public void uniformCrossOver(Chromosome individual, boolean isIndividualAMutant) throws ConstructionFailedException {
+		// empty
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * Two chromosomes are equal if their tests are equal
 	 */

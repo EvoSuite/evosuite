@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.Randomness;
 
@@ -120,4 +121,36 @@ public class DummyChromosome extends Chromosome {
     public int size() {
         return values.size();
     }
+
+	@Override
+	public void uniformCrossOver(Chromosome other, boolean isIndividualAMutant) throws ConstructionFailedException {
+		double probilityBitsFromMutant = (1.0 / values.size()) * (1.0 / Properties.HIGH_MUTATION_PROBABILITY);
+		DummyChromosome chromosome = (DummyChromosome) other;
+
+		for (int i = 0; i < values.size(); i++) {
+			if (isIndividualAMutant) {
+				if (Randomness.nextDouble() <= probilityBitsFromMutant) {
+					values.remove(i);
+					values.add(i,chromosome.values.get(i));
+				}
+			} else {
+				if (Randomness.nextDouble() <= 1 - probilityBitsFromMutant) {
+					values.remove(i);
+					values.add(i,chromosome.values.get(i));
+				}
+			}
+		}
+		for (int i = values.size(); i < other.size(); i++) {
+			if (isIndividualAMutant) {
+				if (Randomness.nextDouble() <= probilityBitsFromMutant) {
+					values.add(chromosome.values.get(i));
+				}
+			}else {
+				if (Randomness.nextDouble() <= 1-probilityBitsFromMutant){
+					values.add(chromosome.values.get(i));
+				}
+			}
+		};
+		this.setChanged(true);
+	}
 }

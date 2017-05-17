@@ -334,7 +334,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA
 	}
 
 	// MOSA PROPERTIES
@@ -515,6 +515,11 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double MUTATION_RATE = 0.75;
 
+	/** Constant <code>HIGH_MUTATION_PROBOBILITY = 1d / 3d</code> */
+	@Parameter(key = "high_mutation_probability", group = "Search Algorithm", description = "Probability of mutation for 1+(lambda,lambda) GA")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double HIGH_MUTATION_PROBABILITY = 1d / 3d;
+
 	/** Constant <code>NUMBER_OF_MUTATIONS=1</code> */
 	@Parameter(key = "number_of_mutations", group = "Search Algorithm", description = "Number of single mutations applied on an individual when a mutation event occurs")
 	public static int NUMBER_OF_MUTATIONS = 1;
@@ -623,7 +628,7 @@ public class Properties {
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
 
 	public enum CrossoverFunction {
-		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE
+		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE, UNIFORM
 	}
 
 	/** Constant <code>CROSSOVER_FUNCTION</code> */

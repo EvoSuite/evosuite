@@ -22,7 +22,9 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
@@ -34,6 +36,7 @@ import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
+import org.evosuite.utils.BinomialDistribution;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +168,63 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		this.setChanged(true);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void uniformCrossOver(Chromosome individual, boolean isIndividualAMutant) throws ConstructionFailedException {
+		if (!(individual instanceof AbstractTestSuiteChromosome<?>)) {
+			throw new IllegalArgumentException(
+					"AbstractTestSuiteChromosome.uniformCrossOver() called with parameter of unsupported type "
+							+ individual.getClass());
+		}
+
+		// The probability of uniform crossover depends on the high mutation
+		// probability.
+		// The code shows the the uniform crossover probability that takes from
+		// best mutant.
+		// The corresponding probability that take from parent is
+		// (1-probilityBitsFromMutant)
+		double probilityBitsFromMutant = (1.0 / tests.size()) * (1.0 / Properties.HIGH_MUTATION_PROBABILITY);
+
+		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) individual;
+
+		for (int i = 0; i < tests.size(); i++) {
+			// bits from best mutant(parent is the basis model)
+			if (isIndividualAMutant) {
+				if (Randomness.nextDouble() <= probilityBitsFromMutant) {
+					tests.remove(i);
+					// take one test case from best mutant.
+					T otherTest = chromosome.tests.get(i);
+					T clonedTest = (T) otherTest.clone();
+					tests.add(i, clonedTest);
+				}
+			} else {// if the basis is mutant itself,the probability of
+					// obtaining the bits from parent is (1-pro).
+				if (Randomness.nextDouble() <= 1 - probilityBitsFromMutant) {
+					tests.remove(i);
+					T otherTest = chromosome.tests.get(i);
+					T clonedTest = (T) otherTest.clone();
+					tests.add(i, clonedTest);
+				}
+			}
+		}
+		// the length between best mutant and parent is not identical. Obtain
+		// the extra part with same crossover probability
+		for (int i = tests.size(); i < individual.size(); i++) {
+			if (isIndividualAMutant) {
+				if (Randomness.nextDouble() <= probilityBitsFromMutant) {
+					tests.add(chromosome.tests.get(i));
+				}
+			} else {
+				if (Randomness.nextDouble() <= 1 - probilityBitsFromMutant) {
+					tests.add(chromosome.tests.get(i));
+				}
+			}
+		}
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
@@ -201,13 +261,32 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	public void mutate() {
 		boolean changed = false;
 
-		// Mutate existing test cases
-		for (int i = 0; i < tests.size(); i++) {
-			T test = tests.get(i);
-			if (Randomness.nextDouble() < 1.0 / tests.size()) {
-				test.mutate();
-				if(test.isChanged())
-					changed = true;
+		if (Properties.ALGORITHM == Properties.Algorithm.ONEPLUSLAMBDALAMBDAGA) {
+			// the number of mutation bits are chosen randomly according to binomial distribution
+			// β(n,p) n denotes the length of bit string.In this context, it is regarded as
+			// the number of test case in a test suite.Also p is the high mutation probability
+			int samples = BinomialDistribution.sample(tests.size(), Properties.HIGH_MUTATION_PROBABILITY);
+			Set<Integer> changeBits = new LinkedHashSet<Integer>();
+			//obtain randomly the mutation bits position
+			while (changeBits.size() < samples) {
+					changeBits.add(Randomness.nextInt(0, tests.size()));
+			}
+			for (int i : changeBits) {
+					T test = tests.get(i);
+					test.mutate();
+					if (test.isChanged()) {
+						changed = true;
+					}
+			}
+		} else {
+			// Mutate existing test cases
+			for (int i = 0; i < tests.size(); i++) {
+				T test = tests.get(i);
+				if (Randomness.nextDouble() < 1.0 / tests.size()) {
+					test.mutate();
+					if(test.isChanged())
+						changed = true;
+				}
 			}
 		}
 

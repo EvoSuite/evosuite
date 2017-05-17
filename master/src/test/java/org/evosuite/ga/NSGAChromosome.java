@@ -194,4 +194,10 @@ public class NSGAChromosome extends Chromosome
 		// empty
 		return 0;
 	}
+
+	@Override
+	public void uniformCrossOver(Chromosome bestMutant, boolean isIndividualAMutant)
+					throws ConstructionFailedException {
+		// empty
+	}
 }
