@@ -143,7 +143,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		case MUPLUSLAMBDAEA:
 		    logger.info("Chosen search algorithm: (Mu+Lambda)EA");
             {
-                MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory);
+                MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
                 if (Properties.TEST_ARCHIVE)
                     ga.setArchive(TestsArchive.instance);
 

@@ -19,7 +19,6 @@
  */
 package org.evosuite.ga.metaheuristics;
 
-import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 
@@ -38,7 +37,6 @@ public class OnePlusOneEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public OnePlusOneEA(ChromosomeFactory<T> factory) {
-		super(factory);
-		Properties.MU = Properties.LAMBDA = 1;
+		super(factory, 1, 1);
 	}
 }

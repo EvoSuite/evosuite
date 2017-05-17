@@ -37,8 +37,14 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = -4011708411919957290L;
 
-  public MuPlusLambdaEA(ChromosomeFactory<T> factory) {
+  private final int mu;
+
+  private final int lambda;
+
+  public MuPlusLambdaEA(ChromosomeFactory<T> factory, int mu, int lambda) {
     super(factory);
+    this.mu = mu;
+    this.lambda = lambda;
   }
 
   /** {@inheritDoc} */
@@ -46,11 +52,11 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
   @Override
   protected void evolve() {
 
-    List<T> offsprings = new ArrayList<T>(Properties.LAMBDA);
+    List<T> offsprings = new ArrayList<T>(this.lambda);
 
     // create new offsprings by mutating current population
-    for (int i = 0; i < Properties.MU; i++) {
-      for (int j = 0; j < Properties.LAMBDA / Properties.MU; j++) {
+    for (int i = 0; i < this.mu; i++) {
+      for (int j = 0; j < this.lambda / this.mu; j++) {
         T offspring = (T) this.population.get(i).clone();
         this.notifyMutation(offspring);
 
@@ -93,7 +99,7 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
       this.population.get(i).updateAge(this.currentIteration);
     }
-    assert this.population.size() == Properties.MU;
+    assert this.population.size() == this.mu;
 
     this.currentIteration++;
   }
@@ -104,14 +110,14 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     this.notifySearchStarted();
     this.currentIteration = 0;
     // set up initial population
-    this.generateRandomPopulation(Properties.MU);
-    assert this.population.size() == Properties.MU;
+    this.generateRandomPopulation(this.mu);
+    assert this.population.size() == this.mu;
     // update fitness values of all individuals
     this.calculateFitnessAndSortPopulation();
 
     // checks like 'isNextPopulationFull' use POPULATION rather
     // than LAMBDA
-    Properties.POPULATION = Properties.LAMBDA;
+    Properties.POPULATION = this.lambda;
 
     this.notifyIteration();
   }

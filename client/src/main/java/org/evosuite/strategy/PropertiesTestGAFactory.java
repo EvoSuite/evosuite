@@ -100,7 +100,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 			return new OnePlusOneEA<TestChromosome>(factory);
 		case MUPLUSLAMBDAEA:
 		  logger.info("Chosen search algorithm: (Mu+Lambda)EA");
-          return new MuPlusLambdaEA<TestChromosome>(factory);
+          return new MuPlusLambdaEA<TestChromosome>(factory, Properties.MU, Properties.LAMBDA);
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
