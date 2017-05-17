@@ -84,11 +84,10 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends GeneticAlgorith
         // from standard uniform crossover. This shorter individual will be basis model, and take
         // bites(test cases)
         // from parent or keep itself with crossover probability.
+        crossoverFunction.crossOver(parent, bestMutant);
         if (parent.size() < bestMutant.size()) {
-          crossoverFunction.crossOver(parent, bestMutant);
           crossoverOffspring.add(parent);
         } else {
-          crossoverFunction.crossOver(parent, bestMutant);
           crossoverOffspring.add(bestMutant);
         }
       } catch (ConstructionFailedException e) {

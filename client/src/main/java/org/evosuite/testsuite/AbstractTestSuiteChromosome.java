@@ -180,47 +180,28 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 							+ individual.getClass());
 		}
 
-		// The probability of uniform crossover depends on the high mutation
-		// probability.
-		// The code shows the the uniform crossover probability that takes from
-		// best mutant.
-		// The corresponding probability that take from parent is
-		// (1-probilityBitsFromMutant)
-		double probilityBitsFromMutant = (1.0 / tests.size()) * (1.0 / Properties.HIGH_MUTATION_PROBABILITY);
+		double probability_of_exchange = (1.0 / (double) tests.size()) * (1.0 / Properties.HIGH_MUTATION_PROBABILITY);
+		if (! isIndividualAMutant) {
+		  probability_of_exchange = 1.0 - probability_of_exchange;
+		}
+		assert probability_of_exchange >= 0.0;
 
 		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) individual;
 
 		for (int i = 0; i < tests.size(); i++) {
-			// bits from best mutant(parent is the basis model)
-			if (isIndividualAMutant) {
-				if (Randomness.nextDouble() <= probilityBitsFromMutant) {
-					tests.remove(i);
-					// take one test case from best mutant.
-					T otherTest = chromosome.tests.get(i);
-					T clonedTest = (T) otherTest.clone();
-					tests.add(i, clonedTest);
-				}
-			} else {// if the basis is mutant itself,the probability of
-					// obtaining the bits from parent is (1-pro).
-				if (Randomness.nextDouble() <= 1 - probilityBitsFromMutant) {
-					tests.remove(i);
-					T otherTest = chromosome.tests.get(i);
-					T clonedTest = (T) otherTest.clone();
-					tests.add(i, clonedTest);
-				}
+			if (Randomness.nextDouble() <= probability_of_exchange) {
+				tests.remove(i);
+				T otherTest = chromosome.tests.get(i);
+				T clonedTest = (T) otherTest.clone();
+				tests.add(i, clonedTest);
 			}
 		}
-		// the length between best mutant and parent is not identical. Obtain
-		// the extra part with same crossover probability
+
+		// if 'individual' is longer than 'this', augment 'this' with a
+		// few extra tests from 'individual' (according to a probability)
 		for (int i = tests.size(); i < individual.size(); i++) {
-			if (isIndividualAMutant) {
-				if (Randomness.nextDouble() <= probilityBitsFromMutant) {
-					tests.add(chromosome.tests.get(i));
-				}
-			} else {
-				if (Randomness.nextDouble() <= 1 - probilityBitsFromMutant) {
-					tests.add(chromosome.tests.get(i));
-				}
+			if (Randomness.nextDouble() <= probability_of_exchange) {
+				tests.add(chromosome.tests.get(i));
 			}
 		}
 	}
