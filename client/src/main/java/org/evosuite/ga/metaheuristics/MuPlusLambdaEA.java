@@ -115,10 +115,6 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     // update fitness values of all individuals
     this.calculateFitnessAndSortPopulation();
 
-    // checks like 'isNextPopulationFull' use POPULATION rather
-    // than LAMBDA
-    Properties.POPULATION = this.lambda;
-
     this.notifyIteration();
   }
 
