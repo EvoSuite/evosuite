@@ -350,7 +350,7 @@ public class EPAMonitor {
 			Exception exceptionToBeThrown) {
 		try {
 			// is the methodStmt defined as an EPA Action ?
-			if (this.constructorToActionMap.containsKey(fullConstructorName)) {
+			if (exceptionToBeThrown==null && this.constructorToActionMap.containsKey(fullConstructorName)) {
 
 				String top = call_stack.pop();
 				final String classNameAndFullConstructorName = className + "." + fullConstructorName;
