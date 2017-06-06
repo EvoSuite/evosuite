@@ -38,6 +38,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +83,10 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		
 //		List<TestFitnessFunction> goals = getGoals(true);
 		
-		LoggingUtils.getEvoLogger().info("* Total number of test goals for MOSA: {}", fitnessFunctions.size());
+		if (Properties.ALGORITHM == Properties.Algorithm.LIPS)
+			LoggingUtils.getEvoLogger().info("* Total number of test goals for LIPS: {}", fitnessFunctions.size());
+		else if (Properties.ALGORITHM == Properties.Algorithm.MOSA)
+			LoggingUtils.getEvoLogger().info("* Total number of test goals for MOSA: {}", fitnessFunctions.size());
 		
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
