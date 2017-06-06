@@ -19,6 +19,7 @@
  */
 package org.evosuite;
 
+import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;

@@ -36,6 +36,7 @@ import org.evosuite.ga.metaheuristics.CellularGA;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.lips.LIPS;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
@@ -116,6 +117,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			return new RegressionTestSuiteChromosomeFactory();
 		case MOSUITE:
 			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
+		case LIPS:
+			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory()); 
 		default:
 			throw new RuntimeException("Unsupported test factory: "
 					+ Properties.TEST_FACTORY);
@@ -214,6 +217,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
               StandardChemicalReaction<TestSuiteChromosome> ga = new StandardChemicalReaction<TestSuiteChromosome>(factory);
               return ga;
             }
+        case LIPS:
+        	logger.info("Chosen search algorithm: LISP");
+            return new LIPS<TestSuiteChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
