@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -234,6 +234,12 @@ public class TestSuiteWriter implements Opcodes {
         // Avoid downcasts that could break
         removeUnnecessaryDownCasts(results);
 
+        // Sometimes some timeouts lead to assertions being attached to statements
+        // related to exceptions. This is not currently handled, so as a workaround
+        // let's try to remove any remaining assertions. TODO: Better solution
+        removeAssertionsAfterException(results);
+
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
@@ -292,6 +298,16 @@ public class TestSuiteWriter implements Opcodes {
             }
         }
     }
+
+    private void removeAssertionsAfterException(List<ExecutionResult> results) {
+        for(ExecutionResult result : results) {
+            if(result.noThrownExceptions())
+                continue;
+            int exceptionPosition = result.getFirstPositionOfThrownException();
+            result.test.getStatement(exceptionPosition).removeAssertions();
+        }
+    }
+
 
     /**
      * Create JUnit file for given class name
@@ -464,6 +480,10 @@ public class TestSuiteWriter implements Opcodes {
         if (!Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             importNames.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
         }
+
+        // If a CodeUnderTestException happens, the test will be chopped before that exception
+        // but it would still be in the imports
+        importNames.remove(CodeUnderTestException.class.getCanonicalName());
 
         List<String> importsSorted = new ArrayList<>(importNames);
 

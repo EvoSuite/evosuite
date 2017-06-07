@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -53,7 +53,6 @@ import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
-import org.jboss.jandex.PrimitiveType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -912,6 +911,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public boolean isFailing() {
 		return isFailing;
+	}
+
+	@Override
+	public void setFailing() {
+		isFailing = true;
 	}
 
 	/* (non-Javadoc)

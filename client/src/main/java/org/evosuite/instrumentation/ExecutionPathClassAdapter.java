@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -117,10 +117,10 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 
 		// Default constructors of anonymous classes are synthetic
 		// but the Java Compiler is inconsistent in whether it has
-		// line numbers, so we skip it.
+		// line numbers, so we skip it for most aspects.
 		// https://bugs.openjdk.java.net/browse/JDK-8061778
 		if (isAnonymous && name.equals("<init>")) {
-			return mv;
+			return new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
 		}
 		
 		if (isMutation()) {

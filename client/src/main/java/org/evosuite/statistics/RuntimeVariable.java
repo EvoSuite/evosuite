@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -260,7 +260,6 @@ public enum RuntimeVariable {
 	Exception_Difference,
 	State_Distance,
 	Testsuite_Diversity,
-	Regression_ID,
 	/** Timings */
 	Time_Assertion,
 	Time_Coverage,

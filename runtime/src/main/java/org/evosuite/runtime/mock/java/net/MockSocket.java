@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,7 +22,6 @@ package org.evosuite.runtime.mock.java.net;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.OverrideMock;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -63,7 +62,7 @@ public class MockSocket extends Socket implements OverrideMock {
 
 	public MockSocket() {
 		super();
-        if(!MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             return;
         }
 		setImpl();
@@ -100,7 +99,7 @@ public class MockSocket extends Socket implements OverrideMock {
 
 	protected MockSocket(MockSocketImpl impl) throws SocketException {
 		super(impl);
-        if(!MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             return;
         }
         this.impl = impl;
@@ -317,11 +316,11 @@ public class MockSocket extends Socket implements OverrideMock {
 	@Override
 	public InetAddress getLocalAddress() {
 
-		if(! MockFramework.isEnabled()){
+		if(!MockFramework.isEnabled()) {
 			return super.getLocalAddress();
 		}
 		
-		if (!isBound()){
+		if (!isBound()) {
 			return MockInetAddress.anyLocalAddress();
 		}
 		
@@ -705,7 +704,7 @@ public class MockSocket extends Socket implements OverrideMock {
 	@Override
 	public void setPerformancePreferences(int connectionTime,
 			int latency,
-			int bandwidth){
+			int bandwidth) {
 		super.setPerformancePreferences(connectionTime, latency, bandwidth);
 	}
 

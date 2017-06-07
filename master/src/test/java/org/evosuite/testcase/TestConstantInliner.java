@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,11 +25,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.testcase.statements.ArrayStatement;
-import org.evosuite.testcase.statements.AssignmentStatement;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import com.examples.with.different.packagename.TrivialInt;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -80,7 +77,48 @@ public class TestConstantInliner {
 		String code = test.toCode();
 		assertFalse(code.contains("objectParameter0.testMe(objectArray0"));
 	}
-	
+
+	@Test
+	public void testNumericArrayIndexInlining() throws NoSuchMethodException, SecurityException {
+		DefaultTestCase test = new DefaultTestCase();
+		PrimitiveStatement<?> primitiveStatement = PrimitiveStatement.getPrimitiveStatement(test, int.class);
+		VariableReference intVar = test.addStatement(primitiveStatement);
+
+		ArrayStatement as = new ArrayStatement(test, int[].class, 3);
+		test.addStatement(as);
+
+		ArrayReference arrayVar = as.getArrayReference();
+
+		ArrayIndex ai0 = new ArrayIndex(test, arrayVar, 0);
+		ArrayIndex ai1 = new ArrayIndex(test, arrayVar, 1);
+		ArrayIndex ai2 = new ArrayIndex(test, arrayVar, 2);
+		test.addStatement(new AssignmentStatement(test, ai0, intVar));
+		test.addStatement(new AssignmentStatement(test, ai1, intVar));
+		test.addStatement(new AssignmentStatement(test, ai2, intVar));
+
+		ConstructorStatement sutCS = new ConstructorStatement(test, new GenericConstructor(TrivialInt.class.getConstructor(), TrivialInt.class), new ArrayList<>());
+		VariableReference sut = test.addStatement(sutCS);
+
+		List<VariableReference> parameters = new ArrayList<VariableReference>();
+		parameters.add(ai0);
+		test.addStatement(new MethodStatement(test, new GenericMethod(TrivialInt.class.getMethods()[0], TrivialInt.class), sut, parameters));
+		parameters = new ArrayList<>();
+		parameters.add(ai1);
+		test.addStatement(new MethodStatement(test, new GenericMethod(TrivialInt.class.getMethods()[0], TrivialInt.class), sut, parameters));
+		parameters = new ArrayList<>();
+		parameters.add(ai2);
+		test.addStatement(new MethodStatement(test, new GenericMethod(TrivialInt.class.getMethods()[0], TrivialInt.class), sut, parameters));
+		System.out.println(test.toCode());
+
+		ConstantInliner inliner = new ConstantInliner();
+		inliner.inline(test);
+
+		String code = test.toCode();
+		System.out.println(test.toCode());
+		assertFalse(code.contains("trivialInt0.testMe(int"));
+	}
+
+
 	@Test
 	public void testStringQuoting() throws NoSuchMethodException, SecurityException {
 		DefaultTestCase test = new DefaultTestCase();

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -55,12 +55,12 @@ public class ClassStateSupport {
      * @param classLoader
      * @param classNames
      */
-	public static boolean initializeClasses(ClassLoader classLoader, String... classNames){
+	public static boolean initializeClasses(ClassLoader classLoader, String... classNames) {
 
 		boolean problem = false;
 
 		List<Class<?>> classes = loadClasses(classLoader, classNames);
-		if(classes.size() != classNames.length){
+		if(classes.size() != classNames.length) {
 			problem = true;
 		}
 
@@ -68,7 +68,7 @@ public class ClassStateSupport {
 
 			for (Class<?> clazz : classes) {
 
-                if(clazz.isInterface()){
+                if(clazz.isInterface()) {
                     /*
                         FIXME: once we ll start to support Java 8, in which interfaces can have code,
                         we ll need to instrument them as well
@@ -159,9 +159,9 @@ public class ClassStateSupport {
 	 * Note: re-instrumentation is more limited, as cannot change class signature
 	 */
 	@Deprecated
-	public static void retransformIfNeeded(ClassLoader classLoader, String... classNames){
+	public static void retransformIfNeeded(ClassLoader classLoader, String... classNames) {
 		List<Class<?>> classes = new ArrayList<>();
-		for(String name : classNames){
+		for(String name : classNames) {
 			try {
 				classes.add(classLoader.loadClass(name));
 			} catch (ClassNotFoundException e) {
@@ -205,28 +205,28 @@ public class ClassStateSupport {
 		}
 		*/
 
-		for(Class<?> cl : classes){
-			if(! InstrumentingAgent.getTransformer().isClassAlreadyTransformed(cl.getName())){
+		for(Class<?> cl : classes) {
+			if(!InstrumentingAgent.getTransformer().isClassAlreadyTransformed(cl.getName())) {
 				classToReInstrument.add(cl);
 			}
 		}
 
-		if(classToReInstrument.isEmpty()){
+		if(classToReInstrument.isEmpty()) {
 			return;
 		}
 
 		InstrumentingAgent.setRetransformingMode(true);
 		try {
-			if(!classToReInstrument.isEmpty()){
+			if(!classToReInstrument.isEmpty()) {
 				InstrumentingAgent.getInstrumentation().retransformClasses(classToReInstrument.toArray(new Class<?>[0]));
 			}
 		} catch (UnmodifiableClassException e) {
 			//this shouldn't really happen, as already checked in previous loop
 			java.lang.System.err.println("Could not re-instrument classes");
-		} catch(UnsupportedOperationException e){
+		} catch(UnsupportedOperationException e) {
 			//if this happens, then it is a bug in EvoSuite :(
 			logger.error("EvoSuite wrong re-instrumentation: "+e.getMessage());
-		}finally{
+		} finally {
 			InstrumentingAgent.setRetransformingMode(false);
 		}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -89,7 +89,6 @@ public abstract class TestSuiteFitnessFunction extends
 	 */
 	protected List<ExecutionResult> runTestSuite(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
-		CurrentChromosomeTracker.getInstance().modification(suite);
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
 
 		for (ExecutableChromosome chromosome : suite.getTestChromosomes()) {

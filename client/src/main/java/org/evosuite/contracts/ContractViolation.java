@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.runtime.mock.MockList;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.FieldReference;
@@ -78,8 +79,6 @@ public class ContractViolation {
 	 * 
 	 * @param contract
 	 *            a {@link org.evosuite.contracts.Contract} object.
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.statements.Statement} object.
 	 * @param exception
@@ -122,6 +121,37 @@ public class ContractViolation {
 
 	public int getPosition() {
 		return statement.getPosition();
+	}
+
+	public Throwable getException() {
+		return exception;
+	}
+
+	public boolean isExceptionOfType(Class<?> throwableClass) {
+		if(exception == null)
+			return false;
+
+		if(MockList.isAMockClass(exception.getClass().getName())) {
+			return throwableClass.equals(exception.getClass().getSuperclass());
+		} else {
+			return throwableClass.equals(exception.getClass());
+		}
+	}
+
+	public boolean resultsFromMethod(String methodName) {
+		if(statement instanceof MethodStatement) {
+			MethodStatement ms = (MethodStatement) statement;
+			String target = ms.getMethodName() + ms.getDescriptor();
+			return target.equals(methodName);
+		} else if(statement instanceof ConstructorStatement) {
+			return methodName.startsWith("<init>");
+		} else {
+			return false;
+		}
+	}
+
+	public Statement getStatement() {
+		return statement;
 	}
 
 	/**

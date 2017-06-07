@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -157,7 +157,7 @@ public class VirtualNetwork {
 	/**
 	 * private, singleton constructor
 	 */
-	private VirtualNetwork(){
+	private VirtualNetwork() {
 		localListeningPorts = new CopyOnWriteArraySet<>();
 		incomingConnections = new ConcurrentHashMap<>();
 		openedTcpConnections = new CopyOnWriteArraySet<>();
@@ -173,21 +173,21 @@ public class VirtualNetwork {
 		dns = new DNS();
 	}
 
-	public static VirtualNetwork getInstance(){
+	public static VirtualNetwork getInstance() {
 		return instance;
 	}
 
 	//------------------------------------------
 
 
-    public void init(){
+    public void init() {
         reset(); //just to be sure
 
         initNetworkInterfaces();
         MockURL.initStaticState();
     }
 
-	public void reset(){
+	public void reset() {
 		dns = new DNS();
 
 		incomingConnections.clear();
@@ -205,24 +205,24 @@ public class VirtualNetwork {
 
     // -------  observers ----------------------
 
-    public Set<String> getViewOfRemoteAccessedFiles(){
+    public Set<String> getViewOfRemoteAccessedFiles() {
         return Collections.unmodifiableSet(remoteAccessedFiles);
     }
 
-    public Set<NativeTcp> getViewOfOpenedTcpConnections(){
+    public Set<NativeTcp> getViewOfOpenedTcpConnections() {
         return  Collections.unmodifiableSet(openedTcpConnections);
     }
 
-    public Set<EndPointInfo> getViewOfLocalListeningPorts(){
+    public Set<EndPointInfo> getViewOfLocalListeningPorts() {
         return Collections.unmodifiableSet(localListeningPorts);
     }
 
     public Set<EndPointInfo> getViewOfRemoteContactedPorts() {return Collections.unmodifiableSet(remoteContactedPorts);}
 
-    public Map<EndPointInfo, Integer> getCopyOfSentUDP(){
+    public Map<EndPointInfo, Integer> getCopyOfSentUDP() {
         //as AtomicInteger is modifiable, we cannot return a view. we need a copy
         Map<EndPointInfo, Integer> map = new LinkedHashMap<>();
-        for(EndPointInfo info : sentUdpPackets.keySet()){
+        for(EndPointInfo info : sentUdpPackets.keySet()) {
             map.put(info,sentUdpPackets.get(info).get());
         }
         return map;
@@ -232,7 +232,7 @@ public class VirtualNetwork {
      * Get a copy of all available interfaces
      * @return
      */
-    public List<NetworkInterfaceState> getAllNetworkInterfaceStates(){
+    public List<NetworkInterfaceState> getAllNetworkInterfaceStates() {
         return new ArrayList<>(networkInterfaces);
     }
 
@@ -248,7 +248,7 @@ public class VirtualNetwork {
      * @return {@code false} if URL is malformed, if the protocol is not a remote one (eg "file"), or
      * if the file was already created
      */
-    public boolean addRemoteTextFile(String url, String content){
+    public boolean addRemoteTextFile(String url, String content) {
 
         URL mockURL;
         try {
@@ -259,12 +259,12 @@ public class VirtualNetwork {
         } catch (MalformedURLException e) {
             return  false;
         }
-        if(mockURL.getProtocol().toLowerCase().equals("file")){
+        if(mockURL.getProtocol().toLowerCase().equals("file")) {
             return false; // those are handled in VFS
         }
 
         String key = url.toString();
-        if(remoteFiles.containsKey(key)){
+        if(remoteFiles.containsKey(key)) {
             return false;
         }
 
@@ -279,15 +279,15 @@ public class VirtualNetwork {
      *
      * @param packet
      */
-    public void sentPacketBySUT(DatagramPacket packet){
+    public void sentPacketBySUT(DatagramPacket packet) {
         InetAddress addr = packet.getAddress();
         int port = packet.getPort();
         EndPointInfo info = new EndPointInfo(addr.getHostAddress(),port,ConnectionType.UDP);
 
         remoteContactedPorts.add(info);
-        synchronized(sentUdpPackets){
+        synchronized(sentUdpPackets) {
             AtomicInteger counter = sentUdpPackets.get(info);
-            if(counter == null){
+            if(counter == null) {
                 counter = new AtomicInteger(0);
                 sentUdpPackets.put(info,counter);
             }
@@ -301,10 +301,10 @@ public class VirtualNetwork {
      * @param sutPort
      * @return {@code null} if there is no buffered incoming packet for the given SUT address
      */
-    public DatagramPacket pullUdpPacket(String sutAddress, int sutPort){
+    public DatagramPacket pullUdpPacket(String sutAddress, int sutPort) {
         EndPointInfo sut = new EndPointInfo(sutAddress,sutPort,ConnectionType.UDP);
         Queue<DatagramPacket> queue = udpPacketsToSUT.get(sut);
-        if(queue == null || queue.isEmpty()){
+        if(queue == null || queue.isEmpty()) {
             return null;
         }
 
@@ -312,13 +312,13 @@ public class VirtualNetwork {
         return p;
     }
 
-    public void sendPacketToSUT(byte[] data, InetAddress remoteAddress, int remotePort,  String sutAddress, int sutPort){
+    public void sendPacketToSUT(byte[] data, InetAddress remoteAddress, int remotePort,  String sutAddress, int sutPort) {
         DatagramPacket packet = new DatagramPacket(data.clone(),data.length,remoteAddress, remotePort);
         EndPointInfo sut = new EndPointInfo(sutAddress,sutPort,ConnectionType.UDP);
 
-        synchronized(udpPacketsToSUT){
+        synchronized(udpPacketsToSUT) {
             Queue<DatagramPacket> queue = udpPacketsToSUT.get(sut);
-            if(queue == null){
+            if(queue == null) {
                 queue = new ConcurrentLinkedQueue<>();
                 udpPacketsToSUT.put(sut,queue);
             }
@@ -332,9 +332,9 @@ public class VirtualNetwork {
      * @param url
      * @return {@code null} if there is no such file
      */
-    public RemoteFile getFile(URL url){
+    public RemoteFile getFile(URL url) {
         String s = url.toString();
-        if(!remoteAccessedFiles.contains(s)){
+        if(!remoteAccessedFiles.contains(s)) {
             remoteAccessedFiles.add(s);
         }
         return remoteFiles.get(s);
@@ -345,7 +345,7 @@ public class VirtualNetwork {
 	 * 
 	 * @return a integer representing a port number on remote host
 	 */
-	public int getNewRemoteEphemeralPort(){
+	public int getNewRemoteEphemeralPort() {
 		return remotePortIndex.getAndIncrement();
 	}
 
@@ -354,7 +354,7 @@ public class VirtualNetwork {
      *
      * @return a integer representing a port number on local host
      */
-    public int getNewLocalEphemeralPort(){
+    public int getNewLocalEphemeralPort() {
         return remotePortIndex.getAndIncrement(); //Note: could use a new variable, but doesn't really matter
     }
 
@@ -363,9 +363,9 @@ public class VirtualNetwork {
 	 * @param name
 	 * @return {@code null} if the interface does not exist
 	 */
-	public NetworkInterfaceState getNetworkInterfaceState(String name){
-		for(NetworkInterfaceState ni : networkInterfaces){
-			if(ni.getNetworkInterface().getName().equals(name)){
+	public NetworkInterfaceState getNetworkInterfaceState(String name) {
+		for(NetworkInterfaceState ni : networkInterfaces) {
+			if(ni.getNetworkInterface().getName().equals(name)) {
 				return ni;
 			}
 		}
@@ -377,7 +377,7 @@ public class VirtualNetwork {
 	 * @param host
 	 * @return 
 	 */
-	public String dnsResolve(String host){
+	public String dnsResolve(String host) {
 		return dns.resolve(host);
 	}
 
@@ -392,13 +392,13 @@ public class VirtualNetwork {
 	 */
 	public synchronized NativeTcp registerIncomingTcpConnection(
 			String originAddr, int originPort,
-			String destAddr, int destPort){
+			String destAddr, int destPort) {
 
 		EndPointInfo origin = new EndPointInfo(originAddr,originPort,ConnectionType.TCP);
 		EndPointInfo dest = new EndPointInfo(destAddr,destPort,ConnectionType.TCP);
 
 		Queue<NativeTcp> queue = incomingConnections.get(dest);
-		if(queue == null){
+		if(queue == null) {
 			queue = new ConcurrentLinkedQueue<>();
 			incomingConnections.put(dest, queue);
 		}
@@ -415,11 +415,11 @@ public class VirtualNetwork {
 	 * @param localPort
 	 * @return  {@code null} if the test case has not set up it an incoming TCP connection
 	 */
-	public synchronized NativeTcp pullTcpConnection(String localAddress, int localPort){
+	public synchronized NativeTcp pullTcpConnection(String localAddress, int localPort) {
 
         EndPointInfo local = new EndPointInfo(localAddress,localPort,ConnectionType.TCP);
 		Queue<NativeTcp> queue = incomingConnections.get(local);
-		if(queue == null || queue.isEmpty()){
+		if(queue == null || queue.isEmpty()) {
 			return null;
 		}
 
@@ -451,13 +451,13 @@ public class VirtualNetwork {
 
     private boolean openServer(String addr, int port, ConnectionType type) throws IllegalArgumentException{
 
-        if(port == 0){
+        if(port == 0) {
             throw new IllegalArgumentException("Cannot try to bind to wildcard port 0");
         }
 
         EndPointInfo info = new EndPointInfo(addr,port,type);
 
-        if(localListeningPorts.contains(info)){
+        if(localListeningPorts.contains(info)) {
             /*
                 there is already an existing opened port.
                 Note: it is possible to have a UDP and TCP on same port
@@ -465,7 +465,7 @@ public class VirtualNetwork {
             return false;
         }
 
-        if(! isValidLocalServer(info)){
+        if(!isValidLocalServer(info)) {
             return false;
         }
 
@@ -479,10 +479,10 @@ public class VirtualNetwork {
 	/**
 	 *  Register a remote server that can reply to SUT's connection requests
 	 */
-	public synchronized void addRemoteTcpServer(RemoteTcpServer server){
+	public synchronized void addRemoteTcpServer(RemoteTcpServer server) {
 
 		Queue<RemoteTcpServer> queue = remoteCurrentServers.get(server.getAddress());
-		if(queue==null){
+		if(queue==null) {
 			queue = new ConcurrentLinkedQueue<>();
 			remoteCurrentServers.put(server.getAddress(), queue);
 		}
@@ -503,22 +503,22 @@ public class VirtualNetwork {
 	public synchronized NativeTcp connectToRemoteAddress(EndPointInfo localOrigin, EndPointInfo remoteTarget)
 			throws IllegalArgumentException, IOException{
 
-		if(localOrigin==null || remoteTarget==null){
+		if(localOrigin==null || remoteTarget==null) {
 			throw new IllegalArgumentException("Null input");
 		}
 
-        if(!localOrigin.getType().equals(ConnectionType.TCP) || !remoteTarget.getType().equals(ConnectionType.TCP)){
+        if(!localOrigin.getType().equals(ConnectionType.TCP) || !remoteTarget.getType().equals(ConnectionType.TCP)) {
             throw new IllegalArgumentException("Non-TCP connections");
         }
 
-		if(!isValidLocalServer(localOrigin)){
+		if(!isValidLocalServer(localOrigin)) {
 			throw new IllegalArgumentException("Invalid local address: "+localOrigin);
 		}
 
 		remoteContactedPorts.add(remoteTarget);
 
 		Queue<RemoteTcpServer> queue = remoteCurrentServers.get(remoteTarget);
-		if(queue==null || queue.isEmpty()){
+		if(queue==null || queue.isEmpty()) {
 			throw new IOException("Remote address/port is not opened: "+remoteTarget);
 		}
 
@@ -530,7 +530,7 @@ public class VirtualNetwork {
 	//------------------------------------------
 
 
-	private boolean isValidLocalServer(EndPointInfo info){
+	private boolean isValidLocalServer(EndPointInfo info) {
 		return true; //TODO
 	}
 
@@ -545,7 +545,7 @@ public class VirtualNetwork {
 					"Evo_en0", 5, new byte[]{0, 42, 0, 42, 0, 42}, 
 					1500, false, MockInetAddress.getByName("192.168.1.42"));
 			networkInterfaces.add(wifi);
-		} catch(Exception e){
+		} catch(Exception e) {
 			//this should never happen
 			throw new RuntimeException("EvoSuite error: "+e.getMessage());
 		}

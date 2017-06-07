@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -68,7 +68,7 @@ public class Injector {
      * Key -> class name,
      * Value -> @PostConstruct method, or null if none
      */
-    private static final Map<String, Method> postConstructCache = new LinkedHashMap<>();
+    private static final Map<Class<?>, Method> postConstructCache = new LinkedHashMap<>();
 
 
     private static final InjectionCache entityManagerCache =
@@ -114,7 +114,7 @@ public class Injector {
     }
 
     @EvoSuiteExclude
-    public static List<Field> getAllFieldsToInject(Class<?> klass){
+    public static List<Field> getAllFieldsToInject(Class<?> klass) {
         List<Field> fields = getGeneralFieldsToInject(klass);
         if(hasEntityManager(klass)) {fields.add(entityManagerCache.getField(klass));}
         if(hasEntityManagerFactory(klass)) {fields.add(entityManagerFactoryCache.getField(klass));}
@@ -125,7 +125,7 @@ public class Injector {
     }
 
     @EvoSuiteExclude
-    public static List<Field> getGeneralFieldsToInject(Class<?> klass){
+    public static List<Field> getGeneralFieldsToInject(Class<?> klass) {
         return generalInjection.getFieldsToInject(klass);
     }
 
@@ -145,7 +145,7 @@ public class Injector {
         Inputs.checkNull(instance, clazz);
 
 
-        for(Field f : getAllFieldsToInject(clazz)){
+        for(Field f : getAllFieldsToInject(clazz)) {
             f.setAccessible(true);
             try {
                 Object obj = f.get(instance);
@@ -162,7 +162,7 @@ public class Injector {
         }
 
         Class<?> parent = clazz.getSuperclass();
-        if(parent != null && ! parent.equals(Object.class)){
+        if(parent != null && !parent.equals(Object.class)) {
             validateBean(instance, parent);
         }
     }
@@ -195,7 +195,7 @@ public class Injector {
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static <T> void injectEntityManagerFactory(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
-            throws IllegalArgumentException{
+            throws IllegalArgumentException {
 
         Inputs.checkNull(instance,clazz);
 
@@ -215,7 +215,7 @@ public class Injector {
 
     @Constraints(noNullInputs = true, notMutable = true, noDirectInsertion = true)
     public static <T> void injectUserTransaction(@BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) T instance, Class<?> clazz)
-        throws IllegalArgumentException{
+        throws IllegalArgumentException {
 
         Inputs.checkNull(instance,clazz);
 
@@ -227,7 +227,7 @@ public class Injector {
 
 
     @EvoSuiteExclude
-    public static boolean hasUserTransaction( Class<?> klass) throws IllegalArgumentException{
+    public static boolean hasUserTransaction( Class<?> klass) throws IllegalArgumentException {
         Inputs.checkNull(klass);
         return userTransactionCache.hasField(klass);
     }
@@ -246,7 +246,7 @@ public class Injector {
 
 
     @EvoSuiteExclude
-    public static boolean hasEvent( Class<?> klass) throws IllegalArgumentException{
+    public static boolean hasEvent( Class<?> klass) throws IllegalArgumentException {
         Inputs.checkNull(klass);
         return eventCache.hasField(klass);
     }
@@ -269,14 +269,14 @@ public class Injector {
             @BoundInputVariable(initializer = true, atMostOnceWithSameParameters = true) Object instance, Class<?> clazz) throws IllegalArgumentException{
 
         Inputs.checkNull(instance, clazz);
-        if(!clazz.isAssignableFrom(instance.getClass())){
+        if(!clazz.isAssignableFrom(instance.getClass())) {
             throw new IllegalArgumentException("Class "+clazz+" is not assignable from "+instance.getClass());
         }
-        if(!hasPostConstruct(clazz)){
+        if(!hasPostConstruct(clazz)) {
             throw new IllegalArgumentException("The class "+clazz.getName()+" does not have a @PostConstruct");
         }
 
-        Method m = postConstructCache.get(clazz.getName());
+        Method m = postConstructCache.get(clazz);
         assert m != null;
 
         try {
@@ -290,12 +290,12 @@ public class Injector {
     }
 
     @EvoSuiteExclude
-    public static boolean hasPostConstruct(Class<?> clazz){
-        String className = clazz.getName();
-        if(! postConstructCache.containsKey(className)){
+    public static boolean hasPostConstruct(Class<?> clazz) {
+
+        if(!postConstructCache.containsKey(clazz)) {
             Method pc = null;
-            outer : for(Method m : ReflectionUtils.getDeclaredMethods(clazz)){
-                for(Annotation annotation : ReflectionUtils.getDeclaredAnnotations(m)){
+            outer : for(Method m : ReflectionUtils.getDeclaredMethods(clazz)) {
+                for(Annotation annotation : ReflectionUtils.getDeclaredAnnotations(m)) {
                     if(annotation instanceof PostConstruct){
                         pc = m;
                         pc.setAccessible(true);
@@ -303,10 +303,10 @@ public class Injector {
                     }
                 }
             }
-            postConstructCache.put(className,pc); //note: it can be null
+            postConstructCache.put(clazz,pc); //note: it can be null
         }
 
-        Method m = postConstructCache.get(className);
+        Method m = postConstructCache.get(clazz);
         return m != null;
     }
 }

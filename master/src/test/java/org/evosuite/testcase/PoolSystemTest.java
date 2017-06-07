@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -253,7 +253,8 @@ public class PoolSystemTest extends SystemTestBase {
 		f.delete();
 
 	}
-	
+
+	@Ignore // Can now pass even without pool...
 	@Test
 	public void testNoPoolWithException() throws IOException {
 		EvoSuite evosuite = new EvoSuite();

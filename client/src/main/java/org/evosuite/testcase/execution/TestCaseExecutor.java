@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -36,6 +36,8 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.runtime.LoopCounter;
+import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.JOptionPaneInputs;
@@ -298,6 +300,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		resetObservers();
 		ExecutionObserver.setCurrentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
+		Runtime.getInstance().resetRuntime();
 
 		long startTime = System.currentTimeMillis();
 
@@ -504,6 +507,9 @@ public class TestCaseExecutor implements ThreadFactory {
 			// CFontManager is responsible for loading fonts
 			// which can take seconds
 			if (elem.getClassName().equals("sun.font.CFontManager"))
+				return true;
+			// JDBC initialisation can take a while, and interrupting can mess things up
+			if (elem.getClassName().equals(DBManager.class.getCanonicalName()) && elem.getMethodName().equals("initDB"))
 				return true;
 		}
 		return false;

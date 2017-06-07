@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -44,18 +44,18 @@ public class EvoNamingContext implements Context{
     private final Map<String, Binding> bindings = new ConcurrentHashMap<>();
 
     @EvoSuiteInclude
-    public static EvoNamingContext getInstance(){
+    public static EvoNamingContext getInstance() {
         return singleton;
     }
 
-    public void reset(){
+    public void reset() {
         bindings.clear();
     }
 
     // ---- ES test methods  -------------
 
     @EvoSuiteInclude
-    public static void add(EvoName name, Object obj){
+    public static void add(EvoName name, Object obj) {
         try {
             getInstance().bind(name.getName(), obj);
         } catch (NamingException e) {
@@ -64,24 +64,24 @@ public class EvoNamingContext implements Context{
     }
     //------ private -------------
 
-    private String getClassName(String name){
+    private String getClassName(String name) {
         String[] tokens = name.split("/");
         String cn = tokens[tokens.length-1]; //take last
         return cn;
     }
 
     private void checkNaming(String name, Object obj) throws NamingException {
-        if(obj == null){
+        if(obj == null) {
             return; //null is OK
         }
 
         String cn = getClassName(name);
-        if(! cn.contains("!")){
+        if(!cn.contains("!")) {
             return;
         }
 
         String[] tokens = cn.split("!");
-        if(tokens.length != 2){
+        if(tokens.length != 2) {
             throw new NamingException("Invalid <name>!<type>: "+name);
         }
         String type = tokens[1];
@@ -89,7 +89,7 @@ public class EvoNamingContext implements Context{
         Class<?> klass;
         try {
             ClassLoader loader = obj.getClass().getClassLoader();
-            if(loader == null){
+            if(loader == null) {
                 //this can happen for example for String
                 loader = this.getClass().getClassLoader();
             }
@@ -98,7 +98,7 @@ public class EvoNamingContext implements Context{
             throw new NamingException("Cannot load type "+type+": "+e.toString());
         }
 
-        if(! klass.isAssignableFrom(obj.getClass())){
+        if(!klass.isAssignableFrom(obj.getClass())) {
             throw new NamingException("Invaliding binding of class "+obj.getClass().getName() + " for name "+name);
         }
     }
@@ -107,7 +107,7 @@ public class EvoNamingContext implements Context{
 
     @Override
     public Object lookup(Name name) throws NamingException {
-        if(name==null){
+        if(name==null) {
             throw new NamingException("Null name");
         }
         return lookup(name.toString());
@@ -115,7 +115,7 @@ public class EvoNamingContext implements Context{
 
     @Override
     public Object lookup(String name) throws NamingException {
-        if(name==null){
+        if(name==null) {
             throw new NamingException("Null name");
         }
 
@@ -126,7 +126,7 @@ public class EvoNamingContext implements Context{
         TestDataJavaEE.getInstance().accessLookUpContextName(name);
 
         Binding b =  bindings.get(name);
-        if(b == null){
+        if(b == null) {
             return null;
         } else {
             return b.getObject();
@@ -145,7 +145,7 @@ public class EvoNamingContext implements Context{
 
     @Override
     public void bind(Name name, Object obj) throws NamingException {
-        if(name==null){
+        if(name==null) {
             throw new NamingException("Null name");
         }
         bind(name.toString(), obj);
@@ -153,11 +153,11 @@ public class EvoNamingContext implements Context{
 
     @Override
     public void bind(String name, Object obj) throws NamingException {
-        if(name==null){
+        if(name==null) {
             throw new NamingException("Null name");
         }
 
-        if(bindings.containsKey(name)){
+        if(bindings.containsKey(name)) {
             throw new NameAlreadyBoundException("Already bounded object for: "+name);
         }
 
@@ -169,7 +169,7 @@ public class EvoNamingContext implements Context{
 
     @Override
     public void rebind(Name name, Object obj) throws NamingException {
-        if(name==null){
+        if(name==null) {
             throw new NamingException("Null name");
         }
         rebind(name.toString(), obj);
@@ -177,7 +177,7 @@ public class EvoNamingContext implements Context{
 
     @Override
     public void rebind(String name, Object obj) throws NamingException {
-        if(name==null){
+        if(name==null) {
             throw new NamingException("Null name");
         }
 
@@ -188,7 +188,7 @@ public class EvoNamingContext implements Context{
 
     @Override
     public void unbind(Name name) throws NamingException {
-        if(name==null){
+        if(name==null) {
             throw new NamingException("Null name");
         }
         unbind(name.toString());
@@ -201,7 +201,7 @@ public class EvoNamingContext implements Context{
 
     @Override
     public void rename(Name oldName, Name newName) throws NamingException {
-        if(oldName==null || newName == null){
+        if(oldName==null || newName == null) {
             throw new NamingException("Null name");
         }
         rename(oldName.toString(), newName.toString());
@@ -209,14 +209,14 @@ public class EvoNamingContext implements Context{
 
     @Override
     public void rename(String oldName, String newName) throws NamingException {
-        if(oldName==null || newName == null){
+        if(oldName==null || newName == null) {
             throw new NamingException("Null name");
         }
 
-        if(bindings.containsKey(newName)){
+        if(bindings.containsKey(newName)) {
             throw new NameAlreadyBoundException("Already bounded object for: "+newName);
         }
-        if(! bindings.containsKey(oldName)){
+        if(!bindings.containsKey(oldName)) {
             throw new NamingException("No "+oldName+" is bounded");
         }
         Binding r = bindings.remove(oldName);

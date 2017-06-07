@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -156,8 +156,8 @@ public class MockURL implements StaticReplacementMock{
 			aRef=true;
 		}
 
-		for (i = start ; !aRef && (i < limit) &&
-				((c = spec.charAt(i)) != '/') ; i++) {
+		for (i = start; !aRef && (i < limit) &&
+				((c = spec.charAt(i)) != '/'); i++) {
 			if (c == ':') {
 
 				String s = spec.substring(start, i).toLowerCase();

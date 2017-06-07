@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -918,6 +918,9 @@ public class Properties {
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "_ESTest";
 
+	@Parameter(key = "junit_failed_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name for failing tests")
+	public static String JUNIT_FAILED_SUFFIX = "_Failed_ESTest";
+
 	//WARN: do not change this value, as had to be hardcoded in quite a few places :( if really need to change it,
 	// all that code has to be changed as well
 	@Parameter(key = "scaffolding_suffix", group = "Output", description = "Suffix used to specify scaffolding files")
@@ -1354,6 +1357,9 @@ public class Properties {
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
 
+	@Parameter(key = "catch_undeclared_exceptions", description = "Use try/catch block for undeclared exceptions")
+	public static boolean CATCH_UNDECLARED_EXCEPTIONS = true;
+
 	@Parameter(key = "junit_theories", description = "Check JUnit theories as contracts")
 	public static String JUNIT_THEORIES = "";
 
@@ -1616,6 +1622,10 @@ public class Properties {
     /** Constant <code>REGRESSION_STATISTICS</code> */
     @Parameter(key = "regression_statistics", group = "Runtime", description = "Track extra search statistics during regression testing")
     public static boolean REGRESSION_STATISTICS = false;
+
+	/** Constant <code>KEEP_REGRESSION_ARCHIVE</code> */
+	@Parameter(key = "keep_regression_archive", group = "Runtime", description = "Keep an archive of regression tests")
+	public static boolean KEEP_REGRESSION_ARCHIVE = false;
 	
 	
 	public enum Strategy {

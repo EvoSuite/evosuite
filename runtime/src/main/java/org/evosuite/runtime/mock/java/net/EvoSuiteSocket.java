@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,7 +19,6 @@
  */
 package org.evosuite.runtime.mock.java.net;
 
-import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,7 +38,6 @@ import org.evosuite.runtime.vnet.NativeTcp;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.evosuite.runtime.vnet.VirtualNetwork.ConnectionType;
 
-import sun.net.ResourceManager;
 
 /*
  * An actual implementation is 
@@ -69,14 +67,14 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	protected boolean stream;
 
 
-	public EvoSuiteSocket(){
+	public EvoSuiteSocket() {
 		options = new ConcurrentHashMap<>();
 		initOptions();
 		isClosed = false;
         isBound = false;
 	}
 
-	public EvoSuiteSocket(Proxy proxy){
+	public EvoSuiteSocket(Proxy proxy) {
 		this();
 		SocketAddress a = proxy.address();
 		if (a instanceof InetSocketAddress) {
@@ -88,7 +86,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		}
 	}
 
-	private void initOptions(){
+	private void initOptions() {
 		// see AbstractPlainSocketImpl
 		options.put(SocketOptions.SO_TIMEOUT, 0);
 		options.put(SocketOptions.SO_RCVBUF, 131072);
@@ -142,7 +140,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 	}
 
-	protected void socketCreate(boolean isStream){
+	protected void socketCreate(boolean isStream) {
 		//TODO
 	}
 	
@@ -164,7 +162,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 
 		//from AbstractPlainSocketImpl, and check overridden in SocksSocketImpl (this latter not considered here)
 
-        if(!isBound){
+        if(!isBound) {
             InetAddress localHost = MockInetAddress.anyLocalAddress(); //TODO check if it was already bound to a specific interface?
             bind(localHost,0);
         }
@@ -200,13 +198,13 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	@Override
 	protected void bind(InetAddress host, int port) throws IOException {
 
-        if(port == 0){
+        if(port == 0) {
             port = VirtualNetwork.getInstance().getNewLocalEphemeralPort();
         }
 
 		//TODO: need to check special cases like multicast
 		boolean opened = VirtualNetwork.getInstance().openTcpServer(host.getHostAddress(), port);
-		if(!opened){
+		if(!opened) {
 			throw new IOException("Failed to open TCP port");
 		}
 		super.localport = port;
@@ -222,7 +220,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	@Override
 	protected void accept(SocketImpl s) throws IOException {
 
-		if(! (s instanceof EvoSuiteSocket)){
+		if(!(s instanceof EvoSuiteSocket)) {
 			throw new IOException("Can only handle mocked sockets");
 		}
 
@@ -238,7 +236,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 		InetAddress localHost = (InetAddress) options.get(SocketOptions.SO_BINDADDR); 
 		NativeTcp tcp = VirtualNetwork.getInstance().pullTcpConnection(localHost.getHostAddress(),localport);
 
-		if(tcp == null){
+		if(tcp == null) {
 			throw new IOException("Simulated exception on waiting server");
 		} else {
 			mock.openedConnection = tcp;
@@ -264,7 +262,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	@Override
 	protected int available() throws IOException {
 		checkIfClosed();
-		if(openedConnection==null){
+		if(openedConnection==null) {
 			return 0;
 		}
 		return openedConnection.getAmountOfDataInLocalBuffer();
@@ -310,7 +308,7 @@ public class EvoSuiteSocket extends MockSocketImpl{
 	}
 
 	protected void checkIfClosed() throws IOException{
-		if(isClosed){
+		if(isClosed) {
 			throw new IOException("Connection is closed");
 		}
 	}

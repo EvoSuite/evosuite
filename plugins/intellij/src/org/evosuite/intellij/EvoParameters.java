@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -170,6 +170,7 @@ public class EvoParameters {
         return folder;
     }
 
+    // TODO: Could check if that folder exists and is set as a source folder
     public void setFolder(String folder) {
         this.folder = folder;
     }

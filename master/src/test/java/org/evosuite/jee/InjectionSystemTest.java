@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -42,6 +42,7 @@ public class InjectionSystemTest extends SystemTestBase {
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.LINE};
         Properties.JEE = true;
         Properties.P_REFLECTION_ON_PRIVATE = 0.0;
+        Properties.ASSERTIONS = false; // Takes extra time to set up the DBManager which is useless
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

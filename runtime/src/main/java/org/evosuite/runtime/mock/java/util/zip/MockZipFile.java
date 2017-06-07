@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,6 +19,7 @@
  */
 package org.evosuite.runtime.mock.java.util.zip;
 
+/*
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.IOException;
@@ -42,6 +43,7 @@ import java.util.zip.ZipFile;
 import java.security.AccessController;
 import sun.security.action.GetPropertyAction;
 import static org.evosuite.runtime.mock.java.util.zip.EvoZipConstants64.*;
+*/
 
 //ZipFile implements ZipConstants, but it is package level access
 

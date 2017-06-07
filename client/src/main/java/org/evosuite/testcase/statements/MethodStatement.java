@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -301,6 +301,9 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isDeclaredException(Throwable t) {
+		if(t == null)
+			return false;
+
 		for (Class<?> declaredException : method.getMethod().getExceptionTypes()) {
 			if (declaredException.isAssignableFrom(t.getClass()))
 				return true;

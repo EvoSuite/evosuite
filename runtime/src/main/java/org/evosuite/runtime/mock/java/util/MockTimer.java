@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -38,8 +38,14 @@ public class MockTimer extends Timer implements OverrideMock{
 	 * explicitly kill all created instances
 	 */
 	public static synchronized void stopAllTimers(){
-		for(Timer timer : instances){
-			timer.cancel();
+		for(Timer timer : instances) {
+			try {
+				// Since SUT classes may inherit from MockTimer, this code (called from EvoSuite)
+				// may lead to SUT exceptions.
+				timer.cancel();
+			} catch(Throwable t) {
+				// Ignore, since this is only part of post-test cleanup
+			}
 		}
 		instances.clear();
 	}

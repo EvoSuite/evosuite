@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -107,14 +107,14 @@ public class ShutdownHookHandler {
 	 * 
 	 * @return
 	 */
-	public List<Thread> getAddedHooks(){
-		if(hooksReference == null || existingHooks == null){
+	public List<Thread> getAddedHooks() {
+		if(hooksReference == null || existingHooks == null) {
 			return null; 
 		}
 		
 		List<Thread> list = new ArrayList<>();
-		for(Thread t : hooksReference.values()){
-			if(! existingHooks.containsKey(t)){
+		for(Thread t : hooksReference.values()) {
+			if(!existingHooks.containsKey(t)) {
 				list.add(t);
 			}
 		}
@@ -126,8 +126,8 @@ public class ShutdownHookHandler {
 	 * This is mainly needed for test/debugging
 	 * @return
 	 */
-	public int getNumberOfAllExistingHooks(){
-		if(hooksReference==null){
+	public int getNumberOfAllExistingHooks() {
+		if(hooksReference==null) {
 			return -1;
 		}
 		return hooksReference.size();
@@ -148,7 +148,7 @@ public class ShutdownHookHandler {
 	 * 
 	 * @return a negative value if there was any exception
 	 */
-	public int safeExecuteAddedHooks(){
+	public int safeExecuteAddedHooks() {
 		
 		//the shutdown hook threads should still be checked against the sandbox
 		boolean safe = Sandbox.isSafeToExecuteSUTCode();
@@ -158,14 +158,14 @@ public class ShutdownHookHandler {
 				"Executing hooks outside of a test case, but with sandbox on";
 
 		try{
-			if(!safe){
+			if(!safe) {
 				Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			}
 			n =  executeAddedHooks();
-		} catch(Throwable t){
+		} catch(Throwable t) {
 			logger.debug("Shutdown hooks threw exception: "+t);
-		} finally{
-			if(!safe){
+		} finally {
+			if(!safe) {
 				Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			}
 		}
@@ -178,9 +178,9 @@ public class ShutdownHookHandler {
 	 * 
 	 * @return the number of executed shutdown threads
 	 */
-	public int executeAddedHooks(){
+	public int executeAddedHooks() {
 		List<Thread> list = removeNewHooks();
-		if(list==null || list.isEmpty()){
+		if(list==null || list.isEmpty()) {
 			return 0;
 		}
 		
@@ -193,7 +193,7 @@ public class ShutdownHookHandler {
 		 * generated tests
 		 */
 		
-		for(Thread t : list){
+		for(Thread t : list) {
 			t.run();
 		}
 		
@@ -204,12 +204,12 @@ public class ShutdownHookHandler {
 		List<Thread> list = getAddedHooks();
 		existingHooks = null;
 
-		if(list==null || list.isEmpty()){
+		if(list==null || list.isEmpty()) {
 			return null;
 		}
 		
 		//first remove them from JVM hooks
-		for(Thread t : list){
+		for(Thread t : list) {
 			hooksReference.remove(t);
 		}
 

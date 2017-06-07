@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -181,8 +181,7 @@ public class JUnitAnalyzer {
 				return numUnstable; //everything is OK
 			}
 
-			logger.error("" + result.getFailureCount() + " test cases failed");
-			
+
 			failure_loop: for (JUnitFailure failure : result.getFailures()) {
 				String testName = failure.getDescriptionMethodName();//TODO check if correct
 				for (int i = 0; i < tests.size(); i++) {
@@ -194,13 +193,6 @@ public class JUnitAnalyzer {
 					}
 				}
 
-				// On the Sheffield cluster, the "well-known fle is not secure" issue is impossible to understand,
-				// so it might be best to ignore it for now.
-				if(testName.equals("initializationError") && failure.getMessage().contains("Failed to attach Java Agent")) {
-					logger.warn("Likely error with EvoSuite instrumentation, ignoring");
-					continue failure_loop;
-				}
-				
 				if(testName == null){
 					/*
 					 * this can happen if there is a failure in the scaffolding (eg @AfterClass/@BeforeClass).
@@ -217,7 +209,15 @@ public class JUnitAnalyzer {
 					tests.clear();
 					return numUnstable;
 				}
-				
+
+				// On the Sheffield cluster, the "well-known fle is not secure" issue is impossible to understand,
+				// so it might be best to ignore it for now.
+				if(testName.equals("initializationError") && failure.getMessage().contains("Failed to attach Java Agent")) {
+					logger.warn("Likely error with EvoSuite instrumentation, ignoring failure in test execution");
+					continue failure_loop;
+				}
+
+
 				logger.warn("Found unstable test named " + testName + " -> "
 				        + failure.getExceptionClassName() + ": " + failure.getMessage());
 				

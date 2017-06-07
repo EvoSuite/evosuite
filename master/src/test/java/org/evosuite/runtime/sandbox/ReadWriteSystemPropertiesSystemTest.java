@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,10 +19,9 @@
  */
 package org.evosuite.runtime.sandbox;
 
-import static org.junit.Assert.fail;
-
 import java.util.List;
 
+import com.examples.with.different.packagename.sandbox.ReadTimezone;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -38,7 +37,6 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.sandbox.ReadLineSeparator;
 import com.examples.with.different.packagename.sandbox.ReadWriteSystemProperties;
 
 public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
@@ -65,7 +63,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 	public void testReadLineSeparator() {
 		EvoSuite evosuite = new EvoSuite();
 
-		String targetClass = ReadLineSeparator.class.getCanonicalName();
+		String targetClass = ReadTimezone.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SANDBOX = true;
@@ -99,7 +97,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 
 		TestGenerationResult tgr = TestGenerationResultBuilder.buildSuccessResult();
 		String code = tgr.getTestSuiteCode();
-		Assert.assertTrue("Test code:\n" + code, code.contains("line.separator"));
+		Assert.assertTrue("Test code:\n" + code, code.contains("user.timezone"));
 		
 		/*
 		 * This is tricky. The property 'debug' is read, but it does not exist. 

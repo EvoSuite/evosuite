@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -109,7 +109,11 @@ public class Runtime {
 			 * NOTE: this is expensive (some seconds), but only the first time, so should not be a major bottleneck.
 			 */
 			if(DBManager.getInstance().isWasAccessed()) {
+				// DB Resetting may execute SUT code
+				boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
+				LoopCounter.getInstance().setActive(false);
 				DBManager.getInstance().initDB();
+				LoopCounter.getInstance().setActive(wasLoopCheckOn);
 			}
 		}
 

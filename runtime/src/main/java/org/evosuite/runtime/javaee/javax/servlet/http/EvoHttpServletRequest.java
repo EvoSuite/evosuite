@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -104,8 +104,8 @@ public class EvoHttpServletRequest implements HttpServletRequest {
     // ------- super classes overridden methods  ---------------
 
 	@Override
-	public AsyncContext getAsyncContext() throws IllegalStateException{
-		if(asyncContext == null){
+	public AsyncContext getAsyncContext() throws IllegalStateException {
+		if(asyncContext == null) {
 			throw new IllegalStateException("Async context not initialized");
 		}
 		return asyncContext;
@@ -405,7 +405,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 	@Override
 	public String changeSessionId() throws IllegalStateException{
 		if(requestedSessionId == null){
-			new IllegalStateException("No current session id");
+			throw new IllegalStateException("No current session id");
 		}
 		requestedSessionId++;
 		return requestedSessionId.toString();
@@ -465,7 +465,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Part getPart(String arg0) throws IOException, ServletException {
-		if(! MULTIPART_FORM_CONTENT_FORMAT.equals(contentType)){
+		if(!MULTIPART_FORM_CONTENT_FORMAT.equals(contentType)){
 			throw new ServletException("Cannot access parts if request is not of type "+MULTIPART_FORM_CONTENT_FORMAT);
 		}
 		TestDataJavaEE.getInstance().accessPart(arg0);
@@ -474,7 +474,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Collection<Part> getParts() throws IOException, ServletException {
-		if(! MULTIPART_FORM_CONTENT_FORMAT.equals(contentType)){
+		if(!MULTIPART_FORM_CONTENT_FORMAT.equals(contentType)) {
 			throw new ServletException("Cannot access parts if request is not of type "+MULTIPART_FORM_CONTENT_FORMAT);
 		}
 
@@ -541,7 +541,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Principal getUserPrincipal() {
-		if(principalName == null || principalName.trim().isEmpty()){
+		if(principalName == null || principalName.trim().isEmpty()) {
 			return null;
 		}
 
@@ -604,7 +604,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 
 	@Override
-	public String toString(){
+	public String toString() {
 		//TODO: might need more stuff
 		return EvoHttpServletRequest.class.getSimpleName() + " [ " + getMethod() + " " + getRequestURI() + " ]";
 	}
@@ -658,7 +658,7 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 	@EvoSuiteInclude
 	@Constraints(dependOnProperties = TestDataJavaEE.HTTP_REQUEST_PARAM, after = "asMultipartFormData")
-	public void addParam(String key, String value) throws IllegalArgumentException{
+	public void addParam(String key, String value) throws IllegalArgumentException {
 		if(key==null || value==null){
 			throw new IllegalArgumentException("Null input");
 		}
@@ -689,8 +689,8 @@ public class EvoHttpServletRequest implements HttpServletRequest {
 
 	// --------- private methods -----------------------------------------
 
-    private void setHttpMethod(HttpMethod m) throws IllegalArgumentException{
-        if(m == null){
+    private void setHttpMethod(HttpMethod m) throws IllegalArgumentException {
+        if(m == null) {
             throw new IllegalArgumentException("Null input");
         }
         method = m;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -54,10 +54,15 @@ public class EvoEntityManagerFactory implements EntityManagerFactory{
     private EntityManagerFactory createEMFWithSpring(){
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
+
+        // DriverManagerDataSource uses the context classloader for some reason...
+        ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(EvoEntityManagerFactory.class.getClassLoader());
         dataSource.setDriverClassName(org.hsqldb.jdbcDriver.class.getName());
         dataSource.setUrl("jdbc:hsqldb:mem:.");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
+        Thread.currentThread().setContextClassLoader(cl1);
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
@@ -96,7 +101,7 @@ public class EvoEntityManagerFactory implements EntityManagerFactory{
     public void clearAllEntityManagers(){
         for(EvoEntityManager em : managers){
             if(em!=null){
-                if (!em.isJoinedToTransaction() && em.getTransaction().isActive()) {
+                if (em.isOpen() && !em.isJoinedToTransaction() && em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
                 if(em.isOpen()) {

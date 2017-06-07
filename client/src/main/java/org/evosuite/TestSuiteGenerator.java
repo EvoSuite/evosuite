@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,10 +22,6 @@ package org.evosuite;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
-import org.evosuite.assertion.AssertionGenerator;
-import org.evosuite.assertion.CompleteAssertionGenerator;
-import org.evosuite.assertion.SimpleMutationAssertionGenerator;
-import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.contracts.ContractChecker;
@@ -33,15 +29,12 @@ import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
-import org.evosuite.regression.RegressionClassDiff;
-import org.evosuite.regression.RegressionSearchListener;
+import org.evosuite.regression.bytecode.RegressionClassDiff;
 import org.evosuite.regression.RegressionSuiteMinimizer;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -49,7 +42,6 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
@@ -58,7 +50,6 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
-import org.evosuite.symbolic.DSEStrategy;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
@@ -67,7 +58,6 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
-import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
@@ -80,7 +70,6 @@ import org.evosuite.testsuite.*;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericMethod;
-import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,7 +187,7 @@ public class TestSuiteGenerator {
 		ObjectPoolManager.getInstance();
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class " + Properties.TARGET_CLASS);
-		printTestCriterion();
+		TestSuiteGeneratorHelper.printTestCriterion();
 
 		if (!Properties.hasTargetClassBeenLoaded()) {
 			// initialization failed, then build error message
@@ -232,16 +221,16 @@ public class TestSuiteGenerator {
 						"Class " + Properties.TARGET_CLASS + " was not changed between the two versions");
 			}
 		}
-		
+
 		if (Properties.isRegression() && Properties.REGRESSION_SKIP_DIFFERENT_CFG) {
-		    // Does the class have the same CFG across the two versions of the program?
-  		    boolean sameBranches = RegressionClassDiff.sameCFG();
-  		            
-            if (!sameBranches) {
-                Properties.IGNORE_MISSING_STATISTICS = false;
-                logger.error("Could not match the branches across the two versions.");
-                return TestGenerationResultBuilder.buildErrorResult("Could not match the branches across the two versions.");
-            }
+			// Does the class have the same CFG across the two versions of the program?
+			boolean sameBranches = RegressionClassDiff.sameCFG();
+
+			if (!sameBranches) {
+				Properties.IGNORE_MISSING_STATISTICS = false;
+				logger.error("Could not match the branches across the two versions.");
+				return TestGenerationResultBuilder.buildErrorResult("Could not match the branches across the two versions.");
+			}
 		}
 
 		TestSuiteChromosome testCases = generateTests();
@@ -252,7 +241,7 @@ public class TestSuiteGenerator {
 
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		TestGenerationResult result = writeJUnitTestsAndCreateResult(testCases);
-
+		writeJUnitFailingTests();
 		TestCaseExecutor.pullDown();
 		/*
 		 * TODO: when we will have several processes running in parallel, we ll
@@ -427,14 +416,10 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
 				LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
-						testSuite.size());
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size,
-						testSuite.size());
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length,
-						testSuite.totalLengthOfTestCases());
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length,
-						testSuite.totalLengthOfTestCases());
+				ClientServices.track(RuntimeVariable.Result_Size, testSuite.size());
+				ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
+				ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
+				ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
 			} else if (Properties.isRegression()) {
 				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
 				minimizer.minimize(testSuite);
@@ -457,14 +442,10 @@ public class TestSuiteGenerator {
 				LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
 			}
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
-					testSuite.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size,
-					testSuite.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length,
-					testSuite.totalLengthOfTestCases());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length,
-					testSuite.totalLengthOfTestCases());
+			ClientServices.track(RuntimeVariable.Result_Size, testSuite.size());
+			ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
+			ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
+			ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
 		}
 
 		if (Properties.COVERAGE) {
@@ -487,12 +468,8 @@ public class TestSuiteGenerator {
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			// SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
 			// coverage);
-			CoverageCriteriaAnalyzer.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA); // FIXME:
-																								// can
-																								// we
-																								// send
-																								// all
-																								// bestSuites?
+			CoverageCriteriaAnalyzer.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA);
+			// FIXME: can we send all bestSuites?
 		}
 		if (Properties.CRITERION.length > 1)
 			LoggingUtils.getEvoLogger()
@@ -540,19 +517,12 @@ public class TestSuiteGenerator {
 			if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
 				LoggingUtils.getEvoLogger().info("* Skipping assertion generation because not enough time is left");
 			} else {
-				addAssertions(testSuite);
+				TestSuiteGeneratorHelper.addAssertions(testSuite);
 			}
 			StatisticsSender.sendIndividualToMaster(testSuite); // FIXME: can we
 																// pass the list
 																// of
 																// testsuitechromosomes?
-		}
-
-		if (Properties.CHECK_CONTRACTS) {
-			for (TestCase failing_test : FailingTestSet.getFailingTests()) {
-				testSuite.addTest(failing_test);
-			}
-			FailingTestSet.sendStatistics();
 		}
 
 		if(Properties.NO_RUNTIME_DEPENDENCY) {
@@ -564,7 +534,11 @@ public class TestSuiteGenerator {
 		}
 
 		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
-			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
+			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);
+		}
+
+		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
+			RegressionSuiteSerializer.storeRegressionArchive();
 		}
 	}
 
@@ -651,23 +625,18 @@ public class TestSuiteGenerator {
 			logger.warn("JUnit checking timed out");
 		}
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests, unstable);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests, numUnstable);
+		ClientServices.track(RuntimeVariable.HadUnstableTests, unstable);
+		ClientServices.track(RuntimeVariable.NumUnstableTests, numUnstable);
 		Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
 
 	}
 
-	private int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
+	private static int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
 		if (TimeController.getInstance().hasTimeToExecuteATestCase()
 				&& TimeController.getInstance().isThereStillTimeInThisPhase(delta)) {
 			return JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
 		}
 		return 0;
-	}
-
-	private int getBytecodeCount(RuntimeVariable v, Map<RuntimeVariable, Set<Integer>> m) {
-		Set<Integer> branchSet = m.get(v);
-		return (branchSet == null) ? 0 : branchSet.size();
 	}
 
 	private TestSuiteChromosome generateTests() {
@@ -680,7 +649,7 @@ public class TestSuiteGenerator {
 			TestCaseExecutor.getInstance().addObserver(checker);
 		}
 
-		TestGenerationStrategy strategy = getTestGenerationStrategy();
+		TestGenerationStrategy strategy = TestSuiteGeneratorHelper.getTestGenerationStrategy();
 		TestSuiteChromosome testSuite = strategy.generateTests();
 
 		if (Properties.CHECK_CONTRACTS) {
@@ -688,7 +657,7 @@ public class TestSuiteGenerator {
 		}
 
 		StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
-		getBytecodeStatistics();
+		TestSuiteGeneratorHelper.getBytecodeStatistics();
 
 		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
@@ -701,29 +670,6 @@ public class TestSuiteGenerator {
 		 */
 
 		return testSuite;
-	}
-
-	private TestGenerationStrategy getTestGenerationStrategy() {
-		switch (Properties.STRATEGY) {
-		case EVOSUITE:
-			return new WholeTestSuiteStrategy();
-		case RANDOM:
-			return new RandomTestStrategy();
-		case RANDOM_FIXED:
-			return new FixedNumRandomTestStrategy();
-		case ONEBRANCH:
-			return new IndividualTestStrategy();
-		case REGRESSION:
-			return new RegressionSuiteStrategy();
-		case ENTBUG:
-			return new EntBugTestStrategy();
-		case MOSUITE:
-			return new MOSuiteStrategy();
-		case DSE:
-			return new DSEStrategy();
-		default:
-			throw new RuntimeException("Unsupported strategy: " + Properties.STRATEGY);
-		}
 	}
 
 	/**
@@ -746,35 +692,11 @@ public class TestSuiteGenerator {
 			TestSuiteWriter suiteWriter = new TestSuiteWriter();
 			suiteWriter.insertTests(tests);
 
-			if (Properties.CHECK_CONTRACTS) {
-				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
-				// suite.insertAllTests(FailingTestSet.getFailingTests());
-				FailingTestSet.writeJUnitTestSuite(suiteWriter);
-			}
-
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
-
-			// If in regression mode, create a separate copy of the tests
-			if (!RegressionSearchListener.statsID.equals("") && Properties.REGRESSION_STATISTICS) {
-				File evosuiterTestDir = new File("evosuiter-stats");
-
-				boolean madeDir = false;
-				if (!evosuiterTestDir.exists() || !evosuiterTestDir.isDirectory()) {
-					madeDir = evosuiterTestDir.mkdirs();
-				}
-				if (madeDir) {
-					String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
-
-					LoggingUtils.getEvoLogger()
-							.info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
-
-					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), Collections.EMPTY_LIST);
-				}
-			}
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}
@@ -788,21 +710,31 @@ public class TestSuiteGenerator {
 		return writeJUnitTestsAndCreateResult(testSuite, Properties.JUNIT_SUFFIX);
 	}
 
-	private void addAssertions(TestSuiteChromosome tests) {
-		AssertionGenerator asserter;
-		ContractChecker.setActive(false);
+	public void writeJUnitFailingTests() {
+		if (!Properties.CHECK_CONTRACTS)
+			return;
 
-		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
-			asserter = new SimpleMutationAssertionGenerator();
-		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
-			asserter = new CompleteAssertionGenerator();
-		} else
-			asserter = new UnitAssertionGenerator();
+		FailingTestSet.sendStatistics();
 
-		asserter.addAssertions(tests);
+		if (Properties.JUNIT_TESTS) {
 
-		if (Properties.FILTER_ASSERTIONS)
-			asserter.filterFailingAssertions(tests);
+			TestSuiteWriter suiteWriter = new TestSuiteWriter();
+			//suiteWriter.insertTests(FailingTestSet.getFailingTests());
+
+			TestSuiteChromosome suite = new TestSuiteChromosome();
+			for(TestCase test : FailingTestSet.getFailingTests()) {
+				test.setFailing();
+				suite.addTest(test);
+			}
+
+			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+			String testDir = Properties.TEST_DIR;
+			LoggingUtils.getEvoLogger().info("* Writing failing test cases '" + (name + Properties.JUNIT_SUFFIX) + "' to " + testDir);
+			suiteWriter.insertAllTests(suite.getTests());
+			FailingTestSet.writeJUnitTestSuite(suiteWriter);
+
+			suiteWriter.writeTestSuite(name + Properties.JUNIT_FAILED_SUFFIX, testDir, suite.getLastExecutionResults());
+		}
 	}
 
 	private void writeObjectPool(TestSuiteChromosome suite) {
@@ -810,195 +742,6 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("* Writing sequences to pool");
 			ObjectPool pool = ObjectPool.getPoolFromTestSuite(suite);
 			pool.writePool(Properties.WRITE_POOL);
-		}
-	}
-
-	private void getBytecodeStatistics() {
-		if (Properties.TRACK_BOOLEAN_BRANCHES) {
-			int gradientBranchCount = ExecutionTraceImpl.gradientBranches.size() * 2;
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches,
-					gradientBranchCount);
-		}
-		if (Properties.TRACK_COVERED_GRADIENT_BRANCHES) {
-			int coveredGradientBranchCount = ExecutionTraceImpl.gradientBranchesCoveredTrue.size()
-					+ ExecutionTraceImpl.gradientBranchesCoveredFalse.size();
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches_Covered,
-					coveredGradientBranchCount);
-		}
-		if (Properties.BRANCH_COMPARISON_TYPES) {
-			int cmp_intzero = 0, cmp_intint = 0, cmp_refref = 0, cmp_refnull = 0;
-			int bc_lcmp = 0, bc_fcmpl = 0, bc_fcmpg = 0, bc_dcmpl = 0, bc_dcmpg = 0;
-			for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
-					.getAllBranches()) {
-				int branchOpCode = b.getInstruction().getASMNode().getOpcode();
-				int previousOpcode = -2;
-				if (b.getInstruction().getASMNode().getPrevious() != null)
-					previousOpcode = b.getInstruction().getASMNode().getPrevious().getOpcode();
-				switch (previousOpcode) {
-				case Opcodes.LCMP:
-					bc_lcmp++;
-					break;
-				case Opcodes.FCMPL:
-					bc_fcmpl++;
-					break;
-				case Opcodes.FCMPG:
-					bc_fcmpg++;
-					break;
-				case Opcodes.DCMPL:
-					bc_dcmpl++;
-					break;
-				case Opcodes.DCMPG:
-					bc_dcmpg++;
-					break;
-				}
-				switch (branchOpCode) {
-				// copmpare int with zero
-				case Opcodes.IFEQ:
-				case Opcodes.IFNE:
-				case Opcodes.IFLT:
-				case Opcodes.IFGE:
-				case Opcodes.IFGT:
-				case Opcodes.IFLE:
-					cmp_intzero++;
-					break;
-				// copmpare int with int
-				case Opcodes.IF_ICMPEQ:
-				case Opcodes.IF_ICMPNE:
-				case Opcodes.IF_ICMPLT:
-				case Opcodes.IF_ICMPGE:
-				case Opcodes.IF_ICMPGT:
-				case Opcodes.IF_ICMPLE:
-					cmp_intint++;
-					break;
-				// copmpare reference with reference
-				case Opcodes.IF_ACMPEQ:
-				case Opcodes.IF_ACMPNE:
-					cmp_refref++;
-					break;
-				// compare reference with null
-				case Opcodes.IFNULL:
-				case Opcodes.IFNONNULL:
-					cmp_refnull++;
-					break;
-
-				}
-			}
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntZero, cmp_intzero);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntInt, cmp_intint);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
-
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_lcmp, bc_lcmp);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_fcmpl, bc_fcmpl);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_fcmpg, bc_fcmpg);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_dcmpl, bc_dcmpl);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_dcmpg, bc_dcmpg);
-
-			RuntimeVariable[] bytecodeVarsCovered = new RuntimeVariable[] { RuntimeVariable.Covered_lcmp,
-					RuntimeVariable.Covered_fcmpl, RuntimeVariable.Covered_fcmpg, RuntimeVariable.Covered_dcmpl,
-					RuntimeVariable.Covered_dcmpg, RuntimeVariable.Covered_IntInt, RuntimeVariable.Covered_IntInt,
-					RuntimeVariable.Covered_IntZero, RuntimeVariable.Covered_RefRef, RuntimeVariable.Covered_RefNull };
-
-			for (RuntimeVariable bcvar : bytecodeVarsCovered) {
-				ClientServices.getInstance().getClientNode().trackOutputVariable(bcvar,
-						getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionCoveredFalse)
-								+ getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionCoveredTrue));
-			}
-
-			RuntimeVariable[] bytecodeVarsReached = new RuntimeVariable[] { RuntimeVariable.Reached_lcmp,
-					RuntimeVariable.Reached_fcmpl, RuntimeVariable.Reached_fcmpg, RuntimeVariable.Reached_dcmpl,
-					RuntimeVariable.Reached_dcmpg, RuntimeVariable.Reached_IntInt, RuntimeVariable.Reached_IntInt,
-					RuntimeVariable.Reached_IntZero, RuntimeVariable.Reached_RefRef, RuntimeVariable.Reached_RefNull };
-
-			for (RuntimeVariable bcvar : bytecodeVarsReached) {
-				ClientServices.getInstance().getClientNode().trackOutputVariable(bcvar,
-						getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionReached) * 2);
-			}
-
-		}
-
-	}
-
-	private void printTestCriterion() {
-		if (Properties.CRITERION.length > 1)
-			LoggingUtils.getEvoLogger().info("* Test criteria:");
-		else
-			LoggingUtils.getEvoLogger().info("* Test criterion:");
-		for (int i = 0; i < Properties.CRITERION.length; i++)
-			printTestCriterion(Properties.CRITERION[i]);
-	}
-
-	private void printTestCriterion(Criterion criterion) {
-		switch (criterion) {
-		case WEAKMUTATION:
-			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
-			break;
-		case ONLYMUTATION:
-			LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
-			break;
-		case STRONGMUTATION:
-		case MUTATION:
-			LoggingUtils.getEvoLogger().info("  - Mutation testing (strong)");
-			break;
-		case DEFUSE:
-			LoggingUtils.getEvoLogger().info("  - All DU Pairs");
-			break;
-		case STATEMENT:
-			LoggingUtils.getEvoLogger().info("  - Statement Coverage");
-			break;
-		case RHO:
-			LoggingUtils.getEvoLogger().info("  - Rho Coverage");
-			break;
-		case AMBIGUITY:
-			LoggingUtils.getEvoLogger().info("  - Ambiguity Coverage");
-			break;
-		case ALLDEFS:
-			LoggingUtils.getEvoLogger().info("  - All Definitions");
-			break;
-		case EXCEPTION:
-			LoggingUtils.getEvoLogger().info("  - Exception");
-			break;
-		case ONLYBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Only-Branch Coverage");
-			break;
-		case METHODTRACE:
-			LoggingUtils.getEvoLogger().info("  - Method Coverage");
-			break;
-		case METHOD:
-			LoggingUtils.getEvoLogger().info("  - Top-Level Method Coverage");
-			break;
-		case METHODNOEXCEPTION:
-			LoggingUtils.getEvoLogger().info("  - No-Exception Top-Level Method Coverage");
-			break;
-		case LINE:
-			LoggingUtils.getEvoLogger().info("  - Line Coverage");
-			break;
-		case ONLYLINE:
-			LoggingUtils.getEvoLogger().info("  - Only-Line Coverage");
-			break;
-		case OUTPUT:
-			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
-			break;
-		case INPUT:
-			LoggingUtils.getEvoLogger().info("  - Method-Input Coverage");
-			break;
-		case BRANCH:
-			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
-			break;
-		case CBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
-			break;
-		case IBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Interprocedural Context Branch Coverage");
-			break;
-		case TRYCATCH:
-			LoggingUtils.getEvoLogger().info("  - Try-Catch Branch Coverage");
-			break;
-		case REGRESSION:
-		    LoggingUtils.getEvoLogger().info("  - Regression");
-            break;
-		default:
-			throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
 		}
 	}
 

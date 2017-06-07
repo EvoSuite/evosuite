@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -35,17 +35,18 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
+import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
-import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestUsageChecker;
+import org.evosuite.setup.*;
 import org.evosuite.testcase.jee.InjectionSupport;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
 import org.evosuite.testcase.jee.ServletSupport;
@@ -1211,10 +1212,6 @@ public class TestFactory {
 			currentRecursion.add(o);
 
 			if (o == null) {
-				if (!TestCluster.getInstance().hasGenerator(clazz)) {
-					logger.debug("We have no generator for class {}", type);
-				}
-
 				if(canReuseVariables){
 //					throw new ConstructionFailedException("Cannot currently instantiate type "+type);
 
@@ -1248,7 +1245,26 @@ public class TestFactory {
 					logger.debug("Using mock for type {}", type);
 					ret = addFunctionalMock(test, type, position, recursionDepth + 1);
 				} else {
-					throw new ConstructionFailedException("Have no generator for "+ type+" canUseFunctionalMocks="+canUseFunctionalMocks+", canBeMocked: "+FunctionalMockStatement.canBeFunctionalMocked(type));
+
+					if(!TestCluster.getInstance().hasGenerator(type)) {
+						logger.debug("No generators found for {}, attempting to resolve dependencies", type);
+						TestClusterGenerator clusterGenerator = new TestClusterGenerator(
+								DependencyAnalysis.getInheritanceTree());
+						Class<?> mock = MockList.getMockClass(clazz.getRawClass().getCanonicalName());
+						if (mock != null) {
+							clusterGenerator.addNewDependencies(Arrays.asList(mock));
+						} else {
+							clusterGenerator.addNewDependencies(Arrays.asList(clazz.getRawClass()));
+						}
+
+						if (TestCluster.getInstance().hasGenerator(type)) {
+							logger.debug("Found new generators for {}", type);
+							return createObject(test, type, position, recursionDepth + 1, generatorRefToExclude, allowNull, canUseFunctionalMocks, canReuseVariables);
+						} else {
+							logger.debug("Found no new generators for {}", type);
+						}
+					}
+					throw new ConstructionFailedException("Have no generator for " + type + " canUseFunctionalMocks=" + canUseFunctionalMocks + ", canBeMocked: " + FunctionalMockStatement.canBeFunctionalMocked(type));
 				}
 
 			} else if (o.isField()) {

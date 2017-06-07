@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,6 +23,7 @@
 package org.evosuite.contracts;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,31 +56,6 @@ public class FailingTestSet {
 
 	private static int violationCount = 0;
 
-	/**
-	 * Keep track of a new observed contract violation
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @param contract
-	 *            a {@link org.evosuite.contracts.Contract} object.
-	 * @param statement
-	 *            a {@link org.evosuite.testcase.statements.Statement} object.
-	 * @param exception
-	 *            a {@link java.lang.Throwable} object.
-	 */
-	/*
-	public static void addFailingTest(TestCase test, Contract contract,
-	        StatementInterface statement, List<VariableReference> variables, Throwable exception) {
-		violationCount++;
-		ContractViolation violation = new ContractViolation(contract, test, statement, variables,
-		        exception);
-
-		if (!hasViolation(violation)) {
-			violations.add(violation);
-		}
-	}
-	*/
-	
 	public static void addFailingTest(ContractViolation violation) {
 		violationCount++;
 		if(!hasViolation(violation)) {
@@ -135,6 +111,10 @@ public class FailingTestSet {
 	 */
 	public static int getNumberOfUniqueViolations() {
 		return violations.size();
+	}
+
+	public static Collection<ContractViolation> getContractViolations() {
+		return Collections.unmodifiableCollection(violations);
 	}
 
 	public static List<TestCase> getFailingTests() {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,7 +23,6 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
@@ -76,8 +75,6 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
 				testChromosomeFactory);
 		chromosome.clearTests();
-		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
-		tracker.modification(chromosome);
 		// ((AllMethodsChromosomeFactory)test_factory).clear();
 
 		int numTests = Randomness.nextInt(Properties.MIN_INITIAL_TESTS,

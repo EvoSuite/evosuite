@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -50,7 +50,7 @@ public class MockThread extends Thread implements OverrideMock {
         threadMap.clear();
     }
 
-    private boolean isSutRelated(){
+    private boolean isSutRelated() {
         String sut = RuntimeSettings.className;
         String threadName = this.getClass().getName();
         String targetName = target==null ? null : target.getClass().getName();
@@ -66,11 +66,11 @@ public class MockThread extends Thread implements OverrideMock {
         return  match(sut,threadName) || match(sut,targetName);
     }
 
-    private boolean match(String sut, String other){
-        if(other==null || other.length() < sut.length()){
+    private boolean match(String sut, String other) {
+        if(other==null || other.length() < sut.length()) {
             return false;
         }
-        if(other.length() == sut.length()){
+        if(other.length() == sut.length()) {
             //is the thread the SUT itself?
             return other.equals(sut);
         } else {
@@ -128,7 +128,7 @@ public class MockThread extends Thread implements OverrideMock {
     }
 
     public static void dumpStack() {
-        if(!MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             Thread.dumpStack();
         } else {
             new MockException("Stack trace").printStackTrace();
@@ -136,7 +136,7 @@ public class MockThread extends Thread implements OverrideMock {
     }
 
     public static Map<Thread, StackTraceElement[]> getAllStackTraces() {
-        if(! MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             return Thread.getAllStackTraces();
         }
         //get actual running threads, and then replace stack traces
@@ -144,14 +144,14 @@ public class MockThread extends Thread implements OverrideMock {
         //this will ask for permissions, but we grant it anyway
         Set<Thread> threads =  Thread.getAllStackTraces().keySet();
         Map<Thread, StackTraceElement[]> m = new HashMap<>(threads.size());
-        for(Thread t : threads){
+        for(Thread t : threads) {
             m.put(t,MockThrowable.getDefaultStackTrace());
         }
 
         return m;
     }
 
-    public static boolean holdsLock(Object obj){
+    public static boolean holdsLock(Object obj) {
         return Thread.holdsLock(obj);
     }
 
@@ -216,12 +216,12 @@ public class MockThread extends Thread implements OverrideMock {
         mockSetup(name);
     }
 
-    private void mockSetup(String name){
-        if(!MockFramework.isEnabled()){
+    private void mockSetup(String name) {
+        if(!MockFramework.isEnabled()) {
             return;
         }
 
-        if(name == null){
+        if(name == null) {
             /*
                 If SUT did not specify any name, we need
                 to change the one automatically given by the JVM,
@@ -237,12 +237,12 @@ public class MockThread extends Thread implements OverrideMock {
     @EvoSuiteExclude
     public synchronized void start() {
 
-        if(!MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             super.start();
             return;
         }
 
-        if(!isSutRelated()){
+        if(!isSutRelated()) {
             //no point in starting those 3rd party threads
             return;
         }
@@ -299,7 +299,7 @@ public class MockThread extends Thread implements OverrideMock {
 
     @Override
     public StackTraceElement[] getStackTrace() {
-        if(!MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             return super.getStackTrace();
         }
         return MockThrowable.getDefaultStackTrace();
@@ -308,7 +308,7 @@ public class MockThread extends Thread implements OverrideMock {
 
     @Override
     public long getId() {
-        if(!MockFramework.isEnabled()){
+        if(!MockFramework.isEnabled()) {
             return super.getId();
         }
 

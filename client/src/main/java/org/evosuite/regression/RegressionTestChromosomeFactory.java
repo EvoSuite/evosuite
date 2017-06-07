@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.regression;
 
@@ -27,25 +27,23 @@ import org.evosuite.testcase.factories.RandomLengthTestFactory;
 
 /**
  * @author Gordon Fraser
- * 
  */
 public class RegressionTestChromosomeFactory implements
-		ChromosomeFactory<RegressionTestChromosome> {
+    ChromosomeFactory<RegressionTestChromosome> {
 
-	private static final long serialVersionUID = -6620991065129236086L;
+  private static final long serialVersionUID = -6620991065129236086L;
 
-	private final RandomLengthTestFactory testFactory = new RandomLengthTestFactory();
+  private final RandomLengthTestFactory testFactory = new RandomLengthTestFactory();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
-	 */
-	@Override
-	public RegressionTestChromosome getChromosome() {
-		RegressionTestChromosome individual = new RegressionTestChromosome();
-		individual.setTest(testFactory.getChromosome());
-		return individual;
-	}
-
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
+   */
+  @Override
+  public RegressionTestChromosome getChromosome() {
+    RegressionTestChromosome individual = new RegressionTestChromosome();
+    individual.setTest(testFactory.getChromosome());
+    return individual;
+  }
 }

@@ -1,19 +1,19 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * <p/>
+ *
  * This file is part of EvoSuite.
- * <p/>
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- * <p/>
+ *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- * <p/>
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -610,8 +610,26 @@ public class TestClusterGenerator {
 					}
 				} else {
 					logger.debug("Can't use field " + field);
+					// If reflection on private is used, we still need to make sure dependencies are handled
+					// TODO: Duplicate code here
+					if(Properties.P_REFLECTION_ON_PRIVATE > 0) {
+						if(Modifier.isPrivate(field.getModifiers())
+								&& !field.isSynthetic()
+								&& !field.getName().equals("serialVersionUID")
+								// primitives cannot be changed
+								&& !(field.getType().isPrimitive())
+								// changing final strings also doesn't make much sense
+								&& !(Modifier.isFinal(field.getModifiers()) && field.getType().equals(String.class))
+								//static fields lead to just too many problems... although this could be set as a parameter
+								&& !Modifier.isStatic(field.getModifiers())
+								) {
+							GenericField genericField = new GenericField(field, clazz);
+							addDependencies(genericField, 1);
+						}
+					}
 				}
 			}
+
 			analyzedClasses.add(clazz);
 			// TODO: Set to generic type rather than class?
 			cluster.getAnalyzedClasses().add(clazz);
@@ -955,10 +973,11 @@ public class TestClusterGenerator {
 				if (TestUsageChecker.canUse(method, clazz.getRawClass()) && !method.getName().equals("hashCode")) {
 					logger.debug("Adding method " + clazz.getClassName() + "." + method.getName()
 							+ org.objectweb.asm.Type.getMethodDescriptor(method));
-					if (method.getTypeParameters().length > 0) {
-						logger.info("Type parameters in methods are not handled yet, skipping " + method);
-						continue;
-					}
+					// TODO: Generic methods cause some troubles, but
+//					if (method.getTypeParameters().length > 0) {
+//						logger.info("Type parameters in methods are not handled yet, skipping " + method);
+//						continue;
+//					}
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					try {
 						addDependencies(genericMethod, recursionLevel + 1);

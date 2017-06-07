@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -67,7 +67,8 @@ public class System {
 		systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
 				"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
 				"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs",	
-				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir"}));	
+				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir", "java.endorsed.dirs",
+		        "awt.toolkit", "java.awt.graphicsenv", "java.awt.printerjob", "java.vm.info", "java.runtime.version", "java.runtime.name"}));
 	}
 
 
@@ -124,12 +125,21 @@ public class System {
 
 		if (perm.getActions().contains("write")) {
 
-			if(!RuntimeSettings.mockJVMNonDeterminism){
+			if(!RuntimeSettings.mockJVMNonDeterminism) {
 				if(isSystemProperty(perm.getName())) {
+					// We cannot restore these properties to ensure cross-OS compatibility, so they can't be written to
 					return false;
 				} else {
 					return true;
 				}
+			} else {
+				// As we do not restore these properties to ensure cross-OS compatibility they should not be written to
+				// ...but that would break compatibility with exiting test sets, so ignoring it for now.
+				// This risks potentially unstable tests.
+				//
+				// if(isSystemProperty(perm.getName())) {
+				//	return false;
+				// }
 			}
 
 			synchronized (defaultProperties) {				
@@ -137,8 +147,11 @@ public class System {
 			}
 		} else {
 			String var = perm.getName();
-			synchronized (readProperties) {
-                readProperties.add(var);
+			// We cannot restore these properties to ensure cross-OS compatibility, so they can't be written to
+			if(!isSystemProperty(var)) {
+				synchronized (readProperties) {
+					readProperties.add(var);
+				}
             }
 		}
 

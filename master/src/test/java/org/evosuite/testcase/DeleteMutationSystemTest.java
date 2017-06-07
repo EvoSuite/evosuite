@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -219,6 +219,10 @@ public class DeleteMutationSystemTest extends SystemTestBase {
 						break;
 					}
 				} else {
+					// Can get stuck in a local optimum with just mutation
+					if(testNew.size() == 1) {
+						test1.setTestCase(getTwoIntTest(1, 1, 22, 22));
+					}
 					suite.deleteTest(testNew);
 					suite.addTest(test1);
 					fitness.getFitness(suite);

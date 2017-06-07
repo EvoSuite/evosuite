@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,7 +23,6 @@ import org.evosuite.runtime.mock.StaticReplacementMock;
 import org.evosuite.runtime.mock.java.util.MockCalendar;
 
 import java.text.DateFormat;
-import java.text.spi.DateFormatProvider;
 import java.util.Locale;
 
 /**

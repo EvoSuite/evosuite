@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -339,6 +339,8 @@ public class TestCluster {
 
 		logger.debug("Adding generator for class " + target + ": " + call);
 		generators.get(target).add(call);
+		// Make sure cache is up to date
+		generatorCache.entrySet().removeIf(entry -> entry.getKey().isAssignableFrom(target));
 	}
 
 	/**
@@ -1057,7 +1059,6 @@ public class TestCluster {
 			}
 		} else {
 			cacheGenerators(clazz);
-
 			Set<GenericAccessibleObject<?>> candidates = new LinkedHashSet<>(generatorCache.get(clazz));
 			candidates.removeAll(excluded);
 

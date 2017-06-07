@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -129,7 +129,7 @@ public class ExceptionCoverageHelper {
             return true;
         }
 
-        if (t.getStackTrace() != null && t.getStackTrace().length > 0) {
+        if (t.getStackTrace() != null && t.getStackTrace().length > 0 && t.getStackTrace()[0] != null) {
             // This is to cover cases not handled by CodeUnderTestException, or if bug in EvoSuite itself
             if(t.getStackTrace()[0].getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase"))
                 return true;

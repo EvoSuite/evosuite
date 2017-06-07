@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -37,7 +37,7 @@ public abstract class MockURLStreamHandler extends URLStreamHandler implements O
 
 	@Override
 	protected synchronized InetAddress getHostAddress(URL u) {
-        if(! MockFramework.isEnabled()) {
+        if(!MockFramework.isEnabled()) {
             return super.getHostAddress(u);
         }
 

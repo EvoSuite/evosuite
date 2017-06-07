@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,7 +19,13 @@
  */
 package org.evosuite.testcase;
 
+import com.examples.with.different.packagename.AbstractEnumInInnerClass;
+import com.examples.with.different.packagename.AbstractEnumUser;
+import com.examples.with.different.packagename.EnumInInnerClass;
+import com.examples.with.different.packagename.EnumUser;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
@@ -32,6 +38,7 @@ import javax.servlet.http.HttpServlet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
@@ -200,5 +207,99 @@ public class TestCodeVisitorTest {
         Assert.assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
         Assert.assertEquals("ExampleWithInnerClass.Foo", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.Foo.class));
         Assert.assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar.class));
+    }
+
+    @Test
+    public void testCastAndBoxingInArray() {
+        // short[] shortArray0 = new short[5];
+        // Long[] longArray0 = new Long[5];
+        // longArray0[0] = (Long) shortArray0[1]; <-- this gives a compile error
+        TestCase tc = new DefaultTestCase();
+        ArrayStatement shortArrayStatement = new ArrayStatement(tc, short[].class, 5);
+        tc.addStatement(shortArrayStatement);
+        ArrayStatement longArrayStatement = new ArrayStatement(tc, Long[].class, 5);
+        tc.addStatement(longArrayStatement);
+
+        ArrayIndex longIndex  = new ArrayIndex(tc, longArrayStatement.getArrayReference(), 0);
+        ArrayIndex shortIndex = new ArrayIndex(tc, shortArrayStatement.getArrayReference(), 1);
+        AssignmentStatement assignmentStatement = new AssignmentStatement(tc, longIndex, shortIndex);
+        tc.addStatement(assignmentStatement);
+        String code = tc.toCode();
+        System.out.println(tc);
+        assertFalse(code.contains("longArray0[0] = (Long) shortArray0[1]"));
+    }
+
+    @Test
+    public void testWrapperCastInArray() {
+        // Short[] shortArray0 = new Short[5];
+        // Integer[] integerArray0 = new Integer[9];
+        // integerArray0[0] = (Integer) shortArray0[3];
+        TestCase tc = new DefaultTestCase();
+        ArrayStatement shortArrayStatement = new ArrayStatement(tc, Short[].class, 5);
+        tc.addStatement(shortArrayStatement);
+        ArrayStatement intArrayStatement = new ArrayStatement(tc, Integer[].class, 9);
+        tc.addStatement(intArrayStatement);
+
+        ArrayIndex intIndex   = new ArrayIndex(tc, intArrayStatement.getArrayReference(), 0);
+        ArrayIndex shortIndex = new ArrayIndex(tc, shortArrayStatement.getArrayReference(), 3);
+        AssignmentStatement assignmentStatement = new AssignmentStatement(tc, intIndex, shortIndex);
+        tc.addStatement(assignmentStatement);
+        String code = tc.toCode();
+        System.out.println(tc);
+        assertFalse(code.contains("integerArray0[0] = (Integer) shortArray0[3]"));
+    }
+
+    @Test
+    public void testInnerClassEnum() throws Throwable {
+
+        //first construct a test case for the Generic method
+        TestCase tc = new DefaultTestCase();
+        VariableReference userObject = TestFactory.getInstance().addConstructor(tc,
+                new GenericConstructor(EnumUser.class.getDeclaredConstructor(), EnumUser.class), 0, 0);
+
+        EnumPrimitiveStatement primitiveStatement = new EnumPrimitiveStatement(tc, EnumInInnerClass.AnEnum.class);
+        primitiveStatement.setValue(EnumInInnerClass.AnEnum.FOO);
+        VariableReference enumObject = tc.addStatement(primitiveStatement);
+
+        Method m = EnumUser.class.getDeclaredMethod("foo", EnumInInnerClass.AnEnum.class);
+        GenericMethod gm = new GenericMethod(m, EnumUser.class);
+        MethodStatement ms = new MethodStatement(tc, gm, userObject, Arrays.asList(enumObject));
+        tc.addStatement(ms);
+
+        //Finally, visit the test
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        tc.accept(visitor); //should not throw exception
+        String code = visitor.getCode();
+        assertTrue(code.contains("= EnumInInnerClass.AnEnum.FOO"));
+    }
+
+    /*
+     * There are some weird enum constructs in Closure, so we need to check that enum names
+     * don't contain the name of the anonymous class they might represent
+     */
+    @Test
+    public void testInnerClassAbstractEnum() throws NoSuchMethodException, ConstructionFailedException {
+
+        //first construct a test case for the Generic method
+        TestCase tc = new DefaultTestCase();
+        VariableReference userObject = TestFactory.getInstance().addConstructor(tc,
+                new GenericConstructor(AbstractEnumUser.class.getDeclaredConstructor(), AbstractEnumUser.class), 0, 0);
+
+        EnumPrimitiveStatement primitiveStatement = new EnumPrimitiveStatement(tc, AbstractEnumInInnerClass.AnEnum.class);
+        primitiveStatement.setValue(AbstractEnumInInnerClass.AnEnum.FOO);
+        VariableReference enumObject = tc.addStatement(primitiveStatement);
+
+        Method m = AbstractEnumUser.class.getDeclaredMethod("foo", AbstractEnumInInnerClass.AnEnum.class);
+        GenericMethod gm = new GenericMethod(m, AbstractEnumUser.class);
+        MethodStatement ms = new MethodStatement(tc, gm, userObject, Arrays.asList(enumObject));
+        tc.addStatement(ms);
+
+        //Finally, visit the test
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        tc.accept(visitor); //should not throw exception
+        String code = visitor.getCode();
+        System.out.println(code);
+        assertFalse(code.contains("= AbstractEnumInInnerClass.AnEnum.1.FOO"));
+        assertTrue(code.contains("= AbstractEnumInInnerClass.AnEnum.FOO"));
     }
 }

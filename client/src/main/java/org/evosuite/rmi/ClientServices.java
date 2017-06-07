@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -29,6 +29,7 @@ import org.evosuite.rmi.service.ClientNodeImpl;
 import org.evosuite.rmi.service.ClientNodeLocal;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.rmi.service.DummyClientNodeImpl;
+import org.evosuite.statistics.RuntimeVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,5 +106,15 @@ public class ClientServices {
 			}
 			clientNode = new DummyClientNodeImpl();
 		}
+	}
+
+	/**
+	 * Shorthand for the commonly used trackOutputVariable method
+	 *
+	 * @param outputVariable The runtime variable to track
+	 * @param value The value of the runtime variable
+	 */
+	public static void track(RuntimeVariable outputVariable, Object value) {
+		ClientServices.getInstance().getClientNode().trackOutputVariable(outputVariable, value);
 	}
 }

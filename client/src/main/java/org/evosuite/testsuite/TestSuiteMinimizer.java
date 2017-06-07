@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -278,8 +278,6 @@ public class TestSuiteMinimizer {
      * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
      */
     private void minimizeSuite(TestSuiteChromosome suite) {
-
-        CurrentChromosomeTracker.getInstance().modification(suite);
 
         // Remove previous results as they do not contain method calls
         // in the case of whole suite generation

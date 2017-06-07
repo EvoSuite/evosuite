@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -256,11 +256,13 @@ public class Scaffolding {
 			return;
 		}
 
-		bd.append(METHOD_SPACE);
-		bd.append("@BeforeClass \n");
+
+		// In order to make sure this is called *after* initializeClasses this method is now called directly from initEvoSuiteFramework
+		// bd.append(METHOD_SPACE);
+		// bd.append("@BeforeClass \n");
 
 		bd.append(METHOD_SPACE);
-		bd.append("public static void initMocksToAvoidTimeoutsInTheTests() throws ClassNotFoundException { \n");
+		bd.append("private static void initMocksToAvoidTimeoutsInTheTests() throws ClassNotFoundException { \n");
 
 		Set<String> mockStatements = new LinkedHashSet<>();
 		for(ExecutionResult er : results) {
@@ -772,6 +774,10 @@ public class Scaffolding {
 			bd.append(DBManager.class.getName() + ".getInstance().initDB(); \n");
 		}
 
+		if(TestSuiteWriterUtils.doesUseMocks(results)) {
+			bd.append(BLOCK_SPACE);
+			bd.append("try { initMocksToAvoidTimeoutsInTheTests(); } catch(ClassNotFoundException e) {} \n");
+		}
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
