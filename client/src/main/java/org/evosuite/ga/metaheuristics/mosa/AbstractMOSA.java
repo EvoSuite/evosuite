@@ -19,15 +19,25 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.FitnessFunctions;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageFactory;
+import org.evosuite.coverage.exception.ExceptionCoverageHelper;
+import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
 import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
@@ -42,6 +52,7 @@ import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
@@ -71,7 +82,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
 
 	/**  keep track of overall suite fitness and coverage */
-	protected TestSuiteFitnessFunction suiteFitness;
+	protected List<TestSuiteFitnessFunction> suiteFitnesses;
 
 	/** Selection function to select parents */
 	protected SelectionFunction<T> selectionFunction = new MOSATournamentSelection<T>();
@@ -87,19 +98,10 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 */
 	public AbstractMOSA(ChromosomeFactory<T> factory) {
 		super(factory);
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.BRANCH))
-			suiteFitness = new BranchCoverageSuiteFitness();
-		else if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION) 
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION))
-			suiteFitness = new StrongMutationSuiteFitness();
-		else if (ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION))
-			suiteFitness = new WeakMutationSuiteFitness();
-		else if (ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT))
-			suiteFitness = new StatementCoverageSuiteFitness();
-		else if (ArrayUtil.contains(Properties.CRITERION, Criterion.LINE))
-			suiteFitness = new LineCoverageSuiteFitness();
-		else{
-			logger.warn("MOSA currently supports BRANCH, LINE, STATEMENT, WEAKMUTATION and STRONGMUTATION criteria : " + Properties.CRITERION + ", defaulting to BRANCH.");
+		suiteFitnesses = new ArrayList<TestSuiteFitnessFunction>();
+		for (Properties.Criterion criterion : Properties.CRITERION){
+			TestSuiteFitnessFunction fit = FitnessFunctions.getFitnessFunction(criterion);
+			suiteFitnesses.add(fit);
 		}
 		// set the ranking strategy
 		if (Properties.RANKING_TYPE ==  Properties.RankingType.PREFERENCE_SORTING)
@@ -324,11 +326,12 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 		// compute overall fitness and coverage
 		double fitness = this.fitnessFunctions.size() - numberOfCoveredTargets();
 		double coverage = ((double) numberOfCoveredTargets()) / ((double) this.fitnessFunctions.size());
-		bestTestCases.setFitness(suiteFitness, fitness);
-		bestTestCases.setCoverage(suiteFitness, coverage);
-		bestTestCases.setNumOfCoveredGoals(suiteFitness, (int) numberOfCoveredTargets());
-		bestTestCases.setNumOfNotCoveredGoals(suiteFitness, (int) (this.fitnessFunctions.size()-numberOfCoveredTargets()));
-
+		for (TestSuiteFitnessFunction suiteFitness : suiteFitnesses){
+			bestTestCases.setFitness(suiteFitness, fitness);
+			bestTestCases.setCoverage(suiteFitness, coverage);
+			bestTestCases.setNumOfCoveredGoals(suiteFitness, (int) numberOfCoveredTargets());
+			bestTestCases.setNumOfNotCoveredGoals(suiteFitness, (int) (this.fitnessFunctions.size()-numberOfCoveredTargets()));
+		}
 		List<T> bests = new ArrayList<T>(1);
 		bests.add((T) bestTestCases);
 		return bests;
@@ -416,4 +419,79 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	protected abstract double numberOfCoveredTargets();
 
 	public abstract Set<FitnessFunction<T>> getCoveredGoals();
+
+	/**
+	 * This method analyzes the execution results of a TestChromosome looking for generated exceptions.
+	 * Such exceptions are converted in instances of the class {@link ExceptionCoverageTestFitness},
+	 * which are additional covered goals when using as criterion {@link Properties.Criterion.EXCEPTION}
+	 * @param t TestChromosome to analyze
+	 * @return list of exception goals being covered by t
+	 */
+	public List<ExceptionCoverageTestFitness> deriveCoveredExceptions(T t){
+		List<ExceptionCoverageTestFitness> covered_exceptions = new ArrayList<ExceptionCoverageTestFitness>();
+		TestChromosome testCh = (TestChromosome) t;
+		ExecutionResult result = testCh.getLastExecutionResult();
+
+		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<>();
+		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<>();
+		Map<String, Set<Class<?>>> declaredTypesOfExceptions = new HashMap<>();
+
+		for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
+			if(ExceptionCoverageHelper.shouldSkip(result,i)){
+				continue;
+			}
+
+			Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
+			String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
+			boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
+
+			/*
+			 * We only consider exceptions that were thrown by calling directly the SUT (not the other
+			 * used libraries). However, this would ignore cases in which the SUT is indirectly tested
+			 * through another class
+			 */
+
+			if (sutException) {
+
+				boolean notDeclared = ! ExceptionCoverageHelper.isDeclared(result,i);
+
+				if(notDeclared) {
+					/*
+					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
+					 * input for pre-condition) or implicit ("likely" a real fault).
+					 */
+
+					boolean isExplicit = ExceptionCoverageHelper.isExplicit(result,i);
+
+					if (isExplicit) {
+
+						if (!explicitTypesOfExceptions.containsKey(methodIdentifier)) {
+							explicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+						}
+						explicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
+					} else {
+
+						if (!implicitTypesOfExceptions.containsKey(methodIdentifier)) {
+							implicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+						}
+						implicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
+					}
+				} else {
+					if (!declaredTypesOfExceptions.containsKey(methodIdentifier)) {
+						declaredTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+					}
+					declaredTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
+				}
+
+
+				ExceptionCoverageTestFitness.ExceptionType type = ExceptionCoverageHelper.getType(result,i);
+				/*
+				 * Add goal to list of fitness functions to solve
+				 */
+				ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(Properties.TARGET_CLASS, methodIdentifier, exceptionClass, type);
+				covered_exceptions.add(goal);
+			}
+		}
+		return covered_exceptions;
+	}
 }
