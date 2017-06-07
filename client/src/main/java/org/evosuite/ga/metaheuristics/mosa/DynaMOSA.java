@@ -18,6 +18,7 @@ import org.evosuite.ga.metaheuristics.mosa.structural.StatementManager;
 import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -214,16 +215,17 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			best.addTest((TestChromosome) test);
 		}
 		// compute overall fitness and coverage
-		double coverage = ((double) goalsManager.getCoveredGoals().size()) / ((double) this.fitnessFunctions.size());
-		best.setFitness(suiteFitness,  this.fitnessFunctions.size() - goalsManager.getCoveredGoals().size());
-		best.setCoverage(suiteFitness, coverage);
-
+		for (TestSuiteFitnessFunction suiteFitness : suiteFitnesses){
+			double coverage = ((double) goalsManager.getCoveredGoals().size()) / ((double) this.fitnessFunctions.size());
+			best.setFitness(suiteFitness,  this.fitnessFunctions.size() - goalsManager.getCoveredGoals().size());
+			best.setCoverage(suiteFitness, coverage);
+		}
 		//suiteFitness.getFitness(best);
 		return (T) best;
 	}
-	
+
 	protected double numberOfCoveredTargets(){
 		return this.goalsManager.getCoveredGoals().size();
 	}
-	
+
 }
