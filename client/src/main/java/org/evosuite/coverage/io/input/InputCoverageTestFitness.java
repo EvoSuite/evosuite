@@ -24,7 +24,9 @@ import static org.evosuite.coverage.io.IOCoverageConstants.*;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
@@ -59,6 +61,20 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
             throw new IllegalArgumentException("goal cannot be null");
         }
         this.goal = goal;
+        // add the observer to TestCaseExecutor if it is not included yet
+        boolean hasObserver = false;
+        TestCaseExecutor executor = TestCaseExecutor.getInstance();
+        for (ExecutionObserver ob : executor.getExecutionObservers()){
+        	if (ob instanceof  InputObserver){
+        		hasObserver = true;
+        		break;
+        	}
+        }
+        if (!hasObserver){
+        	InputObserver observer = new InputObserver();
+			executor.addObserver(observer);
+			logger.info("Added observer for input coverage");
+        }
     }
 
     /**
