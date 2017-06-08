@@ -194,6 +194,8 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                             updateDistances(suite, mapDistances, className, methodName, goal.getArgIndex(), argType, value);
                             break;
                         case Type.CHAR:
+                        	if (argValue == null)
+                        		continue;
                             char charValue = (char)((Number) argValue).intValue();
                             updateCharDistances(suite, mapDistances, className, methodName, goal.getArgIndex(), argType, charValue);
                             break;
