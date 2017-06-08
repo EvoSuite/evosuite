@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.exception.ExceptionCoverageFactory;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
@@ -33,6 +37,8 @@ import org.evosuite.ga.metaheuristics.mosa.comparators.OnlyCrowdingComparator;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.ArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,12 +137,29 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 	/** {@inheritDoc} */
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void calculateFitness(T c) {
 		for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
 			double value = fitnessFunction.getFitness(c);
 			if (value == 0.0) {
 				//((TestChromosome)c).addCoveredGoals(fitnessFunction);
 				updateArchive(c, fitnessFunction);
+			}
+		}
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)){
+			// if one of the coverage criterion is Criterion.EXCEPTION,
+			// then we have to analyze the results of the execution do look
+			// for generated exceptions
+			List<ExceptionCoverageTestFitness> list = deriveCoveredExceptions(c);
+			for (ExceptionCoverageTestFitness exp : list){
+				// new covered exceptions (goals) have to be added to the archive
+				updateArchive(c, (FitnessFunction<T>) exp);
+				if (!fitnessFunctions.contains(exp)){
+					// let's update the list of fitness functions 
+					this.fitnessFunctions.add((FitnessFunction<T>) exp);
+					// let's update the newly discovered exceptions to ExceptionCoverageFactory 
+					ExceptionCoverageFactory.getGoals().put(exp.toString(), exp);
+				}
 			}
 		}
 		notifyEvaluation(c);
@@ -252,8 +275,10 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		}
 		// compute overall fitness and coverage
 		double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.fitnessFunctions.size());
-		best.setCoverage(suiteFitness, coverage);
-		best.setFitness(suiteFitness,  this.fitnessFunctions.size() - this.getNumberOfCoveredGoals());
+		for (TestSuiteFitnessFunction suiteFitness : suiteFitnesses){
+			best.setCoverage(suiteFitness, coverage);
+			best.setFitness(suiteFitness,  this.fitnessFunctions.size() - this.getNumberOfCoveredGoals());
+		}
 		//suiteFitness.getFitness(best);
 		return (T) best;
 	}
