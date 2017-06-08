@@ -304,7 +304,9 @@ public class TestSuiteWriter implements Opcodes {
             if(result.noThrownExceptions())
                 continue;
             int exceptionPosition = result.getFirstPositionOfThrownException();
-            result.test.getStatement(exceptionPosition).removeAssertions();
+            // TODO: Not clear how that can happen...
+            if(result.test.size() > exceptionPosition)
+                result.test.getStatement(exceptionPosition).removeAssertions();
         }
     }
 
