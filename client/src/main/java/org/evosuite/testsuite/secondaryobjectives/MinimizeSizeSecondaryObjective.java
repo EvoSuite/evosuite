@@ -17,27 +17,30 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga;
+package org.evosuite.testsuite.secondaryobjectives;
+
+import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * <p>MinimizeSizeSecondaryObjective class.</p>
  *
  * @author Gordon Fraser
  */
-public class MinimizeSizeSecondaryObjective<T extends Chromosome> extends SecondaryObjective<T> {
+public class MinimizeSizeSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
 
 	private static final long serialVersionUID = 7211557650429998223L;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
+	public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
 		logger.debug("Comparing sizes: " + chromosome1.size() + " vs "
 		        + chromosome2.size());
 		return chromosome1.size() - chromosome2.size();
@@ -45,17 +48,15 @@ public class MinimizeSizeSecondaryObjective<T extends Chromosome> extends Second
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome)
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareGenerations(Chromosome parent1, Chromosome parent2,
-	        Chromosome child1, Chromosome child2) {
+	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
+			TestSuiteChromosome child1, TestSuiteChromosome child2) {
 		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size()
 		        + " vs " + child1.size() + ", " + child2.size());
 		return Math.min(parent1.size(), parent2.size())

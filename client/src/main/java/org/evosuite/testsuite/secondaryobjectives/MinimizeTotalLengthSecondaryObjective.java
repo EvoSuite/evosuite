@@ -38,10 +38,10 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective<Te
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
@@ -52,12 +52,10 @@ public class MinimizeTotalLengthSecondaryObjective extends SecondaryObjective<Te
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome)
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override

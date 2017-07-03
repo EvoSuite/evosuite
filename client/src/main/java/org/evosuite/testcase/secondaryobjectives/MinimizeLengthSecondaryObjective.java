@@ -17,56 +17,50 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testsuite.secondaryobjectives;
+package org.evosuite.testcase.secondaryobjectives;
 
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
-
+import org.evosuite.testcase.TestChromosome;
 
 /**
- * <p>MinimizeMaxLengthSecondaryObjective class.</p>
+ * <p>MinimizeLengthSecondaryObjective class.</p>
  *
- * @author Gordon Fraser
+ * @author José Campos
  */
-public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective<TestSuiteChromosome> {
+public class MinimizeLengthSecondaryObjective extends SecondaryObjective<TestChromosome> {
 
-	private static final long serialVersionUID = 2270058273932360617L;
-
-	private int getMaxLength(TestSuiteChromosome chromosome) {
-		int max = 0;
-		for (ExecutableChromosome test : chromosome.getTestChromosomes()) {
-			max = Math.max(max, test.size());
-		}
-		return max;
-	}
+	private static final long serialVersionUID = 7211557650429998223L;
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
 	 * org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareChromosomes(TestSuiteChromosome chromosome1, TestSuiteChromosome chromosome2) {
-		return getMaxLength(chromosome1) - getMaxLength(chromosome2);
+	public int compareChromosomes(TestChromosome chromosome1, TestChromosome chromosome2) {
+		logger.debug("Comparing sizes: " + chromosome1.size() + " vs "
+		        + chromosome2.size());
+		return chromosome1.size() - chromosome2.size();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
 	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int compareGenerations(TestSuiteChromosome parent1, TestSuiteChromosome parent2,
-			TestSuiteChromosome child1, TestSuiteChromosome child2) {
-		return Math.min(getMaxLength(parent1), getMaxLength(parent2))
-		        - Math.min(getMaxLength(child1), getMaxLength(child2));
+	public int compareGenerations(TestChromosome parent1, TestChromosome parent2,
+			TestChromosome child1, TestChromosome child2) {
+		logger.debug("Comparing sizes: " + parent1.size() + ", " + parent1.size()
+		        + " vs " + child1.size() + ", " + child2.size());
+		return Math.min(parent1.size(), parent2.size())
+		        - Math.min(child1.size(), child2.size());
 	}
 
 }

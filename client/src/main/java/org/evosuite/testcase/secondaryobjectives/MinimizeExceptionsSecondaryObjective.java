@@ -20,9 +20,10 @@
 /**
  * 
  */
-package org.evosuite.testcase;
+package org.evosuite.testcase.secondaryobjectives;
 
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
@@ -43,7 +44,8 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.ga.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
@@ -52,7 +54,8 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.ga.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override

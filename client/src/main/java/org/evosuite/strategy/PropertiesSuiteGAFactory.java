@@ -32,9 +32,8 @@ import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.MinimizeSizeSecondaryObjective;
-import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.RandomSearch;
 import org.evosuite.ga.metaheuristics.SPEA2;
@@ -69,6 +68,7 @@ import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeAverageLengthSecondaryObjective;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeExceptionsSecondaryObjective;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeMaxLengthSecondaryObjective;
+import org.evosuite.testsuite.secondaryobjectives.MinimizeSizeSecondaryObjective;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeTotalLengthSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
@@ -243,7 +243,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 	 */
 	protected SecondaryObjective<TestSuiteChromosome> getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
-			return new MinimizeSizeSecondaryObjective<>();
+			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("ibranch"))
 			return new IBranchSecondaryObjective();
 		else if (name.equalsIgnoreCase("archiveibranch"))
