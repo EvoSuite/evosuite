@@ -19,6 +19,7 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -214,6 +215,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 * 
 	 * @param solutionSet is the list of Chromosomes (population)
 	 */
+	@SuppressWarnings("unchecked")
 	private void updateArchive(T solution, FitnessFunction<T> covered) {
 		// the next two lines are needed since that coverage information are used
 		// during EvoSuite post-processing
@@ -222,11 +224,27 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		// store the test cases that are optimal for the test goal in the
 		// archive
-		if (archive.containsKey(covered)){
-			int bestSize = this.archive.get(covered).size();
-			int size = solution.size();
-			if (size < bestSize)
+		if (archive.containsKey(covered)) {
+			// get all test cases in the archive
+			List<TestChromosome> all_test_cases = new ArrayList<TestChromosome>();
+			all_test_cases.addAll((Collection<TestChromosome>) this.archive.values());
+
+			// create a test suite with all test cases (including the best one so far)
+			TestSuiteChromosome suite_with_previous_solution = new TestSuiteChromosome();
+			suite_with_previous_solution.addTests(all_test_cases);
+			assert suite_with_previous_solution.getTests().size() == this.archive.values().size();
+
+			// create a test suite with all test cases (except the best one so far) and the new solution found
+			all_test_cases.remove(this.archive.get(covered)); // discard the best case we found so far
+			TestSuiteChromosome suite_with_current_solution = new TestSuiteChromosome();
+			suite_with_current_solution.addTests(all_test_cases);
+			assert suite_with_current_solution.getTests().size() == this.archive.values().size() - 1;
+			suite_with_current_solution.addTest((TestChromosome) solution);
+
+			int cmp = suite_with_previous_solution.compareSecondaryObjective(suite_with_current_solution);
+			if (cmp > 0) {
 				this.archive.put(covered, solution);
+			}
 		} else {
 			archive.put(covered, solution);
 			this.uncoveredGoals.remove(covered);
