@@ -19,8 +19,8 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,10 +56,10 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
 
 	/** Map used to store the covered test goals (keys of the map) and the corresponding covering test cases (values of the map) **/
-	protected Map<FitnessFunction<T>, T> archive = new  HashMap<FitnessFunction<T>, T>();
+	protected Map<FitnessFunction<T>, T> archive = new LinkedHashMap<FitnessFunction<T>, T>();
 
 	/** Boolean vector to indicate whether each test goal is covered or not. **/
-	protected Set<FitnessFunction<T>> uncoveredGoals = new HashSet<FitnessFunction<T>>();
+	protected Set<FitnessFunction<T>> uncoveredGoals = new LinkedHashSet<FitnessFunction<T>>();
 
 	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
 
@@ -233,7 +233,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	}
 
 	protected List<T> getArchive() {
-		Set<T> set = new HashSet<T>(); 
+		Set<T> set = new LinkedHashSet<T>(); 
 		set.addAll(archive.values());
 		List<T> arch = new ArrayList<T>();
 		arch.addAll(set);

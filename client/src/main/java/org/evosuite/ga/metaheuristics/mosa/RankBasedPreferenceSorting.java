@@ -18,8 +18,8 @@
 package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +47,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	/**
 	 * An array containing all the fronts found during the search
 	 */
-	private Map<Integer, List<T>> fronts = new HashMap<Integer, List<T>>();
+	private Map<Integer, List<T>> fronts = new LinkedHashMap<Integer, List<T>>();
 
 	@Override
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
@@ -88,7 +88,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	}
 
 	private List<T> getZeroFront(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals){
-		Set<T> zero_front = new HashSet<T>(solutionSet.size());
+		Set<T> zero_front = new LinkedHashSet<T>(solutionSet.size());
 		for (FitnessFunction<T> f : uncovered_goals){
 			//for each goals:
 			// peak up the best tests using the proper comparator

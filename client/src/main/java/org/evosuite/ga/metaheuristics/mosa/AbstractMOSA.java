@@ -19,9 +19,9 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -432,9 +432,9 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 		TestChromosome testCh = (TestChromosome) t;
 		ExecutionResult result = testCh.getLastExecutionResult();
 
-		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<>();
-		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<>();
-		Map<String, Set<Class<?>>> declaredTypesOfExceptions = new HashMap<>();
+		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new LinkedHashMap<>();
+		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new LinkedHashMap<>();
+		Map<String, Set<Class<?>>> declaredTypesOfExceptions = new LinkedHashMap<>();
 
 		for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
 			if(ExceptionCoverageHelper.shouldSkip(result,i)){
@@ -466,19 +466,19 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 					if (isExplicit) {
 
 						if (!explicitTypesOfExceptions.containsKey(methodIdentifier)) {
-							explicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+							explicitTypesOfExceptions.put(methodIdentifier, new LinkedHashSet<Class<?>>());
 						}
 						explicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
 					} else {
 
 						if (!implicitTypesOfExceptions.containsKey(methodIdentifier)) {
-							implicitTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+							implicitTypesOfExceptions.put(methodIdentifier, new LinkedHashSet<Class<?>>());
 						}
 						implicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
 					}
 				} else {
 					if (!declaredTypesOfExceptions.containsKey(methodIdentifier)) {
-						declaredTypesOfExceptions.put(methodIdentifier, new HashSet<Class<?>>());
+						declaredTypesOfExceptions.put(methodIdentifier, new LinkedHashSet<Class<?>>());
 					}
 					declaredTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
 				}

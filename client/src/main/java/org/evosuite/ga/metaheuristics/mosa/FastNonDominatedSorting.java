@@ -18,8 +18,8 @@
 package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +46,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements Ranking<T>
 	/**
 	 * Set used to store the goals that are covered from a population being sorted
 	 */
-	private Map<FitnessFunction<T>, T> newCoveredGoals = new HashMap<FitnessFunction<T>, T>();
+	private Map<FitnessFunction<T>, T> newCoveredGoals = new LinkedHashMap<FitnessFunction<T>, T>();
 
 	@SuppressWarnings("unchecked")
 	@Override
