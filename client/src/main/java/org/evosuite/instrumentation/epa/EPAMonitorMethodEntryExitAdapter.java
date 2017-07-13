@@ -129,7 +129,7 @@ public class EPAMonitorMethodEntryExitAdapter extends AdviceAdapter {
 			// "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V"
 			final String leftMethodDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(Exception.class),
 					Type.getType(String.class), Type.getType(String.class), Type.getType(Object.class));
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(EPAMonitor.class), "leftMethod",
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, PackageInfo.getNameWithSlash(EPAMonitor.class), "exitMethod",
 					leftMethodDescriptor, false);
 		}
 		super.onMethodExit(opcode);

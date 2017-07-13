@@ -299,7 +299,7 @@ public class EPAMonitor {
 		}
 	}
 
-	public static void leftMethod(Exception exceptionToBeThrown, String className, String fullMethodName,
+	public static void exitMethod(Exception exceptionToBeThrown, String className, String fullMethodName,
 			Object object) {
 		if (exceptionToBeThrown == null) {
 			logger.debug("Exiting method " + className + "." + fullMethodName + " with no exception");
@@ -378,7 +378,7 @@ public class EPAMonitor {
 	}
 
 	private void appendNewEpaTransition(Object object, EPATransition transition) {
-		ExecutionTracer.getExecutionTracer().getTrace().appendNewEpaTransition(object, transition);
+		ExecutionTracer.getExecutionTracer().getTraceNoFinishCalls().appendNewEpaTransition(object, transition);
 	}
 
 	private void afterMethod(String className, String fullMethodName, Object calleeObject,
@@ -532,7 +532,7 @@ public class EPAMonitor {
 			}
 		}
 		if (currentState == null) {
-			throw new MalformedEPATraceException("Object has no EPA state!");
+			throw new MalformedEPATraceException("Neither EPA state query has returned true for this object!");
 		}
 		return currentState;
 	}
