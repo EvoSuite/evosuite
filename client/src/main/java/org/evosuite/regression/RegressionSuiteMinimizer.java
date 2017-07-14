@@ -19,6 +19,15 @@
  */
 package org.evosuite.regression;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.assertion.Assertion;
@@ -36,16 +45,6 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class RegressionSuiteMinimizer {
 
@@ -128,6 +127,7 @@ public class RegressionSuiteMinimizer {
 
   /**
    * Execute regression test case on both versions
+   *
    * @param regressionTest regression test chromosome to be executed on both versions
    */
   private void executeTest(RegressionTestChromosome regressionTest) {
@@ -259,7 +259,6 @@ public class RegressionSuiteMinimizer {
               String exSignatureB =
                   RegressionExceptionHelper.getExceptionSignature(exA, Properties.TARGET_CLASS);
               signaturePair += exSignatureB;
-
 
               if (exception.equals(exceptionB) || exSignatureA.equals(exSignatureB)) {
                 // We will be taking care of removing this exception when checking from A to B
