@@ -42,6 +42,8 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 
 	private final Map<Field, Object> fieldMap = new HashMap<Field, Object>();
 
+	private final Map<String, Field> signatureFieldMap = new HashMap<>();
+
 	private final VariableReference var;
 
 	/**
@@ -61,6 +63,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	 */
 	public void addValue(Field field, Object value) {
 		fieldMap.put(field, value);
+		signatureFieldMap.put(field.toString(), field);
 	}
 
 	/* (non-Javadoc)
@@ -96,23 +99,39 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 
 		if (other instanceof PrimitiveFieldTraceEntry) {
 			PrimitiveFieldTraceEntry otherEntry = (PrimitiveFieldTraceEntry) other;
-			for (Field field : fieldMap.keySet()) {
-				if(!otherEntry.fieldMap.containsKey(field))
-					continue;
-				
-				if (!otherEntry.fieldMap.get(field).equals(fieldMap.get(field))) {
-					double distance = ObjectDistanceCalculator.getObjectDistance(fieldMap.get(field), otherEntry.fieldMap.get(field));
-					if(distance==0)
-						continue;
-					PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
-					assertion.value = fieldMap.get(field);
-					assertion.field = field;
-					assertion.source = var;
-					if(Properties.isRegression())
-						assertion.setComment("// (PField) Original Value: " + fieldMap.get(field) +" | Regression Value: " + otherEntry.fieldMap.get(field));
-					assertions.add(assertion);
-					assert (assertion.isValid());
 
+			if(Properties.isRegression()){
+				for(String fieldSignature: signatureFieldMap.keySet()){
+					if (!otherEntry.signatureFieldMap.containsKey(fieldSignature))
+						continue;
+					if(!otherEntry.fieldMap.get(otherEntry.signatureFieldMap.get(fieldSignature)).equals(fieldMap.get(signatureFieldMap.get(fieldSignature)))){
+						double distance = ObjectDistanceCalculator.getObjectDistance(fieldMap.get(signatureFieldMap.get(fieldSignature)), otherEntry.fieldMap.get(otherEntry.signatureFieldMap.get(fieldSignature)));
+						if(distance==0)
+							continue;
+						PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
+						assertion.value = fieldMap.get(signatureFieldMap.get(fieldSignature));
+						assertion.field = signatureFieldMap.get(fieldSignature);
+						assertion.source = var;
+						assertion.setComment("// (Field) Original Value: " + fieldMap.get(signatureFieldMap.get(fieldSignature)) +" | Regression Value: " + otherEntry.fieldMap.get(otherEntry.signatureFieldMap.get(fieldSignature)));
+						assertions.add(assertion);
+						assert (assertion.isValid());
+					}
+				}
+			} else {
+
+				for (Field field : fieldMap.keySet()) {
+					if (!otherEntry.fieldMap.containsKey(field))
+						continue;
+
+					if (!otherEntry.fieldMap.get(field).equals(fieldMap.get(field))) {
+						PrimitiveFieldAssertion assertion = new PrimitiveFieldAssertion();
+						assertion.value = fieldMap.get(field);
+						assertion.field = field;
+						assertion.source = var;
+						assertions.add(assertion);
+						assert (assertion.isValid());
+
+					}
 				}
 			}
 
@@ -147,8 +166,16 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 		if (assertion instanceof PrimitiveFieldAssertion) {
 			PrimitiveFieldAssertion ass = (PrimitiveFieldAssertion) assertion;
 			//TODO: removed ` && fieldMap.containsKey(ass.field)` for regression testing.
-			if (ass.source.equals(var) && (Properties.isRegression() ||  fieldMap.containsKey(ass.field)))
-				return !fieldMap.get(ass.field).equals(ass.value);
+			if(ass.source.equals(var)){
+				if(Properties.isRegression()){
+					if(ass.field != null && signatureFieldMap.containsKey(ass.field.toString()) &&
+							fieldMap.containsKey(signatureFieldMap.get(ass.field.toString())) )
+						return !fieldMap.get(signatureFieldMap.get(ass.field.toString())).equals(ass.value);
+				} else {
+					if(fieldMap.containsKey(ass.field))
+						return !fieldMap.get(ass.field).equals(ass.value);
+				}
+			}
 		}
 		return false;
 	}
@@ -161,6 +188,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	public OutputTraceEntry cloneEntry() {
 		PrimitiveFieldTraceEntry copy = new PrimitiveFieldTraceEntry(var);
 		copy.fieldMap.putAll(fieldMap);
+		copy.signatureFieldMap.putAll(signatureFieldMap);
 		return copy;
 	}
 

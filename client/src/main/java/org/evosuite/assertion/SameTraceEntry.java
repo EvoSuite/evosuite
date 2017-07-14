@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.assertion;
 
@@ -43,9 +43,9 @@ public class SameTraceEntry implements OutputTraceEntry {
 	private final VariableReference var;
 
 	private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
-	
+
 	private final Map<Integer,VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(SameTraceEntry.class);
 
 	/**
@@ -155,8 +155,18 @@ public class SameTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof SameAssertion) {
 			SameAssertion ass = (SameAssertion) assertion;
-			if (ass.source.equals(var) && equalityMap.containsKey(ass.dest))
-				return !equalityMap.get(ass.dest).equals(ass.value);
+			if (ass.source.equals(var)){
+				if(Properties.isRegression()){
+					if(equalityMapIntVar.get(ass.dest.getStPosition()) != null &&
+							equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition())) != null) {
+            return !equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition()))
+                .equals(ass.value);
+          }
+				} else {
+					if(equalityMap.containsKey(ass.dest))
+						return !equalityMap.get(ass.dest).equals(ass.value);
+				}
+			}
 		}
 		return false;
 	}

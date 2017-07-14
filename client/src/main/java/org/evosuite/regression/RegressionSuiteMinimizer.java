@@ -61,9 +61,10 @@ public class RegressionSuiteMinimizer {
     track(RuntimeVariable.RSM_OverMinimized, 0);
 
     logger.warn("Going to minimize test suite. Length: {} ", suite.totalLengthOfTestCases());
+    logger.debug("suite: \n{}", suite);
 
     RegressionTestSuiteChromosome regressionSuite = new RegressionTestSuiteChromosome();
-    regressionSuite.addTests(suite.getTestChromosomes());
+    regressionSuite.addTests(suite.clone().getTestChromosomes());
 
     // Seems to be broken:
     // removeUnusedVariables(regressionSuite);
@@ -100,6 +101,7 @@ public class RegressionSuiteMinimizer {
     }
 
     logger.warn("Minimized Length: {} ", suite.totalLengthOfTestCases());
+    logger.debug("suite: \n{}", suite);
   }
 
   private void sendStats(RegressionTestSuiteChromosome regressionSuite) {
@@ -433,7 +435,7 @@ public class RegressionSuiteMinimizer {
       RegressionTestChromosome test = (RegressionTestChromosome) it.next();
 
       if (numFailingAssertions(test) == 0) {
-        logger.debug("Removing test {}: no assertions", (i - 1));
+        logger.warn("Removing test {}: no assertions", (i - 1));
         it.remove();
       }
     }

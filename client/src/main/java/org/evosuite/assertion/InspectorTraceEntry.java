@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.assertion;
 
@@ -42,11 +42,11 @@ import org.slf4j.LoggerFactory;
 public class InspectorTraceEntry implements OutputTraceEntry {
 
 	private final Map<Inspector, Object> inspectorMap = new HashMap<Inspector, Object>();
-	
+
 	private final Map<String,Inspector> methodInspectorMap = new HashMap<String, Inspector>();
 
 	private final VariableReference var;
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(InspectorTraceEntry.class);
 
 	/**
@@ -123,7 +123,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 				        || otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)) == null
 				        || inspectorMap.get(methodInspectorMap.get(inspector)) == null)
 					continue;
-				
+
 				if (!otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)).equals(inspectorMap.get(methodInspectorMap.get(inspector)))) {
 					double distance = ObjectDistanceCalculator.getObjectDistance(inspectorMap.get(methodInspectorMap.get(inspector)), otherEntry.inspectorMap.get(otherEntry.methodInspectorMap.get(inspector)));
 					if(distance==0)
@@ -172,9 +172,19 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof InspectorAssertion) {
 			InspectorAssertion ass = (InspectorAssertion) assertion;
-			if (ass.source.same(var) && inspectorMap.containsKey(ass.inspector)
-			        && inspectorMap.get(ass.inspector) != null && ass.value != null)
-				return !inspectorMap.get(ass.inspector).equals(ass.value);
+			if(ass.source.same(var)){
+				if(Properties.isRegression()){
+				  // Use the internal map to locate the inspector assertion
+				  String key = ass.getInspector().getClassName() + " " + ass.getInspector().getMethodCall();
+				  Inspector inspector = methodInspectorMap.get(key);
+				  if(inspector != null && inspectorMap.get(inspector) != null && ass.value != null)
+				    return !inspectorMap.get(inspector).equals(ass.value);
+				} else {
+					if (inspectorMap.containsKey(ass.inspector)
+							&& inspectorMap.get(ass.inspector) != null && ass.value != null)
+						return !inspectorMap.get(ass.inspector).equals(ass.value);
+				}
+			}
 		}
 		return false;
 	}
