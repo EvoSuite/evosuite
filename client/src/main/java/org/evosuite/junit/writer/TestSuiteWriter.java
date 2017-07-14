@@ -240,7 +240,7 @@ public class TestSuiteWriter implements Opcodes {
         removeAssertionsAfterException(results);
 
 
-        if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
+        if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED || testCases.size() == 0) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
