@@ -17,9 +17,15 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.comparators;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
+
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * This class implements a <code>Comparator</code> (a method for comparing <code>Chromosomes</code> objects) 
@@ -29,17 +35,19 @@ import org.evosuite.ga.FitnessFunction;
  */
 public class PreferenceSortingComparator<T extends Chromosome> implements Comparator<Object> {
 
-	private FitnessFunction<T> objective;
-	private TestSizeComparator<T> comparator = new TestSizeComparator<T>();
+	private final FitnessFunction<T> objective;
+
+	private final List<T> population;
 
 	/**
-	 *  Constructor
-	 * @param pNumberOfObjectives
-	 * @param goals set of test goals to consider when computing the dominance relationship 
-	 * @param applySecondaryCriterion 
+	 * Constructor
+	 *
+	 * @param population
+	 * @param goal
 	 */
-	public PreferenceSortingComparator(FitnessFunction<T> goals) {
-		this.objective = goals;
+	public PreferenceSortingComparator(List<T> population, FitnessFunction<T> goal) {
+		this.population = new ArrayList<T>(population);
+		this.objective = goal;
 	}
 
 	/**
@@ -62,14 +70,26 @@ public class PreferenceSortingComparator<T extends Chromosome> implements Compar
 		T solution2 = (T) object2;
 
 		double value1, value2;
-		value1 = solution1.getFitness(objective);
-		value2 = solution2.getFitness(objective);
+		value1 = solution1.getFitness(this.objective);
+		value2 = solution2.getFitness(this.objective);
 		if (value1 < value2)
 			return -1;
 		else if (value1 > value2)
 			return +1;
 		else {
-			return comparator.compare(solution1, solution2);
+			List<T> population_without_both_solutions = new ArrayList<T>(this.population);
+			population_without_both_solutions.remove(solution1);
+			population_without_both_solutions.remove(solution2);
+
+			TestSuiteChromosome solution1_suite = new TestSuiteChromosome();
+			solution1_suite.addTests((Collection<TestChromosome>) population_without_both_solutions);
+			solution1_suite.addTest((TestChromosome) solution1);
+
+			TestSuiteChromosome solution2_suite = new TestSuiteChromosome();
+			solution2_suite.addTests((Collection<TestChromosome>) population_without_both_solutions);
+			solution2_suite.addTest((TestChromosome) solution2);
+
+			return solution1_suite.compareSecondaryObjective(solution2_suite);
 		}
 
 	} // compare

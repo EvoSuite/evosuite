@@ -96,7 +96,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 		for (FitnessFunction<T> f : uncovered_goals){
 			//for each goals:
 			// peak up the best tests using the proper comparator
-			PreferenceSortingComparator<T> comp = new PreferenceSortingComparator<T>(f);
+			PreferenceSortingComparator<T> comp = new PreferenceSortingComparator<T>(solutionSet, f);
 
 			T best = null;
 			for (T test : solutionSet){
