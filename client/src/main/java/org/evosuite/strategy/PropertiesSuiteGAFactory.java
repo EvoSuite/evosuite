@@ -30,6 +30,7 @@ import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
@@ -256,6 +257,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			return new MinimizeExceptionsSecondaryObjective();
 		else if (name.equalsIgnoreCase("totallength"))
 			return new MinimizeTotalLengthSecondaryObjective();
+		else if (name.equalsIgnoreCase("rho"))
+			return new RhoTestSuiteSecondaryObjective();
 		else
 			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
 			        + name + "\"");
