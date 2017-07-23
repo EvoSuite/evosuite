@@ -266,10 +266,10 @@ public class EPAMonitor {
 					throw new EvosuiteError(
 							"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
 				}
-				if (!hasPreviousEpaState(calleeObject)) {
-					// this object should have been seen previously!
-					throw new MalformedEPATraceException("Object has no previous EPA State!");
-				}
+//				if (!hasPreviousEpaState(calleeObject)) {
+//					// this object should have been seen previously!
+//					throw new MalformedEPATraceException("Object has no previous EPA State!");
+//				}
 
 				final String actionName = this.methodToActionMap.get(fullMethodName);
 				final EPAState previousEpaState = getPreviousEpaState(calleeObject);
