@@ -27,6 +27,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.coverage.epa.EPATransitionCoverageTestFitness;
 import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
@@ -51,6 +52,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
@@ -708,6 +710,24 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(BLOCK_SPACE);
             builder.append("future.get(" + time + ", TimeUnit.MILLISECONDS);");
             builder.append(NEWLINE);
+        }
+
+        final List<EPATransitionCoverageTestFitness> invalidEPATransitions = test.getCoveredGoals().stream()
+                .filter(testFitnessFunction -> testFitnessFunction instanceof EPATransitionCoverageTestFitness)
+                .map(testFitnessFunction -> ((EPATransitionCoverageTestFitness) testFitnessFunction))
+                .filter(EPATransitionCoverageTestFitness::isGoalError)
+                .collect(Collectors.toList());
+
+        // Make test fail if there are invalid EPA transitions
+        if (!invalidEPATransitions.isEmpty()) {
+                invalidEPATransitions.forEach(epaTransitionCoverageTestFitness -> builder.append(BLOCK_SPACE)
+                    .append("// Invalid EPA Transition: ")
+                    .append(epaTransitionCoverageTestFitness.getGoalName())
+                    .append(NEWLINE));
+
+            builder.append(BLOCK_SPACE)
+                    .append("fail(\"Invalid EPA Transitions\");")
+                    .append(NEWLINE);
         }
 
         // ---------   end of the body ----------------------------
