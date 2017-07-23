@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -27,7 +27,6 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.coverage.epa.EPATransitionCoverageTestFitness;
 import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
@@ -39,8 +38,6 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.FunctionalMockStatement;
-import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
 import org.junit.runner.RunWith;
@@ -54,7 +51,6 @@ import javax.swing.*;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.evosuite.junit.writer.TestSuiteWriterUtils.*;
 
@@ -235,6 +231,15 @@ public class TestSuiteWriter implements Opcodes {
             throw new RuntimeException("Unsupported naming strategy: "+Properties.TEST_NAMING_STRATEGY);
         }
 
+        // Avoid downcasts that could break
+        //removeUnnecessaryDownCasts(results);
+
+        // Sometimes some timeouts lead to assertions being attached to statements
+        // related to exceptions. This is not currently handled, so as a workaround
+        // let's try to remove any remaining assertions. TODO: Better solution
+        removeAssertionsAfterException(results);
+
+
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
@@ -243,8 +248,7 @@ public class TestSuiteWriter implements Opcodes {
             generated.add(file);
         } else {
             for (int i = 0; i < testCases.size(); i++) {
-                String testSuiteName = name.substring(0, name.length() - "Test".length()) + "_" + i + "_Test";
-                File file = new File(dir + "/" + testSuiteName + ".java");
+                File file = new File(dir + "/" + name + "_" + i + ".java"); // e.g., dir/Foo_ESTest_0.java
                 //executor.newObservers();
                 String testCode = getOneUnitTestInAFile(name, i, results);
                 FileIOUtils.writeFile(testCode, file);
@@ -253,7 +257,7 @@ public class TestSuiteWriter implements Opcodes {
             }
         }
 
-        if (Properties.TEST_SCAFFOLDING) {
+        if (Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             String scaffoldingName = Scaffolding.getFileName(name);
             File file = new File(dir + "/" + scaffoldingName + ".java");
             String scaffoldingContent = Scaffolding.getScaffoldingFileContent(name, results,
@@ -286,7 +290,25 @@ public class TestSuiteWriter implements Opcodes {
         bd.append("}\n");
     	return bd.toString();
     }
-    
+
+//    private void removeUnnecessaryDownCasts(List<ExecutionResult> results) {
+//        for(ExecutionResult result : results) {
+//            if(result.test instanceof DefaultTestCase) {
+//                ((DefaultTestCase)result.test).removeDownCasts();
+//            }
+//        }
+//    }
+
+    private void removeAssertionsAfterException(List<ExecutionResult> results) {
+        for(ExecutionResult result : results) {
+            if(result.noThrownExceptions())
+                continue;
+            int exceptionPosition = result.getFirstPositionOfThrownException();
+            result.test.getStatement(exceptionPosition).removeAssertions();
+        }
+    }
+
+
     /**
      * Create JUnit file for given class name
      *
@@ -303,9 +325,9 @@ public class TestSuiteWriter implements Opcodes {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append(getHeader(name, results));
+        builder.append(getHeader(name, name, results));
 
-        if (!Properties.TEST_SCAFFOLDING) {
+        if (!Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
         }
         
@@ -334,10 +356,10 @@ public class TestSuiteWriter implements Opcodes {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append(getHeader(name + "_" + testId, results));
+        builder.append(getHeader(name + "_" + testId, name, results));
 
         if (!Properties.TEST_SCAFFOLDING) {
-            builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
+            builder.append(new Scaffolding().getBeforeAndAfterMethods(name + "_" + testId, wasSecurityException, results));
         }
 
         builder.append(testToString(testId, testId, results.get(testId)));
@@ -398,15 +420,15 @@ public class TestSuiteWriter implements Opcodes {
         }
         visitor.clearExceptions();
 
-        if(doesUseMocks(results)){
-            String mockito = Mockito.class.getCanonicalName();
-            String extension = MockitoExtension.class.getCanonicalName();
-            builder.append("import static "+mockito+".*;"+NEWLINE);
-            builder.append("import static "+extension+".*;"+NEWLINE);
-            imports.add(ViolatedAssumptionAnswer.class);
-        }
+//        if(doesUseMocks(results)){
+//            String mockito = Mockito.class.getCanonicalName();
+//            String extension = MockitoExtension.class.getCanonicalName();
+//            builder.append("import static "+mockito+".*;"+NEWLINE);
+//            builder.append("import static "+extension+".*;"+NEWLINE);
+//            imports.add(ViolatedAssumptionAnswer.class);
+//        }
 
-        if(hasException) {
+        if(hasException && !Properties.NO_RUNTIME_DEPENDENCY) {
         	builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
         }
 
@@ -415,7 +437,7 @@ public class TestSuiteWriter implements Opcodes {
             imports.add(DebugGraphics.class);
         }
 
-        if (TestSuiteWriterUtils.needToUseAgent()) {
+        if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
             imports.add(EvoRunner.class);
             imports.add(EvoRunnerParameters.class);
             imports.add(RunWith.class);
@@ -455,9 +477,13 @@ public class TestSuiteWriter implements Opcodes {
             importNames.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
         }
 
-        if (!Properties.TEST_SCAFFOLDING) {
+        if (!Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
             importNames.addAll(Scaffolding.getScaffoldingImports(wasSecurityException, results));
         }
+
+        // If a CodeUnderTestException happens, the test will be chopped before that exception
+        // but it would still be in the imports
+        importNames.remove(CodeUnderTestException.class.getCanonicalName());
 
         List<String> importsSorted = new ArrayList<>(importNames);
 
@@ -474,26 +500,16 @@ public class TestSuiteWriter implements Opcodes {
         return builder.toString();
     }
 
-    private boolean doesUseMocks(List<ExecutionResult> results) {
-        for(ExecutionResult er : results){
-            for(Statement st : er.test){
-                if(st instanceof FunctionalMockStatement){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
 
     /**
      * JUnit file header
      *
-     * @param name    a {@link java.lang.String} object.
-     * @param results a {@link java.util.List} object.
+     * @param test_name           a {@link java.lang.String} object.
+     * @param scaffolding_name    a {@link java.lang.String} object.
+     * @param results             a {@link java.util.List} object.
      * @return a {@link java.lang.String} object.
      */
-    protected String getHeader(String name, List<ExecutionResult> results) {
+    protected String getHeader(String test_name, String scaffolding_name, List<ExecutionResult> results) {
         StringBuilder builder = new StringBuilder();
         builder.append("/*");
         builder.append(NEWLINE);
@@ -516,14 +532,14 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(adapter.getImports());
         builder.append(getImports(results));
 
-        if (TestSuiteWriterUtils.needToUseAgent()) {
+        if (TestSuiteWriterUtils.needToUseAgent() && !Properties.NO_RUNTIME_DEPENDENCY) {
             builder.append(getRunner());
         }
 
-        builder.append(adapter.getClassDefinition(name));
+        builder.append(adapter.getClassDefinition(test_name));
 
-        if (Properties.TEST_SCAFFOLDING) {
-            builder.append(" extends " + Scaffolding.getFileName(name));
+        if (Properties.TEST_SCAFFOLDING && !Properties.NO_RUNTIME_DEPENDENCY) {
+            builder.append(" extends " + Scaffolding.getFileName(scaffolding_name));
         }
 
         builder.append(" {");
@@ -559,6 +575,8 @@ public class TestSuiteWriter implements Opcodes {
         if(Properties.JEE){
             list.add("useJEE = true");
         }
+        
+
 
         if (!list.isEmpty()) {
             s += list.get(0);
@@ -630,6 +648,7 @@ public class TestSuiteWriter implements Opcodes {
 
         // No code after an exception should be printed as it would break compilability
         TestCase test = testCases.get(id);
+
         Integer pos = result.getFirstPositionOfThrownException();
         if (pos != null) {
             if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
@@ -689,24 +708,6 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(BLOCK_SPACE);
             builder.append("future.get(" + time + ", TimeUnit.MILLISECONDS);");
             builder.append(NEWLINE);
-        }
-
-        final List<EPATransitionCoverageTestFitness> invalidEPATransitions = test.getCoveredGoals().stream()
-                .filter(testFitnessFunction -> testFitnessFunction instanceof EPATransitionCoverageTestFitness)
-                .map(testFitnessFunction -> ((EPATransitionCoverageTestFitness) testFitnessFunction))
-                .filter(EPATransitionCoverageTestFitness::isGoalError)
-                .collect(Collectors.toList());
-
-        // Make test fail if there are invalid EPA transitions
-        if (!invalidEPATransitions.isEmpty()) {
-                invalidEPATransitions.forEach(epaTransitionCoverageTestFitness -> builder.append(BLOCK_SPACE)
-                    .append("// Invalid EPA Transition: ")
-                    .append(epaTransitionCoverageTestFitness.getGoalName())
-                    .append(NEWLINE));
-
-            builder.append(BLOCK_SPACE)
-                    .append("fail(\"Invalid EPA Transitions\");")
-                    .append(NEWLINE);
         }
 
         // ---------   end of the body ----------------------------

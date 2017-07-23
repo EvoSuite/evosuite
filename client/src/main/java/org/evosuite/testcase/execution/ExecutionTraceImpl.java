@@ -797,7 +797,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 					if (stack.peek().methodName.equals("") && !stack.peek().branchTrace.isEmpty()) {
 						logger.debug("Found main method");
-						finishedCalls.add(stack.pop());
+						MethodCall activeCall = stack.pop();
+						finishedCalls.add(activeCall);
 					} else {
 						logger.debug("Bugger!");
 						// Usually, this happens if we use mutation testing and
@@ -806,7 +807,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 					}
 				} else {
 					try {
-						finishedCalls.add(stack.pop());
+						MethodCall activeCall = stack.pop();
+						finishedCalls.add(activeCall);
 					} catch (NoSuchElementException ex) {
 						throw ex;
 					}

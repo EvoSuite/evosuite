@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
 public @interface EpaAction {
 	public String name();
+	public String notEnabledExceptionList() default "";
+	public String enabledExceptionList() default "";
 }

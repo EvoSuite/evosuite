@@ -88,6 +88,10 @@ public class ExecutionResult implements Cloneable {
 	 *            the executedStatements to set
 	 */
 	public void setExecutedStatements(int executedStatements) {
+		if (executedStatements > this.test.size()) {
+			throw new IllegalArgumentException(
+					"Number of executed statements cannot be greater than the total number of statements in test case!");
+		}
 		this.executedStatements = executedStatements;
 	}
 
@@ -384,18 +388,22 @@ public class ExecutionResult implements Cloneable {
 	 * Returns true if any of the executed statements was a reflection statement
 	 *
 	 * @return
-     */
+	 */
 	public boolean calledReflection() {
+		// I found that it is not always the case that the 
+		// number of executed statements is less or equal to the total
+		// number of statements when calling this method.
+		// Due to this, I added this code to use the minimum 
+		// to iterate the statement list
 		int executedStatements = getExecutedStatements();
-		for(int numStatement = 0; numStatement < executedStatements; numStatement++) {
+		int numberOfStatements = test.size();
+		for (int numStatement = 0; numStatement < Math.min(numberOfStatements, executedStatements); numStatement++) {
 			Statement s = test.getStatement(numStatement);
-			if(s.isReflectionStatement())
+			if (s.isReflectionStatement())
 				return true;
 		}
 		return false;
 	}
-
-
 
 	/**
 	 * check if the test case threw any security exception

@@ -249,8 +249,9 @@ public class CoverageCriteriaAnalyzer {
             } else {
                 logger.debug("Goal {} is not covered", goal);
                 buffer.append("0");
-                if (Properties.PRINT_MISSED_GOALS)
+                if (Properties.PRINT_MISSED_GOALS) {
                     LoggingUtils.getEvoLogger().info(" - Missed goal {}", goal.toString());
+                }
             }
         }
 

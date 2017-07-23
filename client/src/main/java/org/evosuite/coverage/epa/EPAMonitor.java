@@ -1,10 +1,13 @@
 package org.evosuite.coverage.epa;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -13,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.epa.EpaAction;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -21,7 +25,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+/**
+ * This monitor maintains the information regarding from all callbacks regarding
+ * EPA trace information and construction.
+ * 
+ * @author galeotti
+ *
+ */
 public class EPAMonitor {
+
+	private static final String NOT_ENABLED_EXCEPTION_LIST = "notEnabledExceptionList";
+
+	private static final String ENABLED_EXCEPTION_LIST = "enabledExceptionList";
 
 	private static final String INIT = "<init>";
 
@@ -53,12 +68,74 @@ public class EPAMonitor {
 			this.epaStatesToMethodMap = createEpaStateToMethodMap(automata, targetClass);
 			this.methodToActionMap = createMethodToActionMap(automata, targetClass);
 			this.constructorToActionMap = createConstructorToActionMap(automata, targetClass);
+			this.enabledExceptionMap = createExceptionMap(automata, targetClass, ENABLED_EXCEPTION_LIST);
+			this.notEnabledExceptionMap = createExceptionMap(automata, targetClass, NOT_ENABLED_EXCEPTION_LIST);
+
 		} catch (ClassNotFoundException | NoSuchMethodException e) {
 			throw new EvosuiteError(e);
 		}
 
 	}
 
+	/**
+	 * Creates a map from fully qualified method names to a set of all
+	 * exceptions of the corresponding annotation field of an @EpaAction
+	 * annotation.
+	 * 
+	 * @param automata
+	 * @param targetClass
+	 * @param annotationFieldName
+	 * @return
+	 */
+	private static Map<String, Set<String>> createExceptionMap(EPA automata, Class<?> targetClass,
+			String annotationFieldName) {
+		Map<String, Set<String>> enabledExceptionMap = new HashMap<String, Set<String>>();
+		for (String actionName : automata.getActions()) {
+			// search methods
+			Set<Method> methods = EPAUtils.getEpaActionMethods(actionName, targetClass);
+			for (Method method : methods) {
+
+				Set<String> classNameSet = new HashSet<String>();
+				for (Annotation annotation : method.getDeclaredAnnotations()) {
+
+					Method notEnabledExceptionListMethod;
+					try {
+						if (annotation instanceof EpaAction) {
+							notEnabledExceptionListMethod = annotation.getClass()
+									.getDeclaredMethod(annotationFieldName);
+							Object rv = notEnabledExceptionListMethod.invoke(annotation);
+							if (!rv.equals("")) {
+								String notEnabledExceptionListStr = (String) rv;
+								String[] classNames = notEnabledExceptionListStr.split(",");
+
+								classNameSet.addAll(Arrays.asList(classNames));
+							}
+						}
+					} catch (NoSuchMethodException | SecurityException | IllegalAccessException
+							| IllegalArgumentException | InvocationTargetException e) {
+						// do not add class names
+					}
+
+				}
+				final String methodName = method.getName();
+				final String methodDescriptor = Type.getMethodDescriptor(method);
+				final String methodFullName = methodName + methodDescriptor;
+
+				enabledExceptionMap.put(methodFullName, classNameSet);
+			}
+		}
+
+		return enabledExceptionMap;
+	}
+
+	/**
+	 * Populates a mapping from constructor names to EPA Actions using the
+	 * annotations on each Java constructor
+	 * 
+	 * @param automata
+	 * @param targetClass
+	 * @return
+	 */
 	private static Map<String, String> createConstructorToActionMap(EPA automata, Class<?> targetClass) {
 		final Map<String, String> constructorToActionMap = new HashMap<String, String>();
 		for (String actionName : automata.getActions()) {
@@ -75,6 +152,14 @@ public class EPAMonitor {
 
 	}
 
+	/**
+	 * Populates a mapping from method names to EPA Actions using the
+	 * annotations on each Java method
+	 * 
+	 * @param automata
+	 * @param targetClass
+	 * @return
+	 */
 	private static Map<String, String> createMethodToActionMap(EPA automata, Class<?> targetClass) {
 		Map<String, String> methodToActionMap = new HashMap<String, String>();
 		for (String actionName : automata.getActions()) {
@@ -90,6 +175,15 @@ public class EPAMonitor {
 		return methodToActionMap;
 	}
 
+	/**
+	 * Creates a mapping from EPA states to Java boolean queries using
+	 * the @EpaState annotation
+	 * 
+	 * @param automata
+	 * @param targetClass
+	 * @return
+	 * @throws NoSuchMethodException
+	 */
 	private static Map<EPAState, Method> createEpaStateToMethodMap(EPA automata, Class<?> targetClass)
 			throws NoSuchMethodException {
 		final HashMap<EPAState, Method> epaStateMethods = new HashMap<EPAState, Method>();
@@ -107,10 +201,22 @@ public class EPAMonitor {
 		return epaStateMethods;
 	}
 
+	/**
+	 * A mapping from EPA states to boolean query methods to check if the object
+	 * is in the corresponding state.
+	 */
 	private final Map<EPAState, Method> epaStatesToMethodMap;
 
+	/**
+	 * A mapping from Java method names to EPA actions following the @EpaAction
+	 * annotations on the target class.
+	 */
 	private final Map<String, String> methodToActionMap;
 
+	/**
+	 * A mapping from Java constructor names to EPA actions based on
+	 * the @EpaAction annotations on the target class.
+	 */
 	private final Map<String, String> constructorToActionMap;
 
 	private EPAState previousEpaState;
@@ -172,7 +278,19 @@ public class EPAMonitor {
 		}
 	}
 
-	private Stack<String> call_stack = new Stack<>();
+	/**
+	 * This set stores those objects that executed a method that is labelled as
+	 * an EpaAction but the execution resulted in an exception thrown listed as
+	 * a notEnabledException (i.e. those exceptions that result from executing
+	 * actions that are not enabled)
+	 */
+	private final HashSet<Object> invalidCalleeObjects = new HashSet<Object>();
+
+	private final Stack<String> call_stack = new Stack<>();
+
+	private final Map<String, Set<String>> enabledExceptionMap;
+
+	private final Map<String, Set<String>> notEnabledExceptionMap;
 
 	private void beforeConstructor(String className, String fullMethodName, Object object) {
 		if (this.constructorToActionMap.containsKey(fullMethodName)) {
@@ -181,15 +299,22 @@ public class EPAMonitor {
 		}
 	}
 
-	public static void leftMethod(String className, String fullMethodName, Object object) {
-		logger.debug("Exiting method " + className + "." + fullMethodName);
+	public static void exitMethod(Exception exceptionToBeThrown, String className, String fullMethodName,
+			Object object) {
+		if (exceptionToBeThrown == null) {
+			logger.debug("Exiting method " + className + "." + fullMethodName + " with no exception");
+		} else {
+			logger.debug("Exiting method " + className + "." + fullMethodName + " with exception of type "
+					+ exceptionToBeThrown.getClass().getName());
+		}
+
 		if (getInstance().isMonitorEnabled()) {
 			disableCallBacks();
 			try {
 				if (fullMethodName.startsWith(INIT)) {
-					getInstance().afterConstructor(className, fullMethodName, object);
+					getInstance().afterConstructor(className, fullMethodName, object, exceptionToBeThrown);
 				} else {
-					getInstance().afterMethod(className, fullMethodName, object);
+					getInstance().afterMethod(className, fullMethodName, object, exceptionToBeThrown);
 				}
 			} catch (EvosuiteError e) {
 				throw e;
@@ -221,10 +346,11 @@ public class EPAMonitor {
 		EPAMonitor.getInstance().setEnabled(false);
 	}
 
-	private void afterConstructor(String className, String fullConstructorName, Object object) {
+	private void afterConstructor(String className, String fullConstructorName, Object object,
+			Exception exceptionToBeThrown) {
 		try {
 			// is the methodStmt defined as an EPA Action ?
-			if (this.constructorToActionMap.containsKey(fullConstructorName)) {
+			if (exceptionToBeThrown==null && this.constructorToActionMap.containsKey(fullConstructorName)) {
 
 				String top = call_stack.pop();
 				final String classNameAndFullConstructorName = className + "." + fullConstructorName;
@@ -252,10 +378,11 @@ public class EPAMonitor {
 	}
 
 	private void appendNewEpaTransition(Object object, EPATransition transition) {
-		ExecutionTracer.getExecutionTracer().getTrace().appendNewEpaTransition(object, transition);
+		ExecutionTracer.getExecutionTracer().getTraceNoFinishCalls().appendNewEpaTransition(object, transition);
 	}
 
-	private void afterMethod(String className, String fullMethodName, Object calleeObject) throws EvosuiteError {
+	private void afterMethod(String className, String fullMethodName, Object calleeObject,
+			Exception exceptionToBeThrown) throws EvosuiteError {
 		// If method is not an action, then we don't consider it
 		if (this.methodToActionMap.containsKey(fullMethodName)) {
 			try {
@@ -266,23 +393,112 @@ public class EPAMonitor {
 					throw new EvosuiteError(
 							"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
 				}
-//				if (!hasPreviousEpaState(calleeObject)) {
-//					// this object should have been seen previously!
-//					throw new MalformedEPATraceException("Object has no previous EPA State!");
-//				}
+
+				if (invalidCalleeObjects.contains(calleeObject)) {
+					// clean the previous EpaState associated with this object
+					previousEpaState = null;
+					// do not update any trace
+					return;
+				}
+				if (!hasPreviousEpaState(calleeObject)) {
+					// this object should have been seen previously!
+					throw new MalformedEPATraceException(
+							"Object has no previous EPA State! Class " + className + " action " + fullMethodName);
+				}
 
 				final String actionName = this.methodToActionMap.get(fullMethodName);
-				final EPAState previousEpaState = getPreviousEpaState(calleeObject);
-				final EPAState currentEpaState = getCurrentState(calleeObject);
-				final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
 
-				this.appendNewEpaTransition(calleeObject, transition);
+				if (exceptionToBeThrown != null && !isMethodEnabled(fullMethodName, exceptionToBeThrown)) {
+					// add the current callee object to the black list
+					invalidCalleeObjects.add(calleeObject);
+					// clean the previous EpaState associated with this object,
+					// do not update any trace
+					previousEpaState = null;
+				} else {
+					final EPAState previousEpaState = getPreviousEpaState(calleeObject);
+					final EPAState currentEpaState = getCurrentState(calleeObject);
+					final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
+					this.appendNewEpaTransition(calleeObject, transition);
+				}
 			} catch (MalformedEPATraceException | InvocationTargetException e) {
 				throw new EvosuiteError(e);
 			}
 		}
 	}
 
+	/**
+	 * Returns true if the non-null exception type is not listed as a
+	 * notEnabledException for the current EPA action
+	 * 
+	 * @param fullMethodName
+	 * @param exceptionToBeThrown
+	 *            a non-null reference to an exception
+	 * @return
+	 */
+	private boolean isMethodEnabled(String fullMethodName, Exception exceptionToBeThrown) {
+		Class<? extends Exception> exceptionToBeThrownClass = exceptionToBeThrown.getClass();
+
+		ClassLoader classLoader = exceptionToBeThrown.getClass().getClassLoader();
+
+		if (!enabledExceptionMap.containsKey(fullMethodName) || !notEnabledExceptionMap.containsKey(fullMethodName)) {
+			return false;
+		}
+		Set<String> enabledExceptionClassNames = enabledExceptionMap.get(fullMethodName);
+		Set<String> notEnabledExceptionClassNames = notEnabledExceptionMap.get(fullMethodName);
+
+		// white list exceptions
+		Set<Class<?>> enabledExceptions = loadAllClasses(classLoader, enabledExceptionClassNames);
+
+		// black list exceptions
+		Set<Class<?>> notEnabledExceptions = loadAllClasses(classLoader, notEnabledExceptionClassNames);
+
+		// check if any white list class is assignable from this exception
+		for (Class<?> enabledExceptionClass : enabledExceptions) {
+			if (enabledExceptionClass.isAssignableFrom(exceptionToBeThrownClass)) {
+
+				// check if any black list exception is assignable
+				for (Class<?> notEnabledExceptionClass : notEnabledExceptions) {
+					if (notEnabledExceptionClass.isAssignableFrom(exceptionToBeThrownClass)) {
+
+						// action is not enabled
+						return false;
+					}
+				}
+
+				// action is enabled
+				return true;
+			}
+		}
+
+		// action is not enabled
+		return false;
+	}
+
+	/**
+	 * Creates a list of classes from a list of class names using a specific
+	 * class loader. If a class name cannot be found it is ignored.
+	 * 
+	 * @param classLoader
+	 * @param classNames
+	 * @return
+	 */
+	private static Set<Class<?>> loadAllClasses(ClassLoader classLoader, Set<String> classNames) {
+		Set<Class<?>> loadedClasses = new HashSet<Class<?>>();
+		for (String className : classNames) {
+			try {
+				Class<?> clazz;
+				if (classLoader == null) {
+					clazz = Class.forName(className);
+				} else {
+					clazz = classLoader.loadClass(className);
+				}
+				loadedClasses.add(clazz);
+			} catch (ClassNotFoundException e) {
+				// ignore
+			}
+		}
+		return loadedClasses;
+	}
 
 	/**
 	 * In order to obtain the current state, we invoke all the EPA state methods
@@ -316,7 +532,7 @@ public class EPAMonitor {
 			}
 		}
 //		if (currentState == null) {
-//			throw new MalformedEPATraceException("Object has no EPA state!");
+//			throw new MalformedEPATraceException("Neither EPA state query has returned true for this object!");
 //		}
 		return currentState;
 	}
