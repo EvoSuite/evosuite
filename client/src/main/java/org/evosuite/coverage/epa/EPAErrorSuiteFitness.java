@@ -1,11 +1,6 @@
 package org.evosuite.coverage.epa;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.execution.ExecutionResult;
-
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 /**
  * This fitness function counts the degree of covered transitions. It is a

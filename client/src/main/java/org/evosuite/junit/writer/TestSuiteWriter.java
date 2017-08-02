@@ -725,9 +725,9 @@ public class TestSuiteWriter implements Opcodes {
                     .append(epaTransitionCoverageTestFitness.getGoalName())
                     .append(NEWLINE));
 
-            builder.append(BLOCK_SPACE)
-                    .append("fail(\"Invalid EPA Transitions\");")
-                    .append(NEWLINE);
+            //builder.append(BLOCK_SPACE)
+            //        .append("fail(\"Invalid EPA Transitions\");")
+            //        .append(NEWLINE);
         }
 
         // ---------   end of the body ----------------------------
