@@ -36,10 +36,10 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 				this.rootBranches.add(fitness); 
 				continue;
 			}
-			if (branch.getInstruction().isRootBranchDependent() 
-					|| branch.getInstruction().isDirectlyControlDependentOn(null))
+
+			if (branch.getInstruction().isRootBranchDependent())
+					//|| branch.getInstruction().getControlDependentBranchIds().contains(-1))
 				this.rootBranches.add(fitness); 
-			
 			// see dependencies for all true/false branches
 			ActualControlFlowGraph rcfg = branch.getInstruction().getActualCFG();
 			Set<BasicBlock> visitedBlock = new HashSet<BasicBlock>();
