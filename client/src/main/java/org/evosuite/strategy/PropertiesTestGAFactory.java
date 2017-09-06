@@ -27,9 +27,8 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.MinimizeSizeSecondaryObjective;
-import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.FitnessReplacementFunction;
+import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.MonotonicGA;
 import org.evosuite.ga.metaheuristics.NSGAII;
@@ -57,6 +56,8 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
+import org.evosuite.testcase.secondaryobjectives.MinimizeExceptionsSecondaryObjective;
+import org.evosuite.testcase.secondaryobjectives.MinimizeLengthSecondaryObjective;
 import org.evosuite.utils.ArrayUtil;
 
 /**
@@ -175,10 +176,10 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 	 * @return a {@link org.evosuite.search.ga.SecondaryObjective} object.
 	 */
 	private SecondaryObjective<TestChromosome> getSecondaryTestObjective(String name) {
-		if (name.equalsIgnoreCase("size"))
-			return new MinimizeSizeSecondaryObjective<>();
+		if (name.equalsIgnoreCase("length"))
+			return new MinimizeLengthSecondaryObjective();
 		else if (name.equalsIgnoreCase("exceptions"))
-			return new org.evosuite.testcase.MinimizeExceptionsSecondaryObjective();
+			return new MinimizeExceptionsSecondaryObjective();
 		else
 			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
 			        + name + "\"");

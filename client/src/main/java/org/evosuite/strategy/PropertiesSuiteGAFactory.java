@@ -30,11 +30,11 @@ import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.MinimizeSizeSecondaryObjective;
-import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.RandomSearch;
 import org.evosuite.ga.metaheuristics.SPEA2;
@@ -70,6 +70,7 @@ import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeAverageLengthSecondaryObjective;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeExceptionsSecondaryObjective;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeMaxLengthSecondaryObjective;
+import org.evosuite.testsuite.secondaryobjectives.MinimizeSizeSecondaryObjective;
 import org.evosuite.testsuite.secondaryobjectives.MinimizeTotalLengthSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
@@ -247,7 +248,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 	 */
 	protected SecondaryObjective<TestSuiteChromosome> getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
-			return new MinimizeSizeSecondaryObjective<>();
+			return new MinimizeSizeSecondaryObjective();
 		else if (name.equalsIgnoreCase("ibranch"))
 			return new IBranchSecondaryObjective();
 		else if (name.equalsIgnoreCase("archiveibranch"))
@@ -260,6 +261,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			return new MinimizeExceptionsSecondaryObjective();
 		else if (name.equalsIgnoreCase("totallength"))
 			return new MinimizeTotalLengthSecondaryObjective();
+		else if (name.equalsIgnoreCase("rho"))
+			return new RhoTestSuiteSecondaryObjective();
 		else
 			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
 			        + name + "\"");

@@ -223,6 +223,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     break;
                 case Type.CHAR:
                     char c = (char) argValue;
+                    numberValue = (int)c; // Suite fitness uses the numeric representation to estimate distances
                     if (Character.isAlphabetic(c))
                         argValueDesc = CHAR_ALPHA;
                     else if (Character.isDigit(c))

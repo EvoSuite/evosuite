@@ -19,6 +19,15 @@
  */
 package org.evosuite.regression;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.assertion.Assertion;
@@ -37,16 +46,6 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 public class RegressionSuiteMinimizer {
 
   private transient final static Logger logger = LoggerFactory
@@ -61,9 +60,10 @@ public class RegressionSuiteMinimizer {
     track(RuntimeVariable.RSM_OverMinimized, 0);
 
     logger.warn("Going to minimize test suite. Length: {} ", suite.totalLengthOfTestCases());
+    logger.debug("suite: \n{}", suite);
 
     RegressionTestSuiteChromosome regressionSuite = new RegressionTestSuiteChromosome();
-    regressionSuite.addTests(suite.getTestChromosomes());
+    regressionSuite.addTests(suite.clone().getTestChromosomes());
 
     // Seems to be broken:
     // removeUnusedVariables(regressionSuite);
@@ -100,6 +100,7 @@ public class RegressionSuiteMinimizer {
     }
 
     logger.warn("Minimized Length: {} ", suite.totalLengthOfTestCases());
+    logger.debug("suite: \n{}", suite);
   }
 
   private void sendStats(RegressionTestSuiteChromosome regressionSuite) {
@@ -126,6 +127,7 @@ public class RegressionSuiteMinimizer {
 
   /**
    * Execute regression test case on both versions
+   *
    * @param regressionTest regression test chromosome to be executed on both versions
    */
   private void executeTest(RegressionTestChromosome regressionTest) {
@@ -257,7 +259,6 @@ public class RegressionSuiteMinimizer {
               String exSignatureB =
                   RegressionExceptionHelper.getExceptionSignature(exA, Properties.TARGET_CLASS);
               signaturePair += exSignatureB;
-
 
               if (exception.equals(exceptionB) || exSignatureA.equals(exSignatureB)) {
                 // We will be taking care of removing this exception when checking from A to B
@@ -433,7 +434,7 @@ public class RegressionSuiteMinimizer {
       RegressionTestChromosome test = (RegressionTestChromosome) it.next();
 
       if (numFailingAssertions(test) == 0) {
-        logger.debug("Removing test {}: no assertions", (i - 1));
+        logger.warn("Removing test {}: no assertions", (i - 1));
         it.remove();
       }
     }

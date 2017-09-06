@@ -240,7 +240,7 @@ public class TestSuiteWriter implements Opcodes {
         removeAssertionsAfterException(results);
 
 
-        if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
+        if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED || testCases.size() == 0) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
@@ -304,7 +304,9 @@ public class TestSuiteWriter implements Opcodes {
             if(result.noThrownExceptions())
                 continue;
             int exceptionPosition = result.getFirstPositionOfThrownException();
-            result.test.getStatement(exceptionPosition).removeAssertions();
+            // TODO: Not clear how that can happen...
+            if(result.test.size() > exceptionPosition)
+                result.test.getStatement(exceptionPosition).removeAssertions();
         }
     }
 
