@@ -28,19 +28,9 @@ import java.util.Set;
 
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.FitnessFunctions;
-import org.evosuite.coverage.archive.TestsArchive;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageHelper;
-import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
-import org.evosuite.coverage.line.LineCoverageSuiteFitness;
-import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
-import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
-import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
-import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
@@ -62,7 +52,6 @@ import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +68,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	private static final long serialVersionUID = 146182080947267628L;
 
-	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMOSA.class);
 
 	/**  keep track of overall suite fitness and coverage */
 	protected List<TestSuiteFitnessFunction> suiteFitnesses;
