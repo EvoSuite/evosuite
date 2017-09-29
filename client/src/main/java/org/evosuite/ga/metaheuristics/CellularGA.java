@@ -1,0 +1,391 @@
+package org.evosuite.ga.metaheuristics;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.evosuite.Properties;
+import org.evosuite.TimeController;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.ChromosomeCollection;
+import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.FitnessReplacementFunction;
+import org.evosuite.ga.Neighbourhood;
+import org.evosuite.ga.ReplacementFunction;
+import org.evosuite.ga.operators.crossover.CrossOverFunction;
+import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
+import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.SelectionFunction;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Implementation of cellular GA
+ * 
+ * @author Nasser Albunian
+ */
+public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
+	
+	private static final long serialVersionUID = 7846967347821123201L;
+	
+	private static final Logger logger = LoggerFactory.getLogger(CellularGA.class);
+
+	/** An object of ReplacementFunction **/
+	protected ReplacementFunction replacementFunction;
+	
+	/** Size of population **/
+	private int populationSize=0;
+	
+	/** Collection of chromosomes of the current population **/
+	//private ChromosomeCollection<T> _collection;
+	
+	/** Constructing the neighbourhood **/
+	private Neighbourhood<T> neighb;
+	
+	/** Neighbourhood model **/
+	private Properties.CGA_Models _model = null;
+	
+	/** Selection function to select parents */
+	//protected SelectionFunction<T> selectionFunction = new RankSelection<T>();
+	
+	/** CrossOver function */
+	//protected CrossOverFunction crossoverFunction = new SinglePointCrossOver();
+	
+	/** Constructing the temporary grid */
+	private List<T> temp_cells = new ArrayList<>();
+	//private ChromosomeCollection<T> temp_collection = new ChromosomeCollection<T>(temp_cells);
+	
+	private static final double DELTA = 0.000000001;
+	
+	
+	public CellularGA (Properties.CGA_Models model, ChromosomeFactory<T> factory){
+		
+		super(factory);
+		
+		_model = model;
+		
+		populationSize = Properties.POPULATION;
+		
+		neighb = new Neighbourhood<T>(populationSize);
+		
+		setReplacementFunction(new FitnessReplacementFunction());
+		
+		LoggingUtils.getEvoLogger().info("* Running CGA with model " + _model);
+	}
+	
+	/**
+	 * Launching the algorithm
+	 */
+	public void run(){
+
+		evolve();
+
+		replacePopulations(population, temp_cells);
+		
+		for(T individual : population) {
+			assert(((TestSuiteChromosome)individual).totalLengthOfTestCases() < Properties.MAX_SIZE * Properties.CHROMOSOME_LENGTH);
+		}
+		
+		updateFitnessFunctionsAndValues();
+
+		currentIteration++;
+	}
+	
+	/**
+	 * Evolution process on individuals in the grid
+	 */
+	public void evolve(){
+		
+		temp_cells.clear();
+		
+		for(int i=0; i<populationSize; i++){
+
+			List<T> neighbors = this.getNeighbors(population, i);
+			
+			if (Properties.SHUFFLE_GOALS)
+				Randomness.shuffle(neighbors);
+
+			if (getFitnessFunction().isMaximizationFunction()) {
+				Collections.sort(neighbors, Collections.reverseOrder());
+			} else {
+				Collections.sort(neighbors);
+			}
+
+			
+			List<T> parents = selectionFunction.select(neighbors,2);
+			
+			//T parent1 = selectionFunction.select(neighbors);
+			//T parent2 = selectionFunction.select(neighbors);
+			
+			T parent1 = parents.get(0);
+			T parent2 = parents.get(1);
+			
+			@SuppressWarnings("unchecked")
+			T offspring1 = (T)parent1.clone();
+			@SuppressWarnings("unchecked")
+			T offspring2 = (T)parent2.clone();
+			
+			
+			try {
+				// Crossover
+				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+					crossoverFunction.crossOver(offspring1, offspring2);
+				}
+
+			} catch (ConstructionFailedException e) {
+				logger.info("CrossOver failed");
+				continue;
+			}
+			
+			T bestOffspring = getBestOffspring(offspring1, offspring2);
+			
+			notifyMutation(bestOffspring);
+			bestOffspring.mutate();
+			
+			if (bestOffspring.isChanged()) {
+				bestOffspring.updateAge(currentIteration);
+			}
+			
+			if (!isTooLong(bestOffspring) && bestOffspring.size() != 0)
+				temp_cells.add(bestOffspring);
+			else
+				temp_cells.add(population.get(i));
+		}
+	}
+	
+	/**
+	 * Retrieve neighbours of a chromosome
+	 * @param current_pop The current population
+	 * @param chromosome  The chromosome which its neighbours will be retrieved
+	 * @return neighbours as a collection
+	 */
+	public List<T> getNeighbors(List<T> current_pop, int chromosome){
+		
+		switch(_model){
+		case ONEDIM: 	return neighb.ringTopology(current_pop, chromosome);
+		case LINFIV:    return neighb.linearFive(current_pop, chromosome);
+		case COMNIN:    return neighb.compactNine(current_pop, chromosome);
+		case COMTHI: 	return neighb.CompactThirteen(current_pop, chromosome);
+		default:        return neighb.linearFive(current_pop, chromosome);
+		}
+	}
+	
+	/**
+	 * Replace the current individuals with better individuals in the temporary grid
+	 * @param main The main grid
+	 * @param temp The temporary grid
+	 */
+	public void replacePopulations(List<T> main, List<T> temp){
+		
+		for(int i=0; i<populationSize; i++){
+			
+			T mainIndividual = main.get(i);
+			T tempIndividual = temp.get(i);
+			
+			for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+				fitnessFunction.getFitness(mainIndividual);
+				notifyEvaluation(mainIndividual);
+				fitnessFunction.getFitness(tempIndividual);
+				notifyEvaluation(tempIndividual);
+			}
+			
+			// replace-all policy: we always replace the existing individual with the new offspring 
+			//main.set(i, tempIndividual);
+			
+			// replace-if-better policy
+			if(keepOffspring(mainIndividual, tempIndividual)){
+				if (!(isTooLong(tempIndividual) || tempIndividual.size() == 0)){
+					main.set(i, tempIndividual);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Get the best offspring
+	 * @param offspring1
+	 * @param offspring2
+	 * @return better offspring
+	 */
+	public T getBestOffspring(T offspring1, T offspring2){
+		
+		for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+			fitnessFunction.getFitness(offspring1);
+			notifyEvaluation(offspring1);
+			fitnessFunction.getFitness(offspring2);
+			notifyEvaluation(offspring2);
+		}
+		
+		if(keepOffspring(offspring1, offspring2))
+			return offspring2;
+		else
+			return offspring1;
+	}
+
+
+	/**
+	 * Initialise the population
+	 */
+	public void initializePopulation() {
+		
+		notifySearchStarted();
+		
+		currentIteration = 0;
+
+		generateInitialPopulation(populationSize);
+		
+		logger.debug("Calculating fitness of initial population");
+		
+		calculateFitnessAndSortPopulation();
+		
+		this.notifyIteration();
+	}
+
+
+	/**
+	 * Generate solution
+	 */
+	public void generateSolution() {
+		
+		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
+			disableFirstSecondaryCriterion();
+		}
+
+		if (population.isEmpty()) {
+			initializePopulation();
+			assert!population.isEmpty() : "Could not create any test";
+		}
+
+		logger.debug("Starting evolution");
+		int starvationCounter = 0;
+		double bestFitness = Double.MAX_VALUE;
+		double lastBestFitness = Double.MAX_VALUE;
+		if (getFitnessFunction().isMaximizationFunction()) {
+			bestFitness = 0.0;
+			lastBestFitness = 0.0;
+		}
+
+		while (!isFinished()) {
+			
+			logger.info("Population size before: " + population.size());
+
+			{
+				double bestFitnessBeforeEvolution = getBestFitness();
+				run();
+				sortPopulation();
+				double bestFitnessAfterEvolution = getBestFitness();
+
+				if (getFitnessFunction().isMaximizationFunction())
+					assert(bestFitnessAfterEvolution >= (bestFitnessBeforeEvolution
+							- DELTA)) : "best fitness before evolve()/sortPopulation() was: " + bestFitnessBeforeEvolution
+									+ ", now best fitness is " + bestFitnessAfterEvolution;
+				else
+					assert(bestFitnessAfterEvolution <= (bestFitnessBeforeEvolution
+							+ DELTA)) : "best fitness before evolve()/sortPopulation() was: " + bestFitnessBeforeEvolution
+									+ ", now best fitness is " + bestFitnessAfterEvolution;
+			}
+
+			{
+				double bestFitnessBeforeLocalSearch = getBestFitness();
+				applyLocalSearch();
+				double bestFitnessAfterLocalSearch = getBestFitness();
+
+				if (getFitnessFunction().isMaximizationFunction())
+					assert(bestFitnessAfterLocalSearch >= (bestFitnessBeforeLocalSearch
+							- DELTA)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
+									+ ", now best fitness is " + bestFitnessAfterLocalSearch;
+				else
+					assert(bestFitnessAfterLocalSearch <= (bestFitnessBeforeLocalSearch
+							+ DELTA)) : "best fitness before applyLocalSearch() was: " + bestFitnessBeforeLocalSearch
+									+ ", now best fitness is " + bestFitnessAfterLocalSearch;
+			}
+
+			double newFitness = getBestFitness();
+
+			if (getFitnessFunction().isMaximizationFunction())
+				assert(newFitness >= (bestFitness - DELTA)) : "best fitness was: " + bestFitness
+						+ ", now best fitness is " + newFitness;
+			else
+				assert(newFitness <= (bestFitness + DELTA)) : "best fitness was: " + bestFitness
+						+ ", now best fitness is " + newFitness;
+			bestFitness = newFitness;
+
+			if (Double.compare(bestFitness, lastBestFitness) == 0) {
+				starvationCounter++;
+			} else {
+				logger.info("reset starvationCounter after " + starvationCounter + " iterations");
+				starvationCounter = 0;
+				lastBestFitness = bestFitness;
+
+			}
+
+			updateSecondaryCriterion(starvationCounter);
+
+			logger.info("Current iteration: " + currentIteration);
+			this.notifyIteration();
+
+			logger.info("Population size: " + population.size());
+			logger.info("Best individual has fitness: " + population.get(0).getFitness());
+			logger.info("Worst individual has fitness: " + population.get(population.size() - 1).getFitness());
+
+		}
+		// archive
+		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
+
+		notifySearchFinished();
+	}
+	
+	/**
+	 * Retrieve the fitness
+	 * @return fitness of an individual
+	 */
+	private double getBestFitness() {
+		T bestIndividual = getBestIndividual();
+		for (FitnessFunction<T> ff : fitnessFunctions) {
+			ff.getFitness(bestIndividual);
+		}
+		return bestIndividual.getFitness();
+	}
+	
+	/**
+	 * <p>
+	 * setReplacementFunction
+	 * </p>
+	 * 
+	 * @param replacement_function
+	 *            a {@link org.evosuite.ga.ReplacementFunction} object.
+	 */
+	public void setReplacementFunction(ReplacementFunction replacement_function) {
+		this.replacementFunction = replacement_function;
+	}
+
+	/**
+	 * <p>
+	 * getReplacementFunction
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.ga.ReplacementFunction} object.
+	 */
+	public ReplacementFunction getReplacementFunction() {
+		return replacementFunction;
+	}
+	
+	/**
+	 * Determine the offspring that will be kept
+	 * @param offspring1 The first offspring
+	 * @param offspring2 The second offspring
+	 * @return a boolean
+	 */
+	protected boolean keepOffspring(Chromosome offspring1, Chromosome offspring2) {
+		return replacementFunction.keeptheOffspring(offspring1, offspring2);
+	}
+
+}
+

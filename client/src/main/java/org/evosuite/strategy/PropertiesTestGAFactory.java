@@ -30,6 +30,7 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.CellularGA;
 import org.evosuite.ga.metaheuristics.MonotonicGA;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
@@ -101,6 +102,18 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				MonotonicGA<TestChromosome> ga = new MonotonicGA<TestChromosome>(factory);
+				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
+					// user has explicitly asked for this replacement function
+					ga.setReplacementFunction(new FitnessReplacementFunction());
+				} else {
+					ga.setReplacementFunction(new TestCaseReplacementFunction());
+				}
+				return ga;
+			}
+		case CGA:
+			logger.info("Chosen search algorithm: CellularGA");
+			{
+				CellularGA<TestChromosome> ga = new CellularGA<TestChromosome>(Properties.MODEL, factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());

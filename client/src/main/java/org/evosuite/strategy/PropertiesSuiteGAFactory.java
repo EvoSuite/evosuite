@@ -34,6 +34,7 @@ import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.ga.metaheuristics.CellularGA;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.RandomSearch;
@@ -143,6 +144,22 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
+	            if (Properties.TEST_ARCHIVE)
+	            	ga.setArchive(TestsArchive.instance);
+
+				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
+					// user has explicitly asked for this replacement function
+					ga.setReplacementFunction(new FitnessReplacementFunction());
+				} else {
+					// use default
+					ga.setReplacementFunction(new TestSuiteReplacementFunction());
+				}
+				return ga;
+			}
+		case CGA:
+			logger.info("Chosen search algorithm: CellularGA");
+			{
+				CellularGA<TestSuiteChromosome> ga = new CellularGA<TestSuiteChromosome>(Properties.MODEL, factory);
 	            if (Properties.TEST_ARCHIVE)
 	            	ga.setArchive(TestsArchive.instance);
 
