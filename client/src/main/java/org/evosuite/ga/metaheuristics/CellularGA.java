@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Nasser Albunian
  */
+
 public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	
 	private static final long serialVersionUID = 7846967347821123201L;
