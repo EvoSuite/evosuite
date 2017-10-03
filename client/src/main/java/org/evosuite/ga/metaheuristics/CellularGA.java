@@ -1,7 +1,5 @@
 package org.evosuite.ga.metaheuristics;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,17 +7,12 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.ChromosomeCollection;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.Neighbourhood;
 import org.evosuite.ga.ReplacementFunction;
-import org.evosuite.ga.operators.crossover.CrossOverFunction;
-import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
-import org.evosuite.ga.operators.selection.RankSelection;
-import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -31,7 +24,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Nasser Albunian
  */
-
 public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	
 	private static final long serialVersionUID = 7846967347821123201L;
@@ -44,24 +36,14 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	/** Size of population **/
 	private int populationSize=0;
 	
-	/** Collection of chromosomes of the current population **/
-	//private ChromosomeCollection<T> _collection;
-	
 	/** Constructing the neighbourhood **/
 	private Neighbourhood<T> neighb;
 	
 	/** Neighbourhood model **/
 	private Properties.CGA_Models _model = null;
 	
-	/** Selection function to select parents */
-	//protected SelectionFunction<T> selectionFunction = new RankSelection<T>();
-	
-	/** CrossOver function */
-	//protected CrossOverFunction crossoverFunction = new SinglePointCrossOver();
-	
 	/** Constructing the temporary grid */
 	private List<T> temp_cells = new ArrayList<>();
-	//private ChromosomeCollection<T> temp_collection = new ChromosomeCollection<T>(temp_cells);
 	
 	private static final double DELTA = 0.000000001;
 	
@@ -121,9 +103,6 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 
 			
 			List<T> parents = selectionFunction.select(neighbors,2);
-			
-			//T parent1 = selectionFunction.select(neighbors);
-			//T parent2 = selectionFunction.select(neighbors);
 			
 			T parent1 = parents.get(0);
 			T parent2 = parents.get(1);
@@ -196,9 +175,6 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 				fitnessFunction.getFitness(tempIndividual);
 				notifyEvaluation(tempIndividual);
 			}
-			
-			// replace-all policy: we always replace the existing individual with the new offspring 
-			//main.set(i, tempIndividual);
 			
 			// replace-if-better policy
 			if(keepOffspring(mainIndividual, tempIndividual)){

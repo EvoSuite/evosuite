@@ -12,6 +12,8 @@ import org.evosuite.Properties.Positions;
  */
 public class Neighbourhood<T extends Chromosome> implements NeighborModels,Serializable{
 
+	private static final long serialVersionUID = 1L;
+
 	/** Size of collection **/
 	private int chromCollectionSize;
 	
@@ -28,7 +30,6 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	 * Collection of cells will be returned by different models of neighbourhood 
 	 */
 	private List<T> chromosomes = new ArrayList<>();
-	//private ChromosomeCollection<T> _collection = new ChromosomeCollection<>(chromosomes);
 	
 	
 	public Neighbourhood (int populationSize){
@@ -252,7 +253,5 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 		
 		return chromosomes;
 	}
-
-
 
 }
