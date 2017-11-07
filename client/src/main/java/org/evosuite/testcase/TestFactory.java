@@ -2294,98 +2294,39 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public List<VariableReference> satisfyParameters(TestCase test,
-	        VariableReference callee, List<Type> parameterTypes, List<Parameter> parameterList, int position,
-	        int recursionDepth, boolean allowNull, boolean excludeCalleeGenerators,
-													 boolean canReuseExistingVariables) throws ConstructionFailedException {
+	public List<VariableReference> satisfyParameters(TestCase test, VariableReference callee, List<Type> parameterTypes,
+			List<Parameter> parameterList, int position, int recursionDepth, boolean allowNull,
+			boolean excludeCalleeGenerators, boolean canReuseExistingVariables) throws ConstructionFailedException {
 
-		if(callee==null && excludeCalleeGenerators){
+		if (callee == null && excludeCalleeGenerators) {
 			throw new IllegalArgumentException("Exclude generators on null callee");
 		}
 
 		List<VariableReference> parameters = new ArrayList<>();
-		logger.debug("Trying to satisfy {} parameters at position {}",parameterTypes.size(),position);
+		logger.debug("Trying to satisfy {} parameters at position {}", parameterTypes.size(), position);
 
-		//changes start
-		if ((null == parameterList) && (null != parameterTypes)) {
-
-			for (Type parameterType : parameterTypes) {
-				logger.debug("Current parameter type: {}", parameterType);
-
-				if (parameterType instanceof CaptureType) {
-					// TODO: This should not really happen in the first place
-					throw new ConstructionFailedException("Cannot satisfy capture type");
-				}
-
-				GenericClass parameterClass = new GenericClass(parameterType);
-				if (parameterClass.hasTypeVariables()) {
-					logger.debug("Parameter has type variables, replacing with wildcard");
-					parameterType = parameterClass.getWithWildcardTypes().getType();
-				}
-				int previousLength = test.size();
-
-				VariableReference var = null;
-
-				if (canReuseExistingVariables) {
-					logger.debug("Can re-use variables");
-					var = createOrReuseVariable(test, parameterType, position, recursionDepth, callee, allowNull,
-							excludeCalleeGenerators, true);
-				} else {
-					logger.debug("Cannot re-use variables: attempt at creating new one");
-					var = createVariable(test, parameterType, position, recursionDepth, callee, allowNull,
-							excludeCalleeGenerators, true, false);
-					if (var == null) {
-						throw new ConstructionFailedException(
-								"Failed to create variable for type " + parameterType + " at position " + position);
-					}
-				}
-
-				assert !(!allowNull && ConstraintHelper.isNull(var, test));
-
-				if (var.getStPosition() < position
-						&& ConstraintHelper.getLastPositionOfBounded(var, test) >= position) {
-					String msg = "Bounded variable issue when calling satisfyParameters()";
-					AtMostOnceLogger.warn(logger, msg);
-					throw new ConstructionFailedException(msg);
-				}
-
-				// Generics instantiation may lead to invalid types, so better
-				// double check
-				if (!var.isAssignableTo(parameterType)) {
-					throw new ConstructionFailedException("Error: " + var + " is not assignable to " + parameterType);
-				}
-				parameters.add(var);
-
-				int currentLength = test.size();
-				position += currentLength - previousLength;
-			}
-		} else if ((null == parameterTypes) && (null != parameterList)) {
-			parameters = loopSatisfyParameters(test, callee, parameterList, position, recursionDepth, allowNull,
-					excludeCalleeGenerators, canReuseExistingVariables);
+		// changes start
+		List<?> genericParameterList = new ArrayList<>();
+		Boolean isListOfParameterType = true;
+		if (null != parameterList) {
+			genericParameterList = parameterList;
+			isListOfParameterType = false;
+		} else {
+			genericParameterList = parameterTypes;
 		}
-		logger.debug("Satisfied {} parameters", parameterTypes.size());
-		return parameters;
-	}
-	
-	/**
-	 * Satisfy a list of parameters by reusing or creating variables, looping through parameterList instead of parameterTypes
-	 *
-	 * @param test
-	 * @param parameterList
-	 * @param position
-	 * @param recursionDepth
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public List<VariableReference> loopSatisfyParameters(TestCase test,
-	        VariableReference callee,List<Parameter> parameterList, int position,
-	        int recursionDepth, boolean allowNull, boolean excludeCalleeGenerators,
-			boolean canReuseExistingVariables) throws ConstructionFailedException {
+		for (Object genericParameter : genericParameterList) {
 
-		List<VariableReference> parameters = new ArrayList<>();
-		for (Parameter parameter : parameterList) {
-			Type parameterType = parameter.getType();
+			Type parameterType = null;
+			Parameter parameter = null;
+			if (!isListOfParameterType) {
+				parameter = (Parameter) genericParameter;
+				parameterType = ((Parameter) genericParameter).getType();
+			} else {
+				parameterType = (Type) genericParameter;
+			}
+
 			logger.debug("Current parameter type: {}", parameterType);
+
 			if (parameterType instanceof CaptureType) {
 				// TODO: This should not really happen in the first place
 				throw new ConstructionFailedException("Cannot satisfy capture type");
@@ -2401,12 +2342,14 @@ public class TestFactory {
 			VariableReference var = null;
 
 			allowNull = true;
-			for (Annotation annotation : parameter.getAnnotations()) {
-				if (annotation.toString().contains(Properties.NONNULL)) {
-					allowNull = false;
-					break;
+			if (!isListOfParameterType) {
+				for (Annotation annotation : parameter.getAnnotations()) {
+					if (annotation.toString().contains(Properties.NONNULL)) {
+						allowNull = false;
+						break;
+					}
 				}
-			}	
+			}
 
 			if (canReuseExistingVariables) {
 				logger.debug("Can re-use variables");
@@ -2439,10 +2382,11 @@ public class TestFactory {
 
 			int currentLength = test.size();
 			position += currentLength - previousLength;
-
 		}
+		logger.debug("Satisfied {} parameters", parameterTypes.size());
 		return parameters;
 	}
+	
 
 
 }
