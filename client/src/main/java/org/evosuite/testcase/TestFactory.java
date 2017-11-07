@@ -19,9 +19,11 @@
  */
 package org.evosuite.testcase;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,9 +223,11 @@ public class TestFactory {
 
 		try {
 			//first be sure if parameters can be satisfied
+			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 			List<VariableReference> parameters = satisfyParameters(test,
 			                                                       null,
-			                                                       Arrays.asList(constructor.getParameterTypes()),
+			                                                       null,
+			                                                       Arrays.asList(constructor.getConstructor().getParameters()),
 			                                                       position,
 			                                                       recursionDepth + 1,
 					                                               true, false, true);
@@ -308,7 +312,7 @@ public class TestFactory {
 				VariableReference valueToInject = satisfyParameters(
 						test,
 						ref, // avoid calling methods of bounded variables
-						Arrays.asList((Type) f.getType()),
+						Arrays.asList((Type) f.getType()), null, // Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 						injectPosition,
 						recursionDepth +1,
 						false, true, reuseVariables).get(0);
@@ -527,9 +531,9 @@ public class TestFactory {
 					throw new ConstructionFailedException("Cannot apply method to this callee");
 				}
 			}
-
-			parameters = satisfyParameters(test, callee,
-			                               Arrays.asList(method.getParameterTypes()),
+			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
+			parameters = satisfyParameters(test, callee, null,
+			                               Arrays.asList(method.getMethod().getParameters()),
 			                               position, recursionDepth + 1, true, false, true);
 
 		} catch (ConstructionFailedException e) {
@@ -575,10 +579,10 @@ public class TestFactory {
 		if(constraints!=null && constraints.noNullInputs()){
 			allowNull = false;
 		}
-
+		// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 		List<VariableReference> parameters = satisfyParameters(
 				test, callee,
-				Arrays.asList(method.getParameterTypes()),
+				Arrays.asList(method.getParameterTypes()), null,
 				position, 1, allowNull, false, true);
 
 		int newLength = test.size();
@@ -1955,7 +1959,7 @@ public class TestFactory {
             Field field = reflectionFactory.nextField();
             parameters = satisfyParameters(test, null,
                     //we need a reference to the SUT, and one to a variable of same type of chosen field
-                    Arrays.asList((Type)reflectionFactory.getReflectedClass() , (Type)field.getType()),
+                    Arrays.asList((Type)reflectionFactory.getReflectedClass() , (Type)field.getType()), null, // Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
                     position, recursionDepth + 1, true, false, true);
 
             try {
@@ -1972,7 +1976,8 @@ public class TestFactory {
             list.add(reflectionFactory.getReflectedClass());
             list.addAll(Arrays.asList(method.getGenericParameterTypes()));
 
-            parameters = satisfyParameters(test, null, list, position, recursionDepth + 1, true, false, true);
+            // Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
+            parameters = satisfyParameters(test, null, list, null, position, recursionDepth + 1, true, false, true);
             VariableReference callee = parameters.remove(0);
 
 			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method,
@@ -2015,9 +2020,10 @@ public class TestFactory {
 			 */
 			boolean allowNull = false;
 
+			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 			parameters = satisfyParameters(test, callee,
 					//we need a reference to the SUT, and one to a variable of same type of chosen field
-					Arrays.asList((Type)field.getType()), position, recursionDepth + 1, allowNull, false, true);
+					Arrays.asList((Type)field.getType()), null, position, recursionDepth + 1, allowNull, false, true);
 
 			try {
 				st = new PrivateFieldStatement(test,reflectionFactory.getReflectedClass(),field.getName(),
@@ -2032,7 +2038,8 @@ public class TestFactory {
 			List<Type> list = new ArrayList<>();
 			list.addAll(Arrays.asList(method.getParameterTypes()));
 
-			parameters = satisfyParameters(test, callee, list,position, recursionDepth + 1, true, false, true);
+			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
+			parameters = satisfyParameters(test, callee, list, null, position, recursionDepth + 1, true, false, true);
 
 			st = new PrivateMethodStatement(test, reflectionFactory.getReflectedClass(), method,
 					callee, parameters, Modifier.isStatic(method.getModifiers()));
@@ -2281,13 +2288,14 @@ public class TestFactory {
 	 *
 	 * @param test
 	 * @param parameterTypes
+	 * @param parameterList
 	 * @param position
 	 * @param recursionDepth
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
 	public List<VariableReference> satisfyParameters(TestCase test,
-	        VariableReference callee, List<Type> parameterTypes, int position,
+	        VariableReference callee, List<Type> parameterTypes, List<Parameter> parameterList, int position,
 	        int recursionDepth, boolean allowNull, boolean excludeCalleeGenerators,
 													 boolean canReuseExistingVariables) throws ConstructionFailedException {
 
@@ -2298,9 +2306,86 @@ public class TestFactory {
 		List<VariableReference> parameters = new ArrayList<>();
 		logger.debug("Trying to satisfy {} parameters at position {}",parameterTypes.size(),position);
 
-		for (Type parameterType : parameterTypes) {
-			logger.debug("Current parameter type: {}", parameterType);
+		//changes start
+		if ((null == parameterList) && (null != parameterTypes)) {
 
+			for (Type parameterType : parameterTypes) {
+				logger.debug("Current parameter type: {}", parameterType);
+
+				if (parameterType instanceof CaptureType) {
+					// TODO: This should not really happen in the first place
+					throw new ConstructionFailedException("Cannot satisfy capture type");
+				}
+
+				GenericClass parameterClass = new GenericClass(parameterType);
+				if (parameterClass.hasTypeVariables()) {
+					logger.debug("Parameter has type variables, replacing with wildcard");
+					parameterType = parameterClass.getWithWildcardTypes().getType();
+				}
+				int previousLength = test.size();
+
+				VariableReference var = null;
+
+				if (canReuseExistingVariables) {
+					logger.debug("Can re-use variables");
+					var = createOrReuseVariable(test, parameterType, position, recursionDepth, callee, allowNull,
+							excludeCalleeGenerators, true);
+				} else {
+					logger.debug("Cannot re-use variables: attempt at creating new one");
+					var = createVariable(test, parameterType, position, recursionDepth, callee, allowNull,
+							excludeCalleeGenerators, true, false);
+					if (var == null) {
+						throw new ConstructionFailedException(
+								"Failed to create variable for type " + parameterType + " at position " + position);
+					}
+				}
+
+				assert !(!allowNull && ConstraintHelper.isNull(var, test));
+
+				if (var.getStPosition() < position
+						&& ConstraintHelper.getLastPositionOfBounded(var, test) >= position) {
+					String msg = "Bounded variable issue when calling satisfyParameters()";
+					AtMostOnceLogger.warn(logger, msg);
+					throw new ConstructionFailedException(msg);
+				}
+
+				// Generics instantiation may lead to invalid types, so better
+				// double check
+				if (!var.isAssignableTo(parameterType)) {
+					throw new ConstructionFailedException("Error: " + var + " is not assignable to " + parameterType);
+				}
+				parameters.add(var);
+
+				int currentLength = test.size();
+				position += currentLength - previousLength;
+			}
+		} else if ((null == parameterTypes) && (null != parameterList)) {
+			parameters = loopSatisfyParameters(test, callee, parameterList, position, recursionDepth, allowNull,
+					excludeCalleeGenerators, canReuseExistingVariables);
+		}
+		logger.debug("Satisfied {} parameters", parameterTypes.size());
+		return parameters;
+	}
+	
+	/**
+	 * Satisfy a list of parameters by reusing or creating variables, looping through parameterList instead of parameterTypes
+	 *
+	 * @param test
+	 * @param parameterList
+	 * @param position
+	 * @param recursionDepth
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public List<VariableReference> loopSatisfyParameters(TestCase test,
+	        VariableReference callee,List<Parameter> parameterList, int position,
+	        int recursionDepth, boolean allowNull, boolean excludeCalleeGenerators,
+			boolean canReuseExistingVariables) throws ConstructionFailedException {
+
+		List<VariableReference> parameters = new ArrayList<>();
+		for (Parameter parameter : parameterList) {
+			Type parameterType = parameter.getType();
+			logger.debug("Current parameter type: {}", parameterType);
 			if (parameterType instanceof CaptureType) {
 				// TODO: This should not really happen in the first place
 				throw new ConstructionFailedException("Cannot satisfy capture type");
@@ -2315,39 +2400,47 @@ public class TestFactory {
 
 			VariableReference var = null;
 
-			if(canReuseExistingVariables) {
+			allowNull = true;
+			for (Annotation annotation : parameter.getAnnotations()) {
+				if (annotation.toString().contains(Properties.NONNULL)) {
+					allowNull = false;
+					break;
+				}
+			}	
+
+			if (canReuseExistingVariables) {
 				logger.debug("Can re-use variables");
-				var = createOrReuseVariable(test, parameterType, position,
-						recursionDepth, callee, allowNull, excludeCalleeGenerators, true);
+				var = createOrReuseVariable(test, parameterType, position, recursionDepth, callee, allowNull,
+						excludeCalleeGenerators, true);
 			} else {
 				logger.debug("Cannot re-use variables: attempt at creating new one");
-				var = createVariable(test, parameterType, position,
-						recursionDepth, callee, allowNull, excludeCalleeGenerators, true, false);
-				if(var == null){
-					throw new ConstructionFailedException("Failed to create variable for type "+parameterType+" at position "+position);
+				var = createVariable(test, parameterType, position, recursionDepth, callee, allowNull,
+						excludeCalleeGenerators, true, false);
+				if (var == null) {
+					throw new ConstructionFailedException(
+							"Failed to create variable for type " + parameterType + " at position " + position);
 				}
 			}
 
-			assert ! (! allowNull && ConstraintHelper.isNull(var,test));
+			assert !(!allowNull && ConstraintHelper.isNull(var, test));
 
-			if(var.getStPosition() < position && ConstraintHelper.getLastPositionOfBounded(var, test) >= position){
+			if (var.getStPosition() < position && ConstraintHelper.getLastPositionOfBounded(var, test) >= position) {
 				String msg = "Bounded variable issue when calling satisfyParameters()";
 				AtMostOnceLogger.warn(logger, msg);
 				throw new ConstructionFailedException(msg);
 			}
 
-
-			// Generics instantiation may lead to invalid types, so better double check
-			if(!var.isAssignableTo(parameterType)) {
-				throw new ConstructionFailedException("Error: "+var+" is not assignable to "+parameterType);
+			// Generics instantiation may lead to invalid types, so better
+			// double check
+			if (!var.isAssignableTo(parameterType)) {
+				throw new ConstructionFailedException("Error: " + var + " is not assignable to " + parameterType);
 			}
 			parameters.add(var);
 
 			int currentLength = test.size();
 			position += currentLength - previousLength;
-		}
 
-		logger.debug("Satisfied {} parameters", parameterTypes.size());
+		}
 		return parameters;
 	}
 
