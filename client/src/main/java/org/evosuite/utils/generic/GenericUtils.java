@@ -19,7 +19,9 @@
  */
 package org.evosuite.utils.generic;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -280,4 +282,23 @@ public class GenericUtils {
 
 		return map;
 	}
+	
+	/**
+	 * Returns true if the parameter is annotated with the specified annotationTypeName, false otherwise.
+	 * 
+	 * @param parameter
+	 * @param annotationTypeName
+	 * @return boolean
+	 */
+	public static Boolean isAnnotationTypePresent(Parameter parameter, String annotationTypeName) {
+		for (Annotation annotation : parameter.getAnnotations()) {
+
+			if ((null != annotationTypeName)
+					&& annotationTypeName.equalsIgnoreCase(annotation.annotationType().getSimpleName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 }
