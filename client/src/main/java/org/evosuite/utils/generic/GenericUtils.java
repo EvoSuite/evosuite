@@ -290,7 +290,7 @@ public class GenericUtils {
 	 * @param annotationTypeName
 	 * @return boolean
 	 */
-	public static Boolean isAnnotationTypePresent(Parameter parameter, String annotationTypeName) {
+	public static boolean isAnnotationTypePresent(Parameter parameter, String annotationTypeName) {
 		for (Annotation annotation : parameter.getAnnotations()) {
 
 			if ((null != annotationTypeName)
