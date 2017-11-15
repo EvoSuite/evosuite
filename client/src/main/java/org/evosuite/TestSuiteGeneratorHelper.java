@@ -32,14 +32,7 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.strategy.EntBugTestStrategy;
-import org.evosuite.strategy.FixedNumRandomTestStrategy;
-import org.evosuite.strategy.IndividualTestStrategy;
-import org.evosuite.strategy.MOSuiteStrategy;
-import org.evosuite.strategy.RandomTestStrategy;
-import org.evosuite.strategy.RegressionSuiteStrategy;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.strategy.WholeTestSuiteStrategy;
+import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStrategy;
 import org.evosuite.testcase.execution.ExecutionTraceImpl;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -271,6 +264,8 @@ public class TestSuiteGeneratorHelper {
       return new MOSuiteStrategy();
     case DSE:
       return new DSEStrategy();
+    case NOVELTY:
+      return new NoveltyStrategy();
     default:
       throw new RuntimeException("Unsupported strategy: " + Properties.STRATEGY);
     }

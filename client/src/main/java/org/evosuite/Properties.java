@@ -1629,7 +1629,7 @@ public class Properties {
 	
 	
 	public enum Strategy {
-	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
 	}
 	
 	/** Constant <code>STRATEGY</code> */

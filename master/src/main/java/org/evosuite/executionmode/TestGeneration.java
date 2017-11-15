@@ -144,6 +144,8 @@ public class TestGeneration {
 			strategy = Strategy.MOSUITE;
 		} else if (line.hasOption("generateSuiteUsingDSE")) {
 			strategy = Strategy.DSE;
+		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
+			strategy = Strategy.NOVELTY;
 		}
 		return strategy;
 	}
@@ -329,6 +331,9 @@ public class TestGeneration {
 			break;
 		case DSE:
 			cmdLine.add("-Dstrategy=Dynamic_Symbolic_Execution");
+			break;
+		case NOVELTY:
+			cmdLine.add("-Dstrategy=Novelty");
 			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
