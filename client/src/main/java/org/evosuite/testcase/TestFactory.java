@@ -225,7 +225,7 @@ public class TestFactory {
 			//first be sure if parameters can be satisfied
 			List<VariableReference> parameters = satisfyParameters(test,
 																   null,
-																   null,
+																   Arrays.asList(constructor.getParameterTypes()),
 					                                               Arrays.asList(constructor.getConstructor().getParameters()),
 					                                               position,
 					                                               recursionDepth + 1,
@@ -534,7 +534,7 @@ public class TestFactory {
 
 			// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
 			parameters = satisfyParameters(test, callee,
-					                       null, 
+					                       Arrays.asList(method.getParameterTypes()),
 					                       Arrays.asList(method.getMethod().getParameters()),
 					                       position, recursionDepth + 1, true, false, true);
 
@@ -586,7 +586,7 @@ public class TestFactory {
 		List<VariableReference> parameters = satisfyParameters(
 				test, callee,
 				Arrays.asList(method.getParameterTypes()),
-				null, position, 1, allowNull, false, true);
+				Arrays.asList(method.getMethod().getParameters()), position, 1, allowNull, false, true);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -854,7 +854,7 @@ public class TestFactory {
 		logger.debug("Chosen class for Object: {}", choice);
 		if(choice.isString()) {
 			return createOrReuseVariable(test, String.class, position,
-                    recursionDepth, null, true, false, false);
+                    recursionDepth, null, allowNull, false, false);
 		}
 
 		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(choice);
@@ -1561,7 +1561,7 @@ public class TestFactory {
 		}
 		logger.debug("Attempting object generation");
 
-		return attemptObjectGeneration(test, position, recursionDepth, true);
+		return attemptObjectGeneration(test, position, recursionDepth, allowNull);
 
 	}
 
@@ -2307,25 +2307,12 @@ public class TestFactory {
 		List<VariableReference> parameters = new ArrayList<>();
 		logger.debug("Trying to satisfy {} parameters at position {}", parameterTypes.size(), position);
 
-		// changes start
-		List<?> genericParameterList = new ArrayList<>();
-		Boolean isListOfParameterType = true;
-		if (null != parameterList) {
-			genericParameterList = parameterList;
-			isListOfParameterType = false;
-		} else {
-			genericParameterList = parameterTypes;
-		}
-		for (Object genericParameter : genericParameterList) {
-
-			Type parameterType = null;
+		for(int i = 0; i < parameterTypes.size(); i++) {
+			Type parameterType = parameterTypes.get(i);
 			Parameter parameter = null;
-			if (!isListOfParameterType) {
-				parameter = (Parameter) genericParameter;
-				parameterType = ((Parameter) genericParameter).getType();
-			} else {
-				parameterType = (Type) genericParameter;
-			}
+			boolean allowNullForParameter = allowNull;
+			if(parameterList != null)
+				parameter = parameterList.get(i);
 
 			logger.debug("Current parameter type: {}", parameterType);
 
@@ -2343,22 +2330,20 @@ public class TestFactory {
 
 			VariableReference var = null;
 
-			if (!isListOfParameterType) {
+			if (parameterList!=null) {
 
-				if (GenericUtils.isAnnotationTypePresent(parameter, Properties.NONNULL)) {
-					allowNull = false;
-					break;
+				if (GenericUtils.isAnnotationTypePresent(parameter.getAnnotations(), Properties.NONNULL)) {
+					allowNullForParameter = false;
 				}
-
 			}
 
 			if (canReuseExistingVariables) {
 				logger.debug("Can re-use variables");
-				var = createOrReuseVariable(test, parameterType, position, recursionDepth, callee, allowNull,
+				var = createOrReuseVariable(test, parameterType, position, recursionDepth, callee, allowNullForParameter,
 						excludeCalleeGenerators, true);
 			} else {
 				logger.debug("Cannot re-use variables: attempt at creating new one");
-				var = createVariable(test, parameterType, position, recursionDepth, callee, allowNull,
+				var = createVariable(test, parameterType, position, recursionDepth, callee, allowNullForParameter,
 						excludeCalleeGenerators, true, false);
 				if (var == null) {
 					throw new ConstructionFailedException(
@@ -2366,7 +2351,7 @@ public class TestFactory {
 				}
 			}
 
-			assert !(!allowNull && ConstraintHelper.isNull(var, test));
+			assert !(!allowNullForParameter && ConstraintHelper.isNull(var, test));
 
 			if (var.getStPosition() < position && ConstraintHelper.getLastPositionOfBounded(var, test) >= position) {
 				String msg = "Bounded variable issue when calling satisfyParameters()";

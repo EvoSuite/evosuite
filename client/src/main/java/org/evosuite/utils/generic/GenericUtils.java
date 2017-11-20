@@ -282,16 +282,16 @@ public class GenericUtils {
 
 		return map;
 	}
-	
+
 	/**
-	 * Returns true if the parameter is annotated with the specified annotationTypeName, false otherwise.
+	 * Returns true if the annotation is present in the annotationList, false otherwise.
 	 * 
-	 * @param parameter
+	 * @param annotationList
 	 * @param annotationTypeName
 	 * @return boolean
 	 */
-	public static boolean isAnnotationTypePresent(Parameter parameter, String annotationTypeName) {
-		for (Annotation annotation : parameter.getAnnotations()) {
+	public static boolean isAnnotationTypePresent(Annotation[] annotationList, String annotationTypeName) {
+		for (Annotation annotation : annotationList) {
 
 			if ((null != annotationTypeName)
 					&& annotationTypeName.equalsIgnoreCase(annotation.annotationType().getSimpleName())) {
@@ -300,5 +300,7 @@ public class GenericUtils {
 		}
 		return false;
 	}
+
+
 	
 }
