@@ -248,7 +248,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         Constraints constraint = getConstraints();
         boolean avoidNull =  constraint!=null && constraint.noNullInputs();
 
-        if(numParameter < parameterAnnotations.length) {
+        if((!Properties.ALLOW_NULL) && (numParameter < parameterAnnotations.length)) {
             if (GenericUtils.isAnnotationTypePresent(parameterAnnotations[numParameter], Properties.NONNULL)) {
                 avoidNull = true;
             }

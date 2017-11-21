@@ -2330,7 +2330,7 @@ public class TestFactory {
 
 			VariableReference var = null;
 
-			if (parameterList!=null) {
+			if ((!Properties.ALLOW_NULL) && (parameterList!=null)) {
 
 				if (GenericUtils.isAnnotationTypePresent(parameter.getAnnotations(), Properties.NONNULL)) {
 					allowNullForParameter = false;

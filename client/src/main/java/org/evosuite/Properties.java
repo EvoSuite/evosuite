@@ -1688,6 +1688,11 @@ public class Properties {
 	public static boolean ECLIPSE_PLUGIN = false;
 	
 	// Added - fix for @NotNull annotations issue on evo mailing list
+
+	/** Constant <code>ALLOW_NULL = true</code> */
+	@Parameter(key = "allow_null", group = "Runtime", description = "Allows EvoSuite to generate tests with or without null parameter values")
+	public static boolean ALLOW_NULL = true;
+
 	/** Constant to represent @NotNull annotation */
 	public final static String NONNULL = "Nonnull";
 
