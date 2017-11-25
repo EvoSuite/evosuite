@@ -18,7 +18,7 @@ public class NonNullSystemTest extends SystemTestBase {
         String targetClass = NonNull.class.getCanonicalName();
         Properties.NULL_PROBABILITY = 1.0;
         Properties.TARGET_CLASS = targetClass;
-        Properties.ALLOW_NULL = false;
+        Properties.HONOUR_DATA_ANNOTATIONS = true;
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
         Object result = evosuite.parseCommandLine(command);

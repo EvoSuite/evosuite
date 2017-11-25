@@ -1689,9 +1689,8 @@ public class Properties {
 	
 	// Added - fix for @NotNull annotations issue on evo mailing list
 
-	/** Constant <code>ALLOW_NULL = true</code> */
-	@Parameter(key = "allow_null", group = "Runtime", description = "Allows EvoSuite to generate tests with or without null parameter values")
-	public static boolean ALLOW_NULL = true;
+	@Parameter(key = "honour_data_annotations", group = "Runtime", description = "Allows EvoSuite to generate tests with or without honouring the parameter data annotations")
+	public static boolean HONOUR_DATA_ANNOTATIONS = true;
 
 	/** Constant to represent @NotNull annotation */
 	public final static String NONNULL = "Nonnull";
