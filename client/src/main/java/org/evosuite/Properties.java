@@ -1686,6 +1686,11 @@ public class Properties {
 	/** Constant <code>ECLIPSE_PLUGIN=false</code> */
 	@Parameter(key = "eclipse_plugin", group = "Plugin", description = "Running plugin for experiments. Use EvoSuiteTest annotation and decorate generated tests with (checked = false).")
 	public static boolean ECLIPSE_PLUGIN = false;
+	
+	// Added - fix for @NotNull annotations issue on evo mailing list
+
+	@Parameter(key = "honour_data_annotations", group = "Runtime", description = "Allows EvoSuite to generate tests with or without honouring the parameter data annotations")
+	public static boolean HONOUR_DATA_ANNOTATIONS = true;
 
 	/**
 	 * Get all parameters that are available
