@@ -1692,9 +1692,6 @@ public class Properties {
 	@Parameter(key = "honour_data_annotations", group = "Runtime", description = "Allows EvoSuite to generate tests with or without honouring the parameter data annotations")
 	public static boolean HONOUR_DATA_ANNOTATIONS = true;
 
-	/** Constant to represent @NotNull annotation */
-	public final static String NONNULL = "Nonnull";
-
 	/**
 	 * Get all parameters that are available
 	 *

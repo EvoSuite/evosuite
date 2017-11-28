@@ -249,7 +249,7 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         boolean avoidNull =  constraint!=null && constraint.noNullInputs();
 
         if(Properties.HONOUR_DATA_ANNOTATIONS && (numParameter < parameterAnnotations.length)) {
-            if (GenericUtils.isAnnotationTypePresent(parameterAnnotations[numParameter], Properties.NONNULL)) {
+            if (GenericUtils.isAnnotationTypePresent(parameterAnnotations[numParameter], GenericUtils.NONNULL)) {
                 avoidNull = true;
             }
         }

@@ -37,6 +37,9 @@ import org.slf4j.LoggerFactory;
 
 public class GenericUtils {
 
+	/** Constant to represent @NotNull annotation */
+	public final static String NONNULL = "Nonnull";
+
 	public static boolean isAssignable(Type type, TypeVariable<?> typeVariable) {
 		boolean isAssignable = true;
 		for (Type boundType : typeVariable.getBounds()) {

@@ -2332,7 +2332,7 @@ public class TestFactory {
 
 			if (Properties.HONOUR_DATA_ANNOTATIONS && (parameterList!=null)) {
 
-				if (GenericUtils.isAnnotationTypePresent(parameter.getAnnotations(), Properties.NONNULL)) {
+				if (GenericUtils.isAnnotationTypePresent(parameter.getAnnotations(), GenericUtils.NONNULL)) {
 					allowNullForParameter = false;
 				}
 			}
