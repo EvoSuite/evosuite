@@ -17,4 +17,20 @@ public interface NeighborModels {
 	public List<?> compactNine(List<? extends Chromosome> collection, int position);
 	
 	public List<?> CompactThirteen(List<? extends Chromosome> collection, int position);
+
+	/*
+	 * Neighbourhood positions
+	 */
+	public enum Positions {
+
+		N,
+		S,
+		E,
+		W,
+		NW,
+		SW,
+		NE,
+		SE;
+		
+	}
 }

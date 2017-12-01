@@ -2618,17 +2618,5 @@ public class Properties {
 		return isRegression;
 	}
 
-	public enum Positions {
-
-		N,
-		S,
-		E,
-		W,
-		NW,
-		SW,
-		NE,
-		SE;
-		
-	}
 
 }
