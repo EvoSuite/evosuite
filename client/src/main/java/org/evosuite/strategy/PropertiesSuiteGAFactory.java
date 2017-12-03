@@ -156,7 +156,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
-		case CellularGA:
+		case CELLULARGA:
 			logger.info("Chosen search algorithm: CellularGA");
 			{
 				CellularGA<TestSuiteChromosome> ga = new CellularGA<TestSuiteChromosome>(Properties.MODEL, factory);
