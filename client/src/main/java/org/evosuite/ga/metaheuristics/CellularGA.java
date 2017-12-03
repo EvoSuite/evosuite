@@ -361,7 +361,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * @return a boolean
 	 */
 	protected boolean keepOffspring(Chromosome offspring1, Chromosome offspring2) {
-		return replacementFunction.keeptheOffspring(offspring1, offspring2);
+		return replacementFunction.keepOffspring(offspring1, offspring2);
 	}
 
 }

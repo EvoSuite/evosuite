@@ -157,26 +157,8 @@ public abstract class ReplacementFunction implements Serializable {
 	 *             Properties.CHECK_PARENTS_LENGTH
 	 * @return a boolean.
 	 */
-	@Deprecated
 	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
 		return isBetterOrEqual(offspring, parent);
-	}
-
-	/**
-	 * Decide whether to keep the offspring or the parent
-	 * 
-	 * @param parent1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a boolean.
-	 */
-	public boolean keeptheOffspring(Chromosome parent1, Chromosome offspring1) {
-		if (maximize) {
-			return compareOffspringToParent(parent1, offspring1) >= 0;
-		} else {
-			return compareOffspringToParent(parent1, offspring1) <= 0;
-		}
 	}
 
 	/**

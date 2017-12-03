@@ -3,7 +3,6 @@ package org.evosuite.ga;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.evosuite.Properties.Positions;
 
 /**
  * Construction of a grid and the neighbourhood models 
