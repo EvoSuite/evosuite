@@ -32,6 +32,7 @@ import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.runtime.util.JarPathing;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -205,7 +206,7 @@ public class JobHandler extends Thread {
 	private List<String> getCommandString(JobDefinition job) {
 
 		List<String> commands = new ArrayList<>();
-		commands.add("java");		
+		commands.add(JavaExecCmdUtil.getJavaBinExecutablePath()/*"java"*/);
 
 		commands.add("-cp");
 		commands.add(configureAndGetClasspath());

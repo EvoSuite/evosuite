@@ -35,6 +35,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JarPathing;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
@@ -221,7 +222,7 @@ public class TestGeneration {
 		}
 
 		List<String> cmdLine = new ArrayList<>();
-		cmdLine.add(EvoSuite.JAVA_CMD);
+		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
 
 		handleClassPath(cmdLine);
 
