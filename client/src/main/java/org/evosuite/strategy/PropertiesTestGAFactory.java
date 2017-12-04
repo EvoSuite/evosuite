@@ -31,6 +31,7 @@ import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.MonotonicGA;
+import org.evosuite.ga.metaheuristics.MuPlusLambdaEA;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
 import org.evosuite.ga.metaheuristics.StandardGA;
@@ -97,6 +98,9 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
 			return new OnePlusOneEA<TestChromosome>(factory);
+		case MUPLUSLAMBDAEA:
+		  logger.info("Chosen search algorithm: (Mu+Lambda)EA");
+          return new MuPlusLambdaEA<TestChromosome>(factory, Properties.MU, Properties.LAMBDA);
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
