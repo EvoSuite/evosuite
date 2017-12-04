@@ -305,16 +305,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 			throws ConstructionFailedException;
 
 	/**
-	 * Uniform cross over
-	 * 
-	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
-	 * @param isIndividualAMutant true if individual is a mutated {@link org.evosuite.ga.Chromosome}, false otherwise
-	 * @throws org.evosuite.ga.ConstructionFailedException
-	 */
-	public abstract void uniformCrossOver(Chromosome individual, boolean isIndividualAMutant)
-			throws ConstructionFailedException;
-
-	/**
 	 * Apply the local search
 	 * 
 	 * @param objective

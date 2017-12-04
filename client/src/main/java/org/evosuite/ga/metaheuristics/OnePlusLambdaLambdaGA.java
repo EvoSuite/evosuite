@@ -70,26 +70,20 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends GeneticAlgorith
     calculateFitnessAndSortPopulation();
 
     // obtain the best mutant
-    T bestMutant = getBestIndividual();
+    T bestMutantOffspring = getBestIndividual();
 
     // start to execute uniform crossover operator
     List<T> crossoverOffspring = new ArrayList<T>();
 
     while (!isNextPopulationFull(crossoverOffspring)) {
       try {
-        // the individual which has the shorter size is chosen as
-        // the model basis of uniform crossover.The reason why I do this is that the size between
-        // best mutant and parent maybe different after mutation operation, which is the biggest
-        // difference
-        // from standard uniform crossover. This shorter individual will be basis model, and take
-        // bites(test cases)
-        // from parent or keep itself with crossover probability.
-        crossoverFunction.crossOver(parent, bestMutant);
-        if (parent.size() < bestMutant.size()) {
-          crossoverOffspring.add(parent);
-        } else {
-          crossoverOffspring.add(bestMutant);
-        }
+        T p1 = (T) parent.clone();
+        T p2 = (T) bestMutantOffspring.clone();
+
+        crossoverFunction.crossOver(p1, p2);
+
+        crossoverOffspring.add(p1);
+        crossoverOffspring.add(p2);
       } catch (ConstructionFailedException e) {
         logger.info("CrossOver failed.");
         continue;
@@ -109,12 +103,11 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends GeneticAlgorith
     }
 
     // compare the so_far_best_individual with best mutant, and select the better one to be the
-    // parent for
-    // next iteration.
-    if (isBetterOrEqual(so_far_best_individual, bestMutant)) {
+    // parent for next iteration.
+    if (isBetterOrEqual(so_far_best_individual, bestMutantOffspring)) {
       population.set(0, so_far_best_individual);
     } else {
-      population.set(0, bestMutant);
+      population.set(0, bestMutantOffspring);
     }
 
     currentIteration++;

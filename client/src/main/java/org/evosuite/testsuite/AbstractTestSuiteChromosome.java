@@ -141,6 +141,28 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	/**
 	 * {@inheritDoc}
 	 *
+	 * Replace chromosome at position
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void crossOver(Chromosome other, int position) throws ConstructionFailedException {
+		if (!(other instanceof AbstractTestSuiteChromosome<?>)) {
+			throw new IllegalArgumentException(
+					"AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type " + other.getClass());
+		}
+
+		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) other;
+
+		T otherTest =  chromosome.tests.get(position);
+		T clonedTest = (T) otherTest.clone();
+		tests.add(clonedTest);
+
+		this.setChanged(true);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
 	 * Keep up to position1, append copy of other from position2 on
 	 */
 	@SuppressWarnings("unchecked")
@@ -166,44 +188,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		}
 
 		this.setChanged(true);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public void uniformCrossOver(Chromosome individual, boolean isIndividualAMutant) throws ConstructionFailedException {
-		if (!(individual instanceof AbstractTestSuiteChromosome<?>)) {
-			throw new IllegalArgumentException(
-					"AbstractTestSuiteChromosome.uniformCrossOver() called with parameter of unsupported type "
-							+ individual.getClass());
-		}
-
-		double probability_of_exchange = (1.0 / (double) tests.size()) * (1.0 / Properties.HIGH_MUTATION_PROBABILITY);
-		if (! isIndividualAMutant) {
-		  probability_of_exchange = 1.0 - probability_of_exchange;
-		}
-		assert probability_of_exchange >= 0.0;
-
-		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) individual;
-
-		for (int i = 0; i < tests.size(); i++) {
-			if (Randomness.nextDouble() <= probability_of_exchange) {
-				tests.remove(i);
-				T otherTest = chromosome.tests.get(i);
-				T clonedTest = (T) otherTest.clone();
-				tests.add(i, clonedTest);
-			}
-		}
-
-		// if 'individual' is longer than 'this', augment 'this' with a
-		// few extra tests from 'individual' (according to a probability)
-		for (int i = tests.size(); i < individual.size(); i++) {
-			if (Randomness.nextDouble() <= probability_of_exchange) {
-				tests.add(chromosome.tests.get(i));
-			}
-		}
 	}
 
 	/** {@inheritDoc} */
