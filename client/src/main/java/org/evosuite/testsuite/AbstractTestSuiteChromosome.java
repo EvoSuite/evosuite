@@ -22,9 +22,7 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
@@ -32,11 +30,11 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.ga.operators.mutation.MutationDistribution;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.utils.BinomialDistribution;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,32 +224,15 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	public void mutate() {
 		boolean changed = false;
 
-		if (Properties.ALGORITHM == Properties.Algorithm.ONEPLUSLAMBDALAMBDAGA) {
-			// the number of mutation bits are chosen randomly according to binomial distribution
-			// β(n,p) n denotes the length of bit string.In this context, it is regarded as
-			// the number of test case in a test suite.Also p is the high mutation probability
-			int samples = BinomialDistribution.sample(tests.size(), Properties.HIGH_MUTATION_PROBABILITY);
-			Set<Integer> changeBits = new LinkedHashSet<Integer>();
-			//obtain randomly the mutation bits position
-			while (changeBits.size() < samples) {
-					changeBits.add(Randomness.nextInt(0, tests.size()));
-			}
-			for (int i : changeBits) {
-					T test = tests.get(i);
-					test.mutate();
-					if (test.isChanged()) {
-						changed = true;
-					}
-			}
-		} else {
-			// Mutate existing test cases
-			for (int i = 0; i < tests.size(); i++) {
-				T test = tests.get(i);
-				if (Randomness.nextDouble() < 1.0 / tests.size()) {
-					test.mutate();
-					if(test.isChanged())
-						changed = true;
-				}
+		MutationDistribution probabilityDistribution = MutationDistribution.getMutationDistribution(tests.size());
+
+		// Mutate existing test cases
+		for (int i = 0; i < tests.size(); i++) {
+			T test = tests.get(i);
+			if (probabilityDistribution.toMutate(i)) {
+				test.mutate();
+				if(test.isChanged())
+					changed = true;
 			}
 		}
 

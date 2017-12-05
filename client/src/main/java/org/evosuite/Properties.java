@@ -515,11 +515,6 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double MUTATION_RATE = 0.75;
 
-	/** Constant <code>HIGH_MUTATION_PROBOBILITY = 1d / 3d</code> */
-	@Parameter(key = "high_mutation_probability", group = "Search Algorithm", description = "Probability of mutation for 1+(lambda,lambda) GA")
-	@DoubleValue(min = 0.0, max = 1.0)
-	public static double HIGH_MUTATION_PROBABILITY = 1d / 3d;
-
 	/** Constant <code>NUMBER_OF_MUTATIONS=1</code> */
 	@Parameter(key = "number_of_mutations", group = "Search Algorithm", description = "Number of single mutations applied on an individual when a mutation event occurs")
 	public static int NUMBER_OF_MUTATIONS = 1;
@@ -667,6 +662,14 @@ public class Properties {
 	/** Constant <code>SELECTION_FUNCTION</code> */
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
 	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+
+	public enum MutationProbabilityDistribution {
+		UNIFORM, BINOMIAL
+	}
+
+	/** Constant <code>MUTATION_PROBABILITY_DISTRIBUTION</code> */
+	@Parameter(key = "mutation_probability_distribution", group = "Search Algorithm", description = "Mutation probability distribution")
+	public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
 	// TODO: Fix values
 	/** Constant <code>SECONDARY_OBJECTIVE="totallength"</code> */

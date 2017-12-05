@@ -17,24 +17,26 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.utils;
+package org.evosuite.ga.operators.mutation;
 
-/**
- * Implementation of binomial distribution based on
- * http://stackoverflow.com/a/1241605/998816
- * 
- * @author Yan Ge
- */
-public class BinomialDistribution {
+import org.evosuite.utils.Randomness;
 
-	public static int sample(int testSize, double mutationProbability) {
-		// The number of selected bits used for mutation operator
-		int numberSample = 0;
-		for (int i = 0; i < testSize; i++) {
-			if (Randomness.nextDouble() < mutationProbability) {
-				numberSample++;
-			}
-		}
-		return numberSample;
-	}
+public class UniformMutation extends MutationDistribution {
+
+  private static final long serialVersionUID = -2352083320831156232L;
+
+  public UniformMutation(int sizeOfDistribution) {
+    this.sizeOfDistribution = sizeOfDistribution;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean toMutate(int index) {
+    if (Randomness.nextDouble() < 1.0 / (double) this.sizeOfDistribution) {
+      return true;
+    }
+    return false;
+  }
 }

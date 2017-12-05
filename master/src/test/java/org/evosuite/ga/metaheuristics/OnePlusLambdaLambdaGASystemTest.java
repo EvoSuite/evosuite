@@ -38,6 +38,7 @@ public class OnePlusLambdaLambdaGASystemTest extends SystemTestBase {
   @Test
   public void testLambdaGAIntegration() {
     Properties.ALGORITHM = Algorithm.ONEPLUSLAMBDALAMBDAGA;
+    Properties.MUTATION_PROBABILITY_DISTRIBUTION = Properties.MutationProbabilityDistribution.BINOMIAL;
 
     EvoSuite evoSuite = new EvoSuite();
 
