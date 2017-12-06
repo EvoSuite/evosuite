@@ -80,6 +80,12 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/** */
 	protected double distance = 0.0;
 
+	/** Keep track of how many times this Chromosome has been mutated */
+	private int numberOfMutations = 0;
+
+	/** Keep track of how many times this Chromosome has been evaluated */
+	private int numberOfEvaluations = 0;
+
 	/**
 	 * Return current fitness value
 	 * 
@@ -536,5 +542,47 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 				return coverageValues.get(fitnessFunction);
 		}
 		return 0.0;
+	}
+
+	/**
+	 * Increases by one the number of times this chromosome has been mutated
+	 */
+	public void increaseNumberOfMutations() {
+		this.numberOfMutations++;
+	}
+
+	/**
+	 * Return number of times this chromosome has been mutated
+	 */
+	public int getNumberOfMutations() {
+		return this.numberOfMutations;
+	}
+
+	/**
+	 * Set number of times this chromosome has been mutated
+	 */
+	public void setNumberOfMutations(int numberOfMutations) {
+		this.numberOfMutations = numberOfMutations;
+	}
+
+	/**
+	 * Increases by one the number of times this chromosome has been evaluated
+	 */
+	public void increaseNumberOfEvaluations() {
+		this.numberOfEvaluations++;
+	}
+
+	/**
+	 * Return number of times this chromosome has been evaluated
+	 */
+	public int getNumberOfEvaluations() {
+		return this.numberOfEvaluations;
+	}
+
+	/**
+	 * Set number of times this chromosome has been evaluated
+	 */
+	public void setNumberOfEvaluations(int numberOfEvaluations) {
+		this.numberOfEvaluations = numberOfEvaluations;
 	}
 }

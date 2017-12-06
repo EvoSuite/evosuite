@@ -135,6 +135,8 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 		}
 		// c.mutationHistory.set(mutationHistory);
+		c.setNumberOfMutations(this.getNumberOfMutations());
+		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
 
 		return c;
 	}
@@ -333,6 +335,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 
 		if (changed) {
+			this.increaseNumberOfMutations();
 			setChanged(true);
 			test.clearCoveredGoals();
 		}
