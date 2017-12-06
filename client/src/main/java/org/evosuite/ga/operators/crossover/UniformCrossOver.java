@@ -19,40 +19,44 @@
  */
 package org.evosuite.ga.operators.crossover;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.Randomness;
 
 /**
- * Cross individuals at identical point
+ * Implement uniform crossover. In a uniform crossover, we do not divide the
+ * chromosome into segments, rather we treat each gene separately. In this,
+ * we essentially flip a coin for each chromosome.
  *
- * @author Gordon Fraser
+ * @author Yan Ge
  */
-public class SinglePointFixedCrossOver extends CrossOverFunction {
+public class UniformCrossOver extends CrossOverFunction {
 
-	private static final long serialVersionUID = 1215946828935020651L;
+	private static final long serialVersionUID = 2981387570766261795L;
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * The splitting point for to individuals p1, p2 is selected within
-	 * min(length(p1),length(p2))
 	 */
 	@Override
 	public void crossOver(Chromosome parent1, Chromosome parent2)
-	        throws ConstructionFailedException {
+			throws ConstructionFailedException {
 
 		if (parent1.size() < 2 || parent2.size() < 2) {
 			return;
 		}
 
-		int point = Randomness.nextInt(Math.min(parent1.size(), parent2.size()) - 1) + 1;
+		int maxNumGenes = Math.min(parent1.size(), parent2.size());
 
 		Chromosome t1 = parent1.clone();
 		Chromosome t2 = parent2.clone();
 
-		parent1.crossOver(t2, point, point);
-		parent2.crossOver(t1, point, point);
+		for (int i = 0; i < maxNumGenes; i++) {
+			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+				parent1.crossOver(t2, i);
+				parent2.crossOver(t1, i);
+			}
+		}
 	}
-
 }
+
