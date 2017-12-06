@@ -50,10 +50,6 @@ public abstract class FitnessFunction<T extends Chromosome> implements Serializa
 		// which seems to be case for all classes that extends 'FitnessFunction'
 		individual.increaseNumberOfEvaluations();
 	}
-	
-	protected void updateIndividual(FitnessFunction<?> ff, T individual, double fitness, int toCoverTargets) {
-		individual.setFitness(ff, fitness);
-	}
 
 	/**
 	 * If the fitness function as an archive, returns the best individual in the archive.
