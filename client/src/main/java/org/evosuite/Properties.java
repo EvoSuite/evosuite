@@ -1166,6 +1166,14 @@ public class Properties {
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.ARCHIVE;
 
+	public enum ArchiveType {
+		COVERAGE
+	}
+
+	/** Constant <code>ARCHIVE_TYPE=COVERAGE</code> */
+	@Parameter(key = "archive", description = "Which type of archive to keep track of covered goals during search")
+	public static ArchiveType ARCHIVE_TYPE = ArchiveType.COVERAGE;
+
 	@Parameter(key = "seed_file", description = "File storing TestGenerationResult or GeneticAlgorithm")
 	public static String SEED_FILE = "";
 

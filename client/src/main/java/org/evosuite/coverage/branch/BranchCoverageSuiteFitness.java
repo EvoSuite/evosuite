@@ -21,7 +21,7 @@ package org.evosuite.coverage.branch;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -133,7 +133,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 			
 			if (goal.getBranch() == null) {
 				branchlessMethodCoverageMap.put(goal.getClassName() + "."
@@ -185,7 +185,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					if (branchlessMethodCoverageMap.containsKey(name)) {
 						result.test.addCoveredGoal(branchlessMethodCoverageMap.get(name));
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, branchlessMethodCoverageMap.get(name), result);
+							Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(name), result);
 							toRemoveRootBranches.add(name);
 							suite.isToBeUpdated(true);
 						}
@@ -214,7 +214,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 				result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 				if (Properties.TEST_ARCHIVE) {
-					TestsArchive.instance.putTest(this, branchlessMethodCoverageMap.get(entry.getKey()), result);
+					Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(entry.getKey()), result);
 					toRemoveRootBranches.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -251,7 +251,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
 				result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 				if(Properties.TEST_ARCHIVE) {
-					TestsArchive.instance.putTest(this, branchCoverageTrueMap.get(entry.getKey()), result);
+					Archive.getArchiveInstance().updateArchive(branchCoverageTrueMap.get(entry.getKey()), result);
 					toRemoveBranchesT.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -273,7 +273,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
 				result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
 				if(Properties.TEST_ARCHIVE) {
-					TestsArchive.instance.putTest(this, branchCoverageFalseMap.get(entry.getKey()), result);
+					Archive.getArchiveInstance().updateArchive(branchCoverageFalseMap.get(entry.getKey()), result);
 					toRemoveBranchesF.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -362,7 +362,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		toRemoveRootBranches.clear();
 		toRemoveBranchesF.clear();
 		toRemoveBranchesT.clear();
-		logger.info("Current state of archive: "+TestsArchive.instance.toString());
+		logger.info("Current state of archive: "+Archive.getArchiveInstance().toString());
 		
 		return true;
 	}

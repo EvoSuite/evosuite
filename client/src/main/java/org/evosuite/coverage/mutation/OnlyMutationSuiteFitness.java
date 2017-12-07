@@ -20,7 +20,7 @@
 package org.evosuite.coverage.mutation;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -54,7 +54,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 			mutantMap.put(goal.getMutation().getId(), goal);
 			mutants.add(goal.getMutation().getId());
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
 	}
 	
@@ -74,7 +74,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		}
 
 		toRemoveMutants.clear();
-		logger.info("Current state of archive: "+TestsArchive.instance.toString());
+		logger.info("Current state of archive: "+Archive.getArchiveInstance().toString());
 		
 		return true;
 	}
@@ -122,7 +122,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveMutants.add(entry.getKey());
-						TestsArchive.instance.putTest(this, mutantMap.get(entry.getKey()), result);
+						Archive.getArchiveInstance().updateArchive(mutantMap.get(entry.getKey()), result);
 						individual.isToBeUpdated(true);
 					}
 				}

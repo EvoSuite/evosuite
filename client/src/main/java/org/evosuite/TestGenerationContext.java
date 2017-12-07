@@ -27,11 +27,11 @@ import java.util.List;
 import org.evosuite.assertion.InspectorManager;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.graphs.GraphPool;
@@ -192,7 +192,7 @@ public class TestGenerationContext {
 
 		TestCaseExecutor.initExecutor();
 
-		TestsArchive.instance.reset();
+		Archive.getArchiveInstance().reset();
 
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();

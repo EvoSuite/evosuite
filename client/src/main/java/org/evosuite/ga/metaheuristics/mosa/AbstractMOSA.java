@@ -30,7 +30,6 @@ import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.FitnessFunctions;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageHelper;

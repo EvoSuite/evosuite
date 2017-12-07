@@ -25,8 +25,6 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
@@ -35,6 +33,8 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.CellularGA;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
@@ -130,7 +130,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			{
 				OnePlusOneEA<TestSuiteChromosome> ga = new OnePlusOneEA<TestSuiteChromosome>(factory);
 				if (Properties.TEST_ARCHIVE)
-					ga.setArchive(TestsArchive.instance);
+					ga.setArchive(Archive.getArchiveInstance());
 
 				return ga;
 			}
@@ -139,7 +139,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
             {
                 MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
                 if (Properties.TEST_ARCHIVE)
-                    ga.setArchive(TestsArchive.instance);
+                    ga.setArchive(Archive.getArchiveInstance());
 
                 return ga;
             }
@@ -148,7 +148,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			{
 				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
 	            if (Properties.TEST_ARCHIVE)
-	            	ga.setArchive(TestsArchive.instance);
+	                ga.setArchive(Archive.getArchiveInstance());
 
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
@@ -180,7 +180,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			{
 				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
 	            if (Properties.TEST_ARCHIVE)
-	            	ga.setArchive(TestsArchive.instance);
+	                ga.setArchive(Archive.getArchiveInstance());
 
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
@@ -205,7 +205,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			{
                 RandomSearch<TestSuiteChromosome> ga = new RandomSearch<TestSuiteChromosome>(factory);
                 if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(TestsArchive.instance);
+                        ga.setArchive(Archive.getArchiveInstance());
 
                 return ga;
 			}
@@ -232,7 +232,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
             {
                 StandardGA<TestSuiteChromosome> ga = new StandardGA<TestSuiteChromosome>(factory);
                 if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(TestsArchive.instance);
+                        ga.setArchive(Archive.getArchiveInstance());
                 return ga;
             }
 		}

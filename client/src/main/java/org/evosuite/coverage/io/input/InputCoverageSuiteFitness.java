@@ -22,7 +22,7 @@ package org.evosuite.coverage.io.input;
 import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -72,7 +72,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         for (InputCoverageTestFitness goal : goals) {
             inputCoverageMap.add(goal);
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 
         }
     }
@@ -109,7 +109,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                             result.test.addCoveredGoal(testFitness);
                             if (Properties.TEST_ARCHIVE) {
                                 // add goal to archive
-                                TestsArchive.instance.putTest(this, testFitness, result);
+                                Archive.getArchiveInstance().updateArchive(testFitness, result);
                                 // mark goal to be removed for next generation
                                 toRemoveGoals.add(testFitness);
                             }
@@ -161,7 +161,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 throw new IllegalStateException("goal to remove not found");
         }
         toRemoveGoals.clear();
-        logger.info("Current state of archive: "+TestsArchive.instance.toString());
+        logger.info("Current state of archive: "+Archive.getArchiveInstance().toString());
         return true;
     }
 

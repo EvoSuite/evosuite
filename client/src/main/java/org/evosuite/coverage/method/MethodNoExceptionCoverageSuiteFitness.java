@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -59,7 +59,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
 		for (MethodNoExceptionCoverageTestFitness goal : goals) {
             methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
 	}
 
@@ -98,7 +98,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
                         calledMethods.add(fullName);
                         result.test.addCoveredGoal(methodCoverageMap.get(fullName));
     					if(Properties.TEST_ARCHIVE) {
-    						TestsArchive.instance.putTest(this, methodCoverageMap.get(fullName), result);
+						Archive.getArchiveInstance().updateArchive(methodCoverageMap.get(fullName), result);
     						toRemoveMethods.add(fullName);
     						suite.isToBeUpdated(true);
     					}

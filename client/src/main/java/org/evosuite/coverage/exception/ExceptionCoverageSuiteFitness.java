@@ -20,7 +20,7 @@
 package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -190,8 +190,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);
                     	if(Properties.TEST_ARCHIVE && contextFitness != null) {
-                    		TestsArchive.instance.addGoalToCover(contextFitness, goal);
-                    		TestsArchive.instance.putTest(contextFitness, goal, result);
+                               Archive.getArchiveInstance().addTarget(goal);
+                               Archive.getArchiveInstance().updateArchive(goal, result);
                     	}
                     }
 				}

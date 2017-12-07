@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -102,7 +102,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<OnlyBranchCoverageTestFitness> goals = new OnlyBranchCoverageFactory().getCoverageGoals();
 		for (OnlyBranchCoverageTestFitness goal : goals) {
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 
 			branchesId.add(goal.getBranch().getActualBranchId());
 			if (goal.getBranchExpressionValue())
@@ -159,7 +159,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, branchCoverageTrueMap.get(entry.getKey()), result);
+						Archive.getArchiveInstance().updateArchive(branchCoverageTrueMap.get(entry.getKey()), result);
 						toRemoveBranchesT.add(entry.getKey());
 						suite.isToBeUpdated(true);
 					}
@@ -177,7 +177,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, branchCoverageFalseMap.get(entry.getKey()), result);
+						Archive.getArchiveInstance().updateArchive(branchCoverageFalseMap.get(entry.getKey()), result);
 						toRemoveBranchesF.add(entry.getKey());
 						suite.isToBeUpdated(true);
 					}
@@ -224,7 +224,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		toRemoveBranchesF.clear();
 		toRemoveBranchesT.clear();
-		logger.info("Current state of archive: "+TestsArchive.instance.toString());
+		logger.info("Current state of archive: "+Archive.getArchiveInstance().toString());
 		
 		return true;
 	}

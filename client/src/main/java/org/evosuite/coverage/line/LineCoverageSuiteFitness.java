@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -69,7 +69,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			lines.add(goal.getLine());
 			linesCoverageMap.put(goal.getLine(), goal);
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
 		logger.info("Total line coverage goals: " + lines);
 
@@ -101,7 +101,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		toRemoveLines.clear();
-		logger.info("Current state of archive: "+TestsArchive.instance.toString());
+		logger.info("Current state of archive: "+Archive.getArchiveInstance().toString());
 		
 		return true;
 	}
@@ -130,7 +130,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveLines.add(line);
-						TestsArchive.instance.putTest(this, linesCoverageMap.get(line), result);
+						Archive.getArchiveInstance().updateArchive(linesCoverageMap.get(line), result);
 						suite.isToBeUpdated(true);
 					}
 				}

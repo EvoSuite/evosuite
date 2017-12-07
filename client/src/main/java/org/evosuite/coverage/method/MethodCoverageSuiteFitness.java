@@ -21,7 +21,7 @@ package org.evosuite.coverage.method;
 
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -127,7 +127,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (MethodCoverageTestFitness goal : goals) {
             methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
 	}
 
@@ -160,7 +160,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     calledMethods.add(name);
                     result.test.addCoveredGoal(methodCoverageMap.get(name));
 					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, methodCoverageMap.get(name), result);
+						Archive.getArchiveInstance().updateArchive(methodCoverageMap.get(name), result);
 						toRemoveMethods.add(name);
 						suite.isToBeUpdated(true);
 					}
@@ -201,7 +201,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
                         calledMethods.add(fullName);
                         result.test.addCoveredGoal(methodCoverageMap.get(fullName));
     					if(Properties.TEST_ARCHIVE) {
-    						TestsArchive.instance.putTest(this, methodCoverageMap.get(fullName), result);
+						Archive.getArchiveInstance().updateArchive(methodCoverageMap.get(fullName), result);
     						toRemoveMethods.add(fullName);
     						suite.isToBeUpdated(true);
     					}

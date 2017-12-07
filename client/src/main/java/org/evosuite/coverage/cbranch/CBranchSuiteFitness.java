@@ -30,7 +30,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -79,7 +79,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 		branchGoals = factory.getCoverageGoals();
 		for (CBranchTestFitness goal : branchGoals) {
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 
 			if (goal.getBranchGoal() != null && goal.getBranchGoal().getBranch() != null) {
 				int branchId = goal.getBranchGoal().getBranch().getActualBranchId();
@@ -199,7 +199,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 							continue;
 						result.test.addCoveredGoal(goalT);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalT, result);
+							Archive.getArchiveInstance().updateArchive(goalT, result);
 							toRemoveGoals.add(goalT);
 							suite.isToBeUpdated(true);
 						}
@@ -219,7 +219,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 							continue;
 						result.test.addCoveredGoal(goalF);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalF, result);
+							Archive.getArchiveInstance().updateArchive(goalF, result);
 							toRemoveGoals.add(goalF);
 							suite.isToBeUpdated(true);
 						}
@@ -271,7 +271,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 						result.test.addCoveredGoal(goal);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goal, result);
+							Archive.getArchiveInstance().updateArchive(goal, result);
 							toRemoveGoals.add(goal);
 							suite.isToBeUpdated(true);
 						}

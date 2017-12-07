@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ConstraintHelper;

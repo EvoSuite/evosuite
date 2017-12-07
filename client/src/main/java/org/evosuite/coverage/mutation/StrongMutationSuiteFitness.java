@@ -20,7 +20,7 @@
 package org.evosuite.coverage.mutation;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -172,7 +172,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 						newKilled.add(mutantId);
 						if(Properties.TEST_ARCHIVE) {
 							toRemoveMutants.add(mutantFitness.getMutation().getId());
-							TestsArchive.instance.putTest(this, mutantFitness, result);
+							Archive.getArchiveInstance().updateArchive(mutantFitness, result);
 							individual.isToBeUpdated(true);
 						}
 					}

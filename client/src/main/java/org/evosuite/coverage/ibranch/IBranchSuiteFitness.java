@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
@@ -168,7 +168,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						if(updateChromosome)
 						result.test.addCoveredGoal(goalT);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalT, result);
+							Archive.getArchiveInstance().updateArchive(goalT, result);
 							toRemoveBranchesT.add(goalT);
 							suite.isToBeUpdated(true);
 						}
@@ -193,7 +193,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						if(updateChromosome)
 							result.test.addCoveredGoal(goalF);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalF, result);
+							Archive.getArchiveInstance().updateArchive(goalF, result);
 							toRemoveBranchesF.add(goalF);
 							suite.isToBeUpdated(true);
 						}
@@ -215,7 +215,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						if(updateChromosome)
 							result.test.addCoveredGoal(goal);
 						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goal, result);
+							Archive.getArchiveInstance().updateArchive(goal, result);
 							toRemoveRootBranches.add(goal);
 							suite.isToBeUpdated(true);
 						}

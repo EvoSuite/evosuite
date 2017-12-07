@@ -35,10 +35,10 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
-import org.evosuite.ga.Archive;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
@@ -106,7 +106,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
 	
-	protected transient Archive<T> archive = null;
+	protected transient Archive<?,?> archive = null;
 
 	/**
 	 * Constructor
@@ -505,7 +505,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	
-	public void setArchive(Archive<T> archive) {
+	public void setArchive(Archive<?,?> archive) {
 		this.archive = archive;
 	}
 	
@@ -1053,11 +1053,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void updateBestIndividualFromArchive() {
 		if(archive == null)
 			return;
 
-		T best = archive.createMergedSolution(getBestIndividual());
+		T best = (T) archive.mergeArchiveAndSolution((TestSuiteChromosome) getBestIndividual());
 
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)

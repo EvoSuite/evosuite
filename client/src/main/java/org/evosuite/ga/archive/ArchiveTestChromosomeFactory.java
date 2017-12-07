@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.coverage.archive;
+package org.evosuite.ga.archive;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
@@ -74,11 +74,11 @@ public class ArchiveTestChromosomeFactory implements ChromosomeFactory<TestChrom
 
     TestChromosome test = null;
     // double P = (double)TestsArchive.instance.getNumberOfCoveredGoals() / (double)TestsArchive.instance.getTotalNumberOfGoals();
-    if (!TestsArchive.instance.isArchiveEmpty()
+    if (!Archive.getArchiveInstance().isArchiveEmpty()
         && Randomness.nextDouble() < Properties.SEED_CLONE) {
       logger.info("Creating test based on archive");
       test = new TestChromosome();
-      test.setTestCase(TestsArchive.instance.getCloneAtRandom());
+      test.setTestCase(Archive.getArchiveInstance().getRandomSolution());
       int mutations = Randomness.nextInt(Properties.SEED_MUTATIONS);
       for (int i = 0; i < mutations; i++) {
         test.mutate();

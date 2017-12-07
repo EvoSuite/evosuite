@@ -20,8 +20,8 @@
 package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -42,7 +42,7 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
         for (TryCatchCoverageTestFitness goal : goals) {
 
             if(Properties.TEST_ARCHIVE)
-                TestsArchive.instance.addGoalToCover(this, goal);
+                Archive.getArchiveInstance().addTarget(goal);
 
             branchesId.add(goal.getBranch().getActualBranchId());
             if (goal.getBranchExpressionValue())
