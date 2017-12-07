@@ -223,7 +223,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
             {
               OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory);
               if (Properties.TEST_ARCHIVE) {
-                ga.setArchive(TestsArchive.instance);
+                ga.setArchive(Archive.getArchiveInstance());
               }
               return ga;
             }
