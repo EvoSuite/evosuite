@@ -300,7 +300,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA, MIO
 	}
 
 	// MOSA PROPERTIES
@@ -528,6 +528,23 @@ public class Properties {
 	@Parameter(key = "chromosome_length", group = "Search Algorithm", description = "Maximum length of chromosomes during search")
 	@IntValue(min = 1, max = 100000)
 	public static int CHROMOSOME_LENGTH = 40;
+
+	@Parameter(key = "number_of_tests_per_target", group = "Search Algorithm", description = "Number of test cases for each target goal to keep in an archive")
+	public static int NUMBER_OF_TESTS_PER_TARGET = 10;
+
+	@Parameter(key = "p_random_test_or_from_archive", group = "Search Algorithm", description = "Probability [0,1] of sampling a new test at random or choose an existing one in an archive")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double P_RANDOM_TEST_OR_FROM_ARCHIVE = 0.5;
+
+	@Parameter(key = "exploitation_starts_at_percent", group = "Search Algorithm", description = "Percentage [0,1] of search budget after which exploitation is activated")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double EXPLOITATION_STARTS_AT_PERCENT = 0.5;
+
+	@Parameter(key = "max_num_mutations_before_giving_up", group = "Search Algorithm", description = "Maximum number of mutations allowed to be done on the same individual before sampling a new one")
+	public static int MAX_NUM_MUTATIONS_BEFORE_GIVING_UP = 10;
+
+	@Parameter(key = "max_num_fitness_evaluations_before_giving_up", group = "Search Algorithm", description = "Maximum number of fitness evaluations allowed to be done on the same individual before sampling a new one")
+	public static int MAX_NUM_FITNESS_EVALUATIONS_BEFORE_GIVING_UP = 10;
 
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)

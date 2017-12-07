@@ -227,6 +227,16 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
               }
               return ga;
             }
+        case MIO:
+          logger.info("Chosen search algorithm: MIO");
+          {
+              MIO<TestSuiteChromosome> ga = new MIO<TestSuiteChromosome>(factory);
+              if (Properties.TEST_ARCHIVE) {
+                  ga.setArchive(Archive.getArchiveInstance());
+              }
+
+              return ga;
+          }
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {

@@ -146,6 +146,9 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
         case ONEPLUSLAMBDALAMBDAGA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             return new OnePlusLambdaLambdaGA<>(factory);
+        case MIO:
+            logger.info("Chosen search algorithm: MIO");
+            return new MIO<TestChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA<>(factory);
