@@ -35,17 +35,8 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.RandomSearch;
-import org.evosuite.ga.metaheuristics.SPEA2;
-import org.evosuite.ga.metaheuristics.SteadyStateGA;
-import org.evosuite.ga.metaheuristics.NSGAII;
+import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
-import org.evosuite.ga.metaheuristics.OnePlusOneEA;
-import org.evosuite.ga.metaheuristics.OnePlusLambdaLambdaGA;
-import org.evosuite.ga.metaheuristics.StandardGA;
-import org.evosuite.ga.metaheuristics.MonotonicGA;
-import org.evosuite.ga.metaheuristics.MuPlusLambdaEA;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.statistics.StatisticsListener;
@@ -183,6 +174,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
+		case BREEDERGA:
+			logger.info("Chosen search algorithm: MuPlusLambdaGA");
+		{
+			BreederGA<TestSuiteChromosome> ga = new BreederGA<>(factory);
+			if (Properties.TEST_ARCHIVE)
+				ga.setArchive(TestsArchive.instance);
+
+			return ga;
+		}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
 			{

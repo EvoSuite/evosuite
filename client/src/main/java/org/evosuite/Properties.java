@@ -334,7 +334,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA
 	}
 
 	// MOSA PROPERTIES
@@ -514,6 +514,10 @@ public class Properties {
 	@Parameter(key = "mutation_rate", group = "Search Algorithm", description = "Probability of mutation")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double MUTATION_RATE = 0.75;
+
+	@Parameter(key = "breeder_truncation", group = "Search Algorithm", description = "Percentage of population to use for breeding in breeder GA")
+	@DoubleValue(min = 0.01, max = 1.0)
+	public static double TRUNCATION_RATE = 0.5;
 
 	/** Constant <code>NUMBER_OF_MUTATIONS=1</code> */
 	@Parameter(key = "number_of_mutations", group = "Search Algorithm", description = "Number of single mutations applied on an individual when a mutation event occurs")
