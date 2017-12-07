@@ -351,16 +351,17 @@ public class Properties {
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
 
+	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
-		ONEDIM,
-		LINFIV,
-		COMNIN,
-		COMTHI
+		ONE_DIMENSION,
+		LINEAR_FIVE,
+		COMPACT_NINE,
+		COMPACT_THIRTEEN
 	}
 
 	/** Constant <code>NEIGHBORHOOD_MODEL</code> */
 	@Parameter(key = "neighborhood_model", group = "Search Algorithm", description = "The model of neighborhood used in case of CGA. L5 is default")
-	public static CGA_Models MODEL = CGA_Models.LINFIV;
+	public static CGA_Models MODEL = CGA_Models.LINEAR_FIVE;
 
 	/** Constant <code>RANDOM_SEED</code> */
 	@Parameter(key = "random_seed", group = "Search Algorithm", description = "Seed used for random generator. If left empty, use current time")

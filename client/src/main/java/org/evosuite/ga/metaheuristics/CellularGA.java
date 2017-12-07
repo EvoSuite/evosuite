@@ -60,7 +60,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		
 		setReplacementFunction(new FitnessReplacementFunction());
 		
-		LoggingUtils.getEvoLogger().info("* Running CGA with model " + _model);
+		LoggingUtils.getEvoLogger().info("* Running the Cellular GA with the '" + _model + "' neighbourhoods model ");
 	}
 	
 	/**
@@ -149,10 +149,10 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	public List<T> getNeighbors(List<T> current_pop, int chromosome){
 		
 		switch(_model){
-		case ONEDIM: 	return neighb.ringTopology(current_pop, chromosome);
-		case LINFIV:    return neighb.linearFive(current_pop, chromosome);
-		case COMNIN:    return neighb.compactNine(current_pop, chromosome);
-		case COMTHI: 	return neighb.CompactThirteen(current_pop, chromosome);
+		case ONE_DIMENSION: 	return neighb.ringTopology(current_pop, chromosome);
+		case LINEAR_FIVE:    return neighb.linearFive(current_pop, chromosome);
+		case COMPACT_NINE:    return neighb.compactNine(current_pop, chromosome);
+		case COMPACT_THIRTEEN: 	return neighb.CompactThirteen(current_pop, chromosome);
 		default:        return neighb.linearFive(current_pop, chromosome);
 		}
 	}
@@ -360,6 +360,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * @param offspring2 The second offspring
 	 * @return a boolean
 	 */
+	@SuppressWarnings("deprecation")
 	protected boolean keepOffspring(Chromosome offspring1, Chromosome offspring2) {
 		return replacementFunction.keepOffspring(offspring1, offspring2);
 	}

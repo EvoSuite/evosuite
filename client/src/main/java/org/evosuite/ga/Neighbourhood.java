@@ -13,8 +13,8 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 
 	private static final long serialVersionUID = 1L;
 
-	/** Size of collection **/
-	private int chromCollectionSize;
+	/** The population size **/
+	private int population_size;
 	
 	/** Position values of different neighbourhood based on the direction **/
 	private int _L, _R, _N, _S, _W, _E, _NE, _NW, _SE, _SW, _NN, _SS, _EE, _WW;
@@ -33,11 +33,11 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	
 	public Neighbourhood (int populationSize){
 		
-		chromCollectionSize = populationSize;
+		population_size = populationSize;
 		
-		neighbour = new int[chromCollectionSize][0];
+		neighbour = new int[population_size][0];
 		
-		columns = (int)Math.sqrt(chromCollectionSize);
+		columns = (int)Math.sqrt(population_size);
 		
 		constructNeighbour();
 	}
@@ -47,11 +47,11 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 	 */
 	public void constructNeighbour(){
 
-		for(int i=0; i<chromCollectionSize; i++){
+		for(int i=0; i<population_size; i++){
 			neighbour[i] = new int[8];
 		}
 		
-		for(int i=0; i<chromCollectionSize; i++){
+		for(int i=0; i<population_size; i++){
 			
 			//~~~~ NORTH ~~~~//
 			if (i > columns - 1)
@@ -60,11 +60,11 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 			}
 			else
 			{
-				int mod = chromCollectionSize % columns; 
+				int mod = population_size % columns; 
 				if(mod != 0){
-					int thisPosition = ((i - columns + chromCollectionSize) % chromCollectionSize);
+					int thisPosition = ((i - columns + population_size) % population_size);
 					if(i == 0){
-						neighbour[i][Positions.N.ordinal()] = chromCollectionSize - (mod);
+						neighbour[i][Positions.N.ordinal()] = population_size - (mod);
 					}else{
 						if(mod > 1){
 							if(i >= mod){
@@ -77,13 +77,13 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 						}
 					}
 				}else{
-					neighbour[i][Positions.N.ordinal()] = (i - columns + chromCollectionSize) % chromCollectionSize;
+					neighbour[i][Positions.N.ordinal()] = (i - columns + population_size) % population_size;
 				}
 			}
 			
 			//~~~~ SOUTH ~~~~//
-			int thisPosition = (i + columns) % chromCollectionSize;
-			if(chromCollectionSize % columns != 0 && i+columns>=chromCollectionSize){
+			int thisPosition = (i + columns) % population_size;
+			if(population_size % columns != 0 && i+columns>=population_size){
 				neighbour[i][Positions.S.ordinal()] = i % columns;
 			}else{
 				neighbour[i][Positions.S.ordinal()] = thisPosition;
@@ -96,7 +96,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 			}
 			else 
 			{
-				if(chromCollectionSize % columns != 0 && i == chromCollectionSize-1){
+				if(population_size % columns != 0 && i == population_size-1){
 					neighbour[i][Positions.E.ordinal()] = (i % columns) + 1;
 				}else{
 					neighbour[i][Positions.E.ordinal()] = i + 1;
@@ -107,7 +107,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 			if (i % columns == 0)
 			{
 				int westPosition = i + (columns - 1);
-				if(westPosition >= chromCollectionSize){
+				if(westPosition >= population_size){
 					neighbour[i][Positions.W.ordinal()] = neighbour[i][Positions.E.ordinal()];
 				}else{
 					neighbour[i][Positions.W.ordinal()] = westPosition;
@@ -120,7 +120,7 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 		}
 		
 		//~~~~ NW, SW, NE, SE ~~~~//
-		for(int i=0; i<chromCollectionSize; i++){
+		for(int i=0; i<population_size; i++){
 			neighbour[i][Positions.NW.ordinal()] = neighbour[neighbour[i][Positions.N.ordinal()]][Positions.W.ordinal()];
 			
 			neighbour[i][Positions.SW.ordinal()] = neighbour[neighbour[i][Positions.S.ordinal()]][Positions.W.ordinal()];
@@ -154,8 +154,8 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 		}
 		
 		chromosomes.add((T) collection.get(_L));
-		chromosomes.add((T) collection.get(_R));
 		chromosomes.add((T) collection.get(position));
+		chromosomes.add((T) collection.get(_R));
 		
 		return chromosomes;
 	}

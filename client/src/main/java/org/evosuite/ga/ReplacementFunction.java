@@ -157,6 +157,7 @@ public abstract class ReplacementFunction implements Serializable {
 	 *             Properties.CHECK_PARENTS_LENGTH
 	 * @return a boolean.
 	 */
+	@Deprecated
 	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
 		return isBetterOrEqual(offspring, parent);
 	}
