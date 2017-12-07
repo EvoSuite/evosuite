@@ -137,7 +137,7 @@ public class TestSuiteGenerator {
 			boolean error = true;
 
 			String message = e.getMessage();
-			if(message != null && message.contains("Method code too large")) {
+			if (message != null && (message.contains("Method code too large") || message.contains("Class file too large"))) {
 				LoggingUtils.getEvoLogger().info("* Instrumentation exceeds Java's 64K limit per method in target class");
 				Properties.Criterion[] newCriteria = Arrays.stream(Properties.CRITERION).filter(t -> !t.equals(Properties.Criterion.STRONGMUTATION) && !t.equals(Properties.Criterion.WEAKMUTATION) && !t.equals(Properties.Criterion.MUTATION)).toArray(Properties.Criterion[]::new);
 				if(newCriteria.length < Properties.CRITERION.length) {

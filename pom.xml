@@ -432,7 +432,11 @@
                 <version>1.10.1</version>
                 <scope>provided</scope>
             </dependency>
-
+            <dependency>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>1.16.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -30,6 +30,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
+import org.evosuite.ga.operators.mutation.MutationDistribution;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -138,6 +139,28 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	/**
 	 * {@inheritDoc}
 	 *
+	 * Replace chromosome at position
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void crossOver(Chromosome other, int position) throws ConstructionFailedException {
+		if (!(other instanceof AbstractTestSuiteChromosome<?>)) {
+			throw new IllegalArgumentException(
+					"AbstractTestSuiteChromosome.crossOver() called with parameter of unsupported type " + other.getClass());
+		}
+
+		AbstractTestSuiteChromosome<T> chromosome = (AbstractTestSuiteChromosome<T>) other;
+
+		T otherTest =  chromosome.tests.get(position);
+		T clonedTest = (T) otherTest.clone();
+		tests.add(clonedTest);
+
+		this.setChanged(true);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
 	 * Keep up to position1, append copy of other from position2 on
 	 */
 	@SuppressWarnings("unchecked")
@@ -201,10 +224,12 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	public void mutate() {
 		boolean changed = false;
 
+		MutationDistribution probabilityDistribution = MutationDistribution.getMutationDistribution(tests.size());
+
 		// Mutate existing test cases
 		for (int i = 0; i < tests.size(); i++) {
 			T test = tests.get(i);
-			if (Randomness.nextDouble() < 1.0 / tests.size()) {
+			if (probabilityDistribution.toMutate(i)) {
 				test.mutate();
 				if(test.isChanged())
 					changed = true;

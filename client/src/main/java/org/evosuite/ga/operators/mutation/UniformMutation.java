@@ -17,26 +17,26 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.ga.operators.mutation;
 
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.utils.Randomness;
 
-/**
- * (1+1)EA
- *
- * @author Gordon Fraser
- */
-public class OnePlusOneEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
+public class UniformMutation extends MutationDistribution {
 
-	private static final long serialVersionUID = 5229089847512798127L;
+  private static final long serialVersionUID = -2352083320831156232L;
 
-	/**
-	 * Constructor
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public OnePlusOneEA(ChromosomeFactory<T> factory) {
-		super(factory, 1, 1);
-	}
+  public UniformMutation(int sizeOfDistribution) {
+    this.sizeOfDistribution = sizeOfDistribution;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean toMutate(int index) {
+    if (Randomness.nextDouble() < 1.0 / (double) this.sizeOfDistribution) {
+      return true;
+    }
+    return false;
+  }
 }

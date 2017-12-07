@@ -38,6 +38,7 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.eclipse.aether.RepositorySystemSession;
 import org.evosuite.EvoSuite;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.utils.LoggingUtils;
 
 /**
@@ -168,7 +169,7 @@ public class EvoSuiteRunner {
 		String entryPoint = EvoSuite.class.getName();
 		
 		List<String> cmd = new ArrayList<>();
-		cmd.add("java");
+		cmd.add(JavaExecCmdUtil.getJavaBinExecutablePath()/*"java"*/);
 		cmd.add("-D" + LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER + "=logback-ctg-entry.xml");
 		cmd.add("-Dlogback.configurationFile=logback-ctg-entry.xml");
 		cmd.add("-cp");
@@ -238,7 +239,7 @@ public class EvoSuiteRunner {
 		logger.info("Going to use EvoSuite jar: "+evo);
 
 		List<String> cmd = new ArrayList<>();
-		cmd.add("java");
+		cmd.add(JavaExecCmdUtil.getJavaBinExecutablePath()/*"java"*/);
 		cmd.add("-jar");
 		cmd.add(""+evo);
 		return cmd;

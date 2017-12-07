@@ -334,7 +334,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA
 	}
 
 	// MOSA PROPERTIES
@@ -558,6 +558,14 @@ public class Properties {
 	@Parameter(key = "elite", group = "Search Algorithm", description = "Elite size for search algorithm")
 	public static int ELITE = 1;
 
+	/** Constant <code>MU=1</code> */
+    @Parameter(key = "mu", group = "Search Algorithm", description = "Number of individuals selected by Mu + Lambda EA for the next generation")
+    public static int MU = 1;
+
+    /** Constant <code>LAMBDA=1</code> */
+    @Parameter(key = "lambda", group = "Search Algorithm", description = "Number of individuals produced by Mu + Lambda EA at each generation")
+    public static int LAMBDA = 1;
+
 	/** Constant <code>TOURNAMENT_SIZE=10</code> */
 	@Parameter(key = "tournament_size", group = "Search Algorithm", description = "Number of individuals for tournament selection")
 	public static int TOURNAMENT_SIZE = 10;
@@ -615,7 +623,7 @@ public class Properties {
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
 
 	public enum CrossoverFunction {
-		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE
+		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE, UNIFORM
 	}
 
 	/** Constant <code>CROSSOVER_FUNCTION</code> */
@@ -654,6 +662,14 @@ public class Properties {
 	/** Constant <code>SELECTION_FUNCTION</code> */
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
 	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+
+	public enum MutationProbabilityDistribution {
+		UNIFORM, BINOMIAL
+	}
+
+	/** Constant <code>MUTATION_PROBABILITY_DISTRIBUTION</code> */
+	@Parameter(key = "mutation_probability_distribution", group = "Search Algorithm", description = "Mutation probability distribution")
+	public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
 	// TODO: Fix values
 	/** Constant <code>SECONDARY_OBJECTIVE="totallength"</code> */
@@ -1686,6 +1702,11 @@ public class Properties {
 	/** Constant <code>ECLIPSE_PLUGIN=false</code> */
 	@Parameter(key = "eclipse_plugin", group = "Plugin", description = "Running plugin for experiments. Use EvoSuiteTest annotation and decorate generated tests with (checked = false).")
 	public static boolean ECLIPSE_PLUGIN = false;
+	
+	// Added - fix for @NotNull annotations issue on evo mailing list
+
+	@Parameter(key = "honour_data_annotations", group = "Runtime", description = "Allows EvoSuite to generate tests with or without honouring the parameter data annotations")
+	public static boolean HONOUR_DATA_ANNOTATIONS = true;
 
 	/**
 	 * Get all parameters that are available

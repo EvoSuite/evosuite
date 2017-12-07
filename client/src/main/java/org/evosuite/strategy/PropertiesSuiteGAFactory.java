@@ -42,8 +42,10 @@ import org.evosuite.ga.metaheuristics.SteadyStateGA;
 import org.evosuite.ga.metaheuristics.NSGAII;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.OnePlusOneEA;
+import org.evosuite.ga.metaheuristics.OnePlusLambdaLambdaGA;
 import org.evosuite.ga.metaheuristics.StandardGA;
 import org.evosuite.ga.metaheuristics.MonotonicGA;
+import org.evosuite.ga.metaheuristics.MuPlusLambdaEA;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.statistics.StatisticsListener;
@@ -51,6 +53,7 @@ import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.crossover.UniformCrossOver;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
@@ -139,6 +142,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 
 				return ga;
 			}
+		case MUPLUSLAMBDAEA:
+		    logger.info("Chosen search algorithm: (Mu+Lambda)EA");
+            {
+                MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
+                if (Properties.TEST_ARCHIVE)
+                    ga.setArchive(TestsArchive.instance);
+
+                return ga;
+            }
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
@@ -189,6 +201,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case MOSA:
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);
+        case ONEPLUSLAMBDALAMBDAGA:
+            logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
+            {
+              OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory);
+              if (Properties.TEST_ARCHIVE) {
+                ga.setArchive(TestsArchive.instance);
+              }
+              return ga;
+            }
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
@@ -227,6 +248,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				        "Coverage crossover function requires test suite mode");
 
 			return new org.evosuite.ga.operators.crossover.CoverageCrossOver();
+		case UNIFORM:
+			return new UniformCrossOver();
 		default:
 			throw new RuntimeException("Unknown crossover function: "
 			        + Properties.CROSSOVER_FUNCTION);
