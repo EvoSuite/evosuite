@@ -54,6 +54,20 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     // TODO
 
+    // sample a test case either from the archive (1 - Pr) or at random (Pr)
+    // note: in MIO there is an extra parameter (MAX_NUM_MUTATIONS_BEFORE_GIVING_UP + MAX_NUM_FITNESS_EVALUATIONS_BEFORE_GIVING_UP)
+    // which controls how many mutations and fitness evaluations should be
+    // done on the same individual before sampling a new one.
+
+    // clone it (if it is not already a clone)
+
+    // mutate it
+
+    // evaluate it
+
+    // after a certain amount of search-budget start reducing some runtime variables
+    // see Section 3.2
+
     this.currentIteration++;
   }
 
