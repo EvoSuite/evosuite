@@ -1184,7 +1184,7 @@ public class Properties {
 	public static TestFactory TEST_FACTORY = TestFactory.ARCHIVE;
 
 	public enum ArchiveType {
-		COVERAGE
+		COVERAGE, MIO
 	}
 
 	/** Constant <code>ARCHIVE_TYPE=COVERAGE</code> */

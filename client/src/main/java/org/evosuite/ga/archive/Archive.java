@@ -356,6 +356,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
       case COVERAGE:
       default:
         return CoverageArchive.instance;
+      case MIO:
+        return MIOArchive.instance;
     }
   }
 }
