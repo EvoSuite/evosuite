@@ -214,18 +214,20 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
     // F target = Randomness.choice(potentialTargets); randomSolution = (T)
     // this.archive.get(target).sampleSolution().clone();
 
+    // ASC sort, i.e., from the population with the lowest counter to the population with the
+    // highest counter
     potentialTargets.sort(new Comparator<F>() {
       @Override
       public int compare(F f0, F f1) {
         if (archive.get(f0).counter() < archive.get(f1).counter()) {
           return -1;
         } else if (archive.get(f0).counter() > archive.get(f1).counter()) {
-          return 1; // TODO DOUBLE CHECK this -1 +1 stuff
+          return 1;
         }
         return 0;
       }
     });
-    randomSolution = (T) this.archive.get(potentialTargets.get(0)).sampleSolution().clone(); // TODO assumes ASC sort
+    randomSolution = (T) this.archive.get(potentialTargets.get(0)).sampleSolution().clone();
 
     return randomSolution;
   }
@@ -339,7 +341,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
           this.solutions.add(candidateSolution);
         } else {
           // no, there is not. so, replace the worst one, if candidate is better.
-          this.sortSolutions();
+          this.sortPairSolutions();
           Pair<Double, T> worstSolution = this.solutions.get(this.capacity - 1);
 
           if (isPairBetterThanCurrent(worstSolution, candidateSolution)) {
@@ -383,16 +385,16 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
     }
 
     /**
-     * 
+     * DESC sort, i.e., from the pair with the highest h to the pair with the lowest h
      */
-    public void sortSolutions() {
+    public void sortPairSolutions() {
       this.solutions.sort(new Comparator<Pair<Double, T>>() {
         @Override
         public int compare(Pair<Double, T> solution0, Pair<Double, T> solution1) {
           if (solution0.getLeft() < solution1.getLeft()) {
-            return -1;
+            return 1;
           } else if (solution0.getLeft() > solution1.getLeft()) {
-            return 1; // TODO DOUBLE CHECK this -1 +1 stuff
+            return -1;
           }
           return 0;
         }
