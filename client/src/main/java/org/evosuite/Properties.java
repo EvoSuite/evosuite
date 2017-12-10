@@ -1188,7 +1188,7 @@ public class Properties {
 	}
 
 	/** Constant <code>ARCHIVE_TYPE=COVERAGE</code> */
-	@Parameter(key = "archive", description = "Which type of archive to keep track of covered goals during search")
+	@Parameter(key = "archive_type", description = "Which type of archive to keep track of covered goals during search")
 	public static ArchiveType ARCHIVE_TYPE = ArchiveType.COVERAGE;
 
 	@Parameter(key = "seed_file", description = "File storing TestGenerationResult or GeneticAlgorithm")
