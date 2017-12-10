@@ -185,7 +185,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					if (branchlessMethodCoverageMap.containsKey(name)) {
 						result.test.addCoveredGoal(branchlessMethodCoverageMap.get(name));
 						if(Properties.TEST_ARCHIVE) {
-							Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(name), result);
+							Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(name), result, 0.0);
 							toRemoveRootBranches.add(name);
 							suite.isToBeUpdated(true);
 						}
@@ -214,7 +214,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 				result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
 				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(entry.getKey()), result);
+					Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(entry.getKey()), result, 0.0);
 					toRemoveRootBranches.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -251,7 +251,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
 				result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
 				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(branchCoverageTrueMap.get(entry.getKey()), result);
+					Archive.getArchiveInstance().updateArchive(branchCoverageTrueMap.get(entry.getKey()), result, 0.0);
 					toRemoveBranchesT.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}
@@ -273,7 +273,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
 				result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
 				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(branchCoverageFalseMap.get(entry.getKey()), result);
+					Archive.getArchiveInstance().updateArchive(branchCoverageFalseMap.get(entry.getKey()), result, 0.0);
 					toRemoveBranchesF.add(entry.getKey());
 					suite.isToBeUpdated(true);
 				}

@@ -98,7 +98,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
                         calledMethods.add(fullName);
                         result.test.addCoveredGoal(methodCoverageMap.get(fullName));
     					if(Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(methodCoverageMap.get(fullName), result);
+						Archive.getArchiveInstance().updateArchive(methodCoverageMap.get(fullName), result, 0.0);
     						toRemoveMethods.add(fullName);
     						suite.isToBeUpdated(true);
     					}

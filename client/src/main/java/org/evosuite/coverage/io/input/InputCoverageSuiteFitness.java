@@ -109,7 +109,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                             result.test.addCoveredGoal(testFitness);
                             if (Properties.TEST_ARCHIVE) {
                                 // add goal to archive
-                                Archive.getArchiveInstance().updateArchive(testFitness, result);
+                                Archive.getArchiveInstance().updateArchive(testFitness, result, 0.0);
                                 // mark goal to be removed for next generation
                                 toRemoveGoals.add(testFitness);
                             }

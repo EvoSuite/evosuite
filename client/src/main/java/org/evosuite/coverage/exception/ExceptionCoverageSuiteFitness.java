@@ -191,7 +191,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);
                     	if(Properties.TEST_ARCHIVE && contextFitness != null) {
                                Archive.getArchiveInstance().addTarget(goal);
-                               Archive.getArchiveInstance().updateArchive(goal, result);
+                               Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
                     	}
                     }
 				}

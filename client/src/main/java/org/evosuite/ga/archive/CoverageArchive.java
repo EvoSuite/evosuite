@@ -73,8 +73,14 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void updateArchive(F target, ExecutionResult executionResult) {
+  public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
     assert this.archive.containsKey(target);
+
+    if (fitnessValue > 0.0) {
+      // as this type of archive only cares about covered targets, it ignores all
+      // targets with a fitness value greater than 0.0
+      return;
+    }
 
     boolean isNewCoveredTarget = false;
     boolean isNewSolutionBetterThanCurrent = false;

@@ -86,7 +86,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveMutants.add(entry.getKey());
-						Archive.getArchiveInstance().updateArchive(mutantMap.get(entry.getKey()), result);
+						Archive.getArchiveInstance().updateArchive(mutantMap.get(entry.getKey()), result, 0.0);
 						individual.isToBeUpdated(true);
 					}
 				}

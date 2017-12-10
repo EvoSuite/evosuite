@@ -106,8 +106,9 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    * 
    * @param target
    * @param executionResult
+   * @param fitnessValue
    */
-  public abstract void updateArchive(F target, ExecutionResult executionResult);
+  public abstract void updateArchive(F target, ExecutionResult executionResult, double fitnessValue);
 
   /**
    * Checks whether a candidate solution is better than an existing one.

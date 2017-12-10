@@ -77,24 +77,24 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void updateArchive(F target, ExecutionResult executionResult) {
+  public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
+    // TODO
     assert this.archive.containsKey(target);
 
     // TODO
-
-    // this method *ASSUMES* target F has been covered
 
     ExecutionResult executionResultClone = executionResult.clone();
     T solutionClone = (T) executionResultClone.test.clone(); // in case executionResult.clone() has
                                                              // not cloned the test
     executionResultClone.setTest(solutionClone);
 
-    this.archive.get(target).addSolution(1.0, solutionClone); // TODO should this return a boolean?!
+    this.archive.get(target).addSolution(1.0 - fitnessValue, solutionClone); // TODO should this return a boolean?!
 
     this.removeNonCoveredTargetOfAMethod(target);
 
     // TODO what about collateral coverage, i.e.,
     // this.handleCollateralCoverage(executionResultClone, solutionClone); ?
+    // maybe only if fitnessValue = 0.0 -> covered ?
   }
 
   /**

@@ -130,7 +130,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					result.test.addCoveredGoal(linesCoverageMap.get(line));
 					if(Properties.TEST_ARCHIVE) {
 						toRemoveLines.add(line);
-						Archive.getArchiveInstance().updateArchive(linesCoverageMap.get(line), result);
+						Archive.getArchiveInstance().updateArchive(linesCoverageMap.get(line), result, 0.0);
 						suite.isToBeUpdated(true);
 					}
 				}

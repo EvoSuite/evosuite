@@ -172,7 +172,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 						newKilled.add(mutantId);
 						if(Properties.TEST_ARCHIVE) {
 							toRemoveMutants.add(mutantFitness.getMutation().getId());
-							Archive.getArchiveInstance().updateArchive(mutantFitness, result);
+							Archive.getArchiveInstance().updateArchive(mutantFitness, result, 0.0);
 							individual.isToBeUpdated(true);
 						}
 					}
