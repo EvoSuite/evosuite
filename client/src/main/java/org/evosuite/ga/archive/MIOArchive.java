@@ -328,7 +328,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
           added = true;
           this.capacity = 1;
           this.solutions.clear();
-          this.solutions.set(0, candidateSolution);
+          this.solutions.add(candidateSolution);
         }
       } else {
         // no, candidate solution T does not fully cover the target.
