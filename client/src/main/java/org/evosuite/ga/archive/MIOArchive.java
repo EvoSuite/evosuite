@@ -180,6 +180,19 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   /**
    * {@inheritDoc}
    */
+  @Override
+  public boolean hasSolution(F target) {
+    assert target != null;
+
+    if (this.archive.containsKey(target)) {
+      return this.archive.get(target).covered();
+    }
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public T getRandomSolution() {

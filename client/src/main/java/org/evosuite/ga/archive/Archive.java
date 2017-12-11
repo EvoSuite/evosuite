@@ -20,6 +20,7 @@
 package org.evosuite.ga.archive;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -63,6 +64,17 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    * @param target
    */
   public abstract void addTarget(F target);
+
+  /**
+   * Register a collection of targets.
+   * 
+   * @param target
+   */
+  public void addTargets(Collection<F> targets) {
+    for (F target : targets) {
+      this.addTarget(target);
+    }
+  }
 
   /**
    * Register a non-covered target of a method.
@@ -176,6 +188,13 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    * @return
    */
   public abstract T getSolution(F target);
+
+  /**
+   * 
+   * @param target
+   * @return
+   */
+  public abstract boolean hasSolution(F target);
 
   /**
    * Returns the clone of a solution selected at random.
