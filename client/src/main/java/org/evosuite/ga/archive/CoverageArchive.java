@@ -60,6 +60,8 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    */
   @Override
   public void addTarget(F target) {
+    assert target != null;
+
     if (!this.archive.containsKey(target)) {
       logger.debug("Registering new target '" + target + "'");
       this.archive.put(target, null);
@@ -74,6 +76,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
   @SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
+    assert target != null;
     assert this.archive.containsKey(target);
 
     if (fitnessValue > 0.0) {
@@ -229,6 +232,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    */
   @Override
   public T getSolution(F target) {
+    assert target != null;
     return this.archive.get(target);
   }
 

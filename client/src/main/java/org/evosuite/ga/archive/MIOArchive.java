@@ -64,6 +64,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public void addTarget(F target) {
+    assert target != null;
+
     if (!this.archive.containsKey(target)) {
       logger.debug("Registering new target '" + target + "'");
       this.archive.put(target, new Population(Properties.NUMBER_OF_TESTS_PER_TARGET));
@@ -79,6 +81,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   @Override
   public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
     // TODO
+    assert target != null;
     assert this.archive.containsKey(target);
 
     // TODO
