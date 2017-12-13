@@ -127,7 +127,11 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-all</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

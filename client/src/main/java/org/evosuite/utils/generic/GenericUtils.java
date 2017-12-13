@@ -19,7 +19,9 @@
  */
 package org.evosuite.utils.generic;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -34,6 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GenericUtils {
+
+	/** Constant to represent @NotNull annotation */
+	public final static String NONNULL = "Nonnull";
 
 	public static boolean isAssignable(Type type, TypeVariable<?> typeVariable) {
 		boolean isAssignable = true;
@@ -280,4 +285,25 @@ public class GenericUtils {
 
 		return map;
 	}
+
+	/**
+	 * Returns true if the annotation is present in the annotationList, false otherwise.
+	 * 
+	 * @param annotationList
+	 * @param annotationTypeName
+	 * @return boolean
+	 */
+	public static boolean isAnnotationTypePresent(Annotation[] annotationList, String annotationTypeName) {
+		for (Annotation annotation : annotationList) {
+
+			if ((null != annotationTypeName)
+					&& annotationTypeName.equalsIgnoreCase(annotation.annotationType().getSimpleName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	
 }
