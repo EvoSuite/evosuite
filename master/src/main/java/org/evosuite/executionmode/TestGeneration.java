@@ -128,6 +128,10 @@ public class TestGeneration {
 		if (javaOpts.contains("-Dstrategy="+Strategy.ENTBUG.name())
 				&& line.hasOption("generateTests")) {
 			strategy = Strategy.ENTBUG;
+			// TODO: Find a better way to integrate this
+		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
+			// TODO: Find a better way to integrate this
+			strategy = Strategy.NOVELTY;
 		} else if (line.hasOption("generateTests")) {
 			strategy = Strategy.ONEBRANCH;
 		} else if (line.hasOption("generateSuite")) {
@@ -144,8 +148,6 @@ public class TestGeneration {
 			strategy = Strategy.MOSUITE;
 		} else if (line.hasOption("generateSuiteUsingDSE")) {
 			strategy = Strategy.DSE;
-		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
-			strategy = Strategy.NOVELTY;
 		}
 		return strategy;
 	}
