@@ -10,7 +10,6 @@ import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.utils.Randomness;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +31,6 @@ public class CellularGASystemTest extends SystemTestBase{
 	    Properties.STOPPING_CONDITION = sc;
 	    Properties.SEARCH_BUDGET = budget;
 	    Properties.MINIMIZE = false;
-	    Randomness.setSeed(10);
 
 	    EvoSuite evosuite = new EvoSuite();
 
