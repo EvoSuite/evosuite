@@ -33,9 +33,6 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	/** An object of ReplacementFunction **/
 	protected ReplacementFunction replacementFunction;
 	
-	/** Size of population **/
-	private int populationSize=0;
-	
 	/** Constructing the neighbourhood **/
 	private Neighbourhood<T> neighb;
 	
@@ -54,9 +51,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		
 		_model = model;
 		
-		populationSize = Properties.POPULATION;
-		
-		neighb = new Neighbourhood<T>(populationSize);
+		neighb = new Neighbourhood<T>(Properties.POPULATION);
 		
 		setReplacementFunction(new FitnessReplacementFunction());
 		
@@ -88,7 +83,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		
 		temp_cells.clear();
 		
-		for(int i=0; i<populationSize; i++){
+		for(int i=0; i<Properties.POPULATION; i++){
 
 			List<T> neighbors = this.getNeighbors(population, i);
 			
@@ -164,7 +159,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 */
 	public void replacePopulations(List<T> main, List<T> temp){
 		
-		for(int i=0; i<populationSize; i++){
+		for(int i=0; i<Properties.POPULATION; i++){
 			
 			T mainIndividual = main.get(i);
 			T tempIndividual = temp.get(i);
@@ -177,7 +172,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 			}
 			
 			// replace-if-better policy
-			if(keepOffspring(mainIndividual, tempIndividual)){
+			if(isBetterOrEqual(mainIndividual, tempIndividual)){
 				if (!(isTooLong(tempIndividual) || tempIndividual.size() == 0)){
 					main.set(i, tempIndividual);
 				}
@@ -200,7 +195,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 			notifyEvaluation(offspring2);
 		}
 		
-		if(keepOffspring(offspring1, offspring2))
+		if(isBetterOrEqual(offspring1, offspring2))
 			return offspring2;
 		else
 			return offspring1;
@@ -216,7 +211,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		
 		currentIteration = 0;
 
-		generateInitialPopulation(populationSize);
+		generateInitialPopulation(Properties.POPULATION);
 		
 		logger.debug("Calculating fitness of initial population");
 		
@@ -352,17 +347,6 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 */
 	public ReplacementFunction getReplacementFunction() {
 		return replacementFunction;
-	}
-	
-	/**
-	 * Determine the offspring that will be kept
-	 * @param offspring1 The first offspring
-	 * @param offspring2 The second offspring
-	 * @return a boolean
-	 */
-	@SuppressWarnings("deprecation")
-	protected boolean keepOffspring(Chromosome offspring1, Chromosome offspring2) {
-		return replacementFunction.keepOffspring(offspring1, offspring2);
 	}
 
 }

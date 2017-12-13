@@ -161,17 +161,4 @@ public abstract class ReplacementFunction implements Serializable {
 	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
 		return isBetterOrEqual(offspring, parent);
 	}
-
-	/**
-	 * Check how the best offspring compares with the parent
-	 * 
-	 * @param parent1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring1
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 * @return a int.
-	 */
-	protected int compareOffspringToParent(Chromosome chromosome1, Chromosome chromosome2) {
-		return chromosome2.compareTo(chromosome1);
-	}
 }
