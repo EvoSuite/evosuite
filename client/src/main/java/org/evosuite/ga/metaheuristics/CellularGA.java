@@ -36,9 +36,6 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	/** Constructing the neighbourhood **/
 	private Neighbourhood<T> neighb;
 	
-	/** Neighbourhood model **/
-	private Properties.CGA_Models _model = null;
-	
 	/** Constructing the temporary grid */
 	private List<T> temp_cells = new ArrayList<>();
 	
@@ -49,13 +46,11 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		
 		super(factory);
 		
-		_model = model;
-		
 		neighb = new Neighbourhood<T>(Properties.POPULATION);
 		
 		setReplacementFunction(new FitnessReplacementFunction());
 		
-		LoggingUtils.getEvoLogger().info("* Running the Cellular GA with the '" + _model + "' neighbourhoods model ");
+		LoggingUtils.getEvoLogger().info("* Running the Cellular GA with the '" + Properties.MODEL + "' neighbourhoods model ");
 	}
 	
 	/**
@@ -83,13 +78,10 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		
 		temp_cells.clear();
 		
-		for(int i=0; i<Properties.POPULATION; i++){
+		for(int i=0; i<this.population.size(); i++){
 
-			List<T> neighbors = this.getNeighbors(population, i);
+			List<T> neighbors = neighb.getNeighbors(population, i);
 			
-			if (Properties.SHUFFLE_GOALS)
-				Randomness.shuffle(neighbors);
-
 			if (getFitnessFunction().isMaximizationFunction()) {
 				Collections.sort(neighbors, Collections.reverseOrder());
 			} else {
@@ -136,29 +128,12 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	}
 	
 	/**
-	 * Retrieve neighbours of a chromosome
-	 * @param current_pop The current population
-	 * @param chromosome  The chromosome which its neighbours will be retrieved
-	 * @return neighbours as a collection
-	 */
-	public List<T> getNeighbors(List<T> current_pop, int chromosome){
-		
-		switch(_model){
-		case ONE_DIMENSION: 	return neighb.ringTopology(current_pop, chromosome);
-		case LINEAR_FIVE:    return neighb.linearFive(current_pop, chromosome);
-		case COMPACT_NINE:    return neighb.compactNine(current_pop, chromosome);
-		case COMPACT_THIRTEEN: 	return neighb.CompactThirteen(current_pop, chromosome);
-		default:        return neighb.linearFive(current_pop, chromosome);
-		}
-	}
-	
-	/**
 	 * Replace the current individuals with better individuals in the temporary grid
 	 * @param main The main grid
 	 * @param temp The temporary grid
 	 */
 	public void replacePopulations(List<T> main, List<T> temp){
-		
+		assert main.size() == temp.size();
 		for(int i=0; i<Properties.POPULATION; i++){
 			
 			T mainIndividual = main.get(i);

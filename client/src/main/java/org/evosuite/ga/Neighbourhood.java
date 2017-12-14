@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.Properties;
+
 /**
  * Construction of a grid and the neighbourhood models 
  * 
@@ -251,6 +253,23 @@ public class Neighbourhood<T extends Chromosome> implements NeighborModels,Seria
 		chromosomes.add((T) collection.get(position));
 		
 		return chromosomes;
+	}
+	
+	/**
+	 * Retrieve neighbours of a chromosome
+	 * @param current_pop The current population
+	 * @param chromosome  The chromosome which its neighbours will be retrieved
+	 * @return neighbours as a collection
+	 */
+	public List<T> getNeighbors(List<T> current_pop, int chromosome){
+		
+		switch(Properties.MODEL){
+		case ONE_DIMENSION:    return this.ringTopology(current_pop, chromosome);
+		case LINEAR_FIVE:      return this.linearFive(current_pop, chromosome);
+		case COMPACT_NINE:     return this.compactNine(current_pop, chromosome);
+		case COMPACT_THIRTEEN: return this.CompactThirteen(current_pop, chromosome);
+		default:               return this.linearFive(current_pop, chromosome);
+		}
 	}
 
 }
