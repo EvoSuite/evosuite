@@ -46,6 +46,7 @@ import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.sandbox.MSecurityManager;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.LoggingUtils;
@@ -70,13 +71,14 @@ public class EvoSuite {
     private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
     private static String separator = System.getProperty("file.separator");
-    private static String javaHome = System.getProperty("java.home");
+    //private static String javaHome = System.getProperty("java.home");
 
     /**
+     * Functional moved to @{@link JavaExecCmdUtil#getJavaBinExecutablePath()}
      * Constant
      * <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
      */
-    public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
+    //public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
 
     public static String base_dir_path = System.getProperty("user.dir");
 

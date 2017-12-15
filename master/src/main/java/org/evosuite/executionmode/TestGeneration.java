@@ -35,6 +35,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JarPathing;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
@@ -128,6 +129,10 @@ public class TestGeneration {
 		if (javaOpts.contains("-Dstrategy="+Strategy.ENTBUG.name())
 				&& line.hasOption("generateTests")) {
 			strategy = Strategy.ENTBUG;
+			// TODO: Find a better way to integrate this
+		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
+			// TODO: Find a better way to integrate this
+			strategy = Strategy.NOVELTY;
 		} else if (line.hasOption("generateTests")) {
 			strategy = Strategy.ONEBRANCH;
 		} else if (line.hasOption("generateSuite")) {
@@ -221,7 +226,7 @@ public class TestGeneration {
 		}
 
 		List<String> cmdLine = new ArrayList<>();
-		cmdLine.add(EvoSuite.JAVA_CMD);
+		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
 
 		handleClassPath(cmdLine);
 
@@ -329,6 +334,9 @@ public class TestGeneration {
 			break;
 		case DSE:
 			cmdLine.add("-Dstrategy=Dynamic_Symbolic_Execution");
+			break;
+		case NOVELTY:
+			cmdLine.add("-Dstrategy=Novelty");
 			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);

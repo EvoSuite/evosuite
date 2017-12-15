@@ -36,6 +36,7 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
@@ -100,7 +101,7 @@ public class MeasureCoverage {
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		int port = handler.openServer();
 		List<String> cmdLine = new ArrayList<String>();
-		cmdLine.add(EvoSuite.JAVA_CMD);
+		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
