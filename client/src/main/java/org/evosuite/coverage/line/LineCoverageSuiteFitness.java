@@ -101,43 +101,39 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results, Set<Integer> allCoveredLines) {
 		boolean hasTimeoutOrTestException = false;
 
-		for (Integer line : lineGoals.keySet()) {
-		  TestFitnessFunction goal = lineGoals.get(line);
+		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException()) {
+				hasTimeoutOrTestException = true;
+				continue;
+			}
 
-          if (Archive.getArchiveInstance().hasSolution(goal)) {
-            // to reduce the overhead of updating the archive, in here we skip goals that have been covered and to which there
-            // is already a test case in the archive
-            allCoveredLines.add(line);
-            continue;
-          }
+			for (Integer lineID : this.lineGoals.keySet()) {
 
-          for (ExecutionResult result : results) {
-            if (result.hasTimeout() || result.hasTestException()) {
-              hasTimeoutOrTestException = true;
-              continue;
-            }
+				TestFitnessFunction goal = this.lineGoals.get(lineID);
+				if (Archive.getArchiveInstance().hasSolution(goal)) {
+					// Is it worth continue looking for other results (i.e., tests) that cover this already covered
+					// goal? Maybe. However, as checking whether a test covers a specific goal and updating the
+					// archive could be very time consuming tasks, in here we just skip the search for yet another
+					// test case. The main objective (i.e., having a test case for this goal) has been completed
+					// anyway.
+					allCoveredLines.add(lineID);
+					continue;
+				}
 
-            TestChromosome tc = new TestChromosome();
-            tc.setTestCase(result.test);
-            double fit = goal.getFitness(tc, result);
+				TestChromosome tc = new TestChromosome();
+				tc.setTestCase(result.test);
+				double fit = goal.getFitness(tc, result);
 
-            if (fit == 0.0) {
-              allCoveredLines.add(line);
-              result.test.addCoveredGoal(goal);
-            }
+				if (fit == 0.0) {
+					allCoveredLines.add(lineID);
+					result.test.addCoveredGoal(goal);
+				}
 
-            if (Properties.TEST_ARCHIVE) {
-                Archive.getArchiveInstance().updateArchive(goal, result, fit);
-                suite.isToBeUpdated(true);
-            }
-
-            if (fit == 0.0) {
-              // we can continue looking at the other results as other test cases might be better/worse, however it would be a
-              // very time consuming task and likely not worth it, as the main objective (i.e., having a test case for this goal)
-              // has been completed anyway.
-              break;
-            }
-          }
+				if (Properties.TEST_ARCHIVE) {
+					// TODO ideally this should be done in the getFitness() method of the LineCoverageTestFitness class
+					Archive.getArchiveInstance().updateArchive(goal, result, fit);
+				}
+			}
 		}
 
 		return hasTimeoutOrTestException;
