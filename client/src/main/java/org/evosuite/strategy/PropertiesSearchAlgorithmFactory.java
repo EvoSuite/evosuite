@@ -85,6 +85,7 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 	public static GeneticAlgorithm<?> createSearchAlgorithm() {
 		switch(Properties.ALGORITHM) {
 		case MONOTONICGA:
+		case CELLULARGA:
 		case NSGAII:
 		case SPEA2:
 		case ONEPLUSONEEA:
