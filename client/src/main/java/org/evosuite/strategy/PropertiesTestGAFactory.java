@@ -109,6 +109,18 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 				}
 				return ga;
 			}
+		case CELLULARGA:
+			logger.info("Chosen search algorithm: CellularGA");
+			{
+				CellularGA<TestChromosome> ga = new CellularGA<TestChromosome>(Properties.MODEL, factory);
+				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
+					// user has explicitly asked for this replacement function
+					ga.setReplacementFunction(new FitnessReplacementFunction());
+				} else {
+					ga.setReplacementFunction(new TestCaseReplacementFunction());
+				}
+				return ga;
+			}
 		case STEADYSTATEGA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{

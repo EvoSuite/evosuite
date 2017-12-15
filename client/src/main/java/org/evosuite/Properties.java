@@ -334,7 +334,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA
 	}
 
 	// MOSA PROPERTIES
@@ -350,6 +350,18 @@ public class Properties {
 	/** Constant <code>ALGORITHM</code> */
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
+
+	/** Different models of neighbourhoods in the Cellular GA **/
+	public enum CGA_Models{
+		ONE_DIMENSION,
+		LINEAR_FIVE,
+		COMPACT_NINE,
+		COMPACT_THIRTEEN
+	}
+
+	/** Constant <code>NEIGHBORHOOD_MODEL</code> */
+	@Parameter(key = "neighborhood_model", group = "Search Algorithm", description = "The model of neighborhood used in case of CGA. L5 is default")
+	public static CGA_Models MODEL = CGA_Models.LINEAR_FIVE;
 
 	/** Constant <code>RANDOM_SEED</code> */
 	@Parameter(key = "random_seed", group = "Search Algorithm", description = "Seed used for random generator. If left empty, use current time")
@@ -2631,5 +2643,6 @@ public class Properties {
 		boolean isRegression = (STRATEGY == Strategy.REGRESSION);
 		return isRegression;
 	}
+
 
 }
