@@ -17,15 +17,10 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.comparators;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * This class implements a <code>Comparator</code> (a method for comparing <code>Chromosomes</code> objects) 
@@ -37,16 +32,12 @@ public class PreferenceSortingComparator<T extends Chromosome> implements Compar
 
 	private final FitnessFunction<T> objective;
 
-	private final List<T> population;
-
 	/**
 	 * Constructor
 	 *
-	 * @param population
 	 * @param goal
 	 */
-	public PreferenceSortingComparator(List<T> population, FitnessFunction<T> goal) {
-		this.population = new ArrayList<T>(population);
+	public PreferenceSortingComparator(FitnessFunction<T> goal) {
 		this.objective = goal;
 	}
 
@@ -77,19 +68,7 @@ public class PreferenceSortingComparator<T extends Chromosome> implements Compar
 		else if (value1 > value2)
 			return +1;
 		else {
-			List<T> population_without_both_solutions = new ArrayList<T>(this.population);
-			population_without_both_solutions.remove(solution1);
-			population_without_both_solutions.remove(solution2);
-
-			TestSuiteChromosome solution1_suite = new TestSuiteChromosome();
-			solution1_suite.addTests((Collection<TestChromosome>) population_without_both_solutions);
-			solution1_suite.addTest((TestChromosome) solution1);
-
-			TestSuiteChromosome solution2_suite = new TestSuiteChromosome();
-			solution2_suite.addTests((Collection<TestChromosome>) population_without_both_solutions);
-			solution2_suite.addTest((TestChromosome) solution2);
-
-			return solution1_suite.compareSecondaryObjective(solution2_suite);
+			return solution1.compareSecondaryObjective(solution2);
 		}
 
 	} // compare

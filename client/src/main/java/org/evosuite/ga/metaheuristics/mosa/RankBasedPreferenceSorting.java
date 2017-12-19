@@ -96,12 +96,12 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 		for (FitnessFunction<T> f : uncovered_goals){
 			//for each goals:
 			// peak up the best tests using the proper comparator
-			PreferenceSortingComparator<T> comp = new PreferenceSortingComparator<T>(solutionSet, f);
+			PreferenceSortingComparator<T> comp = new PreferenceSortingComparator<T>(f);
 
 			T best = null;
 			for (T test : solutionSet){
 				int flag = comp.compare(test, best);
-				if (flag == -1 || (flag == 0  && Randomness.nextBoolean())){
+				if (flag < 0 || (flag == 0  && Randomness.nextBoolean())){
 					best = test;
 				} 
 			}
