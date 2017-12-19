@@ -34,17 +34,10 @@ import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.ga.metaheuristics.CellularGA;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.RandomSearch;
-import org.evosuite.ga.metaheuristics.SPEA2;
-import org.evosuite.ga.metaheuristics.SteadyStateGA;
-import org.evosuite.ga.metaheuristics.NSGAII;
+import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
-import org.evosuite.ga.metaheuristics.OnePlusOneEA;
-import org.evosuite.ga.metaheuristics.StandardGA;
-import org.evosuite.ga.metaheuristics.MonotonicGA;
-import org.evosuite.ga.metaheuristics.MuPlusLambdaEA;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.statistics.StatisticsListener;
@@ -52,6 +45,7 @@ import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.crossover.UniformCrossOver;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
@@ -165,6 +159,22 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
+		case CELLULARGA:
+			logger.info("Chosen search algorithm: CellularGA");
+			{
+				CellularGA<TestSuiteChromosome> ga = new CellularGA<TestSuiteChromosome>(Properties.MODEL, factory);
+	            if (Properties.TEST_ARCHIVE)
+	            	ga.setArchive(TestsArchive.instance);
+
+				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
+					// user has explicitly asked for this replacement function
+					ga.setReplacementFunction(new FitnessReplacementFunction());
+				} else {
+					// use default
+					ga.setReplacementFunction(new TestSuiteReplacementFunction());
+				}
+				return ga;
+			}
 		case STEADYSTATEGA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
@@ -181,6 +191,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
+		case BREEDERGA:
+			logger.info("Chosen search algorithm: MuPlusLambdaGA");
+		{
+			BreederGA<TestSuiteChromosome> ga = new BreederGA<>(factory);
+			if (Properties.TEST_ARCHIVE)
+				ga.setArchive(TestsArchive.instance);
+
+			return ga;
+		}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
 			{
@@ -199,6 +218,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case MOSA:
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);
+        case ONEPLUSLAMBDALAMBDAGA:
+            logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
+            {
+              OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory);
+              if (Properties.TEST_ARCHIVE) {
+                ga.setArchive(TestsArchive.instance);
+              }
+              return ga;
+            }
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
@@ -237,6 +265,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				        "Coverage crossover function requires test suite mode");
 
 			return new org.evosuite.ga.operators.crossover.CoverageCrossOver();
+		case UNIFORM:
+			return new UniformCrossOver();
 		default:
 			throw new RuntimeException("Unknown crossover function: "
 			        + Properties.CROSSOVER_FUNCTION);

@@ -19,7 +19,7 @@
  */
 package org.evosuite.runtime;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,7 +46,7 @@ public class LoopCounter {
 
 
     private LoopCounter(){
-        counters = new LinkedList<>();
+        counters = new ArrayList<>();
     }
 
     public static LoopCounter getInstance(){
@@ -107,13 +107,19 @@ public class LoopCounter {
         assert index < counters.size();
 
         //do increment
-        long value = counters.get(index) + 1l;
-        counters.set(index , value);
+        try {
+            long value = counters.get(index) + 1l;
+            counters.set(index, value);
 
-        if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
-            this.reset();
-            throw new TooManyResourcesException("Loop has been executed more times than the allowed " +
-                    RuntimeSettings.maxNumberOfIterationsPerLoop);
+            if(value >= RuntimeSettings.maxNumberOfIterationsPerLoop && !isInStaticInit()) {
+                this.reset();
+                throw new TooManyResourcesException("Loop has been executed more times than the allowed " +
+                        RuntimeSettings.maxNumberOfIterationsPerLoop);
+            }
+        } catch(NullPointerException e) {
+            // Some weird Java internal NPE can happen:
+            // https://github.com/EvoSuite/evosuite/issues/143
+            // Seems safe to swallow this instead of crashing EvoSuite
         }
     }
 

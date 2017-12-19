@@ -300,7 +300,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA
 	}
 
 	// MOSA PROPERTIES
@@ -315,6 +315,17 @@ public class Properties {
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
+
+	/** Different models of neighbourhoods in the Cellular GA **/
+	public enum CGA_Models{
+		ONE_DIMENSION,
+		LINEAR_FIVE,
+		COMPACT_NINE,
+		COMPACT_THIRTEEN
+	}
+
+	@Parameter(key = "neighborhood_model", group = "Search Algorithm", description = "The model of neighborhood used in case of CGA. L5 is default")
+	public static CGA_Models MODEL = CGA_Models.LINEAR_FIVE;
 
 	@Parameter(key = "random_seed", group = "Search Algorithm", description = "Seed used for random generator. If left empty, use current time")
 	public static Long RANDOM_SEED = null;
@@ -464,6 +475,10 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double MUTATION_RATE = 0.75;
 
+	@Parameter(key = "breeder_truncation", group = "Search Algorithm", description = "Percentage of population to use for breeding in breeder GA")
+	@DoubleValue(min = 0.01, max = 1.0)
+	public static double TRUNCATION_RATE = 0.5;
+
 	@Parameter(key = "number_of_mutations", group = "Search Algorithm", description = "Number of single mutations applied on an individual when a mutation event occurs")
 	public static int NUMBER_OF_MUTATIONS = 1;
 
@@ -549,7 +564,7 @@ public class Properties {
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
 
 	public enum CrossoverFunction {
-		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE
+		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE, UNIFORM
 	}
 
 	@Parameter(key = "crossover_function", group = "Search Algorithm", description = "Crossover function during search")
@@ -586,6 +601,14 @@ public class Properties {
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
 	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+
+	public enum MutationProbabilityDistribution {
+		UNIFORM, BINOMIAL
+	}
+
+	/** Constant <code>MUTATION_PROBABILITY_DISTRIBUTION</code> */
+	@Parameter(key = "mutation_probability_distribution", group = "Search Algorithm", description = "Mutation probability distribution")
+	public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
@@ -1431,7 +1454,7 @@ public class Properties {
 	
 	
 	public enum Strategy {
-	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE
+	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
@@ -2404,5 +2427,6 @@ public class Properties {
 		boolean isRegression = (STRATEGY == Strategy.REGRESSION);
 		return isRegression;
 	}
+
 
 }

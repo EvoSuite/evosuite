@@ -64,11 +64,14 @@ public class System {
 		}
 		defaultProperties = prop;
 
+		// We have to allow some system properties like "java.io.tmpdir",  "user.home",  "user.dir"
+		// as otherwise tests using the VFS at runtime might break
 		systemProperties = new HashSet<String>(Arrays.asList(new String[]{"java.version", "java.vendor", "java.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",	
 				"java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", 	
-				"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs",	
-				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir", "java.endorsed.dirs",
+				"java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.compiler", "java.ext.dirs",
+				"os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "java.endorsed.dirs",
 		        "awt.toolkit", "java.awt.graphicsenv", "java.awt.printerjob", "java.vm.info", "java.runtime.version", "java.runtime.name"}));
+
 	}
 
 

@@ -1292,8 +1292,8 @@ public class MSecurityManager extends SecurityManager {
 		String fontDir = USER_DIR+File.separator+".java"+File.separator+
 				"fonts"+File.separator+JAVA_VERSION;
 
-		if(action.equals("write") && 
-				fp.getName().startsWith(fontDir)) {
+		if(action.equals("write")) {
+			if(fp.getName().startsWith(fontDir)) {
 			/*
 			 * NOTE: this is a very tricky situation.
 			 * Issue arises in GUI classes like javax.swing.JComponent,
@@ -1313,7 +1313,14 @@ public class MSecurityManager extends SecurityManager {
 			 *   refactor/extend this class to handle AccessController.doPrivileged blocks.
 			 *        
 			 */
-			return true;
+				return true;
+			} else if(fp.getName().endsWith("jacoco.exec")) {
+				/*
+				 * This is not 100% secure, but Jacoco support
+				 * is important
+				 */
+				return true;
+			}
 		}
 
 		return false;

@@ -129,6 +129,10 @@ public class TestGeneration {
 		if (javaOpts.contains("-Dstrategy="+Strategy.ENTBUG.name())
 				&& line.hasOption("generateTests")) {
 			strategy = Strategy.ENTBUG;
+			// TODO: Find a better way to integrate this
+		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
+			// TODO: Find a better way to integrate this
+			strategy = Strategy.NOVELTY;
 		} else if (line.hasOption("generateTests")) {
 			strategy = Strategy.ONEBRANCH;
 		} else if (line.hasOption("generateSuite")) {
@@ -330,6 +334,9 @@ public class TestGeneration {
 			break;
 		case DSE:
 			cmdLine.add("-Dstrategy=Dynamic_Symbolic_Execution");
+			break;
+		case NOVELTY:
+			cmdLine.add("-Dstrategy=Novelty");
 			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
