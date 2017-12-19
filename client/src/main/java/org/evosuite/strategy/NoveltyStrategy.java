@@ -2,7 +2,7 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -90,7 +90,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
             ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
             algorithm.generateSolution();
-            testSuite = TestsArchive.instance.createMergedSolution(new TestSuiteChromosome());
+            testSuite = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();

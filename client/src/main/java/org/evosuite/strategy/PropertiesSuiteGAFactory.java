@@ -164,7 +164,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			{
 				CellularGA<TestSuiteChromosome> ga = new CellularGA<TestSuiteChromosome>(Properties.MODEL, factory);
 	            if (Properties.TEST_ARCHIVE)
-	            	ga.setArchive(TestsArchive.instance);
+	                ga.setArchive(Archive.getArchiveInstance());
 
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
@@ -196,7 +196,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		{
 			BreederGA<TestSuiteChromosome> ga = new BreederGA<>(factory);
 			if (Properties.TEST_ARCHIVE)
-				ga.setArchive(TestsArchive.instance);
+				ga.setArchive(Archive.getArchiveInstance());
 
 			return ga;
 		}
