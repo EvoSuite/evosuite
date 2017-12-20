@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.line;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,6 +54,8 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<Integer, TestFitnessFunction>();
 
+	private final int numLines;
+
 	// Some stuff for debug output
     private int maxCoveredLines = 0;
     private double bestFitness = Double.MAX_VALUE;
@@ -76,7 +79,8 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if(Properties.TEST_ARCHIVE)
 				Archive.getArchiveInstance().addTarget(goal);
 		}
-		logger.info("Total line coverage goals: " + lineGoals.size());
+		this.numLines = lineGoals.size();
+		logger.info("Total line coverage goals: " + this.numLines);
 
 		initializeControlDependencies();
 	}
@@ -98,7 +102,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param callCount
 	 * @return
 	 */
-	private boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results, Set<Integer> allCoveredLines) {
+	private boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results) {
 		boolean hasTimeoutOrTestException = false;
 
 		for (ExecutionResult result : results) {
@@ -107,16 +111,18 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 			}
 
-			for (Integer lineID : this.lineGoals.keySet()) {
+			Iterator<Entry<Integer, TestFitnessFunction>> it = this.lineGoals.entrySet().iterator();
+			while (it.hasNext()) {
+				Entry<Integer, TestFitnessFunction> entry = it.next();
+				TestFitnessFunction goal = entry.getValue();
 
-				TestFitnessFunction goal = this.lineGoals.get(lineID);
 				if (Archive.getArchiveInstance().hasSolution(goal)) {
 					// Is it worth continue looking for other results (i.e., tests) that cover this already covered
 					// goal? Maybe. However, as checking whether a test covers a specific goal and updating the
 					// archive could be very time consuming tasks, in here we just skip the search for yet another
 					// test case. The main objective (i.e., having a test case for this goal) has been completed
 					// anyway.
-					allCoveredLines.add(lineID);
+					it.remove();
 					continue;
 				}
 
@@ -125,12 +131,11 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				double fit = goal.getFitness(tc, result);
 
 				if (fit == 0.0) {
-					allCoveredLines.add(lineID);
+					it.remove();
 					result.test.addCoveredGoal(goal);
 				}
 
 				if (Properties.TEST_ARCHIVE) {
-					// TODO ideally this should be done in the getFitness() method of the LineCoverageTestFitness class
 					Archive.getArchiveInstance().updateArchive(goal, result, fit);
 				}
 			}
@@ -150,15 +155,21 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 
+		if (this.allLinesCovered()) {
+			updateIndividual(this, suite, 0.0);
+			suite.setCoverage(this, 1.0);
+			suite.setNumOfCoveredGoals(this, this.numLines);
+			return 0.0;
+		}
+
 		List<ExecutionResult> results = runTestSuite(suite);
 		fitness += getControlDependencyGuidance(results);
 		logger.info("Branch distances: "+fitness);
 
-		Set<Integer> coveredLines = new LinkedHashSet<Integer>();
-		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, coveredLines);
+		boolean hasTimeoutOrTestException = analyzeTraces(suite, results);
 
-		int totalLines = lineGoals.size();
-		int numCoveredLines = coveredLines.size();
+		int totalLines = this.numLines;
+		int numCoveredLines = this.howManyLinesCovered();
 		
 		logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines");
 		fitness += normalize(totalLines - numCoveredLines);
@@ -327,5 +338,12 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return distance;
 	}
 
+	private int howManyLinesCovered() {
+	  return this.numLines - this.lineGoals.size();
+	}
+
+	private boolean allLinesCovered() {
+	  return this.lineGoals.isEmpty();
+	}
 
 }
