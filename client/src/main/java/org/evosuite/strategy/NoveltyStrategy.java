@@ -2,6 +2,7 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -37,7 +38,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         LoggingUtils.getEvoLogger().info("* Setting up search algorithm for novelty search");
 
         PropertiesNoveltySearchFactory algorithmFactory = new PropertiesNoveltySearchFactory();
-        NoveltySearch<TestChromosome, TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+        NoveltySearch<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
         //NoveltySearch<TestChromosome, TestSuiteChromosome> algorithm = new NoveltySearch<TestChromosome, TestSuiteChromosome>(chromosomeFactory);
 
         if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
@@ -89,9 +90,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
             ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
             algorithm.generateSolution();
-            // TODO: Refactor MOO!
-            // bestSuites = (List<TestSuiteChromosome>) ga.getBestIndividuals();
-            testSuite = algorithm.createMergedSolution();
+            testSuite = TestsArchive.instance.createMergedSolution(new TestSuiteChromosome());
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();

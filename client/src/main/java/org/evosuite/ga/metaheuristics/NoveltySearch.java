@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome, S extends Chromosome> extends GeneticAlgorithm<T>  {
+public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
@@ -23,10 +23,6 @@ public class NoveltySearch<T extends Chromosome, S extends Chromosome> extends G
 
     public void setNoveltyFunction(NoveltyFunction<T> function) {
         this.noveltyFunction = function;
-    }
-
-    public S createMergedSolution() {
-        return null;
     }
 
     /**
