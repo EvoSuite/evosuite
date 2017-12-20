@@ -19,6 +19,16 @@
  */
 package org.evosuite.coverage.mutation;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -28,8 +38,6 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
-
-import java.util.*;
 
 /**
  * <p>
@@ -105,7 +113,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 			if (result.hasTimeout()) {
 				logger.debug("Skipping test with timeout");
 				double fitness = branchFitness.totalBranches * 2
-				        + branchFitness.totalMethods + 3 * mutationGoals.size();
+				        + branchFitness.totalMethods + 3 * this.getNumMutants();
 				updateIndividual(this, individual, fitness);
 				suite.setCoverage(this, 0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
@@ -118,21 +126,19 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		logger.debug("Calculating branch fitness: ");
 		double fitness = branchFitness.getFitness(individual);
 
-		Set<Integer> touchedMutants = new HashSet<Integer>();		
-		Map<Mutation, Double> minMutantFitness = new HashMap<Mutation, Double>();
+		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
+		Map<Mutation, Double> minMutantFitness = new LinkedHashMap<Mutation, Double>();
 
 		// For each mutant that is not in the archive:
 		//   3    -> not covered
 		//   1..2 -> infection distance
 		//   0..1 -> propagation distance
-		for (Integer mutantId : mutants) {
+		for (Integer mutantId : this.mutantMap.keySet()) {
 			MutationTestFitness mutantFitness = mutantMap.get(mutantId);
 			minMutantFitness.put(mutantFitness.getMutation(), 3.0);
 		}
 		
 		int mutantsChecked = 0;
-		int numKilled = removedMutants.size();
-		Set<Integer> newKilled = new HashSet<Integer>();
 
 		List<TestChromosome> executionOrder = prioritizeTests(suite); // Quicker tests first
 		for (TestChromosome test : executionOrder) {
@@ -147,42 +153,59 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 			touchedMutants.addAll(trace.getTouchedMutants());
 			logger.debug("Tests touched " + touchedMutants.size() + " mutants");
 
-			for(Integer mutantId : trace.getTouchedMutants()) {
-				// Only mutants not in the archive yet
-				if(newKilled.contains(mutantId) || !mutants.contains(mutantId) || removedMutants.contains(mutantId))
-					continue;
-				MutationTestFitness mutantFitness = mutantMap.get(mutantId);
-
-				if (MutationTimeoutStoppingCondition.isDisabled(mutantFitness.getMutation())) {
-					logger.debug("Skipping timed out mutation "
-					        + mutantFitness.getMutation().getId());
-					continue;
-				}
-
-				mutantsChecked++;
-				double mutantInfectionDistance = trace.getMutationDistance(mutantId);
-				if (mutantInfectionDistance == 0.0) {
-					logger.debug("Executing test against mutant " + mutantFitness.getMutation());
-					double mutantFitnessValue = mutantFitness.getFitness(test, result);
-					minMutantFitness.put(mutantFitness.getMutation(),
-							Math.min(normalize(mutantFitnessValue), minMutantFitness.get(mutantFitness.getMutation())));
-					if (mutantFitnessValue == 0.0) {
-						result.test.addCoveredGoal(mutantFitness);
-						numKilled++;
-						newKilled.add(mutantId);
-						if(Properties.TEST_ARCHIVE) {
-							toRemoveMutants.add(mutantFitness.getMutation().getId());
-							Archive.getArchiveInstance().updateArchive(mutantFitness, result, 0.0);
-							individual.isToBeUpdated(true);
-						}
-					}
-				} else {
-					double mutantFitnessValue = 1.0 + normalize(mutantInfectionDistance);
-					minMutantFitness.put(mutantFitness.getMutation(),
-							Math.min(mutantFitnessValue, minMutantFitness.get(mutantFitness.getMutation())));
-				}
+			Map<Integer, Double> touchedMutantsDistances = trace.getMutationDistances();
+			if (touchedMutantsDistances.isEmpty()) {
+			  // if 'result' does not touch any mutant, no need to continue
+			  continue;
 			}
 
+			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
+			while (it.hasNext()) {
+			  Entry<Integer, MutationTestFitness> entry = it.next();
+
+			  int mutantID = entry.getKey();
+			  MutationTestFitness goal = entry.getValue();
+
+			  // Only mutants not in the archive yet
+			  if (Archive.getArchiveInstance().hasSolution(goal)) {
+			    it.remove();
+			    continue;
+			  }
+
+			  if (MutationTimeoutStoppingCondition.isDisabled(goal.getMutation())) {
+			    logger.debug("Skipping timed out mutation " + goal.getMutation().getId());
+			    continue;
+			  }
+
+			  mutantsChecked++;
+
+			  double mutantInfectionDistance = 0.0;
+
+			  if (touchedMutantsDistances.containsKey(mutantID)) {
+			    mutantInfectionDistance = touchedMutantsDistances.get(mutantID);
+
+			    if (mutantInfectionDistance == 0.0) {
+			      logger.debug("Executing test against mutant " + goal.getMutation());
+			      mutantInfectionDistance = goal.getFitness(test, result);
+			    }
+			  } else {
+			    mutantInfectionDistance = goal.getFitness(test, result);
+			  }
+
+			  if (mutantInfectionDistance == 0.0) {
+			    it.remove();
+			    result.test.addCoveredGoal(goal);
+			  } else {
+			    mutantInfectionDistance = 1.0 + normalize(mutantInfectionDistance);
+			  }
+
+			  if (Properties.TEST_ARCHIVE) {
+			    Archive.getArchiveInstance().updateArchive(goal, result, mutantInfectionDistance);
+			  }
+
+			  // update minimum infection distance to this mutant
+			  minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
+			}
 		}
 
 		//logger.info("Fitness values for " + minMutantFitness.size() + " mutants");
@@ -190,12 +213,12 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 			fitness += fit;
 		}
 		
-		logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", numKilled, mutantsChecked, mutationGoals.size());
+		logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", this.howManyMutantsHaveKilled(), mutantsChecked, this.getNumMutants());
 		
 		updateIndividual(this, individual, fitness);
 		// updateGoals();
-		suite.setCoverage(this, 1.0 * numKilled / mutationGoals.size());
-		suite.setNumOfCoveredGoals(this, numKilled);
+		suite.setCoverage(this, (double) this.howManyMutantsHaveKilled() / (double) this.getNumMutants());
+		suite.setNumOfCoveredGoals(this, this.howManyMutantsHaveKilled());
 		
 		return fitness;
 	}

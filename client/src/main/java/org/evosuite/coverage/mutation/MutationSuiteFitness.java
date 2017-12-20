@@ -22,19 +22,14 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -53,50 +48,31 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final BranchCoverageSuiteFitness branchFitness;
 
-	protected final List<MutationTestFitness> mutationGoals;
+	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<Integer, MutationTestFitness>();
 
-	public final Set<Integer> mutants = new HashSet<Integer>();
-
-	public final Set<Integer> removedMutants = new HashSet<Integer>();
-
-	public final Set<Integer> toRemoveMutants = new HashSet<Integer>();
-
-	public final Map<Integer, MutationTestFitness> mutantMap = new HashMap<Integer, MutationTestFitness>();
+	protected final int numMutants;
 
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory(
 		        ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION));
-		mutationGoals = factory.getCoverageGoals();
-		logger.info("Mutation goals: " + mutationGoals.size());
 		branchFitness = new BranchCoverageSuiteFitness();
-		
-		for(MutationTestFitness goal : mutationGoals) {
+
+		for (MutationTestFitness goal : factory.getCoverageGoals()) {
 			mutantMap.put(goal.getMutation().getId(), goal);
-			mutants.add(goal.getMutation().getId());
 			if(Properties.TEST_ARCHIVE)
 				Archive.getArchiveInstance().addTarget(goal);
 		}
 
+		this.numMutants = this.mutantMap.size();
 	}
 
 	@Override
 	public boolean updateCoveredGoals() {
 		if(!Properties.TEST_ARCHIVE)
 			return false;
-		
-		for (Integer mutant : toRemoveMutants) {
-			boolean removed = mutants.remove(mutant);
-			TestFitnessFunction f = mutantMap.remove(mutant);
-			if (removed && f != null) {
-				removedMutants.add(mutant);
-			} else {
-				throw new IllegalStateException("goal to remove not found");
-			}
-		}
 
-		toRemoveMutants.clear();
-		logger.info("Current state of archive: "+Archive.getArchiveInstance().toString());
-		
+		// TODO as soon the archive refactor is done, we can get rid of this function
+
 		return true;
 	}
 	
@@ -107,7 +83,15 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	public int getNumMutants() {
-		return mutationGoals.size();
+	  return this.numMutants;
+	}
+
+	public int howManyMutantsHaveKilled() {
+	  return this.numMutants - this.mutantMap.size();
+	}
+
+	public boolean allMutantsKilled() {
+	  return this.mutantMap.isEmpty();
 	}
 
 	/**
