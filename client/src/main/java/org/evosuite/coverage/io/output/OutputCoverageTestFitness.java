@@ -27,7 +27,9 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
 import java.util.*;
 
 /**
@@ -106,7 +108,7 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 
 	/**
 	 * <p>
-	 * getValue
+	 * getValueDescriptor
 	 * </p>
 	 *
 	 * @return a {@link java.lang.String} object.
@@ -129,13 +131,75 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 		double fitness = 1.0;
 
 		for(Set<OutputCoverageGoal> coveredGoals : result.getOutputGoals().values()) {
-			if(coveredGoals.contains(goal)) {
-				fitness = 0.0;
-				break;
+			if (!coveredGoals.contains(this.goal)) {
+				continue;
+			}
+
+			for (OutputCoverageGoal coveredGoal : coveredGoals) {
+				if (coveredGoal.equals(this.goal)) {
+					fitness = this.calculateDistance(coveredGoal);
+					if (fitness == -1.0) {
+						continue;
+					} else {
+						break;
+					}
+				}
 			}
 		}
+
 		updateIndividual(this, individual, fitness);
 		return fitness;
+	}
+
+	private double calculateDistance(OutputCoverageGoal coveredGoal) {
+		switch (coveredGoal.getType().getSort()) {
+			case Type.BYTE:
+			case Type.SHORT:
+			case Type.INT:
+			case Type.FLOAT:
+			case Type.LONG:
+			case Type.DOUBLE:
+				Number returnValue = coveredGoal.getNumericValue();
+				assert (returnValue != null);
+				assert (returnValue instanceof Number);
+				// TODO: ideally we should be able to tell between Number as an object, and primitive numeric types
+				double value = returnValue.doubleValue();
+				if (Double.isNaN(value)) { // EvoSuite generates Double.NaN
+					return -1.0;
+				}
+
+				double distanceToNegative = 0.0;
+				double distanceToZero = 0.0;
+				double distanceToPositive = 0.0;
+
+				if (value < 0.0) {
+					distanceToNegative = 0;
+					distanceToZero = Math.abs(value);
+					distanceToPositive = Math.abs(value) + 1;
+				} else if (value == 0.0) {
+					distanceToNegative = 1;
+					distanceToZero = 0;
+					distanceToPositive = 1;
+				} else {
+					distanceToNegative = value + 1;
+					distanceToZero = value;
+					distanceToPositive = 0;
+				}
+
+				if (coveredGoal.getValueDescriptor().equals(NUM_NEGATIVE)) {
+					return distanceToNegative;
+				} else if (coveredGoal.getValueDescriptor().equals(NUM_ZERO)) {
+					return distanceToZero;
+				} else if (coveredGoal.getValueDescriptor().equals(NUM_POSITIVE)) {
+					return distanceToPositive;
+				}
+
+				break;
+			default:
+				return 0.0;
+		}
+
+		return 0.0;
 	}
 
 	/**
