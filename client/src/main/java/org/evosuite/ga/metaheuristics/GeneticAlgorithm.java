@@ -652,7 +652,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * update archive fitness functions
 	 */
-	protected void updateFitnessFunctionsAndValues() {
+	public void updateFitnessFunctionsAndValues() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
 			f.updateCoveredGoals();
 		}

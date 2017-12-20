@@ -2,13 +2,11 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
-import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.BranchNoveltyFunction;
+import org.evosuite.novelty.NoveltyFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -50,11 +48,9 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         // What's the search target
         List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
-        // TODO: Argh, generics.
-        algorithm.addFitnessFunctions((List)fitnessFunctions);
+        NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
+        algorithm.addListener(listener);
         algorithm.setNoveltyFunction(new BranchNoveltyFunction());
-//		for(TestSuiteFitnessFunction f : fitnessFunctions)
-//			algorithm.addFitnessFunction(f);
 
         // if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
         //algorithm.addListener(progressMonitor); // FIXME progressMonitor expects testsuitechromosomes

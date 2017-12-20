@@ -58,11 +58,6 @@ public class NoveltySearch<T extends Chromosome, S extends Chromosome> extends G
                 if (c.isChanged())
                     iterator.remove();
             } else {
-                // TODO: This needs to be calculated on the whole suite
-//                for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-//                    fitnessFunction.getFitness(c);
-//                    notifyEvaluation(c);
-//                }
                 // TODO: This needs to take the archive into account
                 double novelty = noveltyFunction.getNovelty(c, population);
                 noveltyMap.put(c, novelty);
