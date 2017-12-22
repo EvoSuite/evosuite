@@ -35,6 +35,12 @@ public class MockURI implements StaticReplacementMock {
         return URI.class.getName();
     }
 
+    public static final URI aHttpURI = create("http://foo.bar");
+
+    public static final URI aFileURI= create("file:///tmp/foo.bar");
+
+    public static final URI aFTPURI= create("ftp://foo.bar");
+
     /**
      * URI is a final class. It seems there is the
      * need to only mock one of its methods, in which URL is used.
