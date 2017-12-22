@@ -726,7 +726,7 @@ public class TestClusterGenerator {
 	 * during our instrumentation, we also check the list of those
 	 * static fields we have modified during the instrumentation.
 	 * 
-	 * @param the field to check
+	 * @param field field to check
 	 * @return 
 	 */
 	public static boolean isFinalField(Field field) {
