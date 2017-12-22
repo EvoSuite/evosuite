@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.annotation.Constraints;
@@ -180,6 +179,25 @@ public class TestFactory {
 
 		//TODO this needs to be fixed once we handle Generics in mocks
 		FunctionalMockStatement fms = new FunctionalMockStatement(test, type, new GenericClass(type).getRawClass());
+		VariableReference ref = test.addStatement(fms, position);
+
+		//note: when we add a new mock, by default it will have no parameter at the beginning
+
+		return ref;
+	}
+
+	public VariableReference addFunctionalMockForAbstractClass(TestCase test, Type type, int position, int recursionDepth)
+			throws ConstructionFailedException, IllegalArgumentException{
+
+		Inputs.checkNull(test, type);
+
+		if (recursionDepth > Properties.MAX_RECURSION) {
+			logger.debug("Max recursion depth reached");
+			throw new ConstructionFailedException("Max recursion depth reached");
+		}
+
+		//TODO this needs to be fixed once we handle Generics in mocks
+		FunctionalMockForAbstractClassStatement fms = new FunctionalMockForAbstractClassStatement(test, type, new GenericClass(type).getRawClass());
 		VariableReference ref = test.addStatement(fms, position);
 
 		//note: when we add a new mock, by default it will have no parameter at the beginning
@@ -1200,7 +1218,7 @@ public class TestFactory {
 		GenericClass clazz = new GenericClass(type);
 
 		logger.debug("Going to create object for type {}", type);
-		VariableReference ret;
+		VariableReference ret = null;
 
 		if( canUseFunctionalMocks && TimeController.getInstance().getPhasePercentage() >= Properties.FUNCTIONAL_MOCKING_PERCENT &&
 				Randomness.nextDouble() < Properties.P_FUNCTIONAL_MOCKING &&
@@ -1244,14 +1262,23 @@ public class TestFactory {
 					}
 				}
 
-				if (canUseFunctionalMocks && (Properties.MOCK_IF_NO_GENERATOR || Properties.P_FUNCTIONAL_MOCKING > 0) && FunctionalMockStatement.canBeFunctionalMocked(type)) {
-				/*
-					Even if mocking is not active yet in this phase, if we have
-					no generator for a type, we use mocking directly
-				 */
-					logger.debug("Using mock for type {}", type);
-					ret = addFunctionalMock(test, type, position, recursionDepth + 1);
-				} else {
+				if (canUseFunctionalMocks && (Properties.MOCK_IF_NO_GENERATOR || Properties.P_FUNCTIONAL_MOCKING > 0)) {
+					/*
+						Even if mocking is not active yet in this phase, if we have
+						no generator for a type, we use mocking directly
+				 	*/
+					if (FunctionalMockStatement.canBeFunctionalMocked(type)) {
+						logger.debug("Using mock for type {}", type);
+						ret = addFunctionalMock(test, type, position, recursionDepth + 1);
+					} else if (clazz.isAbstract() && FunctionalMockStatement.canBeFunctionalMockedIncludingSUT(type)) {
+						{
+							logger.debug("Using mock for abstract type {}", type);
+							ret = addFunctionalMockForAbstractClass(test, type, position, recursionDepth + 1);
+						}
+					}
+				}
+				if(ret == null) {
+					logger.debug("No mock solution found: {}, {}, {}, {}", canUseFunctionalMocks, Properties.MOCK_IF_NO_GENERATOR, FunctionalMockStatement.canBeFunctionalMocked(type), FunctionalMockStatement.canBeFunctionalMockedIncludingSUT(type));
 
 					if(!TestCluster.getInstance().hasGenerator(type)) {
 						logger.debug("No generators found for {}, attempting to resolve dependencies", type);
@@ -2172,7 +2199,7 @@ public class TestFactory {
 					Type target = m.getOwnerType();
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0, null, true, false,true); //no FM for SUT
+						callee = createObject(test, target, position, 0, null, true, true,true); //no FM for SUT
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {

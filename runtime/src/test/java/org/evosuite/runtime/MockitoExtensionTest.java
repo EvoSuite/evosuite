@@ -62,4 +62,18 @@ public class MockitoExtensionTest {
         assertEquals(b, obj.toString());
     }
 
+    @Test
+    public void testDoReturnMultipleWithMockitoAPI(){
+        String a = "a";
+        String b = "b";
+
+        OverrideToString obj = mock(OverrideToString.class);
+        doReturn(a,b).when(obj).toString();
+
+        assertEquals(a, obj.toString());
+        assertEquals(b, obj.toString());
+        assertEquals(b, obj.toString());
+        assertEquals(b, obj.toString());
+    }
+
 }

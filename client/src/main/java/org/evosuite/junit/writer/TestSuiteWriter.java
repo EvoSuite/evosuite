@@ -424,9 +424,10 @@ public class TestSuiteWriter implements Opcodes {
 
         if(doesUseMocks(results)){
             String mockito = Mockito.class.getCanonicalName();
-            String extension = MockitoExtension.class.getCanonicalName();
             builder.append("import static "+mockito+".*;"+NEWLINE);
-            builder.append("import static "+extension+".*;"+NEWLINE);
+            // MockitoExtension is now deprecated
+            //String extension = MockitoExtension.class.getCanonicalName();
+            //builder.append("import static "+extension+".*;"+NEWLINE);
             imports.add(ViolatedAssumptionAnswer.class);
         }
 

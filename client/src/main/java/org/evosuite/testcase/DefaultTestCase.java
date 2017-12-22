@@ -657,7 +657,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				iterator.remove();
 			else if (var.isPrimitive() || var.isWrapperType())
 				iterator.remove();
-			else if(this.getStatement(var.getStPosition()) instanceof FunctionalMockStatement)
+			else if(this.getStatement(var.getStPosition()) instanceof FunctionalMockStatement && !(this.getStatement(var.getStPosition()) instanceof FunctionalMockForAbstractClassStatement))
 				iterator.remove();
 		}
 		if (variables.isEmpty())

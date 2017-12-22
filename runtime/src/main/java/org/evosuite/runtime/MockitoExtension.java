@@ -22,6 +22,7 @@ package org.evosuite.runtime;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Stubber;
 
+@Deprecated // This functionality is now provided by Mockito
 public class MockitoExtension {
 
 

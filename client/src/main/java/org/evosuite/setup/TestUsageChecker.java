@@ -181,7 +181,11 @@ public class TestUsageChecker {
             return false;
         }
 
-        if(c.getName().contains("EnhancerByMockito")){
+        if(c.getName().contains("EnhancerByMockito")) {
+            return false;
+        }
+
+        if(c.getName().contains("$MockitoMock")) {
             return false;
         }
 

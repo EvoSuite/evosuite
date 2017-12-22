@@ -233,6 +233,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return true;
 	}
 
+	public boolean isAbstract() {
+		return Modifier.isAbstract(method.getModifiers());
+	}
 
 	@Override
 	public boolean isStatic() {

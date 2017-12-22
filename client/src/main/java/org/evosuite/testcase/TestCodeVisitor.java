@@ -1208,7 +1208,11 @@ public class TestCodeVisitor extends TestVisitor {
 			//result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
 		}
 
-		result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+		if(st instanceof FunctionalMockForAbstractClassStatement) {
+			result += "mock(" + rawClassName + ".class, CALLS_REAL_METHODS);" + NEWLINE;
+		} else {
+			result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+		}
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){
