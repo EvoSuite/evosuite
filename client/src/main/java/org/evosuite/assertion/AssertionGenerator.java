@@ -56,29 +56,23 @@ import java.util.Set;
  */
 public abstract class AssertionGenerator {
 
-	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(AssertionGenerator.class);
 
-	/** Constant <code>primitive_observer</code> */
 	protected static final PrimitiveTraceObserver primitiveObserver = new PrimitiveTraceObserver();
 
-	/** Constant <code>comparison_observer</code> */
 	protected static final ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
 
-	/** Constant <code>same_observer</code> */
 	protected static final SameTraceObserver sameObserver = new SameTraceObserver();
 
-	/** Constant <code>inspector_observer</code> */
 	protected static final InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
 
-	/** Constant <code>field_observer</code> */
 	protected static final PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
 
-	/** Constant <code>null_observer</code> */
 	protected static final NullTraceObserver nullObserver = new NullTraceObserver();
 
-	/** Constant <code>null_observer</code> */
 	protected static final ArrayTraceObserver arrayObserver = new ArrayTraceObserver();
+
+	protected static final ArrayLengthObserver arrayLengthObserver = new ArrayLengthObserver();
 
 	/**
 	 * <p>
@@ -94,6 +88,7 @@ public abstract class AssertionGenerator {
 		TestCaseExecutor.getInstance().addObserver(sameObserver);
 		if(!Properties.isRegression())
 			TestCaseExecutor.getInstance().addObserver(arrayObserver);
+		TestCaseExecutor.getInstance().addObserver(arrayLengthObserver);
 	}
 
 	/**
@@ -145,6 +140,7 @@ public abstract class AssertionGenerator {
 			result.setTrace(sameObserver.getTrace(), SameTraceEntry.class);
 			if(!Properties.isRegression())
 				result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
+			result.setTrace(arrayLengthObserver.getTrace(), ArrayLengthTraceEntry.class);
 		} catch (Exception e) {
 			throw new Error(e);
 		}

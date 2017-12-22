@@ -44,16 +44,7 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.assertion.ArrayEqualsAssertion;
-import org.evosuite.assertion.Assertion;
-import org.evosuite.assertion.CompareAssertion;
-import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.assertion.Inspector;
-import org.evosuite.assertion.InspectorAssertion;
-import org.evosuite.assertion.NullAssertion;
-import org.evosuite.assertion.PrimitiveAssertion;
-import org.evosuite.assertion.PrimitiveFieldAssertion;
-import org.evosuite.assertion.SameAssertion;
+import org.evosuite.assertion.*;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.TooManyResourcesException;
@@ -572,6 +563,16 @@ public class TestCodeVisitor extends TestVisitor {
 		testCode += stmt;
 	}
 
+	protected void visitArrayLengthAssertion(ArrayLengthAssertion assertion) {
+		VariableReference source = assertion.getSource();
+		int length = assertion.length;
+
+		String stmt = "assertEquals(";
+		stmt += length + ", " + getVariableName(source) + ".length);";
+
+		testCode += stmt;
+	}
+
 	/**
 	 * <p>
 	 * visitPrimitiveFieldAssertion
@@ -878,6 +879,8 @@ public class TestCodeVisitor extends TestVisitor {
 			visitSameAssertion((SameAssertion) assertion);
 		} else if (assertion instanceof ArrayEqualsAssertion) {
 			visitArrayEqualsAssertion((ArrayEqualsAssertion) assertion);
+		} else if (assertion instanceof ArrayLengthAssertion) {
+			visitArrayLengthAssertion((ArrayLengthAssertion) assertion);
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
