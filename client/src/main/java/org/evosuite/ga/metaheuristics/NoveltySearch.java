@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome, S extends Chromosome> extends GeneticAlgorithm<T>  {
+public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
@@ -23,10 +23,6 @@ public class NoveltySearch<T extends Chromosome, S extends Chromosome> extends G
 
     public void setNoveltyFunction(NoveltyFunction<T> function) {
         this.noveltyFunction = function;
-    }
-
-    public S createMergedSolution() {
-        return null;
     }
 
     /**
@@ -58,11 +54,6 @@ public class NoveltySearch<T extends Chromosome, S extends Chromosome> extends G
                 if (c.isChanged())
                     iterator.remove();
             } else {
-                // TODO: This needs to be calculated on the whole suite
-//                for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-//                    fitnessFunction.getFitness(c);
-//                    notifyEvaluation(c);
-//                }
                 // TODO: This needs to take the archive into account
                 double novelty = noveltyFunction.getNovelty(c, population);
                 noveltyMap.put(c, novelty);
