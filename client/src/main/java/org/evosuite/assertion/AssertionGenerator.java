@@ -74,6 +74,8 @@ public abstract class AssertionGenerator {
 
 	protected static final ArrayLengthObserver arrayLengthObserver = new ArrayLengthObserver();
 
+	protected static final ContainsTraceObserver containsTraceObserver = new ContainsTraceObserver();
+
 	/**
 	 * <p>
 	 * Constructor for AssertionGenerator.
@@ -89,6 +91,7 @@ public abstract class AssertionGenerator {
 		if(!Properties.isRegression())
 			TestCaseExecutor.getInstance().addObserver(arrayObserver);
 		TestCaseExecutor.getInstance().addObserver(arrayLengthObserver);
+		TestCaseExecutor.getInstance().addObserver(containsTraceObserver);
 	}
 
 	/**
@@ -141,6 +144,7 @@ public abstract class AssertionGenerator {
 			if(!Properties.isRegression())
 				result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
 			result.setTrace(arrayLengthObserver.getTrace(), ArrayLengthTraceEntry.class);
+			result.setTrace(containsTraceObserver.getTrace(), ContainsTraceEntry.class);
 		} catch (Exception e) {
 			throw new Error(e);
 		}
