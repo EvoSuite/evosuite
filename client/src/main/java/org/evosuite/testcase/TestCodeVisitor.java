@@ -573,6 +573,23 @@ public class TestCodeVisitor extends TestVisitor {
 		testCode += stmt;
 	}
 
+	protected void visitContainsAssertion(ContainsAssertion assertion) {
+		VariableReference containerObject = assertion.getSource();
+		VariableReference containedObject = assertion.getContainedVariable();
+
+		Boolean contains = (Boolean)assertion.getValue();
+
+		String stmt = "";
+		if(contains.booleanValue()) {
+			stmt += "assertTrue(";
+		} else {
+			stmt += "assertFalse(";
+		}
+		stmt += getVariableName(containerObject)+ ".contains(" + getVariableName(containedObject) + "));";
+
+		testCode += stmt;
+	}
+
 	/**
 	 * <p>
 	 * visitPrimitiveFieldAssertion
@@ -881,6 +898,8 @@ public class TestCodeVisitor extends TestVisitor {
 			visitArrayEqualsAssertion((ArrayEqualsAssertion) assertion);
 		} else if (assertion instanceof ArrayLengthAssertion) {
 			visitArrayLengthAssertion((ArrayLengthAssertion) assertion);
+		} else if (assertion instanceof ContainsAssertion) {
+			visitContainsAssertion((ContainsAssertion) assertion);
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
