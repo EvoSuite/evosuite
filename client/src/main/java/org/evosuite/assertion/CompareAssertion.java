@@ -115,7 +115,7 @@ public class CompareAssertion extends Assertion {
 					return true; // TODO - true or false?
 			else {
 				try {
-					return comparable.compareTo(dest.getObject(scope)) == (Integer) value;
+					return comparable.compareTo(dest.getObject(scope)) == ((Integer) value).intValue();
 				} catch (Exception e) {
 					return true; // TODO - true or false?
 				}

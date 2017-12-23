@@ -578,11 +578,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
-		boolean isPrimitive = false;
-		if(type instanceof Class<?>) {
-			if(((Class<?>)type).isPrimitive())
-				isPrimitive = true;
-		}
+		Class<?> rawClass = GenericTypeReflector.erase(type);
 		for (int i = 0; i < position && i < size(); i++) {
 			Statement statement = statements.get(i);
 			if(statement instanceof MethodStatement) {
@@ -599,7 +595,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 				// that an array is assignable to its component type
 				// TODO: Fix
 				boolean isClassUtilsBug = false;
-				Class<?> rawClass = GenericTypeReflector.erase(type);
 				if (value.isArray()) {
 					Class<?> arrayClass = value.getVariableClass();
 					isClassUtilsBug = isClassUtilsBug(rawClass, arrayClass);
@@ -608,7 +603,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 					isClassUtilsBug = isClassUtilsBug(value.getVariableClass(), rawClass);
 				}
 
-				if (value.isAssignableTo(type) && !isClassUtilsBug) {
+				if (value.isAssignableTo(type) && !isClassUtilsBug && value.isArray() == rawClass.isArray()) {
 					logger.debug("Array is assignable: " + value.getType() + " to "
 					        + type + ", " + value.isArray() + ", " + rawClass.isArray());
 					variables.add(value);
@@ -619,8 +614,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 					}
 
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
-						//logger.info("Adding array index " + index + " to array "
-						//       + value.getSimpleClassName() + " " + value.getName());
 						if (((ArrayReference) value).isInitialized(index, position))
 							variables.add(new ArrayIndex(this, (ArrayReference) value,
 							        index));
@@ -628,7 +621,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 				}
 			} else if (value instanceof ArrayIndex) {
 				// Don't need to add this because array indices are created for array statement
-			} else if (value.isAssignableTo(type) && value.isPrimitive() == isPrimitive) {
+			} else if (value.isAssignableTo(type) && value.isPrimitive() == rawClass.isPrimitive() &&
+					value.isArray() == rawClass.isArray()) {
 				variables.add(value);
 			} else {
 				addFields(variables, value, type);

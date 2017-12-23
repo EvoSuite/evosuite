@@ -596,7 +596,6 @@ public class GenericClass implements Serializable {
 	 * Instantiate generic component type
 	 * 
 	 * @param typeMap
-	 * @param recursionL
 	 * @throws ConstructionFailedException
 	 *             evel
 	 * @return
@@ -707,6 +706,10 @@ public class GenericClass implements Serializable {
 	private GenericClass getGenericParameterizedTypeInstantiation(
 	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
 	        throws ConstructionFailedException {
+
+		if(isClass() && !hasTypeVariables()) {
+			return this;
+		}
 
 		List<TypeVariable<?>> typeParameters = getTypeVariables();
 

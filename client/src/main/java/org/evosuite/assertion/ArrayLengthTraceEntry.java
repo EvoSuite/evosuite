@@ -26,7 +26,7 @@ public class ArrayLengthTraceEntry implements OutputTraceEntry {
      */
     @Override
     public boolean differs(OutputTraceEntry other) {
-        if (other instanceof ArrayTraceEntry) {
+        if (other instanceof ArrayLengthTraceEntry) {
             ArrayLengthTraceEntry otherEntry = (ArrayLengthTraceEntry) other;
             if (length !=  otherEntry.length)
                 return true;
@@ -40,7 +40,7 @@ public class ArrayLengthTraceEntry implements OutputTraceEntry {
     @Override
     public Set<Assertion> getAssertions(OutputTraceEntry other) {
         Set<Assertion> assertions = new HashSet<Assertion>();
-        if (other instanceof ArrayTraceEntry) {
+        if (other instanceof ArrayLengthTraceEntry) {
             ArrayLengthTraceEntry otherEntry = (ArrayLengthTraceEntry) other;
             if (length != otherEntry.length) {
                 ArrayLengthAssertion assertion = new ArrayLengthAssertion();
@@ -75,7 +75,7 @@ public class ArrayLengthTraceEntry implements OutputTraceEntry {
      */
     @Override
     public boolean isDetectedBy(Assertion assertion) {
-        if (assertion instanceof ArrayEqualsAssertion) {
+        if (assertion instanceof ArrayLengthAssertion) {
             ArrayLengthAssertion ass = (ArrayLengthAssertion) assertion;
             if (var.equals(ass.source)) {
                 if (length != ass.length) {
