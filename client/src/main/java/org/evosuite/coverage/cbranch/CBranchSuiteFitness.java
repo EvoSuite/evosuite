@@ -22,8 +22,8 @@
  */
 package org.evosuite.coverage.cbranch;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,6 +58,8 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final List<CBranchTestFitness> branchGoals;
 
+	private final int numCBranchGoals;
+
 	private final Map<Integer, Map<CallContext, Set<CBranchTestFitness>>> contextGoalsMap;
 
 	private final Map<Integer, Set<CBranchTestFitness>> privateMethodsGoalsMap;
@@ -66,17 +68,16 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final Map<String, CBranchTestFitness> privateMethodsMethodsMap;
 
-	private final Set<CBranchTestFitness> toRemoveGoals = new HashSet<>();	
-	private final Set<CBranchTestFitness> removedGoals = new HashSet<>();
-
 	public CBranchSuiteFitness() {
-		contextGoalsMap = new HashMap<>();
-		privateMethodsGoalsMap = new HashMap<>();
-		methodsMap = new HashMap<>();
-		privateMethodsMethodsMap = new HashMap<>();
+		contextGoalsMap = new LinkedHashMap<>();
+		privateMethodsGoalsMap = new LinkedHashMap<>();
+		methodsMap = new LinkedHashMap<>();
+		privateMethodsMethodsMap = new LinkedHashMap<>();
 
 		CBranchFitnessFactory factory = new CBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
+		numCBranchGoals = branchGoals.size();
+
 		for (CBranchTestFitness goal : branchGoals) {
 			if(Properties.TEST_ARCHIVE)
 				Archive.getArchiveInstance().addTarget(goal);
@@ -88,7 +89,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 				if (goal.getContext().isEmpty()) {
 					Set<CBranchTestFitness> tempInSet = privateMethodsGoalsMap.get(branchId);
 					if (tempInSet == null) {
-						privateMethodsGoalsMap.put(branchId, tempInSet = new HashSet<>());
+						privateMethodsGoalsMap.put(branchId, tempInSet = new LinkedHashSet<>());
 					}
 					tempInSet.add(goal);
 				} else {
@@ -96,11 +97,11 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					Map<CallContext, Set<CBranchTestFitness>> innermap = contextGoalsMap
 							.get(branchId);
 					if (innermap == null) {
-						contextGoalsMap.put(branchId, innermap = new HashMap<>());
+						contextGoalsMap.put(branchId, innermap = new LinkedHashMap<>());
 					}
 					Set<CBranchTestFitness> tempInSet = innermap.get(goal.getContext());
 					if (tempInSet == null) {
-						innermap.put(goal.getContext(), tempInSet = new HashSet<>());
+						innermap.put(goal.getContext(), tempInSet = new LinkedHashSet<>());
 					}
 					tempInSet.add(goal);
 				}
@@ -113,7 +114,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					// if public method consider context
 					Map<CallContext, CBranchTestFitness> innermap = methodsMap.get(methodName);
 					if (innermap == null) {
-						methodsMap.put(methodName, innermap = new HashMap<>());
+						methodsMap.put(methodName, innermap = new LinkedHashMap<>());
 					}
 					innermap.put(goal.getContext(), goal);
 				}
@@ -170,10 +171,10 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 		double fitness = 0.0; // branchFitness.getFitness(suite);
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		Map<CBranchTestFitness, Double> distanceMap = new HashMap<>();
+		Map<CBranchTestFitness, Double> distanceMap = new LinkedHashMap<>();
 
-		Map<Integer, Integer> callCounter = new HashMap<>();
-		Map<Integer, Integer> branchCounter = new HashMap<>();
+		Map<Integer, Integer> callCounter = new LinkedHashMap<>();
+		Map<Integer, Integer> branchCounter = new LinkedHashMap<>();
 
 		for (ExecutionResult result : results) {
 			// Determine minimum branch distance for each branch in each context
@@ -190,19 +191,22 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					CBranchTestFitness goalT = getContextGoal(branchId, context, true);
 					if (goalT == null)
 						continue;
+
+					if (Archive.getArchiveInstance().hasSolution(goalT)) {
+						this.branchGoals.remove(goalT);
+						continue;
+					}
+
 					double distanceT = normalize(trueMap.get(context));
 					if (distanceMap.get(goalT) == null || distanceMap.get(goalT) > distanceT) {
 						distanceMap.put(goalT, distanceT);
 					}
 					if (Double.compare(distanceT, 0.0) == 0) {
-						if(removedGoals.contains(goalT))
-							continue;
+						this.branchGoals.remove(goalT);
 						result.test.addCoveredGoal(goalT);
-						if(Properties.TEST_ARCHIVE) {
-							Archive.getArchiveInstance().updateArchive(goalT, result, 0.0);
-							toRemoveGoals.add(goalT);
-							suite.isToBeUpdated(true);
-						}
+					}
+					if(Properties.TEST_ARCHIVE) {
+						Archive.getArchiveInstance().updateArchive(goalT, result, distanceT);
 					}
 				}
 				
@@ -210,20 +214,22 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					CBranchTestFitness goalF = getContextGoal(branchId, context, false);
 					if (goalF == null)
 						continue;
+
+					if (Archive.getArchiveInstance().hasSolution(goalF)) {
+						this.branchGoals.remove(goalF);
+						continue;
+					}
+
 					double distanceF = normalize(falseMap.get(context));
 					if (distanceMap.get(goalF) == null || distanceMap.get(goalF) > distanceF) {
 						distanceMap.put(goalF, distanceF);
 					}
 					if (Double.compare(distanceF, 0.0) == 0) {
-						if(removedGoals.contains(goalF))
-							continue;
+						this.branchGoals.remove(goalF);
 						result.test.addCoveredGoal(goalF);
-						if(Properties.TEST_ARCHIVE) {
-							Archive.getArchiveInstance().updateArchive(goalF, result, 0.0);
-							toRemoveGoals.add(goalF);
-							suite.isToBeUpdated(true);
-						}
-
+					}
+					if(Properties.TEST_ARCHIVE) {
+						Archive.getArchiveInstance().updateArchive(goalF, result, distanceF);
 					}
 				}
 
@@ -260,31 +266,30 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					CBranchTestFitness goal = getContextGoal(entry.getKey(), value.getKey());
 					if (goal == null)
 						continue;
+
+					if (Archive.getArchiveInstance().hasSolution(goal)) {
+						this.branchGoals.remove(goal);
+						continue;
+					}
+
 					int count = value.getValue();
 					if (callCounter.get(goal.hashCode()) == null
 							|| callCounter.get(goal.hashCode()) < count) {
 						callCounter.put(goal.hashCode(), count);
 					}
 					if (count > 0) {
-						if(removedGoals.contains(goal))
-							continue;
-
+						this.branchGoals.remove(goal);
 						result.test.addCoveredGoal(goal);
-						if(Properties.TEST_ARCHIVE) {
-							Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
-							toRemoveGoals.add(goal);
-							suite.isToBeUpdated(true);
-						}
-
+					}
+					if (Properties.TEST_ARCHIVE) {
+						Archive.getArchiveInstance().updateArchive(goal, result, count == 0 ? 1.0 : 0.0);
 					}
 				}
 			}
 		}
 
-		int numCoveredGoals = removedGoals.size();
+		int numCoveredGoals = this.howManyCBranchesCovered();
 		for (CBranchTestFitness goal : branchGoals) {
-			if(removedGoals.contains(goal))
-				continue;
 			Double distance = distanceMap.get(goal);
 			if (distance == null)
 				distance = 1.0;
@@ -312,12 +317,12 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		if (!branchGoals.isEmpty()) {
-			suite.setCoverage(this, (double) numCoveredGoals / (double) branchGoals.size());
+			suite.setCoverage(this, (double) numCoveredGoals / (double) this.numCBranchGoals);
 		} else {
 			suite.setCoverage(this, 1);
 		}
 		suite.setNumOfCoveredGoals(this, numCoveredGoals);
-		suite.setNumOfNotCoveredGoals(this, branchGoals.size() - numCoveredGoals);
+		suite.setNumOfNotCoveredGoals(this, this.numCBranchGoals - numCoveredGoals);
 		updateIndividual(this, suite, fitness);
 
 		return fitness;
@@ -329,13 +334,13 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 		if(!Properties.TEST_ARCHIVE)
 			return false;
 		
-		for(CBranchTestFitness goal : toRemoveGoals) {
-			removedGoals.add(goal);
-		}
-		
-		toRemoveGoals.clear();
+		// TODO as soon the archive refactor is done, we can get rid of this function
 		
 		return true;
+	}
+
+	private int howManyCBranchesCovered() {
+		return this.numCBranchGoals - this.branchGoals.size();
 	}
 	
 }
