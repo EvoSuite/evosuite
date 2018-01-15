@@ -49,13 +49,13 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
-	public int totalBranches;
-	public int totalGoals;
+	private int totalBranches;
+	private int totalGoals;
 	private final Set<Integer> branchesId;
 	
 	// Some stuff for debug output
-	public int maxCoveredBranches = 0;
-	public double bestFitness = Double.MAX_VALUE;
+	private int maxCoveredBranches = 0;
+	private double bestFitness = Double.MAX_VALUE;
 
 	// Each test gets a set of distinct covered goals, these are mapped by branch id
 	private final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new HashMap<Integer, TestFitnessFunction>();
@@ -80,10 +80,8 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
-			totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
-		} else {
-			totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
 		}
+		totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
 		branchesId = new HashSet<>();
 
 		totalGoals = 2 * totalBranches;
