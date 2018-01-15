@@ -34,6 +34,8 @@ import java.util.Map;
  */
 public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
 
+     private static final long serialVersionUID = -8849382855802052405L;
+
     /**
      * Make sure we only include artificial branches
      */
@@ -50,11 +52,10 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
             else
                 branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), goal);
         }
-        totalGoals = goals.size();
     }
 
     @Override
-    protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<String, Integer> callCount) {
+    protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result) {
         // no-op
     }
 

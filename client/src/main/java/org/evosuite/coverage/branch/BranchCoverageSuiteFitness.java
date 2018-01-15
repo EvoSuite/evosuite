@@ -19,6 +19,12 @@
  */
 package org.evosuite.coverage.branch;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.archive.Archive;
@@ -34,90 +40,84 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.Map.Entry;
-
 /**
  * Fitness function for a whole test suite for all branches
  * 
  * @author Gordon Fraser
  */
 public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
+
 	private static final long serialVersionUID = 2991632394620406243L;
 
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	// Coverage targets
-	public int totalGoals;
-	public int totalMethods;
-	public int totalBranches;
-	public final int numBranchlessMethods;
-	private final Set<String> branchlessMethods;
+	// branch targets
+	private final int numBranches;
+	public final Set<Integer> branchesId;
+	public final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new LinkedHashMap<Integer, TestFitnessFunction>();
+	public final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new LinkedHashMap<Integer, TestFitnessFunction>();
+
+	// method targets
+	public final int numMethods;
 	private final Set<String> methods;
+	private final int numBranchlessMethods;
+	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
 
-	protected final Set<Integer> branchesId;
-	
+	public final int numGoals;
+
 	// Some stuff for debug output
-	public int maxCoveredBranches = 0;
-	public int maxCoveredMethods = 0;
-	public double bestFitness = Double.MAX_VALUE;
+	private int maxCoveredBranches = 0;
+	private int maxCoveredMethods = 0;
+	private double bestFitness = Double.MAX_VALUE;
 
-	// Each test gets a set of distinct covered goals, these are mapped by branch id
-	protected final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new HashMap<Integer, TestFitnessFunction>();
-	protected final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<Integer, TestFitnessFunction>();
-	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<String, TestFitnessFunction>();
-
-	private final Set<Integer> toRemoveBranchesT = new HashSet<>();
-	private final Set<Integer> toRemoveBranchesF = new HashSet<>();
-	private final Set<String> toRemoveRootBranches = new HashSet<>();	
-	
-	private final Set<Integer> removedBranchesT = new HashSet<>();
-	private final Set<Integer> removedBranchesF = new HashSet<>();
-	private final Set<String> removedRootBranches = new HashSet<>();	
-	
 	// Total coverage value, used by Regression
-	public double totalCovered = 0.0;	
-	
+	public double totalCovered = 0.0;
+
 	/**
 	 * <p>
 	 * Constructor for BranchCoverageSuiteFitness.
 	 * </p>
 	 */
 	public BranchCoverageSuiteFitness() {
-
 		this(TestGenerationContext.getInstance().getClassLoaderForSUT());
 	}
-	
+
 	/**
 	 * <p>
 	 * Constructor for BranchCoverageSuiteFitness.
 	 * </p>
 	 */
 	public BranchCoverageSuiteFitness(ClassLoader classLoader) {
-		
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		if (prefix.isEmpty())
 			prefix = Properties.TARGET_CLASS;
 
-		totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
-		totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
+		branchesId = new LinkedHashSet<>();
+		numBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
 		numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
-		branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
+
+		numMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
 		methods = CFGMethodAdapter.getMethodsPrefix(classLoader, prefix);
-		
-		branchesId = new HashSet<>();
-
-		totalGoals = 2 * totalBranches + numBranchlessMethods;
-
-		logger.info("Total branch coverage goals: " + totalGoals);
-		logger.info("Total branches: " + totalBranches);
-		logger.info("Total branchless methods: " + numBranchlessMethods);
-		logger.info("Total methods: " + totalMethods + ": " + methods);
 
 		determineCoverageGoals();
-	}
+		assert branchCoverageTrueMap.size() == branchCoverageFalseMap.size() :
+			"number of true branches (" + branchCoverageTrueMap.size() +
+			") is not equal to the number of false branches (" + branchCoverageFalseMap.size() + ")";
+		assert branchesId.size() == branchCoverageTrueMap.size() :
+			branchesId.size() + " is not equal to number of true/false branches (" + branchCoverageTrueMap.size() + ")";
+		assert branchesId.size() == numBranches :
+			branchesId.size() + " not equal to " + numBranches;
+		assert numBranchlessMethods == branchlessMethodCoverageMap.size() :
+			numBranchlessMethods + " not equal to " + branchlessMethodCoverageMap.size();
 
+		numGoals = branchCoverageTrueMap.size() + branchCoverageFalseMap.size() + numBranchlessMethods;
+
+		logger.info("Total branch coverage goals: " + numGoals);
+		logger.info("Total branches: " + numBranches);
+		logger.info("Total branchless methods: " + numBranchlessMethods);
+		logger.info("Total methods: " + numMethods + ": " + methods);
+	}
 
 	/**
 	 * Initialize the set of known coverage goals
@@ -125,7 +125,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	protected void determineCoverageGoals() {
 		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
 		for (BranchCoverageTestFitness goal : goals) {
-
 			// Skip instrumented branches - we only want real branches
 			if(goal.getBranch() != null) {
 				if(goal.getBranch().isInstrumented()) {
@@ -146,7 +145,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), goal);
 			}
 		}
-		totalGoals = goals.size();
 	}
 
 	/**
@@ -156,105 +154,110 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param results
 	 * @param callCount
 	 */
-	private void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results,
-	        Map<String, Integer> callCount) {
+	private void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results) {
 
 		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()
-			        || result.noThrownExceptions())
+			if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions()) {
 				continue;
+			}
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			
 			// TODO: Not sure why that can happen
-			if(exceptionPosition >= result.test.size())
+			if (exceptionPosition >= result.test.size()) {
 				continue;
-			
-			
+			}
+
 			Statement statement = null;
-			if(result.test.hasStatement(exceptionPosition))
+			if (result.test.hasStatement(exceptionPosition)) {
 				statement = result.test.getStatement(exceptionPosition);
+			}
 			if (statement instanceof ConstructorStatement) {
 				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();
-				String methodName = "<init>"
-				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
+				String methodName = "<init>" + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (!callCount.containsKey(name)) {
-					callCount.put(name, 1);
-					if (branchlessMethodCoverageMap.containsKey(name)) {
-						result.test.addCoveredGoal(branchlessMethodCoverageMap.get(name));
-						if(Properties.TEST_ARCHIVE) {
-							Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(name), result, 0.0);
-							toRemoveRootBranches.add(name);
-							suite.isToBeUpdated(true);
-						}
-					}
 
+				TestFitnessFunction goal = branchlessMethodCoverageMap.get(name);
+				if (goal == null) {
+					continue;
+				}
+
+				result.test.addCoveredGoal(goal);
+				branchlessMethodCoverageMap.remove(name); // branchless constructor method has been covered
+				methods.remove(name);
+
+				if (Properties.TEST_ARCHIVE) {
+					Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
 				}
 			}
-
 		}
 	}
 
-
-	protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<String, Integer> callCount) {
+	protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result) {
 		for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
 
-			if (entry.getKey() == null || !methods.contains(entry.getKey()) || removedRootBranches.contains(entry.getKey()))
+			String key = entry.getKey();
+			if (key == null || !branchlessMethodCoverageMap.containsKey(key)) {
 				continue;
-			if (!callCount.containsKey(entry.getKey()))
-				callCount.put(entry.getKey(), entry.getValue());
-			else {
-				callCount.put(entry.getKey(),
-						callCount.get(entry.getKey()) + entry.getValue());
 			}
-			// If a specific target method is set we need to check
-			// if this is a target branch or not
-			if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
-				result.test.addCoveredGoal(branchlessMethodCoverageMap.get(entry.getKey()));
-				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(branchlessMethodCoverageMap.get(entry.getKey()), result, 0.0);
-					toRemoveRootBranches.add(entry.getKey());
-					suite.isToBeUpdated(true);
-				}
+
+			TestFitnessFunction goal = branchlessMethodCoverageMap.get(key);
+			result.test.addCoveredGoal(goal);
+
+			branchlessMethodCoverageMap.remove(key); // branchless method has been covered
+			methods.remove(key);
+
+			if (Properties.TEST_ARCHIVE) {
+				Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
 			}
 		}
 	}
 
 	protected void handlePredicateCount(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<Integer, Integer> predicateCount) {
 		for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
-			if (!branchesId.contains(entry.getKey())
-					|| (removedBranchesT.contains(entry.getKey())
-					&& removedBranchesF.contains(entry.getKey())))
+
+			Integer key = entry.getKey();
+			if (!branchesId.contains(key)) {
 				continue;
-			if (!predicateCount.containsKey(entry.getKey()))
-				predicateCount.put(entry.getKey(), entry.getValue());
-			else {
-				predicateCount.put(entry.getKey(),
-						predicateCount.get(entry.getKey())
-								+ entry.getValue());
+			}
+
+			if (!predicateCount.containsKey(key)) {
+				predicateCount.put(key, entry.getValue());
+			} else {
+				predicateCount.put(key, predicateCount.get(key) + entry.getValue());
 			}
 		}
 	}
 
 	protected void handleTrueDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<Integer, Double> trueDistance) {
 		for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
-			if(!branchesId.contains(entry.getKey())||removedBranchesT.contains(entry.getKey())) continue;
-			if (!trueDistance.containsKey(entry.getKey()))
-				trueDistance.put(entry.getKey(), entry.getValue());
-			else {
-				trueDistance.put(entry.getKey(),
-						Math.min(trueDistance.get(entry.getKey()),
-								entry.getValue()));
+
+			Integer key = entry.getKey();
+			if (!this.branchCoverageTrueMap.containsKey(key)) {
+				continue;
 			}
+
+			if (!trueDistance.containsKey(key)) {
+				trueDistance.put(key, entry.getValue());
+			} else {
+				trueDistance.put(key, Math.min(trueDistance.get(key), entry.getValue()));
+			}
+
+			BranchCoverageTestFitness goal = (BranchCoverageTestFitness) this.branchCoverageTrueMap.get(key);
+			assert goal != null;
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
-				result.test.addCoveredGoal(branchCoverageTrueMap.get(entry.getKey()));
-				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(branchCoverageTrueMap.get(entry.getKey()), result, 0.0);
-					toRemoveBranchesT.add(entry.getKey());
-					suite.isToBeUpdated(true);
+				result.test.addCoveredGoal(goal);
+
+				this.branchCoverageTrueMap.remove(key);
+				if (!this.branchCoverageFalseMap.containsKey(key)) {
+					this.branchesId.remove(key);
 				}
+
+				methods.remove(goal.getClassName() + "." + goal.getMethod());
+			}
+
+			if (Properties.TEST_ARCHIVE) {
+				Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
 			}
 		}
 
@@ -262,26 +265,36 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected void handleFalseDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<Integer, Double> falseDistance) {
 		for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
-			if(!branchesId.contains(entry.getKey())||removedBranchesF.contains(entry.getKey())) continue;
-			if (!falseDistance.containsKey(entry.getKey()))
-				falseDistance.put(entry.getKey(), entry.getValue());
-			else {
-				falseDistance.put(entry.getKey(),
-						Math.min(falseDistance.get(entry.getKey()),
-								entry.getValue()));
+
+			Integer key = entry.getKey();
+			if (!this.branchCoverageFalseMap.containsKey(key)) {
+				continue;
 			}
+
+			if (!falseDistance.containsKey(key)) {
+				falseDistance.put(key, entry.getValue());
+			} else {
+				falseDistance.put(key, Math.min(falseDistance.get(key), entry.getValue()));
+			}
+
+			BranchCoverageTestFitness goal = (BranchCoverageTestFitness) this.branchCoverageFalseMap.get(key);
+			assert goal != null;
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
-				result.test.addCoveredGoal(branchCoverageFalseMap.get(entry.getKey()));
-				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(branchCoverageFalseMap.get(entry.getKey()), result, 0.0);
-					toRemoveBranchesF.add(entry.getKey());
-					suite.isToBeUpdated(true);
+				result.test.addCoveredGoal(goal);
+
+				this.branchCoverageFalseMap.remove(key);
+				if (!this.branchCoverageTrueMap.containsKey(key)) {
+					this.branchesId.remove(key);
 				}
+
+				methods.remove(goal.getClassName() + "." + goal.getMethod());
+			}
+
+			if (Properties.TEST_ARCHIVE) {
+				Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
 			}
 		}
-
 	}
-
 
 	/**
 	 * Iterate over all execution results and summarize statistics
@@ -294,7 +307,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @return
 	 */
 	private boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results,
-	        Map<Integer, Integer> predicateCount, Map<String, Integer> callCount,
+	        Map<Integer, Integer> predicateCount,
 	        Map<Integer, Double> trueDistance, Map<Integer, Double> falseDistance) {
 		boolean hasTimeoutOrTestException = false;
 		for (ExecutionResult result : results) {
@@ -303,7 +316,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 			}
 
-			handleBranchlessMethods(suite, result, callCount);
+			handleBranchlessMethods(suite, result);
 			handlePredicateCount(suite, result, predicateCount);
 			handleTrueDistances(suite, result, trueDistance);
 			handleFalseDistances(suite, result, falseDistance);
@@ -316,54 +329,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		if(!Properties.TEST_ARCHIVE)
 			return false;
-		
-		for (String method : toRemoveRootBranches) {
-			boolean removed = branchlessMethods.remove(method);
-			TestFitnessFunction f = branchlessMethodCoverageMap.remove(method);
-			if (removed && f != null) {
-				totalMethods--;
-				methods.remove(method);
-				removedRootBranches.add(method);
-				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
-			} else {
-				throw new IllegalStateException("goal to remove not found");
-			}
-		}
 
-		for (Integer branch : toRemoveBranchesT) {
-			TestFitnessFunction f = branchCoverageTrueMap.remove(branch);
-			if (f != null) {
-				removedBranchesT.add(branch);
-				if (removedBranchesF.contains(branch)) {
-					totalBranches--;
-					//if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
-					//	removeTestCall(f.getTargetClass(), f.getTargetMethod());
-					//}
-				}
-			} else {
-				throw new IllegalStateException("goal to remove not found");
-			}
-		}
-		for (Integer branch : toRemoveBranchesF) {
-			TestFitnessFunction f = branchCoverageFalseMap.remove(branch);
-			if (f != null) {
-				removedBranchesF.add(branch);
-				if (removedBranchesT.contains(branch)) {
-					totalBranches--;
-					//if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
-					//	removeTestCall(f.getTargetClass(), f.getTargetMethod());
-					//}
-				}
-			} else {
-				throw new IllegalStateException("goal to remove not found");
-			}
-		}
-		
-		toRemoveRootBranches.clear();
-		toRemoveBranchesF.clear();
-		toRemoveBranchesT.clear();
-		logger.info("Current state of archive: "+Archive.getArchiveInstance().toString());
-		
+		// TODO as soon the archive refactor is done, we can get rid of this function
+
 		return true;
 	}
 	
@@ -373,122 +341,109 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Execute all tests and count covered branches
 	 */
 	@Override
-	public double getFitness(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		Map<Integer, Double> trueDistance = new HashMap<Integer, Double>();
-		Map<Integer, Double> falseDistance = new HashMap<Integer, Double>();
-		Map<Integer, Integer> predicateCount = new HashMap<Integer, Integer>();
-		Map<String, Integer> callCount = new HashMap<String, Integer>();
+		Map<Integer, Double> trueDistance = new LinkedHashMap<Integer, Double>();
+		Map<Integer, Double> falseDistance = new LinkedHashMap<Integer, Double>();
+		Map<Integer, Integer> predicateCount = new LinkedHashMap<Integer, Integer>();
 
 		// Collect stats in the traces 
 		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, predicateCount,
-		                                                  callCount, trueDistance,
-		                                                  falseDistance);
+		                                                  trueDistance, falseDistance);
 		// In case there were exceptions in a constructor
-		handleConstructorExceptions(suite, results, callCount);
+		handleConstructorExceptions(suite, results);
 
-		// Collect branch distances of covered branches
-		int numCoveredBranches = 0;
-
+		// Collect branch distances of executed branches
 		for (Integer key : predicateCount.keySet()) {
-			
-			double df = 0.0;
-			double dt = 0.0;
+			// If the branch predicate was only executed once, then add 1
 			int numExecuted = predicateCount.get(key);
-			
-			if(removedBranchesT.contains(key))
+
+			if (!this.branchCoverageFalseMap.containsKey(key)) {
 				numExecuted++;
-			if(removedBranchesF.contains(key))
+			}
+			if (!this.branchCoverageTrueMap.containsKey(key)) {
 				numExecuted++;
-			
-			if (trueDistance.containsKey(key)) {
-				dt =  trueDistance.get(key);
 			}
-			if(falseDistance.containsKey(key)){
-				df = falseDistance.get(key);
-			}
-			// If the branch predicate was only executed once, then add 1 
+
 			if (numExecuted == 1) {
+				// Note that a predicate must be executed at least twice, because the true
+				// and false evaluations of the predicate need to be cover; if the predicate
+				// were only executed once, then the search could theoretically oscillate
+				// between true and false.
 				fitness += 1.0;
 			} else {
-				fitness += normalize(df) + normalize(dt);
+				double df = falseDistance.containsKey(key) ? normalize(falseDistance.get(key)) : 0.0;
+				double dt = trueDistance.containsKey(key) ? normalize(trueDistance.get(key)) : 0.0;
+				fitness += df + dt;
+			}
+		}
+
+		// for every branch that has not been executed, we add +1 for the true evaluation and
+		// +1 for the false evaluation (if each one has not been covered yet)
+		for (Integer key : this.branchesId) {
+			if (predicateCount.containsKey(key)) {
+				// it has been executed
+				continue;
 			}
 
-			if (falseDistance.containsKey(key)&&(Double.compare(df, 0.0) == 0))
-				numCoveredBranches++;
-
-			if (trueDistance.containsKey(key)&&(Double.compare(dt, 0.0) == 0))
-				numCoveredBranches++;
+			if (this.branchCoverageFalseMap.containsKey(key)) {
+				fitness += 1.0;
+			}
+			if (this.branchCoverageTrueMap.containsKey(key)) {
+				fitness += 1.0;
+			}
 		}
-		
-		// +1 for every branch that was not executed
-		fitness += 2 * (totalBranches - predicateCount.size());
 
 		// Ensure all methods are called
-		int missingMethods = 0;
-		for (String e : methods) {
-			if (!callCount.containsKey(e)) {
-				fitness += 1.0;
-				missingMethods += 1;
-			}
-		}
-		printStatusMessages(suite, numCoveredBranches, totalMethods - missingMethods,
-		                    fitness);
+		int missingMethods = this.numMethods - this.howManyMethodsCovered();
+		fitness += 1.0 * missingMethods;
 
 		// Calculate coverage
-		int coverage = numCoveredBranches;
-		for (String e : branchlessMethodCoverageMap.keySet()) {
-			if (callCount.keySet().contains(e)) {
-				coverage++;
-			}
+		int coverage = 0;
+		coverage += this.howManyTrueBranchesCovered();
+		coverage += this.howManyFalseBranchesCovered();
+		coverage += this.howManyBranchlessMethodsCovered();
 
-		}
+		printStatusMessages(suite, coverage, numMethods - missingMethods, fitness);
 
-		coverage +=removedBranchesF.size();
-		coverage +=removedBranchesT.size();
-		coverage +=removedRootBranches.size();
-	
- 		
-		if (totalGoals > 0)
-			suite.setCoverage(this, (double) coverage / (double) totalGoals);
+		if (numGoals > 0)
+			suite.setCoverage(this, (double) coverage / (double) numGoals);
 		else 
             suite.setCoverage(this, 1);
-		
+
 		totalCovered = suite.getCoverage(this);
 
 		suite.setNumOfCoveredGoals(this, coverage);
-		suite.setNumOfNotCoveredGoals(this, totalGoals-coverage);
-		
+		suite.setNumOfNotCoveredGoals(this, numGoals - coverage);
+
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value "
-			        + (totalBranches * 2 + totalMethods));
-			fitness = totalBranches * 2 + totalMethods;
+			        + (numBranches * 2 + numMethods));
+			fitness = numBranches * 2 + numMethods;
 			//suite.setCoverage(0.0);
 		}
 
 		updateIndividual(this, suite, fitness);
 
-		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
-		        + totalGoals;
+		assert (coverage <= numGoals) : "Covered " + coverage + " vs total goals "
+		        + numGoals;
 		assert (fitness >= 0.0);
-		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
-		        + "coverage: " + coverage + "/" + totalGoals;
+		assert (fitness != 0.0 || coverage == numGoals) : "Fitness: " + fitness + ", "
+		        + "coverage: " + coverage + "/" + numGoals;
 		assert (suite.getCoverage(this) <= 1.0) && (suite.getCoverage(this) >= 0.0) : "Wrong coverage value "
 		        + suite.getCoverage(this); 
 		return fitness;
 	}
 	
 
-	
 	/*
 	 * Max branch coverage value
 	 */
 	public int getMaxValue() {
-		return  totalBranches * 2 + totalMethods;
+		return  numBranches * 2 + numMethods;
 	}
 
 	/**
@@ -504,26 +459,43 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (coveredBranches > maxCoveredBranches) {
 			maxCoveredBranches = coveredBranches;
 			logger.info("(Branches) Best individual covers " + coveredBranches + "/"
-			        + (totalBranches * 2) + " branches and " + coveredMethods + "/"
-			        + totalMethods + " methods");
+			        + (numBranches * 2) + " branches and " + coveredMethods + "/"
+			        + numMethods + " methods");
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
 		if (coveredMethods > maxCoveredMethods) {
 			logger.info("(Methods) Best individual covers " + coveredBranches + "/"
-			        + (totalBranches * 2) + " branches and " + coveredMethods + "/"
-			        + totalMethods + " methods");
+			        + (numBranches * 2) + " branches and " + coveredMethods + "/"
+			        + numMethods + " methods");
 			maxCoveredMethods = coveredMethods;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
 		if (fitness < bestFitness) {
 			logger.info("(Fitness) Best individual covers " + coveredBranches + "/"
-			        + (totalBranches * 2) + " branches and " + coveredMethods + "/"
-			        + totalMethods + " methods");
+			        + (numBranches * 2) + " branches and " + coveredMethods + "/"
+			        + numMethods + " methods");
 			bestFitness = fitness;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
 	}
+
+	private int howManyMethodsCovered() {
+		return this.numMethods - this.methods.size();
+		}
+
+	private int howManyBranchlessMethodsCovered() {
+		return this.numBranchlessMethods - this.branchlessMethodCoverageMap.size();
+		}
+
+	private int howManyTrueBranchesCovered() {
+		return this.numBranches - this.branchCoverageTrueMap.size();
+		}
+
+	private int howManyFalseBranchesCovered() {
+		return this.numBranches - this.branchCoverageFalseMap.size();
+	}
+
 }
