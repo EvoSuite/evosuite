@@ -213,14 +213,14 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (coveredLines > maxCoveredLines) {
 			maxCoveredLines = coveredLines;
 			logger.info("(Lines) Best individual covers " + coveredLines + "/"
-			        + lineGoals.size() + " lines");
+			        + this.numLines + " lines");
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
 
 		if (fitness < bestFitness) {
 			logger.info("(Fitness) Best individual covers " + coveredLines + "/"
-			        + lineGoals.size() + " lines");
+			        + this.numLines + " lines");
 			bestFitness = fitness;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
