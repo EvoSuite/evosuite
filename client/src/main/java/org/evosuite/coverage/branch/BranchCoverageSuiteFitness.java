@@ -484,15 +484,15 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private int howManyMethodsCovered() {
 		return this.numMethods - this.methods.size();
-		}
+	}
 
 	private int howManyBranchlessMethodsCovered() {
 		return this.numBranchlessMethods - this.branchlessMethodCoverageMap.size();
-		}
+	}
 
 	private int howManyTrueBranchesCovered() {
 		return this.numBranches - this.branchCoverageTrueMap.size();
-		}
+	}
 
 	private int howManyFalseBranchesCovered() {
 		return this.numBranches - this.branchCoverageFalseMap.size();
