@@ -360,14 +360,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (Integer key : predicateCount.keySet()) {
 			// If the branch predicate was only executed once, then add 1
 			int numExecuted = predicateCount.get(key);
-
-			if (!this.branchCoverageFalseMap.containsKey(key)) {
-				numExecuted++;
-			}
-			if (!this.branchCoverageTrueMap.containsKey(key)) {
-				numExecuted++;
-			}
-
 			if (numExecuted == 1) {
 				// Note that a predicate must be executed at least twice, because the true
 				// and false evaluations of the predicate need to be cover; if the predicate
