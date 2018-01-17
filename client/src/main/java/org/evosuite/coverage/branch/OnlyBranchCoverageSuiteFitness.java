@@ -48,17 +48,26 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	// Coverage targets
-	private final int totalBranches;
+	public int totalBranches;
+	public int totalGoals;
 	private final Set<Integer> branchesId;
+	
+	// Some stuff for debug output
+	public int maxCoveredBranches = 0;
+	public double bestFitness = Double.MAX_VALUE;
+
+	// Each test gets a set of distinct covered goals, these are mapped by branch id
 	private final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new LinkedHashMap<Integer, TestFitnessFunction>();
 	private final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new LinkedHashMap<Integer, TestFitnessFunction>();
 
-	private final int totalGoals;
-
-	// Some stuff for debug output
-	private int maxCoveredBranches = 0;
-	private double bestFitness = Double.MAX_VALUE;
-
+	private final Set<Integer> toRemoveBranchesT = new LinkedHashSet<>();
+	private final Set<Integer> toRemoveBranchesF = new LinkedHashSet<>();
+	
+	private final Set<Integer> removedBranchesT = new LinkedHashSet<>();
+	private final Set<Integer> removedBranchesF = new LinkedHashSet<>();
+	
+	
+	
 	/**
 	 * <p>
 	 * Constructor for OnlyBranchCoverageSuiteFitness.
@@ -117,77 +126,57 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		boolean hasTimeoutOrTestException = false;
 		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()) {
+			if (result.hasTimeout() || result.hasTestException()) {			
 				hasTimeoutOrTestException = true;
 				continue;
 			}
-
+			
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
-				if (!branchesId.contains(entry.getKey())) {
+				if (!branchesId.contains(entry.getKey())
+						|| (removedBranchesT.contains(entry.getKey())
+						&& removedBranchesF.contains(entry.getKey())))
 					continue;
-				}
-
-				if (!predicateCount.containsKey(entry.getKey())) {
+				if (!predicateCount.containsKey(entry.getKey()))
 					predicateCount.put(entry.getKey(), entry.getValue());
-				} else {
+				else {
 					predicateCount.put(entry.getKey(),
 							predicateCount.get(entry.getKey())
 							+ entry.getValue());
 				}
 			}
-
 			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
-				Integer key = entry.getKey();
-				if (!branchCoverageTrueMap.containsKey(key)) {
-					continue;
-				}
-
-				if (!trueDistance.containsKey(key)) {
-					trueDistance.put(key, entry.getValue());
-				} else {
-					trueDistance.put(key,
-							Math.min(trueDistance.get(key),
+				if(!branchesId.contains(entry.getKey())||removedBranchesT.contains(entry.getKey())) continue;
+				if (!trueDistance.containsKey(entry.getKey()))
+					trueDistance.put(entry.getKey(), entry.getValue());
+				else {
+					trueDistance.put(entry.getKey(),
+							Math.min(trueDistance.get(entry.getKey()),
 									entry.getValue()));
 				}
-
-				OnlyBranchCoverageTestFitness goal = (OnlyBranchCoverageTestFitness) branchCoverageTrueMap.get(key);
-				if ((Double.compare(entry.getValue(), 0.0) == 0)) {
+				OnlyBranchCoverageTestFitness goal = (OnlyBranchCoverageTestFitness) branchCoverageTrueMap.get(entry.getKey());
+				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(goal);
-					this.branchCoverageTrueMap.remove(key);
-					if (!this.branchCoverageFalseMap.containsKey(key)) {
-						this.branchesId.remove(key);
-					}
+					toRemoveBranchesT.add(entry.getKey());
 				}
-
-				if (Properties.TEST_ARCHIVE) {
+				if(Properties.TEST_ARCHIVE) {
 					Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
 				}
 			}
-
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
-				Integer key = entry.getKey();
-				if (!branchCoverageFalseMap.containsKey(key)) {
-					continue;
-				}
-
-				if (!falseDistance.containsKey(key)) {
-					falseDistance.put(key, entry.getValue());
-				} else {
-					falseDistance.put(key,
-							Math.min(falseDistance.get(key),
+				if(!branchesId.contains(entry.getKey())||removedBranchesF.contains(entry.getKey())) continue;
+				if (!falseDistance.containsKey(entry.getKey()))
+					falseDistance.put(entry.getKey(), entry.getValue());
+				else {
+					falseDistance.put(entry.getKey(),
+							Math.min(falseDistance.get(entry.getKey()),
 									entry.getValue()));
 				}
-
-				OnlyBranchCoverageTestFitness goal = (OnlyBranchCoverageTestFitness) branchCoverageFalseMap.get(key);
-				if ((Double.compare(entry.getValue(), 0.0) == 0)) {
+				OnlyBranchCoverageTestFitness goal = (OnlyBranchCoverageTestFitness) branchCoverageFalseMap.get(entry.getKey());
+				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
 					result.test.addCoveredGoal(goal);
-					this.branchCoverageFalseMap.remove(key);
-					if (!this.branchCoverageTrueMap.containsKey(key)) {
-						this.branchesId.remove(key);
-					}
+					toRemoveBranchesF.add(entry.getKey());
 				}
-
-				if (Properties.TEST_ARCHIVE) {
+				if(Properties.TEST_ARCHIVE) {
 					Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
 				}
 			}
@@ -197,12 +186,43 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	
 	@Override
 	public boolean updateCoveredGoals() {
-		
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
-
-		// TODO as soon the archive refactor is done, we can get rid of this function
-
+		}
+		
+		for (Integer branch : toRemoveBranchesT) {
+			TestFitnessFunction f = branchCoverageTrueMap.remove(branch);
+			if (f != null) {
+				removedBranchesT.add(branch);
+				if (removedBranchesF.contains(branch)) {
+					totalBranches--;
+					//if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
+					//	removeTestCall(f.getTargetClass(), f.getTargetMethod());
+					//}
+				}
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+		for (Integer branch : toRemoveBranchesF) {
+			TestFitnessFunction f = branchCoverageFalseMap.remove(branch);
+			if (f != null) {
+				removedBranchesF.add(branch);
+				if (removedBranchesT.contains(branch)) {
+					totalBranches--;
+					//if(isFullyCovered(f.getTargetClass(), f.getTargetMethod())) {
+					//	removeTestCall(f.getTargetClass(), f.getTargetMethod());
+					//}
+				}
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+		
+		toRemoveBranchesF.clear();
+		toRemoveBranchesT.clear();
+		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
+		
 		return true;
 	}
 
@@ -231,50 +251,47 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int numCoveredBranches = 0;
 
 		for (Integer key : predicateCount.keySet()) {
+			
+			double df = 0.0;
+			double dt = 0.0;
 			int numExecuted = predicateCount.get(key);
-			if (!this.branchCoverageFalseMap.containsKey(key)) {
+			
+			if(removedBranchesT.contains(key))
 				numExecuted++;
-			}
-			if (!this.branchCoverageTrueMap.containsKey(key)) {
+			if(removedBranchesF.contains(key))
 				numExecuted++;
+			
+			if (trueDistance.containsKey(key)) {
+				dt =  trueDistance.get(key);
 			}
-
+			if(falseDistance.containsKey(key)){
+				df = falseDistance.get(key);
+			}
+			// If the branch predicate was only executed once, then add 1 
 			if (numExecuted == 1) {
-			// Note that a predicate must be executed at least twice, because the true
-			// and false evaluations of the predicate need to be cover; if the predicate
-			// were only executed once, then the search could theoretically oscillate
-			// between true and false.
-			fitness += 1.0;
+				fitness += 1.0;
 			} else {
-					double df = falseDistance.containsKey(key) ? normalize(falseDistance.get(key)) : 0.0;
-					double dt = trueDistance.containsKey(key) ? normalize(trueDistance.get(key)) : 0.0;
-					fitness += df + dt;
+				fitness += normalize(df) + normalize(dt);
 			}
-		}
 
-		// for every branch that has not been executed, we add +1 for the true evaluation and
-		// +1 for the false evaluation (if each one has not been covered yet)
-		for (Integer key : this.branchesId) {
-				if (predicateCount.containsKey(key)) {
-					// it has been executed
-					continue;
-				}
+			if (falseDistance.containsKey(key)&&(Double.compare(df, 0.0) == 0))
+				numCoveredBranches++;
 
-				if (this.branchCoverageFalseMap.containsKey(key)) {
-					fitness += 1.0;
-				}
-				if (this.branchCoverageTrueMap.containsKey(key)) {
-					fitness += 1.0;
-				}
+			if (trueDistance.containsKey(key)&&(Double.compare(dt, 0.0) == 0))
+				numCoveredBranches++;
 		}
+		
+		// +1 for every branch that was not executed
+		fitness += 2 * (totalBranches - predicateCount.size());
 
 		printStatusMessages(suite, numCoveredBranches, fitness);
 
 		// Calculate coverage
-		int coverage = 0;
-		coverage += this.howManyTrueBranchesCovered();
-		coverage += this.howManyFalseBranchesCovered();
+		int coverage = numCoveredBranches;
 
+		coverage +=removedBranchesF.size();
+		coverage +=removedBranchesT.size();	
+ 		
 		if (totalGoals > 0)
 			suite.setCoverage(this, (double) coverage / (double) totalGoals);
         else
@@ -326,14 +343,6 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
-	}
-
-	private int howManyTrueBranchesCovered() {
-		return this.totalBranches - this.branchCoverageTrueMap.size();
-	}
-
-	private int howManyFalseBranchesCovered() {
-		return this.totalBranches - this.branchCoverageFalseMap.size();
 	}
 
 }

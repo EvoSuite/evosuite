@@ -55,7 +55,7 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
     }
 
     @Override
-    protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result) {
+    protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<String, Integer> callCount) {
         // no-op
     }
 

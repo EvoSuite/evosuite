@@ -112,8 +112,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 			if (result.hasTimeout()) {
 				logger.debug("Skipping test with timeout");
-				double fitness = branchFitness.numGoals * 2
-				        + branchFitness.numMethods + 3 * this.numMutants;
+				double fitness = branchFitness.totalGoals * 2
+				        + branchFitness.totalMethods + 3 * this.numMutants;
 				updateIndividual(this, individual, fitness);
 				suite.setCoverage(this, 0.0);
 				logger.info("Test case has timed out, setting fitness to max value "
