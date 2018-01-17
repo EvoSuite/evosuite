@@ -57,6 +57,14 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	/** Branchless methods map. */
 	private final Map<String, Map<CallContext, IBranchTestFitness>> methodsMap;
 
+	private final Set<IBranchTestFitness> toRemoveBranchesT = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> toRemoveBranchesF = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> toRemoveRootBranches = new LinkedHashSet<>();
+
+	private final Set<IBranchTestFitness> removedBranchesT = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> removedBranchesF = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> removedRootBranches = new LinkedHashSet<>();
+
 	public IBranchSuiteFitness() {
 		goalsMap = new LinkedHashMap<>();
 		methodsMap = new LinkedHashMap<>();
@@ -153,7 +161,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 				for (CallContext context : trueMap.keySet()) {
 					IBranchTestFitness goalT = getContextGoal(branchId, context, true);
-					if (goalT == null)
+					if (goalT == null || removedBranchesT.contains(goalT))
 						continue;
 					double distanceT = normalize(trueMap.get(context));
 					if (distanceMap.get(goalT) == null || distanceMap.get(goalT) > distanceT) {
@@ -162,6 +170,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					if (Double.compare(distanceT, 0.0) == 0) {
 						if(updateChromosome)
 						  result.test.addCoveredGoal(goalT);
+						toRemoveBranchesT.add(goalT);
 					}
 
 					if (Properties.TEST_ARCHIVE) {
@@ -176,7 +185,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 				for (CallContext context : falseMap.keySet()) {
 					IBranchTestFitness goalF = getContextGoal(branchId, context, false);
-					if (goalF == null)
+					if (goalF == null || removedBranchesF.contains(goalF))
 						continue;
 					double distanceF = normalize(falseMap.get(context));
 					if (distanceMap.get(goalF) == null || distanceMap.get(goalF) > distanceF) {
@@ -185,6 +194,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					if (Double.compare(distanceF, 0.0) == 0) {
 						if(updateChromosome)
 							result.test.addCoveredGoal(goalF);
+						toRemoveBranchesF.add(goalF);
 					}
 
 					if (Properties.TEST_ARCHIVE) {
@@ -197,7 +207,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					.getMethodContextCount().entrySet()) {
 				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
 					IBranchTestFitness goal = getContextGoal(entry.getKey(), value.getKey());
-					if (goal == null)
+					if (goal == null || removedRootBranches.contains(goal))
 						continue;
 					int count = value.getValue();
 					if (callCount.get(goal) == null || callCount.get(goal) < count) {
@@ -206,6 +216,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					if (count > 0) {
 						if(updateChromosome)
 							result.test.addCoveredGoal(goal);
+						toRemoveRootBranches.add(goal);
 					}
 				}
 			}
@@ -233,6 +244,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		if(updateChromosome) {
+			numCoveredGoals += removedBranchesF.size();
+			numCoveredGoals += removedBranchesT.size();
+			numCoveredGoals += removedRootBranches.size();
 			if (totGoals > 0) {
 				suite.setCoverage(this, (double) numCoveredGoals / (double) totGoals);
 			}
@@ -256,11 +270,55 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public boolean updateCoveredGoals() {
-
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
+		}
 
-		// TODO as soon the archive refactor is done, we can get rid of this function
+		for (IBranchTestFitness method : toRemoveRootBranches) {
+			boolean removed = branchGoals.remove(method);
+
+			Map<CallContext, IBranchTestFitness> map = methodsMap.get(method.getTargetClass() + "."
+					+ method.getTargetMethod());
+
+			IBranchTestFitness f = map.remove(method.getContext());
+
+			if (removed && f != null) {
+				removedRootBranches.add(method);
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+
+		for (IBranchTestFitness branch : toRemoveBranchesT) {
+			boolean removed = branchGoals.remove(branch);
+			Map<CallContext, Set<IBranchTestFitness>> map = goalsMap.get(branch.getBranch()
+					.getActualBranchId());
+			Set<IBranchTestFitness> set = map.get(branch.getContext());
+			boolean f = set.remove(branch);
+
+			if (removed && f) {
+				removedBranchesT.add(branch);
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+		for (IBranchTestFitness branch : toRemoveBranchesF) {
+			boolean removed = branchGoals.remove(branch);
+			Map<CallContext, Set<IBranchTestFitness>> map = goalsMap.get(branch.getBranch()
+					.getActualBranchId());
+			Set<IBranchTestFitness> set = map.get(branch.getContext());
+			boolean f = set.remove(branch);
+
+			if (removed && f) {
+				removedBranchesF.add(branch);
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+
+		toRemoveRootBranches.clear();
+		toRemoveBranchesF.clear();
+		toRemoveBranchesT.clear();
 
 		return true;
 	}
