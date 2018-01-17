@@ -140,6 +140,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		
 		int mutantsChecked = 0;
 		int numKilled = removedMutants.size();
+		Set<Integer> newKilled = new LinkedHashSet<Integer>();
 
 		List<TestChromosome> executionOrder = prioritizeTests(suite); // Quicker tests first
 		for (TestChromosome test : executionOrder) {
@@ -165,6 +166,9 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 				Entry<Integer, MutationTestFitness> entry = it.next();
 
 				int mutantID = entry.getKey();
+				if (newKilled.contains(mutantID)) {
+					continue;
+				}
 				MutationTestFitness goal = entry.getValue();
 
 				if (MutationTimeoutStoppingCondition.isDisabled(goal.getMutation())) {
@@ -189,6 +193,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 				if (mutantInfectionDistance == 0.0) {
 					numKilled++;
+					newKilled.add(mutantID);
+
 					result.test.addCoveredGoal(goal); // update list of covered goals
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				} else {
@@ -212,8 +218,11 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", numKilled, mutantsChecked, this.numMutants);
 		
 		updateIndividual(this, individual, fitness);
-		// updateGoals();
-		suite.setCoverage(this, (double) numKilled / (double) this.numMutants);
+
+		assert numKilled <= this.numMutants;
+		double coverage = (double) numKilled / (double) this.numMutants;
+		assert coverage >= 0.0 && coverage <= 1.0;
+		suite.setCoverage(this, coverage);
 		suite.setNumOfCoveredGoals(this, numKilled);
 		
 		return fitness;
