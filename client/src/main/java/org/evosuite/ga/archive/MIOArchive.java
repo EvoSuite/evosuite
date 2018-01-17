@@ -95,6 +95,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
 
     this.removeNonCoveredTargetOfAMethod(target);
 
+    this.hasBeenUpdated = true;
+
     // TODO what about collateral coverage, i.e.,
     // this.handleCollateralCoverage(executionResultClone, solutionClone); ?
     // maybe only if fitnessValue = 0.0 -> covered ?

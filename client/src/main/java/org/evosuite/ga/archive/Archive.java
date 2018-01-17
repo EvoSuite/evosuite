@@ -59,6 +59,11 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
       new LinkedHashMap<String, Set<F>>();
 
   /**
+   * Has this archive been updated with new candidate solutions?
+   */
+  protected boolean hasBeenUpdated = false;
+
+  /**
    * Register a target.
    * 
    * @param target
@@ -365,6 +370,24 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    */
   public void reset() {
     this.nonCoveredTargetsOfEachMethod.clear();
+  }
+
+  /**
+   * Returns true if the archive has been updated with new instances, false otherwise
+   * 
+   * @return
+   */
+  public boolean hasBeenUpdated() {
+    return this.hasBeenUpdated;
+  }
+
+  /**
+   * Sets the status (update or not update) of the archive
+   * 
+   * @param b
+   */
+  public void setHasBeenUpdated(boolean b) {
+    this.hasBeenUpdated = b;
   }
 
   /**

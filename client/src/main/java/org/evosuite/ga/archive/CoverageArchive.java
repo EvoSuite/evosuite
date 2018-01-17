@@ -120,6 +120,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
   private void addToArchive(F target, T solution) {
     this.archive.put(target, solution);
     this.removeNonCoveredTargetOfAMethod(target);
+    this.hasBeenUpdated = true;
   }
 
   /**
