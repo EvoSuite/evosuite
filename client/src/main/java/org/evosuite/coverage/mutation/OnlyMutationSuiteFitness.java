@@ -52,7 +52,7 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 		/**
 		 * e.g. classes with only static constructors
 		 */
-		if (this.allMutantsKilled()) {
+		if (this.numMutants == 0) {
 			updateIndividual(this, individual, 0.0);
 			((TestSuiteChromosome) individual).setCoverage(this, 1.0);
 			((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, 0);
@@ -82,44 +82,40 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 
 			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
 			while (it.hasNext()) {
-			  Entry<Integer, MutationTestFitness> entry = it.next();
+				Entry<Integer, MutationTestFitness> entry = it.next();
 
-			  int mutantID = entry.getKey();
-			  TestFitnessFunction goal = entry.getValue();
+				int mutantID = entry.getKey();
+				TestFitnessFunction goal = entry.getValue();
 
-			  if (Archive.getArchiveInstance().hasSolution(goal)) {
-			    it.remove();
-			    continue;
-			  }
+				double fit = 0.0;
+				if (touchedMutantsDistances.containsKey(mutantID)) {
+					fit = touchedMutantsDistances.get(mutantID);
+				} else {
+					TestChromosome tc = new TestChromosome();
+					tc.setTestCase(result.test);
+					fit = goal.getFitness(tc, result);
+				}
 
-			  double fit = 0.0;
-			  if (touchedMutantsDistances.containsKey(mutantID)) {
-			    fit = touchedMutantsDistances.get(mutantID);
-			  } else {
-			    TestChromosome tc = new TestChromosome();
-			    tc.setTestCase(result.test);
-			    fit = goal.getFitness(tc, result);
-			  }
+				if (fit == 0.0) {
+					result.test.addCoveredGoal(goal); // update list of covered goals
+					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
+				}
 
-			  if (fit == 0.0) {
-			    it.remove();
-			    result.test.addCoveredGoal(goal);
-			  }
+				if (Properties.TEST_ARCHIVE) {
+					Archive.getArchiveInstance().updateArchive(goal, result, fit);
+				}
 
-			  if (Properties.TEST_ARCHIVE) {
-			    Archive.getArchiveInstance().updateArchive(goal, result, fit);
-			  }
-
-			  if (!mutant_distance.containsKey(mutantID)) {
-			    mutant_distance.put(mutantID, fit);
-			  } else {
-			    mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
-			  }
+				if (!mutant_distance.containsKey(mutantID)) {
+					mutant_distance.put(mutantID, fit);
+				} else {
+					mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
+				}
 			}
 		}
 
 		// Second objective: touch all mutants?
 		fitness += MutationPool.getMutantCounter() - touchedMutants.size();
+		int covered = this.removedMutants.size();
 
 		for (Double distance : mutant_distance.values()) {
 			if (distance < 0) {
@@ -129,11 +125,13 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 			}
 
 			fitness += normalize(distance);
+			if (distance == 0.0)
+				covered++;
 		}
 		
 		updateIndividual(this, individual, fitness);
-		((TestSuiteChromosome) individual).setCoverage(this, (double) this.howManyMutantsHaveKilled() / (double) this.getNumMutants());
-		((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, this.howManyMutantsHaveKilled());
+		((TestSuiteChromosome) individual).setCoverage(this, (double) covered / (double) this.numMutants);
+		((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, covered);
 		
 		return fitness;
 	}

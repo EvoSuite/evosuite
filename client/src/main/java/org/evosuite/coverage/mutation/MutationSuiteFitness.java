@@ -23,13 +23,16 @@
 package org.evosuite.coverage.mutation;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -48,9 +51,12 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final BranchCoverageSuiteFitness branchFitness;
 
+	// target goals
 	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<Integer, MutationTestFitness>();
-
 	protected final int numMutants;
+
+	protected final Set<Integer> removedMutants = new LinkedHashSet<Integer>();
+	protected final Set<Integer> toRemoveMutants = new LinkedHashSet<Integer>();
 
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory(
@@ -68,10 +74,21 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public boolean updateCoveredGoals() {
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
+		}
 
-		// TODO as soon the archive refactor is done, we can get rid of this function
+		for (Integer mutant : this.toRemoveMutants) {
+			TestFitnessFunction ff = this.mutantMap.remove(mutant);
+			if (ff != null) {
+				this.removedMutants.add(mutant);
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+
+		this.toRemoveMutants.clear();
+		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
 
 		return true;
 	}
@@ -80,18 +97,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
-	}
-
-	public int getNumMutants() {
-	  return this.numMutants;
-	}
-
-	public int howManyMutantsHaveKilled() {
-	  return this.numMutants - this.mutantMap.size();
-	}
-
-	public boolean allMutantsKilled() {
-	  return this.mutantMap.isEmpty();
 	}
 
 	/**
