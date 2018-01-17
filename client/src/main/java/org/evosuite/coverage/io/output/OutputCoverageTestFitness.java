@@ -137,16 +137,18 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 
 			for (OutputCoverageGoal coveredGoal : coveredGoals) {
 				if (coveredGoal.equals(this.goal)) {
-					fitness = this.calculateDistance(coveredGoal);
-					if (fitness == -1.0) {
+					double distance = this.calculateDistance(coveredGoal);
+					if (fitness < 0.0) {
 						continue;
 					} else {
+						fitness = distance;
 						break;
 					}
 				}
 			}
 		}
 
+		assert fitness >= 0.0;
 		updateIndividual(this, individual, fitness);
 		return fitness;
 	}

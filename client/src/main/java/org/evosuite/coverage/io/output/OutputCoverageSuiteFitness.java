@@ -154,7 +154,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         }
 
         for (ExecutionResult result : results) {
-            if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions()) {
+            if (result.hasTimeout() || result.hasTestException() || !result.noThrownExceptions()) {
                 continue;
             }
 
@@ -185,7 +185,10 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             }
         }
 
-        double distance = mapDistances.values().stream().reduce(Double::sum).get().doubleValue();
+        double distance = 0.0;
+        if (!mapDistances.isEmpty()) {
+            distance = mapDistances.values().stream().reduce(Double::sum).get().doubleValue();
+        }
         return distance;
     }
 
