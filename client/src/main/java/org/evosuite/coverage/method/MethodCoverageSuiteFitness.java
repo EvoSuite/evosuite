@@ -19,11 +19,11 @@
  */
 package org.evosuite.coverage.method;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -51,8 +51,10 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	// Each test gets a set of distinct covered goals, these are mapped by branch id
 	protected final Map<String, TestFitnessFunction> methodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
-
 	protected final int totalMethods;
+
+	private Set<String> toRemoveMethods = new LinkedHashSet<>();
+	private Set<String> removedMethods  = new LinkedHashSet<>();
 
     // Some stuff for debug output
     protected int maxCoveredMethods = 0;
@@ -109,7 +111,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 					// only include methods being called
 					result.test.addCoveredGoal(goal);
-					this.methodCoverageMap.remove(name);
+					this.toRemoveMethods.add(name);
 
 					if (Properties.TEST_ARCHIVE) {
 						Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
@@ -127,8 +129,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param calledMethods
 	 * @return
 	 */
-	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-			List<ExecutionResult> results) {
+	protected boolean analyzeTraces(List<ExecutionResult> results, Set<String> calledMethods) {
 		boolean hasTimeoutOrTestException = false;
 
 		for (ExecutionResult result : results) {
@@ -136,23 +137,17 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				hasTimeoutOrTestException = true;
 			}
 
-			Iterator<Entry<String, TestFitnessFunction>> it = this.methodCoverageMap.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, TestFitnessFunction> entry = it.next();
-				TestFitnessFunction goal = entry.getValue();
-
-				if (Archive.getArchiveInstance().hasSolution(goal)) {
-					it.remove();
-					continue;
-				}
+			for (String methodName : this.methodCoverageMap.keySet()) {
+				TestFitnessFunction goal = this.methodCoverageMap.get(methodName);
 
 				TestChromosome tc = new TestChromosome();
 				tc.setTestCase(result.test);
 				double fit = goal.getFitness(tc, result);
 
 				if (fit == 0.0) {
-					it.remove();
-					result.test.addCoveredGoal(goal);
+					result.test.addCoveredGoal(goal); // update list of covered goals
+					calledMethods.add(methodName); // helper to count the number of covered goals
+					this.toRemoveMethods.add(methodName); // goal to not be considered by the next iteration of the evolutionary algorithm
 				}
 
 				if (Properties.TEST_ARCHIVE) {
@@ -174,23 +169,18 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.trace("Calculating method fitness");
 		double fitness = 0.0;
 
-		if (this.allMethodsCovered()) {
-			updateIndividual(this, suite, 0.0);
-			suite.setCoverage(this, 1.0);
-			suite.setNumOfCoveredGoals(this, this.totalMethods);
-			return 0.0;
-		}
-
 		List<ExecutionResult> results = runTestSuite(suite);
 
 		// Collect stats in the traces
-		boolean hasTimeoutOrTestException = analyzeTraces(suite, results);
+		Set<String> calledMethods = new LinkedHashSet<String>();
+		boolean hasTimeoutOrTestException = analyzeTraces(results, calledMethods);
 
 		// In case there were exceptions in a constructor
 		handleConstructorExceptions(suite, results);
 
-		int coveredMethods = this.howManyMethodsCovered();
+		int coveredMethods = calledMethods.size() + this.removedMethods.size();
 		int missingMethods = this.totalMethods - coveredMethods;
+		assert (this.totalMethods == coveredMethods + missingMethods);
 		fitness = 1.0 * missingMethods;
 
         printStatusMessages(suite, totalMethods - missingMethods, fitness);
@@ -249,21 +239,24 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public boolean updateCoveredGoals() {
-
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
+		}
 
-		// TODO as soon the archive refactor is done, we can get rid of this function
+		for (String method : this.toRemoveMethods) {
+			TestFitnessFunction f = this.methodCoverageMap.remove(method);
+			if (f != null) {
+				this.removedMethods.add(method);
+			} else {
+				throw new IllegalStateException("Goal to remove not found: "+method+", candidates: "+methodCoverageMap.keySet());
+			}
+		}
+
+		this.toRemoveMethods.clear();
+		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
+
+		assert this.totalMethods == this.methodCoverageMap.size() + this.removedMethods.size();
 
 		return true;
 	}
-
-	private int howManyMethodsCovered() {
-		return this.totalMethods - this.methodCoverageMap.size();
-	}
-
-	private boolean allMethodsCovered() {
-		return this.methodCoverageMap.isEmpty();
-	}
-
 }
