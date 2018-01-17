@@ -33,7 +33,6 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.CellularGA;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.ga.metaheuristics.*;
@@ -129,27 +128,18 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: (1+1)EA");
 			{
 				OnePlusOneEA<TestSuiteChromosome> ga = new OnePlusOneEA<TestSuiteChromosome>(factory);
-				if (Properties.TEST_ARCHIVE)
-					ga.setArchive(Archive.getArchiveInstance());
-
 				return ga;
 			}
 		case MUPLUSLAMBDAEA:
 		    logger.info("Chosen search algorithm: (Mu+Lambda)EA");
             {
                 MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
-                if (Properties.TEST_ARCHIVE)
-                    ga.setArchive(Archive.getArchiveInstance());
-
                 return ga;
             }
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
-	            if (Properties.TEST_ARCHIVE)
-	                ga.setArchive(Archive.getArchiveInstance());
-
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -163,9 +153,6 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: CellularGA");
 			{
 				CellularGA<TestSuiteChromosome> ga = new CellularGA<TestSuiteChromosome>(Properties.MODEL, factory);
-	            if (Properties.TEST_ARCHIVE)
-	                ga.setArchive(Archive.getArchiveInstance());
-
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -179,9 +166,6 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
 				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
-	            if (Properties.TEST_ARCHIVE)
-	                ga.setArchive(Archive.getArchiveInstance());
-
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -195,18 +179,12 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 		{
 			BreederGA<TestSuiteChromosome> ga = new BreederGA<>(factory);
-			if (Properties.TEST_ARCHIVE)
-				ga.setArchive(Archive.getArchiveInstance());
-
 			return ga;
 		}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
 			{
                 RandomSearch<TestSuiteChromosome> ga = new RandomSearch<TestSuiteChromosome>(factory);
-                if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(Archive.getArchiveInstance());
-
                 return ga;
 			}
         case NSGAII:
@@ -222,27 +200,18 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             {
               OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory);
-              if (Properties.TEST_ARCHIVE) {
-                ga.setArchive(Archive.getArchiveInstance());
-              }
               return ga;
             }
         case MIO:
           logger.info("Chosen search algorithm: MIO");
           {
               MIO<TestSuiteChromosome> ga = new MIO<TestSuiteChromosome>(factory);
-              if (Properties.TEST_ARCHIVE) {
-                  ga.setArchive(Archive.getArchiveInstance());
-              }
-
               return ga;
           }
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
                 StandardGA<TestSuiteChromosome> ga = new StandardGA<TestSuiteChromosome>(factory);
-                if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(Archive.getArchiveInstance());
                 return ga;
             }
 		}

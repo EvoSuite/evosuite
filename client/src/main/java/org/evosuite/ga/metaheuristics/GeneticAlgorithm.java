@@ -105,8 +105,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected int currentIteration = 0;
 
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
-	
-	protected transient Archive<?,?> archive = null;
 
 	/**
 	 * Constructor
@@ -504,10 +502,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		return str.toString();
 	}
 
-	
-	public void setArchive(Archive<?,?> archive) {
-		this.archive = archive;
-	}
 	
 	/**
 	 * Set new fitness function (i.e., for new mutation)
@@ -1049,12 +1043,11 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void updateBestIndividualFromArchive() {
-		if(archive == null)
+		if (!Properties.TEST_ARCHIVE)
 			return;
 
-		T best = (T) archive.mergeArchiveAndSolution((TestSuiteChromosome) getBestIndividual());
+		T best = Archive.getArchiveInstance().mergeArchiveAndSolution(getBestIndividual());
 
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)

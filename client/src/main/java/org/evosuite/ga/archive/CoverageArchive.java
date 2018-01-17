@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -49,11 +50,6 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
 
   public static final CoverageArchive<TestFitnessFunction, TestCase> instance =
       new CoverageArchive<TestFitnessFunction, TestCase>();
-
-  public void reset() {
-    super.reset();
-    this.archive.clear();
-  }
 
   /**
    * {@inheritDoc}
@@ -272,12 +268,13 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
-  public TestSuiteChromosome mergeArchiveAndSolution(TestSuiteChromosome solution) {
+  public TestSuiteChromosome mergeArchiveAndSolution(Chromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
     // concurrent access
     Properties.TEST_ARCHIVE = false;
 
-    TestSuiteChromosome mergedSolution = solution.clone();
+    // FIXME sure about this cast?!
+    TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
 
     // to avoid adding the same solution to 'mergedSolution' suite
     Set<T> solutionsSampledFromArchive = new LinkedHashSet<T>();
@@ -317,5 +314,14 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
   public String toString() {
     return "NumTargets: " + this.getNumberOfTargets() + ", NumCoveredTargets: "
         + this.getNumberOfCoveredTargets() + ", NumSolutions: " + this.getNumberOfSolutions();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    super.reset();
+    this.archive.clear();
   }
 }

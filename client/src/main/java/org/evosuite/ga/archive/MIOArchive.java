@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -254,7 +255,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    * {@inheritDoc}
    */
   @Override
-  public TestSuiteChromosome mergeArchiveAndSolution(TestSuiteChromosome solution) {
+  public TestSuiteChromosome mergeArchiveAndSolution(Chromosome solution) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -266,6 +267,15 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   public String toString() {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void reset() {
+    super.reset();
+    this.archive.clear();
   }
 
   private class Population implements Serializable {
@@ -442,7 +452,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      */
     @Override
     public int hashCode() {
-      return 31 * counter + this.solutions.hashCode();
+      return 31 * counter + capacity + this.solutions.hashCode();
     }
 
     /**
@@ -462,11 +472,17 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
       }
 
       Population p = (Population) obj;
+      if (this.counter != p.counter) {
+        return false;
+      }
+      if (this.capacity != p.capacity) {
+        return false;
+      }
       if (this.solutions.size() != p.solutions.size()) {
         return false;
       }
 
-      return this.solutions.equals(p.solutions) && this.counter == p.counter;
+      return this.solutions.equals(p.solutions);
     }
   }
 }

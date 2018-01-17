@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -35,7 +36,6 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -214,7 +214,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    * @param solution a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
    * @return a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
    */
-  public abstract TestSuiteChromosome mergeArchiveAndSolution(TestSuiteChromosome solution);
+  public abstract <C extends Chromosome> C mergeArchiveAndSolution(C solution);
 
   /**
    * Informs {@link org.evosuite.setup.TestCluster} that a particular method of a particular class
