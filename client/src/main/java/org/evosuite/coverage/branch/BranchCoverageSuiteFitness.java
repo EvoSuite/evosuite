@@ -55,7 +55,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public int totalGoals;
 	public int totalMethods;
 	public int totalBranches;
-	public final int numBranchlessMethods;
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
 
@@ -105,28 +104,18 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
 		totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
-		numBranchlessMethods = BranchPool.getInstance(classLoader).getNumBranchlessMethodsPrefix(prefix);
 		branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
 		methods = CFGMethodAdapter.getMethodsPrefix(classLoader, prefix);
 
 		branchesId = new LinkedHashSet<>();
 
 		determineCoverageGoals();
-		assert branchCoverageTrueMap.size() == branchCoverageFalseMap.size() :
-			"number of true branches (" + branchCoverageTrueMap.size() +
-			") is not equal to the number of false branches (" + branchCoverageFalseMap.size() + ")";
-		assert branchesId.size() == branchCoverageTrueMap.size() :
-			branchesId.size() + " is not equal to number of true/false branches (" + branchCoverageTrueMap.size() + ")";
-		assert branchesId.size() == totalBranches :
-			branchesId.size() + " not equal to " + totalBranches;
-		assert numBranchlessMethods == branchlessMethodCoverageMap.size() :
-			numBranchlessMethods + " not equal to " + branchlessMethodCoverageMap.size();
 
-		totalGoals = branchCoverageTrueMap.size() + branchCoverageFalseMap.size() + numBranchlessMethods;
+		totalGoals = branchCoverageTrueMap.size() + branchCoverageFalseMap.size() + branchlessMethodCoverageMap.size();
 
 		logger.info("Total branch coverage goals: " + totalGoals);
 		logger.info("Total branches: " + totalBranches);
-		logger.info("Total branchless methods: " + numBranchlessMethods);
+		logger.info("Total branchless methods: " + branchlessMethodCoverageMap.size());
 		logger.info("Total methods: " + totalMethods + ": " + methods);
 	}
 
