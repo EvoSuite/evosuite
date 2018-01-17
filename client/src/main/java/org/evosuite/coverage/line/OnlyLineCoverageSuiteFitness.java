@@ -19,11 +19,11 @@
  */
 package org.evosuite.coverage.line;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -44,6 +44,9 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	// Coverage targets
 	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<Integer, TestFitnessFunction>();
 	private final int numLines;
+
+	private final Set<Integer> removedLines = new LinkedHashSet<Integer>();
+	private final Set<Integer> toRemoveLines = new LinkedHashSet<Integer>();
 
 	// Some stuff for debug output
 	private int maxCoveredLines = 0;
@@ -75,7 +78,19 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if(!Properties.TEST_ARCHIVE)
 			return false;
 
-		// TODO as soon the archive refactor is done, we can get rid of this function
+		for (Integer goalID : this.toRemoveLines) {
+			TestFitnessFunction ff = this.lineGoals.remove(goalID);
+			if (ff != null) {
+				this.removedLines.add(goalID);
+			} else {
+				throw new IllegalStateException("goal to remove not found");
+			}
+		}
+
+		this.toRemoveLines.clear();
+		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
+
+		assert this.numLines == this.lineGoals.size() + this.removedLines.size();
 
 		return true;
 	}
@@ -84,10 +99,10 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Iterate over all execution results and summarize statistics
 	 * 
 	 * @param results
-	 * @param callCount
+	 * @param coveredLines
 	 * @return
 	 */
-	private boolean analyzeTraces(List<ExecutionResult> results) {
+	private boolean analyzeTraces(List<ExecutionResult> results, Set<Integer> coveredLines) {
 		boolean hasTimeoutOrTestException = false;
 
 		for (ExecutionResult result : results) {
@@ -96,28 +111,17 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 			}
 
-			Iterator<Entry<Integer, TestFitnessFunction>> it = this.lineGoals.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<Integer, TestFitnessFunction> entry = it.next();
-				TestFitnessFunction goal = entry.getValue();
-
-				if (Archive.getArchiveInstance().hasSolution(goal)) {
-					// Is it worth continue looking for other results (i.e., tests) that cover this already covered
-					// goal? Maybe. However, as checking whether a test covers a specific goal and updating the
-					// archive could be very time consuming tasks, in here we just skip the search for yet another
-					// test case. The main objective (i.e., having a test case for this goal) has been completed
-					// anyway.
-					it.remove();
-					continue;
-				}
+			for (Integer goalID : this.lineGoals.keySet()) {
+				TestFitnessFunction goal = this.lineGoals.get(goalID);
 
 				TestChromosome tc = new TestChromosome();
 				tc.setTestCase(result.test);
 				double fit = goal.getFitness(tc, result);
 
 				if (fit == 0.0) {
-					it.remove();
-					result.test.addCoveredGoal(goal);
+					result.test.addCoveredGoal(goal); // update list of covered goals
+					coveredLines.add(goalID); // helper to count the number of covered goals
+					this.toRemoveLines.add(goalID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				}
 
 				if (Properties.TEST_ARCHIVE) {
@@ -143,12 +147,13 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> results = runTestSuite(suite);
 
 		// Collect stats in the traces 
-		boolean hasTimeoutOrTestException = analyzeTraces(results);
+		Set<Integer> coveredLines = new LinkedHashSet<Integer>();
+		boolean hasTimeoutOrTestException = analyzeTraces(results, coveredLines);
 
 		int totalLines = this.numLines;
-		int numCoveredLines = this.howManyLinesCovered();
+		int numCoveredLines = coveredLines.size() + this.removedLines.size();
 		
-		logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines");
+		logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines, "+removedLines.size() +" in archive");
 		fitness += normalize(totalLines - numCoveredLines);
 		
 		printStatusMessages(suite, numCoveredLines, fitness);
@@ -203,9 +208,5 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			        + suite.totalLengthOfTestCases());
 
 		}
-	}
-
-	private int howManyLinesCovered() {
-		return this.numLines - this.lineGoals.size();
 	}
 }
