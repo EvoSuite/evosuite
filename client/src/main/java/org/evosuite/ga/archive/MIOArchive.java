@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -81,35 +83,24 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   @SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
-    // TODO
     assert target != null;
     assert this.archive.containsKey(target);
-
-    // TODO
+    assert fitnessValue >= 0.0 && fitnessValue <= 1.0;
 
     ExecutionResult executionResultClone = executionResult.clone();
     T solutionClone = (T) executionResultClone.test.clone(); // in case executionResult.clone() has
                                                              // not cloned the test
     executionResultClone.setTest(solutionClone);
+    // remove all statements after an exception
+    if (!executionResultClone.noThrownExceptions()) {
+      solutionClone.chop(executionResultClone.getFirstPositionOfThrownException() + 1);
+    }
 
-    this.archive.get(target).addSolution(1.0 - fitnessValue, solutionClone); // TODO should this return a boolean?!
-
-    this.removeNonCoveredTargetOfAMethod(target);
-
-    this.hasBeenUpdated = true;
-
-    // TODO what about collateral coverage, i.e.,
-    // this.handleCollateralCoverage(executionResultClone, solutionClone); ?
-    // maybe only if fitnessValue = 0.0 -> covered ?
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isBetterThanCurrent(T currentSolution, T candidateSolution) {
-    // TODO Auto-generated method stub
-    return false;
+    boolean isNewCoveredTarget = this.archive.get(target).addSolution(1.0 - fitnessValue, solutionClone);
+    if (isNewCoveredTarget) {
+      this.removeNonCoveredTargetOfAMethod(target);
+      this.hasBeenUpdated = true;
+    }
   }
 
   /**
@@ -117,7 +108,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public void handleCollateralCoverage(ExecutionResult executionResult, T solution) {
-    // TODO Auto-generated method stub
+    // NO-OP
   }
 
   /**
@@ -125,8 +116,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public boolean isArchiveEmpty() {
-    // TODO Auto-generated method stub
-    return false;
+    return this.getNumberOfSolutions() == 0;
   }
 
   /**
@@ -134,8 +124,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public int getNumberOfTargets() {
-    // TODO Auto-generated method stub
-    return 0;
+    return this.archive.keySet().size();
   }
 
   /**
@@ -143,8 +132,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public int getNumberOfCoveredTargets() {
-    // TODO Auto-generated method stub
-    return 0;
+    return this.getCoveredTargets().size();
   }
 
   /**
@@ -152,8 +140,17 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public Set<F> getCoveredTargets() {
-    // TODO Auto-generated method stub
-    return null;
+    return this.archive.keySet().stream().filter(target -> this.archive.get(target).isCovered())
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean hasTarget(F target) {
+    assert target != null;
+    return this.archive.containsKey(target);
   }
 
   /**
@@ -161,8 +158,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public int getNumberOfSolutions() {
-    // TODO Auto-generated method stub
-    return 0;
+    return this.getSolutions().size();
   }
 
   /**
@@ -170,8 +166,10 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public Set<T> getSolutions() {
-    // TODO Auto-generated method stub
-    return null;
+    Set<T> solutions = new LinkedHashSet<T>();
+    this.archive.values().stream().filter(population -> solutions.add(population.getBestSolutionIfAny()));
+    solutions.remove(null); // in case any null has been added
+    return solutions;
   }
 
   /**
@@ -179,8 +177,9 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public T getSolution(F target) {
-    // TODO Auto-generated method stub
-    return null;
+    assert target != null;
+    assert this.archive.containsKey(target);
+    return this.archive.get(target).getBestSolutionIfAny();
   }
 
   /**
@@ -189,11 +188,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   @Override
   public boolean hasSolution(F target) {
     assert target != null;
-
-    if (this.archive.containsKey(target)) {
-      return this.archive.get(target).covered();
-    }
-    return false;
+    assert this.archive.containsKey(target);
+    return this.archive.get(target).isCovered();
   }
 
   /**
@@ -202,7 +198,6 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   @SuppressWarnings("unchecked")
   @Override
   public T getRandomSolution() {
-    T randomSolution = null;
 
     // Choose one target at random that has not been covered but contains some solutions. In case
     // there is not any non-covered target with at least one solution, either because all targets
@@ -214,15 +209,16 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
         .filter(target -> this.archive.get(target).numSolutions() > 0).collect(Collectors.toList());
 
     if (targetsWithSolutions.isEmpty()) {
-      // TODO there are no solutions at all! should we randomly generate one?
+      // there is not at least one target with at least one solution
+      return null;
     }
 
     List<F> potentialTargets = targetsWithSolutions.stream()
-        .filter(target -> this.archive.get(target).covered() == false).collect(Collectors.toList());
+        .filter(target -> this.archive.get(target).isCovered() == false).collect(Collectors.toList());
 
     if (potentialTargets.isEmpty()) {
       potentialTargets =
-          targetsWithSolutions.stream().filter(target -> this.archive.get(target).covered() == true)
+          targetsWithSolutions.stream().filter(target -> this.archive.get(target).isCovered() == true)
               .collect(Collectors.toList());
     }
     assert !potentialTargets.isEmpty();
@@ -230,8 +226,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
     // Instead of choosing a target at random, we choose the one with the lowest counter value.
     // (See Section 3.3 of the paper that describes this archive for more details)
 
-    // F target = Randomness.choice(potentialTargets); randomSolution = (T)
-    // this.archive.get(target).sampleSolution().clone();
+    // F target = Randomness.choice(potentialTargets);
+    // randomSolution = (T) this.archive.get(target).sampleSolution().clone();
 
     // ASC sort, i.e., from the population with the lowest counter to the population with the
     // highest counter
@@ -246,18 +242,55 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
         return 0;
       }
     });
-    randomSolution = (T) this.archive.get(potentialTargets.get(0)).sampleSolution().clone();
 
-    return randomSolution;
+    T randomSolution = this.archive.get(potentialTargets.get(0)).sampleSolution();
+    return randomSolution == null ? null : (T) randomSolution.clone();
   }
 
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public TestSuiteChromosome mergeArchiveAndSolution(Chromosome solution) {
-    // TODO Auto-generated method stub
-    return null;
+    // Deactivate in case a test is executed and would access the archive as this might cause a
+    // concurrent access
+    Properties.TEST_ARCHIVE = false;
+
+    TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
+
+    // to avoid adding the same solution to 'mergedSolution' suite
+    Set<T> solutionsSampledFromArchive = new LinkedHashSet<T>();
+
+    for (F target : this.archive.keySet()) {
+      // does solution cover target?
+      if (!target.isCoveredBy(mergedSolution)) {
+        Population population = this.archive.get(target);
+
+        // is there any solution in the archive that covers it?
+        T t = population.getBestSolutionIfAny();
+        if (t != null) {
+          // has t been considered?
+          if (!solutionsSampledFromArchive.contains(t)) {
+            solutionsSampledFromArchive.add(t);
+
+            T tClone = (T) t.clone();
+            mergedSolution.addTest(tClone);
+          }
+        }
+      }
+    }
+
+    // re-evaluate merged solution
+    for (FitnessFunction fitnessFunction : solution.getFitnessValues().keySet()) {
+      fitnessFunction.getFitness(mergedSolution);
+    }
+
+    // re-active it
+    Properties.TEST_ARCHIVE = true;
+
+    logger.info("Final test suite size from archive: " + mergedSolution);
+    return mergedSolution;
   }
 
   /**
@@ -265,8 +298,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @Override
   public String toString() {
-    // TODO Auto-generated method stub
-    return null;
+    return "NumTargets: " + this.getNumberOfTargets() + ", NumCoveredTargets: "
+        + this.getNumberOfCoveredTargets() + ", NumSolutions: " + this.getNumberOfSolutions();
   }
 
   /**
@@ -292,7 +325,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      * 
      * @param populationSize
      */
-    public Population(int populationSize) {
+    private Population(int populationSize) {
       this.capacity = populationSize;
       this.solutions = new ArrayList<Pair<Double, T>>(populationSize);
     }
@@ -301,7 +334,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      * 
      * @return
      */
-    public int counter() {
+    private int counter() {
       return this.counter;
     }
 
@@ -309,7 +342,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      * 
      * @return
      */
-    public boolean covered() {
+    private boolean isCovered() {
       return this.solutions.size() == 1 && this.capacity == 1
           && this.solutions.get(0).getLeft() == 1.0;
     }
@@ -320,19 +353,19 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      *        possible heuristics value
      * @param t
      */
-    public void addSolution(Double h, T t) {
+    private boolean addSolution(Double h, T t) {
       assert h >= 0.0 && h <= 1.0;
 
       if (h == 0.0) {
         // from the paper that describes this type of archive: "if h=0, the test is not added
         // regardless of the following conditions"
-        return;
+        return false;
       }
 
-      if (h < 1.0 && this.covered()) {
+      if (h < 1.0 && this.isCovered()) {
         // candidate solution T does not cover the already fully covered target, therefore there is
         // no way it could be any better
-        return;
+        return false;
       }
 
       Pair<Double, T> candidateSolution = new ImmutablePair<Double, T>(h, t);
@@ -342,7 +375,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
       // does the candidate solution fully cover the target?
       if (h == 1.0) {
         // yes. has the target been fully covered by a previous solution?
-        if (this.covered()) {
+        if (this.isCovered()) {
           Pair<Double, T> currentSolution = this.solutions.get(0);
 
           if (isPairBetterThanCurrent(currentSolution, candidateSolution)) {
@@ -365,7 +398,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
         if (this.solutions.size() < this.capacity) {
           // yes, there is.
           added = true;
-          // TODO should we check whether candidateSolution is an existing solution?!
+          // as an optimisation, in here we could check whether candidateSolution is an existing
+          // solution, however it could be quite expensive to do it and most likely not worth it
           this.solutions.add(candidateSolution);
         } else {
           // no, there is not. so, replace the worst one, if candidate is better.
@@ -386,11 +420,18 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
         // reset counter if and only if a new/better solution has been found
         this.counter = 0;
       }
+
+      return added;
     }
 
+    /**
+     * 
+     * @param currentSolution
+     * @param candidateSolution
+     * @return
+     */
     private boolean isPairBetterThanCurrent(Pair<Double, T> currentSolution,
         Pair<Double, T> candidateSolution) {
-      // TODO is high better or not?!
       if (currentSolution.getLeft() < candidateSolution.getLeft()) {
         return true;
       } else if (currentSolution.getLeft() > candidateSolution.getLeft()) {
@@ -405,9 +446,10 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      * 
      * @return
      */
-    public T sampleSolution() {
-      assert !this.solutions.isEmpty();
-
+    private T sampleSolution() {
+      if (this.numSolutions() == 0) {
+        return null;
+      }
       this.counter++;
       return Randomness.choice(this.solutions).getRight();
     }
@@ -415,7 +457,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
     /**
      * DESC sort, i.e., from the pair with the highest h to the pair with the lowest h
      */
-    public void sortPairSolutions() {
+    private void sortPairSolutions() {
       this.solutions.sort(new Comparator<Pair<Double, T>>() {
         @Override
         public int compare(Pair<Double, T> solution0, Pair<Double, T> solution1) {
@@ -433,7 +475,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      * 
      * @return
      */
-    public int numSolutions() {
+    private int numSolutions() {
       return this.solutions.size();
     }
 
@@ -441,10 +483,11 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      * 
      * @return
      */
-    public List<T> getSolutions() {
-      List<T> allSolutions = new ArrayList<T>();
-      this.solutions.stream().forEach(pair -> allSolutions.add(pair.getRight()));
-      return allSolutions;
+    private T getBestSolutionIfAny() {
+      if (this.numSolutions() == 0 || !this.isCovered()) {
+        return null;
+      }
+      return this.solutions.get(0).getRight();
     }
 
     /**

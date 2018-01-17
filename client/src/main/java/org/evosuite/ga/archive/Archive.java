@@ -44,6 +44,11 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Archive.
+ * 
+ * @author José Campos
+ */
 public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
     implements Serializable {
 
@@ -134,7 +139,32 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    * @param candidateSolution
    * @return true if a candidate solution is better than an existing one, false otherwise
    */
-  public abstract boolean isBetterThanCurrent(T currentSolution, T candidateSolution);
+  public boolean isBetterThanCurrent(T currentSolution, T candidateSolution) {
+    int penaltyCurrentSolution = this.calculatePenalty(currentSolution);
+    int penaltyCandidateSolution = this.calculatePenalty(candidateSolution);
+
+    // Check if solutions are using any functional mock or private access. A solution is considered
+    // better than any other solution if does not use functional mock / private access at all, or if
+    // it uses less of those functionalities.
+
+    if (penaltyCandidateSolution < penaltyCurrentSolution) {
+      return true;
+    } else if (penaltyCandidateSolution > penaltyCurrentSolution) {
+      return false;
+    }
+
+    // only look at other properties (e.g., length) if penalty scores are the same
+    assert penaltyCandidateSolution == penaltyCurrentSolution;
+
+    // If we try to add a test for a target we've already covered
+    // and the new test is shorter, keep the shorter one
+    // TODO should not this be based on the SECONDARY_CRITERIA?
+    if (candidateSolution.size() < currentSolution.size()) {
+      return true;
+    }
+
+    return false;
+  }
 
   /**
    * Checker whether a solution covers any other targets. If so, the archive is updated.
@@ -173,6 +203,14 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
   public abstract Set<F> getCoveredTargets();
 
   /**
+   * Returns true if the archive contains the specific target, false otherwise
+   * 
+   * @param target
+   * @return
+   */
+  public abstract boolean hasTarget(F target);
+
+  /**
    * Returns the number of unique solutions in the archive.
    * 
    * @return
@@ -195,6 +233,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
   public abstract T getSolution(F target);
 
   /**
+   * Returns true if the archive has a solution for the specific target, false otherwise.
+   * 
    * 
    * @param target
    * @return

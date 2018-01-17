@@ -35,6 +35,11 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Coverage Archive.
+ * 
+ * @author José Campos
+ */
 public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
     extends Archive<F, T> {
 
@@ -123,37 +128,6 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    * {@inheritDoc}
    */
   @Override
-  public boolean isBetterThanCurrent(T currentSolution, T candidateSolution) {
-    int penaltyCurrentSolution = this.calculatePenalty(currentSolution);
-    int penaltyCandidateSolution = this.calculatePenalty(candidateSolution);
-
-    // Check if solutions are using any functional mock or private access. A solution is considered
-    // better than any other solution if does not use functional mock / private access at all, or if
-    // it uses less of those functionalities.
-
-    if (penaltyCandidateSolution < penaltyCurrentSolution) {
-      return true;
-    } else if (penaltyCandidateSolution > penaltyCurrentSolution) {
-      return false;
-    }
-
-    // only look at other properties (e.g., length) if penalty scores are the same
-    assert penaltyCandidateSolution == penaltyCurrentSolution;
-
-    // If we try to add a test for a target we've already covered
-    // and the new test is shorter, keep the shorter one
-    // TODO should not this be based on the SECONDARY_CRITERIA?
-    if (candidateSolution.size() < currentSolution.size()) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void handleCollateralCoverage(ExecutionResult executionResult, T solution) {
     for (F target : this.archive.keySet()) {
       // does solution cover target?
@@ -178,7 +152,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    */
   @Override
   public boolean isArchiveEmpty() {
-    return this.archive.values().stream().filter(solution -> solution != null).count() == 0;
+    return this.getNumberOfSolutions() == 0;
   }
 
   /**
@@ -194,8 +168,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    */
   @Override
   public int getNumberOfCoveredTargets() {
-    return (int) this.archive.keySet().stream().filter(target -> this.archive.get(target) != null)
-        .count();
+    return this.getCoveredTargets().size();
   }
 
   /**
@@ -205,6 +178,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
   public Set<F> getCoveredTargets() {
     return this.archive.keySet().stream().filter(target -> this.archive.get(target) != null)
         .collect(Collectors.toSet());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean hasTarget(F target) {
+    assert target != null;
+    return this.archive.containsKey(target);
   }
 
   /**
@@ -230,6 +212,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
   @Override
   public T getSolution(F target) {
     assert target != null;
+    assert this.archive.containsKey(target);
     return this.archive.get(target);
   }
 
@@ -239,11 +222,8 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
   @Override
   public boolean hasSolution(F target) {
     assert target != null;
-
-    if (this.archive.containsKey(target)) {
-      return this.archive.get(target) != null;
-    }
-    return false;
+    assert this.archive.containsKey(target);
+    return this.archive.get(target) != null;
   }
 
   /**
@@ -273,7 +253,6 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
     // concurrent access
     Properties.TEST_ARCHIVE = false;
 
-    // FIXME sure about this cast?!
     TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
 
     // to avoid adding the same solution to 'mergedSolution' suite
@@ -295,15 +274,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
       }
     }
 
-    // evaluate merged solution
-    for (FitnessFunction fitnessFunction : solution.getPreviousFitnessValues().keySet()) {
+    // re-evaluate merged solution
+    for (FitnessFunction fitnessFunction : solution.getFitnessValues().keySet()) {
       fitnessFunction.getFitness(mergedSolution);
     }
 
     // re-active it
     Properties.TEST_ARCHIVE = true;
 
-    logger.info("Final test suite size from archive: " + mergedSolution.size());
+    logger.info("Final test suite size from archive: " + mergedSolution);
     return mergedSolution;
   }
 
