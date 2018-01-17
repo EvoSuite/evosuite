@@ -29,6 +29,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -43,8 +44,10 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     //public final int numBranchlessMethods;
     public final int totalGoals;
-
     private final Set<OutputCoverageTestFitness> outputCoverageGoals = new LinkedHashSet<OutputCoverageTestFitness>();
+
+    private Set<OutputCoverageTestFitness> toRemoveGoals = new LinkedHashSet<>();
+    private Set<OutputCoverageTestFitness> removedGoals  = new LinkedHashSet<>();
 
     // Some stuff for debug output
     public int maxCoveredGoals = 0;
@@ -84,13 +87,6 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         logger.trace("Calculating test suite fitness");
         double fitness = 0.0;
 
-        if (this.allGoalsCovered()) {
-            updateIndividual(this, suite, 0.0);
-            suite.setCoverage(this, 1.0);
-            suite.setNumOfCoveredGoals(this, this.totalGoals);
-            return 0.0;
-        }
-
         List<ExecutionResult> results = runTestSuite(suite);
 
         boolean hasTimeoutOrTestException = false;
@@ -101,21 +97,21 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             }
         }
 
+        Set<TestFitnessFunction> setOfCoveredGoals = new LinkedHashSet<>();
         if (hasTimeoutOrTestException) {
             logger.info("Test suite has timed out, setting fitness to max value " + totalGoals);
             fitness = totalGoals;
         } else
-            fitness = computeDistance(results);
+            fitness = computeDistance(results, setOfCoveredGoals);
 
-        int coveredGoals = this.howManyGoalsCovered();
+        int coveredGoals = setOfCoveredGoals.size() + removedGoals.size();
 
-        if (totalGoals > 0) {
+        if (totalGoals > 0)
             suite.setCoverage(this, (double) coveredGoals / (double) totalGoals);
-            suite.setNumOfCoveredGoals(this, coveredGoals);
-        } else {
+        else
             suite.setCoverage(this, 1.0);
-            suite.setNumOfCoveredGoals(this, 0);
-        }
+
+        suite.setNumOfCoveredGoals(this, coveredGoals);
 
         printStatusMessages(suite, coveredGoals, fitness);
         updateIndividual(this, suite, fitness);
@@ -132,15 +128,25 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
     @Override
     public boolean updateCoveredGoals() {
-        if(!Properties.TEST_ARCHIVE)
+        if (!Properties.TEST_ARCHIVE) {
             return false;
+        }
 
-        // TODO as soon the archive refactor is done, we can get rid of this function
+        for (OutputCoverageTestFitness goal : this.toRemoveGoals) {
+            if (this.outputCoverageGoals.remove(goal)) {
+                this.removedGoals.add(goal);
+            } else {
+                throw new IllegalStateException("goal to remove not found");
+            }
+        }
+
+        this.toRemoveGoals.clear();
+        logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
 
         return true;
     }
 
-    public double computeDistance(List<ExecutionResult> results/*, HashSet<TestFitnessFunction> setOfCoveredGoals*/) {
+    public double computeDistance(List<ExecutionResult> results, Set<TestFitnessFunction> setOfCoveredGoals) {
 
         Map<OutputCoverageTestFitness, Double> mapDistances = new LinkedHashMap<OutputCoverageTestFitness, Double>();
         for (OutputCoverageTestFitness testFitness : this.outputCoverageGoals) {
@@ -156,12 +162,6 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
             while (it.hasNext()) {
                 OutputCoverageTestFitness testFitness = it.next();
 
-                if (Archive.getArchiveInstance().hasSolution(testFitness)) {
-                    it.remove();
-                    mapDistances.remove(testFitness);
-                    continue;
-                }
-
                 if (!mapDistances.containsKey(testFitness)) {
                     continue;
                 }
@@ -173,9 +173,10 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 mapDistances.put(testFitness, Math.min(distance, mapDistances.get(testFitness)));
 
                 if (distance == 0.0) {
-                    it.remove();
                     mapDistances.remove(testFitness);
-                    result.test.addCoveredGoal(testFitness);
+                    result.test.addCoveredGoal(testFitness); // update list of covered goals
+                    setOfCoveredGoals.add(testFitness); // helper to count the number of covered goals
+                    this.toRemoveGoals.add(testFitness); // goal to not be considered by the next iteration of the evolutionary algorithm
                 }
 
                 if (Properties.TEST_ARCHIVE) {
@@ -213,13 +214,5 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     + suite.totalLengthOfTestCases());
 
         }
-    }
-
-    private int howManyGoalsCovered() {
-        return this.totalGoals - this.outputCoverageGoals.size();
-    }
-
-    private boolean allGoalsCovered() {
-        return this.outputCoverageGoals.isEmpty();
     }
 }
