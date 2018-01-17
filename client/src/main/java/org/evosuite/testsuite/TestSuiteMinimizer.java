@@ -248,7 +248,7 @@ public class TestSuiteMinimizer {
         }
 
         if (Properties.MINIMIZE_SECOND_PASS) {
-            removeRedundantTestCases(suite);
+            removeRedundantTestCases(suite, goals);
         }
 
         double suiteCoverage = suite.getCoverage();
@@ -310,9 +310,12 @@ public class TestSuiteMinimizer {
             });
         }
 
+        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
         List<Double> fitness = new ArrayList<Double>();
-        for (TestFitnessFactory<?> ff : testFitnessFactories)
+        for (TestFitnessFactory<?> ff : testFitnessFactories) {
+            goals.addAll(ff.getCoverageGoals());
             fitness.add(ff.getFitness(suite));
+        }
 
         boolean changed = true;
         while (changed && !isTimeoutReached()) {
@@ -400,7 +403,7 @@ public class TestSuiteMinimizer {
         }
 
         this.removeEmptyTestCases(suite);
-        this.removeRedundantTestCases(suite);
+        this.removeRedundantTestCases(suite, goals);
     }
 
     private void removeEmptyTestCases(TestSuiteChromosome suite) {
@@ -414,7 +417,7 @@ public class TestSuiteMinimizer {
         }
     }
 
-    private void removeRedundantTestCases(TestSuiteChromosome suite) {
+    private void removeRedundantTestCases(TestSuiteChromosome suite, List<TestFitnessFunction> goals) {
         // Subsuming tests are inserted in the back, so we start inserting the final tests from there
         List<TestChromosome> tests = suite.getTestChromosomes();
         logger.debug("Before removing redundant tests: " + tests.size());
@@ -422,11 +425,6 @@ public class TestSuiteMinimizer {
         Collections.reverse(tests);
         List<TestChromosome> finalTests = new ArrayList<TestChromosome>();
         Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
-        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-
-        for (TestFitnessFactory<?> tf : testFitnessFactories) {
-            goals.addAll(tf.getCoverageGoals());
-        }
 
         for (TestChromosome test : tests) {
             boolean addsNewGoals = false;
