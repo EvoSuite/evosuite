@@ -85,7 +85,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
     assert target != null;
     assert this.archive.containsKey(target);
-    assert fitnessValue >= 0.0 && fitnessValue <= 1.0;
+    assert fitnessValue >= 0.0;
 
     ExecutionResult executionResultClone = executionResult.clone();
     T solutionClone = (T) executionResultClone.test.clone(); // in case executionResult.clone() has
@@ -96,7 +96,9 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
       solutionClone.chop(executionResultClone.getFirstPositionOfThrownException() + 1);
     }
 
-    boolean isNewCoveredTarget = this.archive.get(target).addSolution(1.0 - fitnessValue, solutionClone);
+    boolean isNewCoveredTarget = this.archive.get(target).addSolution(
+        1.0 - (fitnessValue <= 1.0 ? fitnessValue : FitnessFunction.normalize(fitnessValue)),
+        solutionClone);
     if (isNewCoveredTarget) {
       this.removeNonCoveredTargetOfAMethod(target);
       this.hasBeenUpdated = true;
@@ -414,7 +416,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
       }
 
       // a set of solutions larger that a maximum capacity would be considered illegal
-      assert this.solutions.size() == this.capacity;
+      assert this.solutions.size() <= this.capacity;
 
       if (added) {
         // reset counter if and only if a new/better solution has been found
@@ -432,12 +434,13 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
      */
     private boolean isPairBetterThanCurrent(Pair<Double, T> currentSolution,
         Pair<Double, T> candidateSolution) {
-      if (currentSolution.getLeft() < candidateSolution.getLeft()) {
+      int cmp = Double.compare(currentSolution.getLeft(), candidateSolution.getLeft());
+      if (cmp < 0) {
         return true;
-      } else if (currentSolution.getLeft() > candidateSolution.getLeft()) {
+      } else if (cmp > 0) {
         return false;
       }
-      assert currentSolution.getLeft() == candidateSolution.getLeft();
+      assert cmp == 0;
 
       return isBetterThanCurrent(currentSolution.getRight(), candidateSolution.getRight());
     }
