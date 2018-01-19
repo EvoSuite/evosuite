@@ -556,7 +556,7 @@
                 <configuration>
                     <header>src/etc/header.txt</header>
                     <properties>
-                        <year>2010-2017</year>
+                        <year>2010-2018</year>
                     </properties>
                     <excludes>
                         <exclude>DSC_LICENSE.txt</exclude>
