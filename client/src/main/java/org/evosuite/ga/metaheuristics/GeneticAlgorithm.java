@@ -653,7 +653,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 		// Do we actually have to perform yet another fitness evaluation?
 		// Yes, if ARCHIVE has been updated, No otherwise.
-		if (Archive.getArchiveInstance().hasBeenUpdated()) {
+		if (!Archive.getArchiveInstance().hasBeenUpdated()) {
 			return;
 		}
 
