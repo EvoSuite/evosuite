@@ -176,16 +176,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
 				&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 
-			long totalbudget = 0;
-			long currentbudget = 0;
-
-			for (StoppingCondition sc : stoppingConditions) {
-				if (sc.getLimit() != 0) {
-					totalbudget += sc.getLimit();
-					currentbudget += sc.getCurrentValue();
-				}
-			}
-			double progress = currentbudget * 100.0 / totalbudget;
+			double progress = this.progress() * 100.0;
 
 			if (progress > Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER) {
 				if (Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
@@ -1127,6 +1118,25 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			r += sc.toString() + " ";
 
 		return r;
+	}
+
+	/**
+	 * Returns the progress of the search.
+	 * 
+	 * @return a value [0.0, 1.0]
+	 */
+	protected double progress() {
+		long totalbudget = 0;
+		long currentbudget = 0;
+
+		for (StoppingCondition sc : this.stoppingConditions) {
+			if (sc.getLimit() != 0) {
+				totalbudget += sc.getLimit();
+				currentbudget += sc.getCurrentValue();
+			}
+		}
+
+		return (double) currentbudget / (double) totalbudget;
 	}
 
 	/*

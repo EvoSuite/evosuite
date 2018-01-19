@@ -257,6 +257,12 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
   public abstract <C extends Chromosome> C mergeArchiveAndSolution(C solution);
 
   /**
+   * 
+   * @param size
+   */
+  public abstract void shrinkSolutions(int size);
+
+  /**
    * Informs {@link org.evosuite.setup.TestCluster} that a particular method of a particular class
    * has been fully covered, and therefore no need to generate any solution to cover any of its
    * targets.

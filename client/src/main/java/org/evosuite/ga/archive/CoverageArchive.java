@@ -290,6 +290,14 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    * {@inheritDoc}
    */
   @Override
+  public void shrinkSolutions(int size) {
+    // NO-OP
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String toString() {
     return "NumTargets: " + this.getNumberOfTargets() + ", NumCoveredTargets: "
         + this.getNumberOfCoveredTargets() + ", NumSolutions: " + this.getNumberOfSolutions();

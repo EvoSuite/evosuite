@@ -229,7 +229,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
     // (See Section 3.3 of the paper that describes this archive for more details)
 
     // F target = Randomness.choice(potentialTargets);
-    // randomSolution = (T) this.archive.get(target).sampleSolution().clone();
+    // T randomSolution = (T) this.archive.get(target).sampleSolution();
 
     // ASC sort, i.e., from the population with the lowest counter to the population with the
     // highest counter
@@ -293,6 +293,17 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
 
     logger.info("Final test suite size from archive: " + mergedSolution);
     return mergedSolution;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void shrinkSolutions(int newPopulationSize) {
+    assert newPopulationSize > 0;
+    for (F target : this.archive.keySet()) {
+      this.archive.get(target).shrinkPopulation(newPopulationSize);
+    }
   }
 
   /**
@@ -399,17 +410,17 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
         // is there enough room for yet another solution?
         if (this.solutions.size() < this.capacity) {
           // yes, there is.
-          added = true;
+
           // as an optimisation, in here we could check whether candidateSolution is an existing
           // solution, however it could be quite expensive to do it and most likely not worth it
           this.solutions.add(candidateSolution);
+          this.sortPairSolutions(); // keep solutions sorted from the best to the worse
         } else {
           // no, there is not. so, replace the worst one, if candidate is better.
           this.sortPairSolutions();
           Pair<Double, T> worstSolution = this.solutions.get(this.capacity - 1);
 
           if (isPairBetterThanCurrent(worstSolution, candidateSolution)) {
-            added = true;
             this.solutions.set(this.capacity - 1, candidateSolution);
           }
         }
@@ -491,6 +502,32 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
         return null;
       }
       return this.solutions.get(0).getRight();
+    }
+
+    /**
+     * 
+     * @param newPopulationSize
+     */
+    private void shrinkPopulation(int newPopulationSize) {
+      assert newPopulationSize > 0;
+
+      if (this.isCovered()) {
+        return;
+      }
+
+      this.capacity = newPopulationSize;
+
+      if (this.numSolutions() < newPopulationSize) {
+        // no need to shrink it
+        return;
+      }
+
+      List<Pair<Double, T>> shrinkSolutions = new ArrayList<Pair<Double, T>>(newPopulationSize);
+      for (int i = 0; i < newPopulationSize; i++) {
+        shrinkSolutions.add(this.solutions.get(i));
+      }
+      this.solutions.clear();
+      this.solutions.addAll(shrinkSolutions);
     }
 
     /**
