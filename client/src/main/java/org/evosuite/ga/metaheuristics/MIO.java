@@ -83,19 +83,19 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
 
       this.solution = new TestSuiteChromosome(this.randomFactory);
 
+      TestCase test = null;
       if (Randomness.nextDouble() < this.pr) {
-        TestChromosome test = this.randomFactory.getChromosome();
-        assert test.getTestCase().size() > 0;
-        this.solution.addTest(test);
-      } else {
-        TestCase test = Archive.getArchiveInstance().getRandomSolution();
-        assert test.size() > 0;
-        if (test == null) {
-          this.solution.addTest(this.randomFactory.getChromosome());
-        } else {
-          this.solution.addTest(test);
+        test = this.randomFactory.getChromosome().getTestCase();
+        if (test.isEmpty()) {
+          // in case EvoSuite fails to generate a new random test
+          // case, get one from the archive
+          test = Archive.getArchiveInstance().getRandomSolution();
         }
+      } else {
+        test = Archive.getArchiveInstance().getRandomSolution();
       }
+      assert test != null && !test.isEmpty();
+      this.solution.addTest(test);
     }
     assert this.solution != null;
 
