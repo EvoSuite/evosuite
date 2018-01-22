@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.metaheuristics;
 
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
@@ -126,6 +127,23 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     }
 
     this.currentIteration++;
+
+    // as some fitness functions have extra goals which do not contribute for coverage but only for
+    // guidance purposes (e.g., LineCoverageSuiteFitness), in here we must update the population of
+    // the GA with all unique test cases in the archive, so that the fitness value can be accurately
+    // calculated. local search process also takes into account the population and not the solutions
+    // in the archive, therefore, by updating the population with new individuals we avoid performing
+    // local search on the same individual over and over.
+    if (Archive.getArchiveInstance().hasBeenUpdated()) {
+      Set<TestCase> testsInArchive = Archive.getArchiveInstance().getSolutions();
+      if (!testsInArchive.isEmpty()) {
+        TestSuiteChromosome individualInPopulation = ((TestSuiteChromosome) this.population.get(0));
+        individualInPopulation.clearTests();
+        for (TestCase test : testsInArchive) {
+          individualInPopulation.addTest(test.clone());
+        }
+      }
+    }
   }
 
   /**

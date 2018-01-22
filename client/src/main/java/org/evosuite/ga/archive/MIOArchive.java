@@ -169,8 +169,12 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   @Override
   public Set<T> getSolutions() {
     Set<T> solutions = new LinkedHashSet<T>();
-    this.archive.values().stream().filter(population -> solutions.add(population.getBestSolutionIfAny()));
-    solutions.remove(null); // in case any null has been added
+    for (Population population : this.archive.values()) {
+      T solution = population.getBestSolutionIfAny();
+      if (solution != null) {
+        solutions.add(solution);
+      }
+    }
     return solutions;
   }
 
