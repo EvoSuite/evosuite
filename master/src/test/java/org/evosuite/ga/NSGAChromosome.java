@@ -177,6 +177,21 @@ public class NSGAChromosome extends Chromosome
 	}
 
 	@Override
+	public void add(Chromosome c) {
+		// empty
+	}
+
+	@Override
+	public void subtract(Chromosome c) {
+		// empty
+	}
+
+	@Override
+	public void amplify() {
+		// empty
+	}
+
+	@Override
 	public void crossOver(Chromosome other, int position1, int position2)
 	                throws ConstructionFailedException {
 		// empty

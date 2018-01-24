@@ -88,6 +88,21 @@ public class DummyChromosome extends Chromosome {
         this.setChanged(true);
     }
 
+    @Override
+    public void add(Chromosome c) {
+        // empty
+    }
+
+    @Override
+    public void subtract(Chromosome c) {
+        // empty
+    }
+
+    @Override
+    public void amplify() {
+        // empty
+    }
+
     public int get(int position) {
         return values.get(position);
     }

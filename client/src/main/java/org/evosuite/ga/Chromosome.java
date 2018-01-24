@@ -276,6 +276,25 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public abstract void mutate();
 
 	/**
+	 * 
+	 * 
+	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object
+	 */
+	public abstract void add(Chromosome chromosome);
+
+	/**
+	 * 
+	 * 
+	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object
+	 */
+	public abstract void subtract(Chromosome chromosome);
+
+	/**
+	 * 
+	 */
+	public abstract void amplify();
+
+	/**
 	 * Fixed single point cross over
 	 * 
 	 * @param other

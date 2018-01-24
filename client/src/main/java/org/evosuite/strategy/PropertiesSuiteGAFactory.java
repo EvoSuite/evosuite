@@ -227,6 +227,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
               }
               return ga;
             }
+        case DIFFERENTIALEVOLUTIONEA:
+            logger.info("Chosen search algorithm: Differential Evolution EA");
+            {
+              DifferentialEvolutionEA<TestSuiteChromosome> ga = new DifferentialEvolutionEA<TestSuiteChromosome>(factory);
+              if (Properties.TEST_ARCHIVE) {
+                ga.setArchive(TestsArchive.instance);
+              }
+              return ga;
+            }
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {

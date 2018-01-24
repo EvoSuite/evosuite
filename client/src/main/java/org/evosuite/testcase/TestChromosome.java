@@ -346,6 +346,94 @@ public class TestChromosome extends ExecutableChromosome {
 		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void add(Chromosome chromosome) {
+		// TODO
+
+		/* in the following example, object 'this' is Y and 'chromosome' is Z.
+
+		Y:
+		Foo foo = new Foo();
+		foo.bar();
+		foo.zoo();
+
+		Z:
+		Foo foo = new Foo();
+		foo.zoo();
+		foo.foobar();
+
+		Y+Z:
+		Foo foo = new Foo();
+		foo.bar();
+		foo.zoo();
+		foo.zoo();
+		foo.foobar()
+
+		One way to do it: create a map from class to list of calls, and use that as a basis for the operation.
+		*/
+
+		// Issues:
+		// TODO Y and Z will have multiple instances of Foo. How to deal with this?
+		// TODO How to avoid test case bloat? We would have to ensure the subtraction and addition keep the balance.
+		// TODO If Y and Z share no common calls, then it would mean that Y remains unchanged. That's ok.
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void subtract(Chromosome chromosome) {
+		// TODO
+
+		/* in the following example, object 'this' is Y and 'chromosome' is Z.
+
+		Y:
+		Foo foo = new Foo();
+		foo.bar();
+		foo.zoo();
+
+		Z:
+		Foo foo = new Foo();
+		foo.zoo();
+		foo.foobar();
+
+		Y-Z:
+		Foo foo = new Foo();
+		foo.bar();
+
+		One way to do it: create a map from class to list of calls, and use that as a basis for the operation.
+		*/
+
+		// Issues:
+		// TODO Y and Z will have multiple instances of Foo. How to deal with this?
+		// TODO How to avoid test case bloat? We would have to ensure the subtraction and addition keep the balance.
+		// TODO If Y and Z share no common calls, then it would mean that Y remains unchanged. That's ok.
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void amplify() {
+		double f = Randomness.nextDouble(); // FIXME it should be in the range [0.0,2.0] rather than [0.0,1.0]
+
+		if (f >= 0.0 && f < 1.0) {
+			// all existing method calls are removed
+			// TODO
+		} else if (f >= 1.0 && f < 2.0) {
+			// some existing methods calls are duplicated
+			// TODO
+		} else if (f == 2.0) {
+			// no existing method call is removed or duplicated
+			// TODO how about we add new random calls?
+		}
+
+		// TODO
+	}
+
 
 	private boolean mockChange()  {
 

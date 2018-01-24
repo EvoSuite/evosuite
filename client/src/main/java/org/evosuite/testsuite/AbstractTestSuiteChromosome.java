@@ -261,6 +261,75 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void add(Chromosome chromosome) {
+		boolean changed = false;
+
+		AbstractTestSuiteChromosome<T> suite = (AbstractTestSuiteChromosome<T>) chromosome;
+
+		// in case both chromosomes do not have the same number of tests
+		int maxNumTests = Math.min(tests.size(), suite.tests.size());
+		for (int i = 0; i < maxNumTests; i++) {
+			T test = tests.get(i);
+			test.add(suite.tests.get(i));
+			if (test.isChanged()) {
+				changed = true;
+			}
+		}
+
+		if (changed) {
+			this.setChanged(true);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void subtract(Chromosome chromosome) {
+		boolean changed = false;
+
+		AbstractTestSuiteChromosome<T> suite = (AbstractTestSuiteChromosome<T>) chromosome;
+
+		// in case both chromosomes do not have the same number of tests
+		int maxNumTests = Math.min(this.tests.size(), suite.tests.size());
+		for (int i = 0; i < maxNumTests; i++) {
+			T test = this.tests.get(i);
+			test.subtract(suite.tests.get(i));
+			if (test.isChanged()) {
+				changed = true;
+			}
+		}
+
+		if (changed) {
+			this.setChanged(true);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void amplify() {
+		boolean changed = false;
+
+		for (T test : this.tests) {
+			test.amplify();
+			if (test.isChanged()) {
+				changed = true;
+			}
+		}
+
+		if (changed) {
+			this.setChanged(true);
+		}
+	}
+
+	/**
 	 * <p>totalLengthOfTestCases</p>
 	 *
 	 * @return Sum of the lengths of the test cases
