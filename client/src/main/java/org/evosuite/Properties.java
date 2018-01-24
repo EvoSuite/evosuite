@@ -300,7 +300,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA, MIO
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA, MIO, STANDARDCHEMICALREACTION
 	}
 
 	// MOSA PROPERTIES
@@ -712,6 +712,26 @@ public class Properties {
 	@Parameter(key = "epson", group = "Experimental", description = "Epson")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double EPSON = 0.01;
+
+	// ---------------------------------------------------------------
+	// Chemical Reaction Optimization Parameters
+
+	@Parameter(key = "kinetic_energy_loss_rate", group = "Chemical Reaction Optimization", description = "Rate at which molecules lose kinetic energy")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double KINETIC_ENERGY_LOSS_RATE = 0.2;
+
+	@Parameter(key = "molecular_collision_rate", group = "Chemical Reaction Optimization", description = "Rate of inter molecular collisions")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double MOLECULAR_COLLISION_RATE = 0.2;
+
+	@Parameter(key = "initial_kinetic_energy", group = "Chemical Reaction Optimization", description = "Initial kinetic energy of each molecule")
+	public static double INITIAL_KINETIC_ENERGY = 1000.0;
+
+	@Parameter(key = "decomposition_threshold", group = "Chemical Reaction Optimization", description = "Threshold to be checked to decide when to trigger decomposition")
+	public static int DECOMPOSITION_THRESHOLD = 500;
+
+	@Parameter(key = "synthesis_threshold", group = "Chemical Reaction Optimization", description = "Threshold to be checked to decide when to trigger synthesis")
+	public static int SYNTHESIS_THRESHOLD = 10;
 
 	//----------------------------------------------------------------
 	// Continuous Test Generation

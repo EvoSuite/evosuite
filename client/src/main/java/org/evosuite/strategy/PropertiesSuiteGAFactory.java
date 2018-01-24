@@ -208,6 +208,12 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
               MIO<TestSuiteChromosome> ga = new MIO<TestSuiteChromosome>(factory);
               return ga;
           }
+        case STANDARDCHEMICALREACTION:
+            logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
+            {
+              StandardChemicalReaction<TestSuiteChromosome> ga = new StandardChemicalReaction<TestSuiteChromosome>(factory);
+              return ga;
+            }
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {

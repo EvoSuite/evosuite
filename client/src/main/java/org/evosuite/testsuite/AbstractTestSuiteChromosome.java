@@ -97,6 +97,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
         this.setNumsOfNotCoveredGoals(source.getNumsNotCoveredGoals());
         this.setNumberOfMutations(source.getNumberOfMutations());
         this.setNumberOfEvaluations(source.getNumberOfEvaluations());
+        this.setKineticEnergy(source.getKineticEnergy());
+        this.setNumCollisions(source.getNumCollisions());
 	}
 
 	/**
