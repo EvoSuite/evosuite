@@ -96,9 +96,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
       solutionClone.chop(executionResultClone.getFirstPositionOfThrownException() + 1);
     }
 
-    boolean isNewCoveredTarget = this.archive.get(target).addSolution(
-        1.0 - (fitnessValue <= 1.0 ? fitnessValue : FitnessFunction.normalize(fitnessValue)),
-        solutionClone);
+    boolean isNewCoveredTarget = this.archive.get(target)
+        .addSolution(1.0 - FitnessFunction.normalize(fitnessValue), solutionClone);
     if (isNewCoveredTarget) {
       this.removeNonCoveredTargetOfAMethod(target);
       this.hasBeenUpdated = true;
