@@ -43,7 +43,7 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = -5660970130698891194L;
 
-  private final Logger logger = LoggerFactory.getLogger(MIO.class);
+  private static final Logger logger = LoggerFactory.getLogger(MIO.class);
 
   private final ChromosomeFactory<TestChromosome> randomFactory = new RandomLengthTestFactory();
 
@@ -154,7 +154,7 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     this.notifySearchStarted();
     this.currentIteration = 0;
 
-    this.logger.debug("Set up initial population of size one");
+    logger.debug("Set up initial population of size one");
     // At the beginning of the search, the archive will be empty, and so a new test
     // will be randomly generated.
     this.generateInitialPopulation(1);
@@ -183,15 +183,15 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
       this.disableFirstSecondaryCriterion();
     }
 
-    this.logger.debug("Starting evolution");
+    logger.debug("Starting evolution");
     while (!this.isFinished()) {
       this.evolve();
       this.applyLocalSearch();
 
-      this.logger.info("Updating fitness values");
+      logger.info("Updating fitness values");
       this.updateFitnessFunctionsAndValues();
 
-      this.logger.info("Current iteration: " + currentIteration);
+      logger.info("Current iteration: " + currentIteration);
       this.notifyIteration();
     }
 
