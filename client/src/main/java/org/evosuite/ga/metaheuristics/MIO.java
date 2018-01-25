@@ -109,22 +109,25 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
       fitnessFunction.getFitness((T) this.solution);
     }
 
-    // after a certain amount of search-budget, focus the search (see Section 3.2)
-    double progress = this.progress();
-    if (progress >= Properties.EXPLOITATION_STARTS_AT_PERCENT) {
-      double dif = Math.abs(Properties.EXPLOITATION_STARTS_AT_PERCENT - progress);
-      this.pr = Properties.P_RANDOM_TEST_OR_FROM_ARCHIVE - dif;
-      if (this.pr < 0.0) {
-        this.pr = 0.0;
-      }
+    double usedBudget = this.progress();
+    if (Double.compare(usedBudget, Properties.EXPLOITATION_STARTS_AT_PERCENT) >= 0) {
+      // focused search has started
+      this.pr = 0.0;
+      this.n = 1;
+    } else {
+      double scale = usedBudget / Properties.EXPLOITATION_STARTS_AT_PERCENT;
+      this.pr = Properties.P_RANDOM_TEST_OR_FROM_ARCHIVE
+          - (scale * Properties.P_RANDOM_TEST_OR_FROM_ARCHIVE);
+      this.n = (int) Math.ceil(
+          Properties.NUMBER_OF_TESTS_PER_TARGET - (scale * Properties.NUMBER_OF_TESTS_PER_TARGET));
 
-      this.n = (int) (Properties.NUMBER_OF_TESTS_PER_TARGET
-          - (dif * Properties.NUMBER_OF_TESTS_PER_TARGET));
-      if (this.n < 1) {
-        this.n = 1;
-      }
-      Archive.getArchiveInstance().shrinkSolutions(this.n);
+      logger.debug("usedBudget: " + usedBudget + " | scale: " + scale + " | Pr: " + this.pr
+          + " | N: " + this.n);
     }
+
+    assert this.pr >= 0.0;
+    assert this.n >= 1;
+    Archive.getArchiveInstance().shrinkSolutions(this.n);
 
     this.currentIteration++;
 
