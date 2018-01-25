@@ -180,29 +180,9 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   /**
    * {@inheritDoc}
    */
-  @Override
-  public T getSolution(F target) {
-    assert target != null;
-    assert this.archive.containsKey(target);
-    return this.archive.get(target).getBestSolutionIfAny();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasSolution(F target) {
-    assert target != null;
-    assert this.archive.containsKey(target);
-    return this.archive.get(target).isCovered();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @SuppressWarnings("unchecked")
   @Override
-  public T getRandomSolution() {
+  public T getSolution() {
 
     // Choose one target at random that has not been covered but contains some solutions. In case
     // there is not any non-covered target with at least one solution, either because all targets
@@ -250,6 +230,34 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
 
     T randomSolution = this.archive.get(potentialTargets.get(0)).sampleSolution();
     return randomSolution == null ? null : (T) randomSolution.clone();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public T getSolution(F target) {
+    assert target != null;
+    assert this.archive.containsKey(target);
+    return this.archive.get(target).getBestSolutionIfAny();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean hasSolution(F target) {
+    assert target != null;
+    assert this.archive.containsKey(target);
+    return this.archive.get(target).isCovered();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public T getRandomSolution() {
+    return Randomness.choice(this.getSolutions());
   }
 
   /**

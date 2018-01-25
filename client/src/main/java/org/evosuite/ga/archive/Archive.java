@@ -225,6 +225,14 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
   public abstract Set<T> getSolutions();
 
   /**
+   * Returns a particular solution in the archive. The underline algorithm to select a solution
+   * depends on the type of archive.
+   * 
+   * @return
+   */
+  public abstract T getSolution();
+
+  /**
    * Returns the solution that covers a particular target.
    * 
    * @param target

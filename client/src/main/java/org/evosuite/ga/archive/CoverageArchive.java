@@ -210,6 +210,14 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    * {@inheritDoc}
    */
   @Override
+  public T getSolution() {
+    return this.getRandomSolution();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public T getSolution(F target) {
     assert target != null;
     assert this.archive.containsKey(target);

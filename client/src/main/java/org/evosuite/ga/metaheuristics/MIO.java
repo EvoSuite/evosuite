@@ -90,10 +90,10 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
         if (test.isEmpty()) {
           // in case EvoSuite fails to generate a new random test
           // case, get one from the archive
-          test = Archive.getArchiveInstance().getRandomSolution();
+          test = Archive.getArchiveInstance().getSolution();
         }
       } else {
-        test = Archive.getArchiveInstance().getRandomSolution();
+        test = Archive.getArchiveInstance().getSolution();
       }
       assert test != null && !test.isEmpty();
       this.solution.addTest(test);
