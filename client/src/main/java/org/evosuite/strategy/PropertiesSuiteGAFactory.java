@@ -192,7 +192,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				return ga;
 			}
 		case BREEDERGA:
-			logger.info("Chosen search algorithm: MuPlusLambdaGA");
+			logger.info("Chosen search algorithm: BreederGA");
 		{
 			BreederGA<TestSuiteChromosome> ga = new BreederGA<>(factory);
 			if (Properties.TEST_ARCHIVE)
