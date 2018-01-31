@@ -672,7 +672,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 logger.error("Invocation of mocked {}.{}() threw an exception. " +
                                         "This means the method was not mocked",targetClass.getName(), method.getName());
                                 throw e;
-                            } catch (IllegalArgumentException e){
+                            } catch (IllegalArgumentException | IllegalAccessError e){
                                 // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite
                                 // will just ignore that mocking statement and continue, instead of crashing
                                 logger.error("IAE on <"+method+"> when called with "+Arrays.toString(targetInputs));
@@ -745,7 +745,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     } catch(java.lang.NoClassDefFoundError e) {
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to failed class initialization: "+e.getMessage());
                         return; //or should throw an exception?
-                    } catch(IllegalAccessException e) {
+                    } catch(IllegalAccessException | IllegalAccessError e) {
                         // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite
                         // will just ignore that mocking statement and continue, instead of crashing
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to IAE: "+e.getMessage());
