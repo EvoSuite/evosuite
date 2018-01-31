@@ -415,7 +415,8 @@ public class TestUsageChecker {
             String packageName = ClassUtils.getPackageName(ownerClass);
             String declaredPackageName = ClassUtils.getPackageName(m.getDeclaringClass());
             if (packageName.equals(Properties.CLASS_PREFIX)
-                    && packageName.equals(declaredPackageName)) {
+                    && packageName.equals(declaredPackageName)
+                    && !Modifier.isAbstract(m.getModifiers())) {
             		TestClusterUtils.makeAccessible(m);
                 return true;
             }
