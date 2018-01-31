@@ -285,9 +285,18 @@ public class GenericClass implements Serializable {
 		if (isAssignableTo(otherType))
 			return true;
 
-		if (!isTypeVariable() && !otherType.isTypeVariable()
-		        && otherType.isGenericSuperTypeOf(this))
-			return true;
+		if (!isTypeVariable() && !otherType.isTypeVariable()) {
+			try {
+				if (otherType.isGenericSuperTypeOf(this))
+					return true;
+			} catch (RuntimeException e) {
+				// FIXME: GentyRef sometimes throws:
+				// java.lang.RuntimeException: not implemented: class sun.reflect.generics.reflectiveObjects.TypeVariableImpl
+				// While I have no idea why, it should be safe to proceed if we can ignore this type
+				return false;
+			}
+
+		}
 
 		Class<?> otherRawClass = otherType.getRawClass();
 		if (otherRawClass.isAssignableFrom(rawClass)) {
