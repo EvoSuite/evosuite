@@ -18,6 +18,7 @@
 package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -233,11 +234,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	}
 
 	protected List<T> getArchive() {
-		Set<T> set = new LinkedHashSet<T>(); 
-		set.addAll(archive.values());
-		List<T> arch = new ArrayList<T>();
-		arch.addAll(set);
-		return arch;
+		return new ArrayList<T>(new LinkedHashSet<T>(this.archive.values()));
 	}
 
 	protected List<T> getFinalTestSuite() {
@@ -245,13 +242,13 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		if (this.getNumberOfCoveredGoals()==0) {
 			return getArchive();
 		}
-		if (archive.size() == 0)
+		if (archive.size() == 0) {
 			if (population.size() > 0) {
-				ArrayList<T> list = new ArrayList<T>();
-				list.add(population.get(population.size() - 1));
-				return list;
-			} else
+				return Arrays.asList(this.population.get(this.population.size() - 1));
+			} else {
 				return getArchive();
+			}
+		}
 		List<T> final_tests = getArchive();
 		List<T> tests = this.getNonDominatedSolutions(final_tests);
 		return tests;
@@ -269,8 +266,13 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 */
 	@Override @SuppressWarnings("unchecked")
 	public T getBestIndividual() {
+		List<T> archiveContent = this.getArchive();
+		if (archiveContent.isEmpty()) {
+			return (T) new TestSuiteChromosome();
+		}
+
 		TestSuiteChromosome best = new TestSuiteChromosome();
-		for (T test : getArchive()) {
+		for (T test : archiveContent) {
 			best.addTest((TestChromosome) test);
 		}
 		// compute overall fitness and coverage
