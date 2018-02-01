@@ -51,6 +51,10 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 
 	@Override
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
+		if (solutions.isEmpty()) {
+			return;
+		}
+
 		fronts.clear();
 
 		// first apply the "preference sorting" to the first front only
@@ -101,6 +105,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 					best = test;
 				} 
 			}
+			assert best != null;
 			zero_front.add(best);
 		}
 		List<T> list = new ArrayList<T>(zero_front.size());
