@@ -586,26 +586,58 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		this.numberOfEvaluations = numberOfEvaluations;
 	}
 
+	/**
+	 * Returns the tolerance of the system accepting a worse solution than the existing one. (Note:
+	 * method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @return a double value
+	 */
 	public double getKineticEnergy() {
 		return this.kineticEnergy;
 	}
 
+	/**
+	 * Sets the tolerance of the system accepting a worse solution than the existing one. (Note:
+	 * method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @param kineticEnergy a double value
+	 */
 	public void setKineticEnergy(double kineticEnergy) {
 		this.kineticEnergy = kineticEnergy;
 	}
 
+	/**
+	 * Returns the total number of collisions a chromosome (i.e., a molecule in a CRO scenario) has
+	 * taken. (Note: method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @return a integer value
+	 */
 	public int getNumCollisions() {
 		return this.numCollisions;
 	}
 
+	/**
+	 * Sets the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario).
+	 * (Note: method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @param numCollisions a integer value
+	 */
 	public void setNumCollisions(int numCollisions) {
 		this.numCollisions = numCollisions;
 	}
 
+	/**
+	 * Sets the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario) to
+	 * zero. (Note: method used by Chemical Reaction Optimization algorithms)
+	 */
 	public void resetNumCollisions() {
 		this.numCollisions = 0;
 	}
 
+	/**
+	 * Increases the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario)
+	 * by one. (Note: method used by Chemical Reaction Optimization algorithms)
+	 */
 	public void increaseNumCollisionsByOne() {
 		this.numCollisions++;
 	}
