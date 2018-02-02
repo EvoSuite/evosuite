@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -85,12 +85,15 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 	public static GeneticAlgorithm<?> createSearchAlgorithm() {
 		switch(Properties.ALGORITHM) {
 		case MONOTONICGA:
+		case CELLULARGA:
 		case NSGAII:
 		case SPEA2:
 		case ONEPLUSONEEA:
 		case RANDOM:
 		case STANDARDGA:
 		case STEADYSTATEGA:
+		case MIO:
+		case STANDARDCHEMICALREACTION:
 			return new PropertiesSuiteGAFactory().getSearchAlgorithm();
 		default:
 			throw new RuntimeException("Unsupported algorithm: "+Properties.ALGORITHM);

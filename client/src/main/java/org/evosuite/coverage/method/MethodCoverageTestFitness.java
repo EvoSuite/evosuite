@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,14 +19,17 @@
  */
 package org.evosuite.coverage.method;
 
-import org.evosuite.testcase.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.evosuite.Properties;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
-
-import java.util.Set;
 
 /**
  * Fitness function for a single test on a single method (no exception)
@@ -92,8 +95,12 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        Set<Integer> exceptionPositions = result.getPositionsWhereExceptionsWereThrown();
+        List<Integer> exceptionPositions = asSortedList(result.getPositionsWhereExceptionsWereThrown());
         for (Statement stmt : result.test) {
+            if (!isValidPosition(exceptionPositions, stmt.getPosition())) {
+              break;
+            }
+
             if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {
                 EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
                 String className  = ps.getDeclaringClassName();
@@ -105,11 +112,23 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
                     break;
                 }
             }
-            if(exceptionPositions.contains(stmt.getPosition()))
-                break;
         }
         updateIndividual(this, individual, fitness);
         return fitness;
+    }
+
+    private boolean isValidPosition(List<Integer> exceptionPositions, Integer position) {
+        if (Properties.BREAK_ON_EXCEPTION) {
+            return exceptionPositions.isEmpty() ? true : position > exceptionPositions.get(0);
+        } else {
+            return true;
+        }
+    }
+
+    private <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+        List<T> list = new ArrayList<T>(c);
+        java.util.Collections.sort(list);
+        return list;
     }
 
     /** {@inheritDoc} */

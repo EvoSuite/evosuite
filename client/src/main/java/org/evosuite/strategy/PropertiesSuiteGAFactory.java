@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,8 +25,6 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
@@ -34,17 +32,12 @@ import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.ga.metaheuristics.CellularGA;
+import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.RandomSearch;
-import org.evosuite.ga.metaheuristics.SPEA2;
-import org.evosuite.ga.metaheuristics.SteadyStateGA;
-import org.evosuite.ga.metaheuristics.NSGAII;
+import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
-import org.evosuite.ga.metaheuristics.OnePlusOneEA;
-import org.evosuite.ga.metaheuristics.StandardGA;
-import org.evosuite.ga.metaheuristics.MonotonicGA;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.statistics.StatisticsListener;
@@ -52,6 +45,7 @@ import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.crossover.UniformCrossOver;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
@@ -135,18 +129,31 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: (1+1)EA");
 			{
 				OnePlusOneEA<TestSuiteChromosome> ga = new OnePlusOneEA<TestSuiteChromosome>(factory);
-				if (Properties.TEST_ARCHIVE)
-					ga.setArchive(TestsArchive.instance);
-
 				return ga;
 			}
+		case MUPLUSLAMBDAEA:
+		    logger.info("Chosen search algorithm: (Mu+Lambda)EA");
+            {
+                MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
+                return ga;
+            }
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
-	            if (Properties.TEST_ARCHIVE)
-	            	ga.setArchive(TestsArchive.instance);
-
+				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
+					// user has explicitly asked for this replacement function
+					ga.setReplacementFunction(new FitnessReplacementFunction());
+				} else {
+					// use default
+					ga.setReplacementFunction(new TestSuiteReplacementFunction());
+				}
+				return ga;
+			}
+		case CELLULARGA:
+			logger.info("Chosen search algorithm: CellularGA");
+			{
+				CellularGA<TestSuiteChromosome> ga = new CellularGA<TestSuiteChromosome>(Properties.MODEL, factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -160,9 +167,6 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
 				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
-	            if (Properties.TEST_ARCHIVE)
-	            	ga.setArchive(TestsArchive.instance);
-
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -172,13 +176,16 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				}
 				return ga;
 			}
+		case BREEDERGA:
+			logger.info("Chosen search algorithm: BreederGA");
+		{
+			BreederGA<TestSuiteChromosome> ga = new BreederGA<>(factory);
+			return ga;
+		}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
 			{
                 RandomSearch<TestSuiteChromosome> ga = new RandomSearch<TestSuiteChromosome>(factory);
-                if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(TestsArchive.instance);
-
                 return ga;
 			}
         case NSGAII:
@@ -193,12 +200,28 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case DYNAMOSA:
         	logger.info("Chosen search algorithm: DynaMOSA");
             return new DynaMOSA<TestSuiteChromosome>(factory);
+        case ONEPLUSLAMBDALAMBDAGA:
+            logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
+            {
+              OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory);
+              return ga;
+            }
+        case MIO:
+          logger.info("Chosen search algorithm: MIO");
+          {
+              MIO<TestSuiteChromosome> ga = new MIO<TestSuiteChromosome>(factory);
+              return ga;
+          }
+        case STANDARDCHEMICALREACTION:
+            logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
+            {
+              StandardChemicalReaction<TestSuiteChromosome> ga = new StandardChemicalReaction<TestSuiteChromosome>(factory);
+              return ga;
+            }
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
                 StandardGA<TestSuiteChromosome> ga = new StandardGA<TestSuiteChromosome>(factory);
-                if (Properties.TEST_ARCHIVE)
-                        ga.setArchive(TestsArchive.instance);
                 return ga;
             }
 		}
@@ -231,6 +254,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				        "Coverage crossover function requires test suite mode");
 
 			return new org.evosuite.ga.operators.crossover.CoverageCrossOver();
+		case UNIFORM:
+			return new UniformCrossOver();
 		default:
 			throw new RuntimeException("Unknown crossover function: "
 			        + Properties.CROSSOVER_FUNCTION);

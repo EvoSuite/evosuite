@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -59,7 +59,7 @@ public class MockFileInputStream extends FileInputStream implements LeakingResou
 	public MockFileInputStream(String name) throws FileNotFoundException {
 		this( name != null ? 
 						(!MockFramework.isEnabled() ? new File(name) : new MockFile(name)) : 
-							null
+				(File)null
 				);
 	}
 

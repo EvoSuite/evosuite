@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -424,9 +424,10 @@ public class TestSuiteWriter implements Opcodes {
 
         if(doesUseMocks(results)){
             String mockito = Mockito.class.getCanonicalName();
-            String extension = MockitoExtension.class.getCanonicalName();
             builder.append("import static "+mockito+".*;"+NEWLINE);
-            builder.append("import static "+extension+".*;"+NEWLINE);
+            // MockitoExtension is now deprecated
+            //String extension = MockitoExtension.class.getCanonicalName();
+            //builder.append("import static "+extension+".*;"+NEWLINE);
             imports.add(ViolatedAssumptionAnswer.class);
         }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -166,6 +166,7 @@ public class RegressionTestChromosome extends TestChromosome {
   public void mutate() {
     theTest.mutate();
     if (theTest.isChanged()) {
+      this.increaseNumberOfMutations();
       try {
         updateClassloader();
       } catch (NoClassDefFoundError e) {

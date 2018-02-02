@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -35,10 +35,10 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
-import org.evosuite.ga.Archive;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
@@ -105,8 +105,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected int currentIteration = 0;
 
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
-	
-	protected transient Archive<T> archive = null;
 
 	/**
 	 * Constructor
@@ -178,16 +176,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
 				&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 
-			long totalbudget = 0;
-			long currentbudget = 0;
-
-			for (StoppingCondition sc : stoppingConditions) {
-				if (sc.getLimit() != 0) {
-					totalbudget += sc.getLimit();
-					currentbudget += sc.getCurrentValue();
-				}
-			}
-			double progress = currentbudget * 100.0 / totalbudget;
+			double progress = this.progress() * 100.0;
 
 			if (progress > Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER) {
 				if (Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
@@ -505,10 +494,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	
-	public void setArchive(Archive<T> archive) {
-		this.archive = archive;
-	}
-	
 	/**
 	 * Set new fitness function (i.e., for new mutation)
 	 * 
@@ -652,28 +637,24 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * update archive fitness functions
 	 */
-	protected void updateFitnessFunctionsAndValues() {
+	public void updateFitnessFunctionsAndValues() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
 			f.updateCoveredGoals();
 		}
-		
-		// If the archive has been updated, we need to re-calculate fitness values
-		// TODO: There must be a more efficient way to do this
-		boolean fitnessNeedsUpdating = false;
+
+		// Do we actually have to perform yet another fitness evaluation?
+		// Yes, if ARCHIVE has been updated, No otherwise.
+		if (!Archive.getArchiveInstance().hasBeenUpdated()) {
+			return;
+		}
+
 		for (T t : population) {
-			if (t.isToBeUpdated()) {
-				fitnessNeedsUpdating = true;
-				break;
+			for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+				fitnessFunction.getFitness(t);
 			}
 		}
-		if(fitnessNeedsUpdating) {
-			for (T t : population) {
-				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-					fitnessFunction.getFitness(t);
-				}
-				t.isToBeUpdated(false);
-			}
-		}
+
+		Archive.getArchiveInstance().setHasBeenUpdated(false);
 	}
 
 	/**
@@ -1054,10 +1035,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	protected void updateBestIndividualFromArchive() {
-		if(archive == null)
+		if (!Properties.TEST_ARCHIVE)
 			return;
 
-		T best = archive.createMergedSolution(getBestIndividual());
+		T best = Archive.getArchiveInstance().mergeArchiveAndSolution(getBestIndividual());
 
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)
@@ -1137,6 +1118,25 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			r += sc.toString() + " ";
 
 		return r;
+	}
+
+	/**
+	 * Returns the progress of the search.
+	 * 
+	 * @return a value [0.0, 1.0]
+	 */
+	protected double progress() {
+		long totalbudget = 0;
+		long currentbudget = 0;
+
+		for (StoppingCondition sc : this.stoppingConditions) {
+			if (sc.getLimit() != 0) {
+				totalbudget += sc.getLimit();
+				currentbudget += sc.getCurrentValue();
+			}
+		}
+
+		return (double) currentbudget / (double) totalbudget;
 	}
 
 	/*

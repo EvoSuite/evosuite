@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,24 +19,19 @@
  */
 package org.evosuite.coverage.io.input;
 
-import static org.evosuite.coverage.io.IOCoverageConstants.*;
-
-import org.evosuite.coverage.io.output.OutputCoverageGoal;
+import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_ALPHA;
+import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_DIGIT;
+import static org.evosuite.coverage.io.IOCoverageConstants.CHAR_OTHER;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
+import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
+import java.util.Set;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
 import org.objectweb.asm.Type;
-
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * @author Jose Miguel Rojas
@@ -134,15 +129,115 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
     public double getFitness(TestChromosome individual, ExecutionResult result) {
         double fitness = 1.0;
 
-        for(Set<InputCoverageGoal> goals : result.getInputGoals().values()) {
-            if(goals.contains(goal)) {
-                fitness = 0.0;
-                break;
+        for(Set<InputCoverageGoal> coveredGoals : result.getInputGoals().values()) {
+            if (!coveredGoals.contains(this.goal)) {
+                continue;
+            }
+
+            for (InputCoverageGoal coveredGoal : coveredGoals) {
+                if (coveredGoal.equals(this.goal)) {
+                    double distance = this.calculateDistance(coveredGoal);
+                    if (distance < 0.0) {
+                        continue;
+                    } else {
+                        fitness = distance;
+                        break;
+                    }
+                }
             }
         }
 
+        assert fitness >= 0.0;
         updateIndividual(this, individual, fitness);
         return fitness;
+    }
+
+    private double calculateDistance(InputCoverageGoal coveredGoal) {
+      Number argValue = coveredGoal.getNumericValue();
+      switch (coveredGoal.getType().getSort()) {
+          case Type.BYTE:
+          case Type.SHORT:
+          case Type.INT:
+          case Type.FLOAT:
+          case Type.LONG:
+          case Type.DOUBLE:
+              assert (argValue != null);
+              assert (argValue instanceof Number);
+              // TODO: ideally we should be able to tell between Number as an object, and primitive numeric types
+              double doubleValue = ((Number) argValue).doubleValue();
+              if (Double.isNaN(doubleValue)) { // EvoSuite generates Double.NaN
+                  return -1;
+              }
+
+              double distanceToNegative = 0.0;
+              double distanceToZero = 0.0;
+              double distanceToPositive = 0.0;
+
+              if (doubleValue < 0) {
+                  distanceToNegative = 0;
+                  distanceToZero = Math.abs(doubleValue);
+                  distanceToPositive = Math.abs(doubleValue) + 1;
+              } else if (doubleValue == 0) {
+                  distanceToNegative = 1;
+                  distanceToZero = 0;
+                  distanceToPositive = 1;
+              } else {
+                  distanceToNegative = doubleValue + 1;
+                  distanceToZero = doubleValue;
+                  distanceToPositive = 0;
+              }
+
+              if (coveredGoal.getValueDescriptor().equals(NUM_NEGATIVE)) {
+                  return distanceToNegative;
+              } else if (coveredGoal.getValueDescriptor().equals(NUM_ZERO)) {
+                  return distanceToZero;
+              } else if (coveredGoal.getValueDescriptor().equals(NUM_POSITIVE)) {
+                  return distanceToPositive;
+              }
+
+              break;
+          case Type.CHAR:
+              char charValue = (char)((Number) argValue).intValue();
+
+              double distanceToAlpha = 0.0;
+              if (charValue < 'A') {
+                  distanceToAlpha = 'A' - charValue;
+              } else if (charValue > 'z') {
+                  distanceToAlpha = charValue - 'z';
+              } else if (charValue < 'a' && charValue > 'Z') {
+                  distanceToAlpha = Math.min('a' - charValue, charValue - 'Z');
+              }
+
+              double distanceToDigit = 0.0;
+              if (charValue < '0') {
+                  distanceToDigit = '0' - charValue;
+              } else if(charValue > '9') {
+                  distanceToDigit = charValue - '9';
+              }
+
+              double distanceToOther = 0.0; // TODO distanceToOther is never used!
+              if (charValue > '0' && charValue < '9') {
+                  distanceToAlpha = Math.min(charValue - '0', '9' - charValue);
+              } else if (charValue > 'A' && charValue < 'Z') {
+                  distanceToAlpha = Math.min(charValue - 'A', 'Z' - charValue);
+              } else if (charValue > 'a' && charValue < 'z') {
+                  distanceToAlpha = Math.min(charValue - 'A', 'Z' - charValue);
+              }
+
+              if (coveredGoal.getValueDescriptor().equals(CHAR_ALPHA)) {
+                  return distanceToAlpha;
+              } else if (coveredGoal.getValueDescriptor().equals(CHAR_DIGIT)) {
+                  return distanceToDigit;
+              } else if (coveredGoal.getValueDescriptor().equals(CHAR_OTHER)) {
+                  return distanceToOther;
+              }
+
+              break;
+          default:
+              return 0.0;
+      }
+
+      return 0.0;
     }
 
     /**

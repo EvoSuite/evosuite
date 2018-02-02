@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -51,8 +51,8 @@ public class SinglePointFixedCrossOver extends CrossOverFunction {
 		Chromosome t1 = parent1.clone();
 		Chromosome t2 = parent2.clone();
 
-		parent1.crossOver(t2, point);
-		parent2.crossOver(t1, point);
+		parent1.crossOver(t2, point, point);
+		parent2.crossOver(t1, point, point);
 	}
 
 }

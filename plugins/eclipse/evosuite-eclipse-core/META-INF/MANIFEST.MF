@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EvoSuite Eclipse plugin - Core
 Bundle-SymbolicName: org.evosuite.plugins.eclipse.core;singleton:=true
-Bundle-Version: 1.0.5.qualifier
+Bundle-Version: 1.0.6.qualifier
 Bundle-Activator: org.evosuite.eclipse.Activator
 Bundle-Vendor: Gordon Fraser, José Miguel Rojas and Thomas White - University of Sheffield
 Require-Bundle: org.eclipse.ui,

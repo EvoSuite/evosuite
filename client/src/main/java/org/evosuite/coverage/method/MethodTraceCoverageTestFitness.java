@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,7 +22,6 @@ package org.evosuite.coverage.method;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.MethodCall;
 
 /**
  * Fitness function for a single test on a single method.
@@ -87,8 +86,10 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 1.0;
-		for (MethodCall call : result.getTrace().getMethodCalls()) {
-			if (call.className.equals(className) && call.methodName.equals(methodName)) {
+		String thisCanonicalName = className + "." + methodName;
+		for (String key : result.getTrace().getMethodExecutionCount().keySet()) {
+			String canonicalName = key.replace('$', '.'); // Goals contain canonical method names
+			if (canonicalName.equals(thisCanonicalName)) {
 				fitness = 0.0;
 				break;
 			}

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -101,6 +101,8 @@ public class NSGAChromosome extends Chromosome
 		c.updateAge(this.getAge());
 		c.setRank(this.getRank());
 		c.setDistance(this.getDistance());
+		c.setNumberOfMutations(this.getNumberOfMutations());
+		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
 
 		return c;
 	}
@@ -134,6 +136,7 @@ public class NSGAChromosome extends Chromosome
 	 */
 	@Override
 	public void mutate() {
+		this.increaseNumberOfMutations();
 		for (int i = 0; i < this.getNumberOfVariables(); i++) {
 			Variable v = this.getVariable(i);
 

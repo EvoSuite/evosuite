@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,10 +24,10 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
@@ -88,7 +88,9 @@ public class RandomTestStrategy extends TestGenerationStrategy {
 			((TestSuiteFitnessFunction)fitness_function).getFitness(suite);
 		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
+		int number_generations = 0;
 		while (!isFinished(suite, stoppingCondition)) {
+			number_generations++;
 			TestChromosome test = factory.getChromosome();
 			TestSuiteChromosome clone = suite.clone();
 			clone.addTest(test);
@@ -112,6 +114,7 @@ public class RandomTestStrategy extends TestGenerationStrategy {
 
 		// TODO: Check this: Fitness_Evaluations = getNumExecutedTests?
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Fitness_Evaluations, MaxTestsStoppingCondition.getNumExecutedTests());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generations, number_generations);
 
 		return suite;	
 	}

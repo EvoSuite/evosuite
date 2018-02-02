@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -55,6 +55,20 @@ public class MockitoExtensionTest {
 
         OverrideToString obj = mock(OverrideToString.class);
         MockitoExtension.doReturn(a,b).when(obj).toString();
+
+        assertEquals(a, obj.toString());
+        assertEquals(b, obj.toString());
+        assertEquals(b, obj.toString());
+        assertEquals(b, obj.toString());
+    }
+
+    @Test
+    public void testDoReturnMultipleWithMockitoAPI(){
+        String a = "a";
+        String b = "b";
+
+        OverrideToString obj = mock(OverrideToString.class);
+        doReturn(a,b).when(obj).toString();
 
         assertEquals(a, obj.toString());
         assertEquals(b, obj.toString());

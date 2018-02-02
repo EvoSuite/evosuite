@@ -1,5 +1,5 @@
 @REM
-@REM Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+@REM Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
 @REM contributors
 @REM
 @REM This file is part of EvoSuite.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,22 +19,16 @@
  */
 package org.evosuite.testcase.fm;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
-import org.evosuite.utils.generic.GenericUtils;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -252,49 +246,12 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
     }
 
     public Method getMethod(){
-        /*
-         Deprecated code
-
-         if(method == null){
-
-
-            int nParams = inputParameterMatchers.trim().isEmpty() ? 0 :
-                    (inputParameterMatchers.length() - inputParameterMatchers.replace(",", "").length()) + 1;//# of "," + 1
-
-            Class<?> klass = null;
-            try {
-                klass = Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Failed reflection: "+e.getMessage(),e);
-            }
-
-
-            //    TODO: as now, we cannot get the correct method: we just return the first one
-            //    matching at least the number of parameters.
-            //    However, at least we force it to be deterministic
-
-
-            List<Method> list = Arrays.asList(klass.getDeclaredMethods()).stream()
-                    .filter(m -> m.getName().equals(methodName) && m.getParameterTypes().length==nParams)
-                    .sorted().collect(Collectors.toList());
-            if(list.size() == 0){
-                String msg = "Failed reflection: cannot find method "+methodName+" in "+className+" with "+nParams+" params";
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
-            if(list.size() > 1){
-                //TODO remove once Mockito is extended to get the right method
-                logger.warn("Class "+className+" has "+list.size()+" overloaded methods for "+methodName+" with "+
-                    nParams+ " parameters: likely Functional Mocking with Mockito will not work properly");
-            }
-
-            method = list.get(0);
-
-        }
-        */
-
         assert method != null;
         return method.getMethod();
+    }
+
+    public GenericMethod getGenericMethod(){
+        return method;
     }
 
     public String getMethodName() {

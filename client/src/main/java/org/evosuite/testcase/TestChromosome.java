@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -27,6 +27,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationHistory;
+import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
@@ -40,6 +41,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,6 +135,10 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 		}
 		// c.mutationHistory.set(mutationHistory);
+		c.setNumberOfMutations(this.getNumberOfMutations());
+		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
+		c.setKineticEnergy(getKineticEnergy());
+		c.setNumCollisions(getNumCollisions());
 
 		return c;
 	}
@@ -169,15 +175,20 @@ public class TestChromosome extends ExecutableChromosome {
 	public void crossOver(Chromosome other, int position1, int position2)
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
+		TestChromosome otherChromosome = (TestChromosome)other;
 		TestChromosome offspring = new TestChromosome();
 		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
 			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
 		}
+
 		for (int i = position2; i < other.size(); i++) {
+			GenericAccessibleObject<?> accessibleObject = otherChromosome.test.getStatement(i).getAccessibleObject();
+			if(accessibleObject != null && accessibleObject.getDeclaringClass().equals(Injector.class))
+				continue;
 			testFactory.appendStatement(offspring.test,
-					((TestChromosome) other).test.getStatement(i));
+					otherChromosome.test.getStatement(i));
 		}
 		if (!Properties.CHECK_MAX_LENGTH
 				|| offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
@@ -326,6 +337,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 
 		if (changed) {
+			this.increaseNumberOfMutations();
 			setChanged(true);
 			test.clearCoveredGoals();
 		}
@@ -370,7 +382,8 @@ public class TestChromosome extends ExecutableChromosome {
 				List<Type> missing = fms.updateMockedMethods();
 				int pos = st.getPosition();
 				logger.debug("Generating parameters for mock call");
-				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true, false,true);
+				// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
+				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing,null, pos, 0, true, false,true);
 				fms.addMissingInputs(refs);
 			} catch (Exception e){
 				//shouldn't really happen because, in the worst case, we could create mocks for missing parameters

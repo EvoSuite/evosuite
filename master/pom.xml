@@ -43,6 +43,13 @@
             <artifactId>evosuite-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency> <!--TODO: this is added in parent pom too -->
+            <!-- FindBugs Jsr305 -->
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>2.0.1</version>
+            <scope>test</scope>
+        </dependency>
 
 
         <!-- External Libraries -->
@@ -69,8 +76,6 @@
             <artifactId>cdi-api</artifactId>
             <scope>compile</scope>
         </dependency>
-
-
 
     </dependencies>
 

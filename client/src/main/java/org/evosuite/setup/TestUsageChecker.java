@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -181,7 +181,11 @@ public class TestUsageChecker {
             return false;
         }
 
-        if(c.getName().contains("EnhancerByMockito")){
+        if(c.getName().contains("EnhancerByMockito")) {
+            return false;
+        }
+
+        if(c.getName().contains("$MockitoMock")) {
             return false;
         }
 
@@ -411,7 +415,8 @@ public class TestUsageChecker {
             String packageName = ClassUtils.getPackageName(ownerClass);
             String declaredPackageName = ClassUtils.getPackageName(m.getDeclaringClass());
             if (packageName.equals(Properties.CLASS_PREFIX)
-                    && packageName.equals(declaredPackageName)) {
+                    && packageName.equals(declaredPackageName)
+                    && !Modifier.isAbstract(m.getModifiers())) {
             		TestClusterUtils.makeAccessible(m);
                 return true;
             }

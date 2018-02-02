@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -60,7 +60,7 @@ public class FileNamePrimitiveStatement extends EnvironmentDataStatement<EvoSuit
         Object value = getValue();
 
         if (value != null) {
-            String escapedPath = StringUtil.getEscapedString(((EvoSuiteFile) value).getPath());
+            String escapedPath = StringUtil.getEscapedString(((EvoSuiteFile) value).toString());
             testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
                     + varName + " = new "
                     + ((Class<?>) retval.getType()).getSimpleName() + "(\""

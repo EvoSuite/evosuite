@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -43,7 +43,16 @@ public class RemoveFinalClassAdapter extends ClassVisitor {
 		if((access & Opcodes.ACC_FINAL) == Opcodes.ACC_FINAL) {
 			finalClasses.add(name.replace('/', '.'));
 		}
-		super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
+		if((access & Opcodes.ACC_ABSTRACT) == Opcodes.ACC_ABSTRACT &&
+				(access & Opcodes.ACC_PUBLIC) == 0 &&
+				(access & Opcodes.ACC_PRIVATE) == 0 &&
+				(access & Opcodes.ACC_PROTECTED) == 0) {
+			// If a class is abstract and default-accessible, then we make it public to allow
+			// Mockito to create mocks
+			super.visit(version, (access & ~Opcodes.ACC_FINAL) | Opcodes.ACC_PUBLIC, name, signature, superName, interfaces);
+		} else {
+			super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
+		}
 	}
 	
 	/**

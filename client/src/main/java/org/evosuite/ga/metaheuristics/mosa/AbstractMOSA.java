@@ -18,6 +18,7 @@
 package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -29,6 +30,8 @@ import java.util.Set;
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageHelper;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
@@ -304,8 +307,13 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	@Override
 	public List<T> getBestIndividuals() {
 		//get final test suite (i.e., non dominated solutions in Archive)
+		List<T> finalTestSuite = this.getFinalTestSuite();
+		if (finalTestSuite.isEmpty()) {
+			return Arrays.asList((T) new TestSuiteChromosome());
+		}
+
 		TestSuiteChromosome bestTestCases = new TestSuiteChromosome();
-		for (T test : getFinalTestSuite()) {
+		for (T test : finalTestSuite) {
 			bestTestCases.addTest((TestChromosome) test);
 		}
 		for (FitnessFunction<T> f : this.getCoveredGoals()){

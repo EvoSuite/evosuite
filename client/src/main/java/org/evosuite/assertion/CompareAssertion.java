@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -115,7 +115,7 @@ public class CompareAssertion extends Assertion {
 					return true; // TODO - true or false?
 			else {
 				try {
-					return comparable.compareTo(dest.getObject(scope)) == (Integer) value;
+					return comparable.compareTo(dest.getObject(scope)) == ((Integer) value).intValue();
 				} catch (Exception e) {
 					return true; // TODO - true or false?
 				}

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -34,6 +34,12 @@ public class MockURI implements StaticReplacementMock {
     public String getMockedClassName() {
         return URI.class.getName();
     }
+
+    public static final URI aHttpURI = create("http://foo.bar");
+
+    public static final URI aFileURI= create("file:///tmp/foo.bar");
+
+    public static final URI aFTPURI= create("ftp://foo.bar");
 
     /**
      * URI is a final class. It seems there is the

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -47,7 +47,6 @@ public class MockURL implements StaticReplacementMock{
 	private static Map<String, URLStreamHandler> handlers = new ConcurrentHashMap<>();
 	private static final Object streamHandlerLock = new Object();
 
-
 	public static void initStaticState(){
 		factory = null;
 		handlers.clear();
@@ -64,6 +63,24 @@ public class MockURL implements StaticReplacementMock{
             throw new RuntimeException(e);
         }
     }
+
+	public static URL getFtpExample(){
+		try {
+			return URL("ftp://ftp.someFakeButWellFormedURL.org/fooExample");
+		} catch (MalformedURLException e) {
+			//should never happen
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static URL getFileExample(){
+		try {
+			return URL("file://some/fake/but/wellformed/url");
+		} catch (MalformedURLException e) {
+			//should never happen
+			throw new RuntimeException(e);
+		}
+	}
 
 	// -----  constructors ------------
 
@@ -244,12 +261,26 @@ public class MockURL implements StaticReplacementMock{
 
 
 	public static boolean equals(URL url, Object obj) {
-		return url.equals(obj);
+    	// URL equals is blocking and broken:
+		// https://stackoverflow.com/questions/3771081/proper-way-to-check-for-url-equality
+		if (!(obj instanceof URL))
+			return false;
+		URL u2 = (URL)obj;
+
+		try {
+			return url.toURI().equals(u2.toURI());
+		} catch(URISyntaxException e) {
+			return url.getPath().equals(u2.getPath());
+		}
 	}
 
 
 	public static synchronized int hashCode(URL url) {
-		return url.hashCode();
+		try {
+			return url.toURI().hashCode();
+		} catch(URISyntaxException e) {
+			return url.getPath().hashCode();
+		}
 	}
 
 

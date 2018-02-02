@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -285,9 +285,18 @@ public class GenericClass implements Serializable {
 		if (isAssignableTo(otherType))
 			return true;
 
-		if (!isTypeVariable() && !otherType.isTypeVariable()
-		        && otherType.isGenericSuperTypeOf(this))
-			return true;
+		if (!isTypeVariable() && !otherType.isTypeVariable()) {
+			try {
+				if (otherType.isGenericSuperTypeOf(this))
+					return true;
+			} catch (RuntimeException e) {
+				// FIXME: GentyRef sometimes throws:
+				// java.lang.RuntimeException: not implemented: class sun.reflect.generics.reflectiveObjects.TypeVariableImpl
+				// While I have no idea why, it should be safe to proceed if we can ignore this type
+				return false;
+			}
+
+		}
 
 		Class<?> otherRawClass = otherType.getRawClass();
 		if (otherRawClass.isAssignableFrom(rawClass)) {
@@ -596,7 +605,6 @@ public class GenericClass implements Serializable {
 	 * Instantiate generic component type
 	 * 
 	 * @param typeMap
-	 * @param recursionL
 	 * @throws ConstructionFailedException
 	 *             evel
 	 * @return
@@ -707,6 +715,10 @@ public class GenericClass implements Serializable {
 	private GenericClass getGenericParameterizedTypeInstantiation(
 	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
 	        throws ConstructionFailedException {
+
+		if(isClass() && !hasTypeVariables()) {
+			return this;
+		}
 
 		List<TypeVariable<?>> typeParameters = getTypeVariables();
 

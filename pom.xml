@@ -180,7 +180,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-pmd-plugin</artifactId>
-                        <version>3.7</version>
+                        <version>3.8</version>
                         <configuration>
                             <targetJdk>1.8</targetJdk>
                         </configuration>
@@ -193,7 +193,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-report-plugin</artifactId>
-                        <version>2.20</version>
+                        <version>2.20.1</version>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -234,7 +234,7 @@
                 <!-- Apache 2 -->
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
-                <version>3.9</version>
+                <version>4.1</version>
             </dependency>
             <dependency>
                 <!-- BSD -->
@@ -262,8 +262,8 @@
             <dependency>
                 <!-- MIT -->
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>2.0.2-beta</version>
+                <artifactId>mockito-core</artifactId>
+                <version>2.13.0</version>
             </dependency>
             <dependency>
                 <!-- Common Public License Version 1.0 -->
@@ -312,13 +312,13 @@
                 <!-- BSD -->
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.9</version>
+                <version>1.4.10</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.5</version>
+                <version>3.7</version>
                 <!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder
                     in 92_jcvi-javacommon -->
             </dependency>
@@ -326,7 +326,7 @@
                 <!-- Apache 2 -->
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.5</version>
+                <version>2.6</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
@@ -369,7 +369,7 @@
                 <!-- LGPL 2.1 -->
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>5.2.10.Final</version>
+                <version>5.2.11.Final</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
@@ -432,7 +432,11 @@
                 <version>1.10.1</version>
                 <scope>provided</scope>
             </dependency>
-
+            <dependency>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>1.16.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -478,7 +482,7 @@
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
+                <version>3.0.0-M1</version>
                 <executions>
                     <execution>
                         <id>enforce-maven-3</id>
@@ -538,7 +542,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
+                <version>3.0.5</version>
                 <configuration>
                     <xmlOutput>true</xmlOutput>
                     <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
@@ -552,7 +556,7 @@
                 <configuration>
                     <header>src/etc/header.txt</header>
                     <properties>
-                        <year>2010-2017</year>
+                        <year>2010-2018</year>
                     </properties>
                     <excludes>
                         <exclude>DSC_LICENSE.txt</exclude>
@@ -587,7 +591,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.7.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -597,7 +601,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <version>3.0.0</version>
                 <configuration>
                     <source>1.8</source>
                     <additionalparam>-Xdoclint:none</additionalparam>
@@ -637,7 +641,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
+                <version>2.20.1</version>
                 <configuration>
                     <!--<rerunFailingTestsCount>${rerunFailingTestsCount}</rerunFailingTestsCount>-->
                     <forkCount>1</forkCount>
@@ -659,7 +663,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20</version>
+                <version>2.20.1</version>
                 <configuration>
                     <!--<rerunFailingTestsCount>${rerunFailingTestsCount}</rerunFailingTestsCount>-->
                     <!-- includes>
@@ -719,7 +723,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.0</version>
                     <executions>
                         <execution>
                             <phase>package</phase>

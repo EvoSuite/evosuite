@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,8 +20,8 @@
 package org.evosuite.testcase.fm;
 
 import org.evosuite.utils.generic.GenericClass;
-import org.mockito.internal.invocation.InvocationImpl;
 import org.mockito.invocation.DescribedInvocation;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.listeners.InvocationListener;
 import org.mockito.listeners.MethodInvocationReport;
 
@@ -84,6 +84,10 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
         return map.values().stream().sorted().collect(Collectors.toList());
     }
 
+    protected boolean onlyMockAbstractMethods() {
+        return false;
+    }
+
     @Override
     public void reportInvocation(MethodInvocationReport methodInvocationReport) {
 
@@ -94,8 +98,8 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
         DescribedInvocation di = methodInvocationReport.getInvocation();
         MethodDescriptor md = null;
 
-        if(di instanceof InvocationImpl){
-            InvocationImpl impl = (InvocationImpl) di;
+        if(di instanceof InvocationOnMock){
+            InvocationOnMock impl = (InvocationOnMock) di;
             Method method = impl.getMethod();
             md = new MethodDescriptor(method, retvalType);
         } else {
@@ -105,6 +109,10 @@ public class EvoInvocationListener implements InvocationListener, Serializable {
 
         if(md.getMethodName().equals("finalize")){
             //ignore it, otherwise if we mock it, we ll end up in a lot of side effects... :(
+            return;
+        }
+
+        if(onlyMockAbstractMethods() && !md.getGenericMethod().isAbstract()) {
             return;
         }
 

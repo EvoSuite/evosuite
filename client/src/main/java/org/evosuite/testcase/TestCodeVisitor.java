@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -44,16 +44,7 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.assertion.ArrayEqualsAssertion;
-import org.evosuite.assertion.Assertion;
-import org.evosuite.assertion.CompareAssertion;
-import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.assertion.Inspector;
-import org.evosuite.assertion.InspectorAssertion;
-import org.evosuite.assertion.NullAssertion;
-import org.evosuite.assertion.PrimitiveAssertion;
-import org.evosuite.assertion.PrimitiveFieldAssertion;
-import org.evosuite.assertion.SameAssertion;
+import org.evosuite.assertion.*;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.TooManyResourcesException;
@@ -572,6 +563,33 @@ public class TestCodeVisitor extends TestVisitor {
 		testCode += stmt;
 	}
 
+	protected void visitArrayLengthAssertion(ArrayLengthAssertion assertion) {
+		VariableReference source = assertion.getSource();
+		int length = assertion.length;
+
+		String stmt = "assertEquals(";
+		stmt += length + ", " + getVariableName(source) + ".length);";
+
+		testCode += stmt;
+	}
+
+	protected void visitContainsAssertion(ContainsAssertion assertion) {
+		VariableReference containerObject = assertion.getSource();
+		VariableReference containedObject = assertion.getContainedVariable();
+
+		Boolean contains = (Boolean)assertion.getValue();
+
+		String stmt = "";
+		if(contains.booleanValue()) {
+			stmt += "assertTrue(";
+		} else {
+			stmt += "assertFalse(";
+		}
+		stmt += getVariableName(containerObject)+ ".contains(" + getVariableName(containedObject) + "));";
+
+		testCode += stmt;
+	}
+
 	/**
 	 * <p>
 	 * visitPrimitiveFieldAssertion
@@ -878,6 +896,10 @@ public class TestCodeVisitor extends TestVisitor {
 			visitSameAssertion((SameAssertion) assertion);
 		} else if (assertion instanceof ArrayEqualsAssertion) {
 			visitArrayEqualsAssertion((ArrayEqualsAssertion) assertion);
+		} else if (assertion instanceof ArrayLengthAssertion) {
+			visitArrayLengthAssertion((ArrayLengthAssertion) assertion);
+		} else if (assertion instanceof ContainsAssertion) {
+			visitContainsAssertion((ContainsAssertion) assertion);
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
@@ -1208,7 +1230,11 @@ public class TestCodeVisitor extends TestVisitor {
 			//result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
 		}
 
-		result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+		if(st instanceof FunctionalMockForAbstractClassStatement) {
+			result += "mock(" + rawClassName + ".class, CALLS_REAL_METHODS);" + NEWLINE;
+		} else {
+			result += "mock(" + rawClassName + ".class, new " + ViolatedAssumptionAnswer.class.getSimpleName() + "());" + NEWLINE;
+		}
 
 		//when(...).thenReturn(...)
 		for(MethodDescriptor md : st.getMockedMethods()){

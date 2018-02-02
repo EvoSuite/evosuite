@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+    Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
     contributors
 
     This file is part of EvoSuite.
@@ -24,7 +24,7 @@
   <description name="EvoSuite Eclipse Plugin" url="http://www.evosuite.org/">
     This is an experimental Eclipse plugin for the EvoSuite JUnit Test Generation tool
   </description>
-  <feature id="org.evosuite.plugins.eclipse.feature" version="1.0.5.qualifier">
+  <feature id="org.evosuite.plugins.eclipse.feature" version="1.0.6.qualifier">
     <category name="EvoSuite_Category"/>
   </feature>
   <category-def name="EvoSuite_Category" label="JUnit Test Generation"/>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,8 +20,8 @@
 package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -34,6 +34,8 @@ import java.util.Map;
  */
 public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
 
+     private static final long serialVersionUID = -8849382855802052405L;
+
     /**
      * Make sure we only include artificial branches
      */
@@ -42,7 +44,7 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
         for (TryCatchCoverageTestFitness goal : goals) {
 
             if(Properties.TEST_ARCHIVE)
-                TestsArchive.instance.addGoalToCover(this, goal);
+                Archive.getArchiveInstance().addTarget(goal);
 
             branchesId.add(goal.getBranch().getActualBranchId());
             if (goal.getBranchExpressionValue())
@@ -50,7 +52,6 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
             else
                 branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), goal);
         }
-        totalGoals = goals.size();
     }
 
     @Override

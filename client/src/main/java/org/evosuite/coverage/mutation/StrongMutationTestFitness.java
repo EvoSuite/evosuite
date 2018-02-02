@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -51,13 +51,13 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	/** Constant <code>observerClasses</code> */
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
 	        ComparisonTraceEntry.class, InspectorTraceEntry.class,
-	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class, ArrayTraceEntry.class };
+	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class, ArrayTraceEntry.class, ArrayLengthTraceEntry.class };
 
 	/** Constant <code>observers</code> */
 	protected static AssertionTraceObserver<?>[] observers = {
 	        new PrimitiveTraceObserver(), new ComparisonTraceObserver(),
 	        new InspectorTraceObserver(), new PrimitiveFieldTraceObserver(),
-	        new NullTraceObserver(), new ArrayTraceObserver() };
+	        new NullTraceObserver(), new ArrayTraceObserver(), new ArrayLengthObserver() };
 
 	/**
 	 * <p>

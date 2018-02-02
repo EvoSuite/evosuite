@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +32,6 @@ import java.util.List;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
 import org.evosuite.runtime.util.ReflectionUtils;
-import org.mockito.asm.Opcodes;
 
 /**
  * The content of arrays in reflection methods may differ between classloaders, therefore
@@ -107,7 +107,7 @@ public class Reflection {
 	public static int getModifiers(Class<?> clazz) {
 		int modifier = clazz.getModifiers();
 		if(RemoveFinalClassAdapter.finalClasses.contains(clazz.getCanonicalName())) {
-			modifier = modifier | Opcodes.ACC_FINAL;
+			modifier = modifier | Modifier.FINAL;
 		}
 		return modifier;
 	}

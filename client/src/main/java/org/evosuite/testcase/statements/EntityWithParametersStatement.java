@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.statements;
 
+import org.evosuite.Properties;
 import org.evosuite.runtime.annotation.BoundInputVariable;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.util.Inputs;
@@ -27,6 +28,7 @@ import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -246,6 +248,11 @@ public abstract class EntityWithParametersStatement extends AbstractStatement{
         Constraints constraint = getConstraints();
         boolean avoidNull =  constraint!=null && constraint.noNullInputs();
 
+        if(Properties.HONOUR_DATA_ANNOTATIONS && (numParameter < parameterAnnotations.length)) {
+            if (GenericUtils.isAnnotationTypePresent(parameterAnnotations[numParameter], GenericUtils.NONNULL)) {
+                avoidNull = true;
+            }
+        }
         if(avoidNull){
             //be sure to remove all references pointing to NULL
             Iterator<VariableReference> iter = objects.iterator();
