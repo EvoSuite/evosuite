@@ -184,6 +184,21 @@ public class Randomness implements Serializable {
 
 	/**
 	 * <p>
+	 * nextDouble
+	 * </p>
+	 * 
+	 * @param min
+	 *            a double.
+	 * @param max
+	 *            a double.
+	 * @return a double.
+	 */
+	public static double nextDouble(double min, double max) {
+		return min + (random.nextDouble() * (max - min));
+	}
+
+	/**
+	 * <p>
 	 * nextFloat
 	 * </p>
 	 * 

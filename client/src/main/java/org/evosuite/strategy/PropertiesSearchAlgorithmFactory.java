@@ -93,6 +93,7 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 		case STANDARDGA:
 		case STEADYSTATEGA:
 		case MIO:
+		case STANDARDCHEMICALREACTION:
 			return new PropertiesSuiteGAFactory().getSearchAlgorithm();
 		default:
 			throw new RuntimeException("Unsupported algorithm: "+Properties.ALGORITHM);

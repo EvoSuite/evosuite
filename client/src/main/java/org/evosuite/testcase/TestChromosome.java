@@ -137,6 +137,8 @@ public class TestChromosome extends ExecutableChromosome {
 		// c.mutationHistory.set(mutationHistory);
 		c.setNumberOfMutations(this.getNumberOfMutations());
 		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
+		c.setKineticEnergy(getKineticEnergy());
+		c.setNumCollisions(getNumCollisions());
 
 		return c;
 	}

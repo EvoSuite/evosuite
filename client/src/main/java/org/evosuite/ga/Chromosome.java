@@ -22,7 +22,7 @@ package org.evosuite.ga;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
@@ -84,6 +84,15 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/** Keep track of how many times this Chromosome has been evaluated */
 	private int numberOfEvaluations = 0;
+
+	// It is a non-negative number and it quantifies the tolerance of the system accepting a worse
+	// solution than the existing one. (field used by Chemical Reaction Optimization algorithms)
+	protected double kineticEnergy = Properties.INITIAL_KINETIC_ENERGY;
+
+	// When a molecule undergoes a collision, one of the elementary reactions will be triggered and it
+	// may experience a change in its molecular structure. It is a record of the total number of collisions
+	// a molecule has taken. (field used by Chemical Reaction Optimization algorithms)
+	protected int numCollisions = 0;
 
 	/**
 	 * Return current fitness value
@@ -575,5 +584,61 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public void setNumberOfEvaluations(int numberOfEvaluations) {
 		this.numberOfEvaluations = numberOfEvaluations;
+	}
+
+	/**
+	 * Returns the tolerance of the system accepting a worse solution than the existing one. (Note:
+	 * method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @return a double value
+	 */
+	public double getKineticEnergy() {
+		return this.kineticEnergy;
+	}
+
+	/**
+	 * Sets the tolerance of the system accepting a worse solution than the existing one. (Note:
+	 * method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @param kineticEnergy a double value
+	 */
+	public void setKineticEnergy(double kineticEnergy) {
+		this.kineticEnergy = kineticEnergy;
+	}
+
+	/**
+	 * Returns the total number of collisions a chromosome (i.e., a molecule in a CRO scenario) has
+	 * taken. (Note: method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @return a integer value
+	 */
+	public int getNumCollisions() {
+		return this.numCollisions;
+	}
+
+	/**
+	 * Sets the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario).
+	 * (Note: method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @param numCollisions a integer value
+	 */
+	public void setNumCollisions(int numCollisions) {
+		this.numCollisions = numCollisions;
+	}
+
+	/**
+	 * Sets the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario) to
+	 * zero. (Note: method used by Chemical Reaction Optimization algorithms)
+	 */
+	public void resetNumCollisions() {
+		this.numCollisions = 0;
+	}
+
+	/**
+	 * Increases the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario)
+	 * by one. (Note: method used by Chemical Reaction Optimization algorithms)
+	 */
+	public void increaseNumCollisionsByOne() {
+		this.numCollisions++;
 	}
 }
