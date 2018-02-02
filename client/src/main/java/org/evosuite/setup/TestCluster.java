@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
@@ -1258,7 +1258,7 @@ public class TestCluster {
 		Map<String, Integer> mapMethodToGoals = new LinkedHashMap<>();
 		for(String methodName : mapCallToName.values()) {
 			// MethodKey is class+method+desc
-			mapMethodToGoals.put(methodName, TestsArchive.instance.getNumRemainingGoals(methodName));
+			mapMethodToGoals.put(methodName, Archive.getArchiveInstance().getNumOfRemainingTargets(methodName));
 		}
 		return testMethods.stream().sorted(Comparator.comparingInt(item -> mapMethodToGoals.get(mapCallToName.get(item))).reversed()).collect(Collectors.toList());
 	}

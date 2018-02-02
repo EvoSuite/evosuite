@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 

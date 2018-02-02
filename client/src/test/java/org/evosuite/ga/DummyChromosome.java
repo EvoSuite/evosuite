@@ -85,6 +85,7 @@ public class DummyChromosome extends Chromosome {
                 values.set(i, Randomness.nextInt());
             }
         }
+        this.increaseNumberOfMutations();
         this.setChanged(true);
     }
 

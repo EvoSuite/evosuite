@@ -47,7 +47,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	protected Chromosome() {
 		// empty
 	}
-	protected boolean toBeUpdated=false;
 	/** Last recorded fitness value */
 	private LinkedHashMap<FitnessFunction<?>, Double> fitnessValues = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
@@ -79,6 +78,12 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/** */
 	protected double distance = 0.0;
+
+	/** Keep track of how many times this Chromosome has been mutated */
+	private int numberOfMutations = 0;
+
+	/** Keep track of how many times this Chromosome has been evaluated */
+	private int numberOfEvaluations = 0;
 
 	/**
 	 * Return current fitness value
@@ -121,14 +126,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public void setPreviousFitnessValues(Map<FitnessFunction<?>, Double> lastFits) {
 		this.previousFitnessValues.clear();
 		this.previousFitnessValues.putAll(lastFits);
-	}
-
-	public boolean isToBeUpdated() {
-		return toBeUpdated;
-	}
-
-	public void isToBeUpdated(boolean toBeUpdated) {
-		this.toBeUpdated = toBeUpdated;
 	}
 
 	/**
@@ -536,5 +533,47 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 				return coverageValues.get(fitnessFunction);
 		}
 		return 0.0;
+	}
+
+	/**
+	 * Increases by one the number of times this chromosome has been mutated
+	 */
+	public void increaseNumberOfMutations() {
+		this.numberOfMutations++;
+	}
+
+	/**
+	 * Return number of times this chromosome has been mutated
+	 */
+	public int getNumberOfMutations() {
+		return this.numberOfMutations;
+	}
+
+	/**
+	 * Set number of times this chromosome has been mutated
+	 */
+	public void setNumberOfMutations(int numberOfMutations) {
+		this.numberOfMutations = numberOfMutations;
+	}
+
+	/**
+	 * Increases by one the number of times this chromosome has been evaluated
+	 */
+	public void increaseNumberOfEvaluations() {
+		this.numberOfEvaluations++;
+	}
+
+	/**
+	 * Return number of times this chromosome has been evaluated
+	 */
+	public int getNumberOfEvaluations() {
+		return this.numberOfEvaluations;
+	}
+
+	/**
+	 * Set number of times this chromosome has been evaluated
+	 */
+	public void setNumberOfEvaluations(int numberOfEvaluations) {
+		this.numberOfEvaluations = numberOfEvaluations;
 	}
 }

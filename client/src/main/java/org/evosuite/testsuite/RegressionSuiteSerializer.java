@@ -26,8 +26,8 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGeneratorHelper;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
@@ -145,8 +145,8 @@ public class RegressionSuiteSerializer {
 
     Properties.TEST_ARCHIVE = true;
 
-    TestSuiteChromosome testArchive = TestsArchive.instance
-        .createMergedSolution(archiveSuite);
+    TestSuiteChromosome testArchive = Archive.getArchiveInstance()
+        .mergeArchiveAndSolution(archiveSuite);
 
     LoggingUtils.getEvoLogger().info("* newArchive.size(): " + testArchive.size());
     LoggingUtils.getEvoLogger()

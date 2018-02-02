@@ -166,6 +166,7 @@ public class RegressionTestChromosome extends TestChromosome {
   public void mutate() {
     theTest.mutate();
     if (theTest.isChanged()) {
+      this.increaseNumberOfMutations();
       try {
         updateClassloader();
       } catch (NoClassDefFoundError e) {
