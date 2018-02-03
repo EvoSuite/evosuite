@@ -578,7 +578,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
-		Class<?> rawClass = GenericTypeReflector.erase(type);
+		GenericClass genericClass = new GenericClass(type);
+		Class<?> rawClass = genericClass.getRawClass();
 		for (int i = 0; i < position && i < size(); i++) {
 			Statement statement = statements.get(i);
 			if(statement instanceof MethodStatement) {
