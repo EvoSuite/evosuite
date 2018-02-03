@@ -2,6 +2,9 @@ apple.
 ch.qos.logback.
 com.apple.
 com_cenqua_clover.
+com.atlassian.clover.
+com_atlassian_clover.
+org.openclover.
 com.cenqua.
 com.gzoltar.
 com.sun.

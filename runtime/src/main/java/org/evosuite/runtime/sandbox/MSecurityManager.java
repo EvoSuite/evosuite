@@ -1320,6 +1320,16 @@ public class MSecurityManager extends SecurityManager {
 				 * is important
 				 */
 				return true;
+			} else if(fp.getName().contains("clover")) {
+				/*
+				 * To make sure this is really clover trying to write a report
+				 * we also check that this is invoked by clover
+				 */
+				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+					if(e.getClassName().startsWith("com.atlassian.clover.")) {
+						return true;
+					}
+				}
 			}
 		}
 
