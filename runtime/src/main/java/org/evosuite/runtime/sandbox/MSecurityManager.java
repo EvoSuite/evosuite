@@ -1331,6 +1331,18 @@ public class MSecurityManager extends SecurityManager {
 					}
 				}
 			}
+		} else if(action.equals("delete")) {
+			if(fp.getName().contains("clover.db.liverec")) {
+				/*
+				 * To make sure this is really clover trying to write a report
+				 * we also check that this is invoked by clover
+				 */
+				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+					if(e.getClassName().startsWith("com.atlassian.clover.")) {
+						return true;
+					}
+				}
+			}
 		}
 
 		return false;
