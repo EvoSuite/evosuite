@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.fm;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
@@ -33,7 +34,10 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -106,6 +110,16 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 matchers += "anyChar()";
             }else if(type.equals(String.class)){
                 matchers += "anyString()";
+            } else if (TypeUtils.isAssignable(type, List.class)) {
+                matchers += "anyList()";
+            } else if (TypeUtils.isAssignable(type, Set.class)) {
+                matchers += "anySet()";
+            } else if (TypeUtils.isAssignable(type, Map.class)) {
+                matchers += "anyMap()";
+            } else if (TypeUtils.isAssignable(type, Collection.class)) {
+                matchers += "anyCollection()";
+            } else if (TypeUtils.isAssignable(type, Iterable.class)) {
+                matchers += "anyIterable()";
             }else{
                 if(type.getTypeName().equals(Object.class.getName())){
                     /*
@@ -121,7 +135,7 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                         matchers += "any(" + ((Class)type).getCanonicalName() + ".class)";
                     } else {
                         //what to do here? is it even possible?
-                        matchers += "any(" + genericParameter.getRawClass().getCanonicalName() + ".class)";
+                        matchers += "nullable(" + genericParameter.getRawClass().getCanonicalName() + ".class)";
                         // matchers += "any(" + type.getTypeName() + ".class)";
                     }
                 }
@@ -219,8 +233,19 @@ public class MethodDescriptor implements Comparable<MethodDescriptor>, Serializa
                 return Mockito.anyChar();
             } else if (type.equals(String.class)) {
                 return Mockito.anyString();
+            } else if (TypeUtils.isAssignable(type, List.class)) {
+                return Mockito.anyList();
+            } else if (TypeUtils.isAssignable(type, Set.class)) {
+                return Mockito.anySet();
+            } else if (TypeUtils.isAssignable(type, Map.class)) {
+                return Mockito.anyMap();
+            } else if (TypeUtils.isAssignable(type, Collection.class)) {
+                return Mockito.anyCollection();
+            } else if (TypeUtils.isAssignable(type, Iterable.class)) {
+                return Mockito.anyIterable();
             } else {
-                return Mockito.any(type.getClass());
+                GenericClass gc = new GenericClass(type);
+                return Mockito.nullable(gc.getRawClass());
             }
         } catch (Exception e){
             logger.error("Failed to executed Mockito matcher n{} of type {} in {}.{}: {}",i,type,className,methodName,e.getMessage());
