@@ -164,6 +164,8 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		return compareClassName(other);
 	}
 
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -175,7 +177,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	public List<BranchCoverageTestFitness> getBranchFitnesses() {
 		return branchFitnesses;
 	}
-	
+
 	@Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -224,7 +226,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		int instructionId = ois.readInt();
 		BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstruction(className, methodName, instructionId);
 	}
-	
+
 	public BytecodeInstruction getGoalInstruction() {
 		return goalInstruction;
 	}
