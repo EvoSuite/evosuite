@@ -1,25 +1,77 @@
-# What is in this fork of EvoSuite?
+[![Build Status](https://travis-ci.org/EvoSuite/evosuite.svg?branch=master)](https://travis-ci.org/EvoSuite/evosuite)
+[![CircleCI](https://circleci.com/gh/EvoSuite/evosuite/tree/master.svg?style=svg)](https://circleci.com/gh/EvoSuite/evosuite/tree/master)
 
-This repository contains a re-implementation of LIPS (Linearly Independent Path based Search) in EvoSuite. Therefore, it can be used to compare LIPS with other test case generation strategies implemented in Evosuite, such as MOSA and the Whole Suite approach.
+# What is EvoSuite?
 
+EvoSuite automatically generates JUnit test suites for Java classes, targeting code coverage criteria such as branch coverage. It uses an evolutionary approach based on a genetic algorithm to derive test suites. To improve readability, the generated unit tests are minimized, and regression assertions that capture the current behavior of the tested classes are added to the tests.
 
-# How to run LIPS from command line
+# Using EvoSuite
 
-To generate a test suite with LIPS use the following command:
+There are different ways to use EvoSuite:
 
-```java -jar evosuite.jar -generateMOSuite -Dcriterion=BRANCH -Dalgorithm=LIPS -Doutput_variables=TARGET_CLASS,criterion,algorithm,Total_Goals,Covered_Goals,Generations,Time2MaxCoverage,BranchCoverage -projectCP <classpath> -class <target class>```
+### EvoSuite on the command line
 
-where:
-1. ```<classpath>``` is the classpath for the target jar, using standard Java classpath syntax
-2. ```<target class>``` is the Java class under test
-3. the other parameters (e.g., population size and search budget) can be set using the traditional syntax in EvoSuite (see http://www.evosuite.org/documentation/ for further details)
+EvoSuite comes as an executable jar file which you can be called as follows:
 
+```java -jar evosuite.jar <options>```
 
-# How to run MOSA from command line
+To generate a test suite using use the following command:
 
-To generate a test suite with MOSA use the following command:
+```java -jar evosuite.jar <target> [options]```
 
-```java -jar evosuite.jar -generateMOSuite -Dcriterion=BRANCH -Dalgorithm=MOSA -Doutput_variables=TARGET_CLASS,criterion,algorithm,Total_Goals,Covered_Goals,Generations,Time2MaxCoverage,BranchCoverage -projectCP <classpath> -class <target class>```
+The target can be a class:
+
+```-class <ClassName>```
+
+or a package prefix, in which case EvoSuite tries to generate a test
+suite for each class in the classpath that match the prefix:
+
+```-prefix <PrefixName>```
+
+or a classpath entry, in which case EvoSuite tries to generate a test
+suite for each class in the given classpath entry:
+
+```-target <jar file or directory>```
+
+The most important option is to set the classpath, using standard Java
+classpath syntax:
+
+```-projectCP <classpath>```
+
+For more options, see the
+[Documentation](http://www.evosuite.org/documentation/commandline/)
+
+```java -jar evosuite.jar -help```
+
+### EvoSuite plugin for Eclipse
+
+There is an experimental Eclipse plugin available using the following
+update site: <http://www.evosuite.org/update>
+
+To see what the plugin does check out the [screencast](http://www.evosuite.org/documentation/eclipse-plugin/).
+
+### EvoSuite plugin for Maven
+
+EvoSuite has a Maven Plugin that can be used to generate new test cases as part of the build. This has at least the following advantages:
+
+1. Can run EvoSuite from Continuous Integration servers (eg Jenkins) with minimal configuration overheads
+2. Generated tests can be put directly on the classpath of the system based on the pom.xml files
+3. No need to install EvoSuite on local machine (Maven will take care of it automatically)
+
+For more details, check the
+[documentation](http://www.evosuite.org/documentation/maven-plugin/)
+
+### EvoSuite plugin for IntelliJ
+
+Check out the [documentation](http://www.evosuite.org/documentation/intellij-idea-plugin/).
+
+# Getting EvoSuite
+
+The current release of EvoSuite (main EvoSuite jar file and plugins) is available for download at <http://www.evosuite.org/downloads/>.
+
+To access the source code, use the github repository:
+
+```git clone https://github.com/EvoSuite/evosuite.git```
 
 
 # Building EvoSuite
@@ -37,8 +89,13 @@ use Maven as well:
 
 To build EvoSuite in Eclipse, make sure you have the [M2Eclipse](http://www.eclipse.org/m2e/) plugin installed, and import EvoSuite as Maven project. This will ensure that Eclipse uses Maven to build the project.
 
-# Replication package
 
-The folder ```replication_package``` contains:
-1. The list of Java static methods that can be used to compare LIPS and MOSA (file "subjects.txt")
-2. The JAR files containing the methods under test
+# More Information
+
+Usage documentation can be found at <http://www.evosuite.org/documentation/>
+
+The developers' mailing list is hosted at <https://groups.google.com/forum/#!forum/evosuite>
+
+EvoSuite has resulted in a number of publications, all of which are available at <http://www.evosuite.org/publications/>
+
+
