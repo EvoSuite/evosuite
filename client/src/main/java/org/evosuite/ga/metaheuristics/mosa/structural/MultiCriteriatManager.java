@@ -95,7 +95,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 
 	@SuppressWarnings("unchecked")
 	private void addDependencies4TryCatch() {
-		logger.error("Added dependencies for Try-Catch");
+		logger.debug("Added dependencies for Try-Catch");
 		for (FitnessFunction<T> ff : this.uncoveredGoals){
 			if (ff instanceof TryCatchCoverageTestFitness){
 				TryCatchCoverageTestFitness stmt = (TryCatchCoverageTestFitness) ff;
@@ -128,7 +128,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	}
 
 	private void addDependencies4Output() {
-		logger.error("Added dependencies for Output");
+		logger.debug("Added dependencies for Output");
 		for (FitnessFunction<T> ff : this.uncoveredGoals){
 			if (ff instanceof OutputCoverageTestFitness){
 				OutputCoverageTestFitness output = (OutputCoverageTestFitness) ff;
@@ -158,7 +158,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4Input() {
-		logger.error("Added dependencies for Input");
+		logger.debug("Added dependencies for Input");
 		for (FitnessFunction<T> ff : this.uncoveredGoals){
 			if (ff instanceof InputCoverageTestFitness){
 				InputCoverageTestFitness input = (InputCoverageTestFitness) ff;
@@ -189,7 +189,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	 */
 	@SuppressWarnings("unchecked")
 	private void addDependencies4Methods() {
-		logger.error("Added dependencies for Methods");
+		logger.debug("Added dependencies for Methods");
 		for (BranchCoverageTestFitness branch : this.dependencies.keySet()){
 			MethodCoverageTestFitness method = new MethodCoverageTestFitness(branch.getClassName(), branch.getMethod());
 			this.dependencies.get(branch).add((FitnessFunction<T>) method);
@@ -202,7 +202,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	 */
 	@SuppressWarnings("unchecked")
 	private void addDependencies4MethodsNoException() {
-		logger.error("Added dependencies for MethodsNoException");
+		logger.debug("Added dependencies for MethodsNoException");
 		for (BranchCoverageTestFitness branch : this.dependencies.keySet()){
 			MethodNoExceptionCoverageTestFitness method = new MethodNoExceptionCoverageTestFitness(branch.getClassName(), branch.getMethod());
 			this.dependencies.get(branch).add((FitnessFunction<T>) method);
@@ -214,7 +214,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4WeakMutation() {
-		logger.error("Added dependencies for Weak-Mutation");
+		logger.debug("Added dependencies for Weak-Mutation");
 		for (FitnessFunction<T> ff : this.uncoveredGoals){
 			if (ff instanceof WeakMutationTestFitness){
 				WeakMutationTestFitness mutation = (WeakMutationTestFitness) ff;
@@ -236,7 +236,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4Line() {
-		logger.error("Added dependencies for Lines");
+		logger.debug("Added dependencies for Lines");
 		for (FitnessFunction<T> ff : this.uncoveredGoals){
 			if (ff instanceof LineCoverageTestFitness){
 				LineCoverageTestFitness line = (LineCoverageTestFitness) ff;
@@ -262,7 +262,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	 */
 	@SuppressWarnings("unchecked")
 	private void addDependencies4Statement() {
-		logger.error("Added dependencies for Statements");
+		logger.debug("Added dependencies for Statements");
 		for (FitnessFunction<T> ff : this.uncoveredGoals){
 			if (ff instanceof StatementCoverageTestFitness){
 				StatementCoverageTestFitness stmt = (StatementCoverageTestFitness) ff;

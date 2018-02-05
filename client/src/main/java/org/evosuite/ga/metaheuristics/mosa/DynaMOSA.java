@@ -15,7 +15,6 @@ import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,12 +96,11 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		//for (T  p : population)
 		//	logger.error("Rank {}, Distance {}", p.getRank(), p.getDistance());
 		currentIteration++;
-		logger.error("");
-		//logger.error("N. fronts = {}", ranking.getNumberOfSubfronts());
-		//logger.error("1* front size = {}", ranking.getSubfront(0).size());
-		logger.error("Covered goals = {}", goalsManager.getCoveredGoals().size());
-		logger.error("Current goals = {}", goalsManager.getCurrentGoals().size());
-		logger.error("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
+		//logger.debug("N. fronts = {}", ranking.getNumberOfSubfronts());
+		//logger.debug("1* front size = {}", ranking.getSubfront(0).size());
+		logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
+		logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
+		logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
 	}
 
 
@@ -135,11 +133,11 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
-		logger.info("executing generateSolution function");
+		logger.debug("executing generateSolution function");
 
 		goalsManager = new MultiCriteriatManager<T>(fitnessFunctions);
 
-		LoggingUtils.getEvoLogger().info("\n Initial Number of Goals = "+goalsManager.getCurrentGoals().size());
+		logger.debug("Initial Number of Goals = "+goalsManager.getCurrentGoals().size());
 
 		//initialize population
 		if (population.isEmpty())
