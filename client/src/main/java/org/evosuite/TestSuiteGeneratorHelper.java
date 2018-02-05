@@ -262,9 +262,6 @@ public class TestSuiteGeneratorHelper {
       return new EntBugTestStrategy();
     case MOSUITE:
       return new MOSuiteStrategy();
-    case LIPS:
-      Properties.ALGORITHM = Algorithm.LIPS;
-      return new LipsStrategy();
     case DSE:
       return new DSEStrategy();
     case NOVELTY:
