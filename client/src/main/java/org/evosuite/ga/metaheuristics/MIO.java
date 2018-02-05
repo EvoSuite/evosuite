@@ -94,6 +94,9 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
         }
       } else {
         test = Archive.getArchiveInstance().getSolution();
+        if (test == null || test.isEmpty()) {
+          test = this.randomFactory.getChromosome().getTestCase();
+        }
       }
       assert test != null && !test.isEmpty();
       this.solution.addTest(test);

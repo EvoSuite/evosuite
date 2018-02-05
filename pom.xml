@@ -180,7 +180,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-pmd-plugin</artifactId>
-                        <version>3.8</version>
+                        <version>3.9.0</version>
                         <configuration>
                             <targetJdk>1.8</targetJdk>
                         </configuration>
@@ -274,9 +274,32 @@
             <dependency>
                 <!-- Adhoc license, copyright holder is INRIA -->
                 <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-all</artifactId>
-                <version>5.1</version>
-                <!--				<version>4.2</version> -->
+                <artifactId>asm</artifactId>
+                <version>6.0</version>
+            </dependency>
+            <dependency>
+                <!-- Adhoc license, copyright holder is INRIA -->
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-commons</artifactId>
+                <version>6.0</version>
+            </dependency>
+            <dependency>
+                <!-- Adhoc license, copyright holder is INRIA -->
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-tree</artifactId>
+                <version>6.0</version>
+            </dependency>
+            <dependency>
+                <!-- Adhoc license, copyright holder is INRIA -->
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-analysis</artifactId>
+                <version>6.0</version>
+            </dependency>
+            <dependency>
+                <!-- Adhoc license, copyright holder is INRIA -->
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-util</artifactId>
+                <version>6.0</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
@@ -712,7 +735,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.6</version>
+                    <version>3.7</version>
                 </plugin>
                 <!-- Removed Eclipse m2e lifecycle mapping plugin. For a better solution
                     see: http://stackoverflow.com/questions/7409823/m2e-lifecycle-mapping-not-found -->

@@ -88,6 +88,11 @@ public class RuntimeInstrumentation {
 			return false;
 		}
 
+		if(className.contains("__CLR")) {
+			// Instrumenting clover coverage instrumentation helper classes breaks clover
+			return false;
+		}
+
 		return true;
 	}
 
