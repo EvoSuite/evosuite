@@ -13,6 +13,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.coverage.cbranch.CBranchTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageHelper;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
@@ -29,6 +30,9 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
+import org.evosuite.setup.CallContext;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -85,6 +89,8 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 			addDependencies4TryCatch();
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.METHODNOEXCEPTION))
 			addDependencies4MethodsNoException();
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH))
+			addDependencies4CBranch();
 
 		// initialize current goals
 		this.currentGoals.addAll(graph.getRootBranches());
@@ -206,6 +212,23 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		for (BranchCoverageTestFitness branch : this.dependencies.keySet()){
 			MethodNoExceptionCoverageTestFitness method = new MethodNoExceptionCoverageTestFitness(branch.getClassName(), branch.getMethod());
 			this.dependencies.get(branch).add((FitnessFunction<T>) method);
+		}
+	}
+
+	/**
+	 * This methods derive the dependencies between {@link CBranchTestFitness} and branches.
+	 * Therefore, it is used to update 'this.dependencies'
+	 */
+	@SuppressWarnings("unchecked")
+	private void addDependencies4CBranch() {
+		logger.debug("Added dependencies for CBranch");
+		CallGraph callGraph = DependencyAnalysis.getCallGraph();
+		for (BranchCoverageTestFitness branch : this.dependencies.keySet()) {
+			for (CallContext context : callGraph.getMethodEntryPoint(branch.getClassName(), branch.getMethod())) {
+				CBranchTestFitness cBranch = new CBranchTestFitness(branch.getBranchGoal(), context);
+				this.dependencies.get(branch).add((FitnessFunction<T>) cBranch);
+				logger.debug("Added context branch: " + cBranch.toString());
+			}
 		}
 	}
 
