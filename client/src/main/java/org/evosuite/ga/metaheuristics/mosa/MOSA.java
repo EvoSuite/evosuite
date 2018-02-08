@@ -225,7 +225,8 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// archive
 		if (archive.containsKey(covered)) {
 			TestChromosome existingSolution = (TestChromosome) this.archive.get(covered);
-			if (existingSolution.compareSecondaryObjective(solution) < 0) {
+			// if the new solution is better (based on secondary criterion), then the archive must be updated
+			if (solution.compareSecondaryObjective(existingSolution) < 0) {
 				this.archive.put(covered, solution);
 			}
 		} else {
