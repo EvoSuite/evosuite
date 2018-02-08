@@ -34,6 +34,7 @@ import org.evosuite.ga.metaheuristics.BreederGA;
 import org.evosuite.ga.metaheuristics.CellularGA;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.lips.LIPS;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
@@ -206,6 +207,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
               StandardChemicalReaction<TestSuiteChromosome> ga = new StandardChemicalReaction<TestSuiteChromosome>(factory);
               return ga;
             }
+        case LIPS:
+        	logger.info("Chosen search algorithm: LISP");
+            return new LIPS<TestSuiteChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
             {
