@@ -18,6 +18,7 @@
 package org.evosuite.ga.metaheuristics.mosa.comparators;
 
 import java.util.Comparator;
+
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
@@ -29,17 +30,15 @@ import org.evosuite.ga.FitnessFunction;
  */
 public class PreferenceSortingComparator<T extends Chromosome> implements Comparator<Object> {
 
-	private FitnessFunction<T> objective;
-	private TestSizeComparator<T> comparator = new TestSizeComparator<T>();
+	private final FitnessFunction<T> objective;
 
 	/**
-	 *  Constructor
-	 * @param pNumberOfObjectives
-	 * @param goals set of test goals to consider when computing the dominance relationship 
-	 * @param applySecondaryCriterion 
+	 * Constructor
+	 *
+	 * @param goal
 	 */
-	public PreferenceSortingComparator(FitnessFunction<T> goals) {
-		this.objective = goals;
+	public PreferenceSortingComparator(FitnessFunction<T> goal) {
+		this.objective = goal;
 	}
 
 	/**
@@ -62,14 +61,14 @@ public class PreferenceSortingComparator<T extends Chromosome> implements Compar
 		T solution2 = (T) object2;
 
 		double value1, value2;
-		value1 = solution1.getFitness(objective);
-		value2 = solution2.getFitness(objective);
+		value1 = solution1.getFitness(this.objective);
+		value2 = solution2.getFitness(this.objective);
 		if (value1 < value2)
 			return -1;
 		else if (value1 > value2)
 			return +1;
 		else {
-			return comparator.compare(solution1, solution2);
+			return solution1.compareSecondaryObjective(solution2);
 		}
 
 	} // compare

@@ -53,6 +53,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.MethodStatement;
@@ -110,6 +111,10 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 			ranking = new FastNonDominatedSorting<T>();
 		else
 			ranking = new RankBasedPreferenceSorting<T>(); // default ranking strategy
+
+		// set the secondary objectives of test cases (useful when MOSA compares two test
+		// cases to, for example, update the archive)
+		TestCaseSecondaryObjective.setSecondaryObjectives();
 	}
 
 	/**

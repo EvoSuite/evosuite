@@ -22,6 +22,7 @@ package org.evosuite.testsuite;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
+import org.evosuite.Properties.SecondaryObjective;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
@@ -85,9 +86,7 @@ public class TestSuiteMinimizer {
     public void minimize(TestSuiteChromosome suite, boolean minimizePerTest) {
         startTime = System.currentTimeMillis();
 
-        String strategy = Properties.SECONDARY_OBJECTIVE;
-        if (strategy.contains(":"))
-            strategy = strategy.substring(0, strategy.indexOf(':'));
+        SecondaryObjective strategy = Properties.SECONDARY_OBJECTIVE[0];
 
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
                 suite.size());
@@ -286,9 +285,7 @@ public class TestSuiteMinimizer {
             test.clearCachedResults();
         }
 
-        String strategy = Properties.SECONDARY_OBJECTIVE;
-        if (strategy.contains(":"))
-            strategy = strategy.substring(0, strategy.indexOf(':'));
+        SecondaryObjective strategy = Properties.SECONDARY_OBJECTIVE[0];
 
         boolean size = false;
         if (strategy.equals("size")) {

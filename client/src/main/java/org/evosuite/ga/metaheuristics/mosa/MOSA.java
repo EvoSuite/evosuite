@@ -19,6 +19,7 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -222,11 +223,12 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		// store the test cases that are optimal for the test goal in the
 		// archive
-		if (archive.containsKey(covered)){
-			int bestSize = this.archive.get(covered).size();
-			int size = solution.size();
-			if (size < bestSize)
+		if (archive.containsKey(covered)) {
+			TestChromosome existingSolution = (TestChromosome) this.archive.get(covered);
+			// if the new solution is better (based on secondary criterion), then the archive must be updated
+			if (solution.compareSecondaryObjective(existingSolution) < 0) {
 				this.archive.put(covered, solution);
+			}
 		} else {
 			archive.put(covered, solution);
 			this.uncoveredGoals.remove(covered);
