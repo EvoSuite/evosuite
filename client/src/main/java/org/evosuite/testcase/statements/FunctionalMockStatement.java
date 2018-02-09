@@ -31,6 +31,7 @@ import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.runtime.util.Inputs;
@@ -271,12 +272,9 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     public static boolean canBeFunctionalMocked(Type type) {
 
         Class<?> rawClass = new GenericClass(type).getRawClass();
-		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
-
-        if (Properties.hasTargetClassBeenLoaded()
-        		&& GenericClass.isAssignable(targetClass, rawClass)) {
-        	return false;
+        if(TestCluster.getInstance().isTargetClassName(rawClass.getName())) {
+            return false;
         }
 
         return canBeFunctionalMockedIncludingSUT(type);
