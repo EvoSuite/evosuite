@@ -4,29 +4,35 @@ import org.evosuite.Properties;
 import org.evosuite.ShutdownTestWriter;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
-import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
-import org.evosuite.ga.operators.selection.*;
-import org.evosuite.ga.stoppingconditions.*;
+import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
+import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
+import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.SelectionFunction;
+import org.evosuite.ga.operators.selection.TournamentSelection;
+import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
+import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
+import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
+import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.secondaryobjectives.*;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ResourceController;
 import org.slf4j.Logger;
@@ -96,41 +102,6 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
     }
 
-    protected SecondaryObjective<TestSuiteChromosome> getSecondarySuiteObjective(String name) {
-        if (name.equalsIgnoreCase("size"))
-            return new MinimizeSizeSecondaryObjective();
-        else if (name.equalsIgnoreCase("ibranch"))
-            return new IBranchSecondaryObjective();
-        else if (name.equalsIgnoreCase("archiveibranch"))
-            return new IBranchSecondaryObjective();
-        else if (name.equalsIgnoreCase("maxlength"))
-            return new MinimizeMaxLengthSecondaryObjective();
-        else if (name.equalsIgnoreCase("averagelength"))
-            return new MinimizeAverageLengthSecondaryObjective();
-        else if (name.equalsIgnoreCase("exceptions"))
-            return new MinimizeExceptionsSecondaryObjective();
-        else if (name.equalsIgnoreCase("totallength"))
-            return new MinimizeTotalLengthSecondaryObjective();
-        else if (name.equalsIgnoreCase("rho"))
-            return new RhoTestSuiteSecondaryObjective();
-        else
-            throw new RuntimeException("ERROR: asked for unknown secondary objective \""
-                    + name + "\"");
-    }
-
-    protected void getSecondaryObjectives(GeneticAlgorithm<TestChromosome> algorithm) {
-        String objectives = Properties.SECONDARY_OBJECTIVE;
-
-        // check if there are no secondary objectives to optimize
-        if (objectives == null || objectives.trim().length() == 0
-                || objectives.trim().equalsIgnoreCase("none"))
-            return;
-
-        for (String name : objectives.split(":")) {
-            TestSuiteChromosome.addSecondaryObjective(getSecondarySuiteObjective(name.trim()));
-        }
-    }
-
     @Override
     //public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
     public NoveltySearch<TestChromosome> getSearchAlgorithm() {
@@ -186,7 +157,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
         // ga.addBloatControl(new MaxLengthBloatControl());
 
-        getSecondaryObjectives(ga);
+        TestCaseSecondaryObjective.setSecondaryObjectives();
 
         // Some statistics
         //if (Properties.STRATEGY == Strategy.EVOSUITE)

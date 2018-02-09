@@ -101,7 +101,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 			T best = null;
 			for (T test : solutionSet){
 				int flag = comp.compare(test, best);
-				if (flag == -1 || (flag == 0  && Randomness.nextBoolean())){
+				if (flag < 0 || (flag == 0  && Randomness.nextBoolean())){
 					best = test;
 				} 
 			}

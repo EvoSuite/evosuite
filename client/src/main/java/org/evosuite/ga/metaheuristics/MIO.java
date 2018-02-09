@@ -110,6 +110,7 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     // evaluate it
     for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness((T) this.solution);
+      this.notifyEvaluation(this.solution);
     }
 
     double usedBudget = this.progress();
@@ -133,23 +134,6 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     Archive.getArchiveInstance().shrinkSolutions(this.n);
 
     this.currentIteration++;
-
-    // as some fitness functions have extra goals which do not contribute for coverage but only for
-    // guidance purposes (e.g., LineCoverageSuiteFitness), in here we must update the population of
-    // the GA with all unique test cases in the archive, so that the fitness value can be accurately
-    // calculated. local search process also takes into account the population and not the solutions
-    // in the archive, therefore, by updating the population with new individuals we avoid performing
-    // local search on the same individual over and over.
-    if (Archive.getArchiveInstance().hasBeenUpdated()) {
-      Set<TestCase> testsInArchive = Archive.getArchiveInstance().getSolutions();
-      if (!testsInArchive.isEmpty()) {
-        TestSuiteChromosome individualInPopulation = ((TestSuiteChromosome) this.population.get(0));
-        individualInPopulation.clearTests();
-        for (TestCase test : testsInArchive) {
-          individualInPopulation.addTest(test.clone());
-        }
-      }
-    }
   }
 
   /**
@@ -192,7 +176,23 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     logger.debug("Starting evolution");
     while (!this.isFinished()) {
       this.evolve();
-      this.applyLocalSearch();
+
+      if (this.shouldApplyLocalSearch()) {
+        // local search process only take into account the population of the GA, and not the
+        // solutions in the archive
+        if (Archive.getArchiveInstance().hasBeenUpdated()) {
+          Set<TestCase> testsInArchive = Archive.getArchiveInstance().getSolutions();
+          if (!testsInArchive.isEmpty()) {
+            TestSuiteChromosome individualInPopulation = ((TestSuiteChromosome) this.population.get(0));
+            individualInPopulation.clearTests();
+            for (TestCase test : testsInArchive) {
+              individualInPopulation.addTest(test.clone());
+            }
+          }
+        }
+
+        this.applyLocalSearch();
+      }
 
       logger.info("Updating fitness values");
       this.updateFitnessFunctionsAndValues();

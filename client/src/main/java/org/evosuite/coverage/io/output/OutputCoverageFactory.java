@@ -126,7 +126,7 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                         Class<?> returnClazz = method.getReturnType();
                         for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnClazz)) {
                             String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
-                            Type t = Type.getReturnType(insp);
+                            Type t = Type.getReturnType(inspector.getMethod());
                             if (t.getSort() == Type.BOOLEAN) {
                                 goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_TRUE));
                                 goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_FALSE));

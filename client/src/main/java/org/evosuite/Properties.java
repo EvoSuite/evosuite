@@ -300,7 +300,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, DYNAMOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA, MIO, STANDARDCHEMICALREACTION
+		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, DYNAMOSA, LIPS, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA, MIO, STANDARDCHEMICALREACTION
 	}
 
 	// MOSA PROPERTIES
@@ -627,10 +627,12 @@ public class Properties {
 	@Parameter(key = "mutation_probability_distribution", group = "Search Algorithm", description = "Mutation probability distribution")
 	public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
-	// TODO: Fix values
+	public enum SecondaryObjective {
+		AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO
+	}
+
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
-	public static String SECONDARY_OBJECTIVE = "totallength";
+	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[] { SecondaryObjective.TOTAL_LENGTH };
 
 	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;

@@ -28,8 +28,8 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.lips.LIPS;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
@@ -50,8 +50,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
-import org.evosuite.testcase.secondaryobjectives.MinimizeExceptionsSecondaryObjective;
-import org.evosuite.testcase.secondaryobjectives.MinimizeLengthSecondaryObjective;
+import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.utils.ArrayUtil;
 
 /**
@@ -149,6 +148,9 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
         case STANDARDCHEMICALREACTION:
             logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
             return new StandardChemicalReaction<>(factory);
+        case LIPS:
+        	logger.info("Chosen search algorithm: LISP");
+            return new LIPS<TestChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA<>(factory);
@@ -181,43 +183,6 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		default:
 			throw new RuntimeException("Unknown crossover function: "
 			        + Properties.CROSSOVER_FUNCTION);
-		}
-	}
-	
-	
-
-	/**
-	 * <p>
-	 * getSecondaryTestObjective
-	 * </p>
-	 * 
-	 * @param name
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
-	 */
-	private SecondaryObjective<TestChromosome> getSecondaryTestObjective(String name) {
-		if (name.equalsIgnoreCase("length"))
-			return new MinimizeLengthSecondaryObjective();
-		else if (name.equalsIgnoreCase("exceptions"))
-			return new MinimizeExceptionsSecondaryObjective();
-		else
-			throw new RuntimeException("ERROR: asked for unknown secondary objective \""
-			        + name + "\"");
-	}
-
-	private void getSecondaryObjectives(GeneticAlgorithm<TestChromosome> algorithm) {
-		String objectives = Properties.SECONDARY_OBJECTIVE;
-
-		// check if there are no secondary objectives to optimize
-		if (objectives == null || objectives.trim().length() == 0
-		        || objectives.trim().equalsIgnoreCase("none"))
-			return;
-
-		for (String name : objectives.split(":")) {
-			try {
-				TestChromosome.addSecondaryObjective(getSecondaryTestObjective(name.trim()));
-			} catch (Throwable t) {
-			} // Not all objectives make sense for tests
 		}
 	}
 	
@@ -269,7 +234,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 			ga.addListener(bloat_control);
 		}
 
-		getSecondaryObjectives(ga);
+		TestCaseSecondaryObjective.setSecondaryObjectives();
 
 		if (Properties.DYNAMIC_LIMIT) {
 			// max_s = GAProperties.generations * getBranches().size();

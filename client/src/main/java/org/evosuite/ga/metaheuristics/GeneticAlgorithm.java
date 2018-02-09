@@ -54,6 +54,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -146,8 +147,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected void disableFirstSecondaryCriterion() {
 		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 			TestSuiteChromosome.disableFirstSecondaryObjective();
-			if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
-					|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
+			if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
 				ExecutionTracer.disableContext();
 			}
 			logger.info("second secondary criterion enabled");
@@ -157,8 +157,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected void enableFirstSecondaryCriterion() {
 		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 			TestSuiteChromosome.enableFirstSecondaryObjective();
-			if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
-					|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
+			if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
 				ExecutionTracer.enableContext();
 			}
 			logger.info("first secondary criterion enabled");

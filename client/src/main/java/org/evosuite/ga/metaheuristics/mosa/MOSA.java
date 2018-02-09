@@ -19,6 +19,7 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -34,7 +35,10 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.metaheuristics.lips.BudgetConsumptionMonitor;
 import org.evosuite.ga.metaheuristics.mosa.comparators.OnlyCrowdingComparator;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -62,14 +66,19 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	/** Boolean vector to indicate whether each test goal is covered or not. **/
 	protected Set<FitnessFunction<T>> uncoveredGoals = new LinkedHashSet<FitnessFunction<T>>();
 
+	/** Crowding distance measure to use */
 	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
-
+	
+	/** Object used to keep track of the execution time needed to reach the maximum coverage */
+	protected BudgetConsumptionMonitor budgetMonitor;
+	
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}
 	 * @param factory
 	 */
 	public MOSA(ChromosomeFactory<T> factory) {
 		super(factory);
+		budgetMonitor = new BudgetConsumptionMonitor();
 	}
 
 	/** {@inheritDoc} */
@@ -164,6 +173,8 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			}
 		}
 		notifyEvaluation(c);
+		// update the time needed to reach the max coverage
+		budgetMonitor.checkMaxCoverage(this.archive.keySet().size());
 	}
 
 	/** {@inheritDoc} */
@@ -193,6 +204,8 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			notifyIteration();
 		}
 
+		// storing the time needed to reach the maximum coverage
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage, this.budgetMonitor.getTime2MaxCoverage());		
 		notifySearchFinished();
 	}
 
@@ -222,11 +235,12 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		// store the test cases that are optimal for the test goal in the
 		// archive
-		if (archive.containsKey(covered)){
-			int bestSize = this.archive.get(covered).size();
-			int size = solution.size();
-			if (size < bestSize)
+		if (archive.containsKey(covered)) {
+			TestChromosome existingSolution = (TestChromosome) this.archive.get(covered);
+			// if the new solution is better (based on secondary criterion), then the archive must be updated
+			if (solution.compareSecondaryObjective(existingSolution) < 0) {
 				this.archive.put(covered, solution);
+			}
 		} else {
 			archive.put(covered, solution);
 			this.uncoveredGoals.remove(covered);
