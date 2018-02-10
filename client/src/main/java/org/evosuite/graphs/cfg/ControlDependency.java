@@ -20,9 +20,10 @@
 package org.evosuite.graphs.cfg;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.evosuite.coverage.branch.Branch;
-public class ControlDependency implements Serializable {
+public class ControlDependency implements Serializable, Comparable<ControlDependency> {
 
 	private static final long serialVersionUID = 6288839964561655730L;
 
@@ -104,5 +105,35 @@ public class ControlDependency implements Serializable {
 		}
 
 		return r;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ControlDependency that = (ControlDependency) o;
+		return branchExpressionValue == that.branchExpressionValue &&
+				Objects.equals(branch, that.branch);
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(branch, branchExpressionValue);
+	}
+
+	@Override
+	public int compareTo(ControlDependency o) {
+		int x = branch.compareTo(o.branch);
+		if(x != 0)
+			return x;
+
+		if(branchExpressionValue == o.branchExpressionValue) {
+			return 0;
+		} else if(branchExpressionValue) {
+			return 1;
+		} else {
+			return -1;
+		}
 	}
 }

@@ -19,12 +19,9 @@
  */
 package org.evosuite.coverage.line;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.archive.Archive;
@@ -53,18 +50,18 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	// target goals
 	private final int numLines;
-	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<Integer, TestFitnessFunction>();
+	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<>();
 
-	private final Set<Integer> removedLines = new LinkedHashSet<Integer>();
-	private final Set<Integer> toRemoveLines = new LinkedHashSet<Integer>();
+	private final Set<Integer> removedLines = new LinkedHashSet<>();
+	private final Set<Integer> toRemoveLines = new LinkedHashSet<>();
 
 	// Some stuff for debug output
     private int maxCoveredLines = 0;
     private double bestFitness = Double.MAX_VALUE;
 
-    private Set<Integer> branchesToCoverTrue  = new LinkedHashSet<Integer>();
-    private Set<Integer> branchesToCoverFalse = new LinkedHashSet<Integer>();
-    private Set<Integer> branchesToCoverBoth  = new LinkedHashSet<Integer>();
+    private Set<Integer> branchesToCoverTrue  = new LinkedHashSet<>();
+    private Set<Integer> branchesToCoverFalse = new LinkedHashSet<>();
+    private Set<Integer> branchesToCoverBoth  = new LinkedHashSet<>();
 
 	public LineCoverageSuiteFitness() {
 		@SuppressWarnings("unused")
@@ -163,7 +160,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		fitness += getControlDependencyGuidance(results);
 		logger.info("Branch distances: "+fitness);
 
-		Set<Integer> coveredLines = new LinkedHashSet<Integer>();
+		Set<Integer> coveredLines = new LinkedHashSet<>();
 		boolean hasTimeoutOrTestException = analyzeTraces(results, coveredLines);
 
 		int totalLines = this.numLines;
@@ -232,12 +229,13 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	private void initializeControlDependencies() {
 		// In case we target more than one class (context, or inner classes) 
-		Set<String> targetClasses = new LinkedHashSet<String>();
+		Set<String> targetClasses = new LinkedHashSet<>();
 		for(TestFitnessFunction ff : lineGoals.values()) {
 			targetClasses.add(ff.getTargetClass());
 		}
 		for(String className : targetClasses) {
 			List<BytecodeInstruction> instructions = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className);
+
 			if(instructions == null) {
 				logger.info("No instructions known for class {} (is it an enum?)", className);
 				continue;
@@ -247,7 +245,12 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					// Labels get no basic block. TODO - why?
 					continue;
 				}
-				for(ControlDependency cd : bi.getControlDependencies()) {
+
+				// The order of CDs may be nondeterminstic
+				// TODO: A better solution would be to make the CD order deterministic rather than sorting here
+				List<ControlDependency> cds = new ArrayList<>(bi.getControlDependencies());
+				Collections.sort(cds);
+				for(ControlDependency cd : cds) {
 					if(cd.getBranchExpressionValue()) {
 						branchesToCoverTrue.add(cd.getBranch().getActualBranchId());
 					} else {
