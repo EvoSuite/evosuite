@@ -33,6 +33,10 @@ public class PAFM_SystemTest extends SystemTestBase {
         Properties.SEARCH_BUDGET = 100_000;
         Properties.P_FUNCTIONAL_MOCKING = 0.8;
         Properties.P_REFLECTION_ON_PRIVATE = 0.5;
+        // PAFM is activated by time. The test uses statements as budget.
+        // Therefore, we activate PAFM from the start.
+        Properties.REFLECTION_START_PERCENT = 0.0;
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
         do100percentLineTest(PAFM_old.class);
     }
 
@@ -42,6 +46,10 @@ public class PAFM_SystemTest extends SystemTestBase {
         Properties.SEARCH_BUDGET = 100_000;
         Properties.P_FUNCTIONAL_MOCKING = 0.8;
         Properties.P_REFLECTION_ON_PRIVATE = 0.5;
+        // PAFM is activated by time. The test uses statements as budget.
+        // Therefore, we activate PAFM from the start.
+        Properties.REFLECTION_START_PERCENT = 0.0;
+        Properties.FUNCTIONAL_MOCKING_PERCENT = 0.0;
         do100percentLineTest(PAFM.class);
     }
 }
