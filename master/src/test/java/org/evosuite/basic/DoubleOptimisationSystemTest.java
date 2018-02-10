@@ -48,7 +48,7 @@ public class DoubleOptimisationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 30000;
+		Properties.SEARCH_BUDGET = 50000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
