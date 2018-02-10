@@ -120,7 +120,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 				bestOffspring.updateAge(currentIteration);
 			}
 			
-			if (!isTooLong(bestOffspring) && bestOffspring.size() != 0)
+			if (bestOffspring.size() > 0 && !isTooLong(bestOffspring))
 				temp_cells.add(bestOffspring);
 			else
 				temp_cells.add(population.get(i));
@@ -148,7 +148,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 			
 			// replace-if-better policy
 			if (isBetterOrEqual(tempIndividual, mainIndividual)) {
-				if (!(isTooLong(tempIndividual) || tempIndividual.size() == 0)){
+				if (tempIndividual.size() > 0 && !isTooLong(tempIndividual)) {
 					main.set(i, tempIndividual);
 				}
 			}
