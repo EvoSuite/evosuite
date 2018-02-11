@@ -630,20 +630,20 @@ public class GenericClass implements Serializable {
 			if(typeMap.get(type) == type) {
 				throw new ConstructionFailedException("Type points to itself");
 			}
-			logger.debug("Type contains " + toString() + ": " + typeMap);
+			logger.debug("Type contains {}: {}", toString(), typeMap);
 			GenericClass selectedClass = new GenericClass(typeMap.get(type)).getGenericInstantiation(typeMap,
 			                                                                                         recursionLevel + 1);
 			if (!selectedClass.satisfiesBoundaries((TypeVariable<?>) type)) {
-				logger.debug("Cannot be instantiated to: " + selectedClass);
+				logger.debug("Cannot be instantiated to: {}", selectedClass);
 				throw new ConstructionFailedException("Unable to instantiate "
 				        + toString());
 			} else {
-				logger.debug("Can be instantiated to: " + selectedClass);
+				logger.debug("Can be instantiated to: {}", selectedClass);
 			}
 
 			return selectedClass;
 		} else {
-			logger.debug("Type map does not contain " + toString() + ": " + typeMap);
+			logger.debug("Type map does not contain {}: {}", toString(), typeMap);
 
 			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
 			                                                                            recursionLevel < Properties.MAX_GENERIC_DEPTH,
@@ -653,8 +653,7 @@ public class GenericClass implements Serializable {
 				throw new ConstructionFailedException("Unable to instantiate "
 				        + toString());
 			}
-			logger.debug("Getting instantiation of type variable " + toString() + ": "
-			        + selectedClass);
+			logger.debug("Getting instantiation of type variable {}: {}", toString(), selectedClass);
 			Map<TypeVariable<?>, Type> extendedMap = new HashMap<TypeVariable<?>, Type>(
 			        typeMap);
 			extendedMap.putAll(getTypeVariableMap());
@@ -670,7 +669,7 @@ public class GenericClass implements Serializable {
 				}
 			}
 			
-			logger.debug("Updated type variable map to " + extendedMap);
+			logger.debug("Updated type variable map to {}", extendedMap);
 
 			GenericClass instantiation = selectedClass.getGenericInstantiation(extendedMap,
 			                                                                   recursionLevel + 1);
@@ -716,9 +715,11 @@ public class GenericClass implements Serializable {
 	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
 	        throws ConstructionFailedException {
 
-		if(isClass() && !hasTypeVariables()) {
-			return this;
-		}
+		// FIXME: This negatively affects coverage. Why was it added?
+		//
+		//		if(isClass() && !hasTypeVariables()) {
+		//			return this;
+		//		}
 
 		List<TypeVariable<?>> typeParameters = getTypeVariables();
 
