@@ -185,8 +185,13 @@ public class TestChromosome extends ExecutableChromosome {
 
 		for (int i = position2; i < other.size(); i++) {
 			GenericAccessibleObject<?> accessibleObject = otherChromosome.test.getStatement(i).getAccessibleObject();
-			if(accessibleObject != null && accessibleObject.getDeclaringClass().equals(Injector.class))
-				continue;
+			if(accessibleObject != null) {
+				if (accessibleObject.getDeclaringClass().equals(Injector.class))
+					continue;
+				if(!ConstraintVerifier.isValidPositionForInsertion(accessibleObject, offspring.test, offspring.test.size())) {
+					continue;
+				}
+			}
 			testFactory.appendStatement(offspring.test,
 					otherChromosome.test.getStatement(i));
 		}
