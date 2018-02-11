@@ -210,6 +210,11 @@ public class ShutdownHookHandler {
 		
 		//first remove them from JVM hooks
 		for(Thread t : list) {
+			if(t.getName().equals("CloverShutdownFlusher")) {
+				// Clover uses a shutdown hook to write coverage data.
+				// If we kill this, coverage data may be incomplete.
+				continue;
+			}
 			hooksReference.remove(t);
 		}
 
