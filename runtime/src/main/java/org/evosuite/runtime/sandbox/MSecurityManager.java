@@ -1314,12 +1314,16 @@ public class MSecurityManager extends SecurityManager {
 			 *        
 			 */
 				return true;
-			} else if(fp.getName().endsWith("jacoco.exec")) {
+			} else if(fp.getName().contains("jacoco")) {
 				/*
 				 * This is not 100% secure, but Jacoco support
 				 * is important
 				 */
-				return true;
+				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+					if(e.getClassName().startsWith("org.jacoco.")) {
+						return true;
+					}
+				}
 			} else if(fp.getName().contains("clover")) {
 				/*
 				 * To make sure this is really clover trying to write a report
