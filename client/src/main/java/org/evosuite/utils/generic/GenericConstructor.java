@@ -332,6 +332,18 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	@Override
+	public boolean isPublic() { return Modifier.isPublic(constructor.getModifiers()); }
+
+	@Override
+	public boolean isPrivate() { return Modifier.isPrivate(constructor.getModifiers()); }
+
+	@Override
+	public boolean isProtected() { return Modifier.isProtected(constructor.getModifiers()); }
+
+	@Override
+	public boolean isDefault() { return !isPublic() && !isPrivate() && !isProtected(); }
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

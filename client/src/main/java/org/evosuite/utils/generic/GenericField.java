@@ -249,6 +249,20 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	@Override
+	public boolean isPublic() { return Modifier.isPublic(field.getModifiers()); }
+
+	@Override
+	public boolean isPrivate() { return Modifier.isPrivate(field.getModifiers()); }
+
+	@Override
+	public boolean isProtected() { return Modifier.isProtected(field.getModifiers()); }
+
+	@Override
+	public boolean isDefault() { return !isPublic() && !isPrivate() && !isProtected(); }
+
+
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

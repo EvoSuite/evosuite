@@ -349,7 +349,18 @@ public class TestCodeVisitor extends TestVisitor {
 			GenericField field = ((FieldReference) var).getField();
 			if (source != null) {
 				String ret = "";
-				if(!source.isAssignableTo(field.getField().getDeclaringClass())) {
+				// If the method is not public and this is a subclass in a different package we need to cast
+				if(!field.isPublic() && !field.getDeclaringClass().equals(source.getVariableClass()) && source.isAssignableTo(field.getDeclaringClass())) {
+					String packageName1 = ClassUtils.getPackageName(field.getDeclaringClass());
+					String packageName2 = ClassUtils.getPackageName(source.getVariableClass());
+					if(!packageName1.equals(packageName2)) {
+						ret += "((" + getClassName(field.getDeclaringClass())
+								+ ")" + getVariableName(source) + ")";
+					} else {
+						ret += getVariableName(source);
+					}
+				}
+				else if(!source.isAssignableTo(field.getField().getDeclaringClass())) {
 					try {
 						// If the concrete source class has that field then it's ok
 						source.getVariableClass().getDeclaredField(field.getName());
@@ -1418,11 +1429,23 @@ public class TestCodeVisitor extends TestVisitor {
 			callee_str += getClassName(method.getMethod().getDeclaringClass());
 		} else {
 			VariableReference callee = statement.getCallee();
+
 			if (callee instanceof ConstantValue) {
 				callee_str += "((" + getClassName(method.getMethod().getDeclaringClass())
 				        + ")" + getVariableName(callee) + ")";
 			} else {
-				if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
+				// If the method is not public and this is a subclass in a different package we need to cast
+				if(!method.isPublic() && !method.getDeclaringClass().equals(callee.getVariableClass()) && callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
+					String packageName1 = ClassUtils.getPackageName(method.getDeclaringClass());
+					String packageName2 = ClassUtils.getPackageName(callee.getVariableClass());
+					if(!packageName1.equals(packageName2)) {
+						callee_str += "((" + getClassName(method.getMethod().getDeclaringClass())
+								+ ")" + getVariableName(callee) + ")";
+					} else {
+						callee_str += getVariableName(callee);
+					}
+				}
+				else if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
 					try {
 						// If the concrete callee class has that method then it's ok
 						callee.getVariableClass().getDeclaredMethod(method.getName(), method.getRawParameterTypes());

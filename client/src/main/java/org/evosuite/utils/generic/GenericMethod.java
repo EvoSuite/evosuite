@@ -412,6 +412,18 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	}
 
 	@Override
+	public boolean isPublic() { return Modifier.isPublic(method.getModifiers()); }
+
+	@Override
+	public boolean isPrivate() { return Modifier.isPrivate(method.getModifiers()); }
+
+	@Override
+	public boolean isProtected() { return Modifier.isProtected(method.getModifiers()); }
+
+	@Override
+	public boolean isDefault() { return !isPublic() && !isPrivate() && !isProtected(); }
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
