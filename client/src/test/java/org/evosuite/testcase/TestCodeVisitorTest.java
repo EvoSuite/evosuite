@@ -41,6 +41,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -70,6 +71,21 @@ public class TestCodeVisitorTest {
         }
     }
 
+    public static class Country {
+        public String bar = "bar";
+        public static class CountryNameCode {
+            public String foo = "foo";
+        }
+    }
+
+    @Test
+    public void testInnerClassWithNameSubset() {
+        TestCodeVisitor visitor = new TestCodeVisitor();
+        assertEquals("TestCodeVisitorTest", visitor.getClassName(getClass()));
+        assertEquals("TestCodeVisitorTest.Country", visitor.getClassName(Country.class));
+        assertEquals("TestCodeVisitorTest.Country.CountryNameCode", visitor.getClassName(Country.CountryNameCode.class));
+    }
+
     @Test
     public void testGenerics_methodWithExtends() throws NoSuchMethodException, ConstructionFailedException {
 
@@ -88,14 +104,14 @@ public class TestCodeVisitorTest {
 
         //Check if generic types were correctly analyzed/inferred
         Type[] types = gm.getParameterTypes();
-        Assert.assertEquals(1, types.length); //only 1 input
+        assertEquals(1, types.length); //only 1 input
         Type type = types[0];
         Assert.assertNotNull(type);
         TypeVariable<?> tv = (TypeVariable<?>) type;
-        Assert.assertEquals(1, tv.getBounds().length);
+        assertEquals(1, tv.getBounds().length);
 
         Class<?> upper = (Class<?>) tv.getBounds()[0];
-        Assert.assertEquals(Servlet.class, upper);
+        assertEquals(Servlet.class, upper);
 
 
         //Finally, visit the test
@@ -119,15 +135,15 @@ public class TestCodeVisitorTest {
         //Check if generic types were correctly analyzed/inferred
         Type[] types = gm.getParameterTypes();
 
-        Assert.assertEquals(1, types.length); //only 1 input
+        assertEquals(1, types.length); //only 1 input
         Type type = types[0];
         Assert.assertNotNull(type);
         WildcardTypeImpl wt = (WildcardTypeImpl) type;
-        Assert.assertEquals(0, wt.getLowerBounds().length);
-        Assert.assertEquals(1, wt.getUpperBounds().length);
+        assertEquals(0, wt.getLowerBounds().length);
+        assertEquals(1, wt.getUpperBounds().length);
 
         Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
-        Assert.assertEquals(Object.class, upper);
+        assertEquals(Object.class, upper);
 
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();
@@ -150,15 +166,15 @@ public class TestCodeVisitorTest {
 
         //Check if generic types were correctly analyzed/inferred
         Type[] types = gm.getParameterTypes();
-        Assert.assertEquals(1, types.length); //only 1 input
+        assertEquals(1, types.length); //only 1 input
         Type type = types[0];
         Assert.assertNotNull(type);
         WildcardTypeImpl wt = (WildcardTypeImpl) type;
-        Assert.assertEquals(0, wt.getLowerBounds().length);
-        Assert.assertEquals(1, wt.getUpperBounds().length);
+        assertEquals(0, wt.getLowerBounds().length);
+        assertEquals(1, wt.getUpperBounds().length);
 
         Class<?> upper = (Class<?>) wt.getUpperBounds()[0];
-        Assert.assertEquals(Object.class, upper);
+        assertEquals(Object.class, upper);
 
         //Finally, visit the test
         TestCodeVisitor visitor = new TestCodeVisitor();
@@ -182,8 +198,8 @@ public class TestCodeVisitorTest {
 
         // Not imported as the fully qualified name is used
         assertFalse(imports.contains(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
-        Assert.assertEquals("ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.class));
-        Assert.assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
+        assertEquals("ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.class));
+        assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
     }
 
     @Test
@@ -203,10 +219,10 @@ public class TestCodeVisitorTest {
 
         // Not imported as the fully qualified name is used
         assertFalse(imports.contains(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
-        Assert.assertEquals("ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.class));
-        Assert.assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
-        Assert.assertEquals("ExampleWithInnerClass.Foo", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.Foo.class));
-        Assert.assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar.class));
+        assertEquals("ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.class));
+        assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.class));
+        assertEquals("ExampleWithInnerClass.Foo", visitor.getClassName(com.examples.with.different.packagename.otherpackage.ExampleWithInnerClass.Foo.class));
+        assertEquals("com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar", visitor.getClassName(com.examples.with.different.packagename.subpackage.ExampleWithInnerClass.Bar.class));
     }
 
     @Test

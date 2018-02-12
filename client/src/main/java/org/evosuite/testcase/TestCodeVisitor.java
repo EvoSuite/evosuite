@@ -304,11 +304,11 @@ public class TestCodeVisitor extends TestVisitor {
         Class<?> outerClass = clazz.getEnclosingClass();
         if(outerClass != null) {
             String enclosingName = getClassName(outerClass);
-            String simpleOuterName = outerClass.getSimpleName();
+            String simpleOuterName = outerClass.getSimpleName() + ".";
             if(simpleOuterName.equals(enclosingName)) {
                 name = enclosingName + name.substring(simpleOuterName.length());
             } else {
-                name = enclosingName + name.substring(name.lastIndexOf(simpleOuterName) + simpleOuterName.length());
+                name = enclosingName + name.substring(name.lastIndexOf(simpleOuterName) + simpleOuterName.length() - 1);
             }
         }
 
