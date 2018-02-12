@@ -113,8 +113,8 @@ public class ClassStateSupport {
 				return;
 			} catch (NoSuchMethodException e) {
 				// No instrumentation, no need to do anything
-			} catch (Exception e) {
-				logger.warn("Error while checking for $jacocoInit in class {}: {}", clazz.getName(), e.getMessage());
+			} catch (Throwable e) {
+				logger.info("Error while checking for $jacocoInit in class {}: {}", clazz.getName(), e.getMessage());
 
 			}
 		}
