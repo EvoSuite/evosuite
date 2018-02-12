@@ -22,15 +22,19 @@ package org.evosuite.testcase.statements;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.runtime.FalsePositiveException;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
@@ -204,6 +208,13 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
+        // Trying to mock classes loaded by the system classloader leads to LinkageErrors
+        if(rawClass.getClassLoader() != TestGenerationContext.getInstance().getClassLoaderForSUT()) {
+            logger.info("Not mocking class {} loaded by {}", rawClass, rawClass.getClassLoader());
+            return false;
+        }
+
+
         if (!InstrumentedClass.class.isAssignableFrom(rawClass) &&
                 Modifier.isFinal(rawClass.getModifiers())) {
             /*
@@ -265,7 +276,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
-
         return true;
     }
 
@@ -273,7 +283,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
         Class<?> rawClass = new GenericClass(type).getRawClass();
 		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-
 
         if (Properties.hasTargetClassBeenLoaded()
         		&& GenericClass.isAssignable(targetClass, rawClass)) {
