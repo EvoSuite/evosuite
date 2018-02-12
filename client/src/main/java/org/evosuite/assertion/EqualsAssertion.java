@@ -19,7 +19,7 @@
  */
 package org.evosuite.assertion;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.testcase.TestCase;
@@ -134,7 +134,7 @@ public class EqualsAssertion extends Assertion {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {
-		Set<VariableReference> vars = new HashSet<VariableReference>();
+		Set<VariableReference> vars = new LinkedHashSet<>();
 		vars.add(source);
 		vars.add(dest);
 		return vars;
