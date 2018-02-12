@@ -20,6 +20,8 @@
 package org.evosuite.runtime.classhandling;
 
 import java.lang.instrument.UnmodifiableClassException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +66,8 @@ public class ClassStateSupport {
 			problem = true;
 		}
 
+		initialiseJacoco(classLoader, classes);
+
 		if(RuntimeSettings.isUsingAnyMocking()) {
 
 			for (Class<?> clazz : classes) {
@@ -91,6 +95,29 @@ public class ClassStateSupport {
 		return problem;
 
 		//retransformIfNeeded(classes); // cannot do it, as retransformation does not really work :(
+	}
+
+	/*
+	 * If a class is instrumented by Jacoco, we need to make sure Jacoco is initialised
+	 * so that the shutdownhook is added before the first test is executed.
+	 */
+	private static void initialiseJacoco(ClassLoader classLoader, List<Class<?>> classes) {
+
+		for(Class<?> clazz : classes) {
+			try {
+				Method initMethod = clazz.getDeclaredMethod("$jacocoInit");
+				logger.error("Found $jacocoInit in class {}", clazz.getName());
+				initMethod.setAccessible(true);
+				initMethod.invoke(null);
+				// Once it has been invoked the agent should be loaded and we're done
+				return;
+			} catch (NoSuchMethodException e) {
+				// No instrumentation, no need to do anything
+			} catch (Exception e) {
+				logger.warn("Error while checking for $jacocoInit in class {}: {}", clazz.getName(), e.getMessage());
+
+			}
+		}
 	}
 
 	/**
