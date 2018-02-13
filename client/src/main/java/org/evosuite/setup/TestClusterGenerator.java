@@ -246,7 +246,6 @@ public class TestClusterGenerator {
 				String className = castEntry.getKey().getClassName();
 				if (blackList.contains(className))
 					continue;
-
 				if (addCastClassDependencyIfAccessible(className, blackList)) {
 					CastClassManager.getInstance().addCastClass(className, castEntry.getValue());
 					classNames.add(castEntry.getKey().getClassName());
@@ -546,7 +545,9 @@ public class TestClusterGenerator {
 					addDependencies(genericMethod, 1);
 					GenericClass retClass = new GenericClass(method.getReturnType());
 
-					if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject())
+					// For the CUT, we may want to use primitives and Object return types as generators
+					//if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject())
+					if (!retClass.isVoid())
 						cluster.addGenerator(retClass, // .getWithWildcardTypes(),
 								genericMethod);
 				} else {
@@ -991,7 +992,8 @@ public class TestClusterGenerator {
 
 						GenericClass retClass = new GenericClass(method.getReturnType());
 
-						if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject()) {
+						// Only use as generator if its not any of the types with special treatment
+						if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject() && !retClass.isString()) {
 							cluster.addGenerator(retClass, // .getWithWildcardTypes(),
 									genericMethod);
 						}
@@ -1010,8 +1012,10 @@ public class TestClusterGenerator {
 					logger.debug("Adding field " + field + " for class " + clazz);
 					try {
 						GenericField genericField = new GenericField(field, clazz);
-						cluster.addGenerator(new GenericClass(field.getGenericType()), // .getWithWildcardTypes(),
-								genericField);
+						GenericClass retClass = new GenericClass(field.getType());
+						// Only use as generator if its not any of the types with special treatment
+						if(!retClass.isPrimitive() && !retClass.isObject() && !retClass.isString())
+							cluster.addGenerator(new GenericClass(field.getGenericType()), genericField);
 						final boolean isFinalField = isFinalField(field);
 						if (!isFinalField) {
 							cluster.addModifier(clazz, // .getWithWildcardTypes(),
