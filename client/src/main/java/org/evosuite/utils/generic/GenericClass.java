@@ -325,8 +325,6 @@ public class GenericClass implements Serializable {
 				return false;
 			}
 		}
-		// TODO
-		logger.debug("Not assignable? Want: {}, have {}", otherType, toString());
 
 		return false;
 	}
