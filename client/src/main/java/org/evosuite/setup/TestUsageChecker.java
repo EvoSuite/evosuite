@@ -189,6 +189,11 @@ public class TestUsageChecker {
             return false;
         }
 
+        // Don't use Lambdas...for now
+        if(c.getName().contains("$$Lambda")) {
+            return false;
+        }
+
         // TODO: This should be unnecessary if Java reflection works...
         // This is inefficient
         if(TestClusterUtils.isAnonymousClass(c.getName())) {
