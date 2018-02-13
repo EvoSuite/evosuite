@@ -207,14 +207,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 !Modifier.isPublic(rawClass.getModifiers())) {
             return false;
         }
-
-        // Trying to mock classes loaded by the system classloader leads to LinkageErrors
-        if(rawClass.getClassLoader() != TestGenerationContext.getInstance().getClassLoaderForSUT()) {
-            logger.info("Not mocking class {} loaded by {}", rawClass, rawClass.getClassLoader());
-            return false;
-        }
-
-
+        
         if (!InstrumentedClass.class.isAssignableFrom(rawClass) &&
                 Modifier.isFinal(rawClass.getModifiers())) {
             /*
