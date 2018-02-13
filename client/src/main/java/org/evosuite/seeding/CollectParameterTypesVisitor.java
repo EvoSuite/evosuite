@@ -50,7 +50,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	}
 
 	/**
-	 * @param api
+	 * @param className
 	 */
 	public CollectParameterTypesVisitor(String className) {
 		super(Opcodes.ASM5);
