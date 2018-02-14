@@ -263,7 +263,7 @@
                 <!-- MIT -->
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>2.5.2</version>
+                <version>2.15.0</version>
             </dependency>
             <dependency>
                 <!-- Common Public License Version 1.0 -->
@@ -811,6 +811,10 @@
                                     <relocation>
                                         <pattern>org.mockito</pattern>
                                         <shadedPattern>org.evosuite.shaded.org.mockito</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>net.bytebuddy</pattern>
+                                        <shadedPattern>org.evosuite.shaded.net.bytebuddy</shadedPattern>
                                     </relocation>
                                     <relocation>
                                         <!-- This is special. Originally we wanted to handle it directly, but
