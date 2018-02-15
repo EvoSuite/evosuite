@@ -483,11 +483,15 @@ public class TestCluster {
 							logger.debug("5. ERROR", e);
 						}
 					}
-				} else {
-					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz, clazz);
-					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
-						CastClassManager.getInstance().addCastClass(boundClass, 0);
-					}
+					// FIXME:
+					// There are cases where this might lead to relevant cast classes not being included
+					// but in manycases it will pull in large numbers of useless dependencies.
+					// Commented out for now, until we find a case where the problem can be properly studied.
+//				} else {
+//					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz, clazz);
+//					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
+//						CastClassManager.getInstance().addCastClass(boundClass, 0);
+//					}
 				}
 			}
 			logger.debug("Found generators for {}: {}",clazz, targetGenerators.size());
