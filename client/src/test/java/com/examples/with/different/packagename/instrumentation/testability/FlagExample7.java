@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.instrumentation.testability;
 
 public class FlagExample7 {
 

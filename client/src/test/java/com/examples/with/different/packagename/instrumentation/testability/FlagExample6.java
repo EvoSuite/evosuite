@@ -17,15 +17,18 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.instrumentation.testability;
 
 public class FlagExample6 {
 
-	public void flagProblem(int x, int y) {
+	public boolean testMe(int x, int y) {
 		FlagExample5 f = new FlagExample5();
 
-		if(f.testMe(x, y))
-			System.out.println("Target");
+		if(f.testMe(x, y)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

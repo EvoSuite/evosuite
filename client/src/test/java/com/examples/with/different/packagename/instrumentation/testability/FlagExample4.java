@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.instrumentation.testability;
 
 public class FlagExample4 {
 
-	public void flag6(int x, int y) {
+	public boolean testMe(int x, int y) {
 		boolean flag1 = x == 2904;
 		boolean flag2 = false;
 		if(flag1) {
@@ -32,7 +32,10 @@ public class FlagExample4 {
 			if(y == 223558)
 				flag2 = true;
 		}
-		if(flag2)
-			System.out.println("Target");
+		if(flag2) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
