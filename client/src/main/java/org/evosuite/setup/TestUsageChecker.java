@@ -260,6 +260,10 @@ public class TestUsageChecker {
             return false;
         }
 
+        if(f.getName().equals("serialVersionUID")) {
+            return false;
+        }
+
         if (Modifier.isPublic(f.getModifiers())) {
             // It may still be the case that the field is defined in a non-visible superclass of the class
             // we already know we can use. In that case, the compiler would be fine with accessing the
