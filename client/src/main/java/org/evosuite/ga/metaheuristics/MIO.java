@@ -110,7 +110,6 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     // evaluate it
     for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness((T) this.solution);
-      this.notifyEvaluation(this.solution);
     }
 
     double usedBudget = this.progress();
