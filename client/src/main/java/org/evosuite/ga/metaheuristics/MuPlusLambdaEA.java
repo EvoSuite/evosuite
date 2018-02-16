@@ -37,9 +37,9 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   private static final long serialVersionUID = -4011708411919957290L;
 
-  private final int mu;
+  protected final int mu;
 
-  private final int lambda;
+  protected final int lambda;
 
   public MuPlusLambdaEA(ChromosomeFactory<T> factory, int mu, int lambda) {
     super(factory);

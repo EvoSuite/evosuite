@@ -89,6 +89,7 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 		case NSGAII:
 		case SPEA2:
 		case ONEPLUSONEEA:
+		case MULAMBDAEA:
 		case RANDOM:
 		case STANDARDGA:
 		case STEADYSTATEGA:

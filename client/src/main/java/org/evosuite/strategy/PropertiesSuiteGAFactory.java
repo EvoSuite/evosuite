@@ -129,6 +129,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
                 MuPlusLambdaEA<TestSuiteChromosome> ga = new MuPlusLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
                 return ga;
             }
+		case MULAMBDAEA:
+			logger.info("Chosen search algorithm: (Mu,Lambda)EA");
+			return new MuLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
 		case MONOTONICGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{

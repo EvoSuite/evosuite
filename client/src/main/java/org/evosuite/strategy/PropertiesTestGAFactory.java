@@ -93,6 +93,9 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		case MUPLUSLAMBDAEA:
 		  logger.info("Chosen search algorithm: (Mu+Lambda)EA");
           return new MuPlusLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
+		case MULAMBDAEA:
+			logger.info("Chosen search algorithm: (Mu,Lambda)EA");
+			return new MuLambdaEA<TestChromosome>(factory, Properties.MU, Properties.LAMBDA);
         case BREEDERGA:
 				logger.info("Chosen search algorithm: BreederGA");
 				return new BreederGA<>(factory);
