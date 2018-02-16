@@ -100,6 +100,12 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 				double fit = 0.0;
 				if (touchedMutantsDistances.containsKey(mutantID)) {
 					fit = touchedMutantsDistances.get(mutantID);
+
+					if (!mutant_distance.containsKey(mutantID)) {
+						mutant_distance.put(mutantID, fit);
+					} else {
+						mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
+					}
 				} else {
 					TestChromosome tc = new TestChromosome();
 					tc.setTestCase(result.test);
@@ -113,12 +119,6 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 
 				if (Properties.TEST_ARCHIVE) {
 					Archive.getArchiveInstance().updateArchive(goal, result, fit);
-				}
-
-				if (!mutant_distance.containsKey(mutantID)) {
-					mutant_distance.put(mutantID, fit);
-				} else {
-					mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
 				}
 			}
 		}

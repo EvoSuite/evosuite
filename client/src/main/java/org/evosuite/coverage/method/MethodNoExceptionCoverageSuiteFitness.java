@@ -20,6 +20,7 @@
 package org.evosuite.coverage.method;
 
 import java.util.List;
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -38,7 +39,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
 
 	private static final long serialVersionUID = -704561530935529634L;
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(MethodNoExceptionCoverageSuiteFitness.class);
 
 	/**
 	 * Initialize the set of known coverage goals
@@ -56,7 +57,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
     @Override
     protected void handleConstructorExceptions(
     		AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-    		List<ExecutionResult> results) {
+    		List<ExecutionResult> results, Set<String> calledMethods) {
     	return; // No-op
     }
 

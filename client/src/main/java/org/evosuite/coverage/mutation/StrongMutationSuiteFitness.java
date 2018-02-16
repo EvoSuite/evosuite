@@ -179,8 +179,9 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 				mutantsChecked++;
 
 				double mutantInfectionDistance = 0.0;
+				boolean hasBeenTouched = touchedMutantsDistances.containsKey(mutantID);
 
-				if (touchedMutantsDistances.containsKey(mutantID)) {
+				if (hasBeenTouched) {
 					mutantInfectionDistance = touchedMutantsDistances.get(mutantID);
 
 					if (mutantInfectionDistance == 0.0) {
@@ -199,14 +200,15 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				} else {
 					mutantInfectionDistance = 1.0 + normalize(mutantInfectionDistance);
+
+					if (hasBeenTouched) {
+						minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
+					}
 				}
 
 				if (Properties.TEST_ARCHIVE) {
 					Archive.getArchiveInstance().updateArchive(goal, result, mutantInfectionDistance);
 				}
-
-				// update minimum infection distance to this mutant
-				minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
 			}
 		}
 
