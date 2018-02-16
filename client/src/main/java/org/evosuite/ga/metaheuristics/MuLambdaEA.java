@@ -72,9 +72,18 @@ public class MuLambdaEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
       }
     }
 
-    // sort offspring from the one with the lowest fitness value to the one with the highest fitness
-    // value (assumes minimization)
-    Collections.sort(offspring);
+    if (this.getFitnessFunction().isMaximizationFunction()) {
+      // this if condition assumes *all* fitness functions are either to be maximized or to be
+      // minimized
+
+      // sort offspring from the one with the highest fitness value to the one with the lowest
+      // fitness value
+      Collections.sort(offspring, Collections.reverseOrder());
+    } else {
+      // sort offspring from the one with the lowest fitness value to the one with the highest
+      // fitness value
+      Collections.sort(offspring);
+    }
 
     // replace mu (i.e., population) out of lambda (i.e., offspring)
     for (int i = 0; i < this.population.size(); i++) {
