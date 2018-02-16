@@ -87,11 +87,12 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * If there is an exception in a super-constructor, then the corresponding
 	 * constructor might not be included in the execution trace
 	 *
+	 * @param suite
 	 * @param results
 	 * @param calledMethods
 	 */
 	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-			List<ExecutionResult> results) {
+			List<ExecutionResult> results, Set<String> calledMethods) {
 
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()
@@ -106,11 +107,12 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				String methodName = "<init>"
 				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (methodCoverageMap.containsKey(name)) {
+				if (methodCoverageMap.containsKey(name) && !calledMethods.contains(name)) {
 					TestFitnessFunction goal = methodCoverageMap.get(name);
 
 					// only include methods being called
 					result.test.addCoveredGoal(goal);
+					calledMethods.add(name);
 					this.toRemoveMethods.add(name);
 
 					if (Properties.TEST_ARCHIVE) {
@@ -176,7 +178,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		boolean hasTimeoutOrTestException = analyzeTraces(results, calledMethods);
 
 		// In case there were exceptions in a constructor
-		handleConstructorExceptions(suite, results);
+		handleConstructorExceptions(suite, results, calledMethods);
 
 		int coveredMethods = calledMethods.size() + this.removedMethods.size();
 		int missingMethods = this.totalMethods - coveredMethods;
