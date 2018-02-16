@@ -119,7 +119,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 
     private boolean isValidPosition(List<Integer> exceptionPositions, Integer position) {
         if (Properties.BREAK_ON_EXCEPTION) {
-            return exceptionPositions.isEmpty() ? true : position >= exceptionPositions.get(0);
+            return exceptionPositions.isEmpty() ? true : position <= exceptionPositions.get(0);
         } else {
             return true;
         }
