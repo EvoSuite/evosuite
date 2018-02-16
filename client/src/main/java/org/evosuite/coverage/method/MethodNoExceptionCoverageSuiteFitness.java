@@ -39,7 +39,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
 
 	private static final long serialVersionUID = -704561530935529634L;
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(MethodNoExceptionCoverageSuiteFitness.class);
 
 	/**
 	 * Initialize the set of known coverage goals

@@ -47,7 +47,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 3359321076367091582L;
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(MethodCoverageSuiteFitness.class);
 
 	// Each test gets a set of distinct covered goals, these are mapped by branch id
 	protected final Map<String, TestFitnessFunction> methodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
