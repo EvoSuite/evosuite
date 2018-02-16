@@ -32,7 +32,7 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 
 /**
- * Fitness function for a single test on a single method (no exception)
+ * Fitness function for a single test on a single method (including calls that throw exceptions)
  *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
@@ -119,7 +119,7 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
 
     private boolean isValidPosition(List<Integer> exceptionPositions, Integer position) {
         if (Properties.BREAK_ON_EXCEPTION) {
-            return exceptionPositions.isEmpty() ? true : position > exceptionPositions.get(0);
+            return exceptionPositions.isEmpty() ? true : position >= exceptionPositions.get(0);
         } else {
             return true;
         }

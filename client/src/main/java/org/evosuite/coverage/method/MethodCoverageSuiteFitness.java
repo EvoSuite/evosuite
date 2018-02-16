@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fitness function for a whole test suite for all methods considering only normal behaviour (no exceptions)
+ * Fitness function for a whole test suite for all methods, including exceptional behaviour
  *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
