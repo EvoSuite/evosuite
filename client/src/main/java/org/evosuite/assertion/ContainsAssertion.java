@@ -26,7 +26,7 @@ public class ContainsAssertion extends Assertion {
         ContainsAssertion s = new ContainsAssertion();
         s.source = source.copy(newTestCase, offset);
         s.value = value;
-        s.containedVariable = containedVariable;
+        s.containedVariable = containedVariable.copy(newTestCase, offset);
         s.comment = comment;
         return s;
     }
