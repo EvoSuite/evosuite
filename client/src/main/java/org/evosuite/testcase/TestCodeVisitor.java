@@ -200,7 +200,7 @@ public class TestCodeVisitor extends TestVisitor {
 					if (i != 0)
 						name += ", ";
 
-					name += getTypeName(types[i]);
+					name += getTypeParameterName(types[i]);
 				}
 				name += ">";
 			}
@@ -209,6 +209,31 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	public String getTypeName(Type type) {
+		if (type instanceof Class<?>) {
+			return getClassName((Class<?>) type);
+		} else if (type instanceof ParameterizedType) {
+			return getTypeName((ParameterizedType) type);
+		} else if (type instanceof WildcardType) {
+			String ret = "Object";
+			return ret;
+		} else if (type instanceof TypeVariable) {
+			return "Object";
+		} else if (type instanceof CaptureType) {
+			CaptureType captureType = (CaptureType) type;
+			if (captureType.getLowerBounds().length == 0)
+				return "Object";
+			else
+				return getTypeName(captureType.getLowerBounds()[0]);
+		} else if (type instanceof GenericArrayType) {
+			return getTypeName(((GenericArrayType) type).getGenericComponentType())
+			        + "[]";
+		} else {
+			throw new RuntimeException("Unsupported type:" + type + ", class"
+			        + type.getClass());
+		}
+	}
+
+	public String getTypeParameterName(Type type) {
 		if (type instanceof Class<?>) {
 			return getClassName((Class<?>) type);
 		} else if (type instanceof ParameterizedType) {
@@ -223,17 +248,17 @@ public class TestCodeVisitor extends TestVisitor {
 
 				if (!first)
 					ret += ", ";
-				ret += " super " + getTypeName(bound);
+				ret += " super " + getTypeParameterName(bound);
 				first = false;
 			}
 			for (Type bound : ((WildcardType) type).getUpperBounds()) {
 				if (bound == null
-				        || (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
+						|| (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
 					continue;
 
 				if (!first)
 					ret += ", ";
-				ret += " extends " + getTypeName(bound);
+				ret += " extends " + getTypeParameterName(bound);
 				first = false;
 			}
 			return ret;
@@ -247,10 +272,10 @@ public class TestCodeVisitor extends TestVisitor {
 				return getTypeName(captureType.getLowerBounds()[0]);
 		} else if (type instanceof GenericArrayType) {
 			return getTypeName(((GenericArrayType) type).getGenericComponentType())
-			        + "[]";
+					+ "[]";
 		} else {
 			throw new RuntimeException("Unsupported type:" + type + ", class"
-			        + type.getClass());
+					+ type.getClass());
 		}
 	}
 
