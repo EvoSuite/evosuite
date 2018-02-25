@@ -247,7 +247,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
       if (!this.hasEnergyBeenConserved(currentEnergy)) {
         throw new RuntimeException("Current amount of energy (" + currentEnergy
-            + ") in the sysytem is not equal to its initial amount of energy (" + this.initialEnergy
+            + ") in the system is not equal to its initial amount of energy (" + this.initialEnergy
             + "). Conservation of energy has failed!");
       }
     }
