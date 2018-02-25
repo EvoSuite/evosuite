@@ -50,6 +50,8 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
   private double initialEnergy = 0.0;
 
+  private List<T> elite = new ArrayList<T>(Properties.ELITE);
+
   /**
    * Constructor
    *
@@ -176,6 +178,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
     logger.debug("Starting evolution");
     while (!this.isFinished()) {
+      this.elite = this.elitism();
       this.evolve();
       this.applyLocalSearch();
 
@@ -184,6 +187,32 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
       logger.debug("Current iteration: " + this.currentIteration);
       this.notifyIteration();
+
+      if (Properties.ELITE > 0) {
+        // perform elitism
+        for (int i = 0; i < this.elite.size(); i++) {
+          T best = (T) this.elite.get(i); // elite already includes a copy of each individual, so no
+                                          // need to clone it
+
+          int moleculeIndex = Randomness.nextInt(this.population.size());
+          T molecule = this.population.get(moleculeIndex);
+
+          double bestTotalKineticEnergy = best.getKineticEnergy() + best.getFitness();
+          double moleculeTotalKineticEnergy = molecule.getKineticEnergy() + molecule.getFitness();
+          double dif = bestTotalKineticEnergy - moleculeTotalKineticEnergy;
+          best.setKineticEnergy(best.getKineticEnergy() - dif);
+          best.setNumCollisions(molecule.getNumCollisions());
+
+          this.population.remove(moleculeIndex);
+          this.population.add(best);
+        }
+
+        // keep it sorted. the algorithm does not need to have the population sorted, but if the
+        // algorithms runs out of time, only the head of the population would be returned, and it
+        // makes sense to be the best one. also, as elitism is enabled, the next elite of
+        // individuals would be the first N individuals of the population, so better to keep sorted.
+        this.sortPopulation();
+      }
 
       // One of the fundamental assumptions of Chemical Reaction Optimization is conservation of
       // energy, which means that energy cannot be created or destroyed. The whole system refers to

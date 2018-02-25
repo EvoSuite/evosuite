@@ -75,10 +75,10 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * Evolution process on individuals in the grid
 	 */
 	public void evolve(){
+		// elitism has been shown to positively affect the convergence speed of GAs in various optimisation problems
+		temp_cells = this.elitism();
 		
-		temp_cells.clear();
-		
-		for(int i=0; i<this.population.size(); i++){
+		for (int i = 0; i < this.population.size() - temp_cells.size(); i++) {
 
 			List<T> neighbors = neighb.getNeighbors(population, i);
 			
