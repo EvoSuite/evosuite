@@ -220,23 +220,26 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
       double currentEnergy = this.getCurrentAmountOfEnergy();
 
-      if (shouldApplyLocalSearch() || Properties.TEST_ARCHIVE) {
-        // as a localsearch approach and the use of a test archive could change or update the
-        // fitness function value of any individual in the population, in here we have to make
-        // sure the amount of energy in the system is exactly the same as initially defined
+      if (shouldApplyLocalSearch()) {
+        // as a localsearch approach could change or update the fitness function value of any
+        // individual in the population, in here we have to make sure the amount of energy in the
+        // system is exactly the same as initially defined
 
         if (currentEnergy > this.initialEnergy) {
           // if, for example, individuals in the population got worse (i.e., higher fitness
           // values) over time, in here we must to reduce the amount of memory that is free
           double delta = currentEnergy - this.initialEnergy;
-          this.buffer = Math.abs(this.buffer - delta);
+          this.buffer = this.buffer - delta;
         } else if (currentEnergy < this.initialEnergy) {
           // if, for example, individuals in the population got better (i.e., lower fitness
           // values) over time, it means molecules have released some energy to the system
           double delta = this.initialEnergy - currentEnergy;
           this.buffer += delta;
         }
-        assert Double.compare(this.buffer, 0.0) >= 0;
+
+        if (this.buffer < 0.0) {
+          throw new RuntimeException("Amount of energy in the buffer cannot be negative");
+        }
 
         // sanity check: re-calculate current amount of energy
         currentEnergy = this.getCurrentAmountOfEnergy();
