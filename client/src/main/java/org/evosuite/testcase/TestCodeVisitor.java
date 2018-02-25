@@ -1614,7 +1614,8 @@ public class TestCodeVisitor extends TestVisitor {
                 !sourceClass.startsWith("java.lang.String") &&
                 !sourceClass.startsWith("sun.") &&
                 !sourceClass.startsWith("com.sun.") &&
-                !sourceClass.startsWith("jdk.internal.");
+                !sourceClass.startsWith("jdk.internal.") &&
+				!sourceClass.startsWith("<evosuite>");
 	}
 
 	private List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[] {
