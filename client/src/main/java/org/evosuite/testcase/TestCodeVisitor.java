@@ -1612,6 +1612,7 @@ public class TestCodeVisitor extends TestVisitor {
                 !sourceClass.startsWith(RegExp.class.getPackage().getName()) &&
                 !sourceClass.startsWith("java.lang.System") &&
                 !sourceClass.startsWith("java.lang.String") &&
+				!sourceClass.startsWith("java.lang.Class") &&
                 !sourceClass.startsWith("sun.") &&
                 !sourceClass.startsWith("com.sun.") &&
                 !sourceClass.startsWith("jdk.internal.") &&
