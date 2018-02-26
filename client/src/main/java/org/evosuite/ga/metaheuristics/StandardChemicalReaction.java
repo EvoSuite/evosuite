@@ -220,10 +220,10 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
       double currentEnergy = this.getCurrentAmountOfEnergy();
 
-      if (shouldApplyLocalSearch()) {
-        // as a localsearch approach could change or update the fitness function value of any
-        // individual in the population, in here we have to make sure the amount of energy in the
-        // system is exactly the same as initially defined
+      if (shouldApplyLocalSearch() || Properties.TEST_ARCHIVE) {
+        // as a local-search approach and the use of a test archive could change or update the
+        // fitness function value of any individual in the population, in here we have to make
+        // sure the amount of energy in the system is exactly the same as initially defined
 
         if (currentEnergy > this.initialEnergy) {
           // if, for example, individuals in the population got worse (i.e., higher fitness
