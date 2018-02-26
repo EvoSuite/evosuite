@@ -133,7 +133,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			logger.info("Chosen search algorithm: (Mu,Lambda)EA");
 			return new MuLambdaEA<TestSuiteChromosome>(factory, Properties.MU, Properties.LAMBDA);
 		case MONOTONIC_GA:
-			logger.info("Chosen search algorithm: SteadyStateGA");
+			logger.info("Chosen search algorithm: MonotonicGA");
 			{
 				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<TestSuiteChromosome>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
@@ -159,7 +159,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				return ga;
 			}
 		case STEADY_STATE_GA:
-			logger.info("Chosen search algorithm: MuPlusLambdaGA");
+			logger.info("Chosen search algorithm: Steady-StateGA");
 			{
 				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
@@ -211,7 +211,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
               return ga;
             }
         case LIPS:
-        	logger.info("Chosen search algorithm: LISP");
+        	logger.info("Chosen search algorithm: LIPS");
             return new LIPS<TestSuiteChromosome>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
