@@ -17,12 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.ga.metaheuristics.mulambda;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
@@ -34,14 +33,14 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Yan Ge
  */
-public class OnePlusLambdaLambdaGA<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class OnePlusLambdaLambdaGA<T extends Chromosome> extends AbstractMuLambda<T> {
 
   private static final long serialVersionUID = 529089847512798127L;
 
   private static final Logger logger = LoggerFactory.getLogger(OnePlusLambdaLambdaGA.class);
 
-  public OnePlusLambdaLambdaGA(ChromosomeFactory<T> factory) {
-    super(factory);
+  public OnePlusLambdaLambdaGA(ChromosomeFactory<T> factory, int lambda) {
+    super(factory, 1, lambda);
   }
 
   @SuppressWarnings("unchecked")
@@ -52,7 +51,7 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends GeneticAlgorith
 
     T parent = (T) population.get(0).clone();
 
-    while (!isNextPopulationFull(mutants)) {
+    while (mutants.size() < this.lambda) {
       // clone firstly offspring from parent
       T MutationOffspring = (T) parent.clone();
       notifyMutation(MutationOffspring);
@@ -75,7 +74,7 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends GeneticAlgorith
     // start to execute uniform crossover operator
     List<T> crossoverOffspring = new ArrayList<T>();
 
-    while (!isNextPopulationFull(crossoverOffspring)) {
+    while (crossoverOffspring.size() < this.lambda) {
       try {
         T p1 = (T) parent.clone();
         T p2 = (T) bestMutantOffspring.clone();
@@ -112,69 +111,4 @@ public class OnePlusLambdaLambdaGA<T extends Chromosome> extends GeneticAlgorith
 
     currentIteration++;
   }
-
-  @Override
-  public void initializePopulation() {
-    notifySearchStarted();
-    currentIteration = 0;
-    // Initialize one size parent
-    generateRandomPopulation(1);
-    // Determine fitness
-    calculateFitnessAndSortPopulation();
-    this.notifyIteration();
-    logger.info("Initial fitness: " + population.get(0).getFitness());
-  }
-
-  @Override
-  public void generateSolution() {
-    if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
-        || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
-      disableFirstSecondaryCriterion();
-    }
-
-    if (population.isEmpty()) {
-      initializePopulation();
-    }
-    int starvationCounter = 0;
-    double bestFitness = Double.MAX_VALUE;
-    double lastBestFitness = Double.MAX_VALUE;
-
-    if (getFitnessFunction().isMaximizationFunction()) {
-      bestFitness = 0.0;
-      lastBestFitness = 0.0;
-    }
-    while (!isFinished()) {
-      logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
-      logger.info("Best fitness: " + getBestIndividual().getFitness());
-
-      evolve();
-
-      applyLocalSearch();
-
-      double newFitness = getBestIndividual().getFitness();
-
-      if (getFitnessFunction().isMaximizationFunction())
-        assert (newFitness >= bestFitness) : "best fitness was: " + bestFitness
-            + ", now best fitness is " + newFitness;
-      else
-        assert (newFitness <= bestFitness) : "best fitness was: " + bestFitness
-            + ", now best fitness is " + newFitness;
-      bestFitness = newFitness;
-
-      if (Double.compare(bestFitness, lastBestFitness) == 0) {
-        starvationCounter++;
-      } else {
-        logger.info("reset starvationCounter after " + starvationCounter + " iterations");
-        starvationCounter = 0;
-        lastBestFitness = bestFitness;
-      }
-
-      updateSecondaryCriterion(starvationCounter);
-
-      this.notifyIteration();
-    }
-    updateBestIndividualFromArchive();
-    notifySearchFinished();
-  }
-
 }

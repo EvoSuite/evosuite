@@ -37,7 +37,7 @@ public class OnePlusOneEASystemTest extends SystemTestBase {
 
   @Test
   public void systemtTestLambdaEA() {
-    Properties.ALGORITHM = Algorithm.ONEPLUSONEEA;
+    Properties.ALGORITHM = Algorithm.ONE_PLUS_ONE_EA;
 
     EvoSuite evoSuite = new EvoSuite();
 

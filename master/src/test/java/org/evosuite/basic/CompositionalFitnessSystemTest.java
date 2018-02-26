@@ -63,7 +63,7 @@ public class CompositionalFitnessSystemTest extends SystemTestBase {
 
     @Before
     public void beforeTest() {
-        Properties.ALGORITHM = Algorithm.MONOTONICGA;
+        Properties.ALGORITHM = Algorithm.MONOTONIC_GA;
         Properties.LOG_LEVEL = "debug";
         Properties.PRINT_TO_SYSTEM = true;
         Properties.CLIENT_ON_THREAD = true;

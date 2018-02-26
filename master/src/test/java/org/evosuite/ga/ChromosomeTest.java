@@ -46,7 +46,7 @@ public class ChromosomeTest {
 
     @Test
     public void testGetFitnessForOneFunctionNoCompositional() {
-        Properties.ALGORITHM = Algorithm.MONOTONICGA;
+        Properties.ALGORITHM = Algorithm.MONOTONIC_GA;
         TestSuiteChromosome c = new TestSuiteChromosome();
         c.addFitness(new LineCoverageSuiteFitness(), ANY_DOUBLE_1);
         assertEquals(ANY_DOUBLE_1, c.getFitness(), 0.001);
@@ -54,21 +54,21 @@ public class ChromosomeTest {
 
     @Test
     public void testGetFitnessForNoFunctionNoCompositional() {
-        Properties.ALGORITHM = Algorithm.MONOTONICGA;
+        Properties.ALGORITHM = Algorithm.MONOTONIC_GA;
         TestSuiteChromosome c = new TestSuiteChromosome();
         assertEquals(0.0, c.getFitness(), 0.001);
     }
 
     @Test
     public void testCompositionalGetFitnessForNoFunction() {
-        Properties.ALGORITHM = Algorithm.MONOTONICGA;
+        Properties.ALGORITHM = Algorithm.MONOTONIC_GA;
         TestSuiteChromosome c = new TestSuiteChromosome();
         assertEquals(0.0, c.getFitness(), 0.001);
     }
 
     @Test
     public void testCompositionalGetFitnessForOneFunction() {
-        Properties.ALGORITHM = Algorithm.MONOTONICGA;
+        Properties.ALGORITHM = Algorithm.MONOTONIC_GA;
         TestSuiteChromosome c = new TestSuiteChromosome();
         LineCoverageSuiteFitness f1 = new LineCoverageSuiteFitness();
         c.addFitness(f1);
@@ -78,7 +78,7 @@ public class ChromosomeTest {
 
     @Test
     public void testCompositionalGetFitnessForTwoFunctions() {
-        Properties.ALGORITHM = Algorithm.MONOTONICGA;
+        Properties.ALGORITHM = Algorithm.MONOTONIC_GA;
         TestSuiteChromosome c = new TestSuiteChromosome();
         LineCoverageSuiteFitness f1 = new LineCoverageSuiteFitness();
         OnlyBranchCoverageSuiteFitness f2 = new OnlyBranchCoverageSuiteFitness();
@@ -98,7 +98,7 @@ public class ChromosomeTest {
 
     @Test
     public void testCompositionalGetFitnessForSeveralFunctions() {
-        Properties.ALGORITHM = Algorithm.MONOTONICGA;
+        Properties.ALGORITHM = Algorithm.MONOTONIC_GA;
         TestSuiteChromosome c = new TestSuiteChromosome();
         LineCoverageSuiteFitness f1 = new LineCoverageSuiteFitness();
         c.addFitness(f1);

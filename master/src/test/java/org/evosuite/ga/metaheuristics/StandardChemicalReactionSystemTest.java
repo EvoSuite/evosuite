@@ -36,7 +36,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   private GeneticAlgorithm<?> test(double molecular_collision_rate, int decomposition_threshold,
       int synthesis_threshold) {
-    Properties.ALGORITHM = Properties.Algorithm.STANDARDCHEMICALREACTION;
+    Properties.ALGORITHM = Properties.Algorithm.STANDARD_CHEMICAL_REACTION;
     Properties.TEST_ARCHIVE = false;
     Properties.SEARCH_BUDGET = 15_000;
 

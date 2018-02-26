@@ -17,14 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.ga.metaheuristics.mulambda;
 
-import org.evosuite.Properties;
-import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,18 +30,12 @@ import java.util.List;
  *
  * @author José Campos
  */
-public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class MuPlusLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
 
-  private static final long serialVersionUID = -4011708411919957290L;
-
-  private final int mu;
-
-  private final int lambda;
+  private static final long serialVersionUID = -8685698059226067598L;
 
   public MuPlusLambdaEA(ChromosomeFactory<T> factory, int mu, int lambda) {
-    super(factory);
-    this.mu = mu;
-    this.lambda = lambda;
+    super(factory, mu, lambda);
   }
 
   /** {@inheritDoc} */
@@ -102,46 +93,5 @@ public class MuPlusLambdaEA<T extends Chromosome> extends GeneticAlgorithm<T> {
     assert this.population.size() == this.mu;
 
     this.currentIteration++;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void initializePopulation() {
-    this.notifySearchStarted();
-    this.currentIteration = 0;
-    // set up initial population
-    this.generateRandomPopulation(this.mu);
-    assert this.population.size() == this.mu;
-    // update fitness values of all individuals
-    this.calculateFitnessAndSortPopulation();
-
-    this.notifyIteration();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void generateSolution() {
-    if (this.population.isEmpty()) {
-      this.initializePopulation();
-    }
-
-    if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
-        || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
-      this.disableFirstSecondaryCriterion();
-    }
-
-    while (!isFinished()) {
-      this.evolve();
-
-      this.applyLocalSearch();
-
-      // update fitness values of all individuals
-      this.updateFitnessFunctionsAndValues();
-
-      this.notifyIteration();
-    }
-
-    TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
-    this.notifySearchFinished();
   }
 }
