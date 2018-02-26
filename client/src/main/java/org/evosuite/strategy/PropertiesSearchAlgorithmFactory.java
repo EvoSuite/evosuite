@@ -84,17 +84,17 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 	
 	public static GeneticAlgorithm<?> createSearchAlgorithm() {
 		switch(Properties.ALGORITHM) {
-		case MONOTONICGA:
-		case CELLULARGA:
+		case MONOTONIC_GA:
+		case CELLULAR_GA:
 		case NSGAII:
 		case SPEA2:
-		case ONEPLUSONEEA:
-		case MULAMBDAEA:
-		case RANDOM:
-		case STANDARDGA:
-		case STEADYSTATEGA:
+		case ONE_PLUS_ONE_EA:
+		case MU_LAMBDA_EA:
+		case RANDOM_SEARCH:
+		case STANDARD_GA:
+		case STEADY_STATE_GA:
 		case MIO:
-		case STANDARDCHEMICALREACTION:
+		case STANDARD_CHEMICAL_REACTION:
 			return new PropertiesSuiteGAFactory().getSearchAlgorithm();
 		default:
 			throw new RuntimeException("Unsupported algorithm: "+Properties.ALGORITHM);

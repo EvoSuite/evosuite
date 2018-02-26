@@ -12,7 +12,7 @@ public class BreederGASystemTest extends SystemTestBase {
 
     @Test
     public void testLambdaGAIntegration() {
-        Properties.ALGORITHM = Properties.Algorithm.BREEDERGA;
+        Properties.ALGORITHM = Properties.Algorithm.BREEDER_GA;
         Properties.TRUNCATION_RATE = 0.1;
 
         EvoSuite evoSuite = new EvoSuite();

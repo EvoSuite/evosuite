@@ -87,19 +87,19 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 	
 	private GeneticAlgorithm<TestChromosome> getGeneticAlgorithm(ChromosomeFactory<TestChromosome> factory) {
 		switch (Properties.ALGORITHM) {
-		case ONEPLUSONEEA:
+		case ONE_PLUS_ONE_EA:
 			logger.info("Chosen search algorithm: (1+1)EA");
 			return new OnePlusOneEA<>(factory);
-		case MUPLUSLAMBDAEA:
+		case MU_PLUS_LAMBDA_EA:
 		  logger.info("Chosen search algorithm: (Mu+Lambda)EA");
           return new MuPlusLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
-		case MULAMBDAEA:
+		case MU_LAMBDA_EA:
 			logger.info("Chosen search algorithm: (Mu,Lambda)EA");
 			return new MuLambdaEA<TestChromosome>(factory, Properties.MU, Properties.LAMBDA);
-        case BREEDERGA:
+        case BREEDER_GA:
 				logger.info("Chosen search algorithm: BreederGA");
 				return new BreederGA<>(factory);
-		case MONOTONICGA:
+		case MONOTONIC_GA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				MonotonicGA<TestChromosome> ga = new MonotonicGA<>(factory);
@@ -111,7 +111,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 				}
 				return ga;
 			}
-		case CELLULARGA:
+		case CELLULAR_GA:
 			logger.info("Chosen search algorithm: CellularGA");
 			{
 				CellularGA<TestChromosome> ga = new CellularGA<TestChromosome>(Properties.MODEL, factory);
@@ -123,7 +123,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 				}
 				return ga;
 			}
-		case STEADYSTATEGA:
+		case STEADY_STATE_GA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
 				SteadyStateGA<TestChromosome> ga = new SteadyStateGA<>(factory);
@@ -136,7 +136,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 				}
 				return ga;
 			}
-		case RANDOM:
+		case RANDOM_SEARCH:
 			logger.info("Chosen search algorithm: Random");
 			return new RandomSearch<>(factory);
         case NSGAII:
@@ -145,10 +145,10 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
         case SPEA2:
             logger.info("Chosen search algorithm: SPEA2");
             return new SPEA2<>(factory);
-        case ONEPLUSLAMBDALAMBDAGA:
+        case ONE_PLUS_LAMBDA_LAMBDA_GA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             return new OnePlusLambdaLambdaGA<>(factory);
-        case STANDARDCHEMICALREACTION:
+        case STANDARD_CHEMICAL_REACTION:
             logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
             return new StandardChemicalReaction<>(factory);
         case LIPS:

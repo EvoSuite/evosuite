@@ -300,7 +300,16 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, MULAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, LIPS, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA, MIO, STANDARDCHEMICALREACTION
+		// random
+		RANDOM_SEARCH,
+		// GAs
+		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION,
+		// mu-lambda
+		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
+		// many-objective algorithms
+		MOSA, LIPS, MIO,
+		// multiple-objective optimisation algorithms
+		NSGAII, SPEA2
 	}
 
 	// MOSA PROPERTIES
@@ -314,7 +323,7 @@ public class Properties {
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
+	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{

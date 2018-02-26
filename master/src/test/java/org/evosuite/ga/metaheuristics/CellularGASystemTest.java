@@ -26,7 +26,7 @@ public class CellularGASystemTest extends SystemTestBase{
 	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
-		Properties.ALGORITHM = Algorithm.CELLULARGA;
+		Properties.ALGORITHM = Algorithm.CELLULAR_GA;
 	    Properties.POPULATION = 50;
 	    Properties.STOPPING_CONDITION = sc;
 	    Properties.SEARCH_BUDGET = budget;
