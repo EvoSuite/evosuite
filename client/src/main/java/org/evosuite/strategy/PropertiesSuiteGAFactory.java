@@ -36,6 +36,10 @@ import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.lips.LIPS;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
+import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
+import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
+import org.evosuite.ga.metaheuristics.mulambda.OnePlusLambdaLambdaGA;
+import org.evosuite.ga.metaheuristics.mulambda.OnePlusOneEA;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
@@ -195,7 +199,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case ONE_PLUS_LAMBDA_LAMBDA_GA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             {
-              OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory);
+              OnePlusLambdaLambdaGA<TestSuiteChromosome> ga = new OnePlusLambdaLambdaGA<TestSuiteChromosome>(factory, Properties.LAMBDA);
               return ga;
             }
         case MIO:

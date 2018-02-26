@@ -30,6 +30,10 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.lips.LIPS;
+import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
+import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
+import org.evosuite.ga.metaheuristics.mulambda.OnePlusLambdaLambdaGA;
+import org.evosuite.ga.metaheuristics.mulambda.OnePlusOneEA;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
@@ -147,7 +151,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
             return new SPEA2<>(factory);
         case ONE_PLUS_LAMBDA_LAMBDA_GA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
-            return new OnePlusLambdaLambdaGA<>(factory);
+            return new OnePlusLambdaLambdaGA<>(factory, Properties.LAMBDA);
         case STANDARD_CHEMICAL_REACTION:
             logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
             return new StandardChemicalReaction<>(factory);

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.ga.metaheuristics.mulambda;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public class MuLambdaEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
+public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
 
-  private static final long serialVersionUID = -1092767490992409487L;
+  private static final long serialVersionUID = -1104094637643130537L;
 
   private static final Logger logger = LoggerFactory.getLogger(MuLambdaEA.class);
 
