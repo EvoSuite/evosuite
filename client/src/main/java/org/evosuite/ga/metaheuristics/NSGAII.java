@@ -21,8 +21,6 @@ package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -30,8 +28,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
-import org.evosuite.ga.comparators.DominanceComparator;
-import org.evosuite.ga.metaheuristics.mosa.CrowdingDistance;
+import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +63,6 @@ public class NSGAII<T extends Chromosome>
 
     private static final Logger logger = LoggerFactory.getLogger(NSGAII.class);
 
-    private final DominanceComparator<T> dc;
-
     private final CrowdingDistance<T> crowdingDistance;
 
     /**
@@ -77,7 +72,6 @@ public class NSGAII<T extends Chromosome>
      */
     public NSGAII(ChromosomeFactory<T> factory) {
         super(factory);
-        this.dc = new DominanceComparator<T>();
         this.crowdingDistance = new CrowdingDistance<T>();
     }
 
@@ -133,7 +127,7 @@ public class NSGAII<T extends Chromosome>
         List<T> union = union(population, offspringPopulation);
 
         // Ranking the union
-        List<List<T>> ranking = fastNonDominatedSort(union);
+        this.rankingFunction.computeRankingAssignment(union, null);
 
         int remain = population.size();
         int index = 0;
@@ -141,7 +135,7 @@ public class NSGAII<T extends Chromosome>
         population.clear();
 
         // Obtain the next front
-        front = ranking.get(index);
+        front = this.rankingFunction.getSubfront(index);
 
         while ((remain > 0) && (remain >= front.size())) {
             // Assign crowding distance to individuals
@@ -156,7 +150,7 @@ public class NSGAII<T extends Chromosome>
             // Obtain the next front
             index++;
             if (remain > 0)
-                front = ranking.get(index);
+                front = this.rankingFunction.getSubfront(index);
         }
 
         // Remain is less than front(index).size, insert only the best one
@@ -234,106 +228,5 @@ public class NSGAII<T extends Chromosome>
             union.add(offspringPopulation.get(i - population.size()));
 
         return union;
-    }
-
-    /**
-     * Fast nondominated sorting
-     * 
-     * @param population Population to sort using domination
-     * @return Return the list of identified fronts
-     */
-    @SuppressWarnings("unchecked")
-    protected List<List<T>> fastNonDominatedSort(List<T> union)
-    {
-        // dominateMe[i] contains the number of individuals dominating i
-        int[] dominateMe = new int[union.size()];
-
-        // iDominate[k] contains the list of individuals dominated by k
-        List<Integer>[] iDominate = new List[union.size()];
-
-        // front[i] contains the list of individuals belonging to the front i
-        List<Integer>[] front = new List[union.size() + 1];
-
-        // flagDominate is an auxiliar variable
-        int flagDominate;
-
-        // Initialize the fronts
-        for (int i = 0; i < front.length; i++)
-            front[i] = new LinkedList<Integer>();
-
-        // Fast non dominated sorting algorithm
-        for (int p = 0; p < union.size(); p++)
-        {
-            // Initialize the list of individuals that i dominate and the number
-            // of individuals that dominate me
-            iDominate[p] = new LinkedList<Integer>();
-            dominateMe[p] = 0;
-        }
-
-        for (int p = 0; p < (union.size() - 1); p++)
-        {
-            // for all q individuals, calculate if p dominates q or vice versa
-            for (int q = p + 1; q < union.size(); q++)
-            {
-                //flagDominate = dominanceComparator(union.get(p), union.get(q));
-                flagDominate = dc.compare(union.get(p), union.get(q));
-                if (flagDominate == -1)
-                {
-                    iDominate[p].add(q);
-                    dominateMe[q]++;
-                }
-                else if (flagDominate == 1)
-                {
-                    iDominate[q].add(p);
-                    dominateMe[p]++;
-                }
-            }
-            // if nobody dominates p, p belongs to the first front
-        }
-        for (int p = 0; p < union.size(); p++)
-        {
-            if (dominateMe[p] == 0)
-            {
-                front[0].add(p);
-                union.get(p).setRank(0);
-            }
-        }
-
-        // obtain the rest of fronts
-        int i = 0;
-        Iterator<Integer> it1, it2;
-        while (front[i].size() != 0)
-        {
-            i++;
-            it1 = front[i - 1].iterator();
-            while (it1.hasNext())
-            {
-                it2 = iDominate[it1.next()].iterator();
-                while (it2.hasNext())
-                {
-                    int index = it2.next();
-                    dominateMe[index]--;
-                    if (dominateMe[index] == 0)
-                    {
-                        front[i].add(index);
-                        union.get(index).setRank(i);
-                    }
-                }
-            }
-        }
-
-        List<List<T>> ranking = new ArrayList<List<T>>(i);
-        // 0,1,2,....,i-1 are front, then i fronts
-        for (int j = 0; j < i; j++)
-        {
-            List<T> f = new ArrayList<T>(front[j].size());
-            it1 = front[j].iterator();
-            while (it1.hasNext())
-                f.add(union.get(it1.next()));
-
-            ranking.add(f);
-        }
-
-        return ranking;
     }
 }
