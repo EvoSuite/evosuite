@@ -37,6 +37,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.lips.BudgetConsumptionMonitor;
+import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
