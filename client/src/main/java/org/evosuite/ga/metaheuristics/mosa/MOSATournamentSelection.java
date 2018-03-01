@@ -17,15 +17,13 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.Comparator;
 import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.metaheuristics.mosa.comparators.RankAndCrowdingDistanceComparator;
+import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.utils.Randomness;
-
 
 /**
  * Select an individual from a population as winner of a number of tournaments according
@@ -37,7 +35,7 @@ public class MOSATournamentSelection<T extends Chromosome> extends SelectionFunc
 
 	private static final long serialVersionUID = -7465418404056357932L;
 
-	private Comparator<Object> comparator = new RankAndCrowdingDistanceComparator<T>();
+	private RankAndCrowdingDistanceComparator<T> comparator = new RankAndCrowdingDistanceComparator<T>();
 
 	/**
 	 * {@inheritDoc}

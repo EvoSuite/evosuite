@@ -29,7 +29,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.comparators.CrowdingComparator;
+import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
 import org.evosuite.ga.comparators.DominanceComparator;
 import org.evosuite.ga.comparators.SortByFitness;
 import org.evosuite.utils.Randomness;
@@ -162,7 +162,7 @@ public class NSGAII<T extends Chromosome>
             // front contains individuals to insert
             crowingDistanceAssignment(front);
 
-            Collections.sort(front, new CrowdingComparator(true));
+            Collections.sort(front, new RankAndCrowdingDistanceComparator(true));
 
             for (int k = 0; k < remain; k++)
                 population.add(front.get(k));

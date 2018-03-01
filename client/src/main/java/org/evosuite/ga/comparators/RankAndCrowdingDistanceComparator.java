@@ -19,51 +19,61 @@
  */
 package org.evosuite.ga.comparators;
 
-import java.io.Serializable;
 import java.util.Comparator;
 
 import org.evosuite.ga.Chromosome;
 
 /**
- * Sort a Collection of Chromosomes by Crowd
+ * This class implements a <code>Comparator</code> (a method for comparing <code>Chromosomes</code>
+ * objects) based on the dominance test, as in NSGA-II.
  * 
  * @author José Campos
  */
-public class CrowdingComparator
-    implements Comparator<Chromosome>, Serializable
-{
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -6576898111709166470L;
+public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements Comparator<T> {
 
     private boolean isToMaximize;
 
-    public CrowdingComparator(boolean maximize) {
+    public RankAndCrowdingDistanceComparator() {
+        this.isToMaximize = false;
+    }
+
+    public RankAndCrowdingDistanceComparator(boolean maximize) {
         this.isToMaximize = maximize;
     }
 
+    /**
+     * Compares two solutions.
+     * 
+     * @param c1 Object representing the first <code>Solution</code>.
+     * @param c2 Object representing the second <code>Solution</code>.
+     * @return -1, or 0, or 1 according to the non-dominated ranks
+     */
     @Override
-    public int compare(Chromosome c1, Chromosome c2)
-    {
-        if (c1.getRank() == c2.getRank() && c1.getDistance() == c2.getDistance())
-            return 0;
+    public int compare(Chromosome c1, Chromosome c2) {
+
+        if (c1 == null) {
+            return 1;
+        }
+        if (c2 == null) {
+            return -1;
+        }
 
         if (this.isToMaximize) {
-            if (c1.getRank() < c2.getRank())
+            if (c1.getRank() < c2.getRank()) {
                 return 1;
-            else if (c1.getRank() > c2.getRank())
+            } else if (c1.getRank() > c2.getRank()) {
                 return -1;
-            else if (c1.getRank() == c2.getRank())
+            } else if (c1.getRank() == c2.getRank()) {
                 return (c1.getDistance() > c2.getDistance()) ? -1 : 1;
-        }
-        else {
-            if (c1.getRank() < c2.getRank())
+            }
+        } else {
+            if (c1.getRank() < c2.getRank()) {
                 return -1;
-            else if (c1.getRank() > c2.getRank())
+            } else if (c1.getRank() > c2.getRank()) {
                 return 1;
-            else if (c1.getRank() == c2.getRank())
+            } else if (c1.getRank() == c2.getRank()) {
                 return (c1.getDistance() > c2.getDistance()) ? -1 : 1;
+            }
         }
 
         return 0;

@@ -22,7 +22,7 @@ package org.evosuite.ga.operators.selection;
 import java.util.List;
 
 import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.comparators.CrowdingComparator;
+import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -44,14 +44,14 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
      */
     private int indexes[];
 
-    private CrowdingComparator comparator;
+    private RankAndCrowdingDistanceComparator<T> comparator;
 
     public BinaryTournamentSelectionCrowdedComparison() {
-        this.comparator = new CrowdingComparator(maximize);
+        this.comparator = new RankAndCrowdingDistanceComparator<T>(maximize);
     }
 
     public BinaryTournamentSelectionCrowdedComparison(boolean isToMaximize) {
-        this.comparator = new CrowdingComparator(isToMaximize);
+        this.comparator = new RankAndCrowdingDistanceComparator<T>(isToMaximize);
     }
 
 	@Override

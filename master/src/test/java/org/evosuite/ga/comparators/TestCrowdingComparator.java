@@ -55,7 +55,7 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        CrowdingComparator cc = new CrowdingComparator(false);
+        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(false);
         Collections.sort(population, cc);
 
         // assert by Rank
@@ -91,7 +91,7 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        CrowdingComparator cc = new CrowdingComparator(true);
+        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(true);
         Collections.sort(population, cc);
 
         // assert by Rank

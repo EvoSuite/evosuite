@@ -31,7 +31,7 @@ import org.evosuite.SystemTestBase;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
-import org.evosuite.ga.comparators.CrowdingComparator;
+import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
 import org.evosuite.ga.comparators.SortByFitness;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.multiobjective.SCH;
@@ -203,7 +203,7 @@ public class NSGAIISystemTest extends SystemTestBase
 		population.add(c10);
 
 		ga.crowingDistanceAssignment(population);
-		Collections.sort(population, new CrowdingComparator(true));
+		Collections.sort(population, new RankAndCrowdingDistanceComparator(true));
 
 		Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
 		Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
@@ -276,7 +276,7 @@ public class NSGAIISystemTest extends SystemTestBase
         population.add(c10);
 
         ga.crowingDistanceAssignment(population);
-        Collections.sort(population, new CrowdingComparator(true));
+        Collections.sort(population, new RankAndCrowdingDistanceComparator(true));
 
         Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
         Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
