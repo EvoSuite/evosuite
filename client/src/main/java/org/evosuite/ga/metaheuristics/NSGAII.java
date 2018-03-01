@@ -21,6 +21,7 @@ package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -127,7 +128,7 @@ public class NSGAII<T extends Chromosome>
         List<T> union = union(population, offspringPopulation);
 
         // Ranking the union
-        this.rankingFunction.computeRankingAssignment(union, null);
+        this.rankingFunction.computeRankingAssignment(union, new LinkedHashSet<FitnessFunction<T>>(this.getFitnessFunctions()));
 
         int remain = population.size();
         int index = 0;
