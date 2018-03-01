@@ -28,7 +28,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.DominanceComparator;
-import org.evosuite.ga.metaheuristics.mosa.comparators.PreferenceSortingComparator;
+import org.evosuite.ga.comparators.PreferenceSortingComparator;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

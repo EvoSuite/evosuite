@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa.comparators;
+package org.evosuite.ga.comparators;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -23,7 +23,8 @@ import java.util.Comparator;
 import org.evosuite.ga.Chromosome;
 
 /**
- * Sort a Collection of Chromosomes by CrowdingDistance
+ * This class implements a <code>Comparator</code> (a method for comparing <code>Chromosomes</code>
+ * objects) based on the crowd distance of two chromosome objects.
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
@@ -31,13 +32,23 @@ public class OnlyCrowdingComparator implements Comparator<Chromosome>, Serializa
 	
 	private static final long serialVersionUID = -6576898111709166470L;
 
+	/**
+	 * Compare the crowd distance value of two chromosome objects.
+	 * 
+	 * @param c1 a {@link org.evosuite.ga.Chromosome} object
+	 * @param c2 a {@link org.evosuite.ga.Chromosome} object
+	 * @return -1 if crowd distance value of c1 is higher than the crowd distance of c2, 0 if the crowd
+     *         distance of both objects is equal, or 1 if crowd distance value of c1 is lower than the
+     *         crowd distance of c2.
+	 */
 	@Override
 	public int compare(Chromosome c1, Chromosome c2) {
-		if (c1.getDistance() > c2.getDistance())
+		if (c1.getDistance() > c2.getDistance()) {
 			return -1;
-		else if (c1.getDistance() < c2.getDistance())
+		} else if (c1.getDistance() < c2.getDistance()) {
 			return +1;
-		else 
+		} else { 
 			return 0;
+		}
 	}
 }
