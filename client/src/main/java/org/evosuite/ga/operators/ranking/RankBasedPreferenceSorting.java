@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa;
+package org.evosuite.ga.operators.ranking;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 
-public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking<T> {
+public class RankBasedPreferenceSorting<T extends Chromosome> implements RankingFunction<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(RankBasedPreferenceSorting.class);
 

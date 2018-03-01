@@ -39,6 +39,9 @@ import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
 import org.evosuite.ga.operators.crossover.UniformCrossOver;
+import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
+import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
+import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
@@ -195,7 +198,17 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 			        + Properties.CROSSOVER_FUNCTION);
 		}
 	}
-	
+
+	private RankingFunction<TestChromosome> getRankingFunction() {
+	  switch (Properties.RANKING_TYPE) {
+	    case FAST_NON_DOMINATED_SORTING:
+	      return new FastNonDominatedSorting<>();
+	    case PREFERENCE_SORTING:
+	    default:
+	      return new RankBasedPreferenceSorting<>();
+	  }
+	}
+
 	@Override
 	public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
 		ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
@@ -210,6 +223,9 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		SelectionFunction<TestChromosome> selection_function = getSelectionFunction();
 		selection_function.setMaximize(false);
 		ga.setSelectionFunction(selection_function);
+
+		RankingFunction<TestChromosome> ranking_function = getRankingFunction();
+		ga.setRankingFunction(ranking_function);
 
 		// When to stop the search
 		StoppingCondition stopping_condition = getStoppingCondition();

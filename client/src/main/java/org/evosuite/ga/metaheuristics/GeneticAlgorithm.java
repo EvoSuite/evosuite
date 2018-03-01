@@ -45,6 +45,8 @@ import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
+import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
+import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
@@ -106,6 +108,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected int currentIteration = 0;
 
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
+
+	/** Selected ranking strategy **/
+	protected RankingFunction<T> rankingFunction = new RankBasedPreferenceSorting<T>();
 
 	/**
 	 * Constructor
@@ -513,6 +518,24 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	public SelectionFunction<T> getSelectionFunction() {
 		return selectionFunction;
+	}
+
+	/**
+	 * Set the new ranking function (only used by MOO algorithms)
+	 * 
+	 * @param function a {@link org.evosuite.ga.operators.ranking.RankingFunction} object
+	 */
+	public void setRankingFunction(RankingFunction<T> function) {
+		this.rankingFunction = function;
+	}
+
+	/**
+	 * Get currently used ranking function (only used by MOO algorithms)
+	 * 
+	 * @return a {@link org.evosuite.ga.operators.ranking.RankingFunction} object
+	 */
+	public RankingFunction<T> getRankingFunction() {
+		return this.rankingFunction;
 	}
 
 	/**

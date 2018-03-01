@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa;
+package org.evosuite.ga.operators.ranking;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,7 +36,7 @@ import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 
-public class FastNonDominatedSorting<T extends Chromosome> implements Ranking<T> {
+public class FastNonDominatedSorting<T extends Chromosome> implements RankingFunction<T> {
 
 	/**
 	 * An array containing all the fronts found during the search

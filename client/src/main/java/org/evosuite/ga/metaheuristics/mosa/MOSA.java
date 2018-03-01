@@ -94,7 +94,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// Ranking the union
 		logger.debug("Union Size =" + union.size());
 		// Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm
-		ranking.computeRankingAssignment(union, uncoveredGoals);
+		rankingFunction.computeRankingAssignment(union, uncoveredGoals);
 
 		// add to the archive the new covered goals (and the corresponding test cases)
 		//this.archive.putAll(ranking.getNewCoveredGoals());
@@ -105,7 +105,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		population.clear();
 
 		// Obtain the next front
-		front = ranking.getSubfront(index);
+		front = rankingFunction.getSubfront(index);
 
 		while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 			// Assign crowding distance to individuals
@@ -119,7 +119,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			// Obtain the next front
 			index++;
 			if (remain > 0) {
-				front = ranking.getSubfront(index);
+				front = rankingFunction.getSubfront(index);
 			} // if
 		} // while
 
@@ -192,9 +192,9 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			initializePopulation();
 
 		// Calculate dominance ranks and crowding distance
-		ranking.computeRankingAssignment(population, this.uncoveredGoals);
-		for (int i = 0; i<ranking.getNumberOfSubfronts(); i++){
-			distance.fastEpsilonDominanceAssignment(ranking.getSubfront(i), this.uncoveredGoals);
+		rankingFunction.computeRankingAssignment(population, this.uncoveredGoals);
+		for (int i = 0; i<rankingFunction.getNumberOfSubfronts(); i++){
+			distance.fastEpsilonDominanceAssignment(rankingFunction.getSubfront(i), this.uncoveredGoals);
 		}
 
 		// TODO add here dynamic stopping condition
