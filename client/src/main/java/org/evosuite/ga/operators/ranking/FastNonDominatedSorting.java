@@ -38,6 +38,8 @@ import org.evosuite.ga.comparators.DominanceComparator;
 
 public class FastNonDominatedSorting<T extends Chromosome> implements RankingFunction<T> {
 
+	private static final long serialVersionUID = -5649595833522859850L;
+
 	/**
 	 * An array containing all the fronts found during the search
 	 */

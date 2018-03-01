@@ -17,6 +17,7 @@
  */
 package org.evosuite.ga.operators.ranking;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @param <T>
  */
-public interface RankingFunction<T extends Chromosome> {
+public interface RankingFunction<T extends Chromosome> extends Serializable {
 	
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals);
 

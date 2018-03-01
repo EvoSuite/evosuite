@@ -17,6 +17,7 @@
  */
 package org.evosuite.ga.operators.ranking;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +32,10 @@ import org.evosuite.ga.comparators.SortByFitness;
  * 
  * @author Annibale Panichella
  */
-public class CrowdingDistance<T extends Chromosome> {
-	
+public class CrowdingDistance<T extends Chromosome> implements Serializable {
+
+	private static final long serialVersionUID = 5700682318003298299L;
+
 	/**
 	 * Method used to assign the 'traditional' Crowding Distance.
 	 * 

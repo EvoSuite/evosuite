@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.evosuite.ga.Chromosome;
@@ -29,7 +30,9 @@ import org.evosuite.ga.Chromosome;
  * 
  * @author José Campos
  */
-public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements Comparator<T> {
+public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements Comparator<T>, Serializable {
+
+    private static final long serialVersionUID = -1663917547588039444L;
 
     private boolean isToMaximize;
 

@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 
 public class RankBasedPreferenceSorting<T extends Chromosome> implements RankingFunction<T> {
 
+	private static final long serialVersionUID = -6636175563989586394L;
+
 	private static final Logger logger = LoggerFactory.getLogger(RankBasedPreferenceSorting.class);
 
 	/**
@@ -52,6 +54,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 	@Override
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
 		if (solutions.isEmpty()) {
+			logger.debug("solution is empty");
 			return;
 		}
 

@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -31,7 +32,9 @@ import org.evosuite.ga.FitnessFunction;
  * 
  * @author José Campos, Annibale Panichella
  */
-public class DominanceComparator<T extends Chromosome> implements Comparator<T> {
+public class DominanceComparator<T extends Chromosome> implements Comparator<T>, Serializable {
+
+    private static final long serialVersionUID = -2154238776555768364L;
 
     private Set<FitnessFunction<?>> objectives;
 
