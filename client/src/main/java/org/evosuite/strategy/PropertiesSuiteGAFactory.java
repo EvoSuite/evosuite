@@ -50,6 +50,7 @@ import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.operators.selection.TournamentSelection;
+import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
@@ -234,6 +235,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			return new TournamentSelection<>();
 		case BINARY_TOURNAMENT:
 		    return new BinaryTournamentSelectionCrowdedComparison<>();
+		case RANK_CROWD_DISTANCE_TOURNAMENT:
+		    return new TournamentSelectionRankAndCrowdingDistanceComparator<>();
 		default:
 			return new RankSelection<>();
 		}

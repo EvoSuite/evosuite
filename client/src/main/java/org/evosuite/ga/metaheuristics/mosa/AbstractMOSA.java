@@ -48,6 +48,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
+import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -68,7 +69,6 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Abstract class for MOSA
  * 
@@ -84,9 +84,6 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	/**  keep track of overall suite fitness and coverage */
 	protected List<TestSuiteFitnessFunction> suiteFitnesses;
-
-	/** Selection function to select parents */
-	protected SelectionFunction<T> selectionFunction = new MOSATournamentSelection<T>();
 
 	/** Selected ranking strategy **/
 	protected Ranking<T> ranking;

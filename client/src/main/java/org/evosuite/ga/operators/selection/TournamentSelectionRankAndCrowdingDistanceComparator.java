@@ -15,27 +15,34 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa;
+package org.evosuite.ga.operators.selection;
 
 import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
-import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.utils.Randomness;
 
 /**
- * Select an individual from a population as winner of a number of tournaments according
- * to the "non-dominance" relationship and the crowding distance
+ * Select an individual from a population as winner of a number of tournaments according to the
+ * "non-dominance" relationship and the crowding distance.
  *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
-public class MOSATournamentSelection<T extends Chromosome> extends SelectionFunction<T> {
+public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chromosome> extends SelectionFunction<T> {
 
-	private static final long serialVersionUID = -7465418404056357932L;
+	private static final long serialVersionUID = 781669365989544671L;
 
-	private RankAndCrowdingDistanceComparator<T> comparator = new RankAndCrowdingDistanceComparator<T>();
+	private final RankAndCrowdingDistanceComparator<T> comparator;
+
+	public TournamentSelectionRankAndCrowdingDistanceComparator() {
+		this.comparator = new RankAndCrowdingDistanceComparator<T>(maximize);
+	}
+
+	public TournamentSelectionRankAndCrowdingDistanceComparator(boolean isToMaximize) {
+		this.comparator = new RankAndCrowdingDistanceComparator<T>(isToMaximize);
+	}
 
 	/**
 	 * {@inheritDoc}
