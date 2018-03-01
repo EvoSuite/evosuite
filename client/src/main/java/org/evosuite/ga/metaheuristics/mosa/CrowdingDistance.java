@@ -34,11 +34,12 @@ import org.evosuite.ga.comparators.SortByFitness;
 public class CrowdingDistance<T extends Chromosome> {
 	
 	/**
-	 * Method used to assign the 'traditional' Crowding Distance
+	 * Method used to assign the 'traditional' Crowding Distance.
+	 * 
 	 * @param front front of non-dominated solutions/tests
-	 * @param set set of goals/targets (e.g., branches) to consider
+	 * @param set list of goals/targets (e.g., branches) to consider
 	 */
-	protected void crowdingDistanceAssignment(List<T> front, Set<FitnessFunction<T>> set) {
+	public void crowdingDistanceAssignment(List<T> front, List<FitnessFunction<T>> set) {
 		int size = front.size();
 
 		if (size == 0)
@@ -86,6 +87,7 @@ public class CrowdingDistance<T extends Chromosome> {
 	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective 
 	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes 
 	 * in Computer Science pp 727-741.
+	 * 
 	 * @param front front of non-dominated solutions/tests
 	 * @param set set of goals/targets (e.g., branches) to consider
 	 */
@@ -126,6 +128,7 @@ public class CrowdingDistance<T extends Chromosome> {
 	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective 
 	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes 
 	 * in Computer Science pp 727-741.
+	 * 
 	 * @param front front of non-dominated solutions/tests
 	 * @param set set of goals/targets (e.g., branches) to consider
 	 */

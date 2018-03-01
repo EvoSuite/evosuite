@@ -31,7 +31,7 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
 import org.evosuite.ga.comparators.DominanceComparator;
-import org.evosuite.ga.comparators.SortByFitness;
+import org.evosuite.ga.metaheuristics.mosa.CrowdingDistance;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,17 +66,19 @@ public class NSGAII<T extends Chromosome>
 
     private static final Logger logger = LoggerFactory.getLogger(NSGAII.class);
 
-    private DominanceComparator<T> dc;
+    private final DominanceComparator<T> dc;
+
+    private final CrowdingDistance<T> crowdingDistance;
 
     /**
      * Constructor
      * 
      * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object
      */
-    public NSGAII(ChromosomeFactory<T> factory)
-    {
+    public NSGAII(ChromosomeFactory<T> factory) {
         super(factory);
         this.dc = new DominanceComparator<T>();
+        this.crowdingDistance = new CrowdingDistance<T>();
     }
 
     /** {@inheritDoc} */
@@ -143,7 +145,7 @@ public class NSGAII<T extends Chromosome>
 
         while ((remain > 0) && (remain >= front.size())) {
             // Assign crowding distance to individuals
-            crowingDistanceAssignment(front);
+            this.crowdingDistance.crowdingDistanceAssignment(front, this.getFitnessFunctions());
             // Add the individuals of this front
             for (int k = 0; k < front.size(); k++)
                 population.add(front.get(k));
@@ -160,7 +162,7 @@ public class NSGAII<T extends Chromosome>
         // Remain is less than front(index).size, insert only the best one
         if (remain > 0) {
             // front contains individuals to insert
-            crowingDistanceAssignment(front);
+            this.crowdingDistance.crowdingDistanceAssignment(front, this.getFitnessFunctions());
 
             Collections.sort(front, new RankAndCrowdingDistanceComparator<T>(true));
 
@@ -333,54 +335,5 @@ public class NSGAII<T extends Chromosome>
         }
 
         return ranking;
-    }
-
-    protected void crowingDistanceAssignment(List<T> f)
-    {
-        int size = f.size();
-
-        if (size == 0)
-            return ;
-        if (size == 1) {
-            f.get(0).setDistance(Double.POSITIVE_INFINITY);
-            return;
-        }
-        if (size == 2) {
-            f.get(0).setDistance(Double.POSITIVE_INFINITY);
-            f.get(1).setDistance(Double.POSITIVE_INFINITY);
-            return;
-        }
-
-        // use a new Population List to avoid altering the original Population
-        List<T> front = new ArrayList<T>(size);
-        front.addAll(f);
-
-        for (int i = 0; i < size; i++)
-            front.get(i).setDistance(0.0);
-
-        double objetiveMaxn;
-        double objetiveMinn;
-        double distance;
-
-        for (final FitnessFunction<?> ff : this.getFitnessFunctions())
-        {
-            // Sort the population by Fit n
-            Collections.sort(front, new SortByFitness(ff, true));
-
-            objetiveMinn = front.get(0).getFitness(ff);
-            objetiveMaxn = front.get(front.size() - 1).getFitness(ff);
-
-            // set crowding distance
-            front.get(0).setDistance(Double.POSITIVE_INFINITY);
-            front.get(size - 1).setDistance(Double.POSITIVE_INFINITY);
-
-            for (int j = 1; j < size - 1; j++)
-            {
-                distance = front.get(j + 1).getFitness(ff) - front.get(j - 1).getFitness(ff);
-                distance = distance / (objetiveMaxn - objetiveMinn);
-                distance += front.get(j).getDistance();
-                front.get(j).setDistance(distance);
-            }
-        }
     }
 }
