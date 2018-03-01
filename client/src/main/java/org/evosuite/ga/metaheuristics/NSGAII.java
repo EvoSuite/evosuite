@@ -66,7 +66,7 @@ public class NSGAII<T extends Chromosome>
 
     private static final Logger logger = LoggerFactory.getLogger(NSGAII.class);
 
-    private DominanceComparator dc;
+    private DominanceComparator<T> dc;
 
     /**
      * Constructor
@@ -76,7 +76,7 @@ public class NSGAII<T extends Chromosome>
     public NSGAII(ChromosomeFactory<T> factory)
     {
         super(factory);
-        this.dc = new DominanceComparator();
+        this.dc = new DominanceComparator<T>();
     }
 
     /** {@inheritDoc} */
@@ -162,7 +162,7 @@ public class NSGAII<T extends Chromosome>
             // front contains individuals to insert
             crowingDistanceAssignment(front);
 
-            Collections.sort(front, new RankAndCrowdingDistanceComparator(true));
+            Collections.sort(front, new RankAndCrowdingDistanceComparator<T>(true));
 
             for (int k = 0; k < remain; k++)
                 population.add(front.get(k));

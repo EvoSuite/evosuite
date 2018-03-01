@@ -36,9 +36,9 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.comparators.DominanceComparator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
-import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -338,7 +338,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * @return the non-dominated set of test cases
 	 */
 	protected List<T> getNonDominatedSolutions(List<T> solutions){
-		MOSADominanceComparator<T> comparator = new MOSADominanceComparator<>(this.getCoveredGoals());
+		DominanceComparator<T> comparator = new DominanceComparator<T>(this.getCoveredGoals());
 		List<T> next_front = new ArrayList<T>(solutions.size());
 		boolean isDominated;
 		for (T p : solutions){

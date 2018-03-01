@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
+import org.evosuite.ga.comparators.DominanceComparator;
 
 /**
  * This class ranks the test cases according to the 
@@ -67,7 +67,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	@SuppressWarnings("unchecked")
 	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
 
-		MOSADominanceComparator<T> criterion_ = new MOSADominanceComparator<T>(uncovered_goals);
+		DominanceComparator<T> criterion_ = new DominanceComparator<T>(uncovered_goals);
 		List<T> solutionSet_ = solutionSet;
 
 		// dominateMe[i] contains the number of solutions dominating i

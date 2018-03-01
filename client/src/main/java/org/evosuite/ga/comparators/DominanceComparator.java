@@ -19,65 +19,95 @@
  */
 package org.evosuite.ga.comparators;
 
-import java.io.Serializable;
 import java.util.Comparator;
-
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
 /**
- * Sort a Collection of Chromosomes by their Dominance
+ * This class implements a <code>Comparator</code> (a method for comparing <code>Chromosomes</code>
+ * objects) based on the dominance test.
  * 
- * @author José Campos
+ * @author José Campos, Annibale Panichella
  */
-public class DominanceComparator
-    implements Comparator<Chromosome>, Serializable
-{
+public class DominanceComparator<T extends Chromosome> implements Comparator<T> {
+
+    private Set<FitnessFunction<?>> objectives;
+
     /**
      * 
      */
-    private static final long serialVersionUID = -3962098107892633870L;
+    public DominanceComparator() {
+      this.objectives = null;
+    }
 
     /**
-     * Is c2 dominated by c1?
+     * 
+     * @param goals set of target goals to consider when computing the dominance relationship
+     */
+    public DominanceComparator(Set<FitnessFunction<T>> goals) {
+      this.objectives = new LinkedHashSet<FitnessFunction<?>>(goals);
+    }
+
+    /**
+     * 
+     * @param goal to consider when computing the dominance relationship
+     */
+    public DominanceComparator(FitnessFunction<T> goal) {
+      this.objectives = new LinkedHashSet<FitnessFunction<?>>();
+      this.objectives.add(goal);
+    }
+
+    /**
+     * Compares two chromosome objects in terms of dominance.
      * 
      * http://en.wikipedia.org/wiki/Multi-objective_optimization#Introduction
      * 
-     * @param c1
-     * @param c2
-     * @return -1, or 0, or 1 if solution1 dominates solution2, both are non-dominated, or solution1 is dominated by
-     *         solution2, respectively.
+     * @param c1 a {@link org.evosuite.ga.Chromosome} object
+     * @param c2 a {@link org.evosuite.ga.Chromosome} object
+     * @return -1 if c1 dominates c2, +1 if c2 dominates c1, 0 if both are non-dominated
      */
     @Override
-    public int compare(Chromosome c1, Chromosome c2)
-    {
-        int dominate1 = 0;
-        int dominate2 = 0;
+    public int compare(Chromosome c1, Chromosome c2) {
 
-        int flag; // stores the result of the comparison
-
-        for (FitnessFunction<?> ff : c1.getFitnessValues().keySet()) {
-            double value1 = c1.getFitness(ff);
-            double value2 = c2.getFitness(ff);
-
-            if (value1 < value2)
-                flag = -1;
-            else if (value1 > value2)
-                flag = 1;
-            else
-                flag = 0;
-
-            if (flag == -1)
-                dominate1 = 1;
-            if (flag == 1)
-                dominate2 = 1;
+        if (c1 == null) {
+            return 1;
+        } else if (c2 == null) {
+            return -1;
         }
 
-        if (dominate1 == dominate2)
-            return 0; // no one dominate the other
-        if (dominate1 == 1)
-            return -1; // chromosome1 dominate
+        boolean dominate1 = false;
+        boolean dominate2 = false;
 
-        return 1; // chromosome2 dominate
+        if (this.objectives == null) {
+          this.objectives = c1.getFitnessValues().keySet();
+        }
+
+        for (FitnessFunction<?> ff : this.objectives) {
+            int flag = Double.compare(c1.getFitness(ff), c2.getFitness(ff));
+
+            if (flag < 0) {
+              dominate1 = true;
+
+              if (dominate2) {
+                return 0;
+              }
+            } else if (flag > 0) {
+              dominate2 = true;
+
+              if (dominate1) {
+                return 0;
+              }
+            }
+        }
+
+        if (dominate1 == dominate2) {
+            return 0; // no one dominate the other
+        } else if (dominate1) {
+            return -1; // c1 dominates
+        } else {
+            return 1; // c2 dominates
+        }
     }
 }

@@ -27,7 +27,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
+import org.evosuite.ga.comparators.DominanceComparator;
 import org.evosuite.ga.metaheuristics.mosa.comparators.PreferenceSortingComparator;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -64,7 +64,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 
 		if (zero_front.size() < Properties.POPULATION){
 			int rankedSolutions = zero_front.size();
-			MOSADominanceComparator<T> comparator =  new MOSADominanceComparator<T>(uncovered_goals);
+			DominanceComparator<T> comparator =  new DominanceComparator<T>(uncovered_goals);
 
 			List<T> remaining = new ArrayList<T>(solutions.size());
 			remaining.addAll(solutions);
@@ -113,7 +113,7 @@ public class RankBasedPreferenceSorting<T extends Chromosome> implements Ranking
 		return list;
 	}
 
-	private List<T> getNonDominatedSolutions(List<T> solutions, MOSADominanceComparator<T> comparator){
+	private List<T> getNonDominatedSolutions(List<T> solutions, DominanceComparator<T> comparator){
 		List<T> front = new ArrayList<T>(solutions.size());
 		boolean isDominated;
 		for (T p : solutions){
