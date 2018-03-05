@@ -185,14 +185,15 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 					// Infection happened, so we need to check propagation
 					if (touchedMutantsDistances.get(mutantID) == 0.0) {
 						logger.debug("Executing test against mutant " + goal.getMutation());
-						mutantInfectionDistance = goal.getFitness(test, result);
+
+						mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 					} else {
 						// We can skip calling the test fitness function since we already know
 						// fitness is 1.0 (for propagation) + infection distance
 						mutantInfectionDistance = 1.0 + normalize(touchedMutantsDistances.get(mutantID));
 					}
 				} else {
-					mutantInfectionDistance = goal.getFitness(test, result);
+					mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 				}
 
 				if (mutantInfectionDistance == 0.0) {
@@ -202,10 +203,6 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				} else {
 					minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
-				}
-
-				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, mutantInfectionDistance);
 				}
 			}
 		}

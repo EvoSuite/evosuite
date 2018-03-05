@@ -26,6 +26,8 @@ import static org.evosuite.coverage.io.IOCoverageConstants.NUM_NEGATIVE;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_POSITIVE;
 import static org.evosuite.coverage.io.IOCoverageConstants.NUM_ZERO;
 import java.util.Set;
+import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionObserver;
@@ -148,6 +150,11 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
         }
 
         assert fitness >= 0.0;
+
+        if (Properties.TEST_ARCHIVE) {
+            Archive.getArchiveInstance().updateArchive(this, result, fitness);
+        }
+
         updateIndividual(this, individual, fitness);
         return fitness;
     }

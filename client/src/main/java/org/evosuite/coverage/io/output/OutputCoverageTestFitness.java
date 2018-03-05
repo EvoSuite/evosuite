@@ -19,6 +19,8 @@
  */
 package org.evosuite.coverage.io.output;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionObserver;
@@ -149,6 +151,11 @@ public class OutputCoverageTestFitness extends TestFitnessFunction {
 		}
 
 		assert fitness >= 0.0;
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, result, fitness);
+		}
+
 		updateIndividual(this, individual, fitness);
 		return fitness;
 	}

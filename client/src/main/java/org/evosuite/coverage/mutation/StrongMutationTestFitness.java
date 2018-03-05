@@ -22,8 +22,10 @@
  */
 package org.evosuite.coverage.mutation;
 
+import org.evosuite.Properties;
 import org.evosuite.assertion.*;
 import org.evosuite.coverage.TestCoverageGoal;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -388,6 +390,10 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		//	assert (getNumAssertions(individual.getLastExecutionResult(),
 		//	                         individual.getLastExecutionResult(mutation)) > 0);
 		//}
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, result, fitness);
+		}
 
 		updateIndividual(this, individual, fitness);
 		if (fitness == 0.0) {

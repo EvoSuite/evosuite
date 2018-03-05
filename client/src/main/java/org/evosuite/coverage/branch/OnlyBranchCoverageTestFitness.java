@@ -19,7 +19,9 @@
  */
 package org.evosuite.coverage.branch;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.ControlFlowDistance;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -121,6 +123,10 @@ public class OnlyBranchCoverageTestFitness extends TestFitnessFunction {
 		logger.debug("Approach level: " + distance.getApproachLevel()
 		        + " / branch distance: " + distance.getBranchDistance() + ", fitness = "
 		        + fitness);
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, result, fitness);
+		}
 
 		updateIndividual(this, individual, fitness);
 		return fitness;

@@ -19,6 +19,8 @@
  */
 package org.evosuite.coverage.mutation;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 
@@ -45,6 +47,10 @@ public class OnlyMutationTestFitness extends MutationTestFitness {
 		} else {
 			fitness = normalize(result.getTrace().getMutationDistance(mutation.getId()));
 			logger.debug("Infection distance for mutation = " + fitness);
+		}
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, result, fitness);
 		}
 
 		updateIndividual(this, individual, fitness);

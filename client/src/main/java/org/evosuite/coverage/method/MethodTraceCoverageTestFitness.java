@@ -19,6 +19,8 @@
  */
 package org.evosuite.coverage.method;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -94,6 +96,11 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 				break;
 			}
 		}
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, result, fitness);
+		}
+
 		updateIndividual(this, individual, fitness);
 		return fitness;
 	}

@@ -168,7 +168,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
                 TestChromosome tc = new TestChromosome();
                 tc.setTestCase(result.test);
-                double distance = testFitness.getFitness(tc, result);
+                double distance = testFitness.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
 
                 mapDistances.put(testFitness, Math.min(distance, mapDistances.get(testFitness)));
 
@@ -177,10 +177,6 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     result.test.addCoveredGoal(testFitness); // update list of covered goals
                     setOfCoveredGoals.add(testFitness); // helper to count the number of covered goals
                     this.toRemoveGoals.add(testFitness); // goal to not be considered by the next iteration of the evolutionary algorithm
-                }
-
-                if (Properties.TEST_ARCHIVE) {
-                    Archive.getArchiveInstance().updateArchive(testFitness, result, distance);
                 }
             }
         }

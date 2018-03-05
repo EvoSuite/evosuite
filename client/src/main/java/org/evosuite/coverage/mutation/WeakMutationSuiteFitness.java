@@ -106,19 +106,19 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 					} else {
 						mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
 					}
+
+					if (Properties.TEST_ARCHIVE) {
+						Archive.getArchiveInstance().updateArchive(goal, result, fit);
+					}
 				} else {
 					TestChromosome tc = new TestChromosome();
 					tc.setTestCase(result.test);
-					fit = goal.getFitness(tc, result);
+					fit = goal.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
 				}
 
 				if (fit == 0.0) {
 					result.test.addCoveredGoal(goal); // update list of covered goals
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
-				}
-
-				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, fit);
 				}
 			}
 		}

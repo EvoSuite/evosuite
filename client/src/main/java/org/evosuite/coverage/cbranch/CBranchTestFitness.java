@@ -24,10 +24,11 @@ package org.evosuite.coverage.cbranch;
 
 import java.util.Map;
 import java.util.Map.Entry;
-
+import org.evosuite.Properties;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -118,6 +119,10 @@ public class CBranchTestFitness extends TestFitnessFunction {
 			fitness = getPredicateDistance(result.getTrace().getTrueDistancesContext());
 		} else {
 			fitness = getPredicateDistance(result.getTrace().getFalseDistancesContext());
+		}
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, result, fitness);
 		}
 
 		updateIndividual(this, individual, fitness);

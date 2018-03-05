@@ -144,16 +144,12 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 				TestChromosome tc = new TestChromosome();
 				tc.setTestCase(result.test);
-				double fit = goal.getFitness(tc, result);
+				double fit = goal.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
 
 				if (fit == 0.0) {
 					result.test.addCoveredGoal(goal); // update list of covered goals
 					calledMethods.add(methodName); // helper to count the number of covered goals
 					this.toRemoveMethods.add(methodName); // goal to not be considered by the next iteration of the evolutionary algorithm
-				}
-
-				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, fit);
 				}
 			}
 		}
