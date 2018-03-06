@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.lips;
+package org.evosuite.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,18 +28,18 @@ import org.slf4j.LoggerFactory;
  * @author Annibale Panichella
  */
 public class BudgetConsumptionMonitor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(BudgetConsumptionMonitor.class);
-	
+
 	/** Coverage achieved in the previous generation */
 	private double past_coverage;
-	
+
 	/** To keep track when the overall search started */
 	private long startGlobalSearch;
-	
+
 	/** Time required to achieve the maximum coverage */
 	private long time2MaxCoverage;
-	
+
 	/** 
 	 * Constructor that initialises the counters 
 	 */
@@ -48,7 +48,7 @@ public class BudgetConsumptionMonitor {
 		startGlobalSearch =  System.currentTimeMillis();
 		time2MaxCoverage = 0;
 	}
-	
+
 	/** 
 	 * This method updates the time needed to reach the maximum coverage if 
 	 * the new coverage is greater than the previous one stored in "past_coverage"
@@ -61,7 +61,7 @@ public class BudgetConsumptionMonitor {
 			logger.debug("Time to reach max coverage updated to {}", time2MaxCoverage);
 		}
 	}
-	
+
 	public long getTime2MaxCoverage(){
 		return this.time2MaxCoverage;
 	}

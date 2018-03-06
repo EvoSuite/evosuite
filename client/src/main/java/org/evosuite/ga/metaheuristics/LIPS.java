@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.lips;
+package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,8 +37,6 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.SortByFitness;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.metaheuristics.SearchListener;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.structural.BranchesManager;
 import org.evosuite.rmi.ClientServices;
@@ -51,6 +49,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.BudgetConsumptionMonitor;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
