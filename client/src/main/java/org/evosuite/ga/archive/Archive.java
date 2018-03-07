@@ -219,6 +219,13 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   public abstract Set<F> getCoveredTargets();
 
   /**
+   * Returns a set of all targets that have not been covered by any solution.
+   * 
+   * @return
+   */
+  public abstract Set<F> getUncoveredTargets();
+
+  /**
    * Returns true if the archive contains the specific target, false otherwise
    * 
    * @param target

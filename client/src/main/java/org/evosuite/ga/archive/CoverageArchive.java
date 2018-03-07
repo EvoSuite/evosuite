@@ -102,7 +102,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     if (isNewCoveredTarget || isNewSolutionBetterThanCurrent) {
       ExecutionResult executionResult = solutionClone.getLastExecutionResult();
       // remove all statements after an exception
-      if (!executionResult.noThrownExceptions()) {
+      if (executionResult != null && !executionResult.noThrownExceptions()) {
         solutionClone.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
       }
 
@@ -111,7 +111,9 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
 
       // check for collateral coverage only when there is improvement over current target,
       // as it could be a bit expensive
-      this.handleCollateralCoverage(executionResult, solutionClone);
+      if (executionResult != null) {
+        this.handleCollateralCoverage(executionResult, solutionClone);
+      }
     }
   }
 
@@ -174,6 +176,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   @Override
   public Set<F> getCoveredTargets() {
     return this.archive.keySet().stream().filter(target -> this.archive.get(target) != null)
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<F> getUncoveredTargets() {
+    return this.archive.keySet().stream().filter(target -> this.archive.get(target) == null)
         .collect(Collectors.toSet());
   }
 

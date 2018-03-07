@@ -148,6 +148,15 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    * {@inheritDoc}
    */
   @Override
+  public Set<F> getUncoveredTargets() {
+    return this.archive.keySet().stream().filter(target -> !this.archive.get(target).isCovered())
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public boolean hasTarget(F target) {
     assert target != null;
     return this.archive.containsKey(target);
