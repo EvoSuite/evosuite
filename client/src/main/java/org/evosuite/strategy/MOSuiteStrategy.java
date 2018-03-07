@@ -114,12 +114,10 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			algorithm.generateSolution();
-			List<TestSuiteChromosome> bestSuites = (List<TestSuiteChromosome>) algorithm.getBestIndividuals();
-			if (bestSuites.isEmpty()) {
-				LoggingUtils.getEvoLogger().warn("Could not find any suitable chromosome");
-				return new TestSuiteChromosome();
-			}else{
-				testSuite = bestSuites.get(0);
+
+			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
+			if (testSuite.getTestChromosomes().isEmpty()) {
+				LoggingUtils.getEvoLogger().warn("Could not generate any test case");
 			}
 		} else {
 			zeroFitness.setFinished();
