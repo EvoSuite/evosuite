@@ -159,7 +159,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					toRemoveBranchesT.add(entry.getKey());
 				}
 				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
+					Archive.getArchiveInstance().updateArchive(goal, result.test, entry.getValue());
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
@@ -177,7 +177,7 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					toRemoveBranchesF.add(entry.getKey());
 				}
 				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
+					Archive.getArchiveInstance().updateArchive(goal, result.test, entry.getValue());
 				}
 			}
 		}

@@ -96,10 +96,6 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 					} else {
 						mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
 					}
-
-					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goal, result, fit);
-					}
 				} else {
 					TestChromosome tc = new TestChromosome();
 					tc.setTestCase(result.test);
@@ -109,6 +105,10 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 				if (fit == 0.0) {
 					result.test.addCoveredGoal(goal); // update list of covered goals
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
+				}
+
+				if (Properties.TEST_ARCHIVE) {
+					Archive.getArchiveInstance().updateArchive(goal, result.test, fit);
 				}
 			}
 		}

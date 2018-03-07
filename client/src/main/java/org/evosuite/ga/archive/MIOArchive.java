@@ -33,7 +33,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author José Campos
  */
-public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> extends Archive<F, T> {
+public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome> extends Archive<F, T> {
 
   private static final long serialVersionUID = -6100903230303784634L;
 
@@ -59,8 +59,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    **/
   protected final Map<F, Population> archive = new LinkedHashMap<F, Population>();
 
-  public static final MIOArchive<TestFitnessFunction, TestCase> instance =
-      new MIOArchive<TestFitnessFunction, TestCase>();
+  public static final MIOArchive<TestFitnessFunction, TestChromosome> instance =
+      new MIOArchive<TestFitnessFunction, TestChromosome>();
 
   /**
    * {@inheritDoc}
@@ -82,18 +82,17 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
+  public void updateArchive(F target, T solution, double fitnessValue) {
     assert target != null;
     assert this.archive.containsKey(target);
     assert fitnessValue >= 0.0;
 
-    ExecutionResult executionResultClone = executionResult.clone();
-    T solutionClone = (T) executionResultClone.test.clone(); // in case executionResult.clone() has
-                                                             // not cloned the test
-    executionResultClone.setTest(solutionClone);
+    T solutionClone = (T) solution.clone();
+
+    ExecutionResult executionResult = solutionClone.getLastExecutionResult();
     // remove all statements after an exception
-    if (!executionResultClone.noThrownExceptions()) {
-      solutionClone.chop(executionResultClone.getFirstPositionOfThrownException() + 1);
+    if (!executionResult.noThrownExceptions()) {
+      solutionClone.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
     }
 
     boolean isNewCoveredTarget = this.archive.get(target)

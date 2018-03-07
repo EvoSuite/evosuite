@@ -174,7 +174,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalT, result, distanceT);
+						Archive.getArchiveInstance().updateArchive(goalT, result.test, distanceT);
 					}
 				}
 			}
@@ -198,7 +198,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalF, result, distanceF);
+						Archive.getArchiveInstance().updateArchive(goalF, result.test, distanceF);
 					}
 				}
 			}

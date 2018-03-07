@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author José Campos
  */
-public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
+public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromosome>
     extends Archive<F, T> {
 
   private static final long serialVersionUID = -4046845573050661961L;
@@ -53,8 +53,8 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    **/
   protected final Map<F, T> archive = new LinkedHashMap<F, T>();
 
-  public static final CoverageArchive<TestFitnessFunction, TestCase> instance =
-      new CoverageArchive<TestFitnessFunction, TestCase>();
+  public static final CoverageArchive<TestFitnessFunction, TestChromosome> instance =
+      new CoverageArchive<TestFitnessFunction, TestChromosome>();
 
   /**
    * {@inheritDoc}
@@ -76,7 +76,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
+  public void updateArchive(F target, T solution, double fitnessValue) {
     assert target != null;
     assert this.archive.containsKey(target);
 
@@ -90,11 +90,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
     boolean isNewSolutionBetterThanCurrent = false;
 
     T currentSolution = this.archive.get(target);
-
-    ExecutionResult executionResultClone = executionResult.clone();
-    T solutionClone = (T) executionResultClone.test.clone(); // in case executionResult.clone() has
-                                                             // not cloned the test
-    executionResultClone.setTest(solutionClone);
+    T solutionClone = (T) solution.clone();
 
     if (currentSolution == null) {
       logger.debug("Solution for non-covered target '" + target + "'");
@@ -104,9 +100,10 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
     }
 
     if (isNewCoveredTarget || isNewSolutionBetterThanCurrent) {
+      ExecutionResult executionResult = solutionClone.getLastExecutionResult();
       // remove all statements after an exception
-      if (!executionResultClone.noThrownExceptions()) {
-        solutionClone.chop(executionResultClone.getFirstPositionOfThrownException() + 1);
+      if (!executionResult.noThrownExceptions()) {
+        solutionClone.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
       }
 
       // update the archive
@@ -114,7 +111,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestCase>
 
       // check for collateral coverage only when there is improvement over current target,
       // as it could be a bit expensive
-      this.handleCollateralCoverage(executionResultClone, solutionClone);
+      this.handleCollateralCoverage(executionResult, solutionClone);
     }
   }
 

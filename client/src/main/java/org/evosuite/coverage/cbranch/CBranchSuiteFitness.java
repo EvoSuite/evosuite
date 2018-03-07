@@ -202,7 +202,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 						toRemoveGoals.add(goalT);
 					}
 					if(Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalT, result, distanceT);
+						Archive.getArchiveInstance().updateArchive(goalT, result.test, distanceT);
 					}
 				}
 				
@@ -222,7 +222,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 						toRemoveGoals.add(goalF);
 					}
 					if(Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalF, result, distanceF);
+						Archive.getArchiveInstance().updateArchive(goalF, result.test, distanceF);
 					}
 				}
 
@@ -271,7 +271,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 						toRemoveGoals.add(goal);
 					}
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goal, result, count == 0 ? 1.0 : 0.0);
+						Archive.getArchiveInstance().updateArchive(goal, result.test, count == 0 ? 1.0 : 0.0);
 					}
 				}
 			}

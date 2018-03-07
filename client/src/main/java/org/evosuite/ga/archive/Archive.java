@@ -30,6 +30,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
@@ -49,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author José Campos
  */
-public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
+public abstract class Archive<F extends TestFitnessFunction, T extends TestChromosome>
     implements Serializable {
 
   private static final long serialVersionUID = 2604119519478973245L;
@@ -123,14 +124,29 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
   }
 
   /**
-   * Updates the archive by adding a solution that covers a target, or by replacing an existing
-   * solution if the new one is better.
+   * Updates the archive by adding a chromosome solution that covers a target, or by replacing an
+   * existing solution if the new one is better.
    * 
    * @param target
-   * @param executionResult
+   * @param solution
    * @param fitnessValue
    */
-  public abstract void updateArchive(F target, ExecutionResult executionResult, double fitnessValue);
+  public abstract void updateArchive(F target, T solution, double fitnessValue);
+
+  /**
+   * Updates the archive by adding a test case solution that covers a target, or by replacing an
+   * existing solution if the new one is better.
+   * 
+   * @param target
+   * @param solution
+   * @param fitnessValue
+   */
+  @SuppressWarnings("unchecked")
+  public void updateArchive(F target, TestCase solution, double fitnessValue) {
+    TestChromosome testChromosome = new TestChromosome();
+    testChromosome.setTestCase(solution.clone());
+    this.updateArchive(target, (T) testChromosome, fitnessValue);
+  }
 
   /**
    * Checks whether a candidate solution is better than an existing one.
@@ -140,8 +156,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    * @return true if a candidate solution is better than an existing one, false otherwise
    */
   public boolean isBetterThanCurrent(T currentSolution, T candidateSolution) {
-    int penaltyCurrentSolution = this.calculatePenalty(currentSolution);
-    int penaltyCandidateSolution = this.calculatePenalty(candidateSolution);
+    int penaltyCurrentSolution = this.calculatePenalty(currentSolution.getTestCase());
+    int penaltyCandidateSolution = this.calculatePenalty(candidateSolution.getTestCase());
 
     // Check if solutions are using any functional mock or private access. A solution is considered
     // better than any other solution if does not use functional mock / private access at all, or if
@@ -448,7 +464,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestCase>
    * 
    * @return
    */
-  public static final Archive<TestFitnessFunction, TestCase> getArchiveInstance() {
+  public static final Archive<TestFitnessFunction, TestChromosome> getArchiveInstance() {
     switch (Properties.ARCHIVE_TYPE) {
       case COVERAGE:
       default:

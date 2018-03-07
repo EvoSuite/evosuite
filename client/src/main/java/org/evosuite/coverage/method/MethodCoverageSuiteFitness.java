@@ -116,7 +116,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					this.toRemoveMethods.add(name);
 
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
+						Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
 					}
 				}
 			}

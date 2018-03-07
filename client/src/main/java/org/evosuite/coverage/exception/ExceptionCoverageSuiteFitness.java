@@ -189,9 +189,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     String key = goal.getKey();
                     if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);
+                    	result.test.addCoveredGoal(goal);
                     	if(Properties.TEST_ARCHIVE && contextFitness != null) {
                                Archive.getArchiveInstance().addTarget(goal);
-                               Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
+                               Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
                     	}
                     }
 				}

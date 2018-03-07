@@ -115,11 +115,16 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
             }
         }
 
-        if (Properties.TEST_ARCHIVE) {
-            Archive.getArchiveInstance().updateArchive(this, result, fitness);
+        updateIndividual(this, individual, fitness);
+
+        if (fitness == 0.0) {
+            individual.getTestCase().addCoveredGoal(this);
         }
 
-        updateIndividual(this, individual, fitness);
+        if (Properties.TEST_ARCHIVE) {
+            Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+        }
+
         return fitness;
     }
 

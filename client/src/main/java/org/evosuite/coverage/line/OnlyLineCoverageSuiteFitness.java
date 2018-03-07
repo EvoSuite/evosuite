@@ -119,7 +119,6 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				double fit = goal.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
 
 				if (fit == 0.0) {
-					result.test.addCoveredGoal(goal); // update list of covered goals
 					coveredLines.add(goalID); // helper to count the number of covered goals
 					this.toRemoveLines.add(goalID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				}

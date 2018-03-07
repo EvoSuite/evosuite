@@ -26,7 +26,6 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -84,21 +83,21 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
 
       this.solution = new TestSuiteChromosome(this.randomFactory);
 
-      TestCase test = null;
+      TestChromosome test = null;
       if (Randomness.nextDouble() < this.pr) {
-        test = this.randomFactory.getChromosome().getTestCase();
-        if (test.isEmpty()) {
+        test = this.randomFactory.getChromosome();
+        if (test.size() == 0) {
           // in case EvoSuite fails to generate a new random test
           // case, get one from the archive
           test = Archive.getArchiveInstance().getSolution();
         }
       } else {
         test = Archive.getArchiveInstance().getSolution();
-        if (test == null || test.isEmpty()) {
-          test = this.randomFactory.getChromosome().getTestCase();
+        if (test == null || test.size() == 0) {
+          test = this.randomFactory.getChromosome();
         }
       }
-      assert test != null && !test.isEmpty();
+      assert test != null && test.size() != 0;
       this.solution.addTest(test);
     }
     assert this.solution != null;
@@ -180,12 +179,12 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
         // local search process only take into account the population of the GA, and not the
         // solutions in the archive
         if (Archive.getArchiveInstance().hasBeenUpdated()) {
-          Set<TestCase> testsInArchive = Archive.getArchiveInstance().getSolutions();
+          Set<TestChromosome> testsInArchive = Archive.getArchiveInstance().getSolutions();
           if (!testsInArchive.isEmpty()) {
             TestSuiteChromosome individualInPopulation = ((TestSuiteChromosome) this.population.get(0));
             individualInPopulation.clearTests();
-            for (TestCase test : testsInArchive) {
-              individualInPopulation.addTest(test.clone());
+            for (TestChromosome test : testsInArchive) {
+              individualInPopulation.addTest(test.getTestCase().clone());
             }
           }
         }

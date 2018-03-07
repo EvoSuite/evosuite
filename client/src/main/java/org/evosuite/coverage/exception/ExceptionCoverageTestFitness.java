@@ -137,9 +137,13 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
             }
         }
 
+        if (fitness == 0.0) {
+            individual.getTestCase().addCoveredGoal(this);
+        }
+
         if (Properties.TEST_ARCHIVE) {
             Archive.getArchiveInstance().addTarget(this);
-            Archive.getArchiveInstance().updateArchive(this, result, fitness);
+            Archive.getArchiveInstance().updateArchive(this, individual, fitness);
         }
 
         return fitness;

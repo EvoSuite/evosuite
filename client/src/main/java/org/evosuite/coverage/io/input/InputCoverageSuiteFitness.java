@@ -174,7 +174,6 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
                 if (distance == 0.0) {
                     mapDistances.remove(testFitness);
-                    result.test.addCoveredGoal(testFitness); // update list of covered goals
                     setOfCoveredGoals.add(testFitness); // helper to count the number of covered goals
                     this.toRemoveGoals.add(testFitness); // goal to not be considered by the next iteration of the evolutionary algorithm
                 }

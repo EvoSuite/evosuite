@@ -391,10 +391,6 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		//	                         individual.getLastExecutionResult(mutation)) > 0);
 		//}
 
-		if (Properties.TEST_ARCHIVE) {
-			Archive.getArchiveInstance().updateArchive(this, result, fitness);
-		}
-
 		updateIndividual(this, individual, fitness);
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);
@@ -402,6 +398,11 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		}
 		assert(fitness >= 0.0);
 		assert(fitness <= executionDistance + 2.0);
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+		}
+
 		return fitness;
 	}
 

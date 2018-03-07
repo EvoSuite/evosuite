@@ -184,7 +184,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						result.test.addCoveredGoal(goal);
 						toRemoveRootBranches.add(name);
 						if(Properties.TEST_ARCHIVE) {
-							Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
+							Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
 						}
 					}
 
@@ -211,7 +211,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				result.test.addCoveredGoal(goal);
 				toRemoveRootBranches.add(entry.getKey());
 				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
+					Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
 				}
 			}
 		}
@@ -251,7 +251,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				toRemoveBranchesT.add(entry.getKey());
 			}
 			if(Properties.TEST_ARCHIVE) {
-				Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
+				Archive.getArchiveInstance().updateArchive(goal, result.test, entry.getValue());
 			}
 		}
 
@@ -274,7 +274,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				toRemoveBranchesF.add(entry.getKey());
 			}
 			if(Properties.TEST_ARCHIVE) {
-				Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
+				Archive.getArchiveInstance().updateArchive(goal, result.test, entry.getValue());
 			}
 		}
 
