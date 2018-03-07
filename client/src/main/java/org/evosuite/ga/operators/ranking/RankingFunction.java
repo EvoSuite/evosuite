@@ -35,17 +35,16 @@ public interface RankingFunction<T extends Chromosome> extends Serializable {
 	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals);
 
 	/**
-	 * Returns a <code>list of chromosome</code> containing the solutions of a given rank.
+	 * Returns a list of {@link org.evosuite.ga.Chromosome} objects of a given rank.
 	 * 
-	 * @param rank
-	 *            The rank
-	 * @return Object representing the <code>SolutionSet</code>.
+	 * @param rank position
+	 * @return a list of solutions of a given rank.
 	 */
-	public List<T> getSubfront(int rank); // getSubFront
+	public List<T> getSubfront(int rank);
 
 	/**
-	 * Returns the total number of subFronts founds.
+	 * Returns the total number of sub-fronts founds.
 	 */
-	public int getNumberOfSubfronts(); // getNumberOfSubfronts
+	public int getNumberOfSubfronts();
 
 }
