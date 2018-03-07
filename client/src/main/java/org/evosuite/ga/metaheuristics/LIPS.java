@@ -237,7 +237,8 @@ public class LIPS <T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * 2) updating the branches in the worklist
 	 * 3) computing collateral coverage
 	 */
-	private void calculateFitness() {
+	@Override
+	protected void calculateFitness() {
 		for (T test : population){
 			test.setChanged(true);
 			runTest(test);

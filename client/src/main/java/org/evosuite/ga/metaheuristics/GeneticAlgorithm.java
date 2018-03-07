@@ -588,25 +588,40 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * Calculate fitness for all individuals
 	 */
-	protected void calculateFitnessAndSortPopulation() {
+	protected void calculateFitness() {
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
 
-		Iterator<T> iterator = population.iterator();
+		Iterator<T> iterator = this.population.iterator();
 		while (iterator.hasNext()) {
 			T c = iterator.next();
 			if (isFinished()) {
 				if (c.isChanged())
 					iterator.remove();
 			} else {
-				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-					fitnessFunction.getFitness(c);
-					notifyEvaluation(c);
-				}
+				this.calculateFitness(c);
 			}
 		}
+	}
 
+	/**
+	 * Calculate fitness for an individual
+	 * 
+	 * @param c
+	 */
+	protected void calculateFitness(T c) {
+		for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+			fitnessFunction.getFitness(c);
+			notifyEvaluation(c);
+		}
+	}
+
+	/**
+	 * Calculate fitness for all individuals and sort them
+	 */
+	protected void calculateFitnessAndSortPopulation() {
+		this.calculateFitness();
 		// Sort population
-		sortPopulation();
+		this.sortPopulation();
 	}
 
 	/**
