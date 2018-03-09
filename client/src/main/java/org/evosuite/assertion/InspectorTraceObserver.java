@@ -104,6 +104,9 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 						// Avoid asserting anything on values referring to mockito proxy objects
 						if(((String)value).toLowerCase().contains("EnhancerByMockito"))
 							continue;
+						if(((String)value).toLowerCase().contains("$MockitoMock$"))
+							continue;
+
 						if(target instanceof URL) {
 							// Absolute paths may be different between executions
 							if(((String) value).startsWith("/") || ((String) value).startsWith("file:/"))
