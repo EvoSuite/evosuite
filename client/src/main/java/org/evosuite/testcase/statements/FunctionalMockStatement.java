@@ -221,26 +221,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
-        //FIXME: tmp fix to avoid mocking any class with package access methods
-        try {
-            for (Method m : rawClass.getDeclaredMethods()) {
-
-                /*
-                    Unfortunately, it does not seem there is a "isPackageLevel" method, so we have
-                    to go by exclusion
-                 */
-
-                if(!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) && !Modifier.isPrivate(m.getModifiers())
-                        && !m.isBridge() && !m.isSynthetic() && !m.getName().equals(ClassResetter.STATIC_RESET)) {
-                    return false;
-                }
-            }
-        } catch (NoClassDefFoundError | Exception e){
-            //this could happen if we failed to load the class
-            AtMostOnceLogger.warn(logger, "Failed to check if can mock class " + rawClass.getName() + ": " + e.getMessage());
-            return false;
-        }
-
         //avoid cases of infinite recursions
         boolean onlySelfReturns = true;
         for (Method m : rawClass.getDeclaredMethods()) {
