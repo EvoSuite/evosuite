@@ -41,6 +41,7 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.MockSettings;
@@ -218,6 +219,14 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
              InetSocketAddress declares hashCode as final and thus cannot be mocked:
              https://github.com/mockito/mockito/issues/310
              */
+            return false;
+        }
+
+        try {
+            // If dependencies are missing, this may throw a NoClassDefFoundException
+            rawClass.getDeclaredMethods();
+        } catch(NoClassDefFoundError e) {
+            AtMostOnceLogger.warn(logger, "Problem with class "+rawClass.getName()+": " + e.toString());
             return false;
         }
 
