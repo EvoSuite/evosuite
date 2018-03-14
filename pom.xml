@@ -263,7 +263,7 @@
                 <!-- MIT -->
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>2.15.0</version>
+                <version>2.16.0</version>
             </dependency>
             <dependency>
                 <!-- Common Public License Version 1.0 -->
