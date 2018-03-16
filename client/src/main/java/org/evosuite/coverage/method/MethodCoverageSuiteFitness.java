@@ -91,13 +91,11 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param results
 	 * @param calledMethods
 	 */
-	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-			List<ExecutionResult> results, Set<String> calledMethods) {
+	protected void handleConstructorExceptions(TestChromosome test, ExecutionResult result, Set<String> calledMethods) {
 
-		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()
 			        || result.noThrownExceptions())
-				continue;
+				return;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
 			Statement statement = result.test.getStatement(exceptionPosition);
@@ -111,17 +109,16 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					TestFitnessFunction goal = methodCoverageMap.get(name);
 
 					// only include methods being called
-					result.test.addCoveredGoal(goal);
+					test.getTestCase().addCoveredGoal(goal);
 					calledMethods.add(name);
 					this.toRemoveMethods.add(name);
 
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
+						Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
 					}
 				}
 			}
 
-		}
 	}
 
 	/**
@@ -139,19 +136,22 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				hasTimeoutOrTestException = true;
 			}
 
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+
 			for (String methodName : this.methodCoverageMap.keySet()) {
 				TestFitnessFunction goal = this.methodCoverageMap.get(methodName);
 
-				TestChromosome tc = new TestChromosome();
-				tc.setTestCase(result.test);
-				double fit = goal.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
+				double fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 
 				if (fit == 0.0) {
-					result.test.addCoveredGoal(goal); // update list of covered goals
 					calledMethods.add(methodName); // helper to count the number of covered goals
 					this.toRemoveMethods.add(methodName); // goal to not be considered by the next iteration of the evolutionary algorithm
 				}
 			}
+
+			// In case there were exceptions in a constructor
+			handleConstructorExceptions(test, result, calledMethods);
 		}
 		return hasTimeoutOrTestException;
 	}
@@ -172,9 +172,6 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		// Collect stats in the traces
 		Set<String> calledMethods = new LinkedHashSet<String>();
 		boolean hasTimeoutOrTestException = analyzeTraces(results, calledMethods);
-
-		// In case there were exceptions in a constructor
-		handleConstructorExceptions(suite, results, calledMethods);
 
 		int coveredMethods = calledMethods.size() + this.removedMethods.size();
 		int missingMethods = this.totalMethods - coveredMethods;

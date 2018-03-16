@@ -90,6 +90,9 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 			  continue;
 			}
 
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+
 			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
 			while (it.hasNext()) {
 				Entry<Integer, MutationTestFitness> entry = it.next();
@@ -107,18 +110,16 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 						mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
 					}
 				} else {
-					TestChromosome tc = new TestChromosome();
-					tc.setTestCase(result.test);
-					fit = goal.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
+					fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 				}
 
 				if (fit == 0.0) {
-					result.test.addCoveredGoal(goal); // update list of covered goals
+					test.getTestCase().addCoveredGoal(goal); // update list of covered goals
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				}
 
 				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result.test, fit);
+					Archive.getArchiveInstance().updateArchive(goal, test, fit);
 				}
 			}
 		}

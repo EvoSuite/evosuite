@@ -111,12 +111,13 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 			}
 
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+
 			for (Integer goalID : this.lineGoals.keySet()) {
 				TestFitnessFunction goal = this.lineGoals.get(goalID);
 
-				TestChromosome tc = new TestChromosome();
-				tc.setTestCase(result.test);
-				double fit = goal.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
+				double fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 
 				if (fit == 0.0) {
 					coveredLines.add(goalID); // helper to count the number of covered goals

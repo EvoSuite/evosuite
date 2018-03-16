@@ -24,6 +24,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -55,9 +56,7 @@ public class MethodNoExceptionCoverageSuiteFitness extends MethodCoverageSuiteFi
 	}
 
     @Override
-    protected void handleConstructorExceptions(
-    		AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-    		List<ExecutionResult> results, Set<String> calledMethods) {
+    protected void handleConstructorExceptions(TestChromosome test, ExecutionResult result, Set<String> calledMethods) {
     	return; // No-op
     }
 

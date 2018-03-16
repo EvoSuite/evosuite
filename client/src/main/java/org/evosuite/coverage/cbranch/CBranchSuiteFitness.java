@@ -33,6 +33,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -180,6 +181,9 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 			assert (result.getTrace().getTrueDistancesContext().keySet().size() == result
 					.getTrace().getFalseDistancesContext().keySet().size());
 
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+
 			for (Integer branchId : result.getTrace().getTrueDistancesContext().keySet()) {
 				Map<CallContext, Double> trueMap = result.getTrace().getTrueDistancesContext()
 						.get(branchId);
@@ -198,11 +202,11 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					if (Double.compare(distanceT, 0.0) == 0) {
 						if(removedGoals.contains(goalT))
 							continue;
-						result.test.addCoveredGoal(goalT);
+						test.getTestCase().addCoveredGoal(goalT);
 						toRemoveGoals.add(goalT);
 					}
 					if(Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalT, result.test, distanceT);
+						Archive.getArchiveInstance().updateArchive(goalT, test, distanceT);
 					}
 				}
 				
@@ -218,11 +222,11 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					if (Double.compare(distanceF, 0.0) == 0) {
 						if(removedGoals.contains(goalF))
 							continue;
-						result.test.addCoveredGoal(goalF);
+						test.getTestCase().addCoveredGoal(goalF);
 						toRemoveGoals.add(goalF);
 					}
 					if(Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalF, result.test, distanceF);
+						Archive.getArchiveInstance().updateArchive(goalF, test, distanceF);
 					}
 				}
 
@@ -267,11 +271,11 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					if (count > 0) {
 						if(removedGoals.contains(goal))
 							continue;
-						result.test.addCoveredGoal(goal);
+						test.getTestCase().addCoveredGoal(goal);
 						toRemoveGoals.add(goal);
 					}
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goal, result.test, count == 0 ? 1.0 : 0.0);
+						Archive.getArchiveInstance().updateArchive(goal, test, count == 0 ? 1.0 : 0.0);
 					}
 				}
 			}

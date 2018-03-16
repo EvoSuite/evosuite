@@ -30,6 +30,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -154,18 +155,17 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param results
 	 * @param callCount
 	 */
-	private void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results,
+	private void handleConstructorExceptions(TestChromosome test, ExecutionResult result,
 	        Map<String, Integer> callCount) {
 
-		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions()) {
-				continue;
+				return;
 			}
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
 			// TODO: Not sure why that can happen
 			if (exceptionPosition >= result.test.size()) {
-				continue;
+				return;
 			}
 
 			Statement statement = null;
@@ -181,19 +181,18 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					callCount.put(name, 1);
 					if (branchlessMethodCoverageMap.containsKey(name)) {
 						TestFitnessFunction goal = branchlessMethodCoverageMap.get(name);
-						result.test.addCoveredGoal(goal);
+						test.getTestCase().addCoveredGoal(goal);
 						toRemoveRootBranches.add(name);
 						if(Properties.TEST_ARCHIVE) {
-							Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
+							Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
 						}
 					}
 
 				}
 			}
-		}
 	}
 
-	protected void handleBranchlessMethods(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<String, Integer> callCount) {
+	protected void handleBranchlessMethods(TestChromosome test, ExecutionResult result, Map<String, Integer> callCount) {
 		for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
 
 			if (entry.getKey() == null || !methods.contains(entry.getKey()) || removedRootBranches.contains(entry.getKey()))
@@ -208,16 +207,16 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			// if this is a target branch or not
 			if (branchlessMethodCoverageMap.containsKey(entry.getKey())) {
 				TestFitnessFunction goal = branchlessMethodCoverageMap.get(entry.getKey());
-				result.test.addCoveredGoal(goal);
+				test.getTestCase().addCoveredGoal(goal);
 				toRemoveRootBranches.add(entry.getKey());
 				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
+					Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
 				}
 			}
 		}
 	}
 
-	protected void handlePredicateCount(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<Integer, Integer> predicateCount) {
+	protected void handlePredicateCount(ExecutionResult result, Map<Integer, Integer> predicateCount) {
 		for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
 			if (!branchesId.contains(entry.getKey())
 					|| (removedBranchesT.contains(entry.getKey())
@@ -234,7 +233,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 
-	protected void handleTrueDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<Integer, Double> trueDistance) {
+	protected void handleTrueDistances(TestChromosome test, ExecutionResult result, Map<Integer, Double> trueDistance) {
 		for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
 			if(!branchesId.contains(entry.getKey())||removedBranchesT.contains(entry.getKey())) continue;
 			if (!trueDistance.containsKey(entry.getKey()))
@@ -247,17 +246,17 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			BranchCoverageTestFitness goal = (BranchCoverageTestFitness) this.branchCoverageTrueMap.get(entry.getKey());
 			assert goal != null;
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
-				result.test.addCoveredGoal(goal);
+				test.getTestCase().addCoveredGoal(goal);
 				toRemoveBranchesT.add(entry.getKey());
 			}
 			if(Properties.TEST_ARCHIVE) {
-				Archive.getArchiveInstance().updateArchive(goal, result.test, entry.getValue());
+				Archive.getArchiveInstance().updateArchive(goal, test, entry.getValue());
 			}
 		}
 
 	}
 
-	protected void handleFalseDistances(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, ExecutionResult result, Map<Integer, Double> falseDistance) {
+	protected void handleFalseDistances(TestChromosome test, ExecutionResult result, Map<Integer, Double> falseDistance) {
 		for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
 			if(!branchesId.contains(entry.getKey())||removedBranchesF.contains(entry.getKey())) continue;
 			if (!falseDistance.containsKey(entry.getKey()))
@@ -270,11 +269,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			BranchCoverageTestFitness goal = (BranchCoverageTestFitness) this.branchCoverageFalseMap.get(entry.getKey());
 			assert goal != null;
 			if ((Double.compare(entry.getValue(), 0.0) == 0)) {
-				result.test.addCoveredGoal(goal);
+				test.getTestCase().addCoveredGoal(goal);
 				toRemoveBranchesF.add(entry.getKey());
 			}
 			if(Properties.TEST_ARCHIVE) {
-				Archive.getArchiveInstance().updateArchive(goal, result.test, entry.getValue());
+				Archive.getArchiveInstance().updateArchive(goal, test, entry.getValue());
 			}
 		}
 
@@ -300,10 +299,16 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 			}
 
-			handleBranchlessMethods(suite, result, callCount);
-			handlePredicateCount(suite, result, predicateCount);
-			handleTrueDistances(suite, result, trueDistance);
-			handleFalseDistances(suite, result, falseDistance);
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+
+			handleBranchlessMethods(test, result, callCount);
+			handlePredicateCount(result, predicateCount);
+			handleTrueDistances(test, result, trueDistance);
+			handleFalseDistances(test, result, falseDistance);
+
+			// In case there were exceptions in a constructor
+			handleConstructorExceptions(test, result, callCount);
 		}
 		return hasTimeoutOrTestException;
 	}
@@ -385,8 +390,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, predicateCount,
 		                                                  callCount, trueDistance,
 		                                                  falseDistance);
-		// In case there were exceptions in a constructor
-		handleConstructorExceptions(suite, results, callCount);
 
 		// Collect branch distances of covered branches
 		int numCoveredBranches = 0;

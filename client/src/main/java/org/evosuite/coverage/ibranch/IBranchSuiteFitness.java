@@ -32,6 +32,7 @@ import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -155,6 +156,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (ExecutionResult result : results) {
 
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+
 			for (Integer branchId : result.getTrace().getTrueDistancesContext().keySet()) {
 				Map<CallContext, Double> trueMap = result.getTrace().getTrueDistancesContext()
 						.get(branchId);
@@ -169,12 +173,12 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceT, 0.0) == 0) {
 						if(updateChromosome)
-						  result.test.addCoveredGoal(goalT);
+						  test.getTestCase().addCoveredGoal(goalT);
 						toRemoveBranchesT.add(goalT);
 					}
 
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalT, result.test, distanceT);
+						Archive.getArchiveInstance().updateArchive(goalT, test, distanceT);
 					}
 				}
 			}
@@ -193,12 +197,12 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceF, 0.0) == 0) {
 						if(updateChromosome)
-							result.test.addCoveredGoal(goalF);
+							test.getTestCase().addCoveredGoal(goalF);
 						toRemoveBranchesF.add(goalF);
 					}
 
 					if (Properties.TEST_ARCHIVE) {
-						Archive.getArchiveInstance().updateArchive(goalF, result.test, distanceF);
+						Archive.getArchiveInstance().updateArchive(goalF, test, distanceF);
 					}
 				}
 			}

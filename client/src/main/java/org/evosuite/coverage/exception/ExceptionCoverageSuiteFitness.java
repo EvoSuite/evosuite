@@ -22,6 +22,7 @@ package org.evosuite.coverage.exception;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -132,6 +133,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			if(result.calledReflection())
 				continue;
 
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
 				if(ExceptionCoverageHelper.shouldSkip(result,i)){
@@ -189,10 +193,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     String key = goal.getKey();
                     if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);
-                    	result.test.addCoveredGoal(goal);
+                    	test.getTestCase().addCoveredGoal(goal);
                     	if(Properties.TEST_ARCHIVE && contextFitness != null) {
                                Archive.getArchiveInstance().addTarget(goal);
-                               Archive.getArchiveInstance().updateArchive(goal, result.test, 0.0);
+                               Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
                     	}
                     }
 				}

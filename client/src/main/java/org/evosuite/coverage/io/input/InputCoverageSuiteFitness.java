@@ -158,6 +158,9 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                 continue;
             }
 
+            TestChromosome test = new TestChromosome();
+            test.setTestCase(result.test);
+
             Iterator<InputCoverageTestFitness> it = this.inputCoverageMap.iterator();
             while (it.hasNext()) {
                 InputCoverageTestFitness testFitness = it.next();
@@ -166,9 +169,7 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     continue;
                 }
 
-                TestChromosome tc = new TestChromosome();
-                tc.setTestCase(result.test);
-                double distance = testFitness.getFitness(tc, result); // archive is updated by the TestFitnessFunction class
+                double distance = testFitness.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 
                 mapDistances.put(testFitness, Math.min(distance, mapDistances.get(testFitness)));
 
