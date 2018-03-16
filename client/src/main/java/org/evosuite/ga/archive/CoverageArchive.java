@@ -23,13 +23,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -48,10 +46,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   private static final Logger logger = LoggerFactory.getLogger(CoverageArchive.class);
 
   /**
-   * Map used to store all targets (keys of the map) and the corresponding covering solutions
-   * (values of the map)
-   **/
-  protected final Map<F, T> archive = new LinkedHashMap<F, T>();
+   * Map used to store all covered targets (keys of the map) and the corresponding covering
+   * solutions (values of the map)
+   */
+  private final Map<F, T> covered = new LinkedHashMap<F, T>();
+
+  /**
+   * Set used to store all targets that have not been covered yet
+   */
+  private final Set<F> uncovered = new LinkedHashSet<F>();
 
   public static final CoverageArchive<TestFitnessFunction, TestChromosome> instance =
       new CoverageArchive<TestFitnessFunction, TestChromosome>();
@@ -63,9 +66,9 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   public void addTarget(F target) {
     assert target != null;
 
-    if (!this.archive.containsKey(target)) {
+    if (!this.uncovered.contains(target)) {
       logger.debug("Registering new target '" + target + "'");
-      this.archive.put(target, null);
+      this.uncovered.add(target);
     }
 
     this.registerNonCoveredTargetOfAMethod(target);
@@ -74,11 +77,11 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
+  //@SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
     assert target != null;
-    assert this.archive.containsKey(target);
+    assert this.covered.containsKey(target) || this.uncovered.contains(target);
 
     if (fitnessValue > 0.0) {
       // as this type of archive only cares about covered targets, it ignores all
@@ -89,36 +92,25 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     boolean isNewCoveredTarget = false;
     boolean isNewSolutionBetterThanCurrent = false;
 
-    T currentSolution = this.archive.get(target);
-    T solutionClone = (T) solution.clone();
+    T currentSolution = this.covered.get(target);
 
     if (currentSolution == null) {
       logger.debug("Solution for non-covered target '" + target + "'");
       isNewCoveredTarget = true;
     } else {
-      isNewSolutionBetterThanCurrent = this.isBetterThanCurrent(currentSolution, solutionClone);
+      isNewSolutionBetterThanCurrent = this.isBetterThanCurrent(currentSolution, solution);
     }
 
     if (isNewCoveredTarget || isNewSolutionBetterThanCurrent) {
-      ExecutionResult executionResult = solutionClone.getLastExecutionResult();
-      // remove all statements after an exception
-      if (executionResult != null && !executionResult.noThrownExceptions()) {
-        solutionClone.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
-      }
-
-      // update the archive
-      this.addToArchive(target, solutionClone);
-
-      // check for collateral coverage only when there is improvement over current target,
-      // as it could be a bit expensive
-      if (executionResult != null) {
-        this.handleCollateralCoverage(executionResult, solutionClone);
-      }
+      // update the archive if a new target has been covered, or if solution covers already existing
+      // covered targets but it has been considered a better solution
+      this.addToArchive(target, solution);
     }
   }
 
   private void addToArchive(F target, T solution) {
-    this.archive.put(target, solution);
+    this.uncovered.remove(target);
+    this.covered.put(target, solution);
     this.removeNonCoveredTargetOfAMethod(target);
     this.hasBeenUpdated = true;
   }
@@ -127,31 +119,8 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
-  public void handleCollateralCoverage(ExecutionResult executionResult, T solution) {
-    for (F target : this.archive.keySet()) {
-      // does solution cover target?
-      if (!target.isCovered(executionResult)) {
-        continue;
-      }
-
-      T currentSolution = this.archive.get(target);
-      if (currentSolution == null) {
-        // there is no solution for target yet, therefore include it
-        this.addToArchive(target, solution);
-      } else {
-        if (this.isBetterThanCurrent(currentSolution, solution)) {
-          this.addToArchive(target, solution);
-        }
-      }
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean isArchiveEmpty() {
-    return this.getNumberOfSolutions() == 0;
+    return this.covered.isEmpty();
   }
 
   /**
@@ -159,7 +128,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public int getNumberOfTargets() {
-    return this.archive.keySet().size();
+    return this.covered.keySet().size() + this.uncovered.size();
   }
 
   /**
@@ -167,7 +136,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public int getNumberOfCoveredTargets() {
-    return this.getCoveredTargets().size();
+    return this.covered.size();
   }
 
   /**
@@ -175,8 +144,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public Set<F> getCoveredTargets() {
-    return this.archive.keySet().stream().filter(target -> this.archive.get(target) != null)
-        .collect(Collectors.toSet());
+    return this.covered.keySet();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfUncoveredTargets() {
+    return this.uncovered.size();
   }
 
   /**
@@ -184,8 +160,14 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public Set<F> getUncoveredTargets() {
-    return this.archive.keySet().stream().filter(target -> this.archive.get(target) == null)
-        .collect(Collectors.toSet());
+    return this.uncovered;
+  }
+
+  private Set<F> getTargets() {
+    Set<F> targets = new LinkedHashSet<F>();
+    targets.addAll(this.getCoveredTargets());
+    targets.addAll(this.getUncoveredTargets());
+    return targets;
   }
 
   /**
@@ -194,7 +176,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   @Override
   public boolean hasTarget(F target) {
     assert target != null;
-    return this.archive.containsKey(target);
+    return this.covered.containsKey(target) || this.uncovered.contains(target);
   }
 
   /**
@@ -202,7 +184,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public int getNumberOfSolutions() {
-    return this.getSolutions().size();
+    return this.covered.size();
   }
 
   /**
@@ -210,8 +192,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public Set<T> getSolutions() {
-    return this.archive.values().stream().filter(solution -> solution != null)
-        .collect(Collectors.toSet());
+    return new LinkedHashSet<T>(this.covered.values());
   }
 
   /**
@@ -228,8 +209,8 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   @Override
   public T getSolution(F target) {
     assert target != null;
-    assert this.archive.containsKey(target);
-    return this.archive.get(target);
+    assert this.covered.containsKey(target);
+    return this.covered.get(target);
   }
 
   /**
@@ -238,8 +219,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   @Override
   public boolean hasSolution(F target) {
     assert target != null;
-    assert this.archive.containsKey(target);
-    return this.archive.get(target) != null;
+    return this.covered.containsKey(target);
   }
 
   /**
@@ -251,8 +231,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     // TODO this gives higher probability to tests that cover more targets. Maybe it is not the best
     // way, but likely the quickest to compute. A proper way to do it would be to first call
     // 'getSolutions' and only then select one at random.
-    T randomChoice = Randomness.choice(this.archive.values().stream()
-        .filter(solution -> solution != null).collect(Collectors.toSet()));
+    T randomChoice = Randomness.choice(this.getSolutions());
     if (randomChoice == null) {
       return null;
     }
@@ -274,10 +253,10 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     // to avoid adding the same solution to 'mergedSolution' suite
     Set<T> solutionsSampledFromArchive = new LinkedHashSet<T>();
 
-    for (F target : this.archive.keySet()) {
+    for (F target : this.getTargets()) {
       // does solution cover target?
       if (!target.isCoveredBy(mergedSolution)) {
-        T chromosome = this.archive.get(target);
+        T chromosome = this.covered.get(target);
 
         // is there any solution in the archive that covers it, and has that solution not been
         // considered yet?
@@ -325,6 +304,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   @Override
   public void reset() {
     super.reset();
-    this.archive.clear();
+    this.covered.clear();
+    this.uncovered.clear();
   }
 }

@@ -32,7 +32,6 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
@@ -134,21 +133,6 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   public abstract void updateArchive(F target, T solution, double fitnessValue);
 
   /**
-   * Updates the archive by adding a test case solution that covers a target, or by replacing an
-   * existing solution if the new one is better.
-   * 
-   * @param target
-   * @param solution
-   * @param fitnessValue
-   */
-  @SuppressWarnings("unchecked")
-  public void updateArchive(F target, TestCase solution, double fitnessValue) {
-    TestChromosome testChromosome = new TestChromosome();
-    testChromosome.setTestCase(solution.clone());
-    this.updateArchive(target, (T) testChromosome, fitnessValue);
-  }
-
-  /**
    * Checks whether a candidate solution is better than an existing one.
    * 
    * @param currentSolution
@@ -183,14 +167,6 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   }
 
   /**
-   * Checker whether a solution covers any other targets. If so, the archive is updated.
-   * 
-   * @param executionResult a {@link org.evosuite.testcase.execution.ExecutionResult) object.
-   * @param solution
-   */
-  public abstract void handleCollateralCoverage(ExecutionResult executionResult, T solution);
-
-  /**
    * Returns false if there is not any solution in the archive, true otherwise.
    * 
    * @return
@@ -217,6 +193,13 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * @return
    */
   public abstract Set<F> getCoveredTargets();
+
+  /**
+   * Returns the total number of targets that have not been covered by any solution.
+   * 
+   * @return
+   */
+  public abstract int getNumberOfUncoveredTargets();
 
   /**
    * Returns a set of all targets that have not been covered by any solution.

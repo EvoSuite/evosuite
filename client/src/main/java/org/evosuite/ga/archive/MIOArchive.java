@@ -107,14 +107,6 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    * {@inheritDoc}
    */
   @Override
-  public void handleCollateralCoverage(ExecutionResult executionResult, T solution) {
-    // NO-OP
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean isArchiveEmpty() {
     return this.getNumberOfSolutions() == 0;
   }
@@ -142,6 +134,14 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
   public Set<F> getCoveredTargets() {
     return this.archive.keySet().stream().filter(target -> this.archive.get(target).isCovered())
         .collect(Collectors.toSet());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfUncoveredTargets() {
+    return this.getUncoveredTargets().size();
   }
 
   /**
