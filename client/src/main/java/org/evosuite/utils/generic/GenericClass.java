@@ -30,14 +30,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -907,7 +900,7 @@ public class GenericClass implements Serializable {
 		//logger.debug("Getting type variable map for " + type);
 		List<TypeVariable<?>> typeVariables = getTypeVariables();
 		List<Type> types = getParameterTypes();
-		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<TypeVariable<?>, Type>();
 		try {
 			if (rawClass.getSuperclass() != null
 			        && !rawClass.isAnonymousClass()
@@ -1493,30 +1486,39 @@ public class GenericClass implements Serializable {
 		}
 		ownerVariableMap.putAll(typeMap);
 		boolean changed = true;
+
 		while(changed) {
 			changed = false;
 			for (TypeVariable<?> var : ownerVariableMap.keySet()) {
-				//logger.debug("Type var: "+var+" of "+var.getGenericDeclaration());
+
+				// If the type variable points to a typevariable, let it point to what the other typevariable points to
+				// A -> B
+				// B -> C
+				// ==> A -> C
 				if(ownerVariableMap.get(var) instanceof TypeVariable<?>) {
-					//logger.debug("Is set to type var: "+ownerVariableMap.get(var)+" of "+((TypeVariable<?>)ownerVariableMap.get(var)).getGenericDeclaration());
+					// Other type variable, i.e., the one this is currently pointing to
 					TypeVariable<?> value = (TypeVariable<?>)ownerVariableMap.get(var);
 					if(ownerVariableMap.containsKey(value)) {
+
 						Type other = ownerVariableMap.get(value);
-						if(var != other && value != other) {
-							//logger.debug("Replacing "+var+" with "+other);
+						if (other instanceof TypeVariable<?>) {
+							// If the value (C) is also a typevariable, check we don't have a recursion here
+							if (ownerVariableMap.containsKey(other)) {
+								Type x = ownerVariableMap.get(other);
+								if (x == var || x == value || x == other) {
+									continue;
+								}
+							}
+						}
+						if (var != other && value != other) {
 							ownerVariableMap.put(var, other);
 							changed = true;
 						}
-					} else {
-						//logger.debug("Not in map: "+value);
 					}
-				} else {
-					//logger.debug("Is set to concrete type: "+ownerVariableMap.get(var));
 				}
 			}
-			//logger.debug("Current iteration of map: " + ownerVariableMap);
 		}
-		
+
 		GenericClass concreteClass = new GenericClass(GenericUtils.replaceTypeVariables(type, ownerVariableMap));
 		//logger.debug("Concrete class after variable replacement: " + concreteClass);
 
