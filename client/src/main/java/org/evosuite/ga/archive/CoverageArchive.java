@@ -77,7 +77,6 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   /**
    * {@inheritDoc}
    */
-  //@SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
     assert target != null;
@@ -262,9 +261,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
         // considered yet?
         if (chromosome != null && !solutionsSampledFromArchive.contains(chromosome)) {
           solutionsSampledFromArchive.add(chromosome);
-
-          T chromosomeClone = (T) chromosome.clone();
-          mergedSolution.addTest(chromosomeClone);
+          mergedSolution.addTest(chromosome);
         }
       }
     }
