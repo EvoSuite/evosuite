@@ -138,6 +138,8 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			for (String methodName : this.methodCoverageMap.keySet()) {
 				TestFitnessFunction goal = this.methodCoverageMap.get(methodName);

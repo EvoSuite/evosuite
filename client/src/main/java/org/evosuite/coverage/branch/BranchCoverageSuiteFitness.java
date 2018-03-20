@@ -301,6 +301,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			handleBranchlessMethods(test, result, callCount);
 			handlePredicateCount(result, predicateCount);

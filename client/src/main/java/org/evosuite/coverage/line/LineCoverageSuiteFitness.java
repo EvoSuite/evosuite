@@ -125,6 +125,8 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			for (Integer goalID : this.lineGoals.keySet()) {
 				TestFitnessFunction goal = this.lineGoals.get(goalID);

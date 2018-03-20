@@ -134,6 +134,8 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
 				if (!branchesId.contains(entry.getKey())

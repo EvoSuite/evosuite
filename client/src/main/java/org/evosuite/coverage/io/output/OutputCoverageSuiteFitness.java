@@ -160,6 +160,8 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
             TestChromosome test = new TestChromosome();
             test.setTestCase(result.test);
+            test.setLastExecutionResult(result);
+            test.setChanged(false);
 
             Iterator<OutputCoverageTestFitness> it = this.outputCoverageGoals.iterator();
             while (it.hasNext()) {

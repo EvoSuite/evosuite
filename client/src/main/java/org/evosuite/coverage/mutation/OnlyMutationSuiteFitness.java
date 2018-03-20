@@ -82,6 +82,8 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
 			while (it.hasNext()) {

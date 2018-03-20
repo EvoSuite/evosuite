@@ -160,6 +160,8 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
             TestChromosome test = new TestChromosome();
             test.setTestCase(result.test);
+            test.setLastExecutionResult(result);
+            test.setChanged(false);
 
             Iterator<InputCoverageTestFitness> it = this.inputCoverageMap.iterator();
             while (it.hasNext()) {

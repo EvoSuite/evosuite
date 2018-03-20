@@ -158,6 +158,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			for (Integer branchId : result.getTrace().getTrueDistancesContext().keySet()) {
 				Map<CallContext, Double> trueMap = result.getTrace().getTrueDistancesContext()
