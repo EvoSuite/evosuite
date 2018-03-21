@@ -733,7 +733,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		if (!coveredMethodContext.containsKey(id)) {
 			coveredMethodContext.put(id, new HashMap<CallContext, Integer>());
 		}
-		CallContext context = new CallContext(Thread.currentThread().getStackTrace());
+
+		CallContext context = new CallContext(new Throwable().getStackTrace());
 		if (!coveredMethodContext.get(id).containsKey(context)) {
 			coveredMethodContext.get(id).put(context, 1);
 		} else {
