@@ -155,6 +155,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		Map<IBranchTestFitness, Integer> callCount = new LinkedHashMap<>();
 
 		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException()) {
+				continue;
+			}
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);

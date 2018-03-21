@@ -26,8 +26,10 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -112,6 +114,13 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     this.covered.put(target, solution);
     this.removeNonCoveredTargetOfAMethod(target);
     this.hasBeenUpdated = true;
+
+    ExecutionResult result = solution.getLastExecutionResult();
+    if (result != null && (result.hasTimeout() || result.hasTestException())) {
+      AtMostOnceLogger.warn(logger,
+          "A solution with a timeout/exception result has been added to the archive. The covered goal was "
+              + target.toString());
+    }
   }
 
   /**
@@ -249,12 +258,30 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
 
     TestSuiteChromosome mergedSolution = (TestSuiteChromosome) solution.clone();
 
+    // skip solutions that have been modified as those might not have been evaluated yet, or have
+    // timeout or throw some exception and therefore they may slow down future analysis on the final
+    // test suite
+    mergedSolution.getTestChromosomes()
+        .removeIf(t -> t.isChanged()
+            || (t.getLastExecutionResult() != null && (t.getLastExecutionResult().hasTimeout()
+                || t.getLastExecutionResult().hasTestException())));
+
     // to avoid adding the same solution to 'mergedSolution' suite
     Set<T> solutionsSampledFromArchive = new LinkedHashSet<T>();
 
     for (F target : this.getTargets()) {
-      // does solution cover target?
-      if (!target.isCoveredBy(mergedSolution)) {
+      // has target been covered? to answer it, we perform a local check rather than calling method
+      // {@link TestFitnessFunction.isCoveredBy} as it may perform a fitness evaluation to access
+      // whether that 'target' is covered or not (and therefore, it could be more expensive)
+      boolean isGoalCovered = false;
+      for (TestChromosome test : mergedSolution.getTestChromosomes()) {
+        if (test.getTestCase().isGoalCovered(target)) {
+          isGoalCovered = true;
+          break;
+        }
+      }
+
+      if (!isGoalCovered) {
         T chromosome = this.covered.get(target);
 
         // is there any solution in the archive that covers it, and has that solution not been
@@ -274,7 +301,6 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
     // re-active it
     Properties.TEST_ARCHIVE = true;
 
-    logger.info("Final test suite size from archive: " + mergedSolution);
     return mergedSolution;
   }
 

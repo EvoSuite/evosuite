@@ -130,8 +130,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			// Using private reflection can lead to false positives
 			// that represent unrealistic behaviour. Thus, we only
 			// use reflection for basic criteria, not for exception
-			if(result.calledReflection())
+			if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions() || result.calledReflection()) {
 				continue;
+			}
 
 			TestChromosome test = new TestChromosome();
 			test.setTestCase(result.test);

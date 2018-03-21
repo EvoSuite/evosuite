@@ -110,7 +110,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
 
-			if (result.hasTimeout()) {
+			if (result.hasTimeout() || result.hasTestException()) {
 				logger.debug("Skipping test with timeout");
 				double fitness = branchFitness.totalGoals * 2
 				        + branchFitness.totalMethods + 3 * this.numMutants;

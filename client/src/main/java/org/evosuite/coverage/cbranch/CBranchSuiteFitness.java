@@ -177,6 +177,10 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 		Map<Integer, Integer> branchCounter = new LinkedHashMap<>();
 
 		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException()) {
+				continue;
+			}
+
 			// Determine minimum branch distance for each branch in each context
 			assert (result.getTrace().getTrueDistancesContext().keySet().size() == result
 					.getTrace().getFalseDistancesContext().keySet().size());
@@ -231,7 +235,6 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 						Archive.getArchiveInstance().updateArchive(goalF, test, distanceF);
 					}
 				}
-
 			}
 
 			for (Entry<Integer, Map<CallContext, Integer>> entry : result.getTrace()

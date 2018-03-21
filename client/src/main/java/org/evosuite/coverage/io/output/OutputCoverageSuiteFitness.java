@@ -154,7 +154,7 @@ public class OutputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         }
 
         for (ExecutionResult result : results) {
-            if (result.hasTimeout() || result.hasTestException() || !result.noThrownExceptions()) {
+            if (result.hasTimeout() || result.hasTestException()) {
                 continue;
             }
 

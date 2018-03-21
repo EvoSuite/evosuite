@@ -134,6 +134,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {
 				hasTimeoutOrTestException = true;
+				continue;
 			}
 
 			TestChromosome test = new TestChromosome();

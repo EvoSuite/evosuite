@@ -69,8 +69,9 @@ public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 			// Using private reflection can lead to false positives
 			// that represent unrealistic behaviour. Thus, we only
 			// use reflection for basic criteria, not for mutation
-			if(result.calledReflection())
+			if (result.hasTimeout() || result.hasTestException() || result.calledReflection()) {
 				continue;
+			}
 
 			touchedMutants.addAll(result.getTrace().getTouchedMutants());
 
