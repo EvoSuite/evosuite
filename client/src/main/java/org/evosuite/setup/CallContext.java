@@ -88,8 +88,8 @@ public class CallContext implements Serializable {
 			Call newCall = new Call(element.getClassName(), element.getMethodName());
 			boolean skip = false;
 			if(context.size() >= 2) { // Need at least a sequence of three for this check to make sense
-				Call previousCall1 = context.get(size() - 1);
-				Call previousCall2 = context.get(size() - 2);
+				Call previousCall1 = context.get(context.size() - 1);
+				Call previousCall2 = context.get(context.size() - 2);
 				if(previousCall1.equals(newCall) && previousCall2.equals(newCall)) {
 					skip = true;
 				}
@@ -128,8 +128,8 @@ public class CallContext implements Serializable {
 
 			boolean skip = false;
 			if(context.size() >= 2) { // Need at least a sequence of three for this check to make sense
-				Call previousCall1 = context.get(size() - 1);
-				Call previousCall2 = context.get(size() - 2);
+				Call previousCall1 = context.get(context.size() - 1);
+				Call previousCall2 = context.get(context.size() - 2);
 				if(previousCall1.equals(newCall) && previousCall2.equals(newCall)) {
 					skip = true;
 				}
