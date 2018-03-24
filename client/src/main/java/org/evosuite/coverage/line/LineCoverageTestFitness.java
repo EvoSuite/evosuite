@@ -158,6 +158,11 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 1.0;
+
+		// Deactivate coverage archive while measuring fitness, since branchcoverage fitness
+		// evaluating will attempt to claim coverage for it in the archive
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		if (result.getTrace().getCoveredLines().contains(this.line)) {
 			fitness = 0.0;
 		} else {
@@ -179,7 +184,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			
 			fitness = r;
 		}
-
+		Properties.TEST_ARCHIVE = archive;
 		updateIndividual(this, individual, fitness);
 
 		if (fitness == 0.0) {
