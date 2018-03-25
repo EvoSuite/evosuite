@@ -60,8 +60,9 @@ public class TryCatchCoverageSuiteFitness extends BranchCoverageSuiteFitness {
         // no-op
     }
 
-    @Override
-    protected void handleFalseDistances(TestChromosome test, ExecutionResult result, Map<Integer, Double> falseDistance) {
-        // We only aim to cover true branches
-    }
+//    @Override
+//    protected void handleTrueDistances(TestChromosome test, ExecutionResult result, Map<Integer, Double> falseDistance) {
+//        // We only aim to cover false branches
+//    }
+
 }

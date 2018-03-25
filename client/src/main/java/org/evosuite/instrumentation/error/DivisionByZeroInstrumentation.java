@@ -40,5 +40,6 @@ public class DivisionByZeroInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitInsn(Opcodes.LCMP);
 			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
 		}
+		// TODO: Could add a branch also for doubles, but not throw an exception?
 	}
 }
