@@ -733,7 +733,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     } catch(java.lang.NoClassDefFoundError e) {
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to failed class initialization: "+e.getMessage());
                         return; //or should throw an exception?
-                    } catch(IllegalAccessException | IllegalAccessError | InvalidUseOfMatchersException e) {
+                    } catch(IllegalAccessException | IllegalAccessError | IllegalArgumentException | InvalidUseOfMatchersException e) {
                         // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite
                         // will just ignore that mocking statement and continue, instead of crashing
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to IAE: "+e.getMessage());
