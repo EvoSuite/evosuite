@@ -1292,6 +1292,13 @@ public class Properties {
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
 	public static boolean ERROR_BRANCHES = false;
 
+	public enum ErrorInstrumentation {
+		ARRAY, ARRAYLIST, CAST, DEQUE, DIVISIONBYZERO, LINKEDHASHSET, LINKEDLIST, NPE, OVERFLOW, QUEUE, STACK, VECTOR
+	}
+
+	@Parameter(key = "error_instrumentation", description = "Which instrumentation to use for error checks")
+	public static ErrorInstrumentation[] ERROR_INSTRUMENTATION = new ErrorInstrumentation[] {ErrorInstrumentation.ARRAY, ErrorInstrumentation.ARRAYLIST, ErrorInstrumentation.CAST, ErrorInstrumentation.DEQUE, ErrorInstrumentation.DIVISIONBYZERO, ErrorInstrumentation.LINKEDHASHSET, ErrorInstrumentation.LINKEDLIST, ErrorInstrumentation.NPE, ErrorInstrumentation.OVERFLOW, ErrorInstrumentation.QUEUE, ErrorInstrumentation.STACK, ErrorInstrumentation.VECTOR};
+
 	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
 	public static boolean ENABLE_ASSERTS_FOR_EVOSUITE = false;
 

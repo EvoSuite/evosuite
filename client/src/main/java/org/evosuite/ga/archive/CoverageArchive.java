@@ -82,7 +82,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
     assert target != null;
-    assert this.covered.containsKey(target) || this.uncovered.contains(target);
+    assert this.covered.containsKey(target) || this.uncovered.contains(target) : "Unknown goal: "+target;
 
     if (fitnessValue > 0.0) {
       // as this type of archive only cares about covered targets, it ignores all

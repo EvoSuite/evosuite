@@ -21,67 +21,56 @@ package org.evosuite.instrumentation.error;
 
 import com.examples.with.different.packagename.errorbranch.ArrayAccess;
 import com.examples.with.different.packagename.errorbranch.ArrayCreation;
+import com.opencsv.CSVReader;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ArrayInstrumentationSystemTest extends SystemTestBase {
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class ArrayInstrumentationSystemTest extends AbstractErrorBranchTest {
+
+	@Test
+	public void testArrayAccessWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+		checkErrorBranches(ArrayAccess.class, 2, 0, 2, 0);
+	}
 
 	@Test
 	public void testArrayAccessWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = ArrayAccess.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-		// One infeasible error branch
-		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+		checkErrorBranches(ArrayAccess.class, 2, 6, 2, 5);
 	}
 
+	@Test
+	public void testArrayCreationWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+		checkErrorBranches(ArrayCreation.class, 2, 0, 2, 0);
+	}
 
 	@Test
 	public void testArrayCreationWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = ArrayCreation.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(1, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAY};
+		checkErrorBranches(ArrayCreation.class, 2, 2, 2, 2);
 	}
-
 }

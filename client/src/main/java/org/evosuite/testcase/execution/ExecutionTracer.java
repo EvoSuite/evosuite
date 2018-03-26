@@ -256,7 +256,7 @@ public class ExecutionTracer {
 	 *            a {@link java.lang.String} object.
 	 * @param caller
 	 *            a {@link java.lang.Object} object.
-	 * @throws org.evosuite.testcase.TestCaseExecutor$TimeoutExceeded
+	 * @throws org.evosuite.testcase.execution.TestCaseExecutor$TimeoutExceeded
 	 *             if any.
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)

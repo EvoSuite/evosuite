@@ -153,20 +153,28 @@ public class StatisticsSender {
 			coveredLines.addAll(trace.getCoveredLines());
 		}
 
+		int coveredBranchesInstrumented = 0;
+		int coveredBranchesReal = 0;
 		if(Properties.ERROR_BRANCHES || Properties.EXCEPTION_BRANCHES) {
 			BranchPool branchPool = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT());
-			Set<Integer> union = new HashSet<>(coveredTrueBranches);
-			union.addAll(coveredFalseBranches);
-			for (Integer branchId : union) {
+			for (Integer branchId : coveredTrueBranches) {
 				Branch b = branchPool.getBranch(branchId);
 				if (b.isInstrumented())
-					coveredInstrumentedBranches.add(branchId);
-				else
-					coveredRealBranches.add(branchId);
+					coveredBranchesInstrumented++;
+				else {
+					coveredBranchesReal++;
+				}
 			}
+            for (Integer branchId : coveredFalseBranches) {
+                Branch b = branchPool.getBranch(branchId);
+                if (b.isInstrumented())
+                    coveredBranchesInstrumented++;
+                else {
+                    coveredBranchesReal++;
+                }
+            }
 		} else {
-			coveredRealBranches.addAll(coveredTrueBranches);
-			coveredRealBranches.addAll(coveredFalseBranches);
+		    coveredBranchesReal = coveredTrueBranches.size() + coveredFalseBranches.size();
 		}
 
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
@@ -178,9 +186,9 @@ public class StatisticsSender {
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Branchless_Methods, coveredBranchlessMethods.size());
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.Covered_Branches_Real, coveredRealBranches.size());
+				RuntimeVariable.Covered_Branches_Real, coveredBranchesReal);
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
-				RuntimeVariable.Covered_Branches_Instrumented, coveredInstrumentedBranches.size());
+				RuntimeVariable.Covered_Branches_Instrumented, coveredBranchesInstrumented);
 		ClientServices.getInstance().getClientNode().trackOutputVariable(
 				RuntimeVariable.Covered_Lines, coveredLines.size());
 	}

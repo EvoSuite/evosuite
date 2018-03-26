@@ -257,7 +257,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
 	// active calls
-	Deque<MethodCall> stack = new LinkedList<MethodCall>();
+	LinkedList<MethodCall> stack = new LinkedList<>();
 
 	public Set<Integer> touchedMutants = Collections.synchronizedSet(new HashSet<Integer>());
 
@@ -488,17 +488,17 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * Track reach/coverage of branch based on it's underlying opcode during
 	 * execution
 	 * 
-	 * @param the
+	 * @param trackedMap
 	 *            relevant map for the variable type (one of the three static
 	 *            maps)
-	 * @param The
+	 * @param v
 	 *            branch type (based on opcode)
-	 * @param id
+	 * @param branch_id
 	 *            of the tracked branch
 	 */
 	private void trackBranchOpcode(Map<RuntimeVariable, Set<Integer>> trackedMap, RuntimeVariable v, int branch_id) {
 		if (!trackedMap.containsKey(v))
-			trackedMap.put(v, new HashSet<Integer>());
+			trackedMap.put(v, new HashSet<>());
 		Set<Integer> branchSet = trackedMap.get(v);
 		branchSet.add(branch_id);
 		trackedMap.put(v, branchSet);
@@ -511,11 +511,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	private void updateBranchContextMaps(int branch, double true_distance, double false_distance) {
 		if (!coveredPredicateContext.containsKey(branch)) {
-			coveredPredicateContext.put(branch, new HashMap<CallContext, Integer>());
-			coveredTrueContext.put(branch, new HashMap<CallContext, Double>());
-			coveredFalseContext.put(branch, new HashMap<CallContext, Double>());
+			coveredPredicateContext.put(branch, new HashMap<>());
+			coveredTrueContext.put(branch, new HashMap<>());
+			coveredFalseContext.put(branch, new HashMap<>());
 		}
 		CallContext context = new CallContext(Thread.currentThread().getStackTrace());
+
 		if (!coveredPredicateContext.get(branch).containsKey(context)) {
 			coveredPredicateContext.get(branch).put(context, 1);
 			coveredTrueContext.get(branch).put(context, true_distance);
@@ -690,7 +691,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			} else {
 				coveredMethods.put(id, coveredMethods.get(id) + 1);
 			}
-			// Set<String> bms = BranchPool.getBranchlessMethods();
+
 			if (BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
 					.isBranchlessMethod(className, id)) {
 				if (!coveredBranchlessMethods.containsKey(id)) {
@@ -700,11 +701,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				}
 			}
 		}
-		if (!className.equals("") && !methodName.equals("")) {
+		if (!className.isEmpty() && !methodName.isEmpty()) {
 			if (traceCalls) {
 				int callingObjectID = registerObject(caller);
-				methodId++;
 				MethodCall call = new MethodCall(className, methodName, methodId, callingObjectID, stack.size());
+				methodId++;
+				// TODO: Skip this?
 				if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 						|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 					call.branchTrace.add(-1);
@@ -731,10 +733,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	private void updateMethodContextMaps(String className, String methodName, Object caller) {
 		String id = className + "." + methodName;
 		if (!coveredMethodContext.containsKey(id)) {
-			coveredMethodContext.put(id, new HashMap<CallContext, Integer>());
+			coveredMethodContext.put(id, new HashMap<>());
 		}
 
 		CallContext context = new CallContext(new Throwable().getStackTrace());
+		//CallContext context = new CallContext(stack);
+
 		if (!coveredMethodContext.get(id).containsKey(context)) {
 			coveredMethodContext.get(id).put(context, 1);
 		} else {
@@ -793,16 +797,13 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	@Override
 	public void exitMethod(String classname, String methodname) {
-		if (!classname.equals("") && !methodname.equals("")) {
-			if (traceCalls) {
+		if (!classname.isEmpty() && !methodname.isEmpty()) {
+			if(traceCalls) {
 				if (!stack.isEmpty() && !(stack.peek().methodName.equals(methodname))) {
-					logger.debug("Expecting " + stack.peek().methodName + ", got " + methodname);
-
-					if (stack.peek().methodName.equals("") && !stack.peek().branchTrace.isEmpty()) {
-						logger.debug("Found main method");
+					// Handle cases where unexpected calls are on the stack
+					if (stack.peek().methodName.isEmpty() && !stack.peek().branchTrace.isEmpty()) {
 						finishedCalls.add(stack.pop());
 					} else {
-						logger.debug("Bugger!");
 						// Usually, this happens if we use mutation testing and
 						// the mutation causes an unexpected exception or
 						// timeout
