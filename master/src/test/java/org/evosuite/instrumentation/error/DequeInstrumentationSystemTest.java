@@ -1,39 +1,93 @@
 package org.evosuite.instrumentation.error;
 
-import com.examples.with.different.packagename.errorbranch.DequeNullInsertion;
-import org.evosuite.EvoSuite;
+import com.examples.with.different.packagename.errorbranch.*;
 import org.evosuite.Properties;
-import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
-public class DequeInstrumentationSystemTest extends SystemTestBase {
+public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
 
     @Test
-    public void testDequeNullInsertionWithErrorBranches() {
+    public void testDequePopWithOutErrorBranches() {
 
-        EvoSuite evosuite = new EvoSuite();
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        checkErrorBranches(DequePop.class, 2, 0, 2, 0);
+    }
 
-        String targetClass = DequeNullInsertion.class.getCanonicalName();
+    @Test
+    public void testDequePopWithErrorBranches() {
 
-        Properties.TARGET_CLASS = targetClass;
         Properties.ERROR_BRANCHES = true;
-        Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+//        Not sure why realBranches is 3 and instrumentedBranches is 0
+        checkErrorBranches(DequePop.class, 3, 0, 1, 0);
+    }
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+    @Test
+    public void testDequeGetFirstWithOutErrorBranches() {
 
-        Object result = evosuite.parseCommandLine(command);
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        checkErrorBranches(DequeGetFirst.class, 2, 0, 2, 0);
+    }
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+    @Test
+    public void testDequeGetFirstWithErrorBranches() {
 
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+//        Not sure why realBranches is 3 and instrumentedBranches is 0
+        checkErrorBranches(DequeGetFirst.class, 3, 0, 1, 0);
+    }
 
-        Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-        Assert.assertEquals(1, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
+    @Test
+    public void testDequeRemoveFirstWithOutErrorBranches() {
 
-        Assert.assertEquals("Non-optimal coverage: ", 3d / 3d, best.getCoverage(), 0.001);
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        checkErrorBranches(DequeRemoveFirst.class, 2, 0, 2, 0);
+    }
+
+    @Test
+    public void testDequeRemoveFirstWithErrorBranches() {
+
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+//        Not sure why realBranches is 3 and instrumentedBranches is 0
+        checkErrorBranches(DequeRemoveFirst.class, 3, 0, 1, 0);
+    }
+
+    @Test
+    public void testDequeRemoveWithOutErrorBranches() {
+
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        checkErrorBranches(DequeRemove.class, 2, 0, 2, 0);
+    }
+
+    @Test
+    public void testDequeRemoveWithErrorBranches() {
+
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+//        Not sure why realBranches is 3 and instrumentedBranches is 0
+        checkErrorBranches(DequeRemove.class, 3, 0, 1, 0);
+    }
+
+    @Test
+    public void testDequeElementWithOutErrorBranches() {
+
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        checkErrorBranches(DequeElement.class, 2, 0, 2, 0);
+    }
+
+    @Test
+    public void testDequeElementWithErrorBranches() {
+
+        Properties.ERROR_BRANCHES = true;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+//        Not sure why realBranches is 3 and instrumentedBranches is 0
+        checkErrorBranches(DequeElement.class, 3, 0, 1, 0);
     }
 }

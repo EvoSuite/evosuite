@@ -5,8 +5,7 @@ import java.util.List;
 
 public class ArrayListAccess {
 
-    public void testMe(int index) {
-        List<Integer> integerList = new ArrayList<Integer>();
+    public void testMe(List<Integer> integerList, int index) {
         int y = integerList.get(index);
     }
 }

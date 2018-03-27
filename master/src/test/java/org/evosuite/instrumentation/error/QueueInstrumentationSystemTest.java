@@ -2,63 +2,44 @@ package org.evosuite.instrumentation.error;
 
 import com.examples.with.different.packagename.errorbranch.QueueAccess;
 import com.examples.with.different.packagename.errorbranch.QueueRemove;
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
-public class QueueInstrumentationSystemTest extends SystemTestBase {
+public class QueueInstrumentationSystemTest extends AbstractErrorBranchTest {
+
+    @Test
+    public void testQueueElementOperationWithOutErrorBranches() {
+
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
+        checkErrorBranches(QueueAccess.class, 2, 0, 2, 0);
+    }
+
     @Test
     public void testQueueElementOperationWithErrorBranches() {
 
-        EvoSuite evosuite = new EvoSuite();
-
-        String targetClass = QueueAccess.class.getCanonicalName();
-
-        Properties.TARGET_CLASS = targetClass;
         Properties.ERROR_BRANCHES = true;
-        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
+//        Not sure why realBranches is 3 and instrumentedBranches is 0
+        checkErrorBranches(QueueAccess.class, 3, 0, 1, 0);
+    }
 
-        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+    @Test
+    public void testQueueRemoveOperationWithoutErrorBranches() {
 
-        Object result = evosuite.parseCommandLine(command);
+        Properties.ERROR_BRANCHES = false;
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
+        checkErrorBranches(QueueRemove.class, 2, 0, 2, 0);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-        Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-        Assert.assertEquals(1, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-        Assert.assertEquals("Non-optimal coverage: ", 0.6666666666666666d, best.getCoverage(), 0.001);
     }
 
     @Test
     public void testQueueRemoveOperationWithErrorBranches() {
 
-        EvoSuite evosuite = new EvoSuite();
-
-        String targetClass = QueueRemove.class.getCanonicalName();
-
-        Properties.TARGET_CLASS = targetClass;
         Properties.ERROR_BRANCHES = true;
-        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
+//        Not sure why realBranches is 3 and instrumentedBranches is 0
+        checkErrorBranches(QueueRemove.class, 3, 0, 1, 0);
 
-        String[] command = new String[]{"-generateSuite", "-class", targetClass};
-
-        Object result = evosuite.parseCommandLine(command);
-
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
-
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-        Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-        Assert.assertEquals(1, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-        Assert.assertEquals("Non-optimal coverage: ", 0.6666666666666666d, best.getCoverage(), 0.001);
     }
 }

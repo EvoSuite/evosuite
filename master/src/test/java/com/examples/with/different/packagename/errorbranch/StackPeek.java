@@ -5,6 +5,6 @@ import java.util.Stack;
 public class StackPeek {
 
     public void testMe(Stack<Integer> integerStack) {
-        integerStack.peek();
+        int x = integerStack.peek();
     }
 }
