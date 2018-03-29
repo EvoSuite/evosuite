@@ -46,7 +46,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -6369027784777941998L;
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(LineCoverageSuiteFitness.class);
 
 	// target goals
 	private final int numLines;
