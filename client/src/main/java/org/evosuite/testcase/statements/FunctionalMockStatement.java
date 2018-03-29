@@ -46,6 +46,7 @@ import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
+import org.mockito.exceptions.base.MockitoException;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.stubbing.OngoingStubbing;
 import org.slf4j.Logger;
@@ -733,7 +734,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     } catch(java.lang.NoClassDefFoundError e) {
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to failed class initialization: "+e.getMessage());
                         return; //or should throw an exception?
-                    } catch(IllegalAccessException | IllegalAccessError | IllegalArgumentException | InvalidUseOfMatchersException e) {
+                    } catch(MockitoException | IllegalAccessException | IllegalAccessError | IllegalArgumentException e) {
                         // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite
                         // will just ignore that mocking statement and continue, instead of crashing
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to IAE: "+e.getMessage());
