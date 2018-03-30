@@ -170,7 +170,7 @@ public class GenericClass implements Serializable {
 		}
 	}
 
-	private static boolean isMissingTypeParameters(Type type) {
+	public static boolean isMissingTypeParameters(Type type) {
 		if (type instanceof Class) {
 			for (Class<?> clazz = (Class<?>) type; clazz != null; clazz = clazz.getEnclosingClass()) {
 				if (clazz.getTypeParameters().length != 0)
@@ -178,6 +178,12 @@ public class GenericClass implements Serializable {
 			}
 			return false;
 		} else if (type instanceof ParameterizedType) {
+			return false;
+		} else if(type instanceof GenericArrayType) {
+			return false;
+		} else if(type instanceof TypeVariable) {
+			return false;
+		} else if(type instanceof WildcardType) {
 			return false;
 		} else {
 			throw new AssertionError("Unexpected type " + type.getClass());

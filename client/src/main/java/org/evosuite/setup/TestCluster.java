@@ -198,7 +198,7 @@ public class TestCluster {
 				// TODO: This is not working correctly. Until we have figured out
 				// the problem here, we either need to deactivate this entirely,
 				// or at least make sure that we don't delete constructors.
-				if(gao.isConstructor()) {
+				if(gao.isConstructor() || gao.isStatic()) {
 					continue;
 				}
 				GenericClass owner = gao.getOwnerClass(); // eg X
@@ -426,6 +426,14 @@ public class TestCluster {
 					for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
 						logger.debug("5. current instantiated generator: {}", generator);
 						try {
+
+							if((generator.isMethod() || generator.isField()) && clazz.isParameterizedType() && GenericClass.isMissingTypeParameters(generator.getGenericGeneratedType())) {
+								logger.debug("No type parameters present in generator for {}: {}", clazz, generator);
+								continue;
+							}
+
+
+
 							// Set owner type parameters from new return type
 							GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
 
@@ -464,6 +472,7 @@ public class TestCluster {
 							        || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
 								logger.debug("Got new generator: {} which generated: {}",
 								         newGenerator, newGenerator.getGeneratedClass());
+								logger.debug("{} vs {}", (!hadTypeParameters && generatorClazz.equals(clazz)), clazz.isAssignableFrom(newGenerator.getGeneratedType()));
 								targetGenerators.add(newGenerator);
 
 							} else if (logger.isDebugEnabled()) {
