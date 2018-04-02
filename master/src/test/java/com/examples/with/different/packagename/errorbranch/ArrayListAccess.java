@@ -1,6 +1,5 @@
 package com.examples.with.different.packagename.errorbranch;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayListAccess {
