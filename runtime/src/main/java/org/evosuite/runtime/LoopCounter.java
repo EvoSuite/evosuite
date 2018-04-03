@@ -125,7 +125,7 @@ public class LoopCounter {
 
 
     private boolean isInStaticInit() {
-        for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+        for (StackTraceElement elem : new Throwable().getStackTrace()) {
             if (elem.getMethodName().startsWith("<clinit>"))
                 return true;
         }
