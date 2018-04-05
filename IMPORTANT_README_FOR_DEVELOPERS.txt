@@ -168,7 +168,7 @@ Commit and push the changed pom files.
 
 To deploy to Maven Central, execute:
 
-  mvn clean source:jar javadoc:jar verify -PsignJars -DskipTests   deploy
+  mvn clean source:jar javadoc:jar gpg:sign -PsignJars -DskipTests deploy
 
 Note: this requires that you have configured GPG on your machine with the right
 valid keys.
