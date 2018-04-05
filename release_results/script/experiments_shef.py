@@ -21,12 +21,12 @@
 
 
 # How to run EvoSuite
-EVOSUITE="java -Xmx400M -jar /fastdata/ac1gf/release_results/evosuite-master-1.0.5-SNAPSHOT.jar"
+EVOSUITE="java -Xmx400M -jar /fastdata/ac1gf/release_results/evosuite-master-1.0.6-SNAPSHOT.jar"
 
 # Location of SF110
 CASESTUDY_DIR="/data/ac1gf/sf110"
 
-CONFIG_NAME = "1.0.4"
+CONFIG_NAME = "1.0.6"
 
 EXPERIMENT_NAME="EvoSuite"
 
