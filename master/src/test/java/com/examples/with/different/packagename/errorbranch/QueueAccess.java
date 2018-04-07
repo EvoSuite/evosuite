@@ -1,10 +1,10 @@
 package com.examples.with.different.packagename.errorbranch;
 
-import java.util.Queue;
+import java.util.PriorityQueue;
 
 public class QueueAccess {
 
-    public void testMe(Queue<Integer> integerQueue) {
+    public void testMe(PriorityQueue<Integer> integerQueue) {
         integerQueue.element();
     }
 }

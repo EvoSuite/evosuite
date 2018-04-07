@@ -20,8 +20,7 @@ public class QueueInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
-//        Not sure why realBranches is 3 and instrumentedBranches is 0
-        checkErrorBranches(QueueAccess.class, 3, 0, 1, 0);
+        checkErrorBranches(QueueAccess.class, 2, 2, 2, 2);
     }
 
     @Test
@@ -38,8 +37,7 @@ public class QueueInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
-//        Not sure why realBranches is 3 and instrumentedBranches is 0
-        checkErrorBranches(QueueRemove.class, 3, 0, 1, 0);
+        checkErrorBranches(QueueRemove.class, 2, 2, 2, 2);
 
     }
 }
