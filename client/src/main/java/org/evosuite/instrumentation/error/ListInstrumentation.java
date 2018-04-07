@@ -29,7 +29,7 @@ public class ListInstrumentation extends ErrorBranchInstrumenter {
 	private static final String LIST = List.class.getCanonicalName().replace('.', '/');
 	private static final String ARRAYLIST = ArrayList.class.getCanonicalName().replace('.', '/');
 	private static final String LINKEDLIST = LinkedList.class.getCanonicalName().replace('.', '/');
-	private static final List<String> LISTS = Arrays.asList(LIST, ARRAYLIST, LINKEDLIST);
+	private static final List<String> LISTNAMES = Arrays.asList(LIST, ARRAYLIST, LINKEDLIST);
 	
 	private final List<String> indexListMethods = Arrays.asList(new String[] {"get", "set", "add", "remove", "listIterator", "addAll"});
 	// overloaded version of add(Element, Index) and add(Index, Collection) is considered here.
@@ -47,7 +47,7 @@ public class ListInstrumentation extends ErrorBranchInstrumenter {
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc, boolean itf) {
 
-		if (LISTS.contains(owner)) {
+		if (LISTNAMES.contains(owner)) {
 			if (emptyListMethods.contains(name)) {
 				// empty
 				Map<Integer, Integer> tempVariables = getMethodCallee(desc);

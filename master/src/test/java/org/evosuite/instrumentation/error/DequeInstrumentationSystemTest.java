@@ -19,8 +19,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
-//        Not sure why realBranches is 3 and instrumentedBranches is 0
-        checkErrorBranches(DequePop.class, 3, 0, 1, 0);
+        checkErrorBranches(DequePop.class, 2, 2, 2, 2);
     }
 
     @Test
@@ -36,8 +35,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
-//        Not sure why realBranches is 3 and instrumentedBranches is 0
-        checkErrorBranches(DequeGetFirst.class, 3, 0, 1, 0);
+        checkErrorBranches(DequeGetFirst.class, 2, 2, 2, 2);
     }
 
     @Test
@@ -53,8 +51,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
-//        Not sure why realBranches is 3 and instrumentedBranches is 0
-        checkErrorBranches(DequeRemoveFirst.class, 3, 0, 1, 0);
+        checkErrorBranches(DequeRemoveFirst.class, 2, 2, 2, 2);
     }
 
     @Test
@@ -70,8 +67,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
-//        Not sure why realBranches is 3 and instrumentedBranches is 0
-        checkErrorBranches(DequeRemove.class, 3, 0, 1, 0);
+        checkErrorBranches(DequeRemove.class, 2, 2, 2, 2);
     }
 
     @Test
@@ -87,7 +83,6 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
-//        Not sure why realBranches is 3 and instrumentedBranches is 0
-        checkErrorBranches(DequeElement.class, 3, 0, 1, 0);
+        checkErrorBranches(DequeElement.class, 2, 2, 2, 2);
     }
 }

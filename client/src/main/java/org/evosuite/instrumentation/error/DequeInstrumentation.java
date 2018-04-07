@@ -50,7 +50,7 @@ public class DequeInstrumentation extends ErrorBranchInstrumenter {
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
 	                      "isEmpty", "()Z", false);
-				insertBranchWithoutTag(Opcodes.IFLE, "java/util/NoSuchElementException");
+				insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
 				tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);
 				

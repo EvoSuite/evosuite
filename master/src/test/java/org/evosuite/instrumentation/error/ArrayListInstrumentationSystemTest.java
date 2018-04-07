@@ -92,6 +92,6 @@ public class ArrayListInstrumentationSystemTest extends AbstractErrorBranchTest 
     public void testArrayListIteratorWithErrorBranches() {
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.ARRAYLIST};
-        checkErrorBranches(ArrayListIterator.class, 2, 4, 2, 4);
+        checkErrorBranches(ArrayListIterator.class, 2, 0, 2, 0);
     }
 }
