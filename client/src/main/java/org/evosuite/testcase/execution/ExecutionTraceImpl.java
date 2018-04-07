@@ -515,7 +515,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			coveredTrueContext.put(branch, new HashMap<>());
 			coveredFalseContext.put(branch, new HashMap<>());
 		}
-		CallContext context = new CallContext(Thread.currentThread().getStackTrace());
+		//CallContext context = new CallContext(new Throwable().getStackTrace());
+		CallContext context = new CallContext(stack);
 
 		if (!coveredPredicateContext.get(branch).containsKey(context)) {
 			coveredPredicateContext.get(branch).put(context, 1);
@@ -702,11 +703,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			}
 		}
 		if (!className.isEmpty() && !methodName.isEmpty()) {
+			int callingObjectID = registerObject(caller);
+			MethodCall call = new MethodCall(className, methodName, methodId, callingObjectID, stack.size());
+			methodId++;
+			// TODO: Skip this?
 			if (traceCalls) {
-				int callingObjectID = registerObject(caller);
-				MethodCall call = new MethodCall(className, methodName, methodId, callingObjectID, stack.size());
-				methodId++;
-				// TODO: Skip this?
 				if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 						|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 					call.branchTrace.add(-1);
@@ -715,8 +716,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 					call.defuseCounterTrace.add(duCounter);
 					// TODO line_trace ?
 				}
-				stack.push(call);
 			}
+			stack.push(call);
+
 			if (!disableContext
 					&& (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
 							|| ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH))) {
@@ -736,8 +738,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			coveredMethodContext.put(id, new HashMap<>());
 		}
 
-		CallContext context = new CallContext(new Throwable().getStackTrace());
-		//CallContext context = new CallContext(stack);
+		// CallContext context = new CallContext(new Throwable().getStackTrace());
+		CallContext context = new CallContext(stack);
 
 		if (!coveredMethodContext.get(id).containsKey(context)) {
 			coveredMethodContext.get(id).put(context, 1);
@@ -798,7 +800,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public void exitMethod(String classname, String methodname) {
 		if (!classname.isEmpty() && !methodname.isEmpty()) {
-			if(traceCalls) {
+			// if(traceCalls) {
 				if (!stack.isEmpty() && !(stack.peek().methodName.equals(methodname))) {
 					// Handle cases where unexpected calls are on the stack
 					if (stack.peek().methodName.isEmpty() && !stack.peek().branchTrace.isEmpty()) {
@@ -812,7 +814,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				} else {
 					finishedCalls.add(stack.pop());
 				}
-			}
+			//}
 		}
 	}
 

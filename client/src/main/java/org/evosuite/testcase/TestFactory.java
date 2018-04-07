@@ -1368,7 +1368,7 @@ public class TestFactory {
 				logger.debug(" Choosing from {} existing objects: {}", objects.size(), Arrays.toString(objects.toArray()));
 			}
 			VariableReference reference = Randomness.choice(objects);
-			logger.debug(" Using existing object of type {}: {}", parameterType, reference);
+			//logger.debug(" Using existing object of type {}: {}", parameterType, reference);
 			return reference;
 		}
 

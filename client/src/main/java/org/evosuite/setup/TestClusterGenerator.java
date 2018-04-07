@@ -281,6 +281,7 @@ public class TestClusterGenerator {
 		blackList.add(java.lang.Enum.class.getName());
 		blackList.add(java.lang.String.class.getName());
 		blackList.add(java.lang.Class.class.getName());
+		blackList.add(java.lang.ThreadGroup.class.getName()); // may lead to EvoSuite killing all threads
 	}
 
 	private void initBlackListWithPrimitives(Set<String> blackList) throws NullPointerException {
