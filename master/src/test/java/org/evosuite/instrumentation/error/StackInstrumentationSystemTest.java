@@ -20,7 +20,7 @@ public class StackInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.STACK};
-        checkErrorBranches(StackPeek.class, 3, 0, 3, 0);
+        checkErrorBranches(StackPeek.class, 2, 2, 2, 2);
     }
 
     @Test
@@ -36,6 +36,6 @@ public class StackInstrumentationSystemTest extends AbstractErrorBranchTest {
 
         Properties.ERROR_BRANCHES = true;
         Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.STACK};
-        checkErrorBranches(StackPop.class, 3, 0, 3, 0);
+        checkErrorBranches(StackPop.class, 2, 2, 2, 2);
     }
 }
