@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 public class ArrayListIterator {
-    public void testMe(ArrayList<Integer> integerList) {
-        ListIterator<Integer> litr = integerList.listIterator();
+    public void testMe(ArrayList<Integer> integerList, int index) {
+        ListIterator<Integer> litr = integerList.listIterator(index);
         int element = litr.next();
     }
 }
