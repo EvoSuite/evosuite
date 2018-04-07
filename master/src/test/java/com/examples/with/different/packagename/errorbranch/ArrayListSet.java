@@ -1,9 +1,9 @@
 package com.examples.with.different.packagename.errorbranch;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class ArrayListSet {
-    public void testMe(List<Integer> integerList, int index, Integer element) {
+    public void testMe(ArrayList<Integer> integerList, int index, Integer element) {
         integerList.set(index, element);
     }
 }

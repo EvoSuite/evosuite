@@ -1293,7 +1293,7 @@ public class Properties {
 	public static boolean ERROR_BRANCHES = false;
 
 	public enum ErrorInstrumentation {
-		ARRAY, ARRAYLIST, CAST, DEQUE, DIVISIONBYZERO, LINKEDHASHSET, LINKEDLIST, NPE, OVERFLOW, QUEUE, STACK, VECTOR
+		ARRAY, ARRAYLIST, CAST, DEQUE, DIVISIONBYZERO, LINKEDHASHSET, LINKEDLIST, NPE, OVERFLOW, QUEUE, STACK, VECTOR, LIST
 	}
 
 	@Parameter(key = "error_instrumentation", description = "Which instrumentation to use for error checks")

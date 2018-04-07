@@ -90,6 +90,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		instrumentation = new ArrayList<>();
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAY))
 			instrumentation.add(new ArrayInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LIST))
+			instrumentation.add(new ListInstrumentation(this));
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAYLIST))
 			instrumentation.add(new ArrayListInstrumentation(this));
 		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.CAST))
