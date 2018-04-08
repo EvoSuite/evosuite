@@ -26,17 +26,13 @@ import org.objectweb.asm.Type;
 
 public class ListInstrumentation extends ErrorBranchInstrumenter {
 
-	private static final String LIST = List.class.getCanonicalName().replace('.', '/');
-	private static final String ARRAYLIST = ArrayList.class.getCanonicalName().replace('.', '/');
-	private static final String LINKEDLIST = LinkedList.class.getCanonicalName().replace('.', '/');
-	private static final List<String> LISTNAMES = Arrays.asList(LIST, ARRAYLIST, LINKEDLIST);
+	private static final List<String> LISTNAMES = Arrays.asList(List.class.getCanonicalName().replace('.', '/'),
+			ArrayList.class.getCanonicalName().replace('.', '/'),
+			LinkedList.class.getCanonicalName().replace('.', '/'),
+			Vector.class.getCanonicalName().replace('.', '/'));
 	
 	private final List<String> indexListMethods = Arrays.asList(new String[] {"get", "set", "add", "remove", "listIterator", "addAll"});
-	// overloaded version of add(Element, Index) and add(Index, Collection) is considered here.
-	// TODO: listIterator has no method which throws IndexOutOfBoundsException. Hence, we may ignore it or add an appropriate instrumentation.
-
-	private final List<String> emptyListMethods = Arrays.asList(new String[] {"getFirst", "getLast", "removeFirst", "removeLast", "element", "pop"});
-
+	// overloaded version of add(Element, Index), add(Index, Collection) and listIterator(Index) is considered here.
 	// Missing: subList, removeRange
 
 	public ListInstrumentation(ErrorConditionMethodAdapter mv) {
@@ -48,18 +44,7 @@ public class ListInstrumentation extends ErrorBranchInstrumenter {
 			String desc, boolean itf) {
 
 		if (LISTNAMES.contains(owner)) {
-			if (emptyListMethods.contains(name)) {
-				// empty
-				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
-
-				//tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
-						"isEmpty", "()Z", false);
-				insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
-				//tagBranchEnd();
-				restoreMethodParameters(tempVariables, desc);
-
-			} else if (indexListMethods.contains(name)) {
+			if (indexListMethods.contains(name)) {
 				Type[] args = Type.getArgumentTypes(desc);
 				if (args.length == 0)
 					return;

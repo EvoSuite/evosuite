@@ -2,6 +2,7 @@ package org.evosuite.instrumentation.error;
 
 import com.examples.with.different.packagename.errorbranch.*;
 import org.evosuite.Properties;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
@@ -58,7 +59,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
     public void testDequeRemoveWithOutErrorBranches() {
 
         Properties.ERROR_BRANCHES = false;
-        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
         checkErrorBranches(DequeRemove.class, 2, 0, 2, 0);
     }
 
@@ -66,7 +67,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
     public void testDequeRemoveWithErrorBranches() {
 
         Properties.ERROR_BRANCHES = true;
-        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
         checkErrorBranches(DequeRemove.class, 2, 2, 2, 2);
     }
 
@@ -74,7 +75,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
     public void testDequeElementWithOutErrorBranches() {
 
         Properties.ERROR_BRANCHES = false;
-        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
         checkErrorBranches(DequeElement.class, 2, 0, 2, 0);
     }
 
@@ -82,7 +83,7 @@ public class DequeInstrumentationSystemTest extends AbstractErrorBranchTest {
     public void testDequeElementWithErrorBranches() {
 
         Properties.ERROR_BRANCHES = true;
-        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.DEQUE};
+        Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.QUEUE};
         checkErrorBranches(DequeElement.class, 2, 2, 2, 2);
     }
 }

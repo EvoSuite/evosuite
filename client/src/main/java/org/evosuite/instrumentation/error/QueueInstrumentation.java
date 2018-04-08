@@ -20,12 +20,19 @@
 package org.evosuite.instrumentation.error;
 
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.objectweb.asm.Opcodes;
 
 public class QueueInstrumentation extends ErrorBranchInstrumenter {
-	
-	private static final List<String> LISTNAMES = Arrays.asList(Queue.class.getCanonicalName().replace('.', '/'), PriorityQueue.class.getCanonicalName().replace('.', '/'));
+
+	private static final List<String> LISTNAMES = Arrays.asList(Queue.class.getCanonicalName().replace('.', '/'),
+			PriorityQueue.class.getCanonicalName().replace('.', '/'),
+			Deque.class.getCanonicalName().replace('.', '/'),
+			LinkedBlockingDeque.class.getCanonicalName().replace('.', '/'),
+			BlockingDeque.class.getCanonicalName().replace('.', '/'),
+			ArrayDeque.class.getCanonicalName().replace('.', '/'));
 	
 	private final List<String> emptyListMethods = Arrays.asList(new String[] {"remove", "element" });
 

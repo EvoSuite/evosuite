@@ -31,9 +31,12 @@ import org.objectweb.asm.Opcodes;
 
 public class DequeInstrumentation extends ErrorBranchInstrumenter {
 
-	private final List<String> listNames = Arrays.asList(new String[] {Deque.class.getCanonicalName().replace('.', '/'), LinkedBlockingDeque.class.getCanonicalName().replace('.', '/'), BlockingDeque.class.getCanonicalName().replace('.', '/'), ArrayDeque.class.getCanonicalName().replace('.', '/')});
+	private final List<String> listNames = Arrays.asList(new String[]{Deque.class.getCanonicalName().replace('.', '/'),
+			LinkedBlockingDeque.class.getCanonicalName().replace('.', '/'),
+			BlockingDeque.class.getCanonicalName().replace('.', '/'),
+			ArrayDeque.class.getCanonicalName().replace('.', '/')});
 
-	private final List<String> emptyListMethods = Arrays.asList(new String[] {"getFirst", "getLast", "removeFirst", "removeLast", "remove", "element", "pop"});
+	private final List<String> emptyListMethods = Arrays.asList(new String[] {"getFirst", "getLast", "removeFirst", "removeLast", "pop"});
 
 	public DequeInstrumentation(ErrorConditionMethodAdapter mv) {
 		super(mv);
