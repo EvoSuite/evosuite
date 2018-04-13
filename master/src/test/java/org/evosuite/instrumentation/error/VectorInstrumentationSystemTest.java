@@ -44,14 +44,14 @@ public class VectorInstrumentationSystemTest extends AbstractErrorBranchTest {
 	@Test
 	public void testVectorIndexWithoutErrorBranches() {
 		Properties.ERROR_BRANCHES = false;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.VECTOR};
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
 		checkErrorBranches(VectorAccessIndex.class, 3, 0, 3, 0);
 	}
 
 	@Test
 	public void testVectorIndexWithErrorBranches() {
 		Properties.ERROR_BRANCHES = true;
-		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.VECTOR};
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
 		checkErrorBranches(VectorAccessIndex.class, 3, 4, 3, 4);
 	}
 }
