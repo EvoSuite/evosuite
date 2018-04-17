@@ -33,6 +33,7 @@ import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,12 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 			}
 			suite.addTest(test);
 		}
+
+		// Evaluate generated suite
+		for (TestSuiteFitnessFunction fitnessFunction : getFitnessFunctions()) {
+			fitnessFunction.getFitness(suite);
+		}
+
         // Search is finished, send statistics
         sendExecutionStatistics();
 
