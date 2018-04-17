@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -36,6 +37,7 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
@@ -263,12 +265,38 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   public abstract T getRandomSolution();
 
   /**
+   * 
+   * @param solution
+   * @return
+   */
+  protected TestChromosome createMergedSolution(TestChromosome solution) {
+    return solution;
+  }
+
+  /**
+   * 
+   * @param solution
+   * @return
+   */
+  protected abstract TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution);
+
+  /**
    * Creates a solution based on the best solutions in the archive and the parameter solution.
    * 
    * @param solution a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
    * @return a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
    */
-  public abstract <C extends Chromosome> C mergeArchiveAndSolution(C solution);
+  @SuppressWarnings("unchecked")
+  public <C extends Chromosome> C mergeArchiveAndSolution(C solution) {
+    if (solution instanceof TestChromosome) {
+      return (C) this.createMergedSolution((TestChromosome) solution);
+    } else if (solution instanceof TestSuiteChromosome) {
+      return (C) this.createMergedSolution((TestSuiteChromosome) solution);
+    }
+    AtMostOnceLogger.warn(logger,
+        "Type of solution '" + solution.getClass().getCanonicalName() + "' not supported");
+    return null;
+  }
 
   /**
    * 
