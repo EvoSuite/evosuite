@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -43,6 +44,7 @@ public class LineCoverageFactory extends
 		AbstractFitnessFactory<LineCoverageTestFitness> {
 
 	private static final Logger logger = LoggerFactory.getLogger(LineCoverageFactory.class);
+	private final MethodNameMatcher matcher = new MethodNameMatcher();
 
 	private boolean isEnumDefaultConstructor(String className, String methodName) {
 		if(!methodName.equals("<init>(Ljava/lang/String;I)V")) {
@@ -81,6 +83,10 @@ public class LineCoverageFactory extends
 
 			for(String methodName : LinePool.getKnownMethodsFor(className)) {
 				if(isEnumDefaultConstructor(className, methodName)) {
+					continue;
+				}
+				if (!matcher.methodMatches(methodName)) {
+					logger.info("Method " + methodName + " does not match criteria. ");
 					continue;
 				}
 				Set<Integer> lines = LinePool.getLines(className, methodName);
