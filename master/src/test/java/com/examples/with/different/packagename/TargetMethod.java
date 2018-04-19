@@ -3,11 +3,13 @@ package com.examples.with.different.packagename;
 public class TargetMethod {
 
     public boolean foo() {
-        return true;
+        boolean result = fooTryCatch(0);
+        return result;
     }
 
     public boolean bar() {
-        return true;
+        boolean result = barTryCatch(0);
+        return result;
     }
 
     public boolean fooDefUse(int num) {

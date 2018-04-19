@@ -101,7 +101,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 				continue;
 			String methodName = m.getMethodName();
 			if (!matcher.methodMatches(methodName)) {
-				logger.info("Method " + methodName + " does not match criteria. ");
+				logger.info("Method {} does not match criteria. ",methodName);
 				continue;
 			}
 			// We need to return all mutants to make coverage values and bitstrings consistent 

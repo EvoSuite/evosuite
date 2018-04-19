@@ -86,7 +86,7 @@ public class LineCoverageFactory extends
 					continue;
 				}
 				if (!matcher.methodMatches(methodName)) {
-					logger.info("Method " + methodName + " does not match criteria. ");
+					logger.info("Method {} does not match criteria. ",methodName);
 					continue;
 				}
 				Set<Integer> lines = LinePool.getLines(className, methodName);

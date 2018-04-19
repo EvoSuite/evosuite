@@ -150,8 +150,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
 				String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
 				if (!matcher.methodMatches(methodIdentifier)) {
-					logger.info("Method " + methodIdentifier + " does not match criteria. ");
-					break;
+					logger.info("Method {} does not match criteria. ",methodIdentifier);
+					continue;
 				}
 				boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
 
