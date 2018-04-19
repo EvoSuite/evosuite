@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -94,6 +94,11 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
         }
         
         double r = Double.MAX_VALUE;
+
+        // Deactivate coverage archive while measuring fitness, since BranchCoverage fitness
+        // evaluating will attempt to claim coverage for it in the archive
+        boolean archive = Properties.TEST_ARCHIVE;
+        Properties.TEST_ARCHIVE = false;
  
         for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
             double newFitness = branchFitness.getFitness(individual, result);
@@ -104,6 +109,8 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
             if (newFitness < r)
                 r = newFitness;
         }
+
+        Properties.TEST_ARCHIVE = archive;
  
         lastCoveringFitness = null;
  

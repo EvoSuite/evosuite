@@ -52,6 +52,9 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 	@Override	
 	public TestSuiteChromosome generateTests() {
+		// Current MOSuite algorithms, i.e., MOSA and LIPS, use their own Archive
+		Properties.TEST_ARCHIVE = false;
+
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 

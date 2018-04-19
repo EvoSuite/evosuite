@@ -65,6 +65,10 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 	
 	@Override
 	public TestSuiteChromosome generateTests() {
+		// In order to improve strategy's performance, in here we explicitly disable EvoSuite's
+		// archive, as it is not used anyway by this strategy
+		Properties.TEST_ARCHIVE = false;
+
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for individual test generation");
 		ExecutionTracer.enableTraceCalls();
