@@ -47,7 +47,7 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
     private RankAndCrowdingDistanceComparator<T> comparator;
 
     public BinaryTournamentSelectionCrowdedComparison() {
-        this.comparator = new RankAndCrowdingDistanceComparator<T>(maximize);
+        this.comparator = new RankAndCrowdingDistanceComparator<T>(this.maximize);
     }
 
     public BinaryTournamentSelectionCrowdedComparison(boolean isToMaximize) {
@@ -113,5 +113,14 @@ public class BinaryTournamentSelectionCrowdedComparison<T extends Chromosome> ex
         }
 
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setMaximize(boolean max) {
+        super.setMaximize(max);
+        this.comparator.setMaximize(max);
     }
 }

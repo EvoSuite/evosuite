@@ -37,7 +37,7 @@ public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chro
 	private final RankAndCrowdingDistanceComparator<T> comparator;
 
 	public TournamentSelectionRankAndCrowdingDistanceComparator() {
-		this.comparator = new RankAndCrowdingDistanceComparator<T>(maximize);
+		this.comparator = new RankAndCrowdingDistanceComparator<T>(this.maximize);
 	}
 
 	public TournamentSelectionRankAndCrowdingDistanceComparator(boolean isToMaximize) {
@@ -71,8 +71,20 @@ public class TournamentSelectionRankAndCrowdingDistanceComparator<T extends Chro
 		return winner;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public T select(List<T> population) {
 		return population.get(getIndex(population));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setMaximize(boolean max) {
+		super.setMaximize(max);
+		this.comparator.setMaximize(max);
 	}
 }

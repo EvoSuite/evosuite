@@ -85,4 +85,13 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements 
 
         return 0;
     }
+
+    /**
+     * Are we maximizing or minimizing fitness?
+     * 
+     * @param max a boolean.
+     */
+    public void setMaximize(boolean max) {
+        this.isToMaximize = max;
+    }
 }
