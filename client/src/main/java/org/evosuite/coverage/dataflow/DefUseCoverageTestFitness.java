@@ -240,8 +240,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getVariableName();
-		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition);
-		this.goalUseFitness = new StatementCoverageTestFitness(goalUse);
+		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition.getClassName(), goalDefinition.getMethodName(), goalDefinition.getInstructionId());
+		this.goalUseFitness = new StatementCoverageTestFitness(goalUse.getClassName(), goalUse.getMethodName(), goalUse.getInstructionId());
 
 		this.type = type;
 	}
@@ -251,7 +251,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		goalDefinition = null;
 		goalDefinitionFitness = null;
 		goalUse = use;
-		goalUseFitness = new StatementCoverageTestFitness(goalUse);
+		goalUseFitness = new StatementCoverageTestFitness(goalUse.getClassName(), goalUse.getMethodName(), goalUse.getInstructionId());
 
 		this.type = DefUsePairType.PARAMETER;
 	}

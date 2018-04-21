@@ -57,7 +57,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	public AllDefsCoverageTestFitness(Definition def,
 	        Map<Use, DefUseCoverageTestFitness> uses) {
 		this.targetDef = def;
-		this.goalDefinitionFitness = new StatementCoverageTestFitness(def);
+		this.goalDefinitionFitness = new StatementCoverageTestFitness(def.getClassName(), def.getMethodName(), def.getInstructionId());
 		this.uses = uses;
 	}
 

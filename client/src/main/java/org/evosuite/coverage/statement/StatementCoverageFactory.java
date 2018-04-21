@@ -67,7 +67,7 @@ public class StatementCoverageFactory extends
 				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
 				                                                                                                                             methodName))
 					if (isUsable(ins))
-						goals.add(new StatementCoverageTestFitness(ins));
+						goals.add(new StatementCoverageTestFitness(ins.getClassName(), ins.getMethodName(), ins.getInstructionId()));
 			}
 		}
 		long end = System.currentTimeMillis();
