@@ -175,11 +175,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            the coverage value for {@code ff}
 	 */
 	public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage) {
-		this.fitnessValues.put(ff, fitnessValue);
-		this.previousFitnessValues.put(ff, fitnessValue);
-		this.coverageValues.put(ff, coverage);
-		this.numsCoveredGoals.put(ff, 0);
-		this.numsNotCoveredGoals.put(ff, -1);
+		this.addFitness(ff, fitnessValue, coverage, 0);
 	}
 
 	/**
