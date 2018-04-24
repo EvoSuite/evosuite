@@ -286,10 +286,20 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+		// Deactivate coverage archive while measuring fitness, as auxiliar fitness functions
+		// could attempt to claim coverage for it in the archive
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
+
+		double fit = 0.0;
 		if (Properties.ENABLE_ALTERNATIVE_SUITE_FITNESS)
-			return getFitnessAlternative(suite);
+			fit = getFitnessAlternative(suite);
 		else
-			return getFitnessOld(suite);
+			fit = getFitnessOld(suite);
+
+		Properties.TEST_ARCHIVE = archive;
+
+		return fit;
 	}
 
 	/*

@@ -273,7 +273,14 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		DefUseFitnessCalculator calculator = new DefUseFitnessCalculator(this,
 		        individual, result);
 
+		// Deactivate coverage archive while measuring fitness, as auxiliar fitness functions
+		// could attempt to claim coverage for it in the archive
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
+
 		double fitness = calculator.calculateDUFitness();
+
+		Properties.TEST_ARCHIVE = archive;
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && fitness == 0.0)
 			setCovered(individual, result.getTrace(), -1); // TODO objectId wrong
