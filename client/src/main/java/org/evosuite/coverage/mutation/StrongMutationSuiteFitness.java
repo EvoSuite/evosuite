@@ -50,6 +50,10 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -9124328839917834720L;
 
+	public StrongMutationSuiteFitness() {
+		super(Properties.Criterion.STRONGMUTATION);
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult runTest(TestCase test) {
