@@ -109,12 +109,15 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
         // evaluating will attempt to claim coverage for it in the archive
         boolean archive = Properties.TEST_ARCHIVE;
         Properties.TEST_ARCHIVE = false;
- 
+
         // Find minimum distance to satisfying any of the control dependencies
         for (BranchCoverageTestFitness branchFitness : this.branchFitnesses) {
             double newFitness = branchFitness.getFitness(individual, result);
             if (newFitness == 0.0) {
                 r = 0.0;
+                // Although the BranchCoverage goal has been covered, it is not part of the
+                // optimisation
+                individual.getTestCase().removeCoveredGoal(branchFitness);
                 break;
             }
             if (newFitness < r)
@@ -122,7 +125,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
         }
 
         Properties.TEST_ARCHIVE = archive;
- 
+
         updateIndividual(this, individual, r);
 
         if (r == 0.0) {

@@ -48,6 +48,7 @@ public class StatementCoverageFitnessFunctionSystemTest extends SystemTestBase {
     System.out.println("EvolvedTestSuite:\n" + best);
     int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
     Assert.assertEquals(20, goals);
+    Assert.assertEquals(goals, best.getNumOfCoveredGoals());
     Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
   }
 

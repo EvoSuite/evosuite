@@ -172,6 +172,9 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
 				double newFitness = branchFitness.getFitness(individual, result);
 				if (newFitness == 0.0) {
+					// Although the BranchCoverage goal has been covered, it is not part of the
+					// optimisation
+					individual.getTestCase().removeCoveredGoal(branchFitness);
 					// If the control dependency was covered, then likely
 					// an exception happened before the line was reached
 					newFitness = 1.0;

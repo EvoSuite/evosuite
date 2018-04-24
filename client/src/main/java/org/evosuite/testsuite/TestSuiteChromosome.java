@@ -225,9 +225,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	
 	public void removeCoveredGoal(TestFitnessFunction f) {
 		for (TestChromosome test : tests) {
-			if(test.getTestCase().getCoveredGoals().remove(f)) {
-				
-			}
+			test.getTestCase().removeCoveredGoal(f);
 		}
 	}
 
