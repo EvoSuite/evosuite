@@ -62,7 +62,7 @@ public class SPEA2SystemTest extends SystemTestBase {
     Properties.ALGORITHM = Algorithm.SPEA2;
     Properties.SELECTION_FUNCTION = Properties.SelectionFunction.BINARY_TOURNAMENT;
     Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
-    Properties.SEARCH_BUDGET = 10;
+    Properties.SEARCH_BUDGET = 20;
     Properties.MINIMIZE = false;
 
     EvoSuite evosuite = new EvoSuite();
