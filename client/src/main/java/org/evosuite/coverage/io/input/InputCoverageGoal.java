@@ -19,9 +19,6 @@
  */
 package org.evosuite.coverage.io.input;
 
-
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.objectweb.asm.Type;
 
 import java.io.Serializable;
@@ -207,6 +204,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
             return diff;
     }
 
+    @SuppressWarnings("rawtypes")
     public static Set<InputCoverageGoal> createCoveredGoalsFromParameters(String className, String methodName, String methodDesc, List<Object> argumentsValues) {
         Set<InputCoverageGoal> goals = new LinkedHashSet<>();
 
@@ -217,6 +215,13 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
             Object argValue = argumentsValues.get(i);
             String argValueDesc = "";
             Number numberValue = null;
+
+            if (argValue == null) {
+              argValueDesc = REF_NULL;
+              goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
+              continue;
+            }
+
             switch (argType.getSort()) {
                 case Type.BOOLEAN:
                     argValueDesc = (((boolean) argValue)) ? BOOL_TRUE : BOOL_FALSE;
@@ -249,30 +254,23 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
                     break;
                 case Type.ARRAY:
-                    if (argValue == null)
-                        argValueDesc = REF_NULL;
-                    else
-                        argValueDesc = (Array.getLength(argValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
+                    argValueDesc = (Array.getLength(argValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
                     break;
                 case Type.OBJECT:
-                    if (argValue == null)
-                        argValueDesc = REF_NULL;
-                    else {
-                        if (argType.getClassName().equals("java.lang.String")) {
-                            argValueDesc = ((String) argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
-                        }
-                        else if(argValue instanceof List) {
-                            argValueDesc = ((List) argValue).isEmpty() ? LIST_EMPTY : LIST_NONEMPTY;
-                        }
-                        else if(argValue instanceof Set) {
-                            argValueDesc = ((Set) argValue).isEmpty() ? SET_EMPTY : SET_NONEMPTY;
-                        }
-                        else if(argValue instanceof Map) {
-                            argValueDesc = ((Map) argValue).isEmpty() ? MAP_EMPTY : MAP_NONEMPTY;
-                        }
-                        else
-                            argValueDesc = REF_NONNULL;
+                    if (argType.getClassName().equals("java.lang.String")) {
+                        argValueDesc = ((String) argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
                     }
+                    else if(argValue instanceof List) {
+                        argValueDesc = ((List) argValue).isEmpty() ? LIST_EMPTY : LIST_NONEMPTY;
+                    }
+                    else if(argValue instanceof Set) {
+                        argValueDesc = ((Set) argValue).isEmpty() ? SET_EMPTY : SET_NONEMPTY;
+                    }
+                    else if(argValue instanceof Map) {
+                        argValueDesc = ((Map) argValue).isEmpty() ? MAP_EMPTY : MAP_NONEMPTY;
+                    }
+                    else
+                        argValueDesc = REF_NONNULL;
                     break;
                 default:
                     break;
