@@ -67,7 +67,10 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		}
 		MutationFactory factory = (MutationFactory) FitnessFunctions.getFitnessFactory(criterion);
 
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		branchFitness = new BranchCoverageSuiteFitness();
+		Properties.TEST_ARCHIVE = archive;
 
 		for (MutationTestFitness goal : factory.getCoverageGoals()) {
 			mutantMap.put(goal.getMutation().getId(), goal);

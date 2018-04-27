@@ -69,7 +69,10 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	protected final BranchCoverageSuiteFitness branchFitness;
 
 	public DefUseCoverageSuiteFitness() {
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		branchFitness = new BranchCoverageSuiteFitness();
+		Properties.TEST_ARCHIVE = archive;
 
 		for (DefUseCoverageTestFitness defUse : goals) {
 			if (defUse.isParameterGoal()) {

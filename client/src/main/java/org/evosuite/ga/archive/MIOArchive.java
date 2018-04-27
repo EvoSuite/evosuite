@@ -66,7 +66,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    */
   @Override
   public void addTarget(F target) {
-    assert target != null;
+    super.addTarget(target);
 
     if (!this.archive.containsKey(target)) {
       logger.debug("Registering new target '" + target + "'");
@@ -82,9 +82,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
   @SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
-    assert target != null;
+    super.updateArchive(target, solution, fitnessValue);
     assert this.archive.containsKey(target);
-    assert fitnessValue >= 0.0;
 
     T solutionClone = (T) solution.clone();
 
