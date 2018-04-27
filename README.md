@@ -11,11 +11,11 @@ There are different ways to use EvoSuite:
 
 ### EvoSuite on the command line
 
-EvoSuite comes as an executable jar file which you can be called as follows:
+EvoSuite comes as an executable jar file which you can call as follows:
 
 ```java -jar evosuite.jar <options>```
 
-To generate a test suite using use the following command:
+To generate a test suite using EvoSuite, use the following command:
 
 ```java -jar evosuite.jar <target> [options]```
 
@@ -24,7 +24,7 @@ The target can be a class:
 ```-class <ClassName>```
 
 or a package prefix, in which case EvoSuite tries to generate a test
-suite for each class in the classpath that match the prefix:
+suite for each class in the classpath that matches the prefix:
 
 ```-prefix <PrefixName>```
 
