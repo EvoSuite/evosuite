@@ -135,7 +135,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		// TODO add here dynamic stopping condition
 
-		while (!this.isFinished() && this.getNumberOfCoveredGoals() < this.fitnessFunctions.size()) {
+		while (!this.isFinished() && this.getNumberOfUncoveredGoals() > 0) {
 			this.evolve();
 			this.notifyIteration();
 		}

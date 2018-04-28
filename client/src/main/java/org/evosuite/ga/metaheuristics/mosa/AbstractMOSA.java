@@ -379,7 +379,16 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
      * @return
      */
     protected int getNumberOfUncoveredGoals() {
-      return this.getUncoveredGoals().size();
+      return Archive.getArchiveInstance().getNumberOfUncoveredTargets();
+    }
+
+    /**
+     * Returns the total number of goals, i.e., number of covered goals + number of uncovered goals.
+     * 
+     * @return
+     */
+    protected int getTotalNumberOfGoals() {
+      return Archive.getArchiveInstance().getNumberOfTargets();
     }
 
     /**
@@ -513,13 +522,13 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         }
 
         // compute overall fitness and coverage
-        double fitness = this.fitnessFunctions.size() - this.getNumberOfCoveredGoals();
-        double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.fitnessFunctions.size());
+        double fitness = this.getNumberOfUncoveredGoals();
+        double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.getTotalNumberOfGoals());
         for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions) {
             bestTestCases.setFitness(suiteFitness, fitness);
             bestTestCases.setCoverage(suiteFitness, coverage);
             bestTestCases.setNumOfCoveredGoals(suiteFitness, this.getNumberOfCoveredGoals());
-            bestTestCases.setNumOfNotCoveredGoals(suiteFitness, this.fitnessFunctions.size() - this.getNumberOfCoveredGoals());
+            bestTestCases.setNumOfNotCoveredGoals(suiteFitness, this.getNumberOfUncoveredGoals());
         }
 
         List<T> bests = new ArrayList<T>(1);
@@ -557,10 +566,11 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         }
 
         // compute overall fitness and coverage
-        double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.fitnessFunctions.size());
+        double fitness = this.getNumberOfUncoveredGoals();
+        double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.getTotalNumberOfGoals());
         for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions) {
             best.setCoverage(suiteFitness, coverage);
-            best.setFitness(suiteFitness,  this.fitnessFunctions.size() - this.getNumberOfCoveredGoals());
+            best.setFitness(suiteFitness,  fitness);
         }
 
         return (T) best;
