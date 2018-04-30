@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.rmi.ClientServices;
@@ -118,9 +117,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		logger.info("executing generateSolution function");
 
 		// keep track of covered goals
-		for (FitnessFunction<T> goal : this.fitnessFunctions) {
-			this.addUncoveredGoal(goal);
-		}
+		this.fitnessFunctions.forEach(goal -> this.addUncoveredGoal(goal));
 
 		// initialize population
 		if (this.population.isEmpty()) {

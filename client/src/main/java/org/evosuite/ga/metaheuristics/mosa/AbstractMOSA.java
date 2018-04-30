@@ -340,9 +340,8 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
     @SuppressWarnings("unchecked")
     protected Set<FitnessFunction<T>> getCoveredGoals() {
       Set<FitnessFunction<T>> coveredGoals = new LinkedHashSet<FitnessFunction<T>>();
-      for (TestFitnessFunction ff : Archive.getArchiveInstance().getCoveredTargets()) {
-        coveredGoals.add((FitnessFunction<T>) ff);
-      }
+      Archive.getArchiveInstance().getCoveredTargets()
+          .forEach(ff -> coveredGoals.add((FitnessFunction<T>) ff));
       return coveredGoals;
     }
 
@@ -367,9 +366,8 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
     @SuppressWarnings("unchecked")
     protected Set<FitnessFunction<T>> getUncoveredGoals() {
       Set<FitnessFunction<T>> uncoveredGoals = new LinkedHashSet<FitnessFunction<T>>();
-      for (TestFitnessFunction ff : Archive.getArchiveInstance().getUncoveredTargets()) {
-        uncoveredGoals.add((FitnessFunction<T>) ff);
-      }
+      Archive.getArchiveInstance().getUncoveredTargets()
+          .forEach(ff -> uncoveredGoals.add((FitnessFunction<T>) ff));
       return uncoveredGoals;
     }
 
@@ -399,9 +397,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
     @SuppressWarnings("unchecked")
     protected List<T> getSolutions() {
       List<T> solutions = new ArrayList<T>();
-      for (TestChromosome test : Archive.getArchiveInstance().getSolutions()) {
-        solutions.add((T) test);
-      }
+      Archive.getArchiveInstance().getSolutions().forEach(test -> solutions.add((T) test));
       return solutions;
     }
 
@@ -413,9 +409,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
      */
     protected TestSuiteChromosome generateSuite() {
       TestSuiteChromosome suite = new TestSuiteChromosome();
-      for (TestChromosome test : Archive.getArchiveInstance().getSolutions()) {
-        suite.addTest(test);
-      }
+      Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
       return suite;
     }
 
@@ -485,9 +479,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
      */
     @Override
     protected void calculateFitness(T c) {
-        for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
-            fitnessFunction.getFitness(c);
-        }
+        this.fitnessFunctions.forEach(fitnessFunction -> fitnessFunction.getFitness(c));
 
         // if one of the coverage criterion is Criterion.EXCEPTION, then we have to analyse the results
         // of the execution to look for generated exceptions
