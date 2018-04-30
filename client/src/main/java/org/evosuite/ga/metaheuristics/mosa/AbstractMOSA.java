@@ -509,10 +509,6 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
           }
         }
 
-        for (FitnessFunction<T> f : this.getCoveredGoals()) {
-            bestTestCases.getCoveredGoals().add((TestFitnessFunction) f);
-        }
-
         // compute overall fitness and coverage
         double fitness = this.getNumberOfUncoveredGoals();
         double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.getTotalNumberOfGoals());
