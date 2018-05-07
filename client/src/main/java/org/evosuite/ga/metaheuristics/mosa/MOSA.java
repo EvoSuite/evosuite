@@ -20,8 +20,10 @@ package org.evosuite.ga.metaheuristics.mosa;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.rmi.ClientServices;
@@ -64,13 +66,12 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
 
+		Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
+
 		// Ranking the union
 		logger.debug("Union Size =" + union.size());
-		// Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm
-		this.rankingFunction.computeRankingAssignment(union, this.getUncoveredGoals());
-
-		// add to the archive the new covered goals (and the corresponding test cases)
-		//this.archive.putAll(ranking.getNewCoveredGoals());
+		// Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
+		this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
 
 		int remain = this.population.size();
 		int index = 0;
@@ -82,7 +83,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 			// Assign crowding distance to individuals
-			this.distance.fastEpsilonDominanceAssignment(front, this.getUncoveredGoals());
+			this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
 			// Add the individuals of this front
 			this.population.addAll(front);
 
@@ -98,7 +99,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		// Remain is less than front(index).size, insert only the best one
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
-			this.distance.fastEpsilonDominanceAssignment(front, this.getUncoveredGoals());
+			this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
 			Collections.sort(front, new OnlyCrowdingComparator());
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
