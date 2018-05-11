@@ -122,6 +122,7 @@ public class CommandLineParameters {
 		Option inheritance = new Option("inheritanceTree","Cache inheritance tree during setup");
 		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
 		Option base_dir = new Option("base_dir", true, "Working directory in which tests and reports will be placed");
+		Option parallel = new Option("parallel", true, "Amount of clients to start in parallel, default is 1");
 
 
 		@SuppressWarnings("static-access")
@@ -154,6 +155,7 @@ public class CommandLineParameters {
 		options.addOption(projectCP);
 		options.addOption(heapDump);
 		options.addOption(startedByCtg);
+		options.addOption(parallel);
 
 		return options;
 	}

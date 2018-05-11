@@ -172,6 +172,16 @@ public class EvoSuite {
                 javaOpts.add("-Dcriterion=regression");
             }
 
+            if (line.hasOption("parallel")) {
+                javaOpts.add("-Dparallel_run=" + line.getOptionValue("parallel"));
+
+                try {
+                    Properties.getInstance().setValue("parallel_run", line.getOptionValue("parallel"));
+                } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
+                    throw new Error("Invalid value for parallel: " + e.getMessage());
+                }
+            }
+
 			/*
 			 * FIXME: every time in the Master we set a parameter with -D,
 			 * we should check if it actually exists (ie detect typos)
