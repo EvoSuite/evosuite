@@ -297,7 +297,7 @@ public class Properties {
 	public static int FUNCTIONAL_MOCKING_INPUT_LIMIT = 5;
 
     @Parameter(key = "parallel_run", group = "Test Creation", description = "Run EvoSuite with more the one client in parallel")
-    public static int PARALLEL_RUN = -1;
+    public static int PARALLEL_RUN = 1;
 
 	// ---------------------------------------------------------------
 	// Search algorithm
