@@ -54,8 +54,9 @@ import org.slf4j.LoggerFactory;
 public class ClientProcess {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
+    private static String identifier;
 
-	public static TestGenerationResult result;
+    public static TestGenerationResult result;
 
 	/**
 	 * <p>
@@ -79,7 +80,7 @@ public class ClientProcess {
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 				+ Properties.PROCESS_COMMUNICATION_PORT);
 
-		boolean registered = ClientServices.getInstance().registerServices();
+		boolean registered = ClientServices.getInstance().registerServices(identifier);
 
 		if (!registered) {
 			result = TestGenerationResultBuilder.buildErrorResult("Could not connect to master process on port "
@@ -195,6 +196,12 @@ public class ClientProcess {
 		 * threads change it if this thread is still running
 		 */
 		boolean onThread = Properties.CLIENT_ON_THREAD;
+		
+        if (args.length > 0) {
+            identifier = args[0];
+        } else {
+            identifier = "ClientNode";
+        }
 
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");

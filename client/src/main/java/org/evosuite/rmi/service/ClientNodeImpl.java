@@ -96,13 +96,13 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	protected ClientNodeImpl() {
 	}
 
-	public ClientNodeImpl(Registry registry) {
+	public ClientNodeImpl(Registry registry, String identifier) {
 		this.registry = registry;
 		state = ClientState.NOT_STARTED;
 		/*
 		 * TODO: for now it is a constant because we have only one client
 		 */
-		clientRmiIdentifier = "ClientNode";
+		clientRmiIdentifier = identifier;
 		doneLatch = new CountDownLatch(1);
 		finishedLatch = new CountDownLatch(1);
 	}

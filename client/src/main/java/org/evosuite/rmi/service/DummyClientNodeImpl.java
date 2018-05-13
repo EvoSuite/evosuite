@@ -31,8 +31,8 @@ public class DummyClientNodeImpl extends ClientNodeImpl {
 		
 	}
 	
-	public DummyClientNodeImpl(Registry registry) {
-		super(registry);
+	public DummyClientNodeImpl(Registry registry, String identifier) {
+		super(registry, identifier);
 		// TODO Auto-generated constructor stub
 	}
 
