@@ -23,7 +23,6 @@ import static org.evosuite.coverage.io.IOCoverageConstants.*;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.setup.TestUsageChecker;
@@ -59,14 +58,13 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
         long start = System.currentTimeMillis();
         String targetClass = Properties.TARGET_CLASS;
 
-        final MethodNameMatcher matcher = new MethodNameMatcher();
         for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
             if (!(targetClass.equals("") || className.endsWith(targetClass)))
                 continue;
 
             for (Method method : TestClusterUtils.getClass(className).getDeclaredMethods()) {
                 String methodName = method.getName() + Type.getMethodDescriptor(method);
-                if (!TestUsageChecker.canUse(method) || !matcher.methodMatches(methodName))
+                if (!TestUsageChecker.canUse(method))
                     continue;
                 logger.info("Adding input goals for method " + className + "." + methodName);
 

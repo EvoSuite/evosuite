@@ -24,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.testcase.TestChromosome;
@@ -66,7 +65,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public void addTarget(F target) {
-    assert target != null;
+    super.addTarget(target);
 
     if (!this.uncovered.contains(target)) {
       logger.debug("Registering new target '" + target + "'");
@@ -81,7 +80,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
-    assert target != null;
+    super.updateArchive(target, solution, fitnessValue);
     assert this.covered.containsKey(target) || this.uncovered.contains(target) : "Unknown goal: "+target;
 
     if (fitnessValue > 0.0) {
@@ -251,7 +250,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
-  public TestSuiteChromosome mergeArchiveAndSolution(Chromosome solution) {
+  protected TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
     // concurrent access
     Properties.TEST_ARCHIVE = false;

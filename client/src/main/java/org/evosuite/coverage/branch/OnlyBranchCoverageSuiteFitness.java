@@ -81,7 +81,14 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
 		}
-		totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
+
+		if (Properties.TARGET_METHOD.isEmpty()) {
+		  totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
+		    getBranchCountForPrefix(prefix);
+		} else {
+		  totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
+	            getBranchCountForMethod(prefix, Properties.TARGET_METHOD);
+		}
 		branchesId = new LinkedHashSet<>();
 
 		totalGoals = 2 * totalBranches;

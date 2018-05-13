@@ -74,6 +74,13 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	public void addCoveredGoal(TestFitnessFunction goal);
 
 	/**
+	 * Remove goal that may have been covered
+	 * 
+	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 */
+	public void removeCoveredGoal(TestFitnessFunction goal);
+
+	/**
 	 * Keep track of an additional test failure
 	 *
 	 * @param violation a {@link org.evosuite.contracts.ContractViolation} object.

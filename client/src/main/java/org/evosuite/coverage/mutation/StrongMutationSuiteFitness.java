@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -49,6 +48,10 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -9124328839917834720L;
+
+	public StrongMutationSuiteFitness() {
+		super(Properties.Criterion.STRONGMUTATION);
+	}
 
 	/** {@inheritDoc} */
 	@Override
@@ -124,7 +127,10 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		double fitness = branchFitness.getFitness(individual);
+		Properties.TEST_ARCHIVE = archive;
 
 		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
 		Map<Mutation, Double> minMutantFitness = new LinkedHashMap<Mutation, Double>();

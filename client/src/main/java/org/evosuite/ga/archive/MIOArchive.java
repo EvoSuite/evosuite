@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -67,7 +66,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    */
   @Override
   public void addTarget(F target) {
-    assert target != null;
+    super.addTarget(target);
 
     if (!this.archive.containsKey(target)) {
       logger.debug("Registering new target '" + target + "'");
@@ -83,9 +82,8 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
   @SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
-    assert target != null;
+    super.updateArchive(target, solution, fitnessValue);
     assert this.archive.containsKey(target);
-    assert fitnessValue >= 0.0;
 
     T solutionClone = (T) solution.clone();
 
@@ -273,7 +271,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
-  public TestSuiteChromosome mergeArchiveAndSolution(Chromosome solution) {
+  protected TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
     // concurrent access
     Properties.TEST_ARCHIVE = false;
