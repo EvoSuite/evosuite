@@ -130,10 +130,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 		long start = System.currentTimeMillis();
 
-		/*
-		 * TODO: this will be a parameter
-		 */
-		int numberOfExpectedClients = 1;
+		int numberOfExpectedClients = Properties.PARALLEL_RUN;
 
 		synchronized (clients) {
 			while (clients.size() != numberOfExpectedClients) {
