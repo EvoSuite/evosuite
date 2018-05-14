@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.instrumentation.mutation.InsertUnaryOperator;
 import org.evosuite.instrumentation.mutation.ReplaceArithmeticOperator;
 import org.evosuite.instrumentation.mutation.ReplaceConstant;
@@ -34,8 +33,6 @@ import org.evosuite.instrumentation.mutation.ReplaceVariable;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -46,11 +43,9 @@ import org.slf4j.LoggerFactory;
  */
 public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MutationFactory.class);
 	private boolean strong = true;
 
-	private List<MutationTestFitness> goals = null;
-	private final MethodNameMatcher matcher = new MethodNameMatcher();
+	protected List<MutationTestFitness> goals = null;
 
 	/**
 	 * <p>
@@ -99,11 +94,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 		for (Mutation m : getMutantsLimitedPerClass()) {
 			if (targetMethod != null && !m.getMethodName().endsWith(targetMethod))
 				continue;
-			String methodName = m.getMethodName();
-			if (!matcher.methodMatches(methodName)) {
-				logger.info("Method {} does not match criteria. ",methodName);
-				continue;
-			}
+
 			// We need to return all mutants to make coverage values and bitstrings consistent 
 			//if (MutationTimeoutStoppingCondition.isDisabled(m))
 			//	continue;

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;

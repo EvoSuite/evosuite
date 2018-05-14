@@ -41,7 +41,11 @@ import java.util.Map.Entry;
 public class OnlyMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -8194940669364526758L;
-	
+
+	public OnlyMutationSuiteFitness() {
+		super(Properties.Criterion.ONLYMUTATION);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */

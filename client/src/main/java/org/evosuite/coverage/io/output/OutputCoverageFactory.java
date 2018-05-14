@@ -39,7 +39,6 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.assertion.Inspector;
 import org.evosuite.assertion.InspectorManager;
-import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.setup.TestUsageChecker;
@@ -77,14 +76,13 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
         long start = System.currentTimeMillis();
         String targetClass = Properties.TARGET_CLASS;
 
-        final MethodNameMatcher matcher = new MethodNameMatcher();
         for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
             if (!(targetClass.equals("") || className.endsWith(targetClass)))
                 continue;
 
             for (Method method : TestClusterUtils.getClass(className).getDeclaredMethods()) {
                 String methodName = method.getName() + Type.getMethodDescriptor(method);
-                if (!TestUsageChecker.canUse(method) || !matcher.methodMatches(methodName) || methodName.equals("hashCode()I"))
+                if (!TestUsageChecker.canUse(method) || methodName.equals("hashCode()I"))
                     continue;
                 logger.info("Adding goals for method " + className + "." + methodName);
                 Type returnType = Type.getReturnType(method);

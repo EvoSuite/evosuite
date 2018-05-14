@@ -65,7 +65,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public void addTarget(F target) {
-    assert target != null;
+    super.addTarget(target);
 
     if (!this.uncovered.contains(target)) {
       logger.debug("Registering new target '" + target + "'");
@@ -80,7 +80,7 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    */
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
-    assert target != null;
+    super.updateArchive(target, solution, fitnessValue);
     assert this.covered.containsKey(target) || this.uncovered.contains(target) : "Unknown goal: "+target;
 
     if (fitnessValue > 0.0) {

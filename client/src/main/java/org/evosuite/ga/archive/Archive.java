@@ -75,7 +75,14 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * 
    * @param target
    */
-  public abstract void addTarget(F target);
+  public void addTarget(F target) {
+    assert target != null;
+
+    if (!ArchiveUtils.isCriterionEnabled(target)) {
+      throw new RuntimeException("Trying to add a target of '" + target.getClass().getSimpleName()
+          + "' type to the archive, but correspondent criterion is not enabled.");
+    }
+  }
 
   /**
    * Register a collection of targets.
@@ -132,7 +139,17 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * @param solution
    * @param fitnessValue
    */
-  public abstract void updateArchive(F target, T solution, double fitnessValue);
+  public void updateArchive(F target, T solution, double fitnessValue) {
+    assert target != null;
+    assert solution != null;
+    assert fitnessValue >= 0.0;
+
+    if (!ArchiveUtils.isCriterionEnabled(target)) {
+      throw new RuntimeException(
+          "Trying to update the archive with a target of '" + target.getClass().getSimpleName()
+              + "' type, but correspondent criterion is not enabled.");
+    }
+  }
 
   /**
    * Checks whether a candidate solution is better than an existing one.

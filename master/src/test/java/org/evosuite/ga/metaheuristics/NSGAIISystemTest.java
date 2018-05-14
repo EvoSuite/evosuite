@@ -300,6 +300,10 @@ public class NSGAIISystemTest extends SystemTestBase
         Properties.CRITERION[0] = Criterion.RHO;
         Properties.CRITERION[1] = Criterion.AMBIGUITY;
 	    Properties.ALGORITHM = Algorithm.NSGAII;
+	    Properties.SELECTION_FUNCTION = Properties.SelectionFunction.BINARY_TOURNAMENT;
+	    Properties.MINIMIZE = false;
+	    Properties.INLINE = false;
+	    Properties.STOP_ZERO = false;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -307,16 +311,6 @@ public class NSGAIISystemTest extends SystemTestBase
         Properties.TARGET_CLASS = targetClass;
 
         String[] command = new String[] {
-            "-Dselection_function=BINARY_TOURNAMENT",
-            "-Dminimize_values=false",
-            "-Dinline=false",
-            "-Dminimize=true",
-            "-Dstop_zero=false",
-            "-Dcoverage=false",
-            "-Djunit_tests=true",
-            "-Dassertions=true",
-            "-Dsandbox=true",
-            "-Dnew_statistics=false",
             "-generateSuite",
             "-class", targetClass
         };
