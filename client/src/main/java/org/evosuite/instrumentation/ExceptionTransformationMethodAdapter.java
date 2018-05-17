@@ -61,6 +61,7 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
         if(!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(owner) ||
            !ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).containsKey(name+desc)) {
+            logger.debug("Method {} does not throw exceptions", name);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }

@@ -45,6 +45,7 @@ import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.ExceptionMapGenerator;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
@@ -124,6 +125,7 @@ public class TestSuiteGenerator {
 
 		// Deactivate loop counter to make sure classes initialize properly
 		LoopCounter.getInstance().setActive(false);
+		ExceptionMapGenerator.initializeExceptionMap(Properties.TARGET_CLASS);
 
 		TestCaseExecutor.initExecutor();
 		try {
