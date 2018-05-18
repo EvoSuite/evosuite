@@ -204,7 +204,7 @@ public class ClientProcess {
         }
 
 		try {
-			LoggingUtils.getEvoLogger().info("* Starting client");
+			LoggingUtils.getEvoLogger().info("* Starting client " + identifier);
 			ClientProcess process = new ClientProcess();
 			TimeController.resetSingleton();
 			process.run();
