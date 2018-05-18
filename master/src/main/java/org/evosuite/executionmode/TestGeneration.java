@@ -37,6 +37,7 @@ import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
+import org.evosuite.utils.ExternalProcessGroupHandler;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -217,7 +218,6 @@ public class TestGeneration {
 		    return Arrays.asList(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") }));
 		}
 
-
 		if (!BytecodeInstrumentation.checkIfCanInstrument(target)) {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
@@ -225,8 +225,16 @@ public class TestGeneration {
 			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
 
-		List<String> cmdLine = new ArrayList<>();
-		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
+        final String DISABLE_ASSERTIONS_EVO = "-da:"+PackageInfo.getEvoSuitePackage()+"...";
+        final String ENABLE_ASSERTIONS_EVO = "-ea:"+PackageInfo.getEvoSuitePackage()+"...";
+        final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
+        final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
+        
+        LoggingUtils logUtils = new LoggingUtils();
+
+        List<String> cmdLine = new ArrayList<>();
+        List<String[]> processArgs = new ArrayList<>();
+        cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
 
 		handleClassPath(cmdLine);
 
@@ -234,15 +242,20 @@ public class TestGeneration {
 			cmdLine.add("-Dspawn_process_manager_port="+Properties.SPAWN_PROCESS_MANAGER_PORT);
 		}
 
-		ExternalProcessHandler handler = new ExternalProcessHandler();
-		int port = handler.openServer();
-		if (port <= 0) {
-			throw new RuntimeException("Not possible to start RMI service");
-		}
+        if (Properties.PARALLEL_RUN < 1) {
+            Properties.PARALLEL_RUN = 1;
+        }
+
+        ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler(Properties.PARALLEL_RUN);
+        int port = handler.openServer();
+        if (port <= 0) {
+            throw new RuntimeException("Not possible to start RMI service");
+        }
+        handler.setBaseDir(EvoSuite.base_dir_path);
 
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
-		if(Properties.HEADLESS_MODE == true) {
+		if(Properties.HEADLESS_MODE) {
 			cmdLine.add("-Djava.awt.headless=true");
 		}
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
@@ -310,159 +323,161 @@ public class TestGeneration {
 			}
 		}
 
-		switch (strategy) {
-		case EVOSUITE:
-			cmdLine.add("-Dstrategy=EvoSuite");
-			break;
-		case ONEBRANCH:
-			cmdLine.add("-Dstrategy=OneBranch");
-			break;
-		case RANDOM:
-			cmdLine.add("-Dstrategy=Random");
-			break;
-		case RANDOM_FIXED:
-			cmdLine.add("-Dstrategy=Random_Fixed");
-			break;
-		case REGRESSION:
-			cmdLine.add("-Dstrategy=Regression");
-			break;
-		case ENTBUG:
-			cmdLine.add("-Dstrategy=EntBug");
-			break;
-		case MOSUITE:
-			cmdLine.add("-Dstrategy=MOSuite");
-			break;
-		case DSE:
-			cmdLine.add("-Dstrategy=DSE");
-			break;
-		case NOVELTY:
-			cmdLine.add("-Dstrategy=Novelty");
-			break;
-		default:
-			throw new RuntimeException("Unsupported strategy: " + strategy);
-		}
-		cmdLine.add("-DTARGET_CLASS=" + target);
-		if (Properties.PROJECT_PREFIX != null) {
-			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
-		}
+        switch (strategy) {
+            case EVOSUITE:
+                cmdLine.add("-Dstrategy=EvoSuite");
+                break;
+            case ONEBRANCH:
+                cmdLine.add("-Dstrategy=OneBranch");
+                break;
+            case RANDOM:
+                cmdLine.add("-Dstrategy=Random");
+                break;
+            case RANDOM_FIXED:
+                cmdLine.add("-Dstrategy=Random_Fixed");
+                break;
+            case REGRESSION:
+                cmdLine.add("-Dstrategy=Regression");
+                break;
+            case ENTBUG:
+                cmdLine.add("-Dstrategy=EntBug");
+                break;
+            case MOSUITE:
+                cmdLine.add("-Dstrategy=MOSuite");
+                break;
+            case DSE:
+                cmdLine.add("-Dstrategy=DSE");
+                break;
+            case NOVELTY:
+                cmdLine.add("-Dstrategy=Novelty");
+                break;
+            default:
+                throw new RuntimeException("Unsupported strategy: " + strategy);
+        }
 
-		cmdLine.add(ClientProcess.class.getName());
+        cmdLine.add("-DTARGET_CLASS=" + target);
+        if (Properties.PROJECT_PREFIX != null) {
+            cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
+        }
 
-		/*
-		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
-		 * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
-		 */
-		Properties.getInstance();// should force the load, just to be sure
-		Properties.TARGET_CLASS = target;
-		Properties.PROCESS_COMMUNICATION_PORT = port;
+        cmdLine.add(ClientProcess.class.getName());
 
-		
-		/*
-		 *  FIXME: refactor, and double-check if indeed correct
-		 * 
-		 * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
-		 * client. Furthermore, the properties in the property file might be overwritten from the commands coming from shell
-		 */
+        for (String entry : ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator)) {
+            try {
+                ClassPathHacker.addFile(entry);
+            } catch (IOException e) {
+                LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
+                        + entry);
+            }
+        }
 
-		String definedEAforClient = null;
-		String definedEAforSUT = null;
+        /*
+         * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
+         * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
+         */
+        Properties.getInstance();// should force the load, just to be sure
+        Properties.TARGET_CLASS = target;
+        Properties.PROCESS_COMMUNICATION_PORT = port;
 
-		final String DISABLE_ASSERTIONS_EVO = "-da:"+PackageInfo.getEvoSuitePackage()+"...";
-		final String ENABLE_ASSERTIONS_EVO = "-ea:"+PackageInfo.getEvoSuitePackage()+"...";
-		final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
-		final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
+        for (int i = 0; i < Properties.PARALLEL_RUN; i++) {
+            List<String> cmdLineClone = new ArrayList<>(cmdLine);
+            
+            if (Properties.PARALLEL_RUN == 1) {
+                cmdLineClone.add("ClientNode"); //to keep functionality for non parallel runs
+            } else {
+                cmdLineClone.add("ClientNode" + i);
+            }
 
-		for (String s : cmdLine) {
-			// first check client
-			if (s.startsWith("-Denable_asserts_for_evosuite")) {
-				if (s.endsWith("false")) {
-					definedEAforClient = DISABLE_ASSERTIONS_EVO;
-				} else if (s.endsWith("true")) {
-					definedEAforClient = ENABLE_ASSERTIONS_EVO;
-				}
-			}
-			// then check SUT
-			if (s.startsWith("-Denable_asserts_for_sut")) {
-				if (s.endsWith("false")) {
-					definedEAforSUT = DISABLE_ASSERTIONS_SUT;
-				} else if (s.endsWith("true")) {
-					definedEAforSUT = ENABLE_ASSERTIONS_SUT;
-				}
-			}
-		}
+            /*
+             *  FIXME: refactor, and double-check if indeed correct
+             *
+             * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
+             * client. Furthermore, the properties in the property file might be overwritten from the commands coming from shell
+             */
 
-		/*
-		 * the assertions might not be defined in the command line, but they might be in the property file, or just use default values. NOTE: if those
-		 * are defined in the command line, then they overwrite whatever we had in the conf file
-		 */
+            String definedEAforClient = null;
+            String definedEAforSUT = null;
 
-		if (definedEAforSUT == null) {
-			if (Properties.ENABLE_ASSERTS_FOR_SUT) {
-				definedEAforSUT = ENABLE_ASSERTIONS_SUT;
-			} else {
-				definedEAforSUT = DISABLE_ASSERTIONS_SUT;
-			}
-		}
+            for (String s : cmdLineClone) {
+                // first check client
+                if (s.startsWith("-Denable_asserts_for_evosuite")) {
+                    if (s.endsWith("false")) {
+                        definedEAforClient = DISABLE_ASSERTIONS_EVO;
+                    } else if (s.endsWith("true")) {
+                        definedEAforClient = ENABLE_ASSERTIONS_EVO;
+                    }
+                }
+                // then check SUT
+                if (s.startsWith("-Denable_asserts_for_sut")) {
+                    if (s.endsWith("false")) {
+                        definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+                    } else if (s.endsWith("true")) {
+                        definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+                    }
+                }
+            }
 
-		if (definedEAforClient == null) {
-			if (Properties.ENABLE_ASSERTS_FOR_EVOSUITE) {
-				definedEAforClient = ENABLE_ASSERTIONS_EVO;
-			} else {
-				definedEAforClient = DISABLE_ASSERTIONS_EVO;
-			}
-		}
+            /*
+             * the assertions might not be defined in the command line, but they might be in the property file, or just use default values. NOTE: if those
+             * are defined in the command line, then they overwrite whatever we had in the conf file
+             */
 
-		/*
-		 * We add them in first position, after the java command To avoid confusion, we only add them if they are enabled. NOTE: this might have side
-		 * effects "if" in the future we have something like a generic "-ea"
-		 */
-		if (definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)) {
-			cmdLine.add(1, definedEAforClient);
-		}
-		if (definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)) {
-			cmdLine.add(1, definedEAforSUT);
-		}
+            if (definedEAforSUT == null) {
+                if (Properties.ENABLE_ASSERTS_FOR_SUT) {
+                    definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+                } else {
+                    definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+                }
+            }
 
-		LoggingUtils logUtils = new LoggingUtils();
+            if (definedEAforClient == null) {
+                if (Properties.ENABLE_ASSERTS_FOR_EVOSUITE) {
+                    definedEAforClient = ENABLE_ASSERTIONS_EVO;
+                } else {
+                    definedEAforClient = DISABLE_ASSERTIONS_EVO;
+                }
+            }
 
-		if (!Properties.CLIENT_ON_THREAD) {
-			/*
-			 * We want to completely mute the SUT. So, we block all outputs from client, and use a remote logging
-			 */
-			boolean logServerStarted = logUtils.startLogServer();
-			if (!logServerStarted) {
-				logger.error("Cannot start the log server");
-				return null;
-			}
-			int logPort = logUtils.getLogServerPort(); //
-			cmdLine.add(1, "-Dmaster_log_port=" + logPort);
-			cmdLine.add(1, "-Devosuite.log.appender=CLIENT");
-		}
+            /*
+             * We add them in first position, after the java command To avoid confusion, we only add them if they are enabled. NOTE: this might have side
+             * effects "if" in the future we have something like a generic "-ea"
+             */
+            if (definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)) {
+                cmdLineClone.add(1, definedEAforClient);
+            }
+            if (definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)) {
+                cmdLineClone.add(1, definedEAforSUT);
+            }
 
-		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
+            if (!Properties.CLIENT_ON_THREAD) {
+                /*
+                 * We want to completely mute the SUT. So, we block all outputs from client, and use a remote logging
+                 */
+                boolean logServerStarted = logUtils.startLogServer();
+                if (!logServerStarted) {
+                    logger.error("Cannot start the log server");
+                    return null;
+                }
+                int logPort = logUtils.getLogServerPort(); //
+                cmdLineClone.add(1, "-Dmaster_log_port=" + logPort);
+                cmdLineClone.add(1, "-Devosuite.log.appender=CLIENT");
+            }
+            
+            processArgs.add(cmdLineClone.toArray(new String[0]));
+        }
 
-		for (String entry : ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator)) {
-			try {
-				ClassPathHacker.addFile(entry);
-			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
-				                                         + entry);
-			}
-		}
-
-		handler.setBaseDir(EvoSuite.base_dir_path);
-		
-		if (handler.startProcess(newArgs)) {
+		if (handler.startProcessGroup(processArgs)) {
 
 			Set<ClientNodeRemote> clients = null;
 			try {
 				//FIXME: timeout here should be handled by TimeController
 				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(60000);
-			} catch (InterruptedException e) {
+			} catch (InterruptedException ignored) {
 			}
 			if (clients == null) {
-				logger.error("Not possible to access to clients. Clients' state: "+handler.getProcessState() + 
-						". Master registry port: "+MasterServices.getInstance().getRegistryPort());											
+				logger.error("Not possible to access to clients. Clients' state:\n" + handler.getProcessStates() + 
+						"Master registry port: " + MasterServices.getInstance().getRegistryPort());					
+				
 			} else {
 				/*
 				 * The clients have started, and connected back to Master.
@@ -480,7 +495,7 @@ public class TestGeneration {
 				handler.waitForResult(time * 1000); 
 				try {
 					Thread.sleep(100);
-				} catch (InterruptedException e) {
+				} catch (InterruptedException ignored) {
 				}
 			}
 			
@@ -488,7 +503,7 @@ public class TestGeneration {
 				handler.stopAndWaitForClientOnThread(10000);
 			}
 			
-			handler.killProcess();
+			handler.killAllProcesses();
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
@@ -518,7 +533,7 @@ public class TestGeneration {
 		} else {
 			try {
 				Thread.sleep(100);
-			} catch (InterruptedException e) {
+			} catch (InterruptedException ignored) {
 			}
 			logUtils.closeLogServer();
 		}
