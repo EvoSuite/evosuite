@@ -59,14 +59,14 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(SPEA2.class);
 
-  private DominanceComparator comparator;
+  private DominanceComparator<T> comparator;
 
   // TODO should we use 'archive' from GeneticAlgorithm class?
   private List<T> archive = null;
 
   public SPEA2(ChromosomeFactory<T> factory) {
     super(factory);
-    this.comparator = new DominanceComparator();
+    this.comparator = new DominanceComparator<T>();
   }
 
   @SuppressWarnings("unchecked")

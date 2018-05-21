@@ -52,8 +52,10 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 	@Override	
 	public TestSuiteChromosome generateTests() {
-		// Current MOSuite algorithms, i.e., MOSA and LIPS, use their own Archive
-		Properties.TEST_ARCHIVE = false;
+		// Currently only LIPS uses its own Archive
+		if (Properties.ALGORITHM == Properties.Algorithm.LIPS) {
+			Properties.TEST_ARCHIVE = false;
+		}
 
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
@@ -114,12 +116,10 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			algorithm.generateSolution();
-			List<TestSuiteChromosome> bestSuites = (List<TestSuiteChromosome>) algorithm.getBestIndividuals();
-			if (bestSuites.isEmpty()) {
-				LoggingUtils.getEvoLogger().warn("Could not find any suitable chromosome");
-				return new TestSuiteChromosome();
-			}else{
-				testSuite = bestSuites.get(0);
+
+			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
+			if (testSuite.getTestChromosomes().isEmpty()) {
+				LoggingUtils.getEvoLogger().warn("Could not generate any test case");
 			}
 		} else {
 			zeroFitness.setFinished();

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa;
+package org.evosuite.ga.operators.ranking;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
+import org.evosuite.ga.comparators.DominanceComparator;
 
 /**
  * This class ranks the test cases according to the 
@@ -36,7 +36,9 @@ import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 
-public class FastNonDominatedSorting<T extends Chromosome> implements Ranking<T> {
+public class FastNonDominatedSorting<T extends Chromosome> implements RankingFunction<T> {
+
+	private static final long serialVersionUID = -5649595833522859850L;
 
 	/**
 	 * An array containing all the fronts found during the search
@@ -67,7 +69,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements Ranking<T>
 	@SuppressWarnings("unchecked")
 	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
 
-		MOSADominanceComparator<T> criterion_ = new MOSADominanceComparator<T>(uncovered_goals);
+		DominanceComparator<T> criterion_ = new DominanceComparator<T>(uncovered_goals);
 		List<T> solutionSet_ = solutionSet;
 
 		// dominateMe[i] contains the number of solutions dominating i

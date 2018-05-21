@@ -13,11 +13,15 @@ import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
+import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
+import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
+import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.operators.selection.TournamentSelection;
+import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
@@ -77,6 +81,8 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
                 return new TournamentSelection<>();
             case BINARY_TOURNAMENT:
                 return new BinaryTournamentSelectionCrowdedComparison<>();
+            case RANK_CROWD_DISTANCE_TOURNAMENT:
+                return new TournamentSelectionRankAndCrowdingDistanceComparator<>();
             default:
                 return new RankSelection<>();
         }
@@ -102,6 +108,16 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
     }
 
+    private RankingFunction<TestChromosome> getRankingFunction() {
+      switch (Properties.RANKING_TYPE) {
+        case FAST_NON_DOMINATED_SORTING:
+          return new FastNonDominatedSorting<>();
+        case PREFERENCE_SORTING:
+        default:
+          return new RankBasedPreferenceSorting<>();
+      }
+    }
+
     @Override
     //public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
     public NoveltySearch<TestChromosome> getSearchAlgorithm() {
@@ -116,6 +132,9 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         SelectionFunction<TestChromosome> selectionFunction = getSelectionFunction();
         selectionFunction.setMaximize(false);
         ga.setSelectionFunction(selectionFunction);
+
+        RankingFunction<TestChromosome> ranking_function = getRankingFunction();
+        ga.setRankingFunction(ranking_function);
 
         // When to stop the search
         StoppingCondition stopping_condition = getStoppingCondition();
