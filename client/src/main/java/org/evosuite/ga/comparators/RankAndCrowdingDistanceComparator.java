@@ -71,7 +71,7 @@ public class RankAndCrowdingDistanceComparator<T extends Chromosome> implements 
             } else if (c1.getRank() > c2.getRank()) {
                 return -1;
             } else if (c1.getRank() == c2.getRank()) {
-                return (c1.getDistance() > c2.getDistance()) ? 1 : -1;
+                return (c1.getDistance() > c2.getDistance()) ? -1 : 1;
             }
         } else {
             if (c1.getRank() < c2.getRank()) {
