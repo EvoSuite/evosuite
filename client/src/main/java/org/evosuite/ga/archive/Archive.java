@@ -222,6 +222,15 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   public abstract int getNumberOfCoveredTargets();
 
   /**
+   * Returns the total number of targets (of a specific type) covered by all solutions in the
+   * archive.
+   * 
+   * @param targetClass
+   * @return
+   */
+  public abstract int getNumberOfCoveredTargets(Class<?> targetClass);
+
+  /**
    * Returns the union of all targets covered by all solutions in the archive.
    * 
    * @return
@@ -234,6 +243,15 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * @return
    */
   public abstract int getNumberOfUncoveredTargets();
+
+  /**
+   * Returns the total number of targets (of a specific type) that have not been covered by any
+   * solution.
+   * 
+   * @param targetClass
+   * @return
+   */
+  public abstract int getNumberOfUncoveredTargets(Class<?> targetClass);
 
   /**
    * Returns a set of all targets that have not been covered by any solution.
