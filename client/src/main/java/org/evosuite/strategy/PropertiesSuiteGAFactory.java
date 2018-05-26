@@ -30,11 +30,8 @@ import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
-import org.evosuite.ga.metaheuristics.BreederGA;
-import org.evosuite.ga.metaheuristics.CellularGA;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
-import org.evosuite.ga.metaheuristics.lips.LIPS;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
@@ -45,11 +42,15 @@ import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
 import org.evosuite.ga.operators.crossover.UniformCrossOver;
+import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
+import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
+import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.operators.selection.TournamentSelection;
+import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
@@ -234,6 +235,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			return new TournamentSelection<>();
 		case BINARY_TOURNAMENT:
 		    return new BinaryTournamentSelectionCrowdedComparison<>();
+		case RANK_CROWD_DISTANCE_TOURNAMENT:
+		    return new TournamentSelectionRankAndCrowdingDistanceComparator<>();
 		default:
 			return new RankSelection<>();
 		}
@@ -260,7 +263,17 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			        + Properties.CROSSOVER_FUNCTION);
 		}
 	}
-	
+
+	private RankingFunction<TestSuiteChromosome> getRankingFunction() {
+	  switch (Properties.RANKING_TYPE) {
+	    case FAST_NON_DOMINATED_SORTING:
+	      return new FastNonDominatedSorting<>();
+	    case PREFERENCE_SORTING:
+	    default:
+	      return new RankBasedPreferenceSorting<>();
+	  }
+	}
+
 	@Override
 	public GeneticAlgorithm<TestSuiteChromosome> getSearchAlgorithm() {
 		ChromosomeFactory<TestSuiteChromosome> factory = getChromosomeFactory();
@@ -275,6 +288,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		SelectionFunction<TestSuiteChromosome> selectionFunction = getSelectionFunction();
 		selectionFunction.setMaximize(false);
 		ga.setSelectionFunction(selectionFunction);
+
+		RankingFunction<TestSuiteChromosome> ranking_function = getRankingFunction();
+		ga.setRankingFunction(ranking_function);
 
 		// When to stop the search
 		StoppingCondition stopping_condition = getStoppingCondition();
