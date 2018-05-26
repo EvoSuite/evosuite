@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa;
+package org.evosuite.ga.operators.ranking;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,14 +32,17 @@ import org.evosuite.ga.comparators.SortByFitness;
  * 
  * @author Annibale Panichella
  */
-public class CrowdingDistance<T extends Chromosome> {
-	
+public class CrowdingDistance<T extends Chromosome> implements Serializable {
+
+	private static final long serialVersionUID = 5700682318003298299L;
+
 	/**
-	 * Method used to assign the 'traditional' Crowding Distance
+	 * Method used to assign the 'traditional' Crowding Distance.
+	 * 
 	 * @param front front of non-dominated solutions/tests
-	 * @param set set of goals/targets (e.g., branches) to consider
+	 * @param set list of goals/targets (e.g., branches) to consider
 	 */
-	protected void crowdingDistanceAssignment(List<T> front, Set<FitnessFunction<T>> set) {
+	public void crowdingDistanceAssignment(List<T> front, List<FitnessFunction<T>> set) {
 		int size = front.size();
 
 		if (size == 0)
@@ -86,6 +90,7 @@ public class CrowdingDistance<T extends Chromosome> {
 	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective 
 	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes 
 	 * in Computer Science pp 727-741.
+	 * 
 	 * @param front front of non-dominated solutions/tests
 	 * @param set set of goals/targets (e.g., branches) to consider
 	 */
@@ -126,6 +131,7 @@ public class CrowdingDistance<T extends Chromosome> {
 	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective 
 	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes 
 	 * in Computer Science pp 727-741.
+	 * 
 	 * @param front front of non-dominated solutions/tests
 	 * @param set set of goals/targets (e.g., branches) to consider
 	 */

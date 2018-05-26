@@ -15,29 +15,36 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa.comparators;
+package org.evosuite.ga.operators.ranking;
 
 import java.io.Serializable;
-import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 
 /**
- * Sort a Collection of Chromosomes by CrowdingDistance
- * 
+ * Interface for ranking algorithms
  * @author Annibale Panichella, Fitsum M. Kifetew
+ *
+ * @param <T>
  */
-public class OnlyCrowdingComparator implements Comparator<Chromosome>, Serializable {
+public interface RankingFunction<T extends Chromosome> extends Serializable {
 	
-	private static final long serialVersionUID = -6576898111709166470L;
+	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals);
 
-	@Override
-	public int compare(Chromosome c1, Chromosome c2) {
-		if (c1.getDistance() > c2.getDistance())
-			return -1;
-		else if (c1.getDistance() < c2.getDistance())
-			return +1;
-		else 
-			return 0;
-	}
+	/**
+	 * Returns a list of {@link org.evosuite.ga.Chromosome} objects of a given rank.
+	 * 
+	 * @param rank position
+	 * @return a list of solutions of a given rank.
+	 */
+	public List<T> getSubfront(int rank);
+
+	/**
+	 * Returns the total number of sub-fronts founds.
+	 */
+	public int getNumberOfSubfronts();
+
 }
