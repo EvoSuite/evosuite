@@ -54,8 +54,8 @@ import org.slf4j.LoggerFactory;
 public class ClientProcess {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
-    private static String identifier;
-
+    
+	public static String identifier;
     public static TestGenerationResult result;
 
 	/**
