@@ -229,8 +229,6 @@ public class TestGeneration {
         final String ENABLE_ASSERTIONS_EVO = "-ea:"+PackageInfo.getEvoSuitePackage()+"...";
         final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
         final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
-        
-        LoggingUtils logUtils = new LoggingUtils();
 
         List<String> cmdLine = new ArrayList<>();
         List<String[]> processArgs = new ArrayList<>();
@@ -246,6 +244,7 @@ public class TestGeneration {
             Properties.PARALLEL_RUN = 1;
         }
 
+        LoggingUtils[] logServer = new LoggingUtils[Properties.PARALLEL_RUN];
         ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler(Properties.PARALLEL_RUN);
         int port = handler.openServer();
         if (port <= 0) {
@@ -453,12 +452,13 @@ public class TestGeneration {
                 /*
                  * We want to completely mute the SUT. So, we block all outputs from client, and use a remote logging
                  */
-                boolean logServerStarted = logUtils.startLogServer();
+                logServer[i] = new LoggingUtils(); 
+                boolean logServerStarted = logServer[i].startLogServer();
                 if (!logServerStarted) {
                     logger.error("Cannot start the log server");
                     return null;
                 }
-                int logPort = logUtils.getLogServerPort(); //
+                int logPort = logServer[i].getLogServerPort(); //
                 cmdLineClone.add(1, "-Dmaster_log_port=" + logPort);
                 cmdLineClone.add(1, "-Devosuite.log.appender=CLIENT");
             }
@@ -535,7 +535,10 @@ public class TestGeneration {
 				Thread.sleep(100);
 			} catch (InterruptedException ignored) {
 			}
-			logUtils.closeLogServer();
+
+            for (LoggingUtils aLogServer : logServer) {
+                aLogServer.closeLogServer();
+            }
 		}
 		
 		logger.debug("Master process has finished to wait for client");

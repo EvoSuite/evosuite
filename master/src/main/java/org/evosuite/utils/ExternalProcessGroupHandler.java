@@ -620,7 +620,7 @@ public class ExternalProcessGroupHandler {
 
                 if (!finished) {
                     /*
-                     * TODO what to do here? Try to stop the the client through RMI?
+                     * TODO what to do here? Try to stop the client through RMI?
                      * Or check in which state it is, and based on that decide if giving more time?
                      */
                     logger.error("Class " + Properties.TARGET_CLASS + ". Clients have not finished yet, although a timeout occurred.\n" + MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses());
