@@ -77,7 +77,7 @@ public class ClientProcess {
 
 		MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);
 
-		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
+		LoggingUtils.getEvoLogger().info("* " + identifier + ": Connecting to master process on port "
 				+ Properties.PROCESS_COMMUNICATION_PORT);
 
 		boolean registered = ClientServices.getInstance().registerServices(identifier);
@@ -85,7 +85,7 @@ public class ClientProcess {
 		if (!registered) {
 			result = TestGenerationResultBuilder.buildErrorResult("Could not connect to master process on port "
 					+ Properties.PROCESS_COMMUNICATION_PORT);
-			throw new RuntimeException("Could not connect to master process on port "
+			throw new RuntimeException(identifier + ": Could not connect to master process on port "
 					+ Properties.PROCESS_COMMUNICATION_PORT);
 		}
 
@@ -204,7 +204,7 @@ public class ClientProcess {
         }
 
 		try {
-			LoggingUtils.getEvoLogger().info("* Starting client " + identifier);
+			LoggingUtils.getEvoLogger().info("* " + identifier + ": Starting client");
 			ClientProcess process = new ClientProcess();
 			TimeController.resetSingleton();
 			process.run();
@@ -216,7 +216,7 @@ public class ClientProcess {
 				System.exit(0);
 			}
 		} catch (Throwable t) {
-			logger.error("Error when generating tests for: " + Properties.TARGET_CLASS
+			logger.error(identifier + " Error when generating tests for: " + Properties.TARGET_CLASS
 					+ " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);
 			t.printStackTrace();
 
