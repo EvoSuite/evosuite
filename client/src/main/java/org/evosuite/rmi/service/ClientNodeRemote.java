@@ -19,8 +19,11 @@
  */
 package org.evosuite.rmi.service;
 
+import org.evosuite.ga.Chromosome;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Set;
 
 /**
  * Client Node view in the master process.
@@ -50,4 +53,6 @@ public interface ClientNodeRemote extends Remote {
 	public void doDependencyAnalysis(String fileName) throws RemoteException;
 
 	public void printClassStatistics() throws RemoteException;
+	
+	public void emigrate(Set<Chromosome> migrants) throws RemoteException;
 }

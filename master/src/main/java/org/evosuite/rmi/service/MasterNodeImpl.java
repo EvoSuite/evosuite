@@ -19,6 +19,7 @@
  */
 package org.evosuite.rmi.service;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
@@ -189,7 +190,20 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		Properties.getInstance().setValue(propertyName, value);
 	}
 
-	@Override
+    @Override
+    public void evosuite_migrate(String clientRmiIdentifier, Set<Chromosome> migrants) throws RemoteException {
+        //implements ring topology
+        try {
+            int idNeighbour = Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", "")) + 1 % Properties.PARALLEL_RUN;
+
+            ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode" + idNeighbour);
+            node.emigrate(migrants);
+        } catch (NotBoundException e) {
+            logger.error("Client with id " + clientRmiIdentifier + "not found");
+        }
+    }
+
+    @Override
 	public void addListener(Listener<ClientStateInformation> listener) {
 		listeners.add(listener);
 	}
