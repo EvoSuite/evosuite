@@ -21,9 +21,7 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -48,6 +46,7 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.FileIOUtils;
@@ -86,6 +85,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	protected Registry registry;
 
+    protected final Collection<Listener<Set<Chromosome>>> listeners = Collections.synchronizedList(new ArrayList<Listener<Set<Chromosome>>>());
+	
 	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
 
 	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
@@ -107,7 +108,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		finishedLatch = new CountDownLatch(1);
 	}
 
-	private static class OutputVariable {
+    private static class OutputVariable {
 		public RuntimeVariable variable;
 		public Object value;
 
@@ -199,7 +200,16 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		}
 	}
 
-	@Override
+    @Override
+    public void immigrate(Set<Chromosome> immigrants) {
+        try {
+            masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
+        } catch (RemoteException e) {
+            logger.error("Cannot send immigrating individuals to master", e);
+        }
+    }
+
+    @Override
 	public void changeState(ClientState state) {
 		changeState(state, new ClientStateInformation(state));
 	}
@@ -501,5 +511,31 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			}
 		});
 	}
+	
+    @Override
+    public void emigrate(Set<Chromosome> migrants) throws RemoteException {
+        fireEvent(migrants);
+    }
 
+    @Override
+    public void addListener(Listener<Set<Chromosome>> listener) {
+	    listeners.add(listener);
+    }
+
+    @Override
+    public void deleteListener(Listener<Set<Chromosome>> listener) {
+	    listeners.remove(listener);
+    }
+
+    /**
+     * Fires event to all registered listeners.
+     *
+     * @param event
+     *            the event to fire
+     */
+    private void fireEvent(Set<Chromosome> event) {
+        for (Listener<Set<Chromosome>> listener : listeners) {
+            listener.receiveEvent(event);
+        }
+    }
 }

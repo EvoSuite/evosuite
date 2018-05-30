@@ -21,13 +21,16 @@ package org.evosuite.rmi.service;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.Listenable;
+
+import java.util.Set;
 
 /**
  * Client Node view in the client process.
  * @author arcuri
  *
  */
-public interface ClientNodeLocal {
+public interface ClientNodeLocal extends Listenable<Set<Chromosome>> {
 
 	public boolean init();
 
@@ -46,4 +49,6 @@ public interface ClientNodeLocal {
 	public void updateProperty(String propertyName, Object value);
 
 	public void waitUntilDone();
+	
+	public void immigrate(Set<Chromosome> immigrants);
 }
