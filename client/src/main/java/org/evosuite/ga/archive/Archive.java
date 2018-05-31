@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
@@ -87,8 +88,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
 
   /**
    * Register a collection of targets.
-   * 
-   * @param target
+   *
+   * @param targets
    */
   public void addTargets(Collection<F> targets) {
     for (F target : targets) {
@@ -190,12 +191,22 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
     // only look at other properties (e.g., length) if penalty scores are the same
     assert penaltyCandidateSolution == penaltyCurrentSolution;
 
+    // Check if the number of secondary objectives is the same for the two test cases
+    // otherwise something should be wrong
+    assert candidateSolution.getSecondaryObjectives().size() == currentSolution.getSecondaryObjectives().size();
+
     // If we try to add a test for a target we've already covered
     // and the new test is shorter, keep the shorter one
-    // TODO should not this be based on the SECONDARY_CRITERIA?
-    if (candidateSolution.size() < currentSolution.size()) {
-      return true;
+    int timesBetter = 0;
+    for (SecondaryObjective obj : candidateSolution.getSecondaryObjectives()) {
+      if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
+          timesBetter++;
+      else
+          timesBetter--;
     }
+
+    if (timesBetter > 0)
+      return true;
 
     return false;
   }
@@ -222,6 +233,15 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   public abstract int getNumberOfCoveredTargets();
 
   /**
+   * Returns the total number of targets (of a specific type) covered by all solutions in the
+   * archive.
+   * 
+   * @param targetClass
+   * @return
+   */
+  public abstract int getNumberOfCoveredTargets(Class<?> targetClass);
+
+  /**
    * Returns the union of all targets covered by all solutions in the archive.
    * 
    * @return
@@ -234,6 +254,15 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * @return
    */
   public abstract int getNumberOfUncoveredTargets();
+
+  /**
+   * Returns the total number of targets (of a specific type) that have not been covered by any
+   * solution.
+   * 
+   * @param targetClass
+   * @return
+   */
+  public abstract int getNumberOfUncoveredTargets(Class<?> targetClass);
 
   /**
    * Returns a set of all targets that have not been covered by any solution.
@@ -382,8 +411,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    * Calculate the penalty of a {@link org.evosuite.testcase.TestCase}. A
    * {@link org.evosuite.testcase.TestCase} is penalised if it has functional mocks, or/and if it
    * accesses private fields/methods of the class under test.
-   * 
-   * @param a {@link org.evosuite.testcase.TestCase} object.
+   *
+   * @param testCase a {@link org.evosuite.testcase.TestCase} object.
    * @return number of penalty points
    */
   protected int calculatePenalty(TestCase testCase) {

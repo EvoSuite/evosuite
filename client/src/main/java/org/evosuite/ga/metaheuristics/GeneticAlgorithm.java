@@ -763,7 +763,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
     /**
      * Write to a file all fitness values of each individuals.
      *
-     * @param solutions a list of {@link org.evosuite.ga.Chromosome} object(s).
+     * @param individuals a list of {@link org.evosuite.ga.Chromosome} object(s).
      */
     public void writeIndividuals(List<T> individuals) {
       if (!Properties.WRITE_INDIVIDUALS) {
