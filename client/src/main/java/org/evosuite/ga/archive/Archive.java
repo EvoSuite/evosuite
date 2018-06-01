@@ -191,14 +191,10 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
     // only look at other properties (e.g., length) if penalty scores are the same
     assert penaltyCandidateSolution == penaltyCurrentSolution;
 
-    // Check if the number of secondary objectives is the same for the two test cases
-    // otherwise something should be wrong
-    assert candidateSolution.getSecondaryObjectives().size() == currentSolution.getSecondaryObjectives().size();
-
     // If we try to add a test for a target we've already covered
     // and the new test is shorter, keep the shorter one
     int timesBetter = 0;
-    for (SecondaryObjective obj : candidateSolution.getSecondaryObjectives()) {
+    for (SecondaryObjective obj : TestChromosome.getSecondaryObjectives()) {
       if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
           timesBetter++;
       else
