@@ -194,7 +194,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
     // If we try to add a test for a target we've already covered
     // and the new test is shorter, keep the shorter one
     int timesBetter = 0;
-    for (SecondaryObjective obj : TestChromosome.getSecondaryObjectives()) {
+    for (SecondaryObjective<TestChromosome> obj : TestChromosome.getSecondaryObjectives()) {
       if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
           timesBetter++;
       else
