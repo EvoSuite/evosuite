@@ -122,7 +122,11 @@ public class CommandLineParameters {
 		Option inheritance = new Option("inheritanceTree","Cache inheritance tree during setup");
 		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
 		Option base_dir = new Option("base_dir", true, "Working directory in which tests and reports will be placed");
-		Option parallel = new Option("parallel", true, "Amount of clients to start in parallel, default is 1");
+		
+		Option parallel = new Option("parallel", true, "Start parallel run with n clients, communicate every i. " 
+                + "iteration x individuals (rate), expects #clients #frequency #rate");
+		parallel.setArgs(3);
+		parallel.setArgName("n i x");
 
 
 		@SuppressWarnings("static-access")

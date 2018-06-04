@@ -169,12 +169,18 @@ public class EvoSuite {
             }
 
             if (line.hasOption("parallel")) {
-                javaOpts.add("-Dparallel_run=" + line.getOptionValue("parallel"));
+                String[] values = line.getOptionValues("parallel");
+                
+                if (values.length != 3) {
+                    throw new Error("Invalid amount of arguments for parallel");
+                }
 
                 try {
-                    Properties.getInstance().setValue("parallel_run", line.getOptionValue("parallel"));
+                    Properties.getInstance().setValue("parallel_run", values[0]);
+                    Properties.getInstance().setValue("frequency", values[1]);
+                    Properties.getInstance().setValue("rate", values[2]);
                 } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
-                    throw new Error("Invalid value for parallel: " + e.getMessage());
+                    throw new Error("Invalid values for parallel: " + e.getMessage());
                 }
             }
 
