@@ -201,7 +201,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
     @Override
-    public void immigrate(Set<Chromosome> immigrants) {
+    public void emigrate(Set<Chromosome> immigrants) {
         try {
             masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
         } catch (RemoteException e) {
@@ -513,7 +513,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 	
     @Override
-    public void emigrate(Set<Chromosome> migrants) throws RemoteException {
+    public void immigrate(Set<Chromosome> migrants) throws RemoteException {
         fireEvent(migrants);
     }
 

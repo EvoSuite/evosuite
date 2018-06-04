@@ -50,5 +50,5 @@ public interface ClientNodeLocal extends Listenable<Set<Chromosome>> {
 
 	public void waitUntilDone();
 	
-	public void immigrate(Set<Chromosome> immigrants);
+	public void emigrate(Set<Chromosome> immigrants);
 }
