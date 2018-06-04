@@ -92,9 +92,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("* Total number of test goals for LIPS: {}", fitnessFunctions.size());
 		else if (Properties.ALGORITHM == Properties.Algorithm.MOSA)
 			LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier
-                            + ": Total number of test goals for MOSA: {}", 
-                    fitnessFunctions
-                    .size());
+                            + ": Total number of test goals for MOSA: {}", fitnessFunctions.size());
 		
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 

@@ -197,7 +197,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
             int idNeighbour = Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", "")) + 1 % Properties.PARALLEL_RUN;
 
             ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode" + idNeighbour);
-            node.emigrate(migrants);
+            node.immigrate(migrants);
         } catch (NotBoundException e) {
             logger.error("Client with id " + clientRmiIdentifier + "not found");
         }
