@@ -150,6 +150,15 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfCoveredTargets(Class<?> targetClass) {
+    return (int) this.covered.keySet().stream().filter(target -> target.getClass() == targetClass)
+        .count();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Set<F> getCoveredTargets() {
     return this.covered.keySet();
   }
@@ -160,6 +169,14 @@ public class CoverageArchive<F extends TestFitnessFunction, T extends TestChromo
   @Override
   public int getNumberOfUncoveredTargets() {
     return this.uncovered.size();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfUncoveredTargets(Class<?> targetClass) {
+    return (int) this.uncovered.stream().filter(target -> target.getClass() == targetClass).count();
   }
 
   /**

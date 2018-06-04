@@ -45,7 +45,7 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
+	private static final List<SecondaryObjective<TestSuiteChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestSuiteChromosome>>();
 	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
 
@@ -56,7 +56,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
+	public static void addSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 

@@ -129,6 +129,15 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfCoveredTargets(Class<?> targetClass) {
+    return (int) this.getCoveredTargets().stream()
+        .filter(target -> target.getClass() == targetClass).count();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Set<F> getCoveredTargets() {
     return this.archive.keySet().stream().filter(target -> this.archive.get(target).isCovered())
         .collect(Collectors.toSet());
@@ -140,6 +149,15 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
   @Override
   public int getNumberOfUncoveredTargets() {
     return this.getUncoveredTargets().size();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfUncoveredTargets(Class<?> targetClass) {
+    return (int) this.getUncoveredTargets().stream()
+        .filter(target -> target.getClass() == targetClass).count();
   }
 
   /**
