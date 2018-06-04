@@ -258,6 +258,7 @@
                     JobExecutorIntTest and all the Maven ones) work fine
                     on Windows -->
                 <version>1.1.3</version>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <!-- MIT -->
