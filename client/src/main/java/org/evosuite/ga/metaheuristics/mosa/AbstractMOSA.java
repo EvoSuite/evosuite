@@ -288,7 +288,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * This method extracts non-dominated solutions (tests) according to all covered goal
 	 * (e.g., branches).
 	 * 
-	 * @param a list of test cases to analyze with the "dominance" relationship
+	 * @param solutions list of test cases to analyze with the "dominance" relationship
 	 * @return the non-dominated set of test cases
 	 */
 	private List<T> getNonDominatedSolutions(List<T> solutions) {
