@@ -29,11 +29,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.evosuite.*;
 import org.evosuite.Properties;
 import org.evosuite.Properties.NoSuchParameterException;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.TestSuiteGenerator;
-import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
@@ -85,7 +83,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	protected Registry registry;
 
-    protected final Collection<Listener<Set<Chromosome>>> listeners = Collections.synchronizedList(new ArrayList<Listener<Set<Chromosome>>>());
+    protected final Collection<Listener<Set<? extends Chromosome>>> listeners = Collections.synchronizedList(
+                                                    new ArrayList<Listener<Set<? extends Chromosome>>>());
 	
 	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
 
@@ -201,9 +200,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
     @Override
-    public void emigrate(Set<Chromosome> immigrants) {
+    public void emigrate(Set<? extends Chromosome> immigrants) {
         try {
             masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
+            LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": Sending " + immigrants.size() + " immigrants");
         } catch (RemoteException e) {
             logger.error("Cannot send immigrating individuals to master", e);
         }
@@ -217,7 +217,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	@Override
 	public synchronized void changeState(ClientState state, ClientStateInformation information) {
 		if (this.state != state){
-			logger.info("Client changing state from " + this.state + " to " + state);
+			logger.info(ClientProcess.identifier + ": Client changing state from " + this.state + " to " + state);
 		}
 
 		this.state = state;
@@ -513,17 +513,18 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 	
     @Override
-    public void immigrate(Set<Chromosome> migrants) throws RemoteException {
+    public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException {
         fireEvent(migrants);
+        LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": receiving " + migrants.size() + "immigrants");
     }
 
     @Override
-    public void addListener(Listener<Set<Chromosome>> listener) {
+    public void addListener(Listener<Set<? extends Chromosome>> listener) {
 	    listeners.add(listener);
     }
 
     @Override
-    public void deleteListener(Listener<Set<Chromosome>> listener) {
+    public void deleteListener(Listener<Set<? extends Chromosome>> listener) {
 	    listeners.remove(listener);
     }
 
@@ -533,8 +534,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
      * @param event
      *            the event to fire
      */
-    private void fireEvent(Set<Chromosome> event) {
-        for (Listener<Set<Chromosome>> listener : listeners) {
+    private void fireEvent(Set<? extends Chromosome> event) {
+        for (Listener<Set<? extends Chromosome>> listener : listeners) {
             listener.receiveEvent(event);
         }
     }

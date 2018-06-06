@@ -30,7 +30,7 @@ import java.util.Set;
  * @author arcuri
  *
  */
-public interface ClientNodeLocal extends Listenable<Set<Chromosome>> {
+public interface ClientNodeLocal extends Listenable<Set<? extends Chromosome>> {
 
 	public boolean init();
 
@@ -50,5 +50,5 @@ public interface ClientNodeLocal extends Listenable<Set<Chromosome>> {
 
 	public void waitUntilDone();
 	
-	public void emigrate(Set<Chromosome> immigrants);
+	public void emigrate(Set<? extends Chromosome> immigrants);
 }
