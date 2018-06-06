@@ -21,6 +21,7 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -47,6 +48,8 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 	@Override
 	public TestSuiteChromosome generateTests() {
 		LoggingUtils.getEvoLogger().info("* Generating fixed number of random tests");
+		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
+
 		RandomLengthTestFactory factory = new org.evosuite.testcase.factories.RandomLengthTestFactory();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		if(!canGenerateTestsForSUT()) {
