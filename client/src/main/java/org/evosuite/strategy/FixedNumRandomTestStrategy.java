@@ -19,7 +19,10 @@
  */
 package org.evosuite.strategy;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.evosuite.Properties;
+import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
@@ -29,7 +32,9 @@ import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +63,17 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, 0);
 			return suite;
 		}
+
+		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+		for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+			goals.addAll(goalFactory.getCoverageGoals());
+			LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
+					+ " " + goalFactory.getCoverageGoals().size());
+		}
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+
 		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
 			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
 			TestChromosome test = factory.getChromosome();
@@ -79,6 +95,12 @@ public class FixedNumRandomTestStrategy extends TestGenerationStrategy {
 			}
 			suite.addTest(test);
 		}
+
+		// Evaluate generated suite
+		for (TestSuiteFitnessFunction fitnessFunction : getFitnessFunctions()) {
+			fitnessFunction.getFitness(suite);
+		}
+
         // Search is finished, send statistics
         sendExecutionStatistics();
 

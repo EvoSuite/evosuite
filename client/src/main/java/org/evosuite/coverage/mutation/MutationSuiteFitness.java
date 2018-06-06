@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -36,7 +37,6 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.ArrayUtil;
 
 /**
  * <p>
@@ -58,10 +58,19 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	protected final Set<Integer> removedMutants = new LinkedHashSet<Integer>();
 	protected final Set<Integer> toRemoveMutants = new LinkedHashSet<Integer>();
 
-	public MutationSuiteFitness() {
-		MutationFactory factory = new MutationFactory(
-		        ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION));
+	public MutationSuiteFitness(Criterion criterion) {
+		if (criterion != Criterion.STRONGMUTATION && criterion != Criterion.WEAKMUTATION
+		    && criterion != Criterion.ONLYMUTATION) {
+			throw new RuntimeException("Invalid initialisation of MutationSuiteFitness with criterion '"
+			    + criterion.name()
+			    + "'. MutationSuiteFitness can only be invoked with STRONGMUTATION, WEAKMUTATION, and ONLYMUTATION");
+		}
+		MutationFactory factory = (MutationFactory) FitnessFunctions.getFitnessFactory(criterion);
+
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		branchFitness = new BranchCoverageSuiteFitness();
+		Properties.TEST_ARCHIVE = archive;
 
 		for (MutationTestFitness goal : factory.getCoverageGoals()) {
 			mutantMap.put(goal.getMutation().getId(), goal);

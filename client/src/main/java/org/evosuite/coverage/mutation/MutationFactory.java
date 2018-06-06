@@ -45,7 +45,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 
 	private boolean strong = true;
 
-	private List<MutationTestFitness> goals = null;
+	protected List<MutationTestFitness> goals = null;
 
 	/**
 	 * <p>

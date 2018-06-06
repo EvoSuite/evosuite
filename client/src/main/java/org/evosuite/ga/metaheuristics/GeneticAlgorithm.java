@@ -45,6 +45,8 @@ import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
+import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
+import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
@@ -106,6 +108,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected int currentIteration = 0;
 
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
+
+	/** Selected ranking strategy **/
+	protected RankingFunction<T> rankingFunction = new RankBasedPreferenceSorting<T>();
 
 	/**
 	 * Constructor
@@ -516,6 +521,24 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	/**
+	 * Set the new ranking function (only used by MOO algorithms)
+	 * 
+	 * @param function a {@link org.evosuite.ga.operators.ranking.RankingFunction} object
+	 */
+	public void setRankingFunction(RankingFunction<T> function) {
+		this.rankingFunction = function;
+	}
+
+	/**
+	 * Get currently used ranking function (only used by MOO algorithms)
+	 * 
+	 * @return a {@link org.evosuite.ga.operators.ranking.RankingFunction} object
+	 */
+	public RankingFunction<T> getRankingFunction() {
+		return this.rankingFunction;
+	}
+
+	/**
 	 * Set new bloat control function
 	 * 
 	 * @param bloat_control
@@ -565,25 +588,40 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * Calculate fitness for all individuals
 	 */
-	protected void calculateFitnessAndSortPopulation() {
+	protected void calculateFitness() {
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
 
-		Iterator<T> iterator = population.iterator();
+		Iterator<T> iterator = this.population.iterator();
 		while (iterator.hasNext()) {
 			T c = iterator.next();
 			if (isFinished()) {
 				if (c.isChanged())
 					iterator.remove();
 			} else {
-				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-					fitnessFunction.getFitness(c);
-					notifyEvaluation(c);
-				}
+				this.calculateFitness(c);
 			}
 		}
+	}
 
+	/**
+	 * Calculate fitness for an individual
+	 * 
+	 * @param c
+	 */
+	protected void calculateFitness(T c) {
+		for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+			fitnessFunction.getFitness(c);
+			notifyEvaluation(c);
+		}
+	}
+
+	/**
+	 * Calculate fitness for all individuals and sort them
+	 */
+	protected void calculateFitnessAndSortPopulation() {
+		this.calculateFitness();
 		// Sort population
-		sortPopulation();
+		this.sortPopulation();
 	}
 
 	/**
@@ -725,7 +763,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
     /**
      * Write to a file all fitness values of each individuals.
      *
-     * @param solutions a list of {@link org.evosuite.ga.Chromosome} object(s).
+     * @param individuals a list of {@link org.evosuite.ga.Chromosome} object(s).
      */
     public void writeIndividuals(List<T> individuals) {
       if (!Properties.WRITE_INDIVIDUALS) {

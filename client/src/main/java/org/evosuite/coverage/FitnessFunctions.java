@@ -25,34 +25,62 @@ import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
+import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
+import org.evosuite.coverage.cbranch.CBranchTestFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
+import org.evosuite.coverage.dataflow.AllDefsCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.exception.TryCatchCoverageFactory;
 import org.evosuite.coverage.exception.TryCatchCoverageSuiteFitness;
+import org.evosuite.coverage.exception.TryCatchCoverageTestFitness;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
+import org.evosuite.coverage.ibranch.IBranchTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageFactory;
 import org.evosuite.coverage.io.input.InputCoverageSuiteFitness;
+import org.evosuite.coverage.io.input.InputCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputCoverageFactory;
 import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
+import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.line.OnlyLineCoverageSuiteFitness;
-import org.evosuite.coverage.method.*;
-import org.evosuite.coverage.mutation.*;
+import org.evosuite.coverage.method.MethodCoverageFactory;
+import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageFactory;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
+import org.evosuite.coverage.method.MethodTraceCoverageFactory;
+import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
+import org.evosuite.coverage.method.MethodTraceCoverageTestFitness;
+import org.evosuite.coverage.mutation.MutationFactory;
+import org.evosuite.coverage.mutation.MutationTestFitness;
+import org.evosuite.coverage.mutation.OnlyMutationFactory;
+import org.evosuite.coverage.mutation.OnlyMutationSuiteFitness;
+import org.evosuite.coverage.mutation.OnlyMutationTestFitness;
+import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
+import org.evosuite.coverage.mutation.StrongMutationTestFitness;
+import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
+import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageFactory;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
+import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -195,4 +223,67 @@ public class FitnessFunctions {
 			return new BranchCoverageFactory();
 		}
 	}
+
+	/**
+	 * Converts a {@link org.evosuite.Properties.Criterion} object to a
+	 * {@link org.evosuite.testcase.TestFitnessFunction} class.
+	 * 
+	 * @param criterion a {@link org.evosuite.Properties.Criterion} object.
+	 * @return a {@link java.lang.Class} object.
+	 */
+	public static Class<?> getTestFitnessFunctionClass(Criterion criterion) {
+		switch (criterion) {
+		case STRONGMUTATION:
+				return StrongMutationTestFitness.class;
+		case WEAKMUTATION:
+				return WeakMutationTestFitness.class;
+		case MUTATION:
+				return MutationTestFitness.class;
+		case ONLYMUTATION:
+				return OnlyMutationTestFitness.class;
+		case DEFUSE:
+				return DefUseCoverageTestFitness.class;
+		case BRANCH:
+				return BranchCoverageTestFitness.class;
+		case CBRANCH:
+				return CBranchTestFitness.class;
+		case IBRANCH:
+				return IBranchTestFitness.class;
+		case STATEMENT:
+				return StatementCoverageTestFitness.class;
+		case RHO:
+				return LineCoverageTestFitness.class;
+		case AMBIGUITY:
+				return LineCoverageTestFitness.class;
+		case ALLDEFS:
+				return AllDefsCoverageTestFitness.class;
+		case EXCEPTION:
+				return ExceptionCoverageTestFitness.class;
+		case REGRESSION:
+				throw new RuntimeException("No test fitness function defined for " + criterion.name());
+		case READABILITY:
+				throw new RuntimeException("No test fitness function defined for " + criterion.name());
+		case ONLYBRANCH:
+				return OnlyBranchCoverageTestFitness.class;
+		case METHODTRACE:
+				return MethodTraceCoverageTestFitness.class;
+		case METHOD:
+				return MethodCoverageTestFitness.class;
+		case METHODNOEXCEPTION:
+				return MethodNoExceptionCoverageTestFitness.class;
+		case ONLYLINE:
+				return LineCoverageTestFitness.class;
+		case LINE:
+				return LineCoverageTestFitness.class;
+		case OUTPUT:
+				return OutputCoverageTestFitness.class;
+		case INPUT:
+				return InputCoverageTestFitness.class;
+		case TRYCATCH:
+				return TryCatchCoverageTestFitness.class;
+		default:
+				throw new RuntimeException("No criterion defined for " + criterion.name());
+		}
+	}
+
 }

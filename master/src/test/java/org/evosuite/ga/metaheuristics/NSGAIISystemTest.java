@@ -21,6 +21,7 @@ package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.evosuite.EvoSuite;
@@ -31,8 +32,9 @@ import org.evosuite.SystemTestBase;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NSGAChromosome;
-import org.evosuite.ga.comparators.CrowdingComparator;
+import org.evosuite.ga.comparators.RankAndCrowdingDistanceComparator;
 import org.evosuite.ga.comparators.SortByFitness;
+import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.ga.problems.Problem;
 import org.evosuite.ga.problems.multiobjective.SCH;
 import org.evosuite.ga.problems.singleobjective.Booths;
@@ -132,30 +134,30 @@ public class NSGAIISystemTest extends SystemTestBase
 		population.add(c9);
 		population.add(c10);
 
-		List<List<NSGAChromosome>> fronts = ga.fastNonDominatedSort(population);
+		ga.getRankingFunction().computeRankingAssignment(population, new LinkedHashSet<FitnessFunction<NSGAChromosome>>(fitnessFunctions));
 
 		// Total number of Fronts
-		Assert.assertEquals(fronts.size(), 5);
+		Assert.assertEquals(ga.getRankingFunction().getNumberOfSubfronts(), 5);
 
 		// Front 0
-		Assert.assertTrue(fronts.get(0).get(0).getFitness() == 0.0);
-		Assert.assertTrue(fronts.get(0).get(1).getFitness() == 0.0);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(0).get(0).getFitness() == 0.0);
+		//Assert.assertTrue(ga.getRankingFunction().getSubfront(0).get(1).getFitness() == 0.0);
 
 		// Front 1
-		Assert.assertTrue(fronts.get(1).get(0).getFitness() == 0.2);
-		Assert.assertTrue(fronts.get(1).get(1).getFitness() == 0.2);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(1).get(0).getFitness() == 0.2);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(1).get(1).getFitness() == 0.2);
 
 		// Front 2
-		Assert.assertTrue(fronts.get(2).get(0).getFitness() == 0.4);
-		Assert.assertTrue(fronts.get(2).get(1).getFitness() == 0.4);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(2).get(0).getFitness() == 0.4);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(2).get(1).getFitness() == 0.4);
 
 		// Front 3
-		Assert.assertTrue(fronts.get(3).get(0).getFitness() == 0.6);
-		Assert.assertTrue(fronts.get(3).get(1).getFitness() == 0.6);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(3).get(0).getFitness() == 0.6);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(3).get(1).getFitness() == 0.6);
 
 		// Front 4
-		Assert.assertTrue(fronts.get(4).get(0).getFitness() == 0.8);
-		Assert.assertTrue(fronts.get(4).get(1).getFitness() == 0.8);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(4).get(0).getFitness() == 0.8);
+		Assert.assertTrue(ga.getRankingFunction().getSubfront(4).get(1).getFitness() == 0.8);
 	}
 
 	@Test
@@ -202,8 +204,9 @@ public class NSGAIISystemTest extends SystemTestBase
 		population.add(c9);
 		population.add(c10);
 
-		ga.crowingDistanceAssignment(population);
-		Collections.sort(population, new CrowdingComparator(true));
+		CrowdingDistance<NSGAChromosome> crowdingDistance = new CrowdingDistance<NSGAChromosome>();
+		crowdingDistance.crowdingDistanceAssignment(population, fitnessFunctions);
+		Collections.sort(population, new RankAndCrowdingDistanceComparator(true));
 
 		Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
 		Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
@@ -275,8 +278,9 @@ public class NSGAIISystemTest extends SystemTestBase
         population.add(c9);
         population.add(c10);
 
-        ga.crowingDistanceAssignment(population);
-        Collections.sort(population, new CrowdingComparator(true));
+        CrowdingDistance<NSGAChromosome> crowdingDistance = new CrowdingDistance<NSGAChromosome>();
+        crowdingDistance.crowdingDistanceAssignment(population, fitnessFunctions);
+        Collections.sort(population, new RankAndCrowdingDistanceComparator(true));
 
         Assert.assertTrue(population.get(0).getDistance() == Double.POSITIVE_INFINITY);
         Assert.assertTrue(population.get(1).getDistance() == Double.POSITIVE_INFINITY);
@@ -300,6 +304,10 @@ public class NSGAIISystemTest extends SystemTestBase
         Properties.CRITERION[0] = Criterion.RHO;
         Properties.CRITERION[1] = Criterion.AMBIGUITY;
 	    Properties.ALGORITHM = Algorithm.NSGAII;
+	    Properties.SELECTION_FUNCTION = Properties.SelectionFunction.BINARY_TOURNAMENT;
+	    Properties.MINIMIZE = false;
+	    Properties.INLINE = false;
+	    Properties.STOP_ZERO = false;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -307,16 +315,6 @@ public class NSGAIISystemTest extends SystemTestBase
         Properties.TARGET_CLASS = targetClass;
 
         String[] command = new String[] {
-            "-Dselection_function=BINARY_TOURNAMENT",
-            "-Dminimize_values=false",
-            "-Dinline=false",
-            "-Dminimize=true",
-            "-Dstop_zero=false",
-            "-Dcoverage=false",
-            "-Djunit_tests=true",
-            "-Dassertions=true",
-            "-Dsandbox=true",
-            "-Dnew_statistics=false",
             "-generateSuite",
             "-class", targetClass
         };
@@ -332,12 +330,8 @@ public class NSGAIISystemTest extends SystemTestBase
         List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
         Collections.sort(population, new SortByFitness(rho, false));
 
-        for (Chromosome p : population) {
-            System.out.println("Rho: " + p.getFitness(rho) + ", AG: " + p.getFitness(ag) + " | Rank: " + p.getRank());
-
-            Assert.assertEquals(0.0, p.getFitness(rho), 0.0);
-            Assert.assertEquals(0.0, p.getFitness(ag), 0.0);
-            Assert.assertEquals(0, p.getRank());
-        }
+        Assert.assertEquals(0.0, population.get(0).getFitness(rho), 0.0);
+        Assert.assertEquals(0.0, population.get(0).getFitness(ag), 0.0);
+        Assert.assertEquals(0, population.get(0).getRank());
 	}
 }

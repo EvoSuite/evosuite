@@ -47,7 +47,7 @@ private static final String LISTNAME = Stack.class.getCanonicalName().replace('.
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
 	                      "empty", "()Z", false);
-				insertBranchWithoutTag(Opcodes.IFLE, "java/util/EmptyStackException");
+				insertBranch(Opcodes.IFLE, "java/util/EmptyStackException");
 				tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);
 				

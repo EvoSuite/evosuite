@@ -19,16 +19,20 @@
  */
 package org.evosuite.instrumentation.error;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.objectweb.asm.Opcodes;
 
 public class QueueInstrumentation extends ErrorBranchInstrumenter {
-	
-	private static final String LISTNAME = Queue.class.getCanonicalName().replace('.', '/');
+
+	private static final List<String> LISTNAMES = Arrays.asList(Queue.class.getCanonicalName().replace('.', '/'),
+			PriorityQueue.class.getCanonicalName().replace('.', '/'),
+			Deque.class.getCanonicalName().replace('.', '/'),
+			LinkedBlockingDeque.class.getCanonicalName().replace('.', '/'),
+			BlockingDeque.class.getCanonicalName().replace('.', '/'),
+			ArrayDeque.class.getCanonicalName().replace('.', '/'));
 	
 	private final List<String> emptyListMethods = Arrays.asList(new String[] {"remove", "element" });
 
@@ -39,15 +43,15 @@ public class QueueInstrumentation extends ErrorBranchInstrumenter {
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc, boolean itf) {
-		if(owner.equals(LISTNAME)) {
+		if(LISTNAMES.contains(owner)) {
 			if(emptyListMethods.contains(name)) {
 				// empty
 				Map<Integer, Integer> tempVariables = getMethodCallee(desc);
 
 				tagBranchStart();
-				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
+				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner,
 	                      "isEmpty", "()Z", false);
-				insertBranchWithoutTag(Opcodes.IFLE, "java/util/NoSuchElementException");
+				insertBranch(Opcodes.IFLE, "java/util/NoSuchElementException");
 				tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);
 			} 

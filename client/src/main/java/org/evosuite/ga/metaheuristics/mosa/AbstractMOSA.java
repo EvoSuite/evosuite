@@ -20,39 +20,30 @@ package org.evosuite.ga.metaheuristics.mosa;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.coverage.FitnessFunctions;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.exception.ExceptionCoverageFactory;
-import org.evosuite.coverage.exception.ExceptionCoverageHelper;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
-import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
-import org.evosuite.coverage.line.LineCoverageSuiteFitness;
-import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
-import org.evosuite.coverage.mutation.StrongMutationSuiteFitness;
-import org.evosuite.coverage.mutation.WeakMutationSuiteFitness;
-import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.comparators.DominanceComparator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
-import org.evosuite.ga.metaheuristics.mosa.comparators.MOSADominanceComparator;
-import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -64,17 +55,16 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.BudgetConsumptionMonitor;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * Abstract class for MOSA
+ * Abstract class for MOSA or variants of MOSA.
  * 
  * @author Annibale Panichella, Fitsum M. Kifetew
- *
- * @param <T>
  */
 public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
@@ -82,44 +72,45 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
 
-	/**  keep track of overall suite fitness and coverage */
-	protected List<TestSuiteFitnessFunction> suiteFitnesses;
+	/** Keep track of overall suite fitness functions and correspondent test fitness functions */
+	protected final Map<TestSuiteFitnessFunction, Class<?>> suiteFitnessFunctions;
 
-	/** Selection function to select parents */
-	protected SelectionFunction<T> selectionFunction = new MOSATournamentSelection<T>();
-
-	/** Selected ranking strategy **/
-	protected Ranking<T> ranking;
+	/** Object used to keep track of the execution time needed to reach the maximum coverage */
+	protected final BudgetConsumptionMonitor budgetMonitor;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 * 
-	 * @param factory
-	 *            a {@link org.evosuite.ga.ChromosomeFactory} object
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object
 	 */
 	public AbstractMOSA(ChromosomeFactory<T> factory) {
 		super(factory);
-		suiteFitnesses = new ArrayList<TestSuiteFitnessFunction>();
-		for (Properties.Criterion criterion : Properties.CRITERION){
-			TestSuiteFitnessFunction fit = FitnessFunctions.getFitnessFunction(criterion);
-			suiteFitnesses.add(fit);
+
+		this.suiteFitnessFunctions = new LinkedHashMap<TestSuiteFitnessFunction, Class<?>>();
+		for (Properties.Criterion criterion : Properties.CRITERION) {
+			TestSuiteFitnessFunction suiteFit = FitnessFunctions.getFitnessFunction(criterion);
+			Class<?> testFit = FitnessFunctions.getTestFitnessFunctionClass(criterion);
+			this.suiteFitnessFunctions.put(suiteFit, testFit);
 		}
-		// set the ranking strategy
-		if (Properties.RANKING_TYPE ==  Properties.RankingType.PREFERENCE_SORTING)
-			ranking = new RankBasedPreferenceSorting<T>();
-		else if (Properties.RANKING_TYPE ==  Properties.RankingType.FAST_NON_DOMINATED_SORTING)
-			ranking = new FastNonDominatedSorting<T>();
-		else
-			ranking = new RankBasedPreferenceSorting<T>(); // default ranking strategy
+
+		this.budgetMonitor = new BudgetConsumptionMonitor();
 
 		// set the secondary objectives of test cases (useful when MOSA compares two test
 		// cases to, for example, update the archive)
 		TestCaseSecondaryObjective.setSecondaryObjectives();
+
+		if (Properties.SELECTION_FUNCTION != SelectionFunction.RANK_CROWD_DISTANCE_TOURNAMENT) {
+		  LoggingUtils.getEvoLogger()
+		  .warn("Originally, MOSA was implemented with a '"
+		      + SelectionFunction.RANK_CROWD_DISTANCE_TOURNAMENT.name()
+		      + "' selection function. You may want to consider using it.");
+		}
 	}
 
 	/**
 	 * This method is used to generate new individuals (offsprings) from
-	 * the current population
+	 * the current population.
+	 * 
 	 * @return offspring population
 	 */
 	@SuppressWarnings("unchecked")
@@ -127,56 +118,56 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 		List<T> offspringPopulation = new ArrayList<T>(Properties.POPULATION);
 		// we apply only Properties.POPULATION/2 iterations since in each generation
 		// we generate two offsprings
-		for (int i=0; i < Properties.POPULATION/2 && !isFinished(); i++){
+		for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
 			// select best individuals
-			T parent1 = selectionFunction.select(population);
-			T parent2 = selectionFunction.select(population);
+			T parent1 = this.selectionFunction.select(this.population);
+			T parent2 = this.selectionFunction.select(this.population);
 			T offspring1 = (T) parent1.clone();
 			T offspring2 = (T) parent2.clone();
-			// apply crossover 
+			// apply crossover
 			try {
 				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-					crossoverFunction.crossOver(offspring1, offspring2);
-				} 
+					this.crossoverFunction.crossOver(offspring1, offspring2);
+				}
 			} catch (ConstructionFailedException e) {
 				logger.debug("CrossOver failed.");
 				continue;
-			} 
+			}
 
-			removeUnusedVariables(offspring1);
-			removeUnusedVariables(offspring2);
+			this.removeUnusedVariables(offspring1);
+			this.removeUnusedVariables(offspring2);
 
 			// apply mutation on offspring1
-			mutate(offspring1, parent1);
+			this.mutate(offspring1, parent1);
 			if (offspring1.isChanged()) {
-				clearCachedResults(offspring1);
-				offspring1.updateAge(currentIteration);
-				calculateFitness(offspring1); 
+				this.clearCachedResults(offspring1);
+				offspring1.updateAge(this.currentIteration);
+				this.calculateFitness(offspring1);
 				offspringPopulation.add(offspring1);
 			}
 
 			// apply mutation on offspring2
-			mutate(offspring2, parent2);
+			this.mutate(offspring2, parent2);
 			if (offspring2.isChanged()) {
-				clearCachedResults(offspring2);
-				offspring2.updateAge(currentIteration);
-				calculateFitness(offspring2);
+				this.clearCachedResults(offspring2);
+				offspring2.updateAge(this.currentIteration);
+				this.calculateFitness(offspring2);
 				offspringPopulation.add(offspring2);
-			}	
+			}
 		}
 		// Add new randomly generate tests
-		for (int i = 0; i<Properties.POPULATION * Properties.P_TEST_INSERTION; i++){
+		for (int i = 0; i < Properties.POPULATION * Properties.P_TEST_INSERTION; i++) {
 			T tch = null;
-			if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()){
+			if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()) {
 				tch = this.chromosomeFactory.getChromosome();
 				tch.setChanged(true);
 			} else {
-				tch = (T) Randomness.choice(getArchive()).clone();
-				tch.mutate(); tch.mutate();
+				tch = (T) Randomness.choice(this.getSolutions()).clone();
+				tch.mutate(); tch.mutate(); // TODO why is it mutated twice?
 			}
 			if (tch.isChanged()) {
-				tch.updateAge(currentIteration);
-				calculateFitness(tch);
+				tch.updateAge(this.currentIteration);
+				this.calculateFitness(tch);
 				offspringPopulation.add(tch);
 			}
 		}
@@ -185,51 +176,57 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	}
 
 	/**
-	 * Method used to mutate an offspring
+	 * Method used to mutate an offspring.
+	 * 
+	 * @param offspring
+	 * @param parent
 	 */
-	private void mutate(T offspring, T parent){
+	private void mutate(T offspring, T parent) {
 		offspring.mutate();
 		TestChromosome tch = (TestChromosome) offspring;
 		if (!offspring.isChanged()) {
-			// if offspring is not changed, we try
-			// to mutate it once again
+			// if offspring is not changed, we try to mutate it once again
 			offspring.mutate();
 		}
-		if (!hasMethodCall(offspring)){
+		if (!this.hasMethodCall(offspring)) {
 			tch.setTestCase(((TestChromosome) parent).getTestCase().clone());
 			boolean changed = tch.mutationInsert();
-			if (changed){
-				for (Statement s : tch.getTestCase())
+			if (changed) {
+				for (Statement s : tch.getTestCase()) {
 					s.isValid();
-			} 
+				}
+			}
 			offspring.setChanged(changed);
 		}
-		notifyMutation(offspring);
+		this.notifyMutation(offspring);
 	}
 
-	/** This method checks whether the test has only primitive type statements. Indeed,
-	 * crossover and mutation can lead to tests with no method calls (methods or constructors call),
-	 * thus, when executed they will never cover something in the class under test.
-
+	/**
+	 * This method checks whether the test has only primitive type statements. Indeed,
+	 * crossover and mutation can lead to tests with no method calls (methods or constructors
+	 * call), thus, when executed they will never cover something in the class under test.
+	 * 
 	 * @param test to check
 	 * @return true if the test has at least one method or constructor call (i.e., the test may
 	 * cover something when executed; false otherwise
 	 */
-	private boolean hasMethodCall(T test){
+	private boolean hasMethodCall(T test) {
 		boolean flag = false;
 		TestCase tc = ((TestChromosome) test).getTestCase();
-		for (Statement s : tc){
-			if (s instanceof MethodStatement){
+		for (Statement s : tc) {
+			if (s instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) s;
 				boolean isTargetMethod = ms.getDeclaringClassName().equals(Properties.TARGET_CLASS);
-				if (isTargetMethod)
+				if (isTargetMethod) {
 					return true;
+				}
 			}
-			if (s instanceof ConstructorStatement){
+			if (s instanceof ConstructorStatement) {
 				ConstructorStatement ms = (ConstructorStatement) s;
 				boolean isTargetMethod = ms.getDeclaringClassName().equals(Properties.TARGET_CLASS);
-				if (isTargetMethod)
+				if (isTargetMethod) {
 					return true;
+				}
 			}
 		}
 		return flag;
@@ -239,9 +236,10 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * This method clears the cached results for a specific chromosome (e.g., fitness function
 	 * values computed in previous generations). Since a test case is changed via crossover
 	 * and/or mutation, previous data must be recomputed.
+	 * 
 	 * @param chromosome TestChromosome to clean
 	 */
-	public void clearCachedResults(T chromosome){
+	private void clearCachedResults(T chromosome) {
 		((TestChromosome) chromosome).clearCachedMutationResults();
 		((TestChromosome) chromosome).clearCachedResults();
 		((TestChromosome) chromosome).clearMutationHistory();
@@ -252,10 +250,11 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * When a test case is changed via crossover and/or mutation, it can contains some
 	 * primitive variables that are not used as input (or to store the output) of method calls.
 	 * Thus, this method removes all these "trash" statements.
+	 * 
 	 * @param chromosome
 	 * @return true or false depending on whether "unused variables" are removed
 	 */
-	public boolean removeUnusedVariables(T chromosome) {
+	private boolean removeUnusedVariables(T chromosome) {
 		int sizeBefore = chromosome.size();
 		TestCase t = ((TestChromosome) chromosome).getTestCase();
 		List<Integer> to_delete = new ArrayList<Integer>(chromosome.size());
@@ -279,107 +278,38 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 			t.remove(position);
 		}
 		int sizeAfter = chromosome.size();
-		if (has_deleted)
+		if (has_deleted) {
 			logger.debug("Removed {} unused statements", (sizeBefore - sizeAfter));
+		}
 		return has_deleted;
 	}
 
 	/**
-	 * Notify all search listeners of fitness evaluation
+	 * This method extracts non-dominated solutions (tests) according to all covered goal
+	 * (e.g., branches).
 	 * 
-	 * @param chromosome
-	 *            a {@link org.evosuite.ga.Chromosome} object.
-	 */
-	@Override
-	protected void notifyEvaluation(Chromosome chromosome) {
-		for (SearchListener listener : listeners) {
-			if (listener instanceof ProgressMonitor)
-				continue;
-			listener.fitnessEvaluation(chromosome);
-		}
-	}
-
-	/**
-	 * Calculate fitness for the whole population
-	 */
-	protected void calculateFitness() {
-		logger.debug("Calculating fitness for " + population.size() + " individuals");
-
-		Iterator<T> iterator = population.iterator();
-		while (iterator.hasNext()) {
-			T c = iterator.next();
-			if (isFinished()) {
-				if (c.isChanged())
-					iterator.remove();
-			} else {
-				calculateFitness(c);
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<T> getBestIndividuals() {
-		//get final test suite (i.e., non dominated solutions in Archive)
-		List<T> finalTestSuite = this.getFinalTestSuite();
-		if (finalTestSuite.isEmpty()) {
-			return Arrays.asList((T) new TestSuiteChromosome());
-		}
-
-		TestSuiteChromosome bestTestCases = new TestSuiteChromosome();
-		for (T test : finalTestSuite) {
-			bestTestCases.addTest((TestChromosome) test);
-		}
-		for (FitnessFunction<T> f : this.getCoveredGoals()){
-			bestTestCases.getCoveredGoals().add((TestFitnessFunction) f);
-		}
-		// compute overall fitness and coverage
-		double fitness = this.fitnessFunctions.size() - numberOfCoveredTargets();
-		double coverage = ((double) numberOfCoveredTargets()) / ((double) this.fitnessFunctions.size());
-		for (TestSuiteFitnessFunction suiteFitness : suiteFitnesses){
-			bestTestCases.setFitness(suiteFitness, fitness);
-			bestTestCases.setCoverage(suiteFitness, coverage);
-			bestTestCases.setNumOfCoveredGoals(suiteFitness, (int) numberOfCoveredTargets());
-			bestTestCases.setNumOfNotCoveredGoals(suiteFitness, (int) (this.fitnessFunctions.size()-numberOfCoveredTargets()));
-		}
-		List<T> bests = new ArrayList<T>(1);
-		bests.add((T) bestTestCases);
-		return bests;
-	}
-
-	/** 
-	 * This method computes the fitness scores only for the current goals
-	 * @param c chromosome
-	 */
-	protected abstract void calculateFitness(T c);
-
-	protected abstract List<T> getFinalTestSuite();
-
-	protected abstract List<T> getArchive();
-
-	/**
-	 * This method extracts non-dominated solutions (tests) according to all covered goal (e.g., branches)
-	 * @param solutionSet set of test cases to analyze with the "dominance" relationship
+	 * @param a list of test cases to analyze with the "dominance" relationship
 	 * @return the non-dominated set of test cases
 	 */
-	protected List<T> getNonDominatedSolutions(List<T> solutions){
-		MOSADominanceComparator<T> comparator = new MOSADominanceComparator<>(this.getCoveredGoals());
+	private List<T> getNonDominatedSolutions(List<T> solutions) {
+		DominanceComparator<T> comparator = new DominanceComparator<T>(this.getCoveredGoals());
 		List<T> next_front = new ArrayList<T>(solutions.size());
 		boolean isDominated;
-		for (T p : solutions){
+		for (T p : solutions) {
 			isDominated = false;
 			List<T> dominatedSolutions = new ArrayList<T>(solutions.size());
-			for (T best : next_front){
+			for (T best : next_front) {
 				int flag = comparator.compare(p, best);
 				if (flag == -1) {
 					dominatedSolutions.add(best);
 				}
-				if (flag == +1){
+				if (flag == +1) {
 					isDominated = true;
-				}	
+				}
 			}
-			if (isDominated)
+			if (isDominated) {
 				continue;
+			}
 
 			next_front.add(p);
 			next_front.removeAll(dominatedSolutions);
@@ -387,121 +317,261 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 		return next_front;
 	}
 
-	/**
-	 * This method verifies whether two TestCromosome contain
-	 * the same test case. Here the equality is computed looking at
-	 * the strings composing the tests. This method is strongly needed 
-	 * in {@link AbstractMOSA#breedNextGeneration()}.
-	 * @param test1 first test
-	 * @param test2 second test
-	 * @return true if the test1 and test 2 (meant as String) are equal
-	 * to each other; false otherwise.
+	/** 
+	 * {@inheritDoc}
 	 */
-	protected boolean areEqual(T test1, T test2){
-		TestChromosome tch1 = (TestChromosome) test1;
-		TestChromosome tch2 = (TestChromosome) test2;
-
-		if (tch1.size() != tch2.size())
-			return false;
-		if (tch1.size() == 0)
-			return false;
-		if (tch2.size() == 0)
-			return false;
-
-		return tch1.getTestCase().toCode().equals(tch2.getTestCase().toCode());
-	}
-
-	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		logger.info("executing initializePopulation function");
 
-		notifySearchStarted();
-		currentIteration = 0;
+		this.notifySearchStarted();
+		this.currentIteration = 0;
 
 		// Create a random parent population P0
-		generateInitialPopulation(Properties.POPULATION);
+		this.generateInitialPopulation(Properties.POPULATION);
+
 		// Determine fitness
-		calculateFitness();
+		this.calculateFitness();
 		this.notifyIteration();
 	}
 
-	protected abstract double numberOfCoveredTargets();
+    /**
+     * Returns the goals that have been covered by the test cases stored in the archive.
+     * 
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected Set<FitnessFunction<T>> getCoveredGoals() {
+      Set<FitnessFunction<T>> coveredGoals = new LinkedHashSet<FitnessFunction<T>>();
+      Archive.getArchiveInstance().getCoveredTargets()
+          .forEach(ff -> coveredGoals.add((FitnessFunction<T>) ff));
+      return coveredGoals;
+    }
 
-	public abstract Set<FitnessFunction<T>> getCoveredGoals();
+    /**
+     * Returns the number of goals that have been covered by the test cases stored in the archive.
+     * 
+     * @return
+     */
+    protected int getNumberOfCoveredGoals() {
+      return Archive.getArchiveInstance().getNumberOfCoveredTargets();
+    }
+
+    protected void addUncoveredGoal(FitnessFunction<T> goal) {
+      Archive.getArchiveInstance().addTarget((TestFitnessFunction) goal);
+    }
+
+    /**
+     * Returns the goals that have not been covered by the test cases stored in the archive.
+     * 
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected Set<FitnessFunction<T>> getUncoveredGoals() {
+      Set<FitnessFunction<T>> uncoveredGoals = new LinkedHashSet<FitnessFunction<T>>();
+      Archive.getArchiveInstance().getUncoveredTargets()
+          .forEach(ff -> uncoveredGoals.add((FitnessFunction<T>) ff));
+      return uncoveredGoals;
+    }
+
+    /**
+     * Returns the goals that have not been covered by the test cases stored in the archive.
+     * 
+     * @return
+     */
+    protected int getNumberOfUncoveredGoals() {
+      return Archive.getArchiveInstance().getNumberOfUncoveredTargets();
+    }
+
+    /**
+     * Returns the total number of goals, i.e., number of covered goals + number of uncovered goals.
+     * 
+     * @return
+     */
+    protected int getTotalNumberOfGoals() {
+      return Archive.getArchiveInstance().getNumberOfTargets();
+    }
+
+    /**
+     * Return the test cases in the archive as a list.
+     * 
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected List<T> getSolutions() {
+      List<T> solutions = new ArrayList<T>();
+      Archive.getArchiveInstance().getSolutions().forEach(test -> solutions.add((T) test));
+      return solutions;
+    }
+
+    /**
+     * Generates a {@link org.evosuite.testsuite.TestSuiteChromosome} object with all test cases
+     * in the archive.
+     * 
+     * @return
+     */
+    protected TestSuiteChromosome generateSuite() {
+      TestSuiteChromosome suite = new TestSuiteChromosome();
+      Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
+      return suite;
+    }
+
+	///// ----------------------
 
 	/**
-	 * This method analyzes the execution results of a TestChromosome looking for generated exceptions.
-	 * Such exceptions are converted in instances of the class {@link ExceptionCoverageTestFitness},
-	 * which are additional covered goals when using as criterion {@link Properties.Criterion.EXCEPTION}
-	 * @param t TestChromosome to analyze
-	 * @return list of exception goals being covered by t
+	 * Some methods of the super class (i.e., {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm}
+	 * class) require a {@link org.evosuite.testsuite.TestSuiteChromosome} object. However, MOSA
+	 * evolves {@link org.evosuite.testsuite.TestChromosome} objects. Therefore, we must override
+	 * those methods and create a {@link org.evosuite.testsuite.TestSuiteChromosome} object with all
+	 * the evolved {@link org.evosuite.testsuite.TestChromosome} objects (either in the population or
+	 * in the {@link org.evosuite.ga.archive.Archive).
 	 */
-	public List<ExceptionCoverageTestFitness> deriveCoveredExceptions(T t){
-		List<ExceptionCoverageTestFitness> covered_exceptions = new ArrayList<ExceptionCoverageTestFitness>();
-		TestChromosome testCh = (TestChromosome) t;
-		ExecutionResult result = testCh.getLastExecutionResult();
 
-		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new LinkedHashMap<>();
-		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new LinkedHashMap<>();
-		Map<String, Set<Class<?>>> declaredTypesOfExceptions = new LinkedHashMap<>();
+	/**
+     * Notify all search listeners but ProgressMonitor of fitness evaluation.
+     * 
+     * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+     */
+    @Override
+    protected void notifyEvaluation(Chromosome chromosome) {
+        for (SearchListener listener : this.listeners) {
+            if (listener instanceof ProgressMonitor) {
+                continue; // ProgressMonitor requires a TestSuiteChromosome
+            }
+            listener.fitnessEvaluation(chromosome);
+        }
+    }
 
-		for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
-			if(ExceptionCoverageHelper.shouldSkip(result,i)){
-				continue;
-			}
+    /**
+     * Notify all search listeners but ProgressMonitor of a mutation.
+     * 
+     * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+     */
+    @Override
+    protected void notifyMutation(Chromosome chromosome) {
+      for (SearchListener listener : this.listeners) {
+          if (listener instanceof ProgressMonitor) {
+              continue; // ProgressMonitor requires a TestSuiteChromosome
+          }
+          listener.modification(chromosome);
+      }
+    }
 
-			Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
-			String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
-			boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void calculateFitness() {
+        logger.debug("Calculating fitness for " + this.population.size() + " individuals");
 
-			/*
-			 * We only consider exceptions that were thrown by calling directly the SUT (not the other
-			 * used libraries). However, this would ignore cases in which the SUT is indirectly tested
-			 * through another class
-			 */
+        Iterator<T> iterator = this.population.iterator();
+        while (iterator.hasNext()) {
+            T c = iterator.next();
+            if (this.isFinished()) {
+                if (c.isChanged()) {
+                    iterator.remove();
+                }
+            } else {
+                this.calculateFitness(c);
+            }
+        }
+    }
 
-			if (sutException) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void calculateFitness(T c) {
+        this.fitnessFunctions.forEach(fitnessFunction -> fitnessFunction.getFitness(c));
 
-				boolean notDeclared = ! ExceptionCoverageHelper.isDeclared(result,i);
+        // if one of the coverage criterion is Criterion.EXCEPTION, then we have to analyse the results
+        // of the execution to look for generated exceptions
+        if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EXCEPTION)) {
+          TestChromosome testChromosome = (TestChromosome) c;
+          ExceptionCoverageSuiteFitness.calculateExceptionInfo(
+              Arrays.asList(testChromosome.getLastExecutionResult()),
+              new HashMap<>(), new HashMap<>(), new HashMap<>(), new ExceptionCoverageSuiteFitness());
+        }
 
-				if(notDeclared) {
-					/*
-					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
-					 * input for pre-condition) or implicit ("likely" a real fault).
-					 */
+        this.notifyEvaluation(c);
+        // update the time needed to reach the max coverage
+        this.budgetMonitor.checkMaxCoverage(this.getNumberOfCoveredGoals());
+    }
 
-					boolean isExplicit = ExceptionCoverageHelper.isExplicit(result,i);
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<T> getBestIndividuals() {
+        // get final test suite (i.e., non dominated solutions in Archive)
+        TestSuiteChromosome bestTestCases = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
+        if (bestTestCases.getTestChromosomes().isEmpty()) {
+          for (T test : this.getNonDominatedSolutions(this.population)) {
+            bestTestCases.addTest((TestChromosome) test);
+          }
+        }
 
-					if (isExplicit) {
+        // compute overall fitness and coverage
+        this.computeCoverageAndFitness(bestTestCases);
 
-						if (!explicitTypesOfExceptions.containsKey(methodIdentifier)) {
-							explicitTypesOfExceptions.put(methodIdentifier, new LinkedHashSet<Class<?>>());
-						}
-						explicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
-					} else {
+        List<T> bests = new ArrayList<T>(1);
+        bests.add((T) bestTestCases);
 
-						if (!implicitTypesOfExceptions.containsKey(methodIdentifier)) {
-							implicitTypesOfExceptions.put(methodIdentifier, new LinkedHashSet<Class<?>>());
-						}
-						implicitTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
-					}
-				} else {
-					if (!declaredTypesOfExceptions.containsKey(methodIdentifier)) {
-						declaredTypesOfExceptions.put(methodIdentifier, new LinkedHashSet<Class<?>>());
-					}
-					declaredTypesOfExceptions.get(methodIdentifier).add(exceptionClass);
-				}
+        return bests;
+    }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>This method is used by the Progress Monitor at the and of each generation to show the total coverage reached by the algorithm.
+     * Since the Progress Monitor requires a {@link org.evosuite.testsuite.TestSuiteChromosome} object, this method artificially creates
+     * a {@link org.evosuite.testsuite.TestSuiteChromosome} object as the union of all solutions stored in the {@link
+     * org.evosuite.ga.archive.Archive}.</p>
+     * 
+     * <p>The coverage score of the {@link org.evosuite.testsuite.TestSuiteChromosome} object is given by the percentage of targets marked
+     * as covered in the archive.</p>
+     * 
+     * @return a {@link org.evosuite.testsuite.TestSuiteChromosome} object to be consumable by the Progress Monitor.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public T getBestIndividual() {
+        TestSuiteChromosome best = this.generateSuite();
+        if (best.getTestChromosomes().isEmpty()) {
+          for (T test : this.getNonDominatedSolutions(this.population)) {
+            best.addTest((TestChromosome) test);
+          }
+          for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions.keySet()) {
+            best.setCoverage(suiteFitness, 0.0);
+            best.setFitness(suiteFitness,  1.0);
+          }
+          return (T) best;
+        }
 
-				ExceptionCoverageTestFitness.ExceptionType type = ExceptionCoverageHelper.getType(result,i);
-				/*
-				 * Add goal to list of fitness functions to solve
-				 */
-				ExceptionCoverageTestFitness goal = new ExceptionCoverageTestFitness(Properties.TARGET_CLASS, methodIdentifier, exceptionClass, type);
-				covered_exceptions.add(goal);
-			}
-		}
-		return covered_exceptions;
-	}
+        // compute overall fitness and coverage
+        this.computeCoverageAndFitness(best);
+
+        return (T) best;
+    }
+
+    private void computeCoverageAndFitness(TestSuiteChromosome suite) {
+      for (Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
+          .entrySet()) {
+        TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
+        Class<?> testFitnessFunction = entry.getValue();
+
+        int numberCoveredTargets =
+            Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
+        int numberUncoveredTargets =
+            Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
+
+        suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
+        suite.setCoverage(suiteFitnessFunction, ((double) numberCoveredTargets)
+            / ((double) (numberCoveredTargets + numberUncoveredTargets)));
+        suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
+        suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
+      }
+    }
+
 }

@@ -32,25 +32,13 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
 public class StatementCoverageFactory extends
         AbstractFitnessFactory<StatementCoverageTestFitness> {
 
-	private static boolean called = false;
-	private static List<StatementCoverageTestFitness> goals = new ArrayList<StatementCoverageTestFitness>();
-
 	/** {@inheritDoc} */
 	@Override
 	public List<StatementCoverageTestFitness> getCoverageGoals() {
-
-		if (!called)
-			computeGoals();
-
-		return goals;
-	}
-
-	private static void computeGoals() {
-
-		if (called)
-			return;
 		long start = System.currentTimeMillis();
 		String targetClass = Properties.TARGET_CLASS;
+
+		List<StatementCoverageTestFitness> goals = new ArrayList<StatementCoverageTestFitness>();
 
 		final MethodNameMatcher matcher = new MethodNameMatcher();
 		
@@ -67,30 +55,17 @@ public class StatementCoverageFactory extends
 				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className,
 				                                                                                                                             methodName))
 					if (isUsable(ins))
-						goals.add(new StatementCoverageTestFitness(ins));
+						goals.add(new StatementCoverageTestFitness(ins.getClassName(), ins.getMethodName(), ins.getInstructionId()));
 			}
 		}
 		long end = System.currentTimeMillis();
 		goalComputationTime = end - start;
-		called = true;
+
+		return goals;
 	}
 
 	private static boolean isUsable(BytecodeInstruction ins) {
 
 		return !ins.isLabel() && !ins.isLineNumber();
-	}
-
-	/**
-	 * <p>
-	 * retrieveCoverageGoals
-	 * </p>
-	 * 
-	 * @return a {@link java.util.List} object.
-	 */
-	public static List<StatementCoverageTestFitness> retrieveCoverageGoals() {
-		if (!called)
-			computeGoals();
-
-		return goals;
 	}
 }

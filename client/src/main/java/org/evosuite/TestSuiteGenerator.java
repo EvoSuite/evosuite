@@ -235,6 +235,12 @@ public class TestSuiteGenerator {
 
 		TestSuiteChromosome testCases = generateTests();
 
+		// As post process phases such as minimisation, coverage analysis, etc., may call getFitness()
+		// of each fitness function, which may try to update the Archive, in here we explicitly disable
+		// Archive to avoid any problem and at the same time to improve the performance of post process
+		// phases (as no CPU cycles would be wasted updating the Archive).
+		Properties.TEST_ARCHIVE = false;
+
 		postProcessTests(testCases);
 		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());

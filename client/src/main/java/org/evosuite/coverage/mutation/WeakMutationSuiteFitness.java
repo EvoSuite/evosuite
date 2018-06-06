@@ -46,6 +46,10 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -1812256816400338180L;
 
+	public WeakMutationSuiteFitness() {
+		super(Properties.Criterion.WEAKMUTATION);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
@@ -71,7 +75,11 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		 * Note: results are cached, so the test suite is not executed again when we
 		 * calculated the branch fitness
 		 */
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		double fitness = branchFitness.getFitness(individual);
+		Properties.TEST_ARCHIVE =  archive;
+
 		Map<Integer, Double> mutant_distance = new LinkedHashMap<Integer, Double>();
 		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
 

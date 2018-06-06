@@ -20,7 +20,7 @@
 package org.evosuite.coverage.dataflow;
 
 import java.util.Map;
-
+import org.evosuite.Properties;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -57,7 +57,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	public AllDefsCoverageTestFitness(Definition def,
 	        Map<Use, DefUseCoverageTestFitness> uses) {
 		this.targetDef = def;
-		this.goalDefinitionFitness = new StatementCoverageTestFitness(def);
+		this.goalDefinitionFitness = new StatementCoverageTestFitness(def.getClassName(), def.getMethodName(), def.getInstructionId());
 		this.uses = uses;
 	}
 
@@ -65,7 +65,13 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		double defFitness = goalDefinitionFitness.getFitness(individual, result);
+		if (defFitness == 0.0) {
+		  individual.getTestCase().removeCoveredGoal(goalDefinitionFitness);
+		}
+		Properties.TEST_ARCHIVE = archive;
 
 		if (defFitness > 0)
 			return 1 + normalize(defFitness);

@@ -86,10 +86,6 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					innermap.put(goal.getContext(), tempInSet = new LinkedHashSet<>());
 				}
 				tempInSet.add(goal);
-
-				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().addTarget(goal);
-				}
 			} else {
 				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
 				Map<CallContext, IBranchTestFitness> innermap = methodsMap.get(methodName);
@@ -97,6 +93,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					methodsMap.put(methodName, innermap = new LinkedHashMap<>());
 				}
 				innermap.put(goal.getContext(), goal);
+			}
+			if (Properties.TEST_ARCHIVE) {
+				Archive.getArchiveInstance().addTarget(goal);
 			}
 			logger.info("Context goal: " + goal.toString());
 		}
