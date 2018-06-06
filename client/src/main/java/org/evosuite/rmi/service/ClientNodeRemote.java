@@ -54,5 +54,5 @@ public interface ClientNodeRemote extends Remote {
 
 	public void printClassStatistics() throws RemoteException;
 	
-	public void immigrate(Set<Chromosome> migrants) throws RemoteException;
+	public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException;
 }

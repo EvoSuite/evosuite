@@ -57,5 +57,5 @@ public interface MasterNodeRemote extends Remote {
 
 	public void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value) throws RemoteException, IllegalArgumentException, IllegalAccessException, NoSuchParameterException;
 	
-	public void evosuite_migrate(String clientRmiIdentifier, Set<Chromosome> migrants) throws RemoteException;
+	public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants) throws RemoteException;
 }
