@@ -81,7 +81,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		algorithm.addFitnessFunctions((List)fitnessFunctions);
 
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
-		algorithm.addListener(progressMonitor); // FIXME progressMonitor may cause
+		// algorithm.addListener(progressMonitor); // FIXME progressMonitor may cause
 		// client hang if EvoSuite is
 		// executed with -prefix!
 		
@@ -91,7 +91,9 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("* Total number of test goals for LIPS: {}", fitnessFunctions.size());
 		else if (Properties.ALGORITHM == Properties.Algorithm.MOSA)
 			LoggingUtils.getEvoLogger().info("* Total number of test goals for MOSA: {}", fitnessFunctions.size());
-		
+		else if (Properties.ALGORITHM == Properties.Algorithm.PAES)
+			LoggingUtils.getEvoLogger().info("* Total number of test goals for PAES: {}", fitnessFunctions.size());
+
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
 //		if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
