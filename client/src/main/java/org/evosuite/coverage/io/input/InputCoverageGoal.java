@@ -227,18 +227,14 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     argValueDesc = (((boolean) argValue)) ? BOOL_TRUE : BOOL_FALSE;
                     break;
                 case Type.CHAR:
-                    if (argValue == null){
-                        argValueDesc = REF_NULL;
-                    } else {
-                        char c = (char) argValue;
-                        numberValue = (int) c; // Suite fitness uses the numeric representation to estimate distances
-                        if (Character.isAlphabetic(c))
-                            argValueDesc = CHAR_ALPHA;
-                        else if (Character.isDigit(c))
-                            argValueDesc = CHAR_DIGIT;
-                        else
-                            argValueDesc = CHAR_OTHER;
-                    }
+                    char c = (char) argValue;
+                    numberValue = (int)c; // Suite fitness uses the numeric representation to estimate distances
+                    if (Character.isAlphabetic(c))
+                        argValueDesc = CHAR_ALPHA;
+                    else if (Character.isDigit(c))
+                        argValueDesc = CHAR_DIGIT;
+                    else
+                        argValueDesc = CHAR_OTHER;
                     break;
                 case Type.BYTE:
                 case Type.SHORT:
@@ -249,17 +245,13 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     // assert (argValue instanceof Number); // not always true: char can be assigned to integers
                     double value;
 
-                    if (argValue == null){
-                        argValueDesc = REF_NULL;
+                    if (argValue instanceof Character) {
+                        value = ((Number) ((int) (char) argValue)).doubleValue();
                     } else {
-                        if (argValue instanceof Character) {
-                            value = ((Number) ((int) (char) argValue)).doubleValue();
-                        } else {
-                            value = ((Number) argValue).doubleValue();
-                        }
-                        numberValue = value;
-                        argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
+                        value = ((Number) argValue).doubleValue();
                     }
+                    numberValue = value;
+                    argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
                     break;
                 case Type.ARRAY:
                     argValueDesc = (Array.getLength(argValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
