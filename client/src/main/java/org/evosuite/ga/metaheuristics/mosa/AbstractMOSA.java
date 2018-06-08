@@ -535,7 +535,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         return (T) best;
     }
 
-    private void computeCoverageAndFitness(TestSuiteChromosome suite) {
+    protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
       for (Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
           .entrySet()) {
         TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
