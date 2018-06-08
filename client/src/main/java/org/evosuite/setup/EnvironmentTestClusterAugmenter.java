@@ -20,6 +20,7 @@
 package org.evosuite.setup;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.*;
 import org.evosuite.runtime.System;
 import org.evosuite.runtime.annotation.*;
@@ -71,7 +72,7 @@ public class EnvironmentTestClusterAugmenter {
 	private volatile boolean hasAddedTcpRemoteSupport;
 
 	private final TestCluster cluster;
-	private final TestClusterGenerator testClusterGenerator;
+	private TestClusterGenerator testClusterGenerator;
 
 	/**
 	 * Keep track of all EvoSuite classes that have been already fully handled
@@ -81,7 +82,8 @@ public class EnvironmentTestClusterAugmenter {
 
 	public EnvironmentTestClusterAugmenter(TestCluster cluster) {
 		this.cluster = cluster;
-		testClusterGenerator = new TestClusterGenerator(cluster.getInheritanceTree());
+		testClusterGenerator = TestGenerationContext.getInstance().getTestClusterGenerator();
+		// testClusterGenerator = new TestClusterGenerator(cluster.getInheritanceTree());
 		this.handledClasses = new LinkedHashSet<>();
 	}
 
@@ -100,6 +102,13 @@ public class EnvironmentTestClusterAugmenter {
 	 * @see org.evosuite.runtime.System
 	 */
 	public void handleRuntimeAccesses(TestCase test) {
+
+	    if(testClusterGenerator == null) {
+			testClusterGenerator = TestGenerationContext.getInstance().getTestClusterGenerator();
+			// Initialisation might not be ready yet
+			if(testClusterGenerator == null)
+				return;
+		}
 
 		// important, as test might have been changed since last update (eg
 		// mutation)

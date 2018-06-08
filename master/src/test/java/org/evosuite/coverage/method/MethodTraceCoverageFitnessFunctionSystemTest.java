@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.Compositional;
-import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.instrumentation.testability.FlagExample3;
 import com.examples.with.different.packagename.SingleMethod;
 
 /**

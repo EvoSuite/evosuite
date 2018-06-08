@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -32,7 +33,7 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 
 /**
- * Fitness function for a single test on a single method (no exception)
+ * Fitness function for a single test on a single method (including calls that throw exceptions)
  *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
@@ -113,13 +114,23 @@ public class MethodCoverageTestFitness extends TestFitnessFunction {
                 }
             }
         }
+
         updateIndividual(this, individual, fitness);
+
+        if (fitness == 0.0) {
+            individual.getTestCase().addCoveredGoal(this);
+        }
+
+        if (Properties.TEST_ARCHIVE) {
+            Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+        }
+
         return fitness;
     }
 
     private boolean isValidPosition(List<Integer> exceptionPositions, Integer position) {
         if (Properties.BREAK_ON_EXCEPTION) {
-            return exceptionPositions.isEmpty() ? true : position > exceptionPositions.get(0);
+            return exceptionPositions.isEmpty() ? true : position <= exceptionPositions.get(0);
         } else {
             return true;
         }

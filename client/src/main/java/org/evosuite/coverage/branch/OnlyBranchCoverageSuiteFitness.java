@@ -29,6 +29,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -80,7 +81,14 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
 		}
-		totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForPrefix(prefix);
+
+		if (Properties.TARGET_METHOD.isEmpty()) {
+		  totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
+		    getBranchCountForPrefix(prefix);
+		} else {
+		  totalBranches = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
+	            getBranchCountForMethod(prefix, Properties.TARGET_METHOD);
+		}
 		branchesId = new LinkedHashSet<>();
 
 		totalGoals = 2 * totalBranches;
@@ -130,7 +138,12 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				hasTimeoutOrTestException = true;
 				continue;
 			}
-			
+
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
+
 			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
 				if (!branchesId.contains(entry.getKey())
 						|| (removedBranchesT.contains(entry.getKey())
@@ -155,11 +168,11 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 				OnlyBranchCoverageTestFitness goal = (OnlyBranchCoverageTestFitness) branchCoverageTrueMap.get(entry.getKey());
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
-					result.test.addCoveredGoal(goal);
+					test.getTestCase().addCoveredGoal(goal);
 					toRemoveBranchesT.add(entry.getKey());
 				}
 				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
+					Archive.getArchiveInstance().updateArchive(goal, test, entry.getValue());
 				}
 			}
 			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
@@ -173,11 +186,11 @@ public class OnlyBranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 				OnlyBranchCoverageTestFitness goal = (OnlyBranchCoverageTestFitness) branchCoverageFalseMap.get(entry.getKey());
 				if ((Double.compare(entry.getValue(), 0.0) ==0)) {
-					result.test.addCoveredGoal(goal);
+					test.getTestCase().addCoveredGoal(goal);
 					toRemoveBranchesF.add(entry.getKey());
 				}
 				if(Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, entry.getValue());
+					Archive.getArchiveInstance().updateArchive(goal, test, entry.getValue());
 				}
 			}
 		}

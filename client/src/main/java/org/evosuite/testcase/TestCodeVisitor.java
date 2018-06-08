@@ -200,7 +200,7 @@ public class TestCodeVisitor extends TestVisitor {
 					if (i != 0)
 						name += ", ";
 
-					name += getTypeName(types[i]);
+					name += getTypeParameterName(types[i]);
 				}
 				name += ">";
 			}
@@ -209,6 +209,31 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	public String getTypeName(Type type) {
+		if (type instanceof Class<?>) {
+			return getClassName((Class<?>) type);
+		} else if (type instanceof ParameterizedType) {
+			return getTypeName((ParameterizedType) type);
+		} else if (type instanceof WildcardType) {
+			String ret = "Object";
+			return ret;
+		} else if (type instanceof TypeVariable) {
+			return "Object";
+		} else if (type instanceof CaptureType) {
+			CaptureType captureType = (CaptureType) type;
+			if (captureType.getLowerBounds().length == 0)
+				return "Object";
+			else
+				return getTypeName(captureType.getLowerBounds()[0]);
+		} else if (type instanceof GenericArrayType) {
+			return getTypeName(((GenericArrayType) type).getGenericComponentType())
+			        + "[]";
+		} else {
+			throw new RuntimeException("Unsupported type:" + type + ", class"
+			        + type.getClass());
+		}
+	}
+
+	public String getTypeParameterName(Type type) {
 		if (type instanceof Class<?>) {
 			return getClassName((Class<?>) type);
 		} else if (type instanceof ParameterizedType) {
@@ -223,17 +248,17 @@ public class TestCodeVisitor extends TestVisitor {
 
 				if (!first)
 					ret += ", ";
-				ret += " super " + getTypeName(bound);
+				ret += " super " + getTypeParameterName(bound);
 				first = false;
 			}
 			for (Type bound : ((WildcardType) type).getUpperBounds()) {
 				if (bound == null
-				        || (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
+						|| (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
 					continue;
 
 				if (!first)
 					ret += ", ";
-				ret += " extends " + getTypeName(bound);
+				ret += " extends " + getTypeParameterName(bound);
 				first = false;
 			}
 			return ret;
@@ -247,10 +272,10 @@ public class TestCodeVisitor extends TestVisitor {
 				return getTypeName(captureType.getLowerBounds()[0]);
 		} else if (type instanceof GenericArrayType) {
 			return getTypeName(((GenericArrayType) type).getGenericComponentType())
-			        + "[]";
+					+ "[]";
 		} else {
 			throw new RuntimeException("Unsupported type:" + type + ", class"
-			        + type.getClass());
+					+ type.getClass());
 		}
 	}
 
@@ -304,11 +329,11 @@ public class TestCodeVisitor extends TestVisitor {
         Class<?> outerClass = clazz.getEnclosingClass();
         if(outerClass != null) {
             String enclosingName = getClassName(outerClass);
-            String simpleOuterName = outerClass.getSimpleName();
+            String simpleOuterName = outerClass.getSimpleName() + ".";
             if(simpleOuterName.equals(enclosingName)) {
                 name = enclosingName + name.substring(simpleOuterName.length());
             } else {
-                name = enclosingName + name.substring(name.lastIndexOf(simpleOuterName) + simpleOuterName.length());
+                name = enclosingName + name.substring(name.lastIndexOf(simpleOuterName) + simpleOuterName.length() - 1);
             }
         }
 
@@ -349,7 +374,18 @@ public class TestCodeVisitor extends TestVisitor {
 			GenericField field = ((FieldReference) var).getField();
 			if (source != null) {
 				String ret = "";
-				if(!source.isAssignableTo(field.getField().getDeclaringClass())) {
+				// If the method is not public and this is a subclass in a different package we need to cast
+				if(!field.isPublic() && !field.getDeclaringClass().equals(source.getVariableClass()) && source.isAssignableTo(field.getDeclaringClass())) {
+					String packageName1 = ClassUtils.getPackageName(field.getDeclaringClass());
+					String packageName2 = ClassUtils.getPackageName(source.getVariableClass());
+					if(!packageName1.equals(packageName2)) {
+						ret += "((" + getClassName(field.getDeclaringClass())
+								+ ")" + getVariableName(source) + ")";
+					} else {
+						ret += getVariableName(source);
+					}
+				}
+				else if(!source.isAssignableTo(field.getField().getDeclaringClass())) {
 					try {
 						// If the concrete source class has that field then it's ok
 						source.getVariableClass().getDeclaredField(field.getName());
@@ -1418,11 +1454,23 @@ public class TestCodeVisitor extends TestVisitor {
 			callee_str += getClassName(method.getMethod().getDeclaringClass());
 		} else {
 			VariableReference callee = statement.getCallee();
+
 			if (callee instanceof ConstantValue) {
 				callee_str += "((" + getClassName(method.getMethod().getDeclaringClass())
 				        + ")" + getVariableName(callee) + ")";
 			} else {
-				if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
+				// If the method is not public and this is a subclass in a different package we need to cast
+				if(!method.isPublic() && !method.getDeclaringClass().equals(callee.getVariableClass()) && callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
+					String packageName1 = ClassUtils.getPackageName(method.getDeclaringClass());
+					String packageName2 = ClassUtils.getPackageName(callee.getVariableClass());
+					if(!packageName1.equals(packageName2)) {
+						callee_str += "((" + getClassName(method.getMethod().getDeclaringClass())
+								+ ")" + getVariableName(callee) + ")";
+					} else {
+						callee_str += getVariableName(callee);
+					}
+				}
+				else if(!callee.isAssignableTo(method.getMethod().getDeclaringClass())) {
 					try {
 						// If the concrete callee class has that method then it's ok
 						callee.getVariableClass().getDeclaredMethod(method.getName(), method.getRawParameterTypes());
@@ -1564,9 +1612,11 @@ public class TestCodeVisitor extends TestVisitor {
                 !sourceClass.startsWith(RegExp.class.getPackage().getName()) &&
                 !sourceClass.startsWith("java.lang.System") &&
                 !sourceClass.startsWith("java.lang.String") &&
+				!sourceClass.startsWith("java.lang.Class") &&
                 !sourceClass.startsWith("sun.") &&
                 !sourceClass.startsWith("com.sun.") &&
-                !sourceClass.startsWith("jdk.internal.");
+                !sourceClass.startsWith("jdk.internal.") &&
+				!sourceClass.startsWith("<evosuite>");
 	}
 
 	private List<Class<?>> invalidExceptions = Arrays.asList(new Class<?>[] {

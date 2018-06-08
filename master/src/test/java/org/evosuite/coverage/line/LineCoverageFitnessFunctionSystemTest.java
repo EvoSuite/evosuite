@@ -38,7 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.ClassWithAnonymousClass;
-import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.instrumentation.testability.FlagExample3;
 import com.examples.with.different.packagename.IntExample;
 import com.examples.with.different.packagename.SingleMethod;
 import com.examples.with.different.packagename.coverage.IntExampleWithNoElse;

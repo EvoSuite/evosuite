@@ -33,6 +33,7 @@ import org.evosuite.instrumentation.testability.ComparisonTransformation;
 import org.evosuite.instrumentation.testability.ContainerTransformation;
 import org.evosuite.instrumentation.testability.StringTransformation;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
+import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.*;
 import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
@@ -43,6 +44,7 @@ import org.evosuite.runtime.util.ComputeClassWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.commons.SerialVersionUIDAdder;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
@@ -234,6 +236,16 @@ public class BytecodeInstrumentation {
 		// Mock instrumentation (eg File and TCP).
 		if (TestSuiteWriterUtils.needToUseAgent()) {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
+
+			/*
+			 * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
+			 * will change the serialVersionUID if it is not defined in the class.
+			 * Hence, if it is not defined, we have to define it to
+			 * avoid problems in serialising the class, as reading Master will not do instrumentation.
+			 * The serialVersionUID HAS to be the same as the un-instrumented class
+			 */
+			if(RuntimeSettings.applyUIDTransformation)
+				cv = new SerialVersionUIDAdder(cv);
 		}
 
 		// Testability Transformations

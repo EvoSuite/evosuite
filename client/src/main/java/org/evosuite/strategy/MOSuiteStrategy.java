@@ -20,7 +20,6 @@
 package org.evosuite.strategy;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.ChromosomeFactory;
@@ -52,6 +51,11 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 	@Override	
 	public TestSuiteChromosome generateTests() {
+		// Currently only LIPS uses its own Archive
+		if (Properties.ALGORITHM == Properties.Algorithm.LIPS) {
+			Properties.TEST_ARCHIVE = false;
+		}
+
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 
@@ -81,11 +85,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// executed with -prefix!
 		
 //		List<TestFitnessFunction> goals = getGoals(true);
-		
-		if (Properties.ALGORITHM == Properties.Algorithm.LIPS)
-			LoggingUtils.getEvoLogger().info("* Total number of test goals for LIPS: {}", fitnessFunctions.size());
-		else if (Properties.ALGORITHM == Properties.Algorithm.MOSA)
-			LoggingUtils.getEvoLogger().info("* Total number of test goals for MOSA: {}", fitnessFunctions.size());
+		LoggingUtils.getEvoLogger().info("* Total number of test goals for {}: {}", Properties.ALGORITHM.name(), fitnessFunctions.size());
 		
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
@@ -111,12 +111,10 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			algorithm.generateSolution();
-			List<TestSuiteChromosome> bestSuites = (List<TestSuiteChromosome>) algorithm.getBestIndividuals();
-			if (bestSuites.isEmpty()) {
-				LoggingUtils.getEvoLogger().warn("Could not find any suitable chromosome");
-				return new TestSuiteChromosome();
-			}else{
-				testSuite = bestSuites.get(0);
+
+			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
+			if (testSuite.getTestChromosomes().isEmpty()) {
+				LoggingUtils.getEvoLogger().warn("Could not generate any test case");
 			}
 		} else {
 			zeroFitness.setFinished();

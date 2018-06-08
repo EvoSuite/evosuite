@@ -53,6 +53,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 					"underflowDistance", "(III)I", false);
 
 			insertBranchWithoutException(Opcodes.IFGT);
+			// TODO: No break is intentional?
 
 		case Opcodes.IDIV:
 			mv.visitInsn(Opcodes.DUP2);

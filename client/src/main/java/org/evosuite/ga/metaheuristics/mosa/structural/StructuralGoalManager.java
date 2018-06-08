@@ -130,4 +130,12 @@ public abstract class StructuralGoalManager<T extends Chromosome> {
 		return this.archive.keySet();
 	}
 
+	public int getNumberOfCoveredTargets(Class<?> targetClass) {
+		return (int) this.coveredGoals.keySet().stream().filter(target -> target.getClass() == targetClass).count();
+	}
+
+	public int getNumberOfUncoveredTargets(Class<?> targetClass) {
+		return (int) this.uncoveredGoals.stream().filter(target -> target.getClass() == targetClass).count();
+	}
+
 }

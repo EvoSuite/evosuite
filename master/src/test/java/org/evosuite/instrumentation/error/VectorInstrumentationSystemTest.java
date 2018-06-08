@@ -21,59 +21,37 @@ package org.evosuite.instrumentation.error;
 
 import com.examples.with.different.packagename.errorbranch.VectorAccess;
 import com.examples.with.different.packagename.errorbranch.VectorAccessIndex;
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
-public class VectorInstrumentationSystemTest extends SystemTestBase {
+public class VectorInstrumentationSystemTest extends AbstractErrorBranchTest {
+
+	@Test
+	public void testVectorWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.VECTOR};
+		checkErrorBranches(VectorAccess.class, 3, 0, 3, 0);
+	}
 
 	@Test
 	public void testVectorWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = VectorAccess.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.VECTOR};
+		checkErrorBranches(VectorAccess.class, 3, 2, 3, 2);
+	}
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(5, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	@Test
+	public void testVectorIndexWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+		checkErrorBranches(VectorAccessIndex.class, 3, 0, 3, 0);
 	}
 
 	@Test
 	public void testVectorIndexWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = VectorAccessIndex.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(6, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+		checkErrorBranches(VectorAccessIndex.class, 3, 4, 3, 4);
 	}
 }

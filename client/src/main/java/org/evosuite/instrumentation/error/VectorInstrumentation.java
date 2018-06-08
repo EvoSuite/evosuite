@@ -34,7 +34,7 @@ public class VectorInstrumentation extends ErrorBranchInstrumenter {
 	
 	private final List<String> emptyListMethods = Arrays.asList(new String[] {"firstElement", "lastElement"});
 
-	private final List<String> indexListMethods = Arrays.asList(new String[] {"get", "set", "add", "remove", "elementAt", "removeElementAt", "addAll"});
+	private final List<String> indexListMethods = Arrays.asList(new String[] {"elementAt", "removeElementAt"});
 	
 	// Missing:
 	// indexOf, lastIndexOf, removeRange, insertElementAt, setElementAt, subList 

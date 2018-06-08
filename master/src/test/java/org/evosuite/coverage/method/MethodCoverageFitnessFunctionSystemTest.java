@@ -23,23 +23,23 @@ import com.examples.with.different.packagename.ClassWithInnerClass;
 import com.examples.with.different.packagename.Compositional;
 
 import com.examples.with.different.packagename.contracts.EqualsHashCode;
+import com.examples.with.different.packagename.exception.ConstructorWithException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.instrumentation.testability.FlagExample3;
 import com.examples.with.different.packagename.SingleMethod;
-
-import java.util.List;
 
 /**
  * @author Jose Miguel Rojas
@@ -188,5 +188,28 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Assert.assertEquals(4, goals);
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testConstructorWithException() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ConstructorWithException.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] {"-generateSuite", "-class", targetClass};
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		assertFalse("Test suite must have at least one test case, however it is empty", best.getTests().isEmpty());
+
+		assertEquals("Test suite must have covered the only existing goal (constructor of the class under test)", 1,
+		    best.getNumOfCoveredGoals());
+		assertEquals("Test suite must have covered the only existing goal (constructor of the class under test)", 1,
+		    best.getCoverage(), 0.0);
+		assertEquals("Test suite must have covered the only existing goal (constructor of the class under test)", 0.0,
+		    best.getFitness(), 0.0);
 	}
 }

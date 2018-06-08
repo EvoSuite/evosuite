@@ -163,6 +163,7 @@ public class RandomInsertion implements InsertionStrategy {
 
 			if (!(var instanceof NullReference) &&
 					!var.isVoid() &&
+					!var.getGenericClass().isObject() &&
 					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
 					!var.isPrimitive() &&
 					(test.hasReferences(var) || var.getVariableClass().equals(Properties.getInitializedTargetClass()))&&

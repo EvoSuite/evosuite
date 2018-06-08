@@ -240,8 +240,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalDefinition = def;
 		this.goalUse = use;
 		this.goalVariable = def.getVariableName();
-		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition);
-		this.goalUseFitness = new StatementCoverageTestFitness(goalUse);
+		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition.getClassName(), goalDefinition.getMethodName(), goalDefinition.getInstructionId());
+		this.goalUseFitness = new StatementCoverageTestFitness(goalUse.getClassName(), goalUse.getMethodName(), goalUse.getInstructionId());
 
 		this.type = type;
 	}
@@ -251,7 +251,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		goalDefinition = null;
 		goalDefinitionFitness = null;
 		goalUse = use;
-		goalUseFitness = new StatementCoverageTestFitness(goalUse);
+		goalUseFitness = new StatementCoverageTestFitness(goalUse.getClassName(), goalUse.getMethodName(), goalUse.getInstructionId());
 
 		this.type = DefUsePairType.PARAMETER;
 	}
@@ -273,7 +273,14 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		DefUseFitnessCalculator calculator = new DefUseFitnessCalculator(this,
 		        individual, result);
 
+		// Deactivate coverage archive while measuring fitness, as auxiliar fitness functions
+		// could attempt to claim coverage for it in the archive
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
+
 		double fitness = calculator.calculateDUFitness();
+
+		Properties.TEST_ARCHIVE = archive;
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) && fitness == 0.0)
 			setCovered(individual, result.getTrace(), -1); // TODO objectId wrong

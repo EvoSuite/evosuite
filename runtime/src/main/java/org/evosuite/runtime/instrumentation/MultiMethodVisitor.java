@@ -22,11 +22,7 @@ package org.evosuite.runtime.instrumentation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 
 /**
  * MethodVisitor that acts as a proxy to two other visitors
@@ -263,6 +259,13 @@ public class MultiMethodVisitor extends MethodVisitor {
 	public void visitMultiANewArrayInsn(String arg0, int arg1) {
 		mv1.visitMultiANewArrayInsn(arg0, arg1);
 		mv2.visitMultiANewArrayInsn(arg0, arg1);
+	}
+
+
+	@Override
+	public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+		mv1.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+		mv2.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
 	}
 
 	/* (non-Javadoc)

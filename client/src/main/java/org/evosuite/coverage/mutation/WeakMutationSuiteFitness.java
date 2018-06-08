@@ -46,6 +46,10 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -1812256816400338180L;
 
+	public WeakMutationSuiteFitness() {
+		super(Properties.Criterion.WEAKMUTATION);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
@@ -71,7 +75,11 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		 * Note: results are cached, so the test suite is not executed again when we
 		 * calculated the branch fitness
 		 */
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		double fitness = branchFitness.getFitness(individual);
+		Properties.TEST_ARCHIVE =  archive;
+
 		Map<Integer, Double> mutant_distance = new LinkedHashMap<Integer, Double>();
 		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
 
@@ -79,8 +87,9 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 			// Using private reflection can lead to false positives
 			// that represent unrealistic behaviour. Thus, we only
 			// use reflection for basic criteria, not for mutation
-			if(result.calledReflection())
+			if (result.hasTimeout() || result.hasTestException() || result.calledReflection()) {
 				continue;
+			}
 
 			touchedMutants.addAll(result.getTrace().getTouchedMutants());
 
@@ -89,6 +98,11 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 			  // if 'result' does not touch any mutant, no need to continue
 			  continue;
 			}
+
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
 			while (it.hasNext()) {
@@ -100,25 +114,23 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 				double fit = 0.0;
 				if (touchedMutantsDistances.containsKey(mutantID)) {
 					fit = touchedMutantsDistances.get(mutantID);
+
+					if (!mutant_distance.containsKey(mutantID)) {
+						mutant_distance.put(mutantID, fit);
+					} else {
+						mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
+					}
 				} else {
-					TestChromosome tc = new TestChromosome();
-					tc.setTestCase(result.test);
-					fit = goal.getFitness(tc, result);
+					fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 				}
 
 				if (fit == 0.0) {
-					result.test.addCoveredGoal(goal); // update list of covered goals
+					test.getTestCase().addCoveredGoal(goal); // update list of covered goals
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				}
 
 				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, fit);
-				}
-
-				if (!mutant_distance.containsKey(mutantID)) {
-					mutant_distance.put(mutantID, fit);
-				} else {
-					mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
+					Archive.getArchiveInstance().updateArchive(goal, test, fit);
 				}
 			}
 		}

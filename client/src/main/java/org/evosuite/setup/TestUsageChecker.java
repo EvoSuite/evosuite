@@ -22,6 +22,7 @@ package org.evosuite.setup;
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.annotations.EvoSuiteTest;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
@@ -189,6 +190,11 @@ public class TestUsageChecker {
             return false;
         }
 
+        // Don't use Lambdas...for now
+        if(c.getName().contains("$$Lambda")) {
+            return false;
+        }
+
         // TODO: This should be unnecessary if Java reflection works...
         // This is inefficient
         if(TestClusterUtils.isAnonymousClass(c.getName())) {
@@ -255,6 +261,10 @@ public class TestUsageChecker {
             return false;
         }
 
+        if(f.getName().equals("serialVersionUID")) {
+            return false;
+        }
+
         if (Modifier.isPublic(f.getModifiers())) {
             // It may still be the case that the field is defined in a non-visible superclass of the class
             // we already know we can use. In that case, the compiler would be fine with accessing the
@@ -286,6 +296,13 @@ public class TestUsageChecker {
     }
 
     public static boolean canUse(Method m, Class<?> ownerClass) {
+
+        final MethodNameMatcher matcher = new MethodNameMatcher();
+        String methodSignature = m.getName() + Type.getMethodDescriptor(m);
+        if (!matcher.methodMatches(methodSignature)) {
+            logger.debug("Excluding method '" + methodSignature + "' that does not match criteria");
+            return false;
+        }
 
         if (m.isBridge()) {
             logger.debug("Excluding bridge method: " + m.toString());

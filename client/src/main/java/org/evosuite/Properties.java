@@ -300,7 +300,16 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, DYNAMOSA, LIPS, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA, MIO, STANDARDCHEMICALREACTION
+		// random
+		RANDOM_SEARCH,
+		// GAs
+		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION,
+		// mu-lambda
+		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
+		// many-objective algorithms
+		MOSA, DYNAMOSA, LIPS, MIO,
+		// multiple-objective optimisation algorithms
+		NSGAII, SPEA2
 	}
 
 	// MOSA PROPERTIES
@@ -314,7 +323,7 @@ public class Properties {
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
+	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -613,7 +622,7 @@ public class Properties {
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
 
 	public enum SelectionFunction {
-		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT
+		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
@@ -1282,6 +1291,13 @@ public class Properties {
 
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
 	public static boolean ERROR_BRANCHES = false;
+
+	public enum ErrorInstrumentation {
+		ARRAY, CAST, DEQUE, DIVISIONBYZERO, LINKEDHASHSET, NPE, OVERFLOW, QUEUE, STACK, VECTOR, LIST
+	}
+
+	@Parameter(key = "error_instrumentation", description = "Which instrumentation to use for error checks")
+	public static ErrorInstrumentation[] ERROR_INSTRUMENTATION = new ErrorInstrumentation[] {ErrorInstrumentation.ARRAY, ErrorInstrumentation.CAST, ErrorInstrumentation.DEQUE, ErrorInstrumentation.DIVISIONBYZERO, ErrorInstrumentation.LINKEDHASHSET, ErrorInstrumentation.NPE, ErrorInstrumentation.OVERFLOW, ErrorInstrumentation.QUEUE, ErrorInstrumentation.STACK, ErrorInstrumentation.VECTOR};
 
 	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
 	public static boolean ENABLE_ASSERTS_FOR_EVOSUITE = false;

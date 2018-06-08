@@ -1,19 +1,50 @@
-machine:
-  java:
-    version: oraclejdk8
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk
 
-dependencies:
-  override:
-    - mvn clean
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
     
-test:
-  override:
-    - mvn dependency:resolve -DskipITs  install
-  post:
-    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-    - find . -type f -regex ".*/generated/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-    - /bin/rm -rf $CIRCLE_ARTIFACTS/artifacts/
-    - mkdir -p $CIRCLE_ARTIFACTS/artifacts/
-    - find . -type f -regex ".*/runtime/target/.*jar" -exec cp {} $CIRCLE_ARTIFACTS/artifacts/ \;
-    - find . -type f -regex ".*/standalone_runtime/target/.*jar" -exec cp {} $CIRCLE_ARTIFACTS/artifacts/ \;
-    - find . -type f -regex ".*/master/target/.*jar" -exec cp {} $CIRCLE_ARTIFACTS/artifacts/ \;
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v2-dependencies-{{ checksum "pom.xml" }}
+          # fallback to using the latest cache if no exact match is found
+          - v2-dependencies-
+        
+      # build and run tests (non-integration tests)
+      - run: mvn clean
+      - run: mvn dependency:resolve -DskipITs package
+
+      - save_cache:
+          when: always
+          paths:
+            - ~/.m2
+          key: v2-dependencies-{{ checksum "pom.xml" }}
+
+      - run:
+          name: pull test reports and artifacts together
+          when: always
+          command: |
+            mkdir -p test-reports
+            find . -type f -regex ".*/surefire-reports/.*xml" -exec cp {} test-reports/ \;
+            mkdir -p build-artifacts
+            find . -type f -regex ".*/runtime/target/.*jar" -exec cp {} build-artifacts/ \;
+            find . -type f -regex ".*/standalone_runtime/target/.*jar" -exec cp {} build-artifacts/ \;
+            find . -type f -regex ".*/master/target/.*jar" -exec cp {} build-artifacts/ \;
+
+      - store_test_results:
+          path: test-reports
+      
+      - store_artifacts:
+          path: build-artifacts
+          destination: artifacts

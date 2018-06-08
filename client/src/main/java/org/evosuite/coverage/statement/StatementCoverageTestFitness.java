@@ -19,16 +19,14 @@
  */
 package org.evosuite.coverage.statement;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -38,12 +36,16 @@ import org.evosuite.testcase.execution.ExecutionResult;
 
 public class StatementCoverageTestFitness extends TestFitnessFunction {
 
-	private static final long serialVersionUID = 4609519536866911970L;
+	private static final long serialVersionUID = 5222436175279169394L;
+
+	/** Target statement */
+	private final String className;
+	private final String methodName;
+	private final Integer instructionID;
+
+	protected final List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
 
 	protected transient BytecodeInstruction goalInstruction;
-	protected List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
-
-	BranchCoverageTestFitness lastCoveringFitness = null;
 
 	/**
 	 * <p>
@@ -54,28 +56,58 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public StatementCoverageTestFitness(BytecodeInstruction goalInstruction) {
-		if (goalInstruction == null)
+		if (goalInstruction == null) {
 			throw new IllegalArgumentException("null given");
+		}
 
+		this.className = goalInstruction.getClassName();
+		this.methodName = goalInstruction.getMethodName();
+		this.instructionID = goalInstruction.getInstructionId();
+
+		this.setupDependencies(goalInstruction);
+	}
+
+	/**
+	 * <p>
+	 * Constructor for StatementCoverageTestFitness.
+	 * </p>
+	 * 
+	 * @param className the class name
+	 * @param methodName the method name
+	 * @param instructionID the instruction identifier
+	 */
+	public StatementCoverageTestFitness(String className, String methodName, Integer instructionID) {
+		if ((className == null) || (methodName == null) || (instructionID == null)) {
+			throw new IllegalArgumentException("className, methodName and instructionID cannot be null");
+		}
+		this.className = className;
+		this.methodName = methodName;
+		this.instructionID = instructionID;
+
+		BytecodeInstruction goalInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().
+		    getClassLoaderForSUT()).getInstruction(this.className, this.methodName, this.instructionID);
+		this.setupDependencies(goalInstruction);
+	}
+
+	private void setupDependencies(BytecodeInstruction goalInstruction) {
 		this.goalInstruction = goalInstruction;
 
 		Set<ControlDependency> cds = goalInstruction.getControlDependencies();
-
 		for (ControlDependency cd : cds) {
 			BranchCoverageTestFitness fitness = BranchCoverageFactory.createBranchCoverageTestFitness(cd);
 
-			branchFitnesses.add(fitness);
+			this.branchFitnesses.add(fitness);
 		}
 
 		if (goalInstruction.isRootBranchDependent())
-			branchFitnesses.add(BranchCoverageFactory.createRootBranchTestFitness(goalInstruction));
+			this.branchFitnesses.add(BranchCoverageFactory.createRootBranchTestFitness(goalInstruction));
 
 		if (cds.isEmpty() && !goalInstruction.isRootBranchDependent())
 			throw new IllegalStateException(
 			        "expect control dependencies to be empty only for root dependent instructions: "
 			                + toString());
 
-		if (branchFitnesses.isEmpty())
+		if (this.branchFitnesses.isEmpty())
 			throw new IllegalStateException(
 			        "an instruction is at least on the root branch of it's method");
 	}
@@ -83,8 +115,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-
-		if (branchFitnesses.isEmpty())
+		if (this.branchFitnesses.isEmpty())
             throw new IllegalStateException(
                     "expect to know at least one fitness for goalInstruction");
  
@@ -94,60 +125,54 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
         }
         
         double r = Double.MAX_VALUE;
- 
-        for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
+
+        // Deactivate coverage archive while measuring fitness, since BranchCoverage fitness
+        // evaluating will attempt to claim coverage for it in the archive
+        boolean archive = Properties.TEST_ARCHIVE;
+        Properties.TEST_ARCHIVE = false;
+
+        // Find minimum distance to satisfying any of the control dependencies
+        for (BranchCoverageTestFitness branchFitness : this.branchFitnesses) {
             double newFitness = branchFitness.getFitness(individual, result);
             if (newFitness == 0.0) {
-                lastCoveringFitness = branchFitness;
-                return 0.0;
+                r = 0.0;
+                // Although the BranchCoverage goal has been covered, it is not part of the
+                // optimisation
+                individual.getTestCase().removeCoveredGoal(branchFitness);
+                break;
             }
             if (newFitness < r)
                 r = newFitness;
         }
- 
-        lastCoveringFitness = null;
- 
-        updateIndividual(this, individual, r);
-        
-        return r;
-	}
 
-	/**
-	 * <p>
-	 * Getter for the field <code>lastCoveringFitness</code>.
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-	public BranchCoverageTestFitness getLastCoveringFitness() {
-		return lastCoveringFitness;
+        Properties.TEST_ARCHIVE = archive;
+
+        updateIndividual(this, individual, r);
+
+        if (r == 0.0) {
+            individual.getTestCase().addCoveredGoal(this);
+        }
+
+        if (Properties.TEST_ARCHIVE) {
+            Archive.getArchiveInstance().updateArchive(this, individual, r);
+        }
+
+        return r;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return "Statement Goal: " + goalInstruction.getMethodName() + " "
-		        + goalInstruction.toString();
-	}
-
-	/**
-	 * <p>
-	 * explain
-	 * </p>
-	 * 
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String explain() {
 		StringBuilder r = new StringBuilder();
 
 		r.append("StatementCoverageTestFitness for ");
-		r.append(goalInstruction.toString());
-		r.append(" in " + goalInstruction.getMethodName());
+		r.append("\tClass: " + this.className);
+		r.append("\tMethod: " + this.methodName);
+		r.append("\tInstructionID: " + this.instructionID);
 
 		r.append("\n");
 		r.append("CDS:\n");
-		for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
+		for (BranchCoverageTestFitness branchFitness : this.branchFitnesses) {
 			r.append("\t" + branchFitness.toString());
 		}
 		return r.toString();
@@ -158,20 +183,29 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public int compareTo(TestFitnessFunction other) {
-		if (other instanceof StatementCoverageTestFitness) {
-			return goalInstruction.compareTo(((StatementCoverageTestFitness) other).goalInstruction);
+		if (other == null) {
+			return 1;
 		}
+
+		if (other instanceof StatementCoverageTestFitness) {
+			StatementCoverageTestFitness otherStatementFitness = (StatementCoverageTestFitness) other;
+			if (this.getTargetClass().compareTo(otherStatementFitness.getTargetClass()) != 0) {
+				return this.getTargetClass().compareTo(otherStatementFitness.getTargetClass());
+			} else if (this.getTargetMethod().compareTo(otherStatementFitness.getTargetMethod()) != 0) {
+				return this.getTargetMethod().compareTo(otherStatementFitness.getTargetMethod());
+			} else if (this.instructionID.compareTo(otherStatementFitness.instructionID) != 0) {
+				return this.instructionID - otherStatementFitness.instructionID;
+			}
+		}
+
 		return compareClassName(other);
 	}
 
-
-
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + goalInstruction.getInstructionId();
-		return result;
+		final int iConst = 13;
+		return 51 * iConst + this.getTargetClass().hashCode() * iConst +
+		    this.getTargetMethod().hashCode() * iConst + this.instructionID * iConst;
 	}
 
 	public List<BranchCoverageTestFitness> getBranchFitnesses() {
@@ -187,11 +221,13 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
         if (getClass() != obj.getClass())
             return false;
         StatementCoverageTestFitness other = (StatementCoverageTestFitness) obj;
-        if (this.goalInstruction == null) {
-            if (other.goalInstruction != null)
-                return false;
-        } else if (!goalInstruction.equals(other.goalInstruction))
-            return false;
+        if (this.className != other.className) {
+          return false;
+        } else if (!this.methodName.equals(other.methodName)) {
+          return false;
+        } else if (this.instructionID.intValue() != other.instructionID.intValue()) {
+          return false;
+        }
         return true;
     }
 
@@ -200,7 +236,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public String getTargetClass() {
-		return goalInstruction.getClassName();
+		return this.className;
 	}
 
 	/* (non-Javadoc)
@@ -208,26 +244,10 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public String getTargetMethod() {
-		return goalInstruction.getMethodName();
-	}
-	
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-		oos.writeObject(goalInstruction.getClassName());
-		oos.writeObject(goalInstruction.getMethodName());
-		oos.writeInt(goalInstruction.getInstructionId());
-	}
-	
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-    	IOException {
-		ois.defaultReadObject();
-		String className  = (String)ois.readObject();
-		String methodName = (String)ois.readObject();
-		int instructionId = ois.readInt();
-		BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstruction(className, methodName, instructionId);
+		return this.methodName;
 	}
 
 	public BytecodeInstruction getGoalInstruction() {
-		return goalInstruction;
+		return this.goalInstruction;
 	}
 }

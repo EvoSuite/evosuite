@@ -22,6 +22,7 @@ package org.evosuite.coverage.exception;
 import org.evosuite.Properties;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -129,8 +130,14 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			// Using private reflection can lead to false positives
 			// that represent unrealistic behaviour. Thus, we only
 			// use reflection for basic criteria, not for exception
-			if(result.calledReflection())
+			if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions() || result.calledReflection()) {
 				continue;
+			}
+
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
@@ -189,9 +196,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     String key = goal.getKey();
                     if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);
+                    	test.getTestCase().addCoveredGoal(goal);
                     	if(Properties.TEST_ARCHIVE && contextFitness != null) {
                                Archive.getArchiveInstance().addTarget(goal);
-                               Archive.getArchiveInstance().updateArchive(goal, result, 0.0);
+                               Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
                     	}
                     }
 				}

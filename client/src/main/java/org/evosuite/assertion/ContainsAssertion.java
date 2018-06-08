@@ -6,6 +6,7 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.VariableReference;
 
 import java.util.Collection;
+import java.util.Set;
 
 public class ContainsAssertion extends Assertion {
 
@@ -25,7 +26,7 @@ public class ContainsAssertion extends Assertion {
         ContainsAssertion s = new ContainsAssertion();
         s.source = source.copy(newTestCase, offset);
         s.value = value;
-        s.containedVariable = containedVariable;
+        s.containedVariable = containedVariable.copy(newTestCase, offset);
         s.comment = comment;
         return s;
     }
@@ -56,5 +57,19 @@ public class ContainsAssertion extends Assertion {
         } catch (CodeUnderTestException e) {
             throw new UnsupportedOperationException();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.evosuite.assertion.Assertion#getReferencedVariables()
+     */
+    /** {@inheritDoc} */
+    @Override
+    public Set<VariableReference> getReferencedVariables() {
+        Set<VariableReference> vars = super.getReferencedVariables();
+        vars.add(source);
+        vars.add(containedVariable);
+        return vars;
     }
 }

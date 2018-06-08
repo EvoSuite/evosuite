@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -49,6 +48,10 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -9124328839917834720L;
+
+	public StrongMutationSuiteFitness() {
+		super(Properties.Criterion.STRONGMUTATION);
+	}
 
 	/** {@inheritDoc} */
 	@Override
@@ -110,7 +113,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
 
-			if (result.hasTimeout()) {
+			if (result.hasTimeout() || result.hasTestException()) {
 				logger.debug("Skipping test with timeout");
 				double fitness = branchFitness.totalGoals * 2
 				        + branchFitness.totalMethods + 3 * this.numMutants;
@@ -124,7 +127,10 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		double fitness = branchFitness.getFitness(individual);
+		Properties.TEST_ARCHIVE = archive;
 
 		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
 		Map<Mutation, Double> minMutantFitness = new LinkedHashMap<Mutation, Double>();
@@ -178,35 +184,32 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 				mutantsChecked++;
 
-				double mutantInfectionDistance = 0.0;
+				double mutantInfectionDistance = 3.0;
+				boolean hasBeenTouched = touchedMutantsDistances.containsKey(mutantID);
 
-				if (touchedMutantsDistances.containsKey(mutantID)) {
-					mutantInfectionDistance = touchedMutantsDistances.get(mutantID);
-
-					if (mutantInfectionDistance == 0.0) {
+				if (hasBeenTouched) {
+					// Infection happened, so we need to check propagation
+					if (touchedMutantsDistances.get(mutantID) == 0.0) {
 						logger.debug("Executing test against mutant " + goal.getMutation());
-						mutantInfectionDistance = goal.getFitness(test, result);
+
+						mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
+					} else {
+						// We can skip calling the test fitness function since we already know
+						// fitness is 1.0 (for propagation) + infection distance
+						mutantInfectionDistance = 1.0 + normalize(touchedMutantsDistances.get(mutantID));
 					}
 				} else {
-					mutantInfectionDistance = goal.getFitness(test, result);
+					mutantInfectionDistance = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 				}
 
 				if (mutantInfectionDistance == 0.0) {
 					numKilled++;
 					newKilled.add(mutantID);
-
 					result.test.addCoveredGoal(goal); // update list of covered goals
 					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				} else {
-					mutantInfectionDistance = 1.0 + normalize(mutantInfectionDistance);
+					minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
 				}
-
-				if (Properties.TEST_ARCHIVE) {
-					Archive.getArchiveInstance().updateArchive(goal, result, mutantInfectionDistance);
-				}
-
-				// update minimum infection distance to this mutant
-				minMutantFitness.put(goal.getMutation(), Math.min(mutantInfectionDistance, minMutantFitness.get(goal.getMutation())));
 			}
 		}
 
@@ -214,11 +217,12 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		for (Double fit : minMutantFitness.values()) {
 			fitness += fit;
 		}
-		
+
 		logger.debug("Mutants killed: {}, Checked: {}, Goals: {})", numKilled, mutantsChecked, this.numMutants);
 		
 		updateIndividual(this, individual, fitness);
 
+		assert numKilled ==newKilled.size() + removedMutants.size();
 		assert numKilled <= this.numMutants;
 		double coverage = (double) numKilled / (double) this.numMutants;
 		assert coverage >= 0.0 && coverage <= 1.0;

@@ -63,9 +63,10 @@ public class TryCatchCoverageFactory extends AbstractFitnessFactory<TryCatchCove
                 for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
                         methodName)) {
                     if(b.isInstrumented()) {
-                        // Only keep true branch of instrumented branch
                         goals.add(new TryCatchCoverageTestFitness(new BranchCoverageGoal(b,
                                 true, b.getClassName(), b.getMethodName())));
+                        goals.add(new TryCatchCoverageTestFitness(new BranchCoverageGoal(b,
+                                false, b.getClassName(), b.getMethodName())));
                     }
                 }
             }

@@ -180,9 +180,7 @@ public class FieldReference extends VariableReferenceImpl {
 			logger.error("Error accessing field " + field + " of object " + source + ": "
 			        + e, e);
 			throw new EvosuiteError(e);
-		} catch (NullPointerException e) {
-			throw new CodeUnderTestException(e);
-		} catch (ExceptionInInitializerError e) {
+		} catch (NullPointerException | ExceptionInInitializerError | NoClassDefFoundError e) {
 			throw new CodeUnderTestException(e);
 		}
 	}

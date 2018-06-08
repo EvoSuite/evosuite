@@ -114,7 +114,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BasicBlock> getAlternativeBlocks(ControlDependency dependency) {
-		Set<BasicBlock> blocks = new HashSet<BasicBlock>();
+		Set<BasicBlock> blocks = new LinkedHashSet<>();
 		Branch branch = dependency.getBranch();
 
 		BasicBlock block = branch.getInstruction().getBasicBlock();

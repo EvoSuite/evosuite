@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -53,8 +54,10 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 		if(statement.isAssignmentStatement() && statement.getReturnValue().isArrayIndex())
 			return;
 		
-		if(statement instanceof ConstructorStatement && statement.getReturnValue().isWrapperType())
-			return;
+		if(statement instanceof ConstructorStatement) {
+			if(statement.getReturnValue().isWrapperType() || statement.getReturnValue().isAssignableTo(EvoSuiteMock.class))
+				return;
+		}
 
 		if (var.isPrimitive() || var.isString() || var.isWrapperType())
 			return;
@@ -101,6 +104,9 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 						// Avoid asserting anything on values referring to mockito proxy objects
 						if(((String)value).toLowerCase().contains("EnhancerByMockito"))
 							continue;
+						if(((String)value).toLowerCase().contains("$MockitoMock$"))
+							continue;
+
 						if(target instanceof URL) {
 							// Absolute paths may be different between executions
 							if(((String) value).startsWith("/") || ((String) value).startsWith("file:/"))

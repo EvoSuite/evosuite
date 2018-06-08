@@ -50,6 +50,8 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
   private double initialEnergy = 0.0;
 
+  private List<T> elite = new ArrayList<T>(Properties.ELITE);
+
   /**
    * Constructor
    *
@@ -176,6 +178,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
     logger.debug("Starting evolution");
     while (!this.isFinished()) {
+      this.elite = this.elitism();
       this.evolve();
       this.applyLocalSearch();
 
@@ -185,6 +188,32 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
       logger.debug("Current iteration: " + this.currentIteration);
       this.notifyIteration();
 
+      if (Properties.ELITE > 0) {
+        // perform elitism
+        for (int i = 0; i < this.elite.size(); i++) {
+          T best = (T) this.elite.get(i); // elite already includes a copy of each individual, so no
+                                          // need to clone it
+
+          int moleculeIndex = Randomness.nextInt(this.population.size());
+          T molecule = this.population.get(moleculeIndex);
+
+          double bestTotalKineticEnergy = best.getKineticEnergy() + best.getFitness();
+          double moleculeTotalKineticEnergy = molecule.getKineticEnergy() + molecule.getFitness();
+          double dif = bestTotalKineticEnergy - moleculeTotalKineticEnergy;
+          best.setKineticEnergy(best.getKineticEnergy() - dif);
+          best.setNumCollisions(molecule.getNumCollisions());
+
+          this.population.remove(moleculeIndex);
+          this.population.add(best);
+        }
+
+        // keep it sorted. the algorithm does not need to have the population sorted, but if the
+        // algorithms runs out of time, only the head of the population would be returned, and it
+        // makes sense to be the best one. also, as elitism is enabled, the next elite of
+        // individuals would be the first N individuals of the population, so better to keep sorted.
+        this.sortPopulation();
+      }
+
       // One of the fundamental assumptions of Chemical Reaction Optimization is conservation of
       // energy, which means that energy cannot be created or destroyed. The whole system refers to
       // all the defined molecules and the container, which is connected to buffer.
@@ -192,7 +221,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
       double currentEnergy = this.getCurrentAmountOfEnergy();
 
       if (shouldApplyLocalSearch() || Properties.TEST_ARCHIVE) {
-        // as a localsearch approach and the use of a test archive could change or update the
+        // as a local-search approach and the use of a test archive could change or update the
         // fitness function value of any individual in the population, in here we have to make
         // sure the amount of energy in the system is exactly the same as initially defined
 
@@ -200,14 +229,17 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
           // if, for example, individuals in the population got worse (i.e., higher fitness
           // values) over time, in here we must to reduce the amount of memory that is free
           double delta = currentEnergy - this.initialEnergy;
-          this.buffer = Math.abs(this.buffer - delta);
+          this.buffer = this.buffer - delta;
         } else if (currentEnergy < this.initialEnergy) {
           // if, for example, individuals in the population got better (i.e., lower fitness
           // values) over time, it means molecules have released some energy to the system
           double delta = this.initialEnergy - currentEnergy;
           this.buffer += delta;
         }
-        assert Double.compare(this.buffer, 0.0) >= 0;
+
+        if (this.buffer < 0.0) {
+          throw new RuntimeException("Amount of energy in the buffer cannot be negative");
+        }
 
         // sanity check: re-calculate current amount of energy
         currentEnergy = this.getCurrentAmountOfEnergy();
@@ -215,7 +247,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
       if (!this.hasEnergyBeenConserved(currentEnergy)) {
         throw new RuntimeException("Current amount of energy (" + currentEnergy
-            + ") in the sysytem is not equal to its initial amount of energy (" + this.initialEnergy
+            + ") in the system is not equal to its initial amount of energy (" + this.initialEnergy
             + "). Conservation of energy has failed!");
       }
     }

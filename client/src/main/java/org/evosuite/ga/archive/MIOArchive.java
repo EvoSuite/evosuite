@@ -31,9 +31,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -47,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author José Campos
  */
-public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> extends Archive<F, T> {
+public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome> extends Archive<F, T> {
 
   private static final long serialVersionUID = -6100903230303784634L;
 
@@ -59,15 +58,15 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    **/
   protected final Map<F, Population> archive = new LinkedHashMap<F, Population>();
 
-  public static final MIOArchive<TestFitnessFunction, TestCase> instance =
-      new MIOArchive<TestFitnessFunction, TestCase>();
+  public static final MIOArchive<TestFitnessFunction, TestChromosome> instance =
+      new MIOArchive<TestFitnessFunction, TestChromosome>();
 
   /**
    * {@inheritDoc}
    */
   @Override
   public void addTarget(F target) {
-    assert target != null;
+    super.addTarget(target);
 
     if (!this.archive.containsKey(target)) {
       logger.debug("Registering new target '" + target + "'");
@@ -80,36 +79,23 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public void updateArchive(F target, ExecutionResult executionResult, double fitnessValue) {
-    assert target != null;
+  public void updateArchive(F target, T solution, double fitnessValue) {
+    super.updateArchive(target, solution, fitnessValue);
     assert this.archive.containsKey(target);
-    assert fitnessValue >= 0.0;
 
-    ExecutionResult executionResultClone = executionResult.clone();
-    T solutionClone = (T) executionResultClone.test.clone(); // in case executionResult.clone() has
-                                                             // not cloned the test
-    executionResultClone.setTest(solutionClone);
+    ExecutionResult executionResult = solution.getLastExecutionResult();
     // remove all statements after an exception
-    if (!executionResultClone.noThrownExceptions()) {
-      solutionClone.chop(executionResultClone.getFirstPositionOfThrownException() + 1);
+    if (!executionResult.noThrownExceptions()) {
+      solution.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
     }
 
     boolean isNewCoveredTarget = this.archive.get(target)
-        .addSolution(1.0 - FitnessFunction.normalize(fitnessValue), solutionClone);
+        .addSolution(1.0 - FitnessFunction.normalize(fitnessValue), solution);
     if (isNewCoveredTarget) {
       this.removeNonCoveredTargetOfAMethod(target);
       this.hasBeenUpdated = true;
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void handleCollateralCoverage(ExecutionResult executionResult, T solution) {
-    // NO-OP
   }
 
   /**
@@ -140,8 +126,43 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfCoveredTargets(Class<?> targetClass) {
+    return (int) this.getCoveredTargets().stream()
+        .filter(target -> target.getClass() == targetClass).count();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Set<F> getCoveredTargets() {
     return this.archive.keySet().stream().filter(target -> this.archive.get(target).isCovered())
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfUncoveredTargets() {
+    return this.getUncoveredTargets().size();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfUncoveredTargets(Class<?> targetClass) {
+    return (int) this.getUncoveredTargets().stream()
+        .filter(target -> target.getClass() == targetClass).count();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<F> getUncoveredTargets() {
+    return this.archive.keySet().stream().filter(target -> !this.archive.get(target).isCovered())
         .collect(Collectors.toSet());
   }
 
@@ -265,7 +286,7 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestCase> exten
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
-  public TestSuiteChromosome mergeArchiveAndSolution(Chromosome solution) {
+  protected TestSuiteChromosome createMergedSolution(TestSuiteChromosome solution) {
     // Deactivate in case a test is executed and would access the archive as this might cause a
     // concurrent access
     Properties.TEST_ARCHIVE = false;

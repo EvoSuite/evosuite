@@ -41,10 +41,12 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
+import org.mockito.exceptions.base.MockitoException;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.stubbing.OngoingStubbing;
 import org.slf4j.Logger;
@@ -202,7 +204,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 !Modifier.isPublic(rawClass.getModifiers())) {
             return false;
         }
-
+        
         if (!InstrumentedClass.class.isAssignableFrom(rawClass) &&
                 Modifier.isFinal(rawClass.getModifiers())) {
             /*
@@ -221,23 +223,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
-        //FIXME: tmp fix to avoid mocking any class with package access methods
         try {
-            for (Method m : rawClass.getDeclaredMethods()) {
-
-                /*
-                    Unfortunately, it does not seem there is a "isPackageLevel" method, so we have
-                    to go by exclusion
-                 */
-
-                if(!Modifier.isPublic(m.getModifiers()) && !Modifier.isProtected(m.getModifiers()) && !Modifier.isPrivate(m.getModifiers())
-                        && !m.isBridge() && !m.isSynthetic() && !m.getName().equals(ClassResetter.STATIC_RESET)) {
-                    return false;
-                }
-            }
-        } catch (NoClassDefFoundError | Exception e){
-            //this could happen if we failed to load the class
-            AtMostOnceLogger.warn(logger, "Failed to check if can mock class " + rawClass.getName() + ": " + e.getMessage());
+            // If dependencies are missing, this may throw a NoClassDefFoundException
+            rawClass.getDeclaredMethods();
+        } catch(NoClassDefFoundError e) {
+            AtMostOnceLogger.warn(logger, "Problem with class "+rawClass.getName()+": " + e.toString());
             return false;
         }
 
@@ -264,7 +254,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
-
         return true;
     }
 
@@ -272,7 +261,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
         Class<?> rawClass = new GenericClass(type).getRawClass();
 		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-
 
         if (Properties.hasTargetClassBeenLoaded()
         		&& GenericClass.isAssignable(targetClass, rawClass)) {
@@ -746,7 +734,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     } catch(java.lang.NoClassDefFoundError e) {
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to failed class initialization: "+e.getMessage());
                         return; //or should throw an exception?
-                    } catch(IllegalAccessException | IllegalAccessError | InvalidUseOfMatchersException e) {
+                    } catch(MockitoException | IllegalAccessException | IllegalAccessError | IllegalArgumentException e) {
                         // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite
                         // will just ignore that mocking statement and continue, instead of crashing
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to IAE: "+e.getMessage());

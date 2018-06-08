@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.annotation.Constraints;
@@ -488,7 +489,7 @@ public class TestFactory {
 		FieldReference fieldVar = new FieldReference(test, field, callee);
 		int length = test.size();
 		VariableReference value = createOrReuseVariable(test, fieldVar.getType(),
-				position, 0, callee, true, false, false);
+				position, 0, callee, true, false, true);
 
 		int newLength = test.size();
 		position += (newLength - length);
@@ -1278,8 +1279,7 @@ public class TestFactory {
 
 					if(!TestCluster.getInstance().hasGenerator(type)) {
 						logger.debug("No generators found for {}, attempting to resolve dependencies", type);
-						TestClusterGenerator clusterGenerator = new TestClusterGenerator(
-								DependencyAnalysis.getInheritanceTree());
+						TestClusterGenerator clusterGenerator = TestGenerationContext.getInstance().getTestClusterGenerator();
 						Class<?> mock = MockList.getMockClass(clazz.getRawClass().getCanonicalName());
 						if (mock != null) {
 							clusterGenerator.addNewDependencies(Arrays.asList(mock));
@@ -1368,7 +1368,7 @@ public class TestFactory {
 				logger.debug(" Choosing from {} existing objects: {}", objects.size(), Arrays.toString(objects.toArray()));
 			}
 			VariableReference reference = Randomness.choice(objects);
-			logger.debug(" Using existing object of type {}: {}", parameterType, reference);
+			//logger.debug(" Using existing object of type {}: {}", parameterType, reference);
 			return reference;
 		}
 
@@ -2195,7 +2195,7 @@ public class TestFactory {
 					Type target = m.getOwnerType();
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0, null, true, true,true); //no FM for SUT
+						callee = createObject(test, target, position, 0, null, false, false,true); //no FM for SUT
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {

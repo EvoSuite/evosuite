@@ -24,7 +24,7 @@
   <description name="EvoSuite Eclipse Plugin" url="http://www.evosuite.org/">
     This is an experimental Eclipse plugin for the EvoSuite JUnit Test Generation tool
   </description>
-  <feature id="org.evosuite.plugins.eclipse.feature" version="1.0.6.qualifier">
+  <feature id="org.evosuite.plugins.eclipse.feature" version="1.0.7.qualifier">
     <category name="EvoSuite_Category"/>
   </feature>
   <category-def name="EvoSuite_Category" label="JUnit Test Generation"/>

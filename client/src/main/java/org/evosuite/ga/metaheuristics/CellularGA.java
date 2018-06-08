@@ -75,11 +75,11 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * Evolution process on individuals in the grid
 	 */
 	public void evolve(){
-		
-		temp_cells.clear();
-		
-		for(int i=0; i<this.population.size(); i++){
+		// elitism has been shown to positively affect the convergence speed of GAs in various optimisation problems
+		temp_cells = this.elitism();
 
+		int numberIndividualsToCreate = this.population.size() - temp_cells.size();
+		for (int i = 0; i < numberIndividualsToCreate; i++) {
 			List<T> neighbors = neighb.getNeighbors(population, i);
 			
 			if (getFitnessFunction().isMaximizationFunction()) {
@@ -120,7 +120,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 				bestOffspring.updateAge(currentIteration);
 			}
 			
-			if (!isTooLong(bestOffspring) && bestOffspring.size() != 0)
+			if (bestOffspring.size() > 0 && !isTooLong(bestOffspring))
 				temp_cells.add(bestOffspring);
 			else
 				temp_cells.add(population.get(i));
@@ -147,8 +147,8 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 			}
 			
 			// replace-if-better policy
-			if(isBetterOrEqual(mainIndividual, tempIndividual)){
-				if (!(isTooLong(tempIndividual) || tempIndividual.size() == 0)){
+			if (isBetterOrEqual(tempIndividual, mainIndividual)) {
+				if (tempIndividual.size() > 0 && !isTooLong(tempIndividual)) {
 					main.set(i, tempIndividual);
 				}
 			}
@@ -171,9 +171,9 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		}
 		
 		if(isBetterOrEqual(offspring1, offspring2))
-			return offspring2;
-		else
 			return offspring1;
+		else
+			return offspring2;
 	}
 
 

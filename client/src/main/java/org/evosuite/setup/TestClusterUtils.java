@@ -94,6 +94,8 @@ public class TestClusterUtils {
 		int pos = className.lastIndexOf('$');
 		if(pos < 0)
 			return false;
+		if(pos == className.length() - 1)
+			return false; // Classnames can end in $ - see #179
 		char firstLetter = className.charAt(pos + 1);
 		if(firstLetter >= '0' && firstLetter <= '9')
 			return true;

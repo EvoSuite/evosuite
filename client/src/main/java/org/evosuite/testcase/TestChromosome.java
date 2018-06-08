@@ -68,7 +68,7 @@ public class TestChromosome extends ExecutableChromosome {
 	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<TestMutationHistoryEntry>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
+	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestChromosome>>();
 
 	/**
 	 * <p>
@@ -185,8 +185,13 @@ public class TestChromosome extends ExecutableChromosome {
 
 		for (int i = position2; i < other.size(); i++) {
 			GenericAccessibleObject<?> accessibleObject = otherChromosome.test.getStatement(i).getAccessibleObject();
-			if(accessibleObject != null && accessibleObject.getDeclaringClass().equals(Injector.class))
-				continue;
+			if(accessibleObject != null) {
+				if (accessibleObject.getDeclaringClass().equals(Injector.class))
+					continue;
+				if(!ConstraintVerifier.isValidPositionForInsertion(accessibleObject, offspring.test, offspring.test.size())) {
+					continue;
+				}
+			}
 			testFactory.appendStatement(offspring.test,
 					otherChromosome.test.getStatement(i));
 		}
@@ -709,7 +714,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
+	public static void addSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -738,7 +743,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<SecondaryObjective<?>> getSecondaryObjectives() {
+	public static List<SecondaryObjective<TestChromosome>> getSecondaryObjectives() {
 		return secondaryObjectives;
 	}
 

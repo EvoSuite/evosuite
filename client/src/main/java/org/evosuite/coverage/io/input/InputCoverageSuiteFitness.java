@@ -154,9 +154,14 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
         }
 
         for (ExecutionResult result : results) {
-            if (result.hasTimeout() || result.hasTestException() || !result.noThrownExceptions()) {
+            if (result.hasTimeout() || result.hasTestException()) {
                 continue;
             }
+
+            TestChromosome test = new TestChromosome();
+            test.setTestCase(result.test);
+            test.setLastExecutionResult(result);
+            test.setChanged(false);
 
             Iterator<InputCoverageTestFitness> it = this.inputCoverageMap.iterator();
             while (it.hasNext()) {
@@ -166,21 +171,14 @@ public class InputCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     continue;
                 }
 
-                TestChromosome tc = new TestChromosome();
-                tc.setTestCase(result.test);
-                double distance = testFitness.getFitness(tc, result);
+                double distance = testFitness.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 
                 mapDistances.put(testFitness, Math.min(distance, mapDistances.get(testFitness)));
 
                 if (distance == 0.0) {
                     mapDistances.remove(testFitness);
-                    result.test.addCoveredGoal(testFitness); // update list of covered goals
                     setOfCoveredGoals.add(testFitness); // helper to count the number of covered goals
                     this.toRemoveGoals.add(testFitness); // goal to not be considered by the next iteration of the evolutionary algorithm
-                }
-
-                if (Properties.TEST_ARCHIVE) {
-                    Archive.getArchiveInstance().updateArchive(testFitness, result, distance);
                 }
             }
         }

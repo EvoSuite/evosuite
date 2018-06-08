@@ -20,24 +20,23 @@
 package org.evosuite.ga.metaheuristics;
 
 import static org.junit.Assert.assertEquals;
-
+import static org.junit.Assert.assertNotEquals;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.problems.metrics.Spacing;
-import org.evosuite.utils.Randomness;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.BMICalculator;
-import com.examples.with.different.packagename.Calculator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,20 +51,19 @@ public class SPEA2SystemTest extends SystemTestBase {
   @Before
   public void reset() {
     RhoCoverageFactory.getGoals().clear();
+    AmbiguityCoverageFactory.getGoals().clear();
   }
 
   public double[][] test(String targetClass) {
     Properties.CRITERION = new Criterion[2];
-    Properties.CRITERION[0] = Criterion.BRANCH;
-    Properties.CRITERION[1] = Criterion.RHO;
+    Properties.CRITERION[0] = Criterion.RHO;
+    Properties.CRITERION[1] = Criterion.AMBIGUITY;
 
     Properties.ALGORITHM = Algorithm.SPEA2;
-    Properties.POPULATION = 100;
     Properties.SELECTION_FUNCTION = Properties.SelectionFunction.BINARY_TOURNAMENT;
     Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
-    Properties.SEARCH_BUDGET = 10;
+    Properties.SEARCH_BUDGET = 20;
     Properties.MINIMIZE = false;
-    Randomness.setSeed(10);
 
     EvoSuite evosuite = new EvoSuite();
 
@@ -94,29 +92,36 @@ public class SPEA2SystemTest extends SystemTestBase {
   }
 
   @Test
-  public void minimalSolution() {
-    String targetClass = Calculator.class.getCanonicalName();
+  public void nonMinimalSpacing() {
+    String targetClass = BMICalculator.class.getCanonicalName();
+
+    Properties.POPULATION = 50;
     double[][] front = test(targetClass);
 
-    assertEquals(0.0, front[0][0], 0.0);
-    assertEquals(0.0, front[0][1], 0.0);
+    for (int i = 0; i < front.length; i++) {
+      assertNotEquals(front[i][0], front[i][1], 0.0);
+    }
 
     Spacing sp = new Spacing();
     double[] max = sp.getMaximumValues(front);
     double[] min = sp.getMinimumValues(front);
 
-    assertEquals(0.33, sp.evaluate(sp.getNormalizedFront(front, max, min)), 0.01);
+    double[][] frontNormalized = sp.getNormalizedFront(front, max, min);
+    assertNotEquals(0.0, sp.evaluate(frontNormalized), 0.0);
   }
 
   @Test
-  public void nonMinimalSolution() {
+  public void minimalSpacing() {
     String targetClass = BMICalculator.class.getCanonicalName();
+
+    Properties.POPULATION = 10;
     double[][] front = test(targetClass);
 
     Spacing sp = new Spacing();
     double[] max = sp.getMaximumValues(front);
     double[] min = sp.getMinimumValues(front);
 
-    assertEquals(0.48, sp.evaluate(sp.getNormalizedFront(front, max, min)), 0.01);
+    double[][] frontNormalized = sp.getNormalizedFront(front, max, min);
+    assertEquals(0.0, sp.evaluate(frontNormalized), 0.0);
   }
 }

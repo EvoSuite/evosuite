@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 public abstract class ArrayUtil {
 	/**
@@ -163,9 +164,12 @@ public abstract class ArrayUtil {
 	 */
 	public static boolean contains(Object[] array, Object object) {
 	    for (Object obj : array) {
-	    	if (object instanceof String && obj.toString().equals(object))
-		        return true;
-	    	else if (obj.equals(object))
+	    	if(obj == object)
+	    		return true;
+			else if (obj != null && obj.equals(object))
+				return true;
+	    	else if (object instanceof String && obj.toString().equals(object))
+	    		// TODO: Does this check really make sense?
 	            return true;
 	    }
 	    return false;

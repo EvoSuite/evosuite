@@ -36,7 +36,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   private GeneticAlgorithm<?> test(double molecular_collision_rate, int decomposition_threshold,
       int synthesis_threshold) {
-    Properties.ALGORITHM = Properties.Algorithm.STANDARDCHEMICALREACTION;
+    Properties.ALGORITHM = Properties.Algorithm.STANDARD_CHEMICAL_REACTION;
     Properties.TEST_ARCHIVE = false;
     Properties.SEARCH_BUDGET = 15_000;
 
@@ -63,8 +63,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertEquals(7, best.getNumOfCoveredGoals());
-    Assert.assertEquals(7.0 / 9.0, best.getCoverage(), 0.001);
+    Assert.assertTrue(Double.compare(best.getCoverage(), 7.0 / 9.0) > 0);
   }
 
   @Test
@@ -73,8 +72,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertEquals(6, best.getNumOfCoveredGoals());
-    Assert.assertEquals(6.0 / 9.0, best.getCoverage(), 0.001);
+    Assert.assertTrue(Double.compare(best.getCoverage(), 6.0 / 9.0) > 0);
   }
 
   @Test
@@ -83,8 +81,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertEquals(6, best.getNumOfCoveredGoals());
-    Assert.assertEquals(6.0 / 9.0, best.getCoverage(), 0.001);
+    Assert.assertTrue(Double.compare(best.getCoverage(), 6.0 / 9.0) > 0);
   }
 
   @Test
@@ -93,8 +90,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
-    Assert.assertEquals(7, best.getNumOfCoveredGoals());
-    Assert.assertEquals(7.0 / 9.0, best.getCoverage(), 0.001);
+    Assert.assertTrue(Double.compare(best.getCoverage(), 7.0 / 9.0) > 0);
   }
 
   @Test

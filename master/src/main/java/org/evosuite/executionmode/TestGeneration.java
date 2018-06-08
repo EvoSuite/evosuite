@@ -333,7 +333,7 @@ public class TestGeneration {
 			cmdLine.add("-Dstrategy=MOSuite");
 			break;
 		case DSE:
-			cmdLine.add("-Dstrategy=Dynamic_Symbolic_Execution");
+			cmdLine.add("-Dstrategy=DSE");
 			break;
 		case NOVELTY:
 			cmdLine.add("-Dstrategy=Novelty");

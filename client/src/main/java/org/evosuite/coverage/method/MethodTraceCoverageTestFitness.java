@@ -19,6 +19,8 @@
  */
 package org.evosuite.coverage.method;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -94,7 +96,17 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 				break;
 			}
 		}
+
 		updateIndividual(this, individual, fitness);
+
+		if (fitness == 0.0) {
+		  individual.getTestCase().addCoveredGoal(this);
+		}
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+		}
+
 		return fitness;
 	}
 
@@ -121,7 +133,7 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 		if (getClass() != obj.getClass())
 			return false;
 		MethodTraceCoverageTestFitness other = (MethodTraceCoverageTestFitness) obj;
-		if (className != other.className) {
+		if (! className.equals(other.className)) {
 			return false;
 		} else if (! methodName.equals(other.methodName))
 			return false;

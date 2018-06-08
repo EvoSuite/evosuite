@@ -90,6 +90,11 @@ public class TestGenerationContext {
 	private ClassLoader originalClassLoader;
 
 	/**
+	 * To avoid duplicate analyses we cache the cluster generator
+	 */
+	private TestClusterGenerator testClusterGenerator;
+
+	/**
 	 * Private singleton constructor
 	 */
 	private TestGenerationContext() {
@@ -133,6 +138,14 @@ public class TestGenerationContext {
 	public InstrumentingClassLoader getRegressionClassLoaderForSUT() {
 		return regressionClassLoader;
 	}
+
+	public TestClusterGenerator getTestClusterGenerator() {
+		return testClusterGenerator;
+	}
+
+	public void setTestClusterGenerator(TestClusterGenerator generator) {
+	    testClusterGenerator = generator;
+    }
 
 	/**
 	 * @deprecated use {@code getInstance().getClassLoaderForSUT()}
@@ -205,9 +218,9 @@ public class TestGenerationContext {
 			// || ArrayUtil.contains(Properties.CRITERION,
 			// Properties.Criterion.CBRANCH)) {
 			try {
-				TestClusterGenerator clusterGenerator = new TestClusterGenerator(
+				testClusterGenerator = new TestClusterGenerator(
 						DependencyAnalysis.getInheritanceTree());
-				clusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
+				testClusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {

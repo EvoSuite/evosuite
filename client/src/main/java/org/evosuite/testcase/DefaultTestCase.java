@@ -152,6 +152,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeCoveredGoal(TestFitnessFunction goal) {
+		coveredGoals.remove(goal);
+	}
+
 	@Override
 	public boolean isGoalCovered(TestFitnessFunction goal){
 		return coveredGoals.contains(goal);

@@ -198,7 +198,7 @@ public class TestCluster {
 				// TODO: This is not working correctly. Until we have figured out
 				// the problem here, we either need to deactivate this entirely,
 				// or at least make sure that we don't delete constructors.
-				if(gao.isConstructor()) {
+				if(gao.isConstructor() || gao.isStatic()) {
 					continue;
 				}
 				GenericClass owner = gao.getOwnerClass(); // eg X
@@ -426,6 +426,14 @@ public class TestCluster {
 					for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
 						logger.debug("5. current instantiated generator: {}", generator);
 						try {
+
+							if((generator.isMethod() || generator.isField()) && clazz.isParameterizedType() && GenericClass.isMissingTypeParameters(generator.getGenericGeneratedType())) {
+								logger.debug("No type parameters present in generator for {}: {}", clazz, generator);
+								continue;
+							}
+
+
+
 							// Set owner type parameters from new return type
 							GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
 
@@ -464,6 +472,7 @@ public class TestCluster {
 							        || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
 								logger.debug("Got new generator: {} which generated: {}",
 								         newGenerator, newGenerator.getGeneratedClass());
+								logger.debug("{} vs {}", (!hadTypeParameters && generatorClazz.equals(clazz)), clazz.isAssignableFrom(newGenerator.getGeneratedType()));
 								targetGenerators.add(newGenerator);
 
 							} else if (logger.isDebugEnabled()) {
@@ -483,11 +492,15 @@ public class TestCluster {
 							logger.debug("5. ERROR", e);
 						}
 					}
-				} else {
-					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz, clazz);
-					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
-						CastClassManager.getInstance().addCastClass(boundClass, 0);
-					}
+					// FIXME:
+					// There are cases where this might lead to relevant cast classes not being included
+					// but in manycases it will pull in large numbers of useless dependencies.
+					// Commented out for now, until we find a case where the problem can be properly studied.
+//				} else {
+//					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz, clazz);
+//					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
+//						CastClassManager.getInstance().addCastClass(boundClass, 0);
+//					}
 				}
 			}
 			logger.debug("Found generators for {}: {}",clazz, targetGenerators.size());

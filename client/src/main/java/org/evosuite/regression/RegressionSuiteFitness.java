@@ -452,7 +452,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
       List<Map<Integer, Map<String, Map<String, Object>>>> originalMap,
       List<Map<Integer, Map<String, Map<String, Object>>>> regressionMap) {
 
-    ObjectDistanceCalculator.different_variables = 0;
+    ObjectDistanceCalculator distanceCalculator = new ObjectDistanceCalculator();
 
     double distance = 0.0;
 
@@ -485,8 +485,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
             continue;
           }
 
-          double objectDistance =
-              ObjectDistanceCalculator.getObjectMapDistance(map1_value, map2_value);
+          double objectDistance = distanceCalculator.getObjectMapDistance(map1_value, map2_value);
 
           if (!maxClassDistance.containsKey(internal_map1_entries.getKey())
               || (maxClassDistance.get(internal_map1_entries.getKey()) < objectDistance)) {
@@ -522,7 +521,7 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 
     distance += tmpDistance;
 
-    distance += ObjectDistanceCalculator.different_variables;
+    distance += distanceCalculator.getNumDifferentVariables();
 
     return distance;
 
