@@ -461,26 +461,6 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
      * {@inheritDoc}
      */
     @Override
-    protected void calculateFitness() {
-        logger.debug("Calculating fitness for " + this.population.size() + " individuals");
-
-        Iterator<T> iterator = this.population.iterator();
-        while (iterator.hasNext()) {
-            T c = iterator.next();
-            if (this.isFinished()) {
-                if (c.isChanged()) {
-                    iterator.remove();
-                }
-            } else {
-                this.calculateFitness(c);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void calculateFitness(T c) {
         this.fitnessFunctions.forEach(fitnessFunction -> fitnessFunction.getFitness(c));
 
@@ -555,7 +535,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         return (T) best;
     }
 
-    private void computeCoverageAndFitness(TestSuiteChromosome suite) {
+    protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
       for (Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
           .entrySet()) {
         TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
