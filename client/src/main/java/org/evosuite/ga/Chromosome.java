@@ -637,4 +637,30 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public void increaseNumCollisionsByOne() {
 		this.numCollisions++;
 	}
+
+	/**
+	 * Examines whether this Chromosome dominates another one (@param c).
+     * Domination means that none objective of this chromosome has a
+     * worse score than the corresponding objective of the other chromosome
+	 *
+	 * @param c the compared Chromosome
+	 * @return whether this Chromosome dominates the other.
+	 */
+	public boolean dominates(Chromosome c){
+		boolean hasDominatedObjective = false;
+		boolean hasDominatingObjective = false;
+		for(FitnessFunction<?> ff: this.coverageValues.keySet()){
+			if(this.coverageValues.get(ff) > c.coverageValues.get(ff)) {
+				hasDominatedObjective = true;
+				break;
+			}
+			if(this.coverageValues.get(ff) < c.coverageValues.get(ff))
+				hasDominatingObjective = true;
+		}
+		if(hasDominatedObjective)
+			return false;
+		if(hasDominatingObjective)
+			return true;
+		return true;
+	}
 }
