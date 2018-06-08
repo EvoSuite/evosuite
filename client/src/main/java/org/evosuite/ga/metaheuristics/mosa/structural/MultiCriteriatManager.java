@@ -1,7 +1,7 @@
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -49,9 +49,9 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 
 	protected Map<BranchCoverageTestFitness, Set<FitnessFunction<T>>> dependencies;
 
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new HashMap<Integer, FitnessFunction<T>>();
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new HashMap<Integer, FitnessFunction<T>>();
-	private final Map<String, FitnessFunction<T>> branchlessMethodCoverageMap = new HashMap<String, FitnessFunction<T>>();
+	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
+	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
+	private final Map<String, FitnessFunction<T>> branchlessMethodCoverageMap = new LinkedHashMap<String, FitnessFunction<T>>();
 
 	public MultiCriteriatManager(List<FitnessFunction<T>> fitnessFunctions) {
 		super(fitnessFunctions);
@@ -60,13 +60,13 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 
 		// initialize the dependency graph among branches 
 		// initialize the dependency graph between branches and other coverage targets (e.g., statements)
-		Set<FitnessFunction<T>> setOfBranches = new HashSet<FitnessFunction<T>>();
-		this.dependencies = new HashMap<BranchCoverageTestFitness, Set<FitnessFunction<T>>>();
+		Set<FitnessFunction<T>> setOfBranches = new LinkedHashSet<FitnessFunction<T>>();
+		this.dependencies = new LinkedHashMap<BranchCoverageTestFitness, Set<FitnessFunction<T>>>();
 
 		for (FitnessFunction<T> ff : fitnessFunctions){
 			if (ff instanceof BranchCoverageTestFitness){
 				setOfBranches.add(ff);
-				this.dependencies.put((BranchCoverageTestFitness) ff, new HashSet<FitnessFunction<T>>());
+				this.dependencies.put((BranchCoverageTestFitness) ff, new LinkedHashSet<FitnessFunction<T>>());
 			}
 		}
 		graph = new BranchFitnessGraph<T, FitnessFunction<T>>(setOfBranches);
@@ -318,7 +318,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		}
 
 		// 1) we update the set of currents goals
-		Set<FitnessFunction<T>> visitedTargets = new HashSet<FitnessFunction<T>>(uncoveredGoals.size()*2);
+		Set<FitnessFunction<T>> visitedTargets = new LinkedHashSet<FitnessFunction<T>>(uncoveredGoals.size()*2);
 		LinkedList<FitnessFunction<T>> targets = new LinkedList<FitnessFunction<T>>();
 		targets.addAll(this.currentGoals);
 
@@ -392,7 +392,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	 * @return list of exception goals being covered by t
 	 */
 	public Set<ExceptionCoverageTestFitness> deriveCoveredExceptions(T t){
-		Set<ExceptionCoverageTestFitness> covered_exceptions = new HashSet<ExceptionCoverageTestFitness>();
+		Set<ExceptionCoverageTestFitness> covered_exceptions = new LinkedHashSet<ExceptionCoverageTestFitness>();
 		TestChromosome testCh = (TestChromosome) t;
 		ExecutionResult result = testCh.getLastExecutionResult();
 		
