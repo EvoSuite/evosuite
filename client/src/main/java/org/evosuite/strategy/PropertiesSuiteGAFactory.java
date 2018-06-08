@@ -197,6 +197,10 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case MOSA:
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);
+        case PAES:
+        	logger.info("Chosen search algorithm: PAES");
+        	// TODO: Return PAES
+			return new MOSA<TestSuiteChromosome>(factory);
         case ONE_PLUS_LAMBDA_LAMBDA_GA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             {
