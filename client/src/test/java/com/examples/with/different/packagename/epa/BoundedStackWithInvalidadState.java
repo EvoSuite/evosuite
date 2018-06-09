@@ -13,23 +13,34 @@ public class BoundedStackWithInvalidadState {
 
 	@EpaAction(name = "MyBoundedStack()")
 	public BoundedStackWithInvalidadState() {
+
 	}
 
 	@EpaAction(name = "push()")
 	public void push(int value) {
-		if (index == elements.length - 1) {
-			throw new IllegalStateException();
+		try {
+			if (index == elements.length - 1) {
+				throw new IllegalStateException();
+			}
+			elements[++index] = value;
+
+			this.breakStack();
+		} catch (Exception ex) {
+			throw ex;
 		}
-		elements[++index] = value;
 	}
 
 	@EpaAction(name = "pop()")
 	public int pop() {
-		if (index == -1) {
-			throw new IllegalStateException();
+		try {
+			if (index == -1) {
+				throw new IllegalStateException();
+			}
+			int ret_val = elements[index--];
+			return ret_val;
+		} catch (Exception ex) {
+			throw ex;
 		}
-		int ret_val = elements[index--];
-		return ret_val;
 	}
 
 	// ======================================================
@@ -57,8 +68,8 @@ public class BoundedStackWithInvalidadState {
 	private boolean isStateS3() {
 		return !isPushEnabled() && isPopEnabled();
 	}
-	
-	public void breakObjectState() {
+
+	private void breakStack() {
 		this.elements = null;
 	}
 

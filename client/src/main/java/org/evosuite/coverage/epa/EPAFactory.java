@@ -92,7 +92,7 @@ public abstract class EPAFactory {
 					final String destinationStateId = transition.getAttribute(DESTINATION);
 					EPAState originState = epaStateMap.get(stateId);
 					EPAState destinationState = epaStateMap.get(destinationStateId);
-					epaTransitions.add(new NormalEPATransition(originState, actionId,
+					epaTransitions.add(new EPANormalTransition(originState, actionId,
 							destinationState));
 				}
 			}

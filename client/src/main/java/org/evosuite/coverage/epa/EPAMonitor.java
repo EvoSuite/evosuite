@@ -5,7 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -67,7 +67,6 @@ public class EPAMonitor {
 		}
 
 	}
-
 
 	/**
 	 * Populates a mapping from constructor names to EPA Actions using the
@@ -160,7 +159,10 @@ public class EPAMonitor {
 	 */
 	private final Map<String, String> constructorToActionMap;
 
-	private EPAState previousEpaState;
+	/**
+	 * This map keeps the last EPA state observed for each object
+	 */
+	private final IdentityHashMap<Object, EPAState> previousEpaState = new IdentityHashMap<>();
 
 	public static EPAMonitor getInstance() {
 		if (instance == null) {
@@ -212,28 +214,29 @@ public class EPAMonitor {
 		if (this.methodToActionMap.containsKey(fullMethodName)) {
 			call_stack.push(className + "." + fullMethodName);
 			try {
-				previousEpaState = getCurrentState(calleeObject);
+				EPAState epa_state = getCurrentState(calleeObject);
+				this.setPreviousEpaState(calleeObject, epa_state);
 			} catch (MalformedEPATraceException e) {
 				throw new EvosuiteError(e);
 			}
 		}
 	}
 
-	/**
-	 * This set stores those objects that executed a method that is labelled as an
-	 * EpaAction but the execution resulted in an exception thrown listed as a
-	 * notEnabledException (i.e. those exceptions that result from executing actions
-	 * that are not enabled)
-	 */
-	private final HashSet<Object> invalidCalleeObjects = new HashSet<Object>();
-
 	private final Stack<String> call_stack = new Stack<>();
 
 	private void beforeConstructor(String className, String fullMethodName, Object object) {
 		if (this.constructorToActionMap.containsKey(fullMethodName)) {
 			call_stack.push(className + "." + fullMethodName);
-			previousEpaState = this.automata.getInitialState();
+			EPAState epa_state = this.automata.getInitialState();
+			setPreviousEpaState(object, epa_state);
 		}
+	}
+
+	private void setPreviousEpaState(Object object, EPAState epa_state) {
+		if (epa_state == null)
+			throw new IllegalArgumentException("cannot add a null EPA state");
+
+		this.previousEpaState.put(object, epa_state);
 	}
 
 	public static void exitMethod(Exception exceptionToBeThrown, String className, String fullMethodName,
@@ -305,7 +308,7 @@ public class EPAMonitor {
 
 				EPAState initialEpaState = getPreviousEpaState(object);
 				final EPAState currentEpaState = getCurrentState(object);
-				final EPATransition transition = new NormalEPATransition(initialEpaState, actionName, currentEpaState);
+				final EPATransition transition = new EPANormalTransition(initialEpaState, actionName, currentEpaState);
 				this.appendNewEpaTransition(object, transition);
 			}
 		} catch (MalformedEPATraceException e) {
@@ -331,12 +334,6 @@ public class EPAMonitor {
 							"afterMethod() for " + classNameAndFullMethodName + " but last call on stack was " + top);
 				}
 
-				if (invalidCalleeObjects.contains(calleeObject)) {
-					// clean the previous EpaState associated with this object
-					previousEpaState = null;
-					// do not update any trace
-					return;
-				}
 				if (!hasPreviousEpaState(calleeObject)) {
 					// this object should have been seen previously!
 					throw new MalformedEPATraceException(
@@ -349,10 +346,10 @@ public class EPAMonitor {
 				final EPAState currentEpaState = getCurrentState(calleeObject);
 				final EPATransition transition;
 				if (exceptionToBeThrown == null) {
-					transition = new NormalEPATransition(previousEpaState, actionName, currentEpaState);
+					transition = new EPANormalTransition(previousEpaState, actionName, currentEpaState);
 				} else {
 					String exceptionClassName = exceptionToBeThrown.getClass().getName();
-					transition = new ExceptionalEPATransition(previousEpaState, actionName, currentEpaState,
+					transition = new EPAExceptionalTransition(previousEpaState, actionName, currentEpaState,
 							exceptionClassName);
 				}
 				this.appendNewEpaTransition(calleeObject, transition);
@@ -435,7 +432,7 @@ public class EPAMonitor {
 	 * @return
 	 */
 	private EPAState getPreviousEpaState(Object obj) {
-		return this.previousEpaState;
+		return this.previousEpaState.get(obj);
 	}
 
 	/**
@@ -445,7 +442,7 @@ public class EPAMonitor {
 	 * @return
 	 */
 	private boolean hasPreviousEpaState(Object obj) {
-		return this.previousEpaState != null;
+		return this.previousEpaState.containsKey(obj);
 	}
 
 }

@@ -22,7 +22,7 @@ public class EPAErrorFactory extends EPAFitnessFactory {
 
 		final Set<EPATransition> errorTransitions = new HashSet<>();
 		states.forEach(state1 -> actions.forEach(action -> states.forEach(state2 -> {
-			errorTransitions.add(new NormalEPATransition(state1, action, state2));
+			errorTransitions.add(new EPANormalTransition(state1, action, state2));
 		})));
 		errorTransitions.removeAll(getEpa().getTransitions());
 

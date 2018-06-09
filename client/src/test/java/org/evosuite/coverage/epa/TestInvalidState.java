@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,6 +17,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
@@ -65,23 +67,20 @@ public class TestInvalidState extends TestEPATransitionCoverage {
 		suite.addTest(test);
 		TestChromosome testChromosome = suite.getTestChromosome(0);
 
-		int covered = 0;
-		int uncovered = 0;
-		double totalFitness = 0.0;
-		for (EPATransitionCoverageTestFitness g : goals) {
-			double fitness = g.getFitness(testChromosome);
-			if (fitness == 0.0) {
-				covered++;
-			} else {
-				uncovered++;
-			}
-			totalFitness += fitness;
-		}
+		EPATransitionCoverageSuiteFitness epaFitness = new EPATransitionCoverageSuiteFitness(BOUNDED_STACK_EPA_XML);
+		ExecutionResult execResult = testChromosome.executeForFitnessFunction(epaFitness);
+		List<EPATrace> epaTraces = new LinkedList<EPATrace>(execResult.getTrace().getEPATraces());
 
-		assertEquals(7, covered + uncovered);
-		assertEquals(2, covered);
-		assertEquals(5, uncovered);
-		assertEquals(5.0, totalFitness, 0.00000000001);
+		assertEquals(1, epaTraces.size());
+		EPATrace epa_trace = epaTraces.get(0);
+		assertEquals(3, epa_trace.getEpaTransitions().size());
+		EPATransition t1 = epa_trace.getEpaTransitions().get(0);
+		assertEquals(new EPANormalTransition(new EPAState("S0"), "MyBoundedStack()", new EPAState("S1")), t1);
+		EPATransition t2 = epa_trace.getEpaTransitions().get(1);
+		assertEquals(new EPANormalTransition(new EPAState("S1"), "push()", new EPAState("INVALID_OBJECT_STATE")), t2);
+		EPATransition t3 = epa_trace.getEpaTransitions().get(2);
+		assertEquals(new EPAExceptionalTransition(new EPAState("INVALID_OBJECT_STATE"), "pop()",
+				new EPAState("INVALID_OBJECT_STATE"), NullPointerException.class.getName()), t3);
 
 	}
 
@@ -107,9 +106,8 @@ public class TestInvalidState extends TestEPATransitionCoverage {
 		Method push_method = clazz.getMethod("push", int.class);
 		VariableReference int_value_var = builder.addIntegerStatement(10);
 		builder.addMethodStatement(bounded_stack_var, push_method, int_value_var);
-		Method break_method = clazz.getMethod("breakObjectState");
-		builder.addMethodStatement(bounded_stack_var, break_method);
-		builder.addMethodStatement(bounded_stack_var, push_method, int_value_var);
+		Method pop_method = clazz.getMethod("pop");
+		builder.addMethodStatement(bounded_stack_var, pop_method);
 		DefaultTestCase test = builder.toTestCase();
 		return test;
 	}
