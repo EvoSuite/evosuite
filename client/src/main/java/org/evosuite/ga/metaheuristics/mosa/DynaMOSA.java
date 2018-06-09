@@ -72,7 +72,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// Obtain the next front
 		front = this.rankingFunction.getSubfront(index);
 
-		while ((remain > 0) && (remain >= front.size())) {
+		while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 			// Assign crowding distance to individuals
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
 
@@ -90,12 +90,12 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		}
 
 		// Remain is less than front(index).size, insert only the best one
-		if (remain > 0) { // front contains individuals to insert
+		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
 			Collections.sort(front, new OnlyCrowdingComparator());
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
-			} 
+			}
 
 			remain = 0;
 		}
