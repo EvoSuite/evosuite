@@ -8,6 +8,9 @@ import java.util.ConcurrentModificationException;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import org.evosuite.epa.EpaAction;
+import org.evosuite.epa.EpaState;
+
 /**
  * An optimized version of AbstractList.ListItr
  */
@@ -20,17 +23,6 @@ public class ListItr implements ListIterator<Object> {
 	private int lastRet; // index of last element returned; -1 if no such
 	private int expectedModCount;
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.METHOD)
-	public @interface EpaState {
-		public String name();
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
-	public @interface EpaAction {
-		public String name();
-	}
 
 	@EpaAction(name = "ListItr()")
 	public ListItr(MyArrayList arrayList, int index) {

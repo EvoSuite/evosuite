@@ -5,19 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.evosuite.epa.EpaAction;
+import org.evosuite.epa.EpaState;
+
 public class MyBoundedStack {
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.METHOD)
-	public @interface EpaState {
-		public String name();
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
-	public @interface EpaAction {
-		public String name();
-	}
 
 	private final static int DEFAULT_SIZE = 10;
 
