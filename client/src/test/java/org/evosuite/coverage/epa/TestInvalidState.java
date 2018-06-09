@@ -49,7 +49,7 @@ public class TestInvalidState extends TestEPATransitionCoverage {
 	}
 
 	@Test
-	public void testGoalsCovered() throws ClassNotFoundException, NoSuchMethodException, SecurityException, IOException,
+	public void testInvalidState() throws ClassNotFoundException, NoSuchMethodException, SecurityException, IOException,
 			SAXException, ParserConfigurationException {
 		Properties.TARGET_CLASS = BoundedStackWithInvalidadState.class.getName();
 		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;

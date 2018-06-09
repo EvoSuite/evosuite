@@ -5,12 +5,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A tuple <FROM_STATE, ACTION, TO_STATE>
+ * An abstract transition <FROM_STATE, ACTION, TO_STATE>
  * 
  * @author galeotti
  *
  */
-public class EPATransition implements Serializable {
+public abstract class EPATransition implements Serializable {
 	/**
 	 * 
 	 */

@@ -44,7 +44,7 @@ public abstract class EPATraceFactory {
 				throw new MalformedEPATraceException("State \"" + destinationStateName + "\" does not belong to EPA");
 			}
 
-			epaTransitions.add(new EPATransition(currentOriginState, actionName, destinationState));
+			epaTransitions.add(new NormalEPATransition(currentOriginState, actionName, destinationState));
 
 			currentOriginState = destinationState;
 			firstIdx = reportStateIdx + 2;

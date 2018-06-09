@@ -1,11 +1,9 @@
 package org.evosuite.coverage.epa;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,7 +14,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.epa.EpaAction;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -33,10 +30,6 @@ import org.xml.sax.SAXException;
  *
  */
 public class EPAMonitor {
-
-	private static final String NOT_ENABLED_EXCEPTION_LIST = "notEnabledExceptionList";
-
-	private static final String ENABLED_EXCEPTION_LIST = "enabledExceptionList";
 
 	private static final String INIT = "<init>";
 
@@ -68,8 +61,6 @@ public class EPAMonitor {
 			this.epaStatesToMethodMap = createEpaStateToMethodMap(automata, targetClass);
 			this.methodToActionMap = createMethodToActionMap(automata, targetClass);
 			this.constructorToActionMap = createConstructorToActionMap(automata, targetClass);
-			this.enabledExceptionMap = createExceptionMap(automata, targetClass, ENABLED_EXCEPTION_LIST);
-			this.notEnabledExceptionMap = createExceptionMap(automata, targetClass, NOT_ENABLED_EXCEPTION_LIST);
 
 		} catch (ClassNotFoundException | NoSuchMethodException e) {
 			throw new EvosuiteError(e);
@@ -77,55 +68,6 @@ public class EPAMonitor {
 
 	}
 
-	/**
-	 * Creates a map from fully qualified method names to a set of all exceptions of
-	 * the corresponding annotation field of an @EpaAction annotation.
-	 * 
-	 * @param automata
-	 * @param targetClass
-	 * @param annotationFieldName
-	 * @return
-	 */
-	private static Map<String, Set<String>> createExceptionMap(EPA automata, Class<?> targetClass,
-			String annotationFieldName) {
-		Map<String, Set<String>> enabledExceptionMap = new HashMap<String, Set<String>>();
-		for (String actionName : automata.getActions()) {
-			// search methods
-			Set<Method> methods = EPAUtils.getEpaActionMethods(actionName, targetClass);
-			for (Method method : methods) {
-
-				Set<String> classNameSet = new HashSet<String>();
-				for (Annotation annotation : method.getDeclaredAnnotations()) {
-
-					Method notEnabledExceptionListMethod;
-					try {
-						if (annotation instanceof EpaAction) {
-							notEnabledExceptionListMethod = annotation.getClass()
-									.getDeclaredMethod(annotationFieldName);
-							Object rv = notEnabledExceptionListMethod.invoke(annotation);
-							if (!rv.equals("")) {
-								String notEnabledExceptionListStr = (String) rv;
-								String[] classNames = notEnabledExceptionListStr.split(",");
-
-								classNameSet.addAll(Arrays.asList(classNames));
-							}
-						}
-					} catch (NoSuchMethodException | SecurityException | IllegalAccessException
-							| IllegalArgumentException | InvocationTargetException e) {
-						// do not add class names
-					}
-
-				}
-				final String methodName = method.getName();
-				final String methodDescriptor = Type.getMethodDescriptor(method);
-				final String methodFullName = methodName + methodDescriptor;
-
-				enabledExceptionMap.put(methodFullName, classNameSet);
-			}
-		}
-
-		return enabledExceptionMap;
-	}
 
 	/**
 	 * Populates a mapping from constructor names to EPA Actions using the
@@ -287,10 +229,6 @@ public class EPAMonitor {
 
 	private final Stack<String> call_stack = new Stack<>();
 
-	private final Map<String, Set<String>> enabledExceptionMap;
-
-	private final Map<String, Set<String>> notEnabledExceptionMap;
-
 	private void beforeConstructor(String className, String fullMethodName, Object object) {
 		if (this.constructorToActionMap.containsKey(fullMethodName)) {
 			call_stack.push(className + "." + fullMethodName);
@@ -367,7 +305,7 @@ public class EPAMonitor {
 
 				EPAState initialEpaState = getPreviousEpaState(object);
 				final EPAState currentEpaState = getCurrentState(object);
-				final EPATransition transition = new EPATransition(initialEpaState, actionName, currentEpaState);
+				final EPATransition transition = new NormalEPATransition(initialEpaState, actionName, currentEpaState);
 				this.appendNewEpaTransition(object, transition);
 			}
 		} catch (MalformedEPATraceException e) {
@@ -407,96 +345,22 @@ public class EPAMonitor {
 
 				final String actionName = this.methodToActionMap.get(fullMethodName);
 
-				if (exceptionToBeThrown != null && !isMethodEnabled(fullMethodName, exceptionToBeThrown)) {
-					// add the current callee object to the black list
-					invalidCalleeObjects.add(calleeObject);
-					// clean the previous EpaState associated with this object,
-					// do not update any trace
-					previousEpaState = null;
+				final EPAState previousEpaState = getPreviousEpaState(calleeObject);
+				final EPAState currentEpaState = getCurrentState(calleeObject);
+				final EPATransition transition;
+				if (exceptionToBeThrown == null) {
+					transition = new NormalEPATransition(previousEpaState, actionName, currentEpaState);
 				} else {
-					final EPAState previousEpaState = getPreviousEpaState(calleeObject);
-					final EPAState currentEpaState = getCurrentState(calleeObject);
-					final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
-					this.appendNewEpaTransition(calleeObject, transition);
+					String exceptionClassName = exceptionToBeThrown.getClass().getName();
+					transition = new ExceptionalEPATransition(previousEpaState, actionName, currentEpaState,
+							exceptionClassName);
 				}
+				this.appendNewEpaTransition(calleeObject, transition);
+
 			} catch (MalformedEPATraceException e) {
 				throw new EvosuiteError(e);
 			}
 		}
-	}
-
-	/**
-	 * Returns true if the non-null exception type is not listed as a
-	 * notEnabledException for the current EPA action
-	 * 
-	 * @param fullMethodName
-	 * @param exceptionToBeThrown
-	 *            a non-null reference to an exception
-	 * @return
-	 */
-	private boolean isMethodEnabled(String fullMethodName, Exception exceptionToBeThrown) {
-		Class<? extends Exception> exceptionToBeThrownClass = exceptionToBeThrown.getClass();
-
-		ClassLoader classLoader = exceptionToBeThrown.getClass().getClassLoader();
-
-		if (!enabledExceptionMap.containsKey(fullMethodName) || !notEnabledExceptionMap.containsKey(fullMethodName)) {
-			return false;
-		}
-		Set<String> enabledExceptionClassNames = enabledExceptionMap.get(fullMethodName);
-		Set<String> notEnabledExceptionClassNames = notEnabledExceptionMap.get(fullMethodName);
-
-		// white list exceptions
-		Set<Class<?>> enabledExceptions = loadAllClasses(classLoader, enabledExceptionClassNames);
-
-		// black list exceptions
-		Set<Class<?>> notEnabledExceptions = loadAllClasses(classLoader, notEnabledExceptionClassNames);
-
-		// check if any white list class is assignable from this exception
-		for (Class<?> enabledExceptionClass : enabledExceptions) {
-			if (enabledExceptionClass.isAssignableFrom(exceptionToBeThrownClass)) {
-
-				// check if any black list exception is assignable
-				for (Class<?> notEnabledExceptionClass : notEnabledExceptions) {
-					if (notEnabledExceptionClass.isAssignableFrom(exceptionToBeThrownClass)) {
-
-						// action is not enabled
-						return false;
-					}
-				}
-
-				// action is enabled
-				return true;
-			}
-		}
-
-		// action is not enabled
-		return false;
-	}
-
-	/**
-	 * Creates a list of classes from a list of class names using a specific class
-	 * loader. If a class name cannot be found it is ignored.
-	 * 
-	 * @param classLoader
-	 * @param classNames
-	 * @return
-	 */
-	private static Set<Class<?>> loadAllClasses(ClassLoader classLoader, Set<String> classNames) {
-		Set<Class<?>> loadedClasses = new HashSet<Class<?>>();
-		for (String className : classNames) {
-			try {
-				Class<?> clazz;
-				if (classLoader == null) {
-					clazz = Class.forName(className);
-				} else {
-					clazz = classLoader.loadClass(className);
-				}
-				loadedClasses.add(clazz);
-			} catch (ClassNotFoundException e) {
-				// ignore
-			}
-		}
-		return loadedClasses;
 	}
 
 	/**
