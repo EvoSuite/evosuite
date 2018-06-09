@@ -30,16 +30,16 @@ import com.examples.with.different.packagename.epa.MiniBoundedStack;
 
 public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 
-	private static final String BOUNDED_STACK_EPA_XML = String.join(File.separator, System.getProperty("user.dir"),
-			"src", "test", "resources", "epas", "MyBoundedStack.xml");
+	private static final String MINI_BOUNDED_STACK_EPA_XML = String.join(File.separator, System.getProperty("user.dir"),
+			"src", "test", "resources", "epas", "MiniBoundedStack.xml");
 
 	private int DEFAULT_TIMEOUT = Properties.TIMEOUT;
 
 	@Before
 	public void prepareTest() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
-		final File epaXMLFile = new File(BOUNDED_STACK_EPA_XML);
+		final File epaXMLFile = new File(MINI_BOUNDED_STACK_EPA_XML);
 		Assume.assumeTrue(epaXMLFile.exists());
-		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
+		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
 		Properties.TIMEOUT = Integer.MAX_VALUE;
 		EPAMonitor.reset();
 	}
@@ -54,20 +54,20 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 	public void testExceptionalPush() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			IOException, SAXException, ParserConfigurationException {
 		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
-		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
+		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPATRANSITION };
 
 		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
 				EPAFactory.buildEPA(Properties.EPA_XML_PATH));
 		List<EPATransitionCoverageTestFitness> goals = factory.getCoverageGoals();
-		assertEquals(7, goals.size());
+		assertEquals(9, goals.size());
 
 		DefaultTestCase test = createTestCase0();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 		TestChromosome testChromosome = suite.getTestChromosome(0);
 
-		EPATransitionCoverageSuiteFitness epaFitness = new EPATransitionCoverageSuiteFitness(BOUNDED_STACK_EPA_XML);
+		EPATransitionCoverageSuiteFitness epaFitness = new EPATransitionCoverageSuiteFitness(MINI_BOUNDED_STACK_EPA_XML);
 		ExecutionResult execResult = testChromosome.executeForFitnessFunction(epaFitness);
 		List<EPATrace> epaTraces = new LinkedList<EPATrace>(execResult.getTrace().getEPATraces());
 
@@ -83,6 +83,10 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 		EPATransition t3 = epa_trace.getEpaTransitions().get(2);
 		assertEquals(new EPAExceptionalTransition(new EPAState("S3"), "push()", new EPAState("S3"),
 				IllegalStateException.class.getName()), t3);
+		
+		suite.addFitness(epaFitness);
+		double suiteFitness = epaFitness.getFitness(suite);
+		assertEquals(7.0, suiteFitness, 0.000000001);
 
 	}
 
@@ -90,20 +94,20 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 	public void testExceptionalPop() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			IOException, SAXException, ParserConfigurationException {
 		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
-		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
+		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPATRANSITION };
 
 		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
 				EPAFactory.buildEPA(Properties.EPA_XML_PATH));
 		List<EPATransitionCoverageTestFitness> goals = factory.getCoverageGoals();
-		assertEquals(7, goals.size());
+		assertEquals(9, goals.size());
 
 		DefaultTestCase test = createTestCase1();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 		TestChromosome testChromosome = suite.getTestChromosome(0);
 
-		EPATransitionCoverageSuiteFitness epaFitness = new EPATransitionCoverageSuiteFitness(BOUNDED_STACK_EPA_XML);
+		EPATransitionCoverageSuiteFitness epaFitness = new EPATransitionCoverageSuiteFitness(MINI_BOUNDED_STACK_EPA_XML);
 		ExecutionResult execResult = testChromosome.executeForFitnessFunction(epaFitness);
 		List<EPATrace> epaTraces = new LinkedList<EPATrace>(execResult.getTrace().getEPATraces());
 
@@ -117,6 +121,10 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 		assertEquals(new EPAExceptionalTransition(new EPAState("S1"), "pop()", new EPAState("S1"),
 				IllegalStateException.class.getName()), t2);
 
+		
+		suite.addFitness(epaFitness);
+		double suiteFitness = epaFitness.getFitness(suite);
+		assertEquals(8.0, suiteFitness, 0.000000001);
 	}
 
 	/**

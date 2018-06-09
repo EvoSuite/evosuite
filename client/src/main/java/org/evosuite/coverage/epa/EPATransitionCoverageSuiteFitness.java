@@ -12,6 +12,11 @@ import org.evosuite.Properties;
  */
 public class EPATransitionCoverageSuiteFitness extends EPASuiteFitness {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -130694090671398370L;
+
 	public EPATransitionCoverageSuiteFitness(String epaXMLFilename) {
 		super(epaXMLFilename);
 	}

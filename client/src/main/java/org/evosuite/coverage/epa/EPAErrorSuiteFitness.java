@@ -11,6 +11,11 @@ import org.evosuite.Properties;
  */
 public class EPAErrorSuiteFitness extends EPASuiteFitness {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7223594459434843145L;
+
 	public EPAErrorSuiteFitness(String epaXMLFilename) {
 		super(epaXMLFilename);
 	}
