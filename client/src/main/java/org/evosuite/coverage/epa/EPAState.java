@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.io.Serializable;
 
 public class EPAState implements Serializable {
+	
+	/**
+	 * This singleton represents that the object state was not possible to be determined
+	 */
+	public static final EPAState INVALID_OBJECT_STATE = new EPAState("INVALID_OBJECT_STATE");
 
 	/**
 	 * 

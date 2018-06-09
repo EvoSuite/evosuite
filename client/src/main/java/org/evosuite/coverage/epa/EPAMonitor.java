@@ -78,9 +78,8 @@ public class EPAMonitor {
 	}
 
 	/**
-	 * Creates a map from fully qualified method names to a set of all
-	 * exceptions of the corresponding annotation field of an @EpaAction
-	 * annotation.
+	 * Creates a map from fully qualified method names to a set of all exceptions of
+	 * the corresponding annotation field of an @EpaAction annotation.
 	 * 
 	 * @param automata
 	 * @param targetClass
@@ -153,8 +152,8 @@ public class EPAMonitor {
 	}
 
 	/**
-	 * Populates a mapping from method names to EPA Actions using the
-	 * annotations on each Java method
+	 * Populates a mapping from method names to EPA Actions using the annotations on
+	 * each Java method
 	 * 
 	 * @param automata
 	 * @param targetClass
@@ -176,8 +175,8 @@ public class EPAMonitor {
 	}
 
 	/**
-	 * Creates a mapping from EPA states to Java boolean queries using
-	 * the @EpaState annotation
+	 * Creates a mapping from EPA states to Java boolean queries using the @EpaState
+	 * annotation
 	 * 
 	 * @param automata
 	 * @param targetClass
@@ -202,8 +201,8 @@ public class EPAMonitor {
 	}
 
 	/**
-	 * A mapping from EPA states to boolean query methods to check if the object
-	 * is in the corresponding state.
+	 * A mapping from EPA states to boolean query methods to check if the object is
+	 * in the corresponding state.
 	 */
 	private final Map<EPAState, Method> epaStatesToMethodMap;
 
@@ -214,8 +213,8 @@ public class EPAMonitor {
 	private final Map<String, String> methodToActionMap;
 
 	/**
-	 * A mapping from Java constructor names to EPA actions based on
-	 * the @EpaAction annotations on the target class.
+	 * A mapping from Java constructor names to EPA actions based on the @EpaAction
+	 * annotations on the target class.
 	 */
 	private final Map<String, String> constructorToActionMap;
 
@@ -272,17 +271,17 @@ public class EPAMonitor {
 			call_stack.push(className + "." + fullMethodName);
 			try {
 				previousEpaState = getCurrentState(calleeObject);
-			} catch (InvocationTargetException | MalformedEPATraceException e) {
+			} catch (MalformedEPATraceException e) {
 				throw new EvosuiteError(e);
 			}
 		}
 	}
 
 	/**
-	 * This set stores those objects that executed a method that is labelled as
-	 * an EpaAction but the execution resulted in an exception thrown listed as
-	 * a notEnabledException (i.e. those exceptions that result from executing
-	 * actions that are not enabled)
+	 * This set stores those objects that executed a method that is labelled as an
+	 * EpaAction but the execution resulted in an exception thrown listed as a
+	 * notEnabledException (i.e. those exceptions that result from executing actions
+	 * that are not enabled)
 	 */
 	private final HashSet<Object> invalidCalleeObjects = new HashSet<Object>();
 
@@ -350,7 +349,7 @@ public class EPAMonitor {
 			Exception exceptionToBeThrown) {
 		try {
 			// is the methodStmt defined as an EPA Action ?
-			if (exceptionToBeThrown==null && this.constructorToActionMap.containsKey(fullConstructorName)) {
+			if (exceptionToBeThrown == null && this.constructorToActionMap.containsKey(fullConstructorName)) {
 
 				String top = call_stack.pop();
 				final String classNameAndFullConstructorName = className + "." + fullConstructorName;
@@ -371,7 +370,7 @@ public class EPAMonitor {
 				final EPATransition transition = new EPATransition(initialEpaState, actionName, currentEpaState);
 				this.appendNewEpaTransition(object, transition);
 			}
-		} catch (MalformedEPATraceException | InvocationTargetException e) {
+		} catch (MalformedEPATraceException e) {
 			throw new EvosuiteError(e);
 		}
 
@@ -420,7 +419,7 @@ public class EPAMonitor {
 					final EPATransition transition = new EPATransition(previousEpaState, actionName, currentEpaState);
 					this.appendNewEpaTransition(calleeObject, transition);
 				}
-			} catch (MalformedEPATraceException | InvocationTargetException e) {
+			} catch (MalformedEPATraceException e) {
 				throw new EvosuiteError(e);
 			}
 		}
@@ -475,8 +474,8 @@ public class EPAMonitor {
 	}
 
 	/**
-	 * Creates a list of classes from a list of class names using a specific
-	 * class loader. If a class name cannot be found it is ignored.
+	 * Creates a list of classes from a list of class names using a specific class
+	 * loader. If a class name cannot be found it is ignored.
 	 * 
 	 * @param classLoader
 	 * @param classNames
@@ -502,8 +501,7 @@ public class EPAMonitor {
 
 	/**
 	 * In order to obtain the current state, we invoke all the EPA state methods
-	 * within the object. We throw an exception if the object has an invalid
-	 * state
+	 * within the object. We throw an exception if the object has an invalid state
 	 * 
 	 * @param calleeObject
 	 *            the object instance
@@ -514,27 +512,38 @@ public class EPAMonitor {
 	 *             if object has multiple EPA states or no EPA state at all
 	 * @throws InvocationTargetException
 	 */
-	private EPAState getCurrentState(Object calleeObject) throws MalformedEPATraceException, InvocationTargetException {
-		EPAState currentState = null;
-		for (EPAState epaState : this.automata.getStates()) {
-			if (this.automata.getInitialState().equals(epaState)) {
-				continue; // discard initial states (always false)
-			}
+	private EPAState getCurrentState(Object calleeObject) throws MalformedEPATraceException {
+		try {
+			EPAState currentState = null;
+			for (EPAState epaState : this.automata.getStates()) {
+				if (this.automata.getInitialState().equals(epaState)) {
+					continue; // discard initial states (always false)
+				}
 
-			boolean executionResult = executeEpaStateMethod(epaState, calleeObject);
-			if (executionResult == true) {
-				if (currentState != null) {
-					throw new MalformedEPATraceException("Object found in multiple EPA states: " + currentState
-							+ " and " + epaState + " simultaneously");
-				} else {
-					currentState = epaState;
+				boolean executionResult = executeEpaStateMethod(epaState, calleeObject);
+				if (executionResult == true) {
+					if (currentState != null) {
+						throw new MalformedEPATraceException("Object found in multiple EPA states: " + currentState
+								+ " and " + epaState + " simultaneously");
+					} else {
+						currentState = epaState;
+					}
 				}
 			}
+			// if (currentState == null) {
+			// throw new MalformedEPATraceException("Neither EPA state query has returned
+			// true for this object!");
+			// }
+			if (currentState == null) {
+				// No EPA state query has returned true for this object
+				return EPAState.INVALID_OBJECT_STATE;
+			} else {
+				return currentState;
+			}
+		} catch (InvocationTargetException ex) {
+			// An EPA state query has signalled an exception while executing
+			return EPAState.INVALID_OBJECT_STATE;
 		}
-//		if (currentState == null) {
-//			throw new MalformedEPATraceException("Neither EPA state query has returned true for this object!");
-//		}
-		return currentState;
 	}
 
 	private boolean executeEpaStateMethod(EPAState epaState, Object calleeObject) throws InvocationTargetException {
@@ -555,8 +564,8 @@ public class EPAMonitor {
 	}
 
 	/**
-	 * Previous state is the destination state in the most recently added
-	 * transition for the calleeObject.
+	 * Previous state is the destination state in the most recently added transition
+	 * for the calleeObject.
 	 * 
 	 * @param calleeObject
 	 * @return

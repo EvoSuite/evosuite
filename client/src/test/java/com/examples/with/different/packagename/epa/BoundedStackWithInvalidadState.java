@@ -3,32 +3,32 @@ package com.examples.with.different.packagename.epa;
 import org.evosuite.epa.EpaAction;
 import org.evosuite.epa.EpaState;
 
-public class MyBoundedStack {
+public class BoundedStackWithInvalidadState {
 
 	private final static int DEFAULT_SIZE = 10;
 
-	private final Object[] elements = new Object[DEFAULT_SIZE];
+	private int[] elements = new int[DEFAULT_SIZE];
 
 	private int index = -1;
 
 	@EpaAction(name = "MyBoundedStack()")
-	public MyBoundedStack() {
+	public BoundedStackWithInvalidadState() {
 	}
 
 	@EpaAction(name = "push()")
-	public void push(Object object) {
+	public void push(int value) {
 		if (index == elements.length - 1) {
 			throw new IllegalStateException();
 		}
-		elements[++index] = object;
+		elements[++index] = value;
 	}
 
 	@EpaAction(name = "pop()")
-	public Object pop() {
+	public int pop() {
 		if (index == -1) {
 			throw new IllegalStateException();
 		}
-		Object ret_val = elements[index--];
+		int ret_val = elements[index--];
 		return ret_val;
 	}
 
@@ -44,18 +44,22 @@ public class MyBoundedStack {
 	}
 
 	@EpaState(name = "S1")
-	private boolean queryForS1() {
+	private boolean isStateS1() {
 		return isPushEnabled() && !isPopEnabled();
 	}
 
 	@EpaState(name = "S2")
-	private boolean queryForS2() {
+	private boolean isStateS2() {
 		return isPushEnabled() && isPopEnabled();
 	}
 
 	@EpaState(name = "S3")
-	private boolean queryForS3() {
+	private boolean isStateS3() {
 		return !isPushEnabled() && isPopEnabled();
+	}
+	
+	public void breakObjectState() {
+		this.elements = null;
 	}
 
 }
