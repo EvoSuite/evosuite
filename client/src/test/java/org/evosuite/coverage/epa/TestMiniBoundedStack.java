@@ -51,7 +51,7 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 	}
 
 	@Test
-	public void testExceptionalTransitions() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+	public void testExceptionalPush() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			IOException, SAXException, ParserConfigurationException {
 		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
 		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
@@ -86,6 +86,39 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 
 	}
 
+	@Test
+	public void testExceptionalPop() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+			IOException, SAXException, ParserConfigurationException {
+		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
+		Properties.EPA_XML_PATH = BOUNDED_STACK_EPA_XML;
+		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPATRANSITION };
+
+		EPATransitionCoverageFactory factory = new EPATransitionCoverageFactory(Properties.TARGET_CLASS,
+				EPAFactory.buildEPA(Properties.EPA_XML_PATH));
+		List<EPATransitionCoverageTestFitness> goals = factory.getCoverageGoals();
+		assertEquals(7, goals.size());
+
+		DefaultTestCase test = createTestCase1();
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(test);
+		TestChromosome testChromosome = suite.getTestChromosome(0);
+
+		EPATransitionCoverageSuiteFitness epaFitness = new EPATransitionCoverageSuiteFitness(BOUNDED_STACK_EPA_XML);
+		ExecutionResult execResult = testChromosome.executeForFitnessFunction(epaFitness);
+		List<EPATrace> epaTraces = new LinkedList<EPATrace>(execResult.getTrace().getEPATraces());
+
+		assertEquals(1, epaTraces.size());
+		EPATrace epa_trace = epaTraces.get(0);
+		assertEquals(2, epa_trace.getEpaTransitions().size());
+		EPATransition t1 = epa_trace.getEpaTransitions().get(0);
+		assertEquals(new EPANormalTransition(new EPAState("S0"), "MyBoundedStack()", new EPAState("S1")), t1);
+
+		EPATransition t2 = epa_trace.getEpaTransitions().get(1);
+		assertEquals(new EPAExceptionalTransition(new EPAState("S1"), "pop()", new EPAState("S1"),
+				IllegalStateException.class.getName()), t2);
+
+	}
+
 	/**
 	 * Builds the test case:
 	 * 
@@ -93,7 +126,6 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 	 * stack = new BoundedStack(); 
 	 * stack.push(10);
 	 * stack.push(10);
-	 * stack.pop();
 	 * </code>
 	 * 
 	 * @return
@@ -106,11 +138,34 @@ public class TestMiniBoundedStack extends TestEPATransitionCoverage {
 		EPATestCaseBuilder builder = new EPATestCaseBuilder();
 		Method push_method = clazz.getMethod("push", int.class);
 		VariableReference int_value_var = builder.addIntegerStatement(10);
-		Method pop_method = clazz.getMethod("pop");
 
 		VariableReference bounded_stack_var = builder.addConstructorStatement(constructor);
 		builder.addMethodStatement(bounded_stack_var, push_method, int_value_var);
 		builder.addMethodStatement(bounded_stack_var, push_method, int_value_var);
+		DefaultTestCase test = builder.toTestCase();
+		return test;
+	}
+
+	/**
+	 * Builds the test case:
+	 * 
+	 * <code>
+	 * stack = new BoundedStack(); 
+	 * stack.pop();
+	 * </code>
+	 * 
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchMethodException
+	 */
+	private DefaultTestCase createTestCase1() throws ClassNotFoundException, NoSuchMethodException {
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
+		Constructor<?> constructor = clazz.getConstructor();
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+		Method pop_method = clazz.getMethod("pop");
+
+		VariableReference bounded_stack_var = builder.addConstructorStatement(constructor);
+		builder.addMethodStatement(bounded_stack_var, pop_method);
 		DefaultTestCase test = builder.toTestCase();
 		return test;
 	}
