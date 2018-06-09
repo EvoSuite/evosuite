@@ -81,17 +81,19 @@ public abstract class EPAFactory {
 		final List<EPATransition> epaTransitions = new ArrayList<>();
 		for (int i = 0; i < states.getLength(); i++) {
 			final Element state = (Element) states.item(i);
-			final String stateName = state.getAttribute(NAME);
+			final String stateId = state.getAttribute(NAME);
 
 			final NodeList stateChilds = states.item(i).getChildNodes();
 			for (int j = 0; j < stateChilds.getLength(); j++) {
 				final Node stateChild = stateChilds.item(j);
 				if (Objects.equals(stateChild.getNodeName(), TRANSITION)) {
 					final Element transition = (Element) stateChild;
-					final String transitionLabel = transition.getAttribute(LABEL);
-					final String transitionDestination = transition.getAttribute(DESTINATION);
-					epaTransitions.add(new EPATransition(epaStateMap.get(stateName), transitionLabel,
-							epaStateMap.get(transitionDestination)));
+					final String actionId = transition.getAttribute(LABEL);
+					final String destinationStateId = transition.getAttribute(DESTINATION);
+					EPAState originState = epaStateMap.get(stateId);
+					EPAState destinationState = epaStateMap.get(destinationStateId);
+					epaTransitions.add(new EPATransition(originState, actionId,
+							destinationState));
 				}
 			}
 		}
