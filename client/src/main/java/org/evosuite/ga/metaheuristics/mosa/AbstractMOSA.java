@@ -545,10 +545,14 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
             Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
         int numberUncoveredTargets =
             Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
+        int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
+
+        double coverage = totalNumberTargets == 0 ? 0.0
+            : ((double) numberCoveredTargets)
+                / ((double) (numberCoveredTargets + numberUncoveredTargets));
 
         suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-        suite.setCoverage(suiteFitnessFunction, ((double) numberCoveredTargets)
-            / ((double) (numberCoveredTargets + numberUncoveredTargets)));
+        suite.setCoverage(suiteFitnessFunction, coverage);
         suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
         suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
       }
