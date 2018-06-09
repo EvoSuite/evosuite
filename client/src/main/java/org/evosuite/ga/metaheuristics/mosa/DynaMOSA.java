@@ -271,10 +271,14 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 			int numberCoveredTargets = this.goalsManager.getNumberOfCoveredTargets(testFitnessFunction);
 			int numberUncoveredTargets = this.goalsManager.getNumberOfUncoveredTargets(testFitnessFunction);
+			int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
+
+			double coverage = totalNumberTargets == 0 ? 0.0
+			    : ((double) numberCoveredTargets)
+			    / ((double) (numberCoveredTargets + numberUncoveredTargets));
 
 			suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-			suite.setCoverage(suiteFitnessFunction, ((double) numberCoveredTargets)
-			    / ((double) (numberCoveredTargets + numberUncoveredTargets)));
+			suite.setCoverage(suiteFitnessFunction, coverage);
 			suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
 			suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
 		}
