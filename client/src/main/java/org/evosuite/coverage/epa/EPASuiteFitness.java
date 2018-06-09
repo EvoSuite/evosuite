@@ -1,5 +1,13 @@
 package org.evosuite.coverage.epa;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -8,13 +16,6 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 	/**
@@ -96,18 +97,15 @@ public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public final double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suiteChromosome) {
-		final Collection<EPATransitionCoverageTestFitness> goals = getCoverageGoalMap().values();
-		final List<ExecutionResult> executionResults = runTestSuite(suiteChromosome);
-		final long coveredGoalsCount = goals.stream()
-				// A goal is covered by the suite if it's covered by at least one test case
-				.filter(goal -> {
-					return executionResults.stream()
-							.filter(goal::isCovered)
-							.findAny()
-							.isPresent();
-				})
-				.count();
 
+		long coveredGoalsCount = 0;
+		final List<ExecutionResult> executionResults = runTestSuite(suiteChromosome);
+		final Collection<EPATransitionCoverageTestFitness> goals = getCoverageGoalMap().values();
+		for (EPATransitionCoverageTestFitness goal : goals) {
+			if (goal.isCoveredByResults(executionResults)) {
+				coveredGoalsCount++;
+			}
+		}
 		final double fitness = goals.size() - coveredGoalsCount;
 		updateIndividual(this, suiteChromosome, fitness);
 		final double coverage = (goals.size() > 0) ? (coveredGoalsCount / (double) goals.size()) : 0;
@@ -116,4 +114,5 @@ public abstract class EPASuiteFitness extends TestSuiteFitnessFunction {
 		suiteChromosome.setNumOfNotCoveredGoals(this, (int) (goals.size() - coveredGoalsCount));
 		return fitness;
 	}
+
 }

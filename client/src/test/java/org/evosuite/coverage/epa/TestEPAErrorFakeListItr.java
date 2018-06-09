@@ -48,7 +48,7 @@ public class TestEPAErrorFakeListItr extends TestEPAErrorCoverage {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(tc);
 
-		EPAErrorSuiteFitness fitness = new EPAErrorSuiteFitness(xmlFilename);
+		EPAErrorCoverageSuiteFitness fitness = new EPAErrorCoverageSuiteFitness(xmlFilename);
 
 		suite.addFitness(fitness);
 		double fitnessValue = fitness.getFitness(suite);

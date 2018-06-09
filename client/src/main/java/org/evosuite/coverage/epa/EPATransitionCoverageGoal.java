@@ -61,15 +61,23 @@ public class EPATransitionCoverageGoal implements Serializable, Comparable<EPATr
 	}
 
 	/**
-	 * Returns 0.0 if the execution trace covers the transition, 1.0 otherwise
+	 * Returns 0.0 if the execution trace covers the transition, 1.0 otherwise If
+	 * the execution trace has a INVALID_OBJECT_STATE, the rest of the trace is
+	 * discarded.
 	 * 
 	 * @param result
 	 * @return
 	 */
 	public double getDistance(ExecutionResult result) {
 		for (EPATrace epa_trace : result.getTrace().getEPATraces()) {
-			if (epa_trace.getEpaTransitions().contains(this.transition)) {
-				return 0.0;
+			for (EPATransition epa_transition : epa_trace.getEpaTransitions()) {
+				if (epa_transition.getDestinationState().equals(EPAState.INVALID_OBJECT_STATE)) {
+					// discard the rest of the trace if an invalid object state is reached
+					break;
+				}
+				if (this.transition.equals(epa_transition)) {
+					return 0.0;
+				}
 			}
 		}
 		return 1.0;

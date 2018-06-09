@@ -3,9 +3,9 @@ package org.evosuite.coverage.epa;
 import org.evosuite.Properties;
 
 /**
- * This fitness function counts the degree of covered transitions. It is a
- * minimization function (less is better). The value 0.0 means all transitions
- * were covered.
+ * This fitness function counts the degree of covered normal transitions in the
+ * EPA automata. It is a minimization function (less is better). The value 0.0
+ * means all transitions were covered.
  * 
  * @author galeotti
  *
