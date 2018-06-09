@@ -93,8 +93,8 @@ public class CoverageAnalysis {
 	private static Set<String> targetClasses = new LinkedHashSet<String>();
 
 	/**
-	 * Identify all JUnit tests starting with the given name prefix, instrument
-	 * and run tests
+	 * Identify all JUnit tests starting with the given name prefix, instrument and
+	 * run tests
 	 */
 	public static void analyzeCoverage() {
 		Sandbox.goingToExecuteSUTCode();
@@ -131,8 +131,7 @@ public class CoverageAnalysis {
 			return;
 
 		/*
-		 * sort them in a deterministic way, in case there are static state
-		 * dependencies
+		 * sort them in a deterministic way, in case there are static state dependencies
 		 */
 		sortTestClasses(testClasses);
 
@@ -548,11 +547,17 @@ public class CoverageAnalysis {
 			LoggingUtils.getEvoLogger()
 					.info("* Number of covered goals: " + covered.cardinality() + " / " + goals.size());
 
-			for (int index_component =0; index_component<goals.size();index_component++) {
+			SortedSet<String> missed_goals = new TreeSet<String>();
+			for (int index_component = 0; index_component < goals.size(); index_component++) {
 				if (!covered.get(index_component)) {
-					if (Properties.PRINT_MISSED_GOALS) {
-						LoggingUtils.getEvoLogger().info(" - Missed goal {}", goals.get(index_component).toString());
-					}
+					Object missed_goal = goals.get(index_component);
+					missed_goals.add(missed_goal.toString());
+				}
+			}
+
+			if (Properties.PRINT_MISSED_GOALS) {
+				for (String missed_goal_str : missed_goals) {
+					LoggingUtils.getEvoLogger().info(" - Missed goal {}", missed_goal_str);
 				}
 			}
 
@@ -725,9 +730,8 @@ public class CoverageAnalysis {
 
 		analyzeCoverage();
 		/*
-		 * for now, we ignore the instruction (originally was meant to support
-		 * several client in parallel and restarts, but that will be done in
-		 * RMI)
+		 * for now, we ignore the instruction (originally was meant to support several
+		 * client in parallel and restarts, but that will be done in RMI)
 		 */
 
 		util.informSearchIsFinished(null);
