@@ -205,7 +205,8 @@ public class BytecodeInstrumentation {
             cv = new RemoveFinalClassAdapter(cv);
             
             if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION) ||
-                    ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)) {
+                    ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR) ||
+                    ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION)) {
             	cv = new EPAMonitorClassAdapter(cv, className);
             }
 

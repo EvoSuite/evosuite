@@ -27,10 +27,7 @@ public abstract class EPAFitnessFactory extends AbstractFitnessFactory<EPATransi
 
 	@Override
 	public List<EPATransitionCoverageTestFitness> getCoverageGoals() {
-		return getGoalTransitions()
-				.stream()
-				.map(this::getCoverageGoalFromTransition)
-				.collect(Collectors.toList());
+		return getGoalTransitions().stream().map(this::getCoverageGoalFromTransition).collect(Collectors.toList());
 	}
 
 	protected abstract EPATransitionCoverageTestFitness getCoverageGoalFromTransition(EPATransition t);

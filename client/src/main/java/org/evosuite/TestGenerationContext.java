@@ -223,7 +223,8 @@ public class TestGenerationContext {
 		DSEStats.clear();
 		
 		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)) {
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION)) {
 			EPAMonitor.reset();
 		}
 	}

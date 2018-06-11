@@ -369,10 +369,12 @@ public enum RuntimeVariable {
 	/** This total should be the sum of all the other types of constraints */
 	TotalNumberOfConstraints,
 	/* -------------------------------------------------------------------- */
-	/** The coverage of an EPA */ 
+	/** The coverage of the transitions in the EPA automata */ 
 	EpaTransitionCoverage,
-	/** The coverage of an EPA */
+	/** The coverage of the complement of the EPA */
 	EpaErrorCoverage,
+	/** The coverage of exceptions in each state of the EPA automata */
+	EpaExceptionCoverage,
 	/* -------------------------------------------------------------------- */
 	/** The number of SAT answers to Solver queries */ 
 	NumberOfSATQueries,
