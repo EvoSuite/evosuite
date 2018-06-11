@@ -36,7 +36,7 @@ public class TestEPAFitnessMyBoundedStack extends TestEPATransitionCoverage {
 	public void prepareTest() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
 		final File epaXMLFile = new File(xmlFilename);
 		Assume.assumeTrue(epaXMLFile.exists());
-
+		EPAMonitor.reset();
 		Properties.EPA_XML_PATH = xmlFilename;
 	}
 
