@@ -200,7 +200,7 @@ public class ClientProcess {
         if (args.length > 0) {
             identifier = args[0];
         } else {
-            identifier = "ClientNode";
+            identifier = "ClientNode0";
         }
 
 		try {
