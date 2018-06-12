@@ -17,10 +17,10 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
@@ -28,6 +28,7 @@ import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,12 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	private static final long serialVersionUID = 146182080947267628L;
 
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
+	
+    /** immigrant groups from neighbouring client */
+    protected ConcurrentLinkedQueue<List<T>> immigrants = new ConcurrentLinkedQueue<>();
+
+    /** emigrants going to neighbouring client */
+    protected Set<T> emigrants = new HashSet<>(Properties.RATE);
 
 	/** Crowding distance measure to use */
 	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
@@ -65,6 +72,12 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		List<T> union = new ArrayList<T>();
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
+		
+		// for parallel runs: integrate possible immigrants
+        if (Properties.PARALLEL_RUN > 1 && !immigrants.isEmpty()) {
+            
+            union.addAll(immigrants.poll());
+        }
 
 		Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
 
@@ -74,6 +87,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
 
 		int remain = this.population.size();
+		int emigrantsRemain = Properties.RATE;
 		int index = 0;
 		List<T> front = null;
 		this.population.clear();
@@ -86,10 +100,28 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
 			// Add the individuals of this front
 			this.population.addAll(front);
-
+			
 			// Decrement remain
 			remain = remain - front.size();
 
+			// for parallel runs: collect best k individuals for migration
+			if (Properties.PARALLEL_RUN > 1 && (currentIteration + 1) % Properties.FREQUENCY == 0
+                    && emigrantsRemain > 0) {
+			    if (front.size() < emigrantsRemain) {
+			        this.emigrants.addAll(front);
+			        emigrantsRemain -= front.size();
+                } else {
+                    for (int k = 0; k < emigrantsRemain; k++) {
+			            this.emigrants.add(front.get(k));
+                    }
+
+                    // all emigrants collected, so send them at once
+                    ClientServices.getInstance().getClientNode().emigrate(emigrants);
+                    emigrants.clear();
+			        emigrantsRemain = 0;
+                }
+            }
+			
 			// Obtain the next front
 			index++;
 			if (remain > 0) {
@@ -107,6 +139,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 			remain = 0;
 		}
+		
 		this.currentIteration++;
 	}
 
@@ -118,7 +151,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		logger.info("executing generateSolution function");
 
 		// keep track of covered goals
-		this.fitnessFunctions.forEach(goal -> this.addUncoveredGoal(goal));
+		this.fitnessFunctions.forEach(this::addUncoveredGoal);
 
 		// initialize population
 		if (this.population.isEmpty()) {
@@ -131,12 +164,21 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
 		}
 
-		// TODO add here dynamic stopping condition
-
+        // get better idea for type problem!!!!
+        if (Properties.PARALLEL_RUN > 1) {
+            ClientServices.getInstance().getClientNode().addListener(new Listener<Set<? extends Chromosome>>() {
+                @Override
+                public void receiveEvent(Set<? extends Chromosome> event) {
+                    immigrants.add(new LinkedList<T>((Set<? extends T>) event));
+                }
+            });
+        }
+        
+        // TODO add here dynamic stopping condition
 		while (!this.isFinished() && this.getNumberOfUncoveredGoals() > 0) {
 			this.evolve();
-			this.notifyIteration();
-		}
+            this.notifyIteration();
+        }
 
 		// storing the time needed to reach the maximum coverage
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage, this.budgetMonitor.getTime2MaxCoverage());

@@ -38,7 +38,6 @@ import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ExternalProcessGroupHandler;
-import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -382,7 +381,7 @@ public class TestGeneration {
             List<String> cmdLineClone = new ArrayList<>(cmdLine);
             
             if (Properties.PARALLEL_RUN == 1) {
-                cmdLineClone.add("ClientNode"); //to keep functionality for non parallel runs
+                cmdLineClone.add("ClientNode0"); //to keep functionality for non parallel runs
             } else {
                 cmdLineClone.add("ClientNode" + i);
             }

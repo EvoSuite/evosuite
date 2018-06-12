@@ -297,13 +297,13 @@ public class Properties {
 	public static int FUNCTIONAL_MOCKING_INPUT_LIMIT = 5;
 
     @Parameter(key = "parallel_run", group = "Test Creation", description = "Run EvoSuite with more the one client in parallel")
-    public static int PARALLEL_RUN = 1;
+    public static int PARALLEL_RUN = 2;
     
     @Parameter(key = "frequency", group = "Test Creation", description = "Determines amount of iterations between sending migrants to other client.")
-    public static int FREQUENCY = 10;
+    public static int FREQUENCY = 2;
     
     @Parameter(key = "rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
-    public static int RATE = 5;
+    public static int RATE = 3;
 
 	// ---------------------------------------------------------------
 	// Search algorithm
