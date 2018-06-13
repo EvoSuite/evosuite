@@ -37,6 +37,7 @@ import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.OnePlusLambdaLambdaGA;
 import org.evosuite.ga.metaheuristics.mulambda.OnePlusOneEA;
+import org.evosuite.ga.metaheuristics.paes.PaesGA;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.ga.operators.crossover.SinglePointFixedCrossOver;
@@ -199,8 +200,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
             return new MOSA<TestSuiteChromosome>(factory);
         case PAES:
         	logger.info("Chosen search algorithm: PAES");
-        	// TODO: Return PAES
-			return new MOSA<TestSuiteChromosome>(factory);
+			return new PaesGA<TestSuiteChromosome>(factory);
         case ONE_PLUS_LAMBDA_LAMBDA_GA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             {
