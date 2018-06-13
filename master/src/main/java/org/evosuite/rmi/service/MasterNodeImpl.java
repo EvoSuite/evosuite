@@ -22,12 +22,7 @@ package org.evosuite.rmi.service;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -71,7 +66,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void evosuite_registerClientNode(String clientRmiIdentifier) throws RemoteException {
+	public synchronized void evosuite_registerClientNode(String clientRmiIdentifier) throws RemoteException {
 
 		/*
 		 * The client should first register its node, and then inform MasterNode
@@ -93,7 +88,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void evosuite_informChangeOfStateInClient(String clientRmiIdentifier,
+	public synchronized void evosuite_informChangeOfStateInClient(String clientRmiIdentifier,
 	        ClientState state, ClientStateInformation information) throws RemoteException {
 		clientStates.put(clientRmiIdentifier, state);
 		// To be on the safe side
@@ -160,18 +155,18 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) {
+	public synchronized void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) {
 		SearchStatistics.getInstance().currentIndividual(clientRmiIdentifier, individual);
 	}
 
 	@Override
-	public void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value)
+	public synchronized void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value)
 	        throws RemoteException {
 		SearchStatistics.getInstance().setOutputVariable(variable, value);
 	}
 
 	@Override
-	public void evosuite_collectTestGenerationResult(
+	public synchronized void evosuite_collectTestGenerationResult(
 			String clientRmiIdentifier, List<TestGenerationResult> results)
 			throws RemoteException {
 		SearchStatistics.getInstance().addTestGenerationResult(results);
@@ -179,19 +174,20 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public void evosuite_flushStatisticsForClassChange(String clientRmiIdentifier)
+	public synchronized void evosuite_flushStatisticsForClassChange(String clientRmiIdentifier)
 			throws RemoteException {
 		SearchStatistics.getInstance().writeStatisticsForAnalysis();
 	}
 
 	@Override
-	public void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value)
+	public synchronized void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value)
 			throws RemoteException, IllegalArgumentException, IllegalAccessException, NoSuchParameterException {
 		Properties.getInstance().setValue(propertyName, value);
 	}
 
     @Override
-    public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants) throws RemoteException {
+    public synchronized void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants)
+            throws RemoteException {
         //implements ring topology
         try {
             int idNeighbour = (Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", "")) + 1) % Properties.PARALLEL_RUN;
