@@ -194,7 +194,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
     public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants) throws RemoteException {
         //implements ring topology
         try {
-            int idNeighbour = Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", "")) + 1 % Properties.PARALLEL_RUN;
+            int idNeighbour = (Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", "")) + 1) % Properties.PARALLEL_RUN;
 
             ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode" + idNeighbour);
             node.immigrate(migrants);
