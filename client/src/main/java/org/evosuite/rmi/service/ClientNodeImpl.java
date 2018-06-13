@@ -515,7 +515,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     @Override
     public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException {
         fireEvent(migrants);
-        LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": receiving " + migrants.size() + "immigrants");
+        LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": receiving "
+                + (migrants != null ? migrants.size() : 0) + " immigrants");
     }
 
     @Override
