@@ -179,6 +179,10 @@ public class EvoSuite {
                     throw new Error("Invalid amount of arguments for parallel");
                 }
 
+                javaOpts.add("-Dparallel_run=" + values[0]);
+                javaOpts.add("-Dfrequency=" + values[1]);
+                javaOpts.add("-Drate=" + values[2]);
+                
                 try {
                     Properties.getInstance().setValue("parallel_run", values[0]);
                     Properties.getInstance().setValue("frequency", values[1]);
