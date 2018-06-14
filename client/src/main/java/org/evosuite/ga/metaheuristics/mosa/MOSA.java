@@ -168,14 +168,17 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
 		}
 
-        // get better idea for type problem!!!!
+		Listener<Set<? extends Chromosome>> listener = null;
+		
         if (Properties.PARALLEL_RUN > 1) {
-            ClientServices.getInstance().getClientNode().addListener(new Listener<Set<? extends Chromosome>>() {
+            listener = new Listener<Set<? extends Chromosome>>() {
                 @Override
                 public void receiveEvent(Set<? extends Chromosome> event) {
                     immigrants.add(new LinkedList<T>((Set<? extends T>) event));
                 }
-            });
+            };
+            
+            ClientServices.getInstance().getClientNode().addListener(listener);
         }
         
         // TODO add here dynamic stopping condition
@@ -184,6 +187,10 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
             this.notifyIteration();
         }
 
+        if (Properties.PARALLEL_RUN > 1) {
+            ClientServices.getInstance().getClientNode().deleteListener(listener);
+        }
+        
 		// storing the time needed to reach the maximum coverage
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage, this.budgetMonitor.getTime2MaxCoverage());
 		this.notifySearchFinished();
