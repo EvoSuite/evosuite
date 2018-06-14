@@ -109,18 +109,19 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			// for parallel runs: collect best k individuals for migration
 			if (Properties.PARALLEL_RUN > 1 && (currentIteration + 1) % Properties.FREQUENCY == 0
                     && emigrantsRemain > 0) {
-			    if (front.size() < emigrantsRemain) {
-			        this.emigrants.addAll(front);
-			        emigrantsRemain -= front.size();
+			    if (front.size() <= emigrantsRemain) {
+                    this.emigrants.addAll(front);
+                    emigrantsRemain -= front.size();
                 } else {
                     for (int k = 0; k < emigrantsRemain; k++) {
-			            this.emigrants.add(front.get(k));
+                        this.emigrants.add(front.get(k));
+			            emigrantsRemain--;
                     }
+                }
 
-                    // all emigrants collected, so send them at once
+                // all emigrants collected
+                if (emigrants.size() == Properties.RATE) {
                     ClientServices.getInstance().getClientNode().emigrate(emigrants);
-                    emigrants.clear();
-			        emigrantsRemain = 0;
                 }
             }
 			
@@ -142,6 +143,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			remain = 0;
 		}
 		
+        emigrants.clear();
 		this.currentIteration++;
 	}
 
