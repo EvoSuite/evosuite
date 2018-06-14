@@ -221,10 +221,6 @@ public class EvoSuite {
                 }
             }
 
-            if(SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10){
-                LoggingUtils.getEvoLogger().warn(Properties.JAVA_VERSION_WARN_MSG);
-                return null;
-            }
 
             if(Properties.CLIENT_ON_THREAD){
                 MSecurityManager.setRunningClientOnThread(true);

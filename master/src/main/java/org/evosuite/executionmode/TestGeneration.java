@@ -23,6 +23,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.*;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
@@ -55,12 +56,18 @@ public class TestGeneration {
 			CommandLine line) {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
-		
+
 		if (strategy == null) {
 			strategy = Strategy.EVOSUITE;
 		} 
 
 		List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
+
+		if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
+			LoggingUtils.getEvoLogger().warn(Properties.JAVA_VERSION_WARN_MSG);
+			results.add(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult(Properties.JAVA_VERSION_WARN_MSG) }));
+			return results;
+		}
 
 		if(line.getOptions().length == 0) {
             Help.execute(options);
