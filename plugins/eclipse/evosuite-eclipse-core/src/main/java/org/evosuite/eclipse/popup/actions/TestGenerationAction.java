@@ -65,6 +65,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.swt.widgets.Shell;
 import org.evosuite.Properties;
 import org.evosuite.eclipse.Activator;
+import org.evosuite.shaded.org.apache.commons.lang3.SystemUtils;
 import org.osgi.framework.Bundle;
 
 /**
@@ -95,6 +96,10 @@ public abstract class TestGenerationAction extends AbstractHandler {
 		Boolean disabled = System.getProperty("evosuite.disable") != null; //  && System.getProperty("evosuite.disable").equals("1")
 		if ( disabled ) {
 			MessageDialog.openInformation(shell, "Sorry!", "The EvoSuite Plugin is disabled :(");
+			return;
+		}
+		if(SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
+			MessageDialog.openWarning(shell, "Java version problem", Properties.JAVA_VERSION_WARN_MSG);
 			return;
 		}
 		System.out.println("EvoSuite Plugin is enabled");
