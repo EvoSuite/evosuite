@@ -122,7 +122,7 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
             tagBranch();
 
 
-            tagBranch();
+//            tagBranch();
             visitJumpInsn(Opcodes.IFNE, jump);
             visitJumpInsn(Opcodes.GOTO, noJump);
             tagBranchExit();
