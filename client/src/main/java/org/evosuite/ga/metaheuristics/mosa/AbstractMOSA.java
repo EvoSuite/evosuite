@@ -1,4 +1,6 @@
 /**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
@@ -21,13 +23,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.evosuite.ProgressMonitor;
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
@@ -70,8 +73,8 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
 
-	/** Keep track of overall suite fitness functions */
-	protected final List<TestSuiteFitnessFunction> suiteFitnessFunctions;
+	/** Keep track of overall suite fitness functions and correspondent test fitness functions */
+	protected final Map<TestSuiteFitnessFunction, Class<?>> suiteFitnessFunctions;
 
 	/** Object used to keep track of the execution time needed to reach the maximum coverage */
 	protected final BudgetConsumptionMonitor budgetMonitor;
@@ -84,10 +87,11 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	public AbstractMOSA(ChromosomeFactory<T> factory) {
 		super(factory);
 
-		this.suiteFitnessFunctions = new ArrayList<TestSuiteFitnessFunction>();
+		this.suiteFitnessFunctions = new LinkedHashMap<TestSuiteFitnessFunction, Class<?>>();
 		for (Properties.Criterion criterion : Properties.CRITERION) {
-			TestSuiteFitnessFunction fit = FitnessFunctions.getFitnessFunction(criterion);
-			this.suiteFitnessFunctions.add(fit);
+			TestSuiteFitnessFunction suiteFit = FitnessFunctions.getFitnessFunction(criterion);
+			Class<?> testFit = FitnessFunctions.getTestFitnessFunctionClass(criterion);
+			this.suiteFitnessFunctions.put(suiteFit, testFit);
 		}
 
 		this.budgetMonitor = new BudgetConsumptionMonitor();
@@ -458,32 +462,12 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
      * {@inheritDoc}
      */
     @Override
-    protected void calculateFitness() {
-        logger.debug("Calculating fitness for " + this.population.size() + " individuals");
-
-        Iterator<T> iterator = this.population.iterator();
-        while (iterator.hasNext()) {
-            T c = iterator.next();
-            if (this.isFinished()) {
-                if (c.isChanged()) {
-                    iterator.remove();
-                }
-            } else {
-                this.calculateFitness(c);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void calculateFitness(T c) {
         this.fitnessFunctions.forEach(fitnessFunction -> fitnessFunction.getFitness(c));
 
         // if one of the coverage criterion is Criterion.EXCEPTION, then we have to analyse the results
         // of the execution to look for generated exceptions
-        if (ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)) {
+        if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EXCEPTION)) {
           TestChromosome testChromosome = (TestChromosome) c;
           ExceptionCoverageSuiteFitness.calculateExceptionInfo(
               Arrays.asList(testChromosome.getLastExecutionResult()),
@@ -510,14 +494,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         }
 
         // compute overall fitness and coverage
-        double fitness = this.getNumberOfUncoveredGoals();
-        double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.getTotalNumberOfGoals());
-        for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions) {
-            bestTestCases.setFitness(suiteFitness, fitness);
-            bestTestCases.setCoverage(suiteFitness, coverage);
-            bestTestCases.setNumOfCoveredGoals(suiteFitness, this.getNumberOfCoveredGoals());
-            bestTestCases.setNumOfNotCoveredGoals(suiteFitness, this.getNumberOfUncoveredGoals());
-        }
+        this.computeCoverageAndFitness(bestTestCases);
 
         List<T> bests = new ArrayList<T>(1);
         bests.add((T) bestTestCases);
@@ -546,7 +523,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
           for (T test : this.getNonDominatedSolutions(this.population)) {
             best.addTest((TestChromosome) test);
           }
-          for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions) {
+          for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions.keySet()) {
             best.setCoverage(suiteFitness, 0.0);
             best.setFitness(suiteFitness,  1.0);
           }
@@ -554,13 +531,32 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         }
 
         // compute overall fitness and coverage
-        double fitness = this.getNumberOfUncoveredGoals();
-        double coverage = ((double) this.getNumberOfCoveredGoals()) / ((double) this.getTotalNumberOfGoals());
-        for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions) {
-            best.setCoverage(suiteFitness, coverage);
-            best.setFitness(suiteFitness,  fitness);
-        }
+        this.computeCoverageAndFitness(best);
 
         return (T) best;
     }
+
+    protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
+      for (Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
+          .entrySet()) {
+        TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
+        Class<?> testFitnessFunction = entry.getValue();
+
+        int numberCoveredTargets =
+            Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
+        int numberUncoveredTargets =
+            Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
+        int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
+
+        double coverage = totalNumberTargets == 0 ? 0.0
+            : ((double) numberCoveredTargets)
+                / ((double) (numberCoveredTargets + numberUncoveredTargets));
+
+        suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
+        suite.setCoverage(suiteFitnessFunction, coverage);
+        suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
+        suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
+      }
+    }
+
 }

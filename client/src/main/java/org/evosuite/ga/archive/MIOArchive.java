@@ -79,22 +79,19 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
     super.updateArchive(target, solution, fitnessValue);
     assert this.archive.containsKey(target);
 
-    T solutionClone = (T) solution.clone();
-
-    ExecutionResult executionResult = solutionClone.getLastExecutionResult();
+    ExecutionResult executionResult = solution.getLastExecutionResult();
     // remove all statements after an exception
     if (!executionResult.noThrownExceptions()) {
-      solutionClone.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
+      solution.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
     }
 
     boolean isNewCoveredTarget = this.archive.get(target)
-        .addSolution(1.0 - FitnessFunction.normalize(fitnessValue), solutionClone);
+        .addSolution(1.0 - FitnessFunction.normalize(fitnessValue), solution);
     if (isNewCoveredTarget) {
       this.removeNonCoveredTargetOfAMethod(target);
       this.hasBeenUpdated = true;
@@ -129,6 +126,15 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfCoveredTargets(Class<?> targetClass) {
+    return (int) this.getCoveredTargets().stream()
+        .filter(target -> target.getClass() == targetClass).count();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Set<F> getCoveredTargets() {
     return this.archive.keySet().stream().filter(target -> this.archive.get(target).isCovered())
         .collect(Collectors.toSet());
@@ -140,6 +146,15 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
   @Override
   public int getNumberOfUncoveredTargets() {
     return this.getUncoveredTargets().size();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfUncoveredTargets(Class<?> targetClass) {
+    return (int) this.getUncoveredTargets().stream()
+        .filter(target -> target.getClass() == targetClass).count();
   }
 
   /**
