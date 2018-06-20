@@ -33,7 +33,7 @@ public class MyArchive<C extends Chromosome> implements Archive<C> {
     public MyArchive(Set<FitnessFunction<?>> fitnessFunctions, double min_value, double max_value){
         this.fitnessFunctions = new ArrayList<>();
         this.fitnessFunctions.addAll(fitnessFunctions);
-        Map<FitnessFunction<?>,Double> lowerBounds = new LinkedHashMap<>();
+        Map<FitnessFunction<?>, Double> lowerBounds = new LinkedHashMap<>();
         Map<FitnessFunction<?>, Double> upperBounds = new LinkedHashMap<>();
         for(FitnessFunction<?> ff : fitnessFunctions){
             lowerBounds.put(ff, min_value);
