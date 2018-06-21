@@ -1,4 +1,4 @@
-package org.evosuite.coverage.epa;
+package com.examples.with.different.packagename.epa;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,13 +8,13 @@ import java.lang.reflect.Method;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.epa.EPAMiningCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPATestCaseBuilder;
+import org.evosuite.coverage.epa.TestEPACoverage;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Test;
-
-import com.examples.with.different.packagename.epa.BoundedStackSize3ForMining;
-import com.examples.with.different.packagename.epa.BoundedStackSize3ForMiningWithInvalidState;
 
 public class TestEPAMiningCoverage extends TestEPACoverage {
 

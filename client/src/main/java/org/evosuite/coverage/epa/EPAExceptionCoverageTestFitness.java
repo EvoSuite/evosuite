@@ -73,4 +73,11 @@ public class EPAExceptionCoverageTestFitness extends TestFitnessFunction {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return goal.toString();
+	}
+	
+	
+
 }
