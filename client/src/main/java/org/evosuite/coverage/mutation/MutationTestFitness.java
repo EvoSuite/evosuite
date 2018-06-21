@@ -270,5 +270,6 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 
 		mutantId = ois.readInt();
 		this.mutation = MutationPool.getMutant(mutantId);
+		assert(this.mutation!=null):"mutation id not found " + mutantId;
 	}
 }

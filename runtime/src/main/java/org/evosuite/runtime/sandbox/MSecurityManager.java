@@ -36,11 +36,7 @@ import java.security.Permission;
 import java.security.SecurityPermission;
 import java.security.UnresolvedPermission;
 import java.sql.SQLPermission;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.PropertyPermission;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.FileHandler;
 import java.util.logging.LoggingPermission;
@@ -737,7 +733,7 @@ public class MSecurityManager extends SecurityManager {
 			return false;
 		}
 
-		boolean foundMasterNode = false;
+		/*boolean foundMasterNode = false;
 
 		traceLoop: for(StackTraceElement element : Thread.currentThread().getStackTrace()) {
 			for(String masterNodeMethod : masterNodeRemoteMethodNames) {
@@ -751,7 +747,7 @@ public class MSecurityManager extends SecurityManager {
 		if(!foundMasterNode) {
 			//found no reference to RMI
 			return false;
-		}
+		}*/
 
 		if(perm instanceof FilePermission && !perm.getActions().equals("read")) {
 			//we do this just as a safety mechanism...
