@@ -247,24 +247,30 @@ public class TestSuiteGenerator {
 		// phases (as no CPU cycles would be wasted updating the Archive).
 		Properties.TEST_ARCHIVE = false;
 
-		postProcessTests(testCases);
-		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
-		PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
+        postProcessTests(testCases);
+        ClientServices.getInstance().getClientNode().publishPermissionStatistics();
+        PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
+        TestGenerationResult result = null;
 
-		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
-		TestGenerationResult result = writeJUnitTestsAndCreateResult(testCases);
-		writeJUnitFailingTests();
-		TestCaseExecutor.pullDown();
-		/*
-		 * TODO: when we will have several processes running in parallel, we ll
-		 * need to handle the gathering of the statistics.
-		 */
-		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
+        if ("ClientNode0".equals(ClientProcess.identifier)) {
+            // progressMonitor.setCurrentPhase("Writing JUnit test cases");
+            LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier + ": Writing tests to file");
+            result = writeJUnitTestsAndCreateResult(testCases);
+            writeJUnitFailingTests();
+        }
+        
+        TestCaseExecutor.pullDown();
+        
+        /*
+         * TODO: when we will have several processes running in parallel, we ll
+         * need to handle the gathering of the statistics.
+         */
+        ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
 
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier + ": Done!");
 		LoggingUtils.getEvoLogger().info("");
 
-		return result;
+		return result != null ? result : TestGenerationResultBuilder.buildSuccessResult();
 	}
 
 	/**
