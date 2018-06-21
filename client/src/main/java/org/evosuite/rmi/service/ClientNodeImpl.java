@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.list.SynchronizedList;
 import org.evosuite.*;
 import org.evosuite.Properties;
 import org.evosuite.Properties.NoSuchParameterException;
@@ -90,6 +91,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
 
+	private Collection<Set<? extends Chromosome>> bestSolutions;
+	
 	private Thread statisticsThread; 
 
 	//only for testing
@@ -99,12 +102,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public ClientNodeImpl(Registry registry, String identifier) {
 		this.registry = registry;
 		state = ClientState.NOT_STARTED;
-		/*
-		 * TODO: for now it is a constant because we have only one client
-		 */
 		clientRmiIdentifier = identifier;
 		doneLatch = new CountDownLatch(1);
 		finishedLatch = new CountDownLatch(1);
+		this.bestSolutions = Collections.synchronizedList(new ArrayList<Set<? extends Chromosome>>(Properties.PARALLEL_RUN));
 	}
 
     private static class OutputVariable {
@@ -195,7 +196,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public void waitUntilDone() {
 		try {
 			doneLatch.await();
-		} catch (InterruptedException e) {
+		} catch (InterruptedException ignored) {
 		}
 	}
 
@@ -206,6 +207,15 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
             LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": Sending " + immigrants.size() + " immigrants");
         } catch (RemoteException e) {
             logger.error("Cannot send immigrating individuals to master", e);
+        }
+    }
+
+    @Override
+    public void sendBestSolution(Set<? extends Chromosome> solutions) {
+        try {
+            masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
+        } catch (RemoteException e) {
+            logger.error("Cannot send best solution to master", e);
         }
     }
 
@@ -520,6 +530,11 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     }
 
     @Override
+    public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException {
+        bestSolutions.add(solutions);
+    }
+
+    @Override
     public void addListener(Listener<Set<? extends Chromosome>> listener) {
 	    listeners.add(listener);
     }
@@ -539,5 +554,21 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
         for (Listener<Set<? extends Chromosome>> listener : listeners) {
             listener.receiveEvent(event);
         }
+    }
+
+    /**
+     * Returns collected solutions of all clients other than client 0. This method blocks until all solutions are 
+     * collected.
+     * 
+     * @return the list of collected best solutions or null if there is a timeout
+     */
+    public Set<Set<? extends Chromosome>> getBestSolutions() {
+        do {
+            if (bestSolutions.size() == (Properties.PARALLEL_RUN - 1)) {
+                return new HashSet<Set<? extends Chromosome>>(bestSolutions);
+            }
+        } while (finishedLatch.getCount() != 0);
+        
+        return null;
     }
 }

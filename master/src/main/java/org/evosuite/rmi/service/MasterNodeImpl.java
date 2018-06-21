@@ -169,6 +169,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	public synchronized void evosuite_collectTestGenerationResult(
 			String clientRmiIdentifier, List<TestGenerationResult> results)
 			throws RemoteException {
+	    //TODO
 		SearchStatistics.getInstance().addTestGenerationResult(results);
 		
 	}
@@ -196,6 +197,16 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
             node.immigrate(migrants);
         } catch (NotBoundException e) {
             logger.error("Client with id " + clientRmiIdentifier + "not found");
+        }
+    }
+
+    @Override
+    public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
+        try {
+            ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode0");
+            node.collectBestSolutions(solutions);
+        } catch (RemoteException | NotBoundException e) {
+            logger.error("Cannot send best solutions to client 0", e);
         }
     }
 

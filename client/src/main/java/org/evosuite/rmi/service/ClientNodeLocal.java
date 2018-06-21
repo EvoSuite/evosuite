@@ -23,6 +23,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.Listenable;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,4 +52,8 @@ public interface ClientNodeLocal extends Listenable<Set<? extends Chromosome>> {
 	public void waitUntilDone();
 	
 	public void emigrate(Set<? extends Chromosome> immigrants);
+	
+	public void sendBestSolution(Set<? extends Chromosome> solutions);
+
+    public Set<Set<? extends Chromosome>> getBestSolutions();
 }
