@@ -206,7 +206,8 @@ public class BytecodeInstrumentation {
             
             if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION) ||
                     ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR) ||
-                    ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION)) {
+                    ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION)
+                    || ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)) {
             	cv = new EPAMonitorClassAdapter(cv, className);
             }
 

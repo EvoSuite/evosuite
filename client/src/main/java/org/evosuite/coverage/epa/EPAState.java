@@ -10,6 +10,12 @@ public class EPAState implements Serializable {
 	 */
 	public static final EPAState INVALID_OBJECT_STATE = new EPAState("INVALID_OBJECT_STATE");
 
+	
+	/**
+	 * This singleton represents that the object state before the object is built
+	 */
+	public static final EPAState INITIAL_STATE = new EPAState("_INITIAL_STATE");
+
 	/**
 	 * 
 	 */
@@ -62,4 +68,6 @@ public class EPAState implements Serializable {
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 	}
+
+
 }

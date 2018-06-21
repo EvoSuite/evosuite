@@ -375,6 +375,8 @@ public enum RuntimeVariable {
 	EpaErrorCoverage,
 	/** The coverage of exceptions in each state of the EPA automata */
 	EpaExceptionCoverage,
+	/** The coverage of normal transitions of an unknown EPA automata */
+	EpaMiningCoverage,
 	/* -------------------------------------------------------------------- */
 	/** The number of SAT answers to Solver queries */ 
 	NumberOfSATQueries,

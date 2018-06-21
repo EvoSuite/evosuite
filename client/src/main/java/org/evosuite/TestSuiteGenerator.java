@@ -769,6 +769,9 @@ public class TestSuiteGenerator {
 		case EPAERROR:
 			LoggingUtils.getEvoLogger().info("  - EPA Error Coverage");
 			break;
+		case EPAMINING:
+			LoggingUtils.getEvoLogger().info("  - EPA Mining Coverage");
+			break;
 		case EPAEXCEPTION:
 			LoggingUtils.getEvoLogger().info("  - EPA Exception Coverage");
 			break;

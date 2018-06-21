@@ -95,7 +95,6 @@ public class TestEPAExceptionCoverage extends TestEPATransitionCoverage {
 			IOException, SAXException, ParserConfigurationException {
 		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
 		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
-		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPATRANSITION };
 
 		EPAExceptionCoverageFactory factory = new EPAExceptionCoverageFactory(Properties.TARGET_CLASS,
 				EPAFactory.buildEPA(Properties.EPA_XML_PATH));

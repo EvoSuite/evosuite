@@ -9,14 +9,17 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +45,8 @@ public class EPAMonitor {
 
 	private boolean isEnabled = true;
 
+	private final Map<String, Method> actionToPredicateMap;
+
 	public void setEnabled(boolean enabled) {
 		this.isEnabled = enabled;
 	}
@@ -50,21 +55,41 @@ public class EPAMonitor {
 		return isEnabled;
 	}
 
+	private EPAMonitor() {
+		this(null);
+	}
+
 	private EPAMonitor(EPA automata) {
-		if (automata == null) {
-			throw new IllegalArgumentException("EPA XML Path cannot be null!");
-		}
 		this.automata = automata;
 		Class<?> targetClass;
 		try {
 			targetClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-			this.epaStatesToMethodMap = createEpaStateToMethodMap(automata, targetClass);
-			this.methodToActionMap = createMethodToActionMap(automata, targetClass);
-			this.constructorToActionMap = createConstructorToActionMap(automata, targetClass);
+			if (automata != null) {
+				this.epaStatesToMethodMap = createEpaStateToMethodMap(automata, targetClass);
+				this.methodToActionMap = createMethodToActionMap(automata, targetClass);
+				this.constructorToActionMap = createConstructorToActionMap(automata, targetClass);
+				this.actionToPredicateMap = null;
+			} else {
+				this.epaStatesToMethodMap = null;
+				this.methodToActionMap = createMethodToActionMap(targetClass);
+				this.constructorToActionMap = createConstructorToActionMap(targetClass);
+				this.actionToPredicateMap = createActionToPredicateMap(targetClass);
 
+			}
 		} catch (ClassNotFoundException | NoSuchMethodException e) {
 			throw new EvosuiteError(e);
 		}
+
+	}
+
+	private Map<String, Method> createActionToPredicateMap(Class<?> targetClass) {
+		Map<String, Method> actionToPredicateMap = new HashMap<String, Method>();
+		Map<String, Method> actionToMethodsMap = EPAUtils.getEpaActionPreconditionMethods(targetClass);
+		for (String actionId : actionToMethodsMap.keySet()) {
+			Method method = actionToMethodsMap.get(actionId);
+			actionToPredicateMap.put(actionId, method);
+		}
+		return actionToPredicateMap;
 
 	}
 
@@ -113,6 +138,38 @@ public class EPAMonitor {
 			}
 		}
 		return methodToActionMap;
+	}
+
+	private static Map<String, String> createMethodToActionMap(Class<?> targetClass) {
+		Map<String, String> methodToActionMap = new HashMap<String, String>();
+		Map<String, Set<Method>> actionToMethodsMap = EPAUtils.getEpaActionMethods(targetClass);
+		for (String actionId : actionToMethodsMap.keySet()) {
+			Set<Method> methods = actionToMethodsMap.get(actionId);
+			for (Method method : methods) {
+				final String methodName = method.getName();
+				final String methodDescriptor = Type.getMethodDescriptor(method);
+				final String methodFullName = methodName + methodDescriptor;
+				methodToActionMap.put(methodFullName, actionId);
+			}
+		}
+		return methodToActionMap;
+	}
+
+	private static Map<String, String> createConstructorToActionMap(Class<?> targetClass) {
+		final Map<String, String> constructorToActionMap = new HashMap<String, String>();
+		Map<String, Set<Constructor<?>>> actionToMethodsMap = EPAUtils.getEpaActionConstructors(targetClass);
+		for (String actionId : actionToMethodsMap.keySet()) {
+			// search methods
+			Set<Constructor<?>> constructors = EPAUtils.getEpaActionConstructors(actionId, targetClass);
+			for (Constructor<?> constructor : constructors) {
+				final String constructorName = INIT;
+				final String constructorDescriptor = Type.getConstructorDescriptor(constructor);
+				final String constructorFullName = constructorName + constructorDescriptor;
+				constructorToActionMap.put(constructorFullName, actionId);
+			}
+		}
+		return constructorToActionMap;
+
 	}
 
 	/**
@@ -166,12 +223,19 @@ public class EPAMonitor {
 
 	public static EPAMonitor getInstance() {
 		if (instance == null) {
-			if (Properties.EPA_XML_PATH == null) {
+			if ((ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)
+					|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)
+					|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION))
+					&& Properties.EPA_XML_PATH == null) {
 				throw new IllegalStateException("EPA_XML_PATH should be configured before creating EPAMonitor!");
 			}
 			try {
-				final EPA automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
-				instance = new EPAMonitor(automata);
+				if (Properties.EPA_XML_PATH != null) {
+					final EPA automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
+					instance = new EPAMonitor(automata);
+				} else {
+					instance = new EPAMonitor();
+				}
 			} catch (ParserConfigurationException | SAXException | IOException e) {
 				throw new EvosuiteError(e);
 			}
@@ -227,7 +291,12 @@ public class EPAMonitor {
 	private void beforeConstructor(String className, String fullMethodName, Object object) {
 		if (this.constructorToActionMap.containsKey(fullMethodName)) {
 			call_stack.push(className + "." + fullMethodName);
-			EPAState epa_state = this.automata.getInitialState();
+			EPAState epa_state;
+			if (this.automata == null) {
+				epa_state = EPAState.INITIAL_STATE;
+			} else {
+				epa_state = this.automata.getInitialState();
+			}
 			setPreviousEpaState(object, epa_state);
 		}
 	}
@@ -300,7 +369,13 @@ public class EPAMonitor {
 				}
 
 				final String actionName = this.constructorToActionMap.get(fullConstructorName);
-				if (!getPreviousEpaState(object).equals(automata.getInitialState())) {
+				EPAState initialState;
+				if (automata == null) {
+					initialState = EPAState.INITIAL_STATE;
+				} else {
+					initialState = automata.getInitialState();
+				}
+				if (!getPreviousEpaState(object).equals(initialState)) {
 					final EPAState previousEpaState = getPreviousEpaState(object);
 					throw new MalformedEPATraceException(
 							"New object cannot have a previous EPA State different than initial: " + previousEpaState);
@@ -376,18 +451,25 @@ public class EPAMonitor {
 	private EPAState getCurrentState(Object calleeObject) throws MalformedEPATraceException {
 		try {
 			EPAState currentState = null;
-			for (EPAState epaState : this.automata.getStates()) {
-				if (this.automata.getInitialState().equals(epaState)) {
-					continue; // discard initial states (always false)
-				}
+			if (this.automata == null) {
 
-				boolean executionResult = executeEpaStateMethod(epaState, calleeObject);
-				if (executionResult == true) {
-					if (currentState != null) {
-						throw new MalformedEPATraceException("Object found in multiple EPA states: " + currentState
-								+ " and " + epaState + " simultaneously");
-					} else {
-						currentState = epaState;
+				currentState = buildEPAState(calleeObject);
+
+			} else {
+
+				for (EPAState epaState : this.automata.getStates()) {
+					if (this.automata.getInitialState().equals(epaState)) {
+						continue; // discard initial states (always false)
+					}
+
+					boolean executionResult = executeEpaStateMethod(epaState, calleeObject);
+					if (executionResult == true) {
+						if (currentState != null) {
+							throw new MalformedEPATraceException("Object found in multiple EPA states: " + currentState
+									+ " and " + epaState + " simultaneously");
+						} else {
+							currentState = epaState;
+						}
 					}
 				}
 			}
@@ -407,19 +489,61 @@ public class EPAMonitor {
 		}
 	}
 
-	private boolean executeEpaStateMethod(EPAState epaState, Object calleeObject) throws InvocationTargetException {
-		try {
-			if (!this.epaStatesToMethodMap.containsKey(epaState)) {
-				throw new NoSuchMethodException("Boolean query method for state " + epaState
-						+ " was not found in class " + calleeObject.getClass().getName() + " or any superclass");
+	private EPAState buildEPAState(Object calleeObject) {
+
+		TreeMap<String, Boolean> actionEnabledness = new TreeMap<String, Boolean>();
+
+		// constructor are not enabled by default
+		for (String actionId : this.constructorToActionMap.values()) {
+			actionEnabledness.put(actionId, false);
+		}
+		// check enabledness for each actionId
+		for (String actionId : this.actionToPredicateMap.keySet()) {
+			Method booleanQueryMethod = this.actionToPredicateMap.get(actionId);
+			try {
+				boolean booleanQueryResult = executeBooleanQueryMethod(calleeObject, booleanQueryMethod);
+				actionEnabledness.put(actionId, booleanQueryResult);
+			} catch (InvocationTargetException ex) {
+				return EPAState.INVALID_OBJECT_STATE;
 			}
-			final Method method = this.epaStatesToMethodMap.get(epaState);
+		}
+		String epaStateName = buildEPAStateName(actionEnabledness);
+		return new EPAState(epaStateName);
+	}
+
+	private static String buildEPAStateName(TreeMap<String, Boolean> actionEnabledness) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		for (String actionId : actionEnabledness.keySet()) {
+			if (sb.length() > 1) {
+				sb.append(",");
+			}
+			boolean enabledness = actionEnabledness.get(actionId);
+			sb.append(actionId + "=" + enabledness);
+		}
+		sb.append("]");
+		String epaStateName = sb.toString();
+		return epaStateName;
+	}
+
+	private boolean executeEpaStateMethod(EPAState epaState, Object calleeObject) throws InvocationTargetException {
+		final Method method = this.epaStatesToMethodMap.get(epaState);
+		if (!this.epaStatesToMethodMap.containsKey(epaState)) {
+			throw new EvosuiteError("Boolean query method for state " + epaState + " was not found in class "
+					+ calleeObject.getClass().getName() + " or any superclass");
+		}
+		return executeBooleanQueryMethod(calleeObject, method);
+	}
+
+	private boolean executeBooleanQueryMethod(Object calleeObject, final Method method)
+			throws InvocationTargetException, EvosuiteError {
+		try {
 			boolean isAccessible = method.isAccessible();
 			method.setAccessible(true);
 			Boolean result = (Boolean) method.invoke(calleeObject);
 			method.setAccessible(isAccessible);
 			return result.booleanValue();
-		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
 			throw new EvosuiteError(e);
 		}
 	}
