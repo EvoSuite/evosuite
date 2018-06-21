@@ -338,7 +338,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			return false;
 		}	
 
-		TestSuiteChromosome individual = bestIndividual.values().iterator().next();
+		TestSuiteChromosome individual = bestIndividual.get("ClientNode0");
 
 		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
 		if(map==null){
