@@ -23,6 +23,7 @@ import org.evosuite.ga.Chromosome;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -55,4 +56,6 @@ public interface ClientNodeRemote extends Remote {
 	public void printClassStatistics() throws RemoteException;
 	
 	public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException;
+
+    public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException;
 }
