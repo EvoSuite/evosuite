@@ -23,6 +23,8 @@ public class EPAExceptionCoverageFactory extends AbstractFitnessFactory<EPAExcep
 	public List<EPAExceptionCoverageTestFitness> getCoverageGoals() {
 		return goals;
 	}
+	
+	
 
 	private LinkedList<EPAExceptionCoverageTestFitness> buildExceptionCoverageGoals() {
 		LinkedList<EPAExceptionCoverageTestFitness> goals = new LinkedList<EPAExceptionCoverageTestFitness>();

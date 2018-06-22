@@ -84,27 +84,35 @@ public class EPAMiningCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			// as all assertions already covered are in the archive
 			suite.setFitness(this, 0.0);
 			suite.setCoverage(this, 1.0);
-			maxEPAMiningGoalsCovered = ExceptionCoverageFactory.getGoals().size();
+			maxEPAMiningGoalsCovered = EPAMiningCoverageFactory.getGoals().size();
 			return 0.0;
 		}
 
-		int goalsCoveredByResultSize = goalsCoveredByResult.size();
+		int numCoveredGoals = goalsCoveredByResult.size();
+		int numUncoveredGoals = 0;
+		for (EPAMiningCoverageTestFitness knownCoverageGoal : EPAMiningCoverageFactory.getGoals().values()) {
+			if (!goalsCoveredByResult.contains(knownCoverageGoal)) {
+				numUncoveredGoals++;
+			}
+		}
 
-		if (goalsCoveredByResultSize > maxEPAMiningGoalsCovered) {
-			logger.info("(Exceptions) Best individual covers " + goalsCoveredByResultSize + " transitions");
-			maxEPAMiningGoalsCovered = goalsCoveredByResultSize;
+		if (numCoveredGoals > maxEPAMiningGoalsCovered) {
+			logger.info("(Exceptions) Best individual covers " + numCoveredGoals + " transitions");
+			maxEPAMiningGoalsCovered = numCoveredGoals;
 		}
 
 		// We cannot set a coverage here, as it does not make any sense
 		// suite.setCoverage(this, 1.0);
-		double epaMiningCoverageFitness = maxNumberOfAutomataTransitions - goalsCoveredByResultSize;
+		double epaMiningCoverageFitness = maxNumberOfAutomataTransitions - numCoveredGoals;
 
 		suite.setFitness(this, epaMiningCoverageFitness);
 		if (maxEPAMiningGoalsCovered > 0)
-			suite.setCoverage(this, goalsCoveredByResultSize / maxEPAMiningGoalsCovered);
+			suite.setCoverage(this, numCoveredGoals / maxEPAMiningGoalsCovered);
 		else
 			suite.setCoverage(this, 1.0);
 
+		suite.setNumOfCoveredGoals(this, numCoveredGoals);
+		suite.setNumOfNotCoveredGoals(this, numUncoveredGoals);
 		return epaMiningCoverageFitness;
 	}
 

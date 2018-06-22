@@ -108,7 +108,9 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		 * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
 		 */
 		TestSuiteChromosome testSuite = null;
-		if (!(Properties.STOP_ZERO && goals.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)) {
+		if (!(Properties.STOP_ZERO && goals.isEmpty()) 
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION) 
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)) {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
 			LoggingUtils.getEvoLogger().info("* Starting evolution");

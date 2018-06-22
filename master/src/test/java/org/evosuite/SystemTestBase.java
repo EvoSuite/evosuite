@@ -27,6 +27,7 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.coverage.epa.EPAMiningCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -82,6 +83,7 @@ public class SystemTestBase {
 		System.setProperties(currentProperties);
 		Properties.getInstance().resetToDefaults();
 		ExceptionCoverageFactory.getGoals().clear();
+		EPAMiningCoverageFactory.getGoals().clear();
 		TestsArchive.instance.reset();
 	}
 
