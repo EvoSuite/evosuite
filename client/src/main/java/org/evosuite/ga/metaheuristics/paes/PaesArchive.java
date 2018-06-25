@@ -13,7 +13,7 @@ import java.util.*;
  *
  * Created by Sebastian on 10.04.2018.
  */
-public class MyArchive<C extends Chromosome> implements Archive<C> {
+public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C> {
     private static final boolean USE_RECURSIVE_GRID_CROWDED = false;
     private static boolean USE_BEST_SCORE = false;
     private static final int MAX_SIZE = 100;
@@ -30,7 +30,7 @@ public class MyArchive<C extends Chromosome> implements Archive<C> {
      * @param min_value
      * @param max_value
      */
-    public MyArchive(Set<FitnessFunction<?>> fitnessFunctions, double min_value, double max_value){
+    public PaesArchive(Set<FitnessFunction<?>> fitnessFunctions, double min_value, double max_value){
         this.fitnessFunctions = new ArrayList<>();
         this.fitnessFunctions.addAll(fitnessFunctions);
         Map<FitnessFunction<?>, Double> lowerBounds = new LinkedHashMap<>();
@@ -39,7 +39,7 @@ public class MyArchive<C extends Chromosome> implements Archive<C> {
             lowerBounds.put(ff, min_value);
             upperBounds.put(ff, max_value);
         }
-        grid = new GridNode<>(lowerBounds, upperBounds, MyArchive.GRID_LAYER_DEPTH);
+        grid = new GridNode<>(lowerBounds, upperBounds, PaesArchive.GRID_LAYER_DEPTH);
     }
 
     /**
@@ -51,17 +51,17 @@ public class MyArchive<C extends Chromosome> implements Archive<C> {
         for (C chromosome: archivedChromosomes)
             if(chromosome.dominates(c))
                 return false;
-        if(this.archivedChromosomes.size() < MyArchive.MAX_SIZE){
+        if(this.archivedChromosomes.size() < PaesArchive.MAX_SIZE){
             this.archivedChromosomes.add(c);
             this.grid.add(c);
             return true;
         } else {
             GridLocation<C> mostCrowded =
-                    MyArchive.USE_RECURSIVE_GRID_CROWDED ? grid.recursiveMostCrowdedRegion() : grid.mostCrowdedRegion();
+                    PaesArchive.USE_RECURSIVE_GRID_CROWDED ? grid.recursiveMostCrowdedRegion() : grid.mostCrowdedRegion();
             if(mostCrowded.isInBounds(c.getCoverageValues()))
                 return false;
             GridLocation<C> region = grid.region(c);
-            if(region != null && region.count() >= mostCrowded.count() && !MyArchive.USE_RECURSIVE_GRID_CROWDED)
+            if(region != null && region.count() >= mostCrowded.count() && !PaesArchive.USE_RECURSIVE_GRID_CROWDED)
                 return false;
             C deleted = mostCrowded.getAll().get(0);
             if(region != null)
@@ -88,7 +88,7 @@ public class MyArchive<C extends Chromosome> implements Archive<C> {
      */
     @Override
     public boolean decide(C candidate, C current) {
-        if(MyArchive.USE_BEST_SCORE){
+        if(PaesArchive.USE_BEST_SCORE){
             int candidateBestScoreCount = this.getBestScoreCount(candidate);
             int currentBestScoreCount = this.getBestScoreCount(current);
             if(candidateBestScoreCount > currentBestScoreCount)
@@ -96,7 +96,7 @@ public class MyArchive<C extends Chromosome> implements Archive<C> {
             else if(currentBestScoreCount > candidateBestScoreCount)
                 return false;
         }
-        int dif = this.grid.decide(candidate, current, MyArchive.USE_RECURSIVE_GRID_CROWDED);
+        int dif = this.grid.decide(candidate, current, PaesArchive.USE_RECURSIVE_GRID_CROWDED);
         return dif > 0;
     }
 

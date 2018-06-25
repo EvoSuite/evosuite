@@ -11,7 +11,7 @@ import java.util.List;
  *
  * Created by Sebastian on 10.04.2018.
  */
-public interface Archive<C extends Chromosome> {
+public interface PaesArchiveInterface<C extends Chromosome> {
     /**
      * Removes all dominated {@link Chromosome} from the archive and adds
      * the given one, if it is not dominated by any chromosome in the archive.

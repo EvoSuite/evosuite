@@ -238,8 +238,8 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
         do {
             GridNodeInterface candidate_region = this.region(candidate, check_level);
             GridNodeInterface current_region = this.region(current, check_level);
-            candidate_score = candidate_region != null ? candidate_region.count() : 1;
-            current_score = current_region != null ? current_region.count() : 1;
+            candidate_score = candidate_region != null ? candidate_region.count() : 0;
+            current_score = current_region != null ? current_region.count() : 0;
         } while(candidate_score == current_score && check_level-- > 0);
         return candidate_score - current_score;
     }

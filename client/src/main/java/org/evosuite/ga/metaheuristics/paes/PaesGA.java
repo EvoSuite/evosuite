@@ -2,17 +2,12 @@ package org.evosuite.ga.metaheuristics.paes;
 
 
 
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.*;
 import org.evosuite.ga.metaheuristics.paes.analysis.GenerationAnalysis;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,20 +41,18 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
         candidate.mutate();
         this.calculateFitness(candidate);
         if(current.dominates(candidate)) {
-            /**if(PAES_ANALYTIC_MODE)
-                this.generationAnalyses.add(new GenerationAnalysis(false,
-                        this.archive.getChromosomes(),
-                        GenerationAnalysis.RETURN_OPTION.CURRENT_DOMINATES_CANDIDATE));*/
+            if(PAES_ANALYTIC_MODE)
+                this.addGenerationAnalyse(false, this.archive.getChromosomes(),
+                        GenerationAnalysis.RETURN_OPTION.CURRENT_DOMINATES_CANDIDATE);
             return;
         }
         if(candidate.dominates(current)) {
-            archive.add(current);
+            archive.removeDominated(candidate);
             this.population.clear();
             this.population.add(candidate);
-            /**if(PAES_ANALYTIC_MODE)
-                this.generationAnalyses.add(new GenerationAnalysis(true,
-                        this.archive.getChromosomes(),
-                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_CURRENT));*/
+            if(PAES_ANALYTIC_MODE)
+                this.addGenerationAnalyse(true, this.archive.getChromosomes(),
+                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_CURRENT);
             return;
         }
         List<C> archivedChromosomes = archive.getChromosomes();
@@ -68,20 +61,18 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
         for( C c: archivedChromosomes){
             if(candidate.dominates(c)){
                 candidateDominates = true;
-                break;
             } else if(c.dominates(candidate)){
                 candidateIsDominated = true;
-                break;
             }
         }
+        assert !(candidateDominates && candidateIsDominated);
         if(candidateDominates){
             archive.add(current);
             this.population.clear();
             this.population.add(candidate);
-            /**if(PAES_ANALYTIC_MODE)
-                this.generationAnalyses.add(new GenerationAnalysis(true,
-                        this.archive.getChromosomes(),
-                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_ARCHIVE));*/
+            if(PAES_ANALYTIC_MODE)
+                this.addGenerationAnalyse(true, this.archive.getChromosomes(),
+                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_ARCHIVE);
             return;
         }
         if(!candidateIsDominated) {
@@ -89,24 +80,28 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
                 archive.add(current);
                 this.population.clear();
                 this.population.add(candidate);
-                /**if(PAES_ANALYTIC_MODE)
-                    this.generationAnalyses.add(new GenerationAnalysis(true,
-                            this.archive.getChromosomes(),
-                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CANDIDATE));*/
+                if(PAES_ANALYTIC_MODE)
+                    this.addGenerationAnalyse(true, this.archive.getChromosomes(),
+                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CANDIDATE);
                 return;
             } else {
                 archive.add(candidate);
-                /**if(PAES_ANALYTIC_MODE)
-                    this.generationAnalyses.add(new GenerationAnalysis(false,
-                            this.archive.getChromosomes(),
-                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CURRENT));*/
+                if(PAES_ANALYTIC_MODE)
+                    this.addGenerationAnalyse(false, this.archive.getChromosomes(),
+                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CURRENT);
                 return;
             }
         }
-        /**if(PAES_ANALYTIC_MODE)
-            this.generationAnalyses.add(new GenerationAnalysis(false,
-                    this.archive.getChromosomes(),
-                    GenerationAnalysis.RETURN_OPTION.ARCHIVE_DOMINATES_CANDIDATE));*/
+        if(PAES_ANALYTIC_MODE)
+            this.addGenerationAnalyse(false, this.archive.getChromosomes(),
+                    GenerationAnalysis.RETURN_OPTION.ARCHIVE_DOMINATES_CANDIDATE);
+    }
+
+    private void addGenerationAnalyse(boolean accepted,
+                                      List<C> chromosomes,
+                                      GenerationAnalysis.RETURN_OPTION return_option){
+        this.generationAnalyses.add(new GenerationAnalysis<C>(accepted,
+                chromosomes,return_option));
     }
 
     /**
@@ -116,26 +111,14 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
     public void generateSolution() {
         if(this.population.isEmpty())
             initializePopulation();
-        debug_print(Double.toString(this.population.get(0).getFitness()));
+        if(PAES_ANALYTIC_MODE){
+            this.generationAnalyses = new ArrayList<>();
+        }
         while(!this.isFinished()){
             this.evolve();
+            ++this.currentIteration;
             this.notifyIteration();
-            debug_print(Double.toString(this.population.get(0).getFitness()));
-        }
-        for(StoppingCondition s : this.stoppingConditions){
-            debug_print("Stopping Condition: " + s.toString());
         }
         this.notifySearchFinished();
-    }
-
-    private void debug_print(String msg){
-        String time = LocalTime.now() + " " + LocalDate.now();
-        try {
-            FileWriter fileWriter = new FileWriter("C:\\Users\\Sebastian\\Desktop\\paesLog.txt", true);
-            fileWriter.write(time + ": " + msg +"\n");
-            fileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
