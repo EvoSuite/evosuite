@@ -4,11 +4,14 @@ package org.evosuite.ga.metaheuristics.paes;
 
 import org.evosuite.ga.*;
 import org.evosuite.ga.metaheuristics.paes.analysis.GenerationAnalysis;
+import org.evosuite.rmi.ClientServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class represents a Pareto Archived Evolution Strategy.
@@ -36,6 +39,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
      */
     @Override
     protected void evolve() {
+        long start = System.currentTimeMillis();
         C current = this.population.get(0);
         C candidate = (C)current.clone();
         candidate.mutate();
@@ -43,7 +47,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
         if(current.dominates(candidate)) {
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(false, this.archive.getChromosomes(),
-                        GenerationAnalysis.RETURN_OPTION.CURRENT_DOMINATES_CANDIDATE);
+                        GenerationAnalysis.RETURN_OPTION.CURRENT_DOMINATES_CANDIDATE, start);
             return;
         }
         if(candidate.dominates(current)) {
@@ -52,7 +56,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             this.population.add(candidate);
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(true, this.archive.getChromosomes(),
-                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_CURRENT);
+                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_CURRENT, start);
             return;
         }
         List<C> archivedChromosomes = archive.getChromosomes();
@@ -72,7 +76,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             this.population.add(candidate);
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(true, this.archive.getChromosomes(),
-                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_ARCHIVE);
+                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_ARCHIVE, start);
             return;
         }
         if(!candidateIsDominated) {
@@ -82,26 +86,27 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
                 this.population.add(candidate);
                 if(PAES_ANALYTIC_MODE)
                     this.addGenerationAnalyse(true, this.archive.getChromosomes(),
-                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CANDIDATE);
+                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CANDIDATE, start);
                 return;
             } else {
                 archive.add(candidate);
                 if(PAES_ANALYTIC_MODE)
                     this.addGenerationAnalyse(false, this.archive.getChromosomes(),
-                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CURRENT);
+                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CURRENT, start);
                 return;
             }
         }
         if(PAES_ANALYTIC_MODE)
             this.addGenerationAnalyse(false, this.archive.getChromosomes(),
-                    GenerationAnalysis.RETURN_OPTION.ARCHIVE_DOMINATES_CANDIDATE);
+                    GenerationAnalysis.RETURN_OPTION.ARCHIVE_DOMINATES_CANDIDATE, start);
     }
 
     private void addGenerationAnalyse(boolean accepted,
                                       List<C> chromosomes,
-                                      GenerationAnalysis.RETURN_OPTION return_option){
+                                      GenerationAnalysis.RETURN_OPTION return_option,
+                                      long startMillis){
         this.generationAnalyses.add(new GenerationAnalysis<C>(accepted,
-                chromosomes,return_option));
+                chromosomes,return_option, System.currentTimeMillis()- startMillis));
     }
 
     /**
@@ -119,6 +124,40 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             ++this.currentIteration;
             this.notifyIteration();
         }
+        if(PAES_ANALYTIC_MODE){
+            Map<GenerationAnalysis.RETURN_OPTION,Integer> returnOptionsCount = new LinkedHashMap<>();
+            Map<GenerationAnalysis.RETURN_OPTION,Long> timeSums = new LinkedHashMap<>();
+            for(GenerationAnalysis.RETURN_OPTION option : GenerationAnalysis.RETURN_OPTION.values()){
+                returnOptionsCount.put(option, 0);
+                timeSums.put(option, (long)0);
+            }
+            for(GenerationAnalysis<C> generationAnalysis : this.generationAnalyses){
+                GenerationAnalysis.RETURN_OPTION option = generationAnalysis.getReturnoption();
+                int count = returnOptionsCount.get(option);
+                long timeSum = timeSums.get(option);
+                returnOptionsCount.put(option, count + 1);
+                timeSums.put(option, timeSum + generationAnalysis.getMilliSeconds());
+            }
+            Map<GenerationAnalysis.RETURN_OPTION, Double> timeAvg = createAvgTimeMap(timeSums, returnOptionsCount);
+            for(GenerationAnalysis.RETURN_OPTION option : GenerationAnalysis.RETURN_OPTION.values()){
+                ClientServices.getInstance().getClientNode().trackOutputVariable(
+                        GenerationAnalysis.RETURN_OPTION.getRuntimeVariableCount(option), option.name() +": " +returnOptionsCount.get(option));
+                ClientServices.getInstance().getClientNode().trackOutputVariable(
+                        GenerationAnalysis.RETURN_OPTION.getRuntimeVariableAvg(option), option.name()+": "+ timeAvg.get(option));
+            }
+        }
         this.notifySearchFinished();
+    }
+
+    private Map<GenerationAnalysis.RETURN_OPTION, Double> createAvgTimeMap(Map<GenerationAnalysis.RETURN_OPTION,Long> timeSums,
+                                                                         Map<GenerationAnalysis.RETURN_OPTION,Integer> counts){
+        Map<GenerationAnalysis.RETURN_OPTION, Double> timeAvg = new LinkedHashMap<>();
+        for(GenerationAnalysis.RETURN_OPTION option : GenerationAnalysis.RETURN_OPTION.values()){
+            if(counts.get(option) != 0)
+                timeAvg.put(option, (double)timeSums.get(option)/ (double)counts.get(option));
+            else
+                timeAvg.put(option, (double)-1);
+        }
+        return timeAvg;
     }
 }
