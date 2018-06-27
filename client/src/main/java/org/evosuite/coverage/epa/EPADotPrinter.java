@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.xml.sax.SAXException;
 
 public class EPADotPrinter {
@@ -74,32 +75,27 @@ public class EPADotPrinter {
 		}
 	}
 
-	private List<String> allowedActions = Arrays.<String>asList("moveToInsertRow", "moveToCurrentRow", "absolute",
-			"first", "last", "next", "previous", "relative", "afterLast", "beforeFirst", "insertRow", "close",
-			"deleteRow", "cancelRowUpdates", "refreshRow", "updateRow", "updateInt", "getInt", "wasNull");
-
 	public String toDot(EPA automata) {
 
 		Map<KeyPair, Set<String>> edges = new HashMap<KeyPair, Set<String>>();
 		Map<String, Set<String>> enabledActions = new HashMap<String, Set<String>>();
 		for (EPATransition transition : automata.getTransitions()) {
 			String fromState = transition.getOriginState().getName();
+			String escapedFromState = escapeStateId(fromState);
+
 			String toState = transition.getDestinationState().getName();
+			String escapedToState = escapeStateId(toState);
 			String actionId = transition.getActionName();
 
-			if (!allowedActions.contains(actionId)) {
-				continue;
-			}
-
-			KeyPair key = new KeyPair(fromState, toState);
+			KeyPair key = new KeyPair(escapedFromState, escapedToState);
 			if (!edges.containsKey(key)) {
 				edges.put(key, new HashSet<String>());
 			}
-			if (!enabledActions.containsKey(fromState)) {
-				enabledActions.put(fromState, new HashSet<String>());
+			if (!enabledActions.containsKey(escapedFromState)) {
+				enabledActions.put(escapedFromState, new HashSet<String>());
 			}
 			edges.get(key).add(actionId);
-			enabledActions.get(fromState).add(actionId);
+			enabledActions.get(escapedFromState).add(actionId);
 		}
 
 		List<KeyPair> listOfKeys = new LinkedList<KeyPair>(edges.keySet());
@@ -137,6 +133,16 @@ public class EPADotPrinter {
 		buff.append("}");
 		buff.append("\n");
 		return buff.toString();
+	}
+
+	/**
+	 * Escapes the characters that are not valid in the DOT language.
+	 * 
+	 * @param stateId
+	 * @return
+	 */
+	private static String escapeStateId(String stateId) {
+		return stateId.replace("[", "").replace("]", "").replace("=", "").replace(",", "");
 	}
 
 	public static void main(String[] args) {

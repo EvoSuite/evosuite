@@ -27,7 +27,7 @@ public class EPA implements Serializable {
 	private final String name;
 
 	private final EPAState initialState;
-	
+
 	public EPA(String name, Map<EPAState, Set<EPATransition>> map, EPAState initialState) {
 		this.name = name;
 		this.map = map;
@@ -67,11 +67,11 @@ public class EPA implements Serializable {
 	}
 
 	public Set<String> getActions() {
-		final Set<String> actions = map.values().stream().flatMap(Set::stream)
-				.map(t -> t.getActionName()).collect(Collectors.toSet());
+		final Set<String> actions = map.values().stream().flatMap(Set::stream).map(t -> t.getActionName())
+				.collect(Collectors.toSet());
 		return actions;
 	}
-	
+
 	public Set<EPAState> getStates() {
 		final Set<EPAState> states = new HashSet<EPAState>();
 		states.add(initialState);
@@ -92,5 +92,44 @@ public class EPA implements Serializable {
 		return getTransitions().stream().filter(t -> t.getOriginState().equals(originState))
 				.collect(Collectors.toSet());
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((initialState == null) ? 0 : initialState.hashCode());
+		result = prime * result + ((map == null) ? 0 : map.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EPA other = (EPA) obj;
+		if (initialState == null) {
+			if (other.initialState != null)
+				return false;
+		} else if (!initialState.equals(other.initialState))
+			return false;
+		if (map == null) {
+			if (other.map != null)
+				return false;
+		} else if (!map.equals(other.map))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
+	
+
 
 }

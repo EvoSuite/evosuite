@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +39,7 @@ public abstract class EPAFactory {
 	private static final String STATE = "state";
 	private static final String NAME = "name";
 	private static final String INITIAL_STATE = "initial_state";
-	
+
 	public static EPA buildEPAOrError(String xmlFilename) {
 		try {
 			return buildEPA(xmlFilename);
@@ -45,11 +47,11 @@ public abstract class EPAFactory {
 			throw new EvosuiteError(e);
 		}
 	}
+
 	public static EPA buildEPA(String xmlFilename) throws ParserConfigurationException, SAXException, IOException {
 		return buildEPA(new FileInputStream(xmlFilename));
 	}
-	
-	
+
 	/**
 	 * Builds a new EPA from an XML file
 	 * 
@@ -92,8 +94,7 @@ public abstract class EPAFactory {
 					final String destinationStateId = transition.getAttribute(DESTINATION);
 					EPAState originState = epaStateMap.get(stateId);
 					EPAState destinationState = epaStateMap.get(destinationStateId);
-					epaTransitions.add(new EPANormalTransition(originState, actionId,
-							destinationState));
+					epaTransitions.add(new EPANormalTransition(originState, actionId, destinationState));
 				}
 			}
 		}
@@ -111,4 +112,34 @@ public abstract class EPAFactory {
 		return newEPA;
 	}
 
+	/**
+	 * Builds a EPA from a set of EPA traces
+	 */
+	public static EPA buildEPA(Collection<EPATrace> traces) throws MalformedEPATraceException {
+		String automata_name = null;
+		Map<EPAState, Set<EPATransition>> leadsToMap = new HashMap<EPAState, Set<EPATransition>>();
+		EPAState initialState = EPAState.INITIAL_STATE;
+		for (EPATrace trace : traces) {
+			if (!trace.getEpaTransitions().isEmpty()) {
+				if (!trace.getFirstState().equals(EPAState.INITIAL_STATE)) {
+					throw new MalformedEPATraceException("Trace does not start in initial state");
+				}
+			}
+			for (EPATransition transition : trace.getEpaTransitions()) {
+				if (transition.getDestinationState().equals(EPAState.INVALID_OBJECT_STATE)) {
+					// discard rest of current trace
+					break;
+				}
+				EPAState fromState = transition.getOriginState();
+				if (!leadsToMap.containsKey(fromState)) {
+					leadsToMap.put(fromState, new HashSet<EPATransition>());
+				}
+				if (!leadsToMap.get(fromState).contains(transition)) {
+					leadsToMap.get(fromState).add(transition);
+				}
+			}
+		}
+		EPA automata = new EPA(automata_name, leadsToMap, initialState);
+		return automata;
+	}
 }

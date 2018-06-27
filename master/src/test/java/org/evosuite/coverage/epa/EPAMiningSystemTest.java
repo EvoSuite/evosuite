@@ -3,7 +3,15 @@ package org.evosuite.coverage.epa;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
@@ -11,10 +19,15 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import com.examples.with.different.packagename.epa.BoundedStack;
 import com.examples.with.different.packagename.epa.MiniBoundedStack;
@@ -97,10 +110,8 @@ public class EPAMiningSystemTest extends SystemTestBase {
 
 	@Test
 	public void testMiningEPAWithArchive() {
-		mineEPAOfBoundedStack(true,true);
+		mineEPAOfBoundedStack(true, true);
 	}
-
-	
 
 	@Test
 	public void testMiningEPAOfBoundedStack() {
@@ -120,7 +131,6 @@ public class EPAMiningSystemTest extends SystemTestBase {
 		final Object results = evoSuite.parseCommandLine(command);
 		Assert.assertNotNull(results);
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
-
 
 		TestSuiteChromosome bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
 		assertTrue(!bestIndividual.getTests().isEmpty());
@@ -161,5 +171,120 @@ public class EPAMiningSystemTest extends SystemTestBase {
 
 	}
 
-	
+	@Test
+	public void testSimpleEPAFromTraces() throws MalformedEPATraceException {
+		Properties.TEST_ARCHIVE = false;
+		Properties.MINIMIZE = true;
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
+		Properties.SEARCH_BUDGET = 60;
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPAMINING };
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.ASSERTIONS = false;
+
+		final String targetClass = MiniBoundedStack.class.getCanonicalName();
+
+		EPA inferredAutomata = inferAutomata(targetClass);
+
+		int expectedNumberOfStates = 3;
+		assertEquals(expectedNumberOfStates, inferredAutomata.getStates().size());
+
+		int expectedNumberOfActions = 3;
+		assertEquals(expectedNumberOfActions, inferredAutomata.getActions().size());
+
+		int expectedNumberOfTransitions = 3;
+		assertEquals(expectedNumberOfTransitions, inferredAutomata.getTransitions().size());
+
+		EPADotPrinter printer = new EPADotPrinter();
+		String dot_str = printer.toDot(inferredAutomata);
+		assertNotNull(dot_str);
+	}
+
+	@Test
+	public void testWriteToXMLFromTraces()
+			throws MalformedEPATraceException, ParserConfigurationException, SAXException, IOException {
+		Properties.TEST_ARCHIVE = false;
+		Properties.MINIMIZE = true;
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
+		Properties.SEARCH_BUDGET = 60;
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPAMINING };
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.ASSERTIONS = false;
+		Properties.INFERRED_EPA_XML_PATH = "inferred_bounded_stack.xml";
+
+		final String targetClass = MiniBoundedStack.class.getCanonicalName();
+		EPA inferredAutomata = inferAutomata(targetClass);
+		assertNotNull(inferredAutomata);
+
+		File inferredEPAFile = new File(Properties.INFERRED_EPA_XML_PATH);
+		assertTrue(inferredEPAFile.exists());
+
+		EPA epa = EPAFactory.buildEPA(Properties.INFERRED_EPA_XML_PATH);
+
+		int expectedNumberOfStates = 3;
+		assertEquals(expectedNumberOfStates, epa.getStates().size());
+
+		int expectedNumberOfActions = 3;
+		assertEquals(expectedNumberOfActions, epa.getActions().size());
+
+		int expectedNumberOfTransitions = 3;
+		assertEquals(expectedNumberOfTransitions, epa.getTransitions().size());
+
+	}
+
+	@Test
+	public void testEPAFromTraces() throws MalformedEPATraceException {
+		Properties.TEST_ARCHIVE = false;
+		Properties.MINIMIZE = true;
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXGENERATIONS;
+		Properties.SEARCH_BUDGET = 60;
+		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.EPAMINING };
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.ASSERTIONS = false;
+
+		final String targetClass = BoundedStack.class.getCanonicalName();
+
+		EPA inferredAutomata = inferAutomata(targetClass);
+
+		int expectedNumberOfStates = 5;
+		assertEquals(expectedNumberOfStates, inferredAutomata.getStates().size());
+
+		int expectedNumberOfActions = 3;
+		assertEquals(expectedNumberOfActions, inferredAutomata.getActions().size());
+
+		int expectedNumberOfTransitions = 10;
+		assertEquals(expectedNumberOfTransitions, inferredAutomata.getTransitions().size());
+
+		EPADotPrinter printer = new EPADotPrinter();
+		String dot_str = printer.toDot(inferredAutomata);
+		assertNotNull(dot_str);
+	}
+
+	private EPA inferAutomata(final String targetClass) throws MalformedEPATraceException {
+		Properties.TARGET_CLASS = targetClass;
+
+		final EvoSuite evoSuite = new EvoSuite();
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		final Object results = evoSuite.parseCommandLine(command);
+		Assert.assertNotNull(results);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+		TestSuiteChromosome bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
+
+		TestCaseExecutor.initExecutor();
+		EPAMonitor.reset();
+		EPAMonitor.getInstance().setEnabled(true);
+		for (TestChromosome test : bestIndividual.getTestChromosomes()) {
+			TestCase testCase = test.getTestCase();
+			ExecutionResult executionResult = TestCaseExecutor.runTest(testCase);
+			test.setLastExecutionResult(executionResult);
+		}
+
+		Set<EPATrace> traces = new HashSet<EPATrace>();
+		for (ExecutionResult result : bestIndividual.getLastExecutionResults()) {
+			Set<EPATrace> resultTraces = result.getTrace().getEPATraces();
+			traces.addAll(resultTraces);
+		}
+		EPA inferredAutomata = EPAFactory.buildEPA(traces);
+		return inferredAutomata;
+	}
+
 }

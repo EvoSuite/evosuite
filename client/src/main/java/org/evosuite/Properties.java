@@ -714,6 +714,9 @@ public class Properties {
 	@Parameter(key = "epa_xml_path", group = "EPA", description = "Indicates the path to the EPA XML File")
 	public static String EPA_XML_PATH = null;
 
+	@Parameter(key = "inferred_epa_xml_path", group = "EPA", description = "This option can be enabled only and only if the EPAMINING criterion is enabled")
+	public static String INFERRED_EPA_XML_PATH = null;
+
 	
 	//----------------------------------------------------------------
 	// Continuous Test Generation
