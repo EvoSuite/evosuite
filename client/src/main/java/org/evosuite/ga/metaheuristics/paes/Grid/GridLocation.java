@@ -107,7 +107,7 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
      */
     @Override
     public GridLocation<C> region(C c) {
-        return this.isInBounds(c.getCoverageValues()) ? this : null;
+        return this.isInBounds(c.getFitnessValues()) ? this : null;
     }
 
     /**
@@ -117,12 +117,12 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
     public GridNodeInterface<C> region(C c, int depth){
         if(depth != 0)
             throw new IllegalArgumentException("Grid has reached leaf");
-        return this.isInBounds((c.getCoverageValues())) ? this : null;
+        return this.isInBounds((c.getFitnessValues())) ? this : null;
     }
 
     @Override
     public GridNodeInterface<C> current_region(C c) {
-        return this.isInBounds(c.getCoverageValues()) ? this : null;
+        return this.isInBounds(c.getFitnessValues()) ? this : null;
     }
 
     @Override

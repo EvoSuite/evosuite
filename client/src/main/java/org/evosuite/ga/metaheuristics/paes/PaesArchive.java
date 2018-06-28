@@ -58,7 +58,7 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
         } else {
             GridLocation<C> mostCrowded =
                     PaesArchive.USE_RECURSIVE_GRID_CROWDED ? grid.recursiveMostCrowdedRegion() : grid.mostCrowdedRegion();
-            if(mostCrowded.isInBounds(c.getCoverageValues()))
+            if(mostCrowded.isInBounds(c.getFitnessValues()))
                 return false;
             GridLocation<C> region = grid.region(c);
             if(region != null && region.count() >= mostCrowded.count() && !PaesArchive.USE_RECURSIVE_GRID_CROWDED)
@@ -101,12 +101,12 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
     }
 
     private int getBestScoreCount(C chromosome) {
-        Map<FitnessFunction<?>, Double> coverageValues = chromosome.getCoverageValues();
+        Map<FitnessFunction<?>, Double> fitnessValues = chromosome.getFitnessValues();
         LinkedHashMap<FitnessFunction<?>, Boolean> defeated = new LinkedHashMap<>();
         int count = 0;
         for(C c : archivedChromosomes){
-            for(FitnessFunction<?> ff : coverageValues.keySet()){
-                if(!defeated.get(ff) && (chromosome.getCoverage(ff) > c.getCoverage(ff))) {
+            for(FitnessFunction<?> ff : fitnessValues.keySet()){
+                if(!defeated.get(ff) && (chromosome.getFitness(ff) > c.getFitness(ff))) {
                     defeated.put(ff, true);
                     ++count;
                 }

@@ -33,7 +33,7 @@ public abstract class AbstractPAES<C extends Chromosome> extends AbstractMOSuite
         this.calculateFitness(first);
         this.population = new ArrayList<>();
         this.population.add(first);
-        this.archive = new PaesArchive<C>(first.getCoverageValues().keySet(), 0, 1);
+        this.archive = new PaesArchive<C>(first.getFitnessValues().keySet(), 0, 1);
     }
 
     @Override

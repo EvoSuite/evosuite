@@ -22,6 +22,8 @@ package org.evosuite.ga;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import net.bytebuddy.pool.TypePool;
 import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
@@ -642,6 +644,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * Examines whether this Chromosome dominates another one (@param c).
      * Domination means that none objective of this chromosome has a
      * worse score than the corresponding objective of the other chromosome
+	 * and at least one better objective.
 	 *
 	 * @param c the compared Chromosome
 	 * @return whether this Chromosome dominates the other.
@@ -649,18 +652,22 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public boolean dominates(Chromosome c){
 		boolean hasDominatedObjective = false;
 		boolean hasDominatingObjective = false;
-		for(FitnessFunction<?> ff: this.coverageValues.keySet()){
-			if(this.coverageValues.get(ff) > c.coverageValues.get(ff)) {
+		int same_value_count = 0;
+		int length = this.fitnessValues.keySet().size();
+		for(FitnessFunction<?> ff: this.fitnessValues.keySet()){
+			if(this.fitnessValues.get(ff) > c.fitnessValues.get(ff)) {
 				hasDominatedObjective = true;
 				break;
 			}
-			if(this.coverageValues.get(ff) < c.coverageValues.get(ff))
+			if(this.fitnessValues.get(ff) < c.fitnessValues.get(ff))
 				hasDominatingObjective = true;
+			if(this.fitnessValues.get(ff) == c.fitnessValues.get(ff))
+				++same_value_count;
 		}
 		if(hasDominatedObjective)
 			return false;
 		if(hasDominatingObjective)
 			return true;
-		return true;
+		return false;
 	}
 }

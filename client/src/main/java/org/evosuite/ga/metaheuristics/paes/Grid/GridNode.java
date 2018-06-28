@@ -68,12 +68,12 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     @Override
     public void add(C c) {
         for(GridNodeInterface<C> child : children){
-            if(child.isInBounds(c.getCoverageValues())){
+            if(child.isInBounds(c.getFitnessValues())){
                 child.add(c);
                 return;
             }
         }
-        Map<FitnessFunction<?>, Double> scores = c.getCoverageValues();
+        Map<FitnessFunction<?>, Double> scores = c.getFitnessValues();
         if(scores.size() != this.upperBounds.size() || scores.size() != this.lowerBounds.size())
             throw new IllegalArgumentException("scores of c got wrong length");
         Map<FitnessFunction<?>, Double> upperBounds = new LinkedHashMap<>();
@@ -184,7 +184,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
      */
     @Override
     public GridLocation<C> region(C c) {
-        Map<FitnessFunction<?>, Double> scores = c.getCoverageValues();
+        Map<FitnessFunction<?>, Double> scores = c.getFitnessValues();
         for (GridNodeInterface<C> child : children) {
             if(child.isInBounds(scores)){
                 return child.region(c);
@@ -198,7 +198,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
      */
     @Override
     public GridNodeInterface<C> region(C c, int depth){
-        Map<FitnessFunction<?>, Double> scores = c.getCoverageValues();
+        Map<FitnessFunction<?>, Double> scores = c.getFitnessValues();
         for(GridNodeInterface<C> child: children){
             if(child.isInBounds(scores)){
                 if(depth == 0)
@@ -215,7 +215,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     @Override
     public GridNodeInterface<C> current_region(C c) {
         for (GridNodeInterface<C> child: children) {
-            if (child.isInBounds(c.getCoverageValues()))
+            if (child.isInBounds(c.getFitnessValues()))
                 return child;
         }
         return null;
