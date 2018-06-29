@@ -627,12 +627,15 @@ public class Properties {
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
 
 	public enum SelectionFunction {
-		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT
+		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT, BESTK, RANDOMK
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
-	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
-
+	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK_CROWD_DISTANCE_TOURNAMENT;
+    
+    @Parameter(key = "select_emigrant_function", group = "Search Algorithm", description = "Selection function for emigrant selection during sarch")
+    public static SelectionFunction SELECT_EMIGRANT_FUNCTION = SelectionFunction.RANDOMK;
+	
 	public enum MutationProbabilityDistribution {
 		UNIFORM, BINOMIAL
 	}
