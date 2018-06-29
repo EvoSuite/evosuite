@@ -29,6 +29,10 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
+import org.evosuite.ga.operators.selection.BestKSelection;
+import org.evosuite.ga.operators.selection.RandomKSelection;
+import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.Listener;
@@ -49,9 +53,8 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	
     /** immigrant groups from neighbouring client */
     protected ConcurrentLinkedQueue<List<T>> immigrants = new ConcurrentLinkedQueue<>();
-
-    /** emigrants going to neighbouring client */
-    protected Set<T> emigrants = new HashSet<>(Properties.RATE);
+    
+    protected SelectionFunction<T> emigrantsSelection;
 
 	/** Crowding distance measure to use */
 	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
@@ -62,6 +65,17 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 */
 	public MOSA(ChromosomeFactory<T> factory) {
 		super(factory);
+		
+		switch (Properties.SELECT_EMIGRANT_FUNCTION) {
+            case RANK:
+                this.emigrantsSelection = new RankSelection<>();
+                break;
+            case RANDOMK:
+                this.emigrantsSelection = new RandomKSelection<>();
+                break;
+            default:
+                this.emigrantsSelection = new BestKSelection<>();
+        }
 	}
 
 	/**
@@ -90,7 +104,6 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
 
 		int remain = this.population.size();
-		int emigrantsRemain = Properties.RATE;
 		int index = 0;
 		List<T> front = null;
 		this.population.clear();
@@ -106,25 +119,6 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			
 			// Decrement remain
 			remain = remain - front.size();
-
-			// for parallel runs: collect best k individuals for migration
-			if (Properties.PARALLEL_RUN > 1 && (currentIteration + 1) % Properties.FREQUENCY == 0
-                    && emigrantsRemain > 0) {
-			    if (front.size() <= emigrantsRemain) {
-                    this.emigrants.addAll(front);
-                    emigrantsRemain -= front.size();
-                } else {
-                    for (int k = 0; k < emigrantsRemain; k++) {
-                        this.emigrants.add(front.get(k));
-			            emigrantsRemain--;
-                    }
-                }
-
-                // all emigrants collected
-                if (emigrants.size() == Properties.RATE) {
-                    ClientServices.getInstance().getClientNode().emigrate(emigrants);
-                }
-            }
 			
 			// Obtain the next front
 			index++;
@@ -132,6 +126,12 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 				front = this.rankingFunction.getSubfront(index);
 			}
 		}
+
+        // for parallel runs: collect best k individuals for migration
+        if (Properties.PARALLEL_RUN > 1 && (currentIteration + 1) % Properties.FREQUENCY == 0) {
+            HashSet<T> emigrants = new HashSet<>(emigrantsSelection.select(this.population, Properties.RATE));
+            ClientServices.getInstance().getClientNode().emigrate(emigrants);
+        }
 
 		// Remain is less than front(index).size, insert only the best one
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
@@ -144,7 +144,6 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			remain = 0;
 		}
 		
-        emigrants.clear();
 		this.currentIteration++;
 	}
 
