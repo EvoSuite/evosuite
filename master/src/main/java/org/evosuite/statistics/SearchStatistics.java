@@ -243,7 +243,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				//TODO: why is this fixed?
 				//RuntimeVariable.BranchCoverage.toString(),
 				RuntimeVariable.Total_Goals.toString(),
-				RuntimeVariable.Covered_Goals.toString()
+				RuntimeVariable.Covered_Goals.toString(),
+                "parallel_run", "frequency", "rate"
 				};
 		variableNames.addAll(Arrays.asList(essentials));
 		
