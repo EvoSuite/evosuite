@@ -8,10 +8,7 @@ import org.evosuite.rmi.ClientServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class represents a Pareto Archived Evolution Strategy.
@@ -44,6 +41,11 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
         C candidate = (C)current.clone();
         candidate.mutate();
         this.calculateFitness(candidate);
+        if(fitnessFunctionsHaveChanged(current.getFitnessValues().keySet(), candidate.getFitnessValues().keySet())){
+            for(C c : archive.getChromosomes())
+                this.calculateFitness(c);
+            archive.updateFitnessFunctions(candidate.getFitnessValues().keySet());
+        }
         if(current.dominates(candidate)) {
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(false, this.archive.getChromosomes(),
@@ -141,9 +143,9 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             Map<GenerationAnalysis.RETURN_OPTION, Double> timeAvg = createAvgTimeMap(timeSums, returnOptionsCount);
             for(GenerationAnalysis.RETURN_OPTION option : GenerationAnalysis.RETURN_OPTION.values()){
                 ClientServices.getInstance().getClientNode().trackOutputVariable(
-                        GenerationAnalysis.RETURN_OPTION.getRuntimeVariableCount(option), option.name() +": " +returnOptionsCount.get(option));
+                        GenerationAnalysis.RETURN_OPTION.getRuntimeVariableCount(option), option.name() +"Count: " +returnOptionsCount.get(option));
                 ClientServices.getInstance().getClientNode().trackOutputVariable(
-                        GenerationAnalysis.RETURN_OPTION.getRuntimeVariableAvg(option), option.name()+": "+ timeAvg.get(option));
+                        GenerationAnalysis.RETURN_OPTION.getRuntimeVariableAvg(option), option.name()+"Avg: "+ timeAvg.get(option));
             }
         }
         this.notifySearchFinished();
@@ -159,5 +161,15 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
                 timeAvg.put(option, (double)-1);
         }
         return timeAvg;
+    }
+
+    private boolean fitnessFunctionsHaveChanged(Set<FitnessFunction<?>> currentFF, Set<FitnessFunction<?>> candidateFF){
+        if(currentFF.size() != candidateFF.size())
+            return true;
+        for(FitnessFunction<?> ff : currentFF){
+            if(!candidateFF.contains(ff))
+                return true;
+        }
+        return false;
     }
 }

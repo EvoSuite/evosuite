@@ -18,6 +18,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     private Map<FitnessFunction<?>, Double> upperBounds;
     private int depth;
     private ArrayList<GridNodeInterface<C>> children = new ArrayList<>();
+    private GridNode<C> parent;
 
     /**
      * creates an GridNode with given bounds, subdivided into a grid with
@@ -27,7 +28,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
      * @param upperBounds the maximum values of the grid
      * @param depth the depth of the sub grid
      */
-    public GridNode(Map<FitnessFunction<?>, Double> lowerBounds, Map<FitnessFunction<?>, Double> upperBounds, int depth){
+    public GridNode(Map<FitnessFunction<?>, Double> lowerBounds, Map<FitnessFunction<?>, Double> upperBounds, int depth, GridNode<C> parent){
         if(lowerBounds.size() != upperBounds.size())
             throw new IllegalArgumentException("lower and upper bounds must have the same length");
         if(depth < 0)
@@ -35,17 +36,16 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
         this.lowerBounds = lowerBounds;
         this.upperBounds = upperBounds;
         this.depth = depth;
+        this.parent = parent;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isInBounds(Map<FitnessFunction<?>, Double> values) {
-        if(values.size() != this.lowerBounds.size() || values.size() != this.upperBounds.size())
-            throw new IllegalArgumentException("values got wrong length");
-        for(FitnessFunction<?> ff : values.keySet()){
-            if(values.get(ff)> this.upperBounds.get(ff) || values.get(ff) < this.lowerBounds.get(ff))
+    public boolean isInBounds(C c) {
+        for(FitnessFunction<?> ff : this.upperBounds.keySet()){
+            if(c.getFitness(ff)> this.upperBounds.get(ff) || c.getFitness(ff) < this.lowerBounds.get(ff))
                 return false;
         }
         return true;
@@ -68,19 +68,16 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     @Override
     public void add(C c) {
         for(GridNodeInterface<C> child : children){
-            if(child.isInBounds(c.getFitnessValues())){
+            if(child.isInBounds(c)){
                 child.add(c);
                 return;
             }
         }
-        Map<FitnessFunction<?>, Double> scores = c.getFitnessValues();
-        if(scores.size() != this.upperBounds.size() || scores.size() != this.lowerBounds.size())
-            throw new IllegalArgumentException("scores of c got wrong length");
         Map<FitnessFunction<?>, Double> upperBounds = new LinkedHashMap<>();
         Map<FitnessFunction<?>, Double> lowerBounds = new LinkedHashMap<>();
         for (FitnessFunction<?> ff : this.upperBounds.keySet()) {
             double delimiter = (this.upperBounds.get(ff)+this.lowerBounds.get(ff))/2;
-            if(scores.get(ff) < delimiter){
+            if(c.getFitness(ff) < delimiter){
                 upperBounds.put(ff,delimiter);
                 lowerBounds.put(ff, this.lowerBounds.get(ff));
             } else{
@@ -90,9 +87,9 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
         }
         GridNodeInterface<C> newChild;
         if(this.depth == 1)
-            newChild = new GridLocation<>(lowerBounds, upperBounds);
+            newChild = new GridLocation<>(lowerBounds, upperBounds, this);
         else
-            newChild = new GridNode<>(lowerBounds, upperBounds, this.depth-1);
+            newChild = new GridNode<>(lowerBounds, upperBounds, this.depth-1, this);
         newChild.add(c);
         this.children.add(newChild);
     }
@@ -149,18 +146,31 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
                 C candidate = childMostCrowded.getAll().get(0);
                 GridNodeInterface<C> currentRegion;
                 C current = mostCrowded.getAll().get(0);
-                int current_level = this.depth;
-                do {
-                    candidateRegion = this.region(candidate, current_level);
-                    currentRegion = this.region(current, current_level);
-                    if(candidateRegion.count() > currentRegion.count()){
+                int candidateCount,currentCount,current_level = this.depth;
+                candidateRegion = childMostCrowded;
+                currentRegion = mostCrowded;
+                candidateCount = candidateRegion != null? candidateRegion.count() : 1;
+                currentCount = currentRegion != null? currentRegion.count() : 1;
+                current_level--;
+                while(candidateCount == currentCount && current_level-- > 0) {
+                    if(candidateRegion == null)
+                        candidateRegion = this.region(candidate, current_level);
+                    else
+                        candidateRegion = candidateRegion.getParent();
+                    if(currentRegion == null)
+                        currentRegion = this.region(current, current_level);
+                    else
+                        currentRegion = currentRegion.getParent();
+                    candidateCount = candidateRegion == null ? 1 : candidateRegion.count();
+                    currentCount = currentRegion == null ? 1 : currentRegion.count();
+                    if(candidateCount > currentCount){
                         mostCrowded = childMostCrowded;
                         best_count = childMostCrowded.count();
-                    } else if(currentRegion.count() > candidateRegion.count())
+                    } else if(currentCount > candidateCount)
                         break;
                     else
                         continue;
-                } while(candidateRegion.count() == currentRegion.count() && current_level-- > 0);
+                }
             }
         }
         return mostCrowded;
@@ -176,7 +186,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
                 max = g.count();
             }
         }
-            return best;
+        return best;
     }
 
     /**
@@ -184,11 +194,9 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
      */
     @Override
     public GridLocation<C> region(C c) {
-        Map<FitnessFunction<?>, Double> scores = c.getFitnessValues();
         for (GridNodeInterface<C> child : children) {
-            if(child.isInBounds(scores)){
+            if(child.getAll().contains(c))
                 return child.region(c);
-            }
         }
         return null;
     }
@@ -198,9 +206,8 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
      */
     @Override
     public GridNodeInterface<C> region(C c, int depth){
-        Map<FitnessFunction<?>, Double> scores = c.getFitnessValues();
         for(GridNodeInterface<C> child: children){
-            if(child.isInBounds(scores)){
+            if(child.getAll().contains(c)){
                 if(depth == 0)
                     return child;
                 return child.region(c, depth-1);
@@ -215,7 +222,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     @Override
     public GridNodeInterface<C> current_region(C c) {
         for (GridNodeInterface<C> child: children) {
-            if (child.isInBounds(c.getFitnessValues()))
+            if (child.isInBounds(c))
                 return child;
         }
         return null;
@@ -233,17 +240,27 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
 
     private int decide_leaf(C candidate, C current){
         int check_level = this.depth;
-        int candidate_score;
-        int current_score;
-        do {
-            GridNodeInterface candidate_region = this.region(candidate, check_level);
-            GridNodeInterface current_region = this.region(current, check_level);
+        GridNodeInterface candidate_region = this.region(candidate, this.depth);
+        GridNodeInterface current_region = this.region(current, this.depth);
+        int candidate_score = candidate_region != null ? candidate_region.count() : 0;
+        int current_score = current_region != null ? current_region.count() : 0;
+        check_level--;
+        while(candidate_score == current_score && check_level-- > 0){
+            if(candidate_region == null)
+                candidate_region = this.region(candidate, check_level);
+            else
+                candidate_region = candidate_region.getParent();
+            if(current_region == null)
+                current_region = this.region(current, check_level);
+            else
+                current_region = current_region.getParent();
             candidate_score = candidate_region != null ? candidate_region.count() : 0;
             current_score = current_region != null ? current_region.count() : 0;
-        } while(candidate_score == current_score && check_level-- > 0);
+        }
         return candidate_score - current_score;
     }
 
+    @Deprecated
     private int decide_recursive(C candidate, C current){
         GridNodeInterface candidate_region = this.current_region(candidate);
         GridNodeInterface<C> current_region = this.current_region(current);
@@ -279,5 +296,30 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     @Override
     public boolean isLeaf() {
         return false;
+    }
+
+    @Override
+    public Set<FitnessFunction<?>> getObjectives() {
+        return this.upperBounds.keySet();
+    }
+
+    @Override
+    public Map<FitnessFunction<?>, Double> getUpperBounds() {
+        return this.upperBounds;
+    }
+
+    @Override
+    public Map<FitnessFunction<?>, Double> getLowerBounds() {
+        return this.lowerBounds;
+    }
+
+    @Override
+    public GridNode<C> getParent() {
+        return this.parent;
+    }
+
+    @Override
+    public boolean isRoot() {
+        return parent == null;
     }
 }

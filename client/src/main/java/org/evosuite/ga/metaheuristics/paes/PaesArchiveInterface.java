@@ -1,8 +1,10 @@
 package org.evosuite.ga.metaheuristics.paes;
 
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Interface of an Archive for a Pareto Archived PaesGA Strategy.
@@ -49,4 +51,6 @@ public interface PaesArchiveInterface<C extends Chromosome> {
      *                            dominated by this one.
      */
     void removeDominated(C c);
+
+    void updateFitnessFunctions(Set<FitnessFunction<?>> fitnessFunctions);
 }

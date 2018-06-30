@@ -6,6 +6,7 @@ import org.evosuite.ga.FitnessFunction;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Interface of a Node of a grid. These nodes can be subdivided into
@@ -16,10 +17,10 @@ public interface GridNodeInterface<C extends Chromosome> {
     /**
      * checks whether an array is inside the bounds of this node.
      *
-     * @param values array of values checked whether they are inside the node
+     * @param c Chromosome checked whether they are inside the node
      * @return whether {@param values} are in bounds
      */
-    boolean isInBounds(Map<FitnessFunction<?>, Double> values);
+    boolean isInBounds(C c);
 
     /**
      * gives the amount of {@link Chromosome} are contained in the node
@@ -115,4 +116,14 @@ public interface GridNodeInterface<C extends Chromosome> {
      * @return Whether the node is a leaf-node or not.
      */
     boolean isLeaf();
+
+    Set<FitnessFunction<?>> getObjectives();
+
+    Map<FitnessFunction<?>,Double> getUpperBounds();
+
+    Map<FitnessFunction<?>,Double> getLowerBounds();
+
+    GridNode<C> getParent();
+
+    boolean isRoot();
 }

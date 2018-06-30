@@ -3,10 +3,7 @@ package org.evosuite.ga.metaheuristics.paes.Grid;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Leaf node in a tree structured archive in a Pareto archived evolution strategy.
@@ -19,6 +16,7 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
     private List<C> located = new ArrayList<>();
     private Map<FitnessFunction<?>, Double> lowerBounds;
     private Map<FitnessFunction<?>, Double> upperBounds;
+    private GridNode<C> parent;
 
     /**
      * Creates a new GridLocation object with given bounds.
@@ -26,22 +24,21 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
      * @param lowerBounds the minimum values for the objectives in this area of the grid.
      * @param upperBounds the maximum values for the objectives in this area of the grid.
      */
-    public GridLocation(Map<FitnessFunction<?>, Double> lowerBounds, Map<FitnessFunction<?>, Double> upperBounds){
+    public GridLocation(Map<FitnessFunction<?>, Double> lowerBounds, Map<FitnessFunction<?>, Double> upperBounds, GridNode<C> parent){
         if(lowerBounds.size() != upperBounds.size())
             throw new IllegalArgumentException("lower and upper bounds must have the same length");
         this.lowerBounds = lowerBounds;
         this.upperBounds = upperBounds;
+        this.parent = parent;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isInBounds(Map<FitnessFunction<?>, Double> values){
-        if(values.size() != this.lowerBounds.size() || values.size() != this.upperBounds.size())
-            throw new IllegalArgumentException("values got wrong length");
-        for(FitnessFunction<?> ff: values.keySet())
-            if(values.get(ff) > this.upperBounds.get(ff) || values.get(ff) < this.lowerBounds.get(ff))
+    public boolean isInBounds(C c){
+        for(FitnessFunction<?> ff: this.getObjectives())
+            if(c.getFitness(ff) > this.upperBounds.get(ff) || c.getFitness(ff) < this.lowerBounds.get(ff))
                 return false;
         return true;
     }
@@ -107,7 +104,7 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
      */
     @Override
     public GridLocation<C> region(C c) {
-        return this.isInBounds(c.getFitnessValues()) ? this : null;
+        return this.isInBounds(c) ? this : null;
     }
 
     /**
@@ -117,12 +114,12 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
     public GridNodeInterface<C> region(C c, int depth){
         if(depth != 0)
             throw new IllegalArgumentException("Grid has reached leaf");
-        return this.isInBounds((c.getFitnessValues())) ? this : null;
+        return this.isInBounds(c) ? this : null;
     }
 
     @Override
     public GridNodeInterface<C> current_region(C c) {
-        return this.isInBounds(c.getFitnessValues()) ? this : null;
+        return this.isInBounds(c) ? this : null;
     }
 
     @Override
@@ -138,5 +135,30 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
     @Override
     public boolean isLeaf() {
         return true;
+    }
+
+    @Override
+    public Set<FitnessFunction<?>> getObjectives() {
+        return this.upperBounds.keySet();
+    }
+
+    @Override
+    public Map<FitnessFunction<?>, Double> getUpperBounds() {
+        return this.upperBounds;
+    }
+
+    @Override
+    public Map<FitnessFunction<?>, Double> getLowerBounds() {
+        return this.lowerBounds;
+    }
+
+    @Override
+    public GridNode<C> getParent() {
+        return this.parent;
+    }
+
+    @Override
+    public boolean isRoot() {
+        return parent == null;
     }
 }

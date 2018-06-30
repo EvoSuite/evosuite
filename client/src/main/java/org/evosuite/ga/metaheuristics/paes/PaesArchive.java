@@ -2,6 +2,7 @@ package org.evosuite.ga.metaheuristics.paes;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridLocation;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridNode;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridNodeInterface;
@@ -17,10 +18,12 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
     private static final boolean USE_RECURSIVE_GRID_CROWDED = false;
     private static boolean USE_BEST_SCORE = false;
     private static final int MAX_SIZE = 100;
-    private static final int GRID_LAYER_DEPTH = 10;
+    private static final int GRID_LAYER_DEPTH = 5;
     private GridNodeInterface<C> grid;
     private List<C> archivedChromosomes = new ArrayList<>();
     private List<FitnessFunction<?>> fitnessFunctions;
+    private double min_value;
+    private double max_value;
 
     /**
      * Constructor for a new Archive for a {@param gridDimension}-dimensional space
@@ -39,7 +42,9 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
             lowerBounds.put(ff, min_value);
             upperBounds.put(ff, max_value);
         }
-        grid = new GridNode<>(lowerBounds, upperBounds, PaesArchive.GRID_LAYER_DEPTH);
+        this.min_value = min_value;
+        this.max_value = max_value;
+        grid = new GridNode<>(lowerBounds, upperBounds, PaesArchive.GRID_LAYER_DEPTH, null);
     }
 
     /**
@@ -58,7 +63,7 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
         } else {
             GridLocation<C> mostCrowded =
                     PaesArchive.USE_RECURSIVE_GRID_CROWDED ? grid.recursiveMostCrowdedRegion() : grid.mostCrowdedRegion();
-            if(mostCrowded.isInBounds(c.getFitnessValues()))
+            if(mostCrowded.isInBounds(c))
                 return false;
             GridLocation<C> region = grid.region(c);
             if(region != null && region.count() >= mostCrowded.count() && !PaesArchive.USE_RECURSIVE_GRID_CROWDED)
@@ -126,6 +131,20 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
                 dominated.add(chromosome);
         archivedChromosomes.removeAll(dominated);
         grid.deleteAll(dominated);
+    }
+
+    @Override
+    public void updateFitnessFunctions(Set<FitnessFunction<?>> fitnessFunctions) {
+        Map<FitnessFunction<?>,Double> upperBounds = new HashMap<>();
+        Map<FitnessFunction<?>,Double> lowerBounds = new HashMap<>();
+        for(FitnessFunction<?> ff : fitnessFunctions){
+            upperBounds.put(ff, max_value);
+            lowerBounds.put(ff, min_value);
+        }
+        this.grid = new GridNode<>(lowerBounds,upperBounds,PaesArchive.GRID_LAYER_DEPTH, null);
+        for(C c : archivedChromosomes) {
+            grid.add(c);
+        }
     }
 }
 

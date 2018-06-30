@@ -652,17 +652,23 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	public boolean dominates(Chromosome c){
 		boolean hasDominatedObjective = false;
 		boolean hasDominatingObjective = false;
-		int same_value_count = 0;
-		int length = this.fitnessValues.keySet().size();
 		for(FitnessFunction<?> ff: this.fitnessValues.keySet()){
-			if(this.fitnessValues.get(ff) > c.fitnessValues.get(ff)) {
-				hasDominatedObjective = true;
-				break;
+			if(this.getFitness(ff) > c.getFitness(ff)) {
+				if(ff.isMaximizationFunction()) {
+					hasDominatingObjective = true;
+				} else {
+					hasDominatedObjective = true;
+					break;
+				}
 			}
-			if(this.fitnessValues.get(ff) < c.fitnessValues.get(ff))
-				hasDominatingObjective = true;
-			if(this.fitnessValues.get(ff) == c.fitnessValues.get(ff))
-				++same_value_count;
+			if(this.getFitness(ff) < c.getFitness(ff)){
+				if(ff.isMaximizationFunction()){
+					hasDominatedObjective = true;
+					break;
+				} else {
+					hasDominatingObjective = true;
+				}
+			}
 		}
 		if(hasDominatedObjective)
 			return false;
