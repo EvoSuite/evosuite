@@ -101,7 +101,7 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
             else if(currentBestScoreCount > candidateBestScoreCount)
                 return false;
         }
-        int dif = this.grid.decide(candidate, current, PaesArchive.USE_RECURSIVE_GRID_CROWDED);
+        int dif = this.grid.decide(candidate, current);
         return dif > 0;
     }
 

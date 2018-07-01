@@ -123,7 +123,7 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
     }
 
     @Override
-    public int decide(C candidate, C current, boolean recursive) {
+    public int decide(C candidate, C current) {
         return 0;
     }
 

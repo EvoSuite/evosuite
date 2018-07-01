@@ -97,13 +97,12 @@ public interface GridNodeInterface<C extends Chromosome> {
      *
      * @param candidate compared to {@param current}
      * @param current compared to {@param current}
-     * @param recursive whether the comparison is recursive for every level int the grid or
- *                      only the leaf nodes
+     *
      * @return is positive if {@param candidate} is rated over {@param current},
      *          is negative if {@param current} is rated over {@param candidate},
      *          is zero if {@param candidate} and {@param current} are rated the same
      */
-    int decide(C candidate, C current, boolean recursive);
+    int decide(C candidate, C current);
 
     /**
      * searches recursively for the most crowded child-region
