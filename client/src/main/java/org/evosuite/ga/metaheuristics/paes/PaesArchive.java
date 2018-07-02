@@ -52,9 +52,11 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
      */
     @Override
     public boolean add(C c) {
+        List<FitnessFunction<?>> objectives = new ArrayList<>();
+        objectives.addAll(grid.getObjectives());
         this.removeDominated(c);
         for (C chromosome: archivedChromosomes)
-            if(chromosome.dominates(c))
+            if(chromosome.dominates(c, objectives))
                 return false;
         if(this.archivedChromosomes.size() < PaesArchive.MAX_SIZE){
             this.archivedChromosomes.add(c);
@@ -126,8 +128,10 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
     @Override
     public void removeDominated(C c) {
         List<C> dominated = new ArrayList<>();
+        List<FitnessFunction<?>> objectives = new ArrayList<>();
+        objectives.addAll(grid.getObjectives());
         for (C chromosome: archivedChromosomes)
-            if(c.dominates(chromosome))
+            if(c.dominates(chromosome, objectives))
                 dominated.add(chromosome);
         archivedChromosomes.removeAll(dominated);
         grid.deleteAll(dominated);

@@ -21,6 +21,7 @@ package org.evosuite.ga;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.bytebuddy.pool.TypePool;
@@ -649,10 +650,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @param c the compared Chromosome
 	 * @return whether this Chromosome dominates the other.
 	 */
-	public boolean dominates(Chromosome c){
+	public boolean dominates(Chromosome c, List<FitnessFunction<?>> fitnessFunctions){
 		boolean hasDominatedObjective = false;
 		boolean hasDominatingObjective = false;
-		for(FitnessFunction<?> ff: this.fitnessValues.keySet()){
+		for(FitnessFunction<?> ff: fitnessFunctions){
 			if(this.getFitness(ff) > c.getFitness(ff)) {
 				if(ff.isMaximizationFunction()) {
 					hasDominatingObjective = true;

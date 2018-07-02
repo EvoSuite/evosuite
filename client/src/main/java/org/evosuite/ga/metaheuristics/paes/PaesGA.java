@@ -46,13 +46,15 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
                 this.calculateFitness(c);
             archive.updateFitnessFunctions(candidate.getFitnessValues().keySet());
         }
-        if(current.dominates(candidate)) {
+        List<FitnessFunction<?>> ffs = new ArrayList<>();
+        ffs.addAll(this.fitnessFunctions);
+        if(current.dominates(candidate, ffs)){
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(false, this.archive.getChromosomes(),
                         GenerationAnalysis.RETURN_OPTION.CURRENT_DOMINATES_CANDIDATE, start);
             return;
         }
-        if(candidate.dominates(current)) {
+        if(candidate.dominates(current, ffs)) {
             archive.removeDominated(candidate);
             this.population.clear();
             this.population.add(candidate);
@@ -65,9 +67,9 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
         boolean candidateDominates = false;
         boolean candidateIsDominated = false;
         for( C c: archivedChromosomes){
-            if(candidate.dominates(c)){
+            if(candidate.dominates(c, ffs)){
                 candidateDominates = true;
-            } else if(c.dominates(candidate)){
+            } else if(c.dominates(candidate, ffs)){
                 candidateIsDominated = true;
             }
         }

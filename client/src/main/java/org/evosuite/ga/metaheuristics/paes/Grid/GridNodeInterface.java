@@ -125,4 +125,6 @@ public interface GridNodeInterface<C extends Chromosome> {
     GridNode<C> getParent();
 
     boolean isRoot();
+
+    List<GridNodeInterface<C>> regions(C c);
 }

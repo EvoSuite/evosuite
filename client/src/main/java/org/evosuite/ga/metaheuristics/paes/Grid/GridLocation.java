@@ -161,4 +161,14 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
     public boolean isRoot() {
         return parent == null;
     }
+
+    @Override
+    public List<GridNodeInterface<C>> regions(C c){
+        List<GridNodeInterface<C>> result = new ArrayList<>();
+        if(this.isInBounds(c))
+            result.add(0,null);
+        else
+            result.add(0,this);
+        return result;
+    }
 }

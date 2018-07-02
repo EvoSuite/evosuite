@@ -220,6 +220,22 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
      * {@inheritDoc}
      */
     @Override
+    public List<GridNodeInterface<C>> regions(C c){
+        List<GridNodeInterface<C>> regions = new ArrayList<>();
+        int depth = this.depth+1;
+        GridNodeInterface<C> cur = this;
+        while(--depth >= 0){
+            regions.add(cur);
+            if(cur != null)
+                cur = cur.region(c,0);
+        }
+        return regions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public GridNodeInterface<C> current_region(C c) {
         for (GridNodeInterface<C> child: children) {
             if (child.isInBounds(c))
@@ -237,20 +253,15 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     @Override
     public int decide(C candidate, C current){
         int check_level = this.depth;
-        GridNodeInterface candidate_region = this.region(candidate, this.depth);
-        GridNodeInterface current_region = this.region(current, this.depth);
+        List<GridNodeInterface<C>> candidate_regions = this.regions(candidate);
+        List<GridNodeInterface<C>> current_regions = this.regions(current);
+        GridNodeInterface candidate_region = candidate_regions.get(check_level);
+        GridNodeInterface current_region = current_regions.get(check_level);
         int candidate_score = candidate_region != null ? candidate_region.count() : 0;
         int current_score = current_region != null ? current_region.count() : 0;
-        check_level--;
-        while(candidate_score == current_score && check_level-- > 0){
-            if(candidate_region == null)
-                candidate_region = this.region(candidate, check_level);
-            else
-                candidate_region = candidate_region.getParent();
-            if(current_region == null)
-                current_region = this.region(current, check_level);
-            else
-                current_region = current_region.getParent();
+        while(candidate_score == current_score && --check_level >= 0){
+            candidate_region = candidate_regions.get(check_level);
+            current_region = current_regions.get(check_level);
             candidate_score = candidate_region != null ? candidate_region.count() : 0;
             current_score = current_region != null ? current_region.count() : 0;
         }
@@ -332,9 +343,9 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
         node.add(c1);
         node.add(c2);
         node.add(c3);
-        GridLocation<DummyChromosome> l1 = node.region(c1);
-        GridLocation<DummyChromosome> l2 = node.region(c2);
-        GridLocation<DummyChromosome> l3 = node.region(c3);
+        List<GridNodeInterface<DummyChromosome>> l1 = node.regions(c1);
+        List<GridNodeInterface<DummyChromosome>> l2 = node.regions(c2);
+        List<GridNodeInterface<DummyChromosome>> l3 = node.regions(c3);
         GridLocation<DummyChromosome> lcurrent = node.region(current);
         GridLocation<DummyChromosome> lcandidate = node.region(candidate);
         int x= node.decide(candidate,current);
