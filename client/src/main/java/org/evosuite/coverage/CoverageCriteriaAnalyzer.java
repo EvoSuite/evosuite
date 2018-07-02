@@ -179,6 +179,8 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.BranchCoverage;
             case EPATRANSITION:
             	return RuntimeVariable.EpaTransitionCoverage;
+            case EPAADJACENTEDGES:
+            	return RuntimeVariable.EpaAdjacentEdgesCoverage;
             case EPAERROR:
                 return RuntimeVariable.EpaErrorCoverage;
             case EPAEXCEPTION:
@@ -353,6 +355,8 @@ public class CoverageCriteriaAnalyzer {
                 return null;
             case EPATRANSITION:
             	return RuntimeVariable.EpaTransitionCoverage;
+            case EPAADJACENTEDGES:
+            	return RuntimeVariable.EpaAdjacentEdgesCoverage;
             case EPAERROR:
                 return RuntimeVariable.EpaErrorCoverage;
             case EPAEXCEPTION:

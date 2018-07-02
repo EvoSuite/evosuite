@@ -225,7 +225,8 @@ public class EPAMonitor {
 		if (instance == null) {
 			if ((ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)
 					|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)
-					|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION))
+					|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION)
+					|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAADJACENTEDGES))
 					&& Properties.EPA_XML_PATH == null) {
 				throw new IllegalStateException("EPA_XML_PATH should be configured before creating EPAMonitor!");
 			}
