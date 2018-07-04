@@ -150,7 +150,7 @@ public class FitnessFunctions {
 		case EPAMINING:
 			return new EPAMiningCoverageSuiteFitness();
 		case EPAADJACENTEDGES:
-			return new EPAAdjacentEdgesCoverageSuiteFitness();
+			return new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
 			
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
@@ -223,7 +223,7 @@ public class FitnessFunctions {
 		case EPAMINING:
 			return new EPAMiningCoverageFactory();
 		case EPAADJACENTEDGES:
-			return new EPAAdjacentEdgesCoverageFactory();
+			return new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
 		default:
