@@ -27,10 +27,12 @@ import java.sql.SQLException;
  */
 public class MethodsWithExceptions {
 
-
     public static boolean oneException(int x) throws FileNotFoundException {
         if(x == 5) {
             throw new FileNotFoundException();
+        }
+        if(x == 6){
+            throw new NullPointerException("somefile");
         }
 
         return true;
