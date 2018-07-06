@@ -43,8 +43,7 @@ public class EPAAdjacentEdgesCoverageGoal implements Serializable, Comparable<EP
 						&& epa_trasition_next.getDestinationState().equals(this.toState_2);
 		}
 		
-		@Override
-		public String toString()
+		public String getName()
 		{
 			return String.format("{AdjacentEdge[%s,%s,%s],[%s,%s,%s]}", fromState, actionId, toState, toState, actionId_2, toState_2);
 		}
@@ -58,9 +57,14 @@ public class EPAAdjacentEdgesCoverageGoal implements Serializable, Comparable<EP
 	public String getMethodName() {
 		String methodName;
 		if (adjacentEdgesPair.actionId.contains("(")) {
-			methodName = adjacentEdgesPair.actionId.split("(")[0];
+			methodName = adjacentEdgesPair.actionId.split("(")[0] + "--";
 		} else {
-			methodName = adjacentEdgesPair.actionId;
+			methodName = adjacentEdgesPair.actionId + "--";
+		}
+		if (adjacentEdgesPair.actionId_2.contains("(")) {
+			methodName = methodName + adjacentEdgesPair.actionId_2.split("(")[0];
+		} else {
+			methodName = methodName + adjacentEdgesPair.actionId_2;
 		}
 		return methodName;
 	}
@@ -77,7 +81,7 @@ public class EPAAdjacentEdgesCoverageGoal implements Serializable, Comparable<EP
 	}
 
 	public String getGoalName() {
-		return this.adjacentEdgesPair.toString();
+		return this.adjacentEdgesPair.getName();
 	}
 
 	/**

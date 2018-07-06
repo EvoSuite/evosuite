@@ -27,6 +27,20 @@ public class EPAAdjacentEdgesCoverageTestFitness extends TestFitnessFunction{
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	@Override
+	public String getTargetClass() {
+		return goal.getClassName();
+	}
+
+	@Override
+	public String getTargetMethod() {
+		return goal.getMethodName();
+	}
+	
+	public String getGoalName() {
+		return goal.getGoalName();
+	}
 
 	@Override
 	public int hashCode() {
@@ -44,15 +58,10 @@ public class EPAAdjacentEdgesCoverageTestFitness extends TestFitnessFunction{
 			return false;
 		}
 	}
-
+	
 	@Override
-	public String getTargetClass() {
-		return goal.getClassName();
-	}
-
-	@Override
-	public String getTargetMethod() {
-		return goal.getMethodName();
+	public String toString() {
+		return goal.toString();
 	}
 
 }
