@@ -186,6 +186,15 @@ public class EvoSuite {
                 } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
                     throw new Error("Invalid values for parallel: " + e.getMessage());
                 }
+            } else {
+                // Just to be save
+                javaOpts.add("-Dparallel_run=" + 1);
+                
+                try {
+                    Properties.getInstance().setValue("parallel_run", 1);
+                } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
+                    throw new Error("Could not set value: " + e.getMessage());
+                }
             }
 
 			/*
