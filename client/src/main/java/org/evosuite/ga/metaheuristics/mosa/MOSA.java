@@ -128,7 +128,8 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		}
 
         // for parallel runs: collect best k individuals for migration
-        if (Properties.PARALLEL_RUN > 1 && (currentIteration + 1) % Properties.FREQUENCY == 0) {
+        if (Properties.PARALLEL_RUN > 1 && (currentIteration + 1) % Properties.FREQUENCY == 0
+                && !this.population.isEmpty()) {
             HashSet<T> emigrants = new HashSet<>(emigrantsSelection.select(this.population, Properties.RATE));
             ClientServices.getInstance().getClientNode().emigrate(emigrants);
         }
