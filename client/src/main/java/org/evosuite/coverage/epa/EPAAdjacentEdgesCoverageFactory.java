@@ -8,11 +8,13 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAdjacentEdgesCoverageTestFitness> {
-	
+
 	private final EPA epa;
 	private final LinkedList<EPAAdjacentEdgesCoverageTestFitness> goals;
 
@@ -20,25 +22,28 @@ public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAd
 		this.epa = epaAutomata;
 		this.goals = buildCoverageGoals();
 	}
-	
+
 	private LinkedList<EPAAdjacentEdgesCoverageTestFitness> buildCoverageGoals() {
 		LinkedList<EPAAdjacentEdgesCoverageTestFitness> goals = new LinkedList<EPAAdjacentEdgesCoverageTestFitness>();
 		Set<EPAState> states = new HashSet<EPAState>(this.epa.getStates());
 
+		/*
+		 * fromState -> firstActionId -> middleState -> secondActionId -> toState
+		 */
 		for (EPAState fromState : states)
-			for (String actionId : this.epa.getActions())
-				for (EPAState toState : states)
-					for (String actionId_2 : this.epa.getActions())
-						for (EPAState toState_2 : states)
-						{
-							EPAAdjacentEdgesCoverageGoal goal = new EPAAdjacentEdgesCoverageGoal(Properties.TARGET_CLASS, this.epa,
-									fromState, actionId, toState, actionId_2, toState_2);
-							EPAAdjacentEdgesCoverageTestFitness testFitness = new EPAAdjacentEdgesCoverageTestFitness(goal);
+			for (String firstActionId : this.epa.getActions())
+				for (EPAState middleState : states)
+					for (String secondActionId : this.epa.getActions())
+						for (EPAState toState : states) {
+							EPAAdjacentEdgesCoverageGoal goal = new EPAAdjacentEdgesCoverageGoal(
+									Properties.TARGET_CLASS, this.epa, fromState, firstActionId, middleState,
+									secondActionId, toState);
+							EPAAdjacentEdgesCoverageTestFitness testFitness = new EPAAdjacentEdgesCoverageTestFitness(
+									goal);
 							goals.add(testFitness);
 						}
 		return goals;
 	}
-
 
 	@Override
 	public List<EPAAdjacentEdgesCoverageTestFitness> getCoverageGoals() {
@@ -47,7 +52,23 @@ public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAd
 
 	@Override
 	public double getFitness(TestSuiteChromosome suite) {
-		return 0;
+
+		ExecutionTracer.enableTraceCalls();
+
+		int coveredGoals = 0;
+		for (EPAAdjacentEdgesCoverageTestFitness goal : getCoverageGoals()) {
+			for (TestChromosome test : suite.getTestChromosomes()) {
+				if (goal.isCovered(test)) {
+					coveredGoals++;
+					break;
+				}
+			}
+		}
+
+		ExecutionTracer.disableTraceCalls();
+
+		return getCoverageGoals().size() - coveredGoals;
+
 	}
 
 }
