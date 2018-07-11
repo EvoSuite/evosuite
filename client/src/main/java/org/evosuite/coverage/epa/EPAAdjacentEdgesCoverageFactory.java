@@ -1,6 +1,5 @@
 package org.evosuite.coverage.epa;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,8 +7,8 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.epa.EpaAction;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -35,11 +34,14 @@ public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAd
 				for (EPAState middleState : states)
 					for (String secondActionId : this.epa.getActions())
 						for (EPAState toState : states) {
-							EPAAdjacentEdgesCoverageGoal goal = new EPAAdjacentEdgesCoverageGoal(
-									Properties.TARGET_CLASS, this.epa, fromState, firstActionId, middleState,
-									secondActionId, toState);
-							EPAAdjacentEdgesCoverageTestFitness testFitness = new EPAAdjacentEdgesCoverageTestFitness(
-									goal);
+							EPATransition firstTransition = new EPANormalTransition(fromState, firstActionId, middleState);
+							EPATransition secondNormalTransition = new EPANormalTransition(middleState, secondActionId, toState);
+							EPAAdjacentEdgesCoverageGoal goal = new EPAAdjacentEdgesCoverageGoal(Properties.TARGET_CLASS, firstTransition, secondNormalTransition);
+							EPAAdjacentEdgesCoverageTestFitness testFitness = new EPAAdjacentEdgesCoverageTestFitness(goal);
+							goals.add(testFitness);
+							EPATransition secondExceptionalTransition = new EPAExceptionalTransition(middleState, secondActionId, toState, "");
+							goal = new EPAAdjacentEdgesCoverageGoal(Properties.TARGET_CLASS, firstTransition, secondExceptionalTransition);
+							testFitness = new EPAAdjacentEdgesCoverageTestFitness(goal);
 							goals.add(testFitness);
 						}
 		return goals;

@@ -65,7 +65,7 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		int numOfActions = epa_automata.getActions().size();
 		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
 		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = maxNumOfEdges * maxNumOfDepartingEdges;
+		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
 		assertEquals(numOfAdjacentEdgesGoals, goals.size());
 
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
@@ -95,7 +95,7 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		int numOfActions = epa_automata.getActions().size();
 		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
 		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = maxNumOfEdges * maxNumOfDepartingEdges;
+		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
 		assertEquals(numOfAdjacentEdgesGoals, goals.size());
 
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
@@ -125,7 +125,7 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		int numOfActions = epa_automata.getActions().size();
 		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
 		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = maxNumOfEdges * maxNumOfDepartingEdges;
+		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
 		assertEquals(numOfAdjacentEdgesGoals, goals.size());
 
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
@@ -221,7 +221,6 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 	 * stack = new BoundedStack(); 
 	 * stack.push(10);
 	 * stack.push(10);
-	 * stack.push(10);
 	 * </code>
 	 * 
 	 * @return
@@ -233,7 +232,6 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		Constructor<?> constructor = clazz.getConstructor();
 		EPATestCaseBuilder builder = new EPATestCaseBuilder();
 		Method push_method = clazz.getMethod("push", int.class);
-		Method pop_method = clazz.getMethod("pop");
 
 		// int var0 = 10;
 		VariableReference var0 = builder.addIntegerStatement(10);
