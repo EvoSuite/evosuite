@@ -280,17 +280,6 @@ public class TestGeneration {
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
 
-		if (Properties.DEBUG) {
-			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
-			cmdLine.add("-Ddebug=true");
-			cmdLine.add("-Xdebug");
-			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
-			        + Properties.PORT);
-			LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port "
-			                                         + Properties.PORT + "..."); // TODO find the right
-			// place for this
-		}
-
 		if (!Properties.PROFILE.isEmpty()) {
 			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
 			File agentFile = new File(Properties.PROFILE);
@@ -358,8 +347,6 @@ public class TestGeneration {
             cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
         }
 
-        cmdLine.add(ClientProcess.class.getName());
-
         for (String entry : ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator)) {
             try {
                 ClassPathHacker.addFile(entry);
@@ -379,6 +366,18 @@ public class TestGeneration {
 
         for (int i = 0; i < Properties.PARALLEL_RUN; i++) {
             List<String> cmdLineClone = new ArrayList<>(cmdLine);
+
+            if (i == 0 && Properties.DEBUG) {
+                // enabling debugging mode to for ClientNode0 e.g. connect the eclipse remote debugger to the given port
+                cmdLineClone.add("-Ddebug=true");
+                cmdLineClone.add("-Xdebug");
+                cmdLineClone.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
+                        + Properties.PORT);
+                LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port "
+                        + Properties.PORT + "...");
+            }
+
+            cmdLineClone.add(ClientProcess.class.getName());
             
             if (Properties.PARALLEL_RUN == 1) {
                 cmdLineClone.add("ClientNode0"); //to keep functionality for non parallel runs
