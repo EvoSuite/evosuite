@@ -22,10 +22,7 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -40,10 +37,10 @@ import org.objectweb.asm.tree.InsnList;
 public class MutationPool {
 
 	// maps className -> method inside that class -> list of branches inside that method 
-	private static Map<String, Map<String, List<Mutation>>> mutationMap = new HashMap<String, Map<String, List<Mutation>>>();
+	private static Map<String, Map<String, List<Mutation>>> mutationMap = new LinkedHashMap<String, Map<String, List<Mutation>>>();
 
 	// maps the mutationIDs assigned by this pool to their respective Mutations
-	private static Map<Integer, Mutation> mutationIdMap = new HashMap<Integer, Mutation>();
+	private static Map<Integer, Mutation> mutationIdMap = new LinkedHashMap<Integer, Mutation>();
 
 	private static int numMutations = 0;
 
