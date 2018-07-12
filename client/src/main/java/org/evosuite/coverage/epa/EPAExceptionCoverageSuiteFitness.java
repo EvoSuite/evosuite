@@ -3,8 +3,10 @@ package org.evosuite.coverage.epa;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -23,6 +25,7 @@ public class EPAExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	private static final long serialVersionUID = -3588790421141471290L;
 	private final EPA epa;
+	private final List<EPAExceptionCoverageTestFitness> goals;
 
 	public EPAExceptionCoverageSuiteFitness(String epaXMLFilename) {
 
@@ -33,7 +36,7 @@ public class EPAExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			this.epa = target_epa;
 			EPAExceptionCoverageFactory goalFactory = new EPAExceptionCoverageFactory(epaXMLFilename, this.epa);
-			this.coverageGoalMap = buildCoverageGoalMap(goalFactory);
+			this.goals = goalFactory.getCoverageGoals();
 
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
@@ -41,27 +44,11 @@ public class EPAExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	}
 
-	private static Map<String, EPAExceptionCoverageTestFitness> buildCoverageGoalMap(EPAExceptionCoverageFactory goalFactory) {
-		Map<String, EPAExceptionCoverageTestFitness> coverageGoalMap = new HashMap<>();
-		for (EPAExceptionCoverageTestFitness goal : goalFactory.getCoverageGoals()) {
-			coverageGoalMap.put(goal.getGoalName(), goal);
-		}
-		return coverageGoalMap;
-	}
-
-	private final Map<String, EPAExceptionCoverageTestFitness> coverageGoalMap;
-
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suiteChromosome) {
-
-		long coveredGoalsCount = 0;
 		final List<ExecutionResult> executionResults = runTestSuite(suiteChromosome);
-		final Collection<EPAExceptionCoverageTestFitness> goals = this.coverageGoalMap.values();
-		for (EPAExceptionCoverageTestFitness goal : goals) {
-			if (goal.isCoveredByResults(executionResults)) {
-				coveredGoalsCount++;
-			}
-		}
+		long coveredGoalsCount = getEPAExceptionTransitionsExecuted(executionResults).size();
+		
 		final double fitness = goals.size() - coveredGoalsCount;
 		updateIndividual(this, suiteChromosome, fitness);
 		final double coverage = (goals.size() > 0) ? (coveredGoalsCount / (double) goals.size()) : 0;
@@ -69,7 +56,23 @@ public class EPAExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		suiteChromosome.setNumOfCoveredGoals(this, (int) coveredGoalsCount);
 		suiteChromosome.setNumOfNotCoveredGoals(this, (int) (goals.size() - coveredGoalsCount));
 		return fitness;
-
 	}
-
+	
+	private Set<EPATransition> getEPAExceptionTransitionsExecuted(List<ExecutionResult> executionResults) {
+		Set<EPATransition> exceptionTransitions = new HashSet<>();
+		for(ExecutionResult executionResult : executionResults) {
+			for (EPATrace epaTrace : executionResult.getTrace().getEPATraces()) {
+				for (EPATransition epaTransition : epaTrace.getEpaTransitions()) {
+					if (epaTransition.getDestinationState().equals(EPAState.INVALID_OBJECT_STATE)) {
+						// discard the rest of the trace if an invalid object state is reached
+						break;
+					}
+					if (epaTransition instanceof EPAExceptionalTransition)
+						exceptionTransitions.add(epaTransition);
+				}
+			}
+		}
+		return exceptionTransitions;
+	}
+	
 }
