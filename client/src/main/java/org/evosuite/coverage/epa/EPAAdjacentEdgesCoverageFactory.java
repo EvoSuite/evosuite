@@ -1,5 +1,6 @@
 package org.evosuite.coverage.epa;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,23 +8,23 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.epa.EpaAction;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAdjacentEdgesCoverageTestFitness> {
 
 	private final EPA epa;
-	private final LinkedList<EPAAdjacentEdgesCoverageTestFitness> goals;
+	private final List<EPAAdjacentEdgesCoverageTestFitness> goals;
 
 	public EPAAdjacentEdgesCoverageFactory(EPA epaAutomata) {
 		this.epa = epaAutomata;
 		this.goals = buildCoverageGoals();
 	}
 
-	private LinkedList<EPAAdjacentEdgesCoverageTestFitness> buildCoverageGoals() {
-		LinkedList<EPAAdjacentEdgesCoverageTestFitness> goals = new LinkedList<EPAAdjacentEdgesCoverageTestFitness>();
+	private List<EPAAdjacentEdgesCoverageTestFitness> buildCoverageGoals() {
+		List<EPAAdjacentEdgesCoverageTestFitness> goals = new LinkedList<EPAAdjacentEdgesCoverageTestFitness>();
 		Set<EPAState> states = new HashSet<EPAState>(this.epa.getStates());
 
 		/*
@@ -58,19 +59,15 @@ public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAd
 		ExecutionTracer.enableTraceCalls();
 
 		int coveredGoals = 0;
-		for (EPAAdjacentEdgesCoverageTestFitness goal : getCoverageGoals()) {
-			for (TestChromosome test : suite.getTestChromosomes()) {
-				if (goal.isCovered(test)) {
-					coveredGoals++;
-					break;
-				}
-			}
+		List<ExecutionResult> executionResults = new ArrayList<>(suite.getTestChromosomes().size());
+		for (TestChromosome test : suite.getTestChromosomes()) {
+			executionResults.add(test.getLastExecutionResult());
 		}
-
+		coveredGoals = EPAAdjacentEdgesPair.getAdjacentEdgesPairsExecuted(executionResults).size();
 		ExecutionTracer.disableTraceCalls();
 
 		return getCoverageGoals().size() - coveredGoals;
 
 	}
-
+	
 }

@@ -1,11 +1,7 @@
 package org.evosuite.coverage.epa;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -19,11 +15,7 @@ import org.xml.sax.SAXException;
 
 public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -8137606898642577596L;
-	
 	private final EPA epa;
 	private final List<EPAAdjacentEdgesCoverageTestFitness> goals;
 
@@ -46,13 +38,9 @@ public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFuncti
 
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
-		long coveredGoalsCount = 0;
 		final List<ExecutionResult> executionResults = runTestSuite(individual);
-		for (EPAAdjacentEdgesCoverageTestFitness goal : this.goals) {
-			if (goal.isCoveredByResults(executionResults)) {
-				coveredGoalsCount++;
-			}
-		}
+		long coveredGoalsCount = EPAAdjacentEdgesPair.getAdjacentEdgesPairsExecuted(executionResults).size();
+		
 		final double fitness = goals.size() - coveredGoalsCount;
 		updateIndividual(this, individual, fitness);
 		final double coverage = (goals.size() > 0) ? (coveredGoalsCount / (double) goals.size()) : 0;
@@ -61,5 +49,5 @@ public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFuncti
 		individual.setNumOfNotCoveredGoals(this, (int) (goals.size() - coveredGoalsCount));
 		return fitness;
 	}
-
+	
 }

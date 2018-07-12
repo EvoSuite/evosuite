@@ -13,7 +13,7 @@ public class EPAAdjacentEdgesCoverageTestFitness extends TestFitnessFunction{
 	public EPAAdjacentEdgesCoverageTestFitness(EPAAdjacentEdgesCoverageGoal goal) {
 		this.goal = goal;
 	}
-
+	
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = goal.getDistance(result);
@@ -24,8 +24,11 @@ public class EPAAdjacentEdgesCoverageTestFitness extends TestFitnessFunction{
 
 	@Override
 	public int compareTo(TestFitnessFunction other) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (other instanceof EPAAdjacentEdgesCoverageTestFitness) {
+			EPAAdjacentEdgesCoverageTestFitness otherEPAAdjacentEdgesFitness = (EPAAdjacentEdgesCoverageTestFitness) other;
+			return goal.compareTo(otherEPAAdjacentEdgesFitness.goal);
+		}
+		return compareClassName(other);
 	}
 	
 	@Override

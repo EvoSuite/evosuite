@@ -13,24 +13,22 @@ public class EPAAdjacentEdgesCoverageGoal implements Serializable, Comparable<EP
 	private static final long serialVersionUID = 1363867552616666031L;
 	
 	private final String className;
-	private EPATransition firstTransition;
-	private EPATransition secondTransition;
+	private EPAAdjacentEdgesPair epaAdjacentEdgesPair;
 
 	public EPAAdjacentEdgesCoverageGoal(String className, EPATransition firstTransition, EPATransition secondTransition) {
 		this.className = className;
-		this.firstTransition = firstTransition;
-		this.secondTransition = secondTransition;
+		this.epaAdjacentEdgesPair = new EPAAdjacentEdgesPair(firstTransition, secondTransition);
 	}
 	
 	public String getMethodName() {
-		String actionName = this.firstTransition.getActionName();
+		String actionName = this.epaAdjacentEdgesPair.getFirstEpaTransition().getActionName();
 		String methodName;
 		if (actionName.contains("(")) {
 			methodName = actionName.split("(")[0] + " -- ";
 		} else {
 			methodName = actionName + " -- ";
 		}
-		actionName = this.secondTransition.getActionName();
+		actionName = this.epaAdjacentEdgesPair.getSecondEpaTransition().getActionName();
 		if (actionName.contains("(")) {
 			methodName = actionName.split("(")[0];
 		} else {
@@ -52,7 +50,7 @@ public class EPAAdjacentEdgesCoverageGoal implements Serializable, Comparable<EP
 	
 	public String getGoalName()
 	{
-		return String.format("{AdjacentEdge[%s],[%s]}", firstTransition.toString(), secondTransition.toString());
+		return this.epaAdjacentEdgesPair.toString();
 	}
 
 	/**
@@ -68,13 +66,13 @@ public class EPAAdjacentEdgesCoverageGoal implements Serializable, Comparable<EP
 			for (int i = 0; i < epa_trace.getEpaTransitions().size()-1; i++) {
 				EPATransition firstEpaTransition = epa_trace.getEpaTransitions().get(i);
 				EPATransition secondEpaTransition = epa_trace.getEpaTransitions().get(i + 1);
-				if (secondEpaTransition.getDestinationState().equals(EPAState.INVALID_OBJECT_STATE)) {
+				if (firstEpaTransition.getDestinationState().equals(EPAState.INVALID_OBJECT_STATE)
+						|| secondEpaTransition.getDestinationState().equals(EPAState.INVALID_OBJECT_STATE)) {
 					// discard the rest of the trace if an invalid object state is reached
 					break;
 				}
 				
-				if (isCoveredBy(firstEpaTransition, secondEpaTransition))
-				{
+				if (isCoveredBy(firstEpaTransition, secondEpaTransition)) {
 					return 0.0;
 				}
 			}
@@ -83,14 +81,10 @@ public class EPAAdjacentEdgesCoverageGoal implements Serializable, Comparable<EP
 	
 	public boolean isCoveredBy(EPATransition firstEpaTransition, EPATransition secondEpaTransition)
 	{
-		if(!this.secondTransition.getClass().equals(secondEpaTransition.getClass()))
-				return false;
-		return this.firstTransition.equals(firstEpaTransition)
-				&& secondEpaTransition.getOriginState().equals(this.secondTransition.getOriginState())
-					&& secondEpaTransition.getActionName().equals(this.secondTransition.getActionName())
-					&& secondEpaTransition.getDestinationState().equals(this.secondTransition.getDestinationState());
+		EPAAdjacentEdgesPair coveredAdjacentEdges = new EPAAdjacentEdgesPair(firstEpaTransition, secondEpaTransition);
+		return this.epaAdjacentEdgesPair.equals(coveredAdjacentEdges);
 	}
-
+	
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}

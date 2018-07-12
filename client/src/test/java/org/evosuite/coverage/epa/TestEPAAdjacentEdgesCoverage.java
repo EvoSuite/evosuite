@@ -135,8 +135,96 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		int expectedNumOfCoveredGoals = 2;
 		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
 		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
-		
-		
+	}
+	
+	@Test
+	public void testCoverage_3() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+			IOException, SAXException, ParserConfigurationException {
+		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
+		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
+		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPAADJACENTEDGES };
+
+		DefaultTestCase test = createTestCase3();
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(test);
+
+		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
+		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
+		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
+		int numOfStates = epa_automata.getStates().size();
+		int numOfActions = epa_automata.getActions().size();
+		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
+		int maxNumOfDepartingEdges = numOfActions * numOfStates;
+		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
+		assertEquals(numOfAdjacentEdgesGoals, goals.size());
+
+		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
+
+		suite.addFitness(adjacentEdgesFitness);
+		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
+		int expectedNumOfCoveredGoals = 1;
+		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
+	}
+	
+	@Test
+	public void testCoverage_4() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+			IOException, SAXException, ParserConfigurationException {
+		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
+		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
+		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPAADJACENTEDGES };
+
+		DefaultTestCase test = createTestCase4();
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(test);
+
+		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
+		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
+		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
+		int numOfStates = epa_automata.getStates().size();
+		int numOfActions = epa_automata.getActions().size();
+		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
+		int maxNumOfDepartingEdges = numOfActions * numOfStates;
+		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
+		assertEquals(numOfAdjacentEdgesGoals, goals.size());
+
+		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
+
+		suite.addFitness(adjacentEdgesFitness);
+		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
+		int expectedNumOfCoveredGoals = 1;
+		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
+	}
+	
+	@Test
+	public void testCoverage_5() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+			IOException, SAXException, ParserConfigurationException {
+		Properties.TARGET_CLASS = MiniBoundedStack.class.getName();
+		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
+		Properties.CRITERION = new Properties.Criterion[] { Criterion.EPAADJACENTEDGES };
+
+		DefaultTestCase test = createTestCase5();
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		suite.addTest(test);
+
+		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
+		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
+		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
+		int numOfStates = epa_automata.getStates().size();
+		int numOfActions = epa_automata.getActions().size();
+		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
+		int maxNumOfDepartingEdges = numOfActions * numOfStates;
+		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
+		assertEquals(numOfAdjacentEdgesGoals, goals.size());
+
+		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
+
+		suite.addFitness(adjacentEdgesFitness);
+		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
+		int expectedNumOfCoveredGoals = 0;
+		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
 	}
 
 	/**
@@ -182,7 +270,7 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 	 * Builds the test case:
 	 * 
 	 * <code>
-	 * stack = new BoundedStack(); 
+	 * stack = new BoundedStack();
 	 * stack.push(10);
 	 * stack.pop();
 	 * stack.push(10);
@@ -218,7 +306,7 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 	 * Builds the test case:
 	 * 
 	 * <code>
-	 * stack = new BoundedStack(); 
+	 * stack = new BoundedStack();
 	 * stack.push(10);
 	 * stack.push(10);
 	 * </code>
@@ -242,6 +330,88 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		// var1.push(var0)
 		builder.addMethodStatement(var1, push_method, var0);
 
+		DefaultTestCase test = builder.toTestCase();
+		return test;
+	}
+	
+	/**
+	 * Builds the test case:
+	 * 
+	 * <code>
+	 * stack = new BoundedStack();
+	 * stack.pop();
+	 * </code>
+	 * 
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchMethodException
+	 */
+	private DefaultTestCase createTestCase3() throws ClassNotFoundException, NoSuchMethodException {
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
+		Constructor<?> constructor = clazz.getConstructor();
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+		Method pop_method = clazz.getMethod("pop");
+
+		// var1 = new MiniBoundedStack()
+		VariableReference var1 = builder.addConstructorStatement(constructor);
+		// var1.pop()
+		builder.addMethodStatement(var1, pop_method);
+
+		DefaultTestCase test = builder.toTestCase();
+		return test;
+	}
+	
+	/**
+	 * Builds the test case:
+	 * 
+	 * <code>
+	 * stack = new BoundedStack();
+	 * stack.pop();
+	 * stack.pop();
+	 * stack.pop();
+	 * </code>
+	 * 
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchMethodException
+	 */
+	private DefaultTestCase createTestCase4() throws ClassNotFoundException, NoSuchMethodException {
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
+		Constructor<?> constructor = clazz.getConstructor();
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+		Method pop_method = clazz.getMethod("pop");
+
+		// var1 = new MiniBoundedStack()
+		VariableReference var1 = builder.addConstructorStatement(constructor);
+		// var1.pop()
+		builder.addMethodStatement(var1, pop_method);
+		// var1.pop()
+		builder.addMethodStatement(var1, pop_method);
+		// var1.pop()
+		builder.addMethodStatement(var1, pop_method);
+
+		DefaultTestCase test = builder.toTestCase();
+		return test;
+	}
+	
+	/**
+	 * Builds the test case:
+	 * 
+	 * <code>
+	 * stack = new BoundedStack();
+	 * </code>
+	 * 
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchMethodException
+	 */
+	private DefaultTestCase createTestCase5() throws ClassNotFoundException, NoSuchMethodException {
+		Class<?> clazz = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
+		Constructor<?> constructor = clazz.getConstructor();
+		EPATestCaseBuilder builder = new EPATestCaseBuilder();
+
+		// var1 = new MiniBoundedStack()
+		builder.addConstructorStatement(constructor);
 		DefaultTestCase test = builder.toTestCase();
 		return test;
 	}
