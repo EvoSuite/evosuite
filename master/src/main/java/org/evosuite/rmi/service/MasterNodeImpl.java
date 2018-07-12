@@ -169,7 +169,6 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	public synchronized void evosuite_collectTestGenerationResult(
 			String clientRmiIdentifier, List<TestGenerationResult> results)
 			throws RemoteException {
-	    //TODO
 		SearchStatistics.getInstance().addTestGenerationResult(results);
 		
 	}
@@ -201,7 +200,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
     }
 
     @Override
-    public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
+    public synchronized void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
         try {
             ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode0");
             node.collectBestSolutions(solutions);
