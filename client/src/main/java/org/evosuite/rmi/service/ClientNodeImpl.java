@@ -533,6 +533,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     @Override
     public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException {
         bestSolutions.add(solutions);
+        LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": sending best solutions to ClientNode0");
     }
 
     @Override
