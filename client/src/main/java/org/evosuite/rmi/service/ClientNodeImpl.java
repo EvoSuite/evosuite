@@ -199,10 +199,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		} catch (InterruptedException ignored) {
 		}
 	}
-
     @Override
     public void emigrate(Set<? extends Chromosome> immigrants) {
         try {
+
             masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
             LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": Sending " + immigrants.size() + " immigrants");
         } catch (RemoteException e) {
@@ -214,6 +214,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     public void sendBestSolution(Set<? extends Chromosome> solutions) {
         try {
             masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
+            LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": sending best solutions to ClientNode0");
         } catch (RemoteException e) {
             logger.error("Cannot send best solution to master", e);
         }
@@ -532,6 +533,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     @Override
     public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException {
         bestSolutions.add(solutions);
+        LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": sending best solutions to ClientNode0");
     }
 
     @Override
