@@ -152,10 +152,6 @@ public class EvoSuite {
 
             setupProperties();
 
-            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
-                ClassPathHacker.initializeToolJar();
-            }
-
             if (!line.hasOption("regressionSuite")) {
                 if (line.hasOption("criterion")) {
                     //TODO should check if already defined
@@ -210,6 +206,10 @@ public class EvoSuite {
 
             CommandLineParameters.addJavaDOptions(javaOpts, line);
 
+            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+                ClassPathHacker.initializeToolJar();
+            }
+            
             CommandLineParameters.handleClassPath(line);
 
             CommandLineParameters.handleJVMOptions(javaOpts, line);
