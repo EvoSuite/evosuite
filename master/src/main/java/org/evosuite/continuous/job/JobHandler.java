@@ -320,9 +320,13 @@ public class JobHandler extends Thread {
 		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + File.separator + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
-		String seedsFileName = job.cut + "." + Properties.CTG_SEEDS_EXT;
-		commands.add("-Dctg_seeds_file_out=" + seedOut.getAbsolutePath() + File.separator +seedsFileName);
-		commands.add("-Dctg_seeds_file_in=" + seedIn.getAbsolutePath() + File.separator +seedsFileName);
+		if (Properties.CTG_SCHEDULE == Properties.AvailableSchedule.SEEDING
+				|| Properties.CTG_SCHEDULE == Properties.AvailableSchedule.BUDGET_AND_SEEDING
+				|| Properties.CTG_SCHEDULE == Properties.AvailableSchedule.HISTORY) {
+			String seedsFileName = job.cut + "." + Properties.CTG_SEEDS_EXT;
+			commands.add("-Dctg_seeds_file_out=" + seedOut.getAbsolutePath() + File.separator +seedsFileName);
+			commands.add("-Dctg_seeds_file_in=" + seedIn.getAbsolutePath() + File.separator +seedsFileName);
+		}
 
 		commands.addAll(getOutputVariables());
 		commands.add("-Danalysis_criteria=" + Properties.ANALYSIS_CRITERIA);
