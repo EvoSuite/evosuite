@@ -1,20 +1,25 @@
 package org.evosuite.symbolic;
 
+import java.util.Collections;
+
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 public class DSEAlgorithm<T extends Chromosome> extends GeneticAlgorithm<T> {
 
-	private final DSEChromosomeFactory<T> chromosomeFactory;
+	private final DSEDefaultChromosomeFactory<T> defaultChromosomeFactory;
 
-	public DSEAlgorithm(ChromosomeFactory<T> factory) {
+	private final DSEExplorerFactory<T> explorerFactory;
+
+	public DSEAlgorithm(ChromosomeFactory<T> factory, DSEExplorerFactory<T> explorerFactory) {
 		super(factory);
-		if (!(factory instanceof DSEChromosomeFactory)) {
+		if (!(factory instanceof DSEDefaultChromosomeFactory)) {
 			throw new IllegalArgumentException(
-					"DSE algorithm only accepts factories extending " + DSEChromosomeFactory.class.getName());
+					"DSE algorithm only accepts factories extending " + DSEDefaultChromosomeFactory.class.getName());
 		} else {
-			this.chromosomeFactory = (DSEChromosomeFactory<T>) factory;
+			this.defaultChromosomeFactory = (DSEDefaultChromosomeFactory<T>) factory;
+			this.explorerFactory = explorerFactory;
 		}
 	}
 
@@ -32,11 +37,10 @@ public class DSEAlgorithm<T extends Chromosome> extends GeneticAlgorithm<T> {
 	@Override
 	public void initializePopulation() {
 		this.notifySearchStarted();
-		for (int i = 0; i < chromosomeFactory.numberOfChromosomes(); i++) {
-			T chromosome = chromosomeFactory.getChromosome(i);
-			population.add(chromosome);
+		for (int i = 0; i < defaultChromosomeFactory.numberOfDefaultChromosomes(); i++) {
+			T initialChromosome = defaultChromosomeFactory.getDefaultChromosome(i);
+			population.add(initialChromosome);
 		}
-
 	}
 
 	@Override
@@ -44,7 +48,21 @@ public class DSEAlgorithm<T extends Chromosome> extends GeneticAlgorithm<T> {
 		if (population.isEmpty()) {
 			initializePopulation();
 		}
-		
+
+		Collections.sort(population);
+
+		for (int i = 0; i < population.size(); i++) {
+
+			T individual = population.get(i);
+			DSEExplorer<T> explorer = this.explorerFactory.buildExplorer(individual);
+
+			while (explorer.hasNext()) {
+				T newIndividual = explorer.next();
+				population.add(newIndividual);
+			}
+		}
+
+		this.notifySearchFinished();
 	}
 
 }

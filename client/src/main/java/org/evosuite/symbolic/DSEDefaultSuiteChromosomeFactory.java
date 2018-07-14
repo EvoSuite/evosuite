@@ -3,7 +3,7 @@ package org.evosuite.symbolic;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-public class DSESuiteChromosomeFactory extends DSEChromosomeFactory<TestSuiteChromosome> {
+public class DSEDefaultSuiteChromosomeFactory extends DSEDefaultChromosomeFactory<TestSuiteChromosome> {
 
 	/**
 	 * 
@@ -12,7 +12,7 @@ public class DSESuiteChromosomeFactory extends DSEChromosomeFactory<TestSuiteChr
 
 	private final TestSuiteChromosome singleton;
 
-	public DSESuiteChromosomeFactory(DSETestChromosomeFactory f) {
+	public DSEDefaultSuiteChromosomeFactory(DSEDefaultTestChromosomeFactory f) {
 		singleton = buildDefaultTestSuiteChromosome(f);
 	}
 
@@ -22,10 +22,10 @@ public class DSESuiteChromosomeFactory extends DSEChromosomeFactory<TestSuiteChr
 	 * @param f
 	 * @return
 	 */
-	private static TestSuiteChromosome buildDefaultTestSuiteChromosome(DSETestChromosomeFactory f) {
+	private static TestSuiteChromosome buildDefaultTestSuiteChromosome(DSEDefaultTestChromosomeFactory f) {
 		TestSuiteChromosome defaultTestSuiteChromosome = new TestSuiteChromosome();
-		for (int i = 0; i < f.numberOfChromosomes(); i++) {
-			TestChromosome testChromosome = f.getChromosome(i);
+		for (int i = 0; i < f.numberOfDefaultChromosomes(); i++) {
+			TestChromosome testChromosome = f.getDefaultChromosome(i);
 			defaultTestSuiteChromosome.addTest(testChromosome);
 		}
 		return defaultTestSuiteChromosome;
@@ -37,12 +37,12 @@ public class DSESuiteChromosomeFactory extends DSEChromosomeFactory<TestSuiteChr
 	}
 
 	@Override
-	public int numberOfChromosomes() {
+	public int numberOfDefaultChromosomes() {
 		return 1;
 	}
 
 	@Override
-	public TestSuiteChromosome getChromosome(int i) throws IndexOutOfBoundsException {
+	public TestSuiteChromosome getDefaultChromosome(int i) throws IndexOutOfBoundsException {
 		if (i != 0) {
 			throw new IndexOutOfBoundsException();
 		}

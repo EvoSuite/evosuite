@@ -19,9 +19,8 @@
  */
 package org.evosuite.dse;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
-
-import java.util.List;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -31,14 +30,13 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.result.TestGenerationResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.dse.Add;
-import com.examples.with.different.packagename.dse.DseWithFile;
 import com.examples.with.different.packagename.dse.Max;
+import com.examples.with.different.packagename.dse.NoStaticMethod;
 
 public class DseStrategySystemTest extends SystemTestBase {
 
@@ -74,12 +72,11 @@ public class DseStrategySystemTest extends SystemTestBase {
 		Properties.MINIMIZE = true;
 		Properties.ASSERTIONS = true;
 		
-
+		assumeTrue(Properties.CVC4_PATH != null);
 	}
 
 	@Test
 	public void testMax() {
-		assumeTrue(Properties.CVC4_PATH != null);
 
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = Max.class.getCanonicalName();
@@ -96,8 +93,6 @@ public class DseStrategySystemTest extends SystemTestBase {
 	
 	@Test
 	public void testAdd() {
-		assumeTrue(Properties.CVC4_PATH != null);
-
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = Add.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
@@ -108,6 +103,24 @@ public class DseStrategySystemTest extends SystemTestBase {
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
 		
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+	}
+
+	@Test
+	public void testNoStaticMethod() {
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = NoStaticMethod.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object results = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(results);
+		
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		assertTrue(best.getTests().isEmpty());
+		
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 	}

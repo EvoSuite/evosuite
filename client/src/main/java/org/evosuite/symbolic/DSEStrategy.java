@@ -74,8 +74,11 @@ public class DSEStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
-			DSESuiteChromosomeFactory testFactory = new DSESuiteChromosomeFactory(new DSETestChromosomeFactory());
-			DSEAlgorithm<TestSuiteChromosome> algorithm = new DSEAlgorithm<TestSuiteChromosome>(testFactory);
+			DSEDefaultSuiteChromosomeFactory testFactory = new DSEDefaultSuiteChromosomeFactory(
+					new DSEDefaultTestChromosomeFactory());
+			DSETestSuiteExplorerFactory explorerFactory = new DSETestSuiteExplorerFactory();
+			DSEAlgorithm<TestSuiteChromosome> algorithm = new DSEAlgorithm<TestSuiteChromosome>(testFactory,
+					explorerFactory);
 			algorithm.generateSolution();
 			testSuite = algorithm.getBestIndividual();
 

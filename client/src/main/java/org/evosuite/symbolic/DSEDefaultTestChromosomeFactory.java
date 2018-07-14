@@ -14,7 +14,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.variable.VariableReference;
 import org.objectweb.asm.Type;
 
-public class DSETestChromosomeFactory extends DSEChromosomeFactory<TestChromosome> {
+public class DSEDefaultTestChromosomeFactory extends DSEDefaultChromosomeFactory<TestChromosome> {
 
 	/**
 	 * Returns a set with the static methods of a class
@@ -71,7 +71,7 @@ public class DSETestChromosomeFactory extends DSEChromosomeFactory<TestChromosom
 	 */
 	private static final long serialVersionUID = 2007698806862876842L;
 
-	public DSETestChromosomeFactory() {
+	public DSEDefaultTestChromosomeFactory() {
 		defaultTestChromosomes = initializeDefaultTestChromosomes();
 
 	}
@@ -113,12 +113,12 @@ public class DSETestChromosomeFactory extends DSEChromosomeFactory<TestChromosom
 	}
 
 	@Override
-	public int numberOfChromosomes() {
+	public int numberOfDefaultChromosomes() {
 		return defaultTestChromosomes.size();
 	}
 
 	@Override
-	public TestChromosome getChromosome(int i) {
+	public TestChromosome getDefaultChromosome(int i) {
 		return defaultTestChromosomes.get(i);
 	}
 
