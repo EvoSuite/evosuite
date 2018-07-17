@@ -38,8 +38,11 @@ public class EPAExceptionCoverageTestFitness extends TestFitnessFunction {
 
 	@Override
 	public int compareTo(TestFitnessFunction other) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (other instanceof EPAExceptionCoverageTestFitness) {
+			EPAExceptionCoverageTestFitness otherEPAExceptionFitness = (EPAExceptionCoverageTestFitness) other;
+			return goal.compareTo(otherEPAExceptionFitness.goal);
+		}
+		return compareClassName(other);
 	}
 
 	@Override
