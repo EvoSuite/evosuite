@@ -59,25 +59,27 @@ public class GenerationAnalysis<C extends Chromosome> {
     }
 
     private boolean accepted;
-    private List<C> archivedChromosomes;
+    private int archiveSize;
     private RETURN_OPTION returnoption;
     private long milliSeconds;
 
-    public GenerationAnalysis(boolean accepted, List<C> archivedChromosomes, RETURN_OPTION returnoption, long milliSeconds){
+    public GenerationAnalysis(boolean accepted, int archiveSize, RETURN_OPTION returnoption, long milliSeconds){
         this.accepted = accepted;
-        this.archivedChromosomes = new ArrayList<C>();
-        this.archivedChromosomes.addAll(archivedChromosomes);
+        this.archiveSize = archiveSize;
         this.returnoption = returnoption;
         this.milliSeconds = milliSeconds;
+    }
+
+    public String toJSON(){
+        return "{" + "\"accepted\":"+accepted+", \"archive_size\":"+this.archiveSize+
+                ", \"ReturnOption\":\"" + this.returnoption +"\", \"time\" :"+this.milliSeconds+"}";
     }
 
     public boolean isAccepted() {
         return accepted;
     }
 
-    public List<C> getArchivedChromosomes() {
-        return archivedChromosomes;
-    }
+    public int getArchiveSize() { return archiveSize; }
 
     public RETURN_OPTION getReturnoption() {
         return returnoption;

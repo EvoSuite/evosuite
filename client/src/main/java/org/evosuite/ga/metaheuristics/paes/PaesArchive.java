@@ -1,11 +1,12 @@
 package org.evosuite.ga.metaheuristics.paes;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridLocation;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridNode;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridNodeInterface;
+import org.evosuite.symbolic.vm.math.MAX;
 
 import java.util.*;
 
@@ -17,8 +18,8 @@ import java.util.*;
 public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C> {
     private static final boolean USE_RECURSIVE_GRID_CROWDED = false;
     private static boolean USE_BEST_SCORE = false;
-    private static final int MAX_SIZE = 100;
-    private static final int GRID_LAYER_DEPTH = 5;
+    private static final int MAX_SIZE = Properties.POPULATION;
+    private static final int GRID_LAYER_DEPTH = Properties.GRID_DEPTH;
     private GridNodeInterface<C> grid;
     private List<C> archivedChromosomes = new ArrayList<>();
     private List<FitnessFunction<?>> fitnessFunctions;
