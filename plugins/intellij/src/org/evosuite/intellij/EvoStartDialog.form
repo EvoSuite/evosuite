@@ -30,6 +30,8 @@
         <rowspec value="center:15dlu:noGrow"/>
         <rowspec value="top:3dlu:noGrow"/>
         <rowspec value="center:15dlu:noGrow"/>
+        <rowspec value="top:4dlu:noGrow"/>
+        <rowspec value="center:max(d;4px):noGrow"/>
         <colspec value="fill:170px:grow"/>
         <colspec value="fill:13px:noGrow"/>
         <colspec value="fill:200px:grow(5.0)"/>
@@ -231,6 +233,16 @@
             </constraints>
             <properties>
               <text value=""/>
+            </properties>
+          </component>
+          <component id="92cfe" class="javax.swing.JLabel" binding="javaVersionWarningLabel">
+            <constraints>
+              <grid row="14" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <forms/>
+            </constraints>
+            <properties>
+              <foreground color="-7685319"/>
+              <text value="javaVersionWarning"/>
             </properties>
           </component>
         </children>

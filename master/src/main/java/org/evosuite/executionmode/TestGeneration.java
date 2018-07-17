@@ -66,7 +66,7 @@ public class TestGeneration {
 		if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
 			LoggingUtils.getEvoLogger().warn(Properties.JAVA_VERSION_WARN_MSG);
 			results.add(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult(Properties.JAVA_VERSION_WARN_MSG) }));
-			return results;
+			throw new RuntimeException("Java version greater 8 detected");
 		}
 
 		if(line.getOptions().length == 0) {
@@ -275,7 +275,7 @@ public class TestGeneration {
 		
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
-
+// EVOSUITE -class dadsa -projectCP sdadas -Ddebug=true
 		if (Properties.DEBUG) {
 			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
 			cmdLine.add("-Ddebug=true");
