@@ -323,8 +323,23 @@ public class Properties {
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
-	@Parameter(key="grid_depth", group="Runtime", description="Depth of the grid of the archive for PAES")
-	public static int GRID_DEPTH;
+	@Parameter(key="grid_depth", group="Search Algorithm", description="Depth of the grid of the archive for PAES")
+	@IntValue(min= 1)
+	public static int GRID_DEPTH = 5;
+
+	@Parameter(key="paes_generation_analysis", group="Runtime", description = "Whether statistics about generations should be printed in the CSV-File")
+	public static boolean PAES_GENERATION_ANALYSIS;
+
+	public enum PaesArchiveType{
+		GRID,
+		DISTANCE
+	}
+
+	@Parameter(key = "paes_archive_type", group="Runtime", description = "What type of archive is used")
+	public static PaesArchiveType PAES_ARCHIVE_TYPE = PaesArchiveType.GRID;
+
+	@Parameter(key="favour_candidate", group="Runtime", description = "In Paes if the archive cant decide whether to favour candidate or current")
+	public static boolean FAVOUR_CANDIDATE;
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;

@@ -383,7 +383,7 @@ public enum RuntimeVariable {
 	/** Used in the comparison between LISP and MOSA */
 	Time2MaxCoverage,
 	/** PAES */
-	CountCurrentDominatesCandidate,CountCandidateDominatesCurrent,CountCandidateDominatesArchive,CountArchiveDominatesCandidate,CountArchiveDecidesCandidate,CountArchiveDecidesCurrent,AvgTimeCurrentDominatesCandidate,AvgTimeCandidateDominatesCurrent,AvgTimeCandidateDominatesArchive,AvgTimeArchiveDominatesCandidate,AvgTimeArchiveDecidesCandidate,AvgTimeArchiveDecidesCurrent
+	CountCurrentDominatesCandidate,CountCandidateDominatesCurrent,CountCandidateDominatesArchive,CountArchiveDominatesCandidate,CountArchiveDecidesCandidate,CountArchiveDecidesCurrent,AvgTimeCurrentDominatesCandidate,AvgTimeCandidateDominatesCurrent,AvgTimeCandidateDominatesArchive,AvgTimeArchiveDominatesCandidate,AvgTimeArchiveDecidesCandidate,AvgTimeArchiveDecidesCurrent,AvgArchiveSize
 	;
 	/* -------------------------------------------------- */
 

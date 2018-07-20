@@ -655,9 +655,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		boolean hasDominatingObjective = false;
 		for(FitnessFunction<?> ff: fitnessFunctions){
 			if(this.getFitness(ff) > c.getFitness(ff)) {
-				if(ff.isMaximizationFunction()) {
+				if(ff.isMaximizationFunction())
 					hasDominatingObjective = true;
-				} else {
+				else {
 					hasDominatedObjective = true;
 					break;
 				}
@@ -666,15 +666,19 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 				if(ff.isMaximizationFunction()){
 					hasDominatedObjective = true;
 					break;
-				} else {
+				} else
 					hasDominatingObjective = true;
-				}
 			}
 		}
 		if(hasDominatedObjective)
 			return false;
-		if(hasDominatingObjective)
-			return true;
-		return false;
+		return hasDominatingObjective;
+	}
+
+	public double distance(Chromosome c, List<FitnessFunction<?>> fitnessFunctions){
+		double sum = 0;
+		for(FitnessFunction<?> ff : fitnessFunctions)
+			sum += Math.abs(this.getFitness(ff) - c.getFitness(ff));
+		return sum;
 	}
 }
