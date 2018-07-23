@@ -25,7 +25,7 @@ import java.util.List;
 import org.evosuite.symbolic.expr.Constraint;
 
 /**
- * Represents a sequence of branch conditions
+ * Represents a sequence of branch conditions.
  * 
  * @author galeotti
  *

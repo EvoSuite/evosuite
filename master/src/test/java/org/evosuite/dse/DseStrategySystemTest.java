@@ -19,6 +19,7 @@
  */
 package org.evosuite.dse;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -89,6 +90,8 @@ public class DseStrategySystemTest extends SystemTestBase {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
+		assertFalse(best.getTests().isEmpty());
+
 	}
 	
 	@Test
@@ -105,6 +108,7 @@ public class DseStrategySystemTest extends SystemTestBase {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
+		assertFalse(best.getTests().isEmpty());
 	}
 
 	@Test
@@ -122,6 +126,8 @@ public class DseStrategySystemTest extends SystemTestBase {
 		assertTrue(best.getTests().isEmpty());
 		
 		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertTrue(best.getTests().isEmpty());
 
 	}
 

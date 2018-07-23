@@ -108,6 +108,8 @@ public abstract class ConcolicExecution {
 		VM.getInstance().setListeners(listeners);
 		VM.getInstance().prepareConcolicExecution();
 
+		
+		defaultTestCase.getChangedClassLoader();
 		defaultTestCase.changeClassLoader(classLoader);
 		SymbolicObserver symbolicExecObserver = new SymbolicObserver(env);
 
