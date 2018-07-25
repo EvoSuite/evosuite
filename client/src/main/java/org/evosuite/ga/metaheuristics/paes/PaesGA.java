@@ -54,21 +54,22 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
         candidate.mutate();
         candidate.getFitnessValues().clear();
         this.calculateFitness(candidate);
-
+        double candidateFit = 0.0;
+        double currentFit = 0.0;
+        if(PAES_ANALYTIC_MODE){
+            for(FitnessFunction<?> ff : this.fitnessFunctions){
+                candidateFit += FitnessFunction.normalize(candidate.getFitness(ff));
+                currentFit += FitnessFunction.normalize(current.getFitness(ff));
+            }
+            candidateFit /= this.fitnessFunctions.size();
+            currentFit /= this.fitnessFunctions.size();
+        }
         List<FitnessFunction<?>> ffs = new ArrayList<>(fitnessFunctions);
-        //If FitnessFunctions changed rebuild archive for new objectives
-        /*
-        if(fitnessFunctionsHaveChanged(archiveObjectives, ffs)){
-            this.calculateFitness(current);
-            for(C c : archive.getChromosomes())
-                this.calculateFitness(c);
-            archive.updateFitnessFunctions(candidate.getFitnessValues().keySet());
-        }*/
 
         if(current.dominates(candidate, ffs)){
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(false, archiveSize,
-                        GenerationAnalysis.RETURN_OPTION.CURRENT_DOMINATES_CANDIDATE, start);
+                        GenerationAnalysis.RETURN_OPTION.CURRENT_DOMINATES_CANDIDATE, currentFit, candidateFit,start);
             return;
         }
         if(candidate.dominates(current, ffs)) {
@@ -77,7 +78,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             this.population.add(candidate);
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(true, archiveSize,
-                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_CURRENT, start);
+                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_CURRENT, currentFit, candidateFit, start);
             return;
         }
         List<C> archivedChromosomes = archive.getChromosomes();
@@ -97,7 +98,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             this.population.add(candidate);
             if(PAES_ANALYTIC_MODE)
                 this.addGenerationAnalyse(true, archiveSize,
-                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_ARCHIVE, start);
+                        GenerationAnalysis.RETURN_OPTION.CANDIDATE_DOMINATES_ARCHIVE, currentFit, candidateFit, start);
             return;
         }
         if(!candidateIsDominated) {
@@ -107,27 +108,31 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
                 this.population.add(candidate);
                 if(PAES_ANALYTIC_MODE)
                     this.addGenerationAnalyse(true, archiveSize,
-                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CANDIDATE, start);
+                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CANDIDATE,currentFit, candidateFit, start);
                 return;
             } else {
                 archive.add(candidate);
                 if(PAES_ANALYTIC_MODE)
                     this.addGenerationAnalyse(false, archiveSize,
-                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CURRENT, start);
+                            GenerationAnalysis.RETURN_OPTION.ARCHIVE_DECIDES_CURRENT,currentFit, candidateFit, start);
                 return;
             }
         }
         if(PAES_ANALYTIC_MODE)
             this.addGenerationAnalyse(false, archiveSize,
-                    GenerationAnalysis.RETURN_OPTION.ARCHIVE_DOMINATES_CANDIDATE, start);
+                    GenerationAnalysis.RETURN_OPTION.ARCHIVE_DOMINATES_CANDIDATE, currentFit, candidateFit, start);
     }
 
     private void addGenerationAnalyse(boolean accepted,
                                       int archiveSize,
                                       GenerationAnalysis.RETURN_OPTION return_option,
+                                      double currentFitness,
+                                      double candidateFitness,
                                       long startMillis){
-        this.generationAnalyses.add(new GenerationAnalysis<C>(accepted,
-                archiveSize,return_option, System.currentTimeMillis()- startMillis));
+        this.generationAnalyses.add(
+                new GenerationAnalysis<C>(accepted, this.currentIteration,
+                archiveSize, return_option, currentFitness, candidateFitness,
+                System.currentTimeMillis()- startMillis));
     }
 
     /**
@@ -174,7 +179,8 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             long seed = Randomness.getSeed();
             Properties.PaesArchiveType archiveType = super.PAES_ARCHIVE;
             int population = Properties.POPULATION;
-            String className = RuntimeSettings.className;
+            String[] packagedClassName = RuntimeSettings.className.split("\\.");
+            String className = packagedClassName[packagedClassName.length-1];
             String fileName = className + "_" + population+"_"+archiveType+"_"+seed;
 
             AnalysisFileWriter analysisFileWriter = new AnalysisFileWriter(fileName);

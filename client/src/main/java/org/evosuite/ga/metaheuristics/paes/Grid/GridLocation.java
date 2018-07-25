@@ -38,7 +38,8 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
     @Override
     public boolean isInBounds(C c){
         for(FitnessFunction<?> ff: this.getObjectives())
-            if(c.getFitness(ff) > this.upperBounds.get(ff) || c.getFitness(ff) < this.lowerBounds.get(ff))
+            if(FitnessFunction.normalize(c.getFitness(ff)) > this.upperBounds.get(ff) ||
+                    FitnessFunction.normalize(c.getFitness(ff)) < this.lowerBounds.get(ff))
                 return false;
         return true;
     }

@@ -62,17 +62,36 @@ public class GenerationAnalysis<C extends Chromosome> {
     private int archiveSize;
     private RETURN_OPTION returnoption;
     private long milliSeconds;
+    private double currentFitness;
+    private double candidateFitness;
+    private int generation;
 
-    public GenerationAnalysis(boolean accepted, int archiveSize, RETURN_OPTION returnoption, long milliSeconds){
+    public GenerationAnalysis(boolean accepted, int generation, int archiveSize, RETURN_OPTION returnoption,
+                              double currentFitness, double candidateFitness ,long milliSeconds){
         this.accepted = accepted;
         this.archiveSize = archiveSize;
         this.returnoption = returnoption;
         this.milliSeconds = milliSeconds;
+        this.generation = generation;
+        this.currentFitness = currentFitness;
+        this.candidateFitness = candidateFitness;
     }
 
     public String toJSON(){
-        return "{" + "\"accepted\":"+accepted+", \"archive_size\":"+this.archiveSize+
-                ", \"ReturnOption\":\"" + this.returnoption +"\", \"time\" :"+this.milliSeconds+"}";
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("{");
+        jsonBuilder.append("\"accepted\":"+accepted);
+        jsonBuilder.append(", \"generation\":"+this.generation);
+        jsonBuilder.append(", \"archive_size\":"+this.archiveSize);
+        jsonBuilder.append(", \"ReturnOption\":\"" + this.returnoption+"\"");
+        jsonBuilder.append(", \"currentFitness\":"+ this.currentFitness);
+        jsonBuilder.append(", \"candidateFitness\":"+this.candidateFitness);
+        jsonBuilder.append(", \"time\" :"+this.milliSeconds);
+        jsonBuilder.append("}");
+
+        return "{" + "\"accepted\":"+accepted+", \"generation\":"+this.generation+", \"archive_size\":"+this.archiveSize+
+                ", \"ReturnOption\":\"" + this.returnoption +"\", \"currentFitness\":"+ this.currentFitness +
+                ", \"candidateFitness\":"+this.candidateFitness +", \"time\" :"+this.milliSeconds+"}";
     }
 
     public boolean isAccepted() {

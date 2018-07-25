@@ -1,5 +1,7 @@
 package org.evosuite.ga.metaheuristics.paes.analysis;
 
+import org.evosuite.Properties;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +14,6 @@ import java.util.List;
  */
 public class AnalysisFileWriter {
     private final String fileName;
-    private static final String DIRECTORY = "evosuite-reports";
     private List<String> jsonRepresentations;
 
     public AnalysisFileWriter(String fileName){
@@ -44,9 +45,9 @@ public class AnalysisFileWriter {
         if(this.fileName == null || this.fileName == "")
             throw new IllegalStateException("fileName not defined");
         int run = 1;
-        while(new File(AnalysisFileWriter.DIRECTORY, this.fileName+"-"+run+".json").exists())
+        while(new File(Properties.REPORT_DIR, this.fileName+"-"+run+".json").exists())
             ++run;
-        File file = new File(AnalysisFileWriter.DIRECTORY+File.separator+this.fileName+"-"+run+".json");
+        File file = new File(Properties.REPORT_DIR+File.separator+this.fileName+"-"+run+".json");
         file.getParentFile().mkdirs();
         file.createNewFile();
         FileWriter fileWriter = new FileWriter(file,false);

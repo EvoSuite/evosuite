@@ -45,7 +45,8 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     @Override
     public boolean isInBounds(C c) {
         for(FitnessFunction<?> ff : this.upperBounds.keySet()){
-            if(c.getFitness(ff)> this.upperBounds.get(ff) || c.getFitness(ff) < this.lowerBounds.get(ff))
+            if(FitnessFunction.normalize(c.getFitness(ff))> this.upperBounds.get(ff) ||
+                    FitnessFunction.normalize(c.getFitness(ff)) < this.lowerBounds.get(ff))
                 return false;
         }
         return true;
@@ -77,7 +78,7 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
         Map<FitnessFunction<?>, Double> lowerBounds = new LinkedHashMap<>();
         for (FitnessFunction<?> ff : this.upperBounds.keySet()) {
             double delimiter = (this.upperBounds.get(ff)+this.lowerBounds.get(ff))/2;
-            if(c.getFitness(ff) < delimiter){
+            if(FitnessFunction.normalize(c.getFitness(ff)) < delimiter){
                 upperBounds.put(ff,delimiter);
                 lowerBounds.put(ff, this.lowerBounds.get(ff));
             } else{
