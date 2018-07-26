@@ -63,10 +63,6 @@ public class TestGeneration {
 
 		List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 
-		if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
-			throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
-		}
-
 		if(line.getOptions().length == 0) {
             Help.execute(options);
             return results;
