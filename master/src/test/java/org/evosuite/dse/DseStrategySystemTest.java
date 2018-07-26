@@ -19,6 +19,7 @@
  */
 package org.evosuite.dse;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
@@ -30,6 +31,8 @@ import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
@@ -37,6 +40,8 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.dse.Add;
 import com.examples.with.different.packagename.dse.Max;
+import com.examples.with.different.packagename.dse.Min;
+import com.examples.with.different.packagename.dse.MinUnreachableCode;
 import com.examples.with.different.packagename.dse.NoStaticMethod;
 
 public class DseStrategySystemTest extends SystemTestBase {
@@ -61,18 +66,18 @@ public class DseStrategySystemTest extends SystemTestBase {
 		Properties.DSE_SOLVER = SolverType.CVC4_SOLVER;
 
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
-		Properties.SEARCH_BUDGET = 60*60*10; // 10 hours
-		Properties.MINIMIZATION_TIMEOUT = 60*60;
-		Properties.ASSERTION_TIMEOUT = 60*60;
-//		Properties.TIMEOUT = Integer.MAX_VALUE;
-		
+		Properties.SEARCH_BUDGET = 60 * 60 * 10; // 10 hours
+		Properties.MINIMIZATION_TIMEOUT = 60 * 60;
+		Properties.ASSERTION_TIMEOUT = 60 * 60;
+		// Properties.TIMEOUT = Integer.MAX_VALUE;
+
 		Properties.STRATEGY = Strategy.DSE;
 
 		Properties.CRITERION = new Criterion[] { Criterion.BRANCH };
 
 		Properties.MINIMIZE = true;
 		Properties.ASSERTIONS = true;
-		
+
 		assumeTrue(Properties.CVC4_PATH != null);
 	}
 
@@ -92,8 +97,10 @@ public class DseStrategySystemTest extends SystemTestBase {
 
 		assertFalse(best.getTests().isEmpty());
 
+		assertEquals(6, best.getNumOfCoveredGoals());
+		assertEquals(1, best.getNumOfNotCoveredGoals());
 	}
-	
+
 	@Test
 	public void testAdd() {
 		EvoSuite evosuite = new EvoSuite();
@@ -104,11 +111,17 @@ public class DseStrategySystemTest extends SystemTestBase {
 
 		Object results = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
-		
+
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertFalse(best.getTests().isEmpty());
+
+		assertEquals(1, best.getTests().size());
+		
+		assertEquals(1, best.getNumOfCoveredGoals());
+		assertEquals(1, best.getNumOfNotCoveredGoals());
+
 	}
 
 	@Test
@@ -121,15 +134,59 @@ public class DseStrategySystemTest extends SystemTestBase {
 
 		Object results = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = getGAFromResult(results);
-		
+
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		assertTrue(best.getTests().isEmpty());
-		
+
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertTrue(best.getTests().isEmpty());
 
+		assertEquals(0, best.getNumOfCoveredGoals());
+		assertEquals(1, best.getNumOfNotCoveredGoals());
+
 	}
 
+	@Test
+	public void testMin() {
 
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = Min.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(2, best.getNumOfCoveredGoals());
+		assertEquals(1, best.getNumOfNotCoveredGoals());
+
+	}
+
+	@Test
+	public void testUnreachableCode() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = MinUnreachableCode.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(2, best.getNumOfNotCoveredGoals());
+	}
 }

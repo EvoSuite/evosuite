@@ -2,7 +2,8 @@ package com.examples.with.different.packagename.dse;
 
 public abstract class Max {
 
-	private Max() {
+	public Max() {
+		// branchless method
 	}
 
 	public static int max(int x, int y, int z) {

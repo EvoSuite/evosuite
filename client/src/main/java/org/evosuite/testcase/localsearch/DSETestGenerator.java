@@ -66,16 +66,15 @@ public class DSETestGenerator {
 	private final TestSuiteChromosome suite;
 
 	/**
-	 * Creates a new test generator with no suite. Only the test case will be
-	 * used
+	 * Creates a new test generator with no suite. Only the test case will be used
 	 */
 	public DSETestGenerator() {
 		this(null);
 	}
 
 	/**
-	 * Creates a new test generator using a test suite. The test case will be
-	 * added to the test suite.
+	 * Creates a new test generator using a test suite. The test case will be added
+	 * to the test suite.
 	 * 
 	 * @param suite
 	 */
@@ -86,9 +85,9 @@ public class DSETestGenerator {
 	private static final Logger logger = LoggerFactory.getLogger(DSETestGenerator.class);
 
 	/**
-	 * Applies DSE to the passed test using as symbolic variables only those
-	 * that are declared in the set of statement indexes. The objective is used
-	 * to detect if the DSE has improved the fitness.
+	 * Applies DSE to the passed test using as symbolic variables only those that
+	 * are declared in the set of statement indexes. The objective is used to detect
+	 * if the DSE has improved the fitness.
 	 * 
 	 * @param test
 	 *            the test case to be used as parameterised unit test
@@ -174,12 +173,12 @@ public class DSETestGenerator {
 
 			DSEStats.getInstance().reportNewConstraints(query);
 
-			// Get solution
-			Solver solver = SolverFactory.getInstance().buildNewSolver();
 
 			long startSolvingTime = System.currentTimeMillis();
-			SolverCache solverCache = SolverCache.getInstance();
-			SolverResult solverResult = solverCache.solve(solver, query);
+			
+			// Get solution
+			SolverResult solverResult = solve(query);
+			
 			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
 			DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 
@@ -199,7 +198,7 @@ public class DSETestGenerator {
 				logger.info("New test: " + newTest.toCode());
 				test.setTestCase(newTest);
 				// test.clearCachedMutationResults(); // TODO Mutation
-				test.clearCachedResults(); 
+				test.clearCachedResults();
 
 				if (objective.hasImproved(test)) {
 					DSEStats.getInstance().reportNewTestUseful();
@@ -220,11 +219,24 @@ public class DSETestGenerator {
 		return null;
 	}
 
+
+	/**
+	 * solves a given query (i.e. list of constraints). 
+	 * @param query
+	 * @return
+	 */
+	public static SolverResult solve(List<Constraint<?>> query) {
+		Solver solver = SolverFactory.getInstance().buildNewSolver();
+		SolverCache solverCache = SolverCache.getInstance();
+		SolverResult solverResult = solverCache.solve(solver, query);
+		return solverResult;
+	}
+
 	/**
 	 * Compute the set of branch conditions in the path condition that are not
 	 * covered two ways. If the test case belongs to a whole test suite, the
-	 * coverage of the whole test suite is used, otherwise, only the coverage of
-	 * the single test case.
+	 * coverage of the whole test suite is used, otherwise, only the coverage of the
+	 * single test case.
 	 * 
 	 * @param test
 	 *            the original test case
@@ -237,7 +249,7 @@ public class DSETestGenerator {
 		List<Integer> conditionIndexesNotCoveredTwoWays = new LinkedList<Integer>();
 		for (int conditionIndex = 0; conditionIndex < collectedPathCondition.size(); conditionIndex++) {
 			BranchCondition b = collectedPathCondition.get(conditionIndex);
-			if (!isCoveredTwoWays(test, b.getBranchIndex())) {
+			if (!isCoveredTwoWays(test, b.getInstructionIndex())) {
 				conditionIndexesNotCoveredTwoWays.add(conditionIndex);
 			}
 		}
@@ -245,9 +257,9 @@ public class DSETestGenerator {
 	}
 
 	/**
-	 * Returns if the true and false branches for this were already covered. If
-	 * the test case belongs to a whole test suite, then the coverage of the
-	 * test suite is used, otherwise the single test case is used.
+	 * Returns if the true and false branches for this were already covered. If the
+	 * test case belongs to a whole test suite, then the coverage of the test suite
+	 * is used, otherwise the single test case is used.
 	 * 
 	 * @param className
 	 * @param methodName
@@ -281,17 +293,31 @@ public class DSETestGenerator {
 		return trueIsCovered && falseIsCovered;
 	}
 
+
 	/**
 	 * Creates a Solver query give a branch condition
 	 * 
 	 * @param condition
 	 * @return
 	 */
-	private List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndex) {
+	public static List<Constraint<?>> buildQuery(PathCondition pc, int conditionIndexToNegate) {
 		// negate target branch condition
-		PathCondition negatedPathCondition = pc.negate(conditionIndex);
-		// get constraints for negated path condition
-		List<Constraint<?>> query = negatedPathCondition.getConstraints();
+		if (conditionIndexToNegate < 0 || conditionIndexToNegate >= pc.getBranchConditions().size()) {
+			throw new IndexOutOfBoundsException("The position " + conditionIndexToNegate + " does not exists");
+		}
+
+		List<Constraint<?>> query = new LinkedList<Constraint<?>>();
+		for (int i = 0; i < conditionIndexToNegate; i++) {
+			BranchCondition b = pc.get(i);
+			query.addAll(b.getSupportingConstraints());
+			query.add(b.getConstraint());
+		}
+
+		BranchCondition targetBranch = pc.get(conditionIndexToNegate);
+		Constraint<?> negation = targetBranch.getConstraint().negate();
+		query.addAll(targetBranch.getSupportingConstraints());
+		query.add(negation);
+
 		// Compute cone of influence reduction
 		List<Constraint<?>> simplified_query = reduce(query);
 
@@ -319,7 +345,7 @@ public class DSETestGenerator {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private TestCase updateTest(TestCase test, Map<String, Object> values) {
+	public static TestCase updateTest(TestCase test, Map<String, Object> values) {
 
 		TestCase newTest = test.clone();
 
@@ -392,7 +418,7 @@ public class DSETestGenerator {
 	 * @param constraints
 	 * @return
 	 */
-	private List<Constraint<?>> reduce(List<Constraint<?>> constraints) {
+	private static List<Constraint<?>> reduce(List<Constraint<?>> constraints) {
 
 		Constraint<?> target = constraints.get(constraints.size() - 1);
 		Set<Variable<?>> dependencies = getVariables(target);
@@ -424,7 +450,7 @@ public class DSETestGenerator {
 	 * @param name
 	 * @return
 	 */
-	private PrimitiveStatement<?> getStatement(TestCase test, String name) {
+	private static PrimitiveStatement<?> getStatement(TestCase test, String name) {
 		for (Statement statement : test) {
 
 			if (statement instanceof PrimitiveStatement<?>) {
@@ -441,7 +467,7 @@ public class DSETestGenerator {
 	 * @param constraint
 	 * @return
 	 */
-	private Set<Variable<?>> getVariables(Constraint<?> constraint) {
+	private static Set<Variable<?>> getVariables(Constraint<?> constraint) {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		getVariables(constraint.getLeftOperand(), variables);
 		getVariables(constraint.getRightOperand(), variables);

@@ -3,8 +3,13 @@ package org.evosuite.symbolic;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -17,9 +22,12 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.junit.rules.StaticStateResetter;
 import org.evosuite.runtime.classhandling.ClassResetter;
+import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.localsearch.DSETestGenerator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.objectweb.asm.Type;
@@ -33,14 +41,109 @@ import org.objectweb.asm.Type;
  */
 public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
+	private static class BranchId {
+		private final String className;
+		private final String methodName;
+		private final int instructionIndex;
+
+		public BranchId(String className, String methodName, int instructionIndex) {
+			super();
+			this.className = className;
+			this.methodName = methodName;
+			this.instructionIndex = instructionIndex;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((className == null) ? 0 : className.hashCode());
+			result = prime * result + instructionIndex;
+			result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			BranchId other = (BranchId) obj;
+			if (className == null) {
+				if (other.className != null)
+					return false;
+			} else if (!className.equals(other.className))
+				return false;
+			if (instructionIndex != other.instructionIndex)
+				return false;
+			if (methodName == null) {
+				if (other.methodName != null)
+					return false;
+			} else if (!methodName.equals(other.methodName))
+				return false;
+			return true;
+		}
+
+	}
+
 	private static List<TestCase> generateTestCases(Method staticEntryMethod) {
+
 		List<TestCase> generatedTestCases = new ArrayList<TestCase>();
+
 		TestCase initialTestCase = buildTestCaseWithDefaultValues(staticEntryMethod);
 		generatedTestCases.add(initialTestCase);
 
-		List<BranchCondition> pathCondition = ConcolicExecution.executeConcolic((DefaultTestCase) initialTestCase);
+		Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<Set<Constraint<?>>, SolverResult>();
+		HashSet<Set<Constraint<?>>> collectedPathConditions = new HashSet<Set<Constraint<?>>>();
+		HashSet<Map<String, Object>> solutions = new HashSet<Map<String, Object>>();
+
+		for (int currentTestIndex = 0; currentTestIndex < generatedTestCases.size(); currentTestIndex++) {
+
+			TestCase currentTestCase = generatedTestCases.get(currentTestIndex);
+
+			List<BranchCondition> collectedBranchConditions = ConcolicExecution
+					.executeConcolic((DefaultTestCase) currentTestCase);
+
+			final PathCondition collectedPathCondition = new PathCondition(collectedBranchConditions);
+			List<Constraint<?>> constraintsList = collectedPathCondition.getConstraints();
+			Set<Constraint<?>> constraintsSet = new HashSet<Constraint<?>>(constraintsList);
+			collectedPathConditions.add(constraintsSet);
+
+			for (int i = collectedPathCondition.size() - 1; i >= 0; i--) {
+				List<Constraint<?>> queryList = DSETestGenerator.buildQuery(collectedPathCondition, i);
+				Set<Constraint<?>> querySet = new HashSet<Constraint<?>>(queryList);
+				if (!queryCache.containsKey(querySet) && !collectedPathConditions.contains(querySet)) {
+
+					if (isSubSetOf(querySet, collectedPathConditions)) {
+						continue;
+					}
+
+					SolverResult result = DSETestGenerator.solve(queryList);
+					queryCache.put(querySet, result);
+					if (result != null && result.isSAT()) {
+						Map<String, Object> solution = result.getModel();
+						solutions.add(solution);
+						TestCase newTest = DSETestGenerator.updateTest(currentTestCase, solution);
+						generatedTestCases.add(newTest);
+					}
+				}
+			}
+		}
 
 		return generatedTestCases;
+	}
+
+	private static boolean isSubSetOf(Set<Constraint<?>> querySet,
+			HashSet<Set<Constraint<?>>> collectedPathConditions) {
+		for (Set<Constraint<?>> pathCondition : collectedPathConditions) {
+			if (pathCondition.containsAll(querySet)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -146,19 +249,9 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			List<TestCase> testCases = generateTestCases(entryMethod);
 			generatedTestCases.addAll(testCases);
 			for (TestCase testCase : testCases) {
-				((DefaultTestCase)testCase).changeClassLoader(classLoader);
+				((DefaultTestCase) testCase).changeClassLoader(classLoader);
 			}
 		}
-
-//		TestGenerationContext.getInstance().resetContext();
-//		TestGenerationContext.getInstance().goingToExecuteSUTCode();
-//
-//		// We need to reset the target Class since it requires a different
-//		// instrumentation
-//		// for handling assertion generation.
-//		Properties.resetTargetClass();
-//		Properties.getInitializedTargetClass();
-//
 
 		TestSuiteChromosome bestIndividual = new TestSuiteChromosome();
 		for (TestCase testCase : generatedTestCases) {
@@ -166,12 +259,10 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			bestIndividual.addTest(testCase);
 		}
 
+		// one fitness evaluation is needed to set up everything for post-process
 		BranchCoverageSuiteFitness ff = new BranchCoverageSuiteFitness();
 		double fitness = ff.getFitness(bestIndividual);
 
-//		TestGenerationContext.getInstance().doneWithExecutingSUTCode();
-
-		
 		population.clear();
 		population.add(bestIndividual);
 
