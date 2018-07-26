@@ -189,4 +189,27 @@ public class DseStrategySystemTest extends SystemTestBase {
 		assertEquals(3, best.getNumOfCoveredGoals());
 		assertEquals(2, best.getNumOfNotCoveredGoals());
 	}
+	
+	@Test
+	public void testMaxTestsStoppingCondition() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = Max.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXTESTS;
+		Properties.SEARCH_BUDGET = 1;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+
+		assertEquals(1, best.getTests().size());
+	}
+
 }

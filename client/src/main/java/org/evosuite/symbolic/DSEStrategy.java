@@ -28,6 +28,7 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -75,6 +76,8 @@ public class DSEStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			DSEAlgorithm algorithm = new DSEAlgorithm();
+			StoppingCondition stoppingCondition = getStoppingCondition();
+			algorithm.setStoppingCondition(stoppingCondition);
 			algorithm.generateSolution();
 			testSuite = algorithm.getBestIndividual();
 
