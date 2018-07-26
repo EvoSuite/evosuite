@@ -64,9 +64,7 @@ public class TestGeneration {
 		List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
 
 		if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
-			LoggingUtils.getEvoLogger().warn(Properties.JAVA_VERSION_WARN_MSG);
-			results.add(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult(Properties.JAVA_VERSION_WARN_MSG) }));
-			throw new RuntimeException("Java version greater 8 detected");
+			throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
 		}
 
 		if(line.getOptions().length == 0) {

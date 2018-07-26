@@ -2482,7 +2482,7 @@ public class Properties {
 		}
 	}
 
-	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite doesn't support Java version > 8";
+	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
 	
 	/*
 	 * whether or not the regression mode is running

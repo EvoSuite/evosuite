@@ -241,7 +241,7 @@
               <forms/>
             </constraints>
             <properties>
-              <foreground color="-7685319"/>
+              <foreground color="-65536"/>
               <text value="javaVersionWarning"/>
             </properties>
           </component>
