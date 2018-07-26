@@ -59,7 +59,7 @@ public class EvoStartDialog extends JDialog {
     private volatile EvoParameters params;
     private volatile Project project;
 
-    private final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
+    private final String JAVA_VERSION_WARN_MSG = "(JDK needs to be <= Java 8)";
 
     public void initFields(Project project, EvoParameters params) {
         this.project = project;
