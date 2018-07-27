@@ -77,6 +77,10 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 			DSEAlgorithm algorithm = new DSEAlgorithm();
 			StoppingCondition stoppingCondition = getStoppingCondition();
+			algorithm.addFitnessFunctions((List)fitnessFunctions);
+			if (Properties.STOP_ZERO) {
+				
+			}
 			algorithm.setStoppingCondition(stoppingCondition);
 			algorithm.generateSolution();
 			testSuite = algorithm.getBestIndividual();

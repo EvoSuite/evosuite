@@ -1,12 +1,13 @@
 package com.examples.with.different.packagename.dse;
 
-public abstract class Max {
+public class Max {
 
 	public Max() {
 		// branchless method
 	}
 
 	public static int max(int x, int y, int z) {
+		new Max();
 		int max0;
 		if (x > y) {
 			max0 = x;

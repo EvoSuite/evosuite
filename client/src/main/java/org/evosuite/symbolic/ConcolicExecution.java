@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.ExpressionExecutor;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
@@ -126,6 +127,7 @@ public abstract class ConcolicExecution {
 			long startConcolicExecutionTime = System.currentTimeMillis();
 			result = TestCaseExecutor.getInstance().execute(defaultTestCase,
 					Properties.CONCOLIC_TIMEOUT);
+
 			long estimatedConcolicExecutionTime = System.currentTimeMillis()
 					- startConcolicExecutionTime;
 			DSEStats.getInstance().reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);

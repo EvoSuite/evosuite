@@ -16,13 +16,13 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.dse.TestCaseBuilder;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.localsearch.DSETestGenerator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -46,15 +46,21 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 	 * condition is met or all queries have been explored.
 	 * 
 	 * @param staticEntryMethod
-	 * @return
+	 * 
 	 */
-	private List<TestCase> generateTestCases(Method staticEntryMethod) {
+	private void generateTestCasesAndAppendToBestIndividual(Method staticEntryMethod) {
 
 		List<TestCase> generatedTestCases = new ArrayList<TestCase>();
 
 		TestCase testCaseWithDefaultValues = buildTestCaseWithDefaultValues(staticEntryMethod);
+		getBestIndividual().addTest(testCaseWithDefaultValues);
 		generatedTestCases.add(testCaseWithDefaultValues);
+
 		logger.debug("Created new default test case with default values:" + testCaseWithDefaultValues.toCode());
+
+		calculateFitnessAndSortPopulation();
+		double fitnessAddingDefaultTest = this.getBestIndividual().getFitness();
+		logger.debug("Fitness=" + fitnessAddingDefaultTest);
 
 		Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<Set<Constraint<?>>, SolverResult>();
 		HashSet<Set<Constraint<?>>> collectedPathConditions = new HashSet<Set<Constraint<?>>>();
@@ -66,13 +72,14 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			if (this.isFinished()) {
 				logger.debug("DSE test generation met a stopping condition. Exiting with " + generatedTestCases.size()
 						+ " generated test cases for method " + staticEntryMethod.getName());
-				return generatedTestCases;
+				return;
 			}
 
 			logger.debug("Starting concolic execution of test case: " + currentTestCase.toCode());
+
+			TestCase clonedTestCase = currentTestCase.clone();
 			List<BranchCondition> collectedBranchConditions = ConcolicExecution
-					.executeConcolic((DefaultTestCase) currentTestCase);
-			MaxTestsStoppingCondition.testExecuted();
+					.executeConcolic((DefaultTestCase) clonedTestCase);
 
 			final PathCondition collectedPathCondition = new PathCondition(collectedBranchConditions);
 			logger.debug("Path condition collected with : " + collectedPathCondition.size() + " branches");
@@ -109,7 +116,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 					logger.debug(
 							"DSE test generation met a stopping condition. Exiting with " + generatedTestCases.size()
 									+ " generated test cases for method " + staticEntryMethod.getName());
-					return generatedTestCases;
+					return;
 				}
 
 				logger.debug("Solving query with  " + query.size() + " constraints");
@@ -124,9 +131,22 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 					logger.debug("query is SAT (solution found)");
 					Map<String, Object> solution = result.getModel();
 					logger.debug("solver found solution " + solution.toString());
+					
 					TestCase newTest = DSETestGenerator.updateTest(currentTestCase, solution);
 					logger.debug("Created new test case from SAT solution:" + newTest.toCode());
 					generatedTestCases.add(newTest);
+
+					double fitnessBeforeNewTest = this.getBestIndividual().getFitness();
+					logger.debug("Fitness before adding new test" + fitnessBeforeNewTest);
+
+					getBestIndividual().addTest(newTest);
+
+					calculateFitness(getBestIndividual());
+					
+					double fitnessAfterNewTest = this.getBestIndividual().getFitness();
+					logger.debug("Fitness after adding new test " + fitnessAfterNewTest);
+
+					this.notifyIteration();
 				} else {
 					assert (result.isUNSAT());
 					logger.debug("query is UNSAT (no solution found)");
@@ -136,7 +156,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
 		logger.debug("DSE test generation finished for method " + staticEntryMethod.getName() + ". Exiting with "
 				+ generatedTestCases.size() + " generated test cases");
-		return generatedTestCases;
+		return;
 	}
 
 	/**
@@ -206,11 +226,14 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 	}
 
 	/**
-	 * This algorithm does not initialize population
+	 * The population is initialized with an empty test suite
 	 */
 	@Override
 	public void initializePopulation() {
-		// skip
+		TestSuiteChromosome individual = new TestSuiteChromosome();
+		population.clear();
+		population.add(individual);
+		calculateFitness(individual);
 	}
 
 	/**
@@ -249,6 +272,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 	@Override
 	public void generateSolution() {
 		this.notifySearchStarted();
+		this.initializePopulation();
 
 		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
@@ -256,9 +280,6 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 		Collections.sort(targetStaticMethods, new MethodComparator());
 		logger.debug("Found " + targetStaticMethods.size() + " as entry points for DSE");
 
-		final InstrumentingClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
-
-		List<TestCase> generatedTestCases = new ArrayList<TestCase>();
 		for (Method entryMethod : targetStaticMethods) {
 
 			if (this.isFinished()) {
@@ -267,53 +288,15 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			}
 
 			logger.debug("Generating tests for entry method" + entryMethod.getName());
-			List<TestCase> testCases = generateTestCases(entryMethod);
-			logger.debug(testCases.size() + " tests were generated for entry method " + entryMethod.getName());
+			int testCaseCount = getBestIndividual().getTests().size();
+			generateTestCasesAndAppendToBestIndividual(entryMethod);
+			int numOfGeneratedTestCases = getBestIndividual().getTests().size() - testCaseCount;
+			logger.debug(numOfGeneratedTestCases + " tests were generated for entry method " + entryMethod.getName());
 
-			generatedTestCases.addAll(testCases);
 		}
 
-		TestSuiteChromosome bestIndividual = createTestSuite(generatedTestCases);
-
-		logger.debug("Replacing concolic class loader with instrumenting class loader");
-		changeClassLoader(bestIndividual, classLoader);
-
-		logger.debug("Computing fitness evaluation of generated test cases with DSE");
-		double branchCoverageFitness = computeBranchCoverageFitness(bestIndividual);
-		logger.debug("Branch coverage fitness of test suite is " + branchCoverageFitness);
-
-		population.clear();
-		population.add(bestIndividual);
-
+		this.updateFitnessFunctionsAndValues();
 		this.notifySearchFinished();
-	}
-
-	/**
-	 * Changes the class loader of each test case in the test suite
-	 * 
-	 * @param testSuite
-	 * @param classLoader
-	 */
-	private void changeClassLoader(TestSuiteChromosome testSuite, ClassLoader classLoader) {
-		for (TestCase testCase : testSuite.getTests()) {
-			DefaultTestCase defaultTestCase = (DefaultTestCase) testCase;
-			defaultTestCase.changeClassLoader(classLoader);
-		}
-
-	}
-
-	/**
-	 * Creates a test suite from a list of generated test cases
-	 * 
-	 * @param generatedTestCases
-	 * @return
-	 */
-	private TestSuiteChromosome createTestSuite(List<TestCase> generatedTestCases) {
-		TestSuiteChromosome bestIndividual = new TestSuiteChromosome();
-		for (TestCase testCase : generatedTestCases) {
-			bestIndividual.addTest(testCase);
-		}
-		return bestIndividual;
 	}
 
 	/**

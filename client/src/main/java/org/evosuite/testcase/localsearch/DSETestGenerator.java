@@ -348,6 +348,7 @@ public class DSETestGenerator {
 	public static TestCase updateTest(TestCase test, Map<String, Object> values) {
 
 		TestCase newTest = test.clone();
+		newTest.clearCoveredGoals();
 
 		for (Object key : values.keySet()) {
 			Object val = values.get(key);
