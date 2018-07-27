@@ -150,7 +150,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             ++this.currentIteration;
             this.notifyIteration();
         }
-        if(PAES_ANALYTIC_MODE){
+        if(PAES_ANALYTIC_MODE){/**
             Map<GenerationAnalysis.RETURN_OPTION,Integer> returnOptionsCount = new LinkedHashMap<>();
             Map<GenerationAnalysis.RETURN_OPTION,Long> timeSums = new LinkedHashMap<>();
             int sumArchiveSize = 0;
@@ -175,7 +175,9 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             }
             ClientServices.getInstance().getClientNode().trackOutputVariable(
                     RuntimeVariable.AvgArchiveSize, sumArchiveSize/this.generationAnalyses.size()
-            );
+            );*/
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.PAES_MAX_ARCHIVE_SIZE, Properties.POPULATION);
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.PAES_GRID_DEPTH, Properties.GRID_DEPTH);
             long seed = Randomness.getSeed();
             Properties.PaesArchiveType archiveType = super.PAES_ARCHIVE;
             int population = Properties.POPULATION;
