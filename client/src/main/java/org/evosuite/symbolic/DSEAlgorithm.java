@@ -50,6 +50,9 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 	 */
 	private void generateTestCasesAndAppendToBestIndividual(Method staticEntryMethod) {
 
+		double fitnessBeforeAddingDefaultTest = this.getBestIndividual().getFitness();
+		logger.debug("Fitness before adding default test case:" + fitnessBeforeAddingDefaultTest);
+
 		List<TestCase> generatedTestCases = new ArrayList<TestCase>();
 
 		TestCase testCaseWithDefaultValues = buildTestCaseWithDefaultValues(staticEntryMethod);
@@ -59,8 +62,13 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 		logger.debug("Created new default test case with default values:" + testCaseWithDefaultValues.toCode());
 
 		calculateFitnessAndSortPopulation();
-		double fitnessAddingDefaultTest = this.getBestIndividual().getFitness();
-		logger.debug("Fitness=" + fitnessAddingDefaultTest);
+		double fitnessAfterAddingDefaultTest = this.getBestIndividual().getFitness();
+		logger.debug("Fitness after adding default test case: " + fitnessAfterAddingDefaultTest);
+
+		if (fitnessAfterAddingDefaultTest == 0) {
+			logger.debug("No more DSE test generation since fitness is 0");
+			return;
+		}
 
 		Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<Set<Constraint<?>>, SolverResult>();
 		HashSet<Set<Constraint<?>>> collectedPathConditions = new HashSet<Set<Constraint<?>>>();
@@ -131,22 +139,28 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 					logger.debug("query is SAT (solution found)");
 					Map<String, Object> solution = result.getModel();
 					logger.debug("solver found solution " + solution.toString());
-					
+
 					TestCase newTest = DSETestGenerator.updateTest(currentTestCase, solution);
 					logger.debug("Created new test case from SAT solution:" + newTest.toCode());
 					generatedTestCases.add(newTest);
 
-					double fitnessBeforeNewTest = this.getBestIndividual().getFitness();
-					logger.debug("Fitness before adding new test" + fitnessBeforeNewTest);
+					double fitnessBeforeAddingNewTest = this.getBestIndividual().getFitness();
+					logger.debug("Fitness before adding new test" + fitnessBeforeAddingNewTest);
 
 					getBestIndividual().addTest(newTest);
 
 					calculateFitness(getBestIndividual());
-					
-					double fitnessAfterNewTest = this.getBestIndividual().getFitness();
-					logger.debug("Fitness after adding new test " + fitnessAfterNewTest);
+
+					double fitnessAfterAddingNewTest = this.getBestIndividual().getFitness();
+					logger.debug("Fitness after adding new test " + fitnessAfterAddingNewTest);
 
 					this.notifyIteration();
+					
+					if (fitnessAfterAddingNewTest == 0) {
+						logger.debug("No more DSE test generation since fitness is 0");
+						return;
+					}
+
 				} else {
 					assert (result.isUNSAT());
 					logger.debug("query is UNSAT (no solution found)");
@@ -284,6 +298,11 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
 			if (this.isFinished()) {
 				logger.debug("A stoping condition was met. No more tests can be generated using DSE.");
+				break;
+			}
+
+			if (getBestIndividual().getFitness() == 0) {
+				logger.debug("Best individual reached zero fitness");
 				break;
 			}
 
