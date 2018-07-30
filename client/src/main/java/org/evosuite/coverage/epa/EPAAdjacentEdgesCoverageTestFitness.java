@@ -64,7 +64,11 @@ public class EPAAdjacentEdgesCoverageTestFitness extends TestFitnessFunction{
 	
 	@Override
 	public String toString() {
-		return goal.toString();
+		return goal.getGoalName();
+	}
+	
+	public String getKey() {
+		return goal.getGoalName();
 	}
 
 }
