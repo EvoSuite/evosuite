@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -91,7 +92,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private long startTime = System.currentTimeMillis();
 
 	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
-
+	
+    private ReentrantLock lock = new ReentrantLock();
+	
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
 		case CONSOLE:
@@ -170,22 +173,27 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param individual
 	 */
 	public void currentIndividual(String rmiClientIdentifier, Chromosome individual) {
-		if(backend == null)
-			return;
+		lock.lock();
+	    try {
+            if(backend == null)
+                return;
 
-		if(!(individual instanceof TestSuiteChromosome)) {
-			AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
-			return;
-		}
+            if(!(individual instanceof TestSuiteChromosome)) {
+                AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
+                return;
+            }
 
-		logger.debug("Received individual");
-		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
-        for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
-            setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
+            logger.debug("Received individual");
+            bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
+            for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
+                setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
+            }
+            for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
+                v.update((TestSuiteChromosome) individual);
+            }
+        } finally {
+		    lock.unlock();
         }
-		for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
-			v.update((TestSuiteChromosome) individual);
-		}
 	}
 
 	/**
