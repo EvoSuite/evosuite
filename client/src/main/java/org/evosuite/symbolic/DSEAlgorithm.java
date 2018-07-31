@@ -65,9 +65,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
 		List<TestCase> generatedTestCases = new ArrayList<TestCase>();
 
-		TestCaseAndTypes testCaseAndTypes = buildTestCaseWithDefaultValues(staticEntryMethod);
-
-		TestCase testCaseWithDefaultValues = testCaseAndTypes.testCase;
+		TestCase testCaseWithDefaultValues = buildTestCaseWithDefaultValues(staticEntryMethod);
 
 		getBestIndividual().addTest(testCaseWithDefaultValues);
 		generatedTestCases.add(testCaseWithDefaultValues);
@@ -110,7 +108,6 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			for (int i = collectedPathCondition.size() - 1; i >= 0; i--) {
 				logger.debug("negating index " + i + " of path condition");
 
-				Map<VariableReference, Type> varTypes = testCaseAndTypes.varTypes;
 				List<Constraint<?>> query = DSETestGenerator.buildQuery(collectedPathCondition, i);
 				List<Constraint<?>> varBounds = createVarBounds(query);
 				query.addAll(varBounds);
@@ -240,76 +237,73 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 		return false;
 	}
 
-	private static class TestCaseAndTypes {
-		private final DefaultTestCase testCase;
-		private final Map<VariableReference, Type> varTypes;
-
-		public TestCaseAndTypes(Map<VariableReference, Type> varTypes, DefaultTestCase testCase) {
-			this.varTypes = varTypes;
-			this.testCase = testCase;
-		}
-	}
-
 	/**
 	 * Builds a default test case for a static target method
 	 * 
 	 * @param targetStaticMethod
 	 * @return
 	 */
-	private static TestCaseAndTypes buildTestCaseWithDefaultValues(Method targetStaticMethod) {
+	private static DefaultTestCase buildTestCaseWithDefaultValues(Method targetStaticMethod) {
 		TestCaseBuilder testCaseBuilder = new TestCaseBuilder();
 
 		Type[] argumentTypes = Type.getArgumentTypes(targetStaticMethod);
-		Map<VariableReference, Type> varTypes = new HashMap<VariableReference, Type>();
+		Class<?>[] argumentClasses = targetStaticMethod.getParameterTypes();
+
 		ArrayList<VariableReference> arguments = new ArrayList<VariableReference>();
-		for (Type argumentType : argumentTypes) {
+		for (int i = 0; i < argumentTypes.length; i++) {
+
+			Type argumentType = argumentTypes[i];
+			Class<?> argumentClass = argumentClasses[i];
+
 			switch (argumentType.getSort()) {
 			case Type.BOOLEAN: {
 				VariableReference booleanVariable = testCaseBuilder.appendBooleanPrimitive(false);
 				arguments.add(booleanVariable);
-				varTypes.put(booleanVariable, Type.BOOLEAN_TYPE);
 				break;
 			}
 			case Type.BYTE: {
 				VariableReference byteVariable = testCaseBuilder.appendBytePrimitive((byte) 0);
 				arguments.add(byteVariable);
-				varTypes.put(byteVariable, Type.BYTE_TYPE);
 				break;
 			}
 			case Type.CHAR: {
 				VariableReference charVariable = testCaseBuilder.appendCharPrimitive((char) 0);
 				arguments.add(charVariable);
-				varTypes.put(charVariable, Type.CHAR_TYPE);
 				break;
 			}
 			case Type.SHORT: {
 				VariableReference shortVariable = testCaseBuilder.appendShortPrimitive((short) 0);
 				arguments.add(shortVariable);
-				varTypes.put(shortVariable, Type.SHORT_TYPE);
 				break;
 			}
 			case Type.INT: {
 				VariableReference intVariable = testCaseBuilder.appendIntPrimitive(0);
 				arguments.add(intVariable);
-				varTypes.put(intVariable, Type.INT_TYPE);
 				break;
 			}
 			case Type.LONG: {
 				VariableReference longVariable = testCaseBuilder.appendLongPrimitive(0L);
 				arguments.add(longVariable);
-				varTypes.put(longVariable, Type.LONG_TYPE);
 				break;
 			}
 			case Type.FLOAT: {
 				VariableReference floatVariable = testCaseBuilder.appendFloatPrimitive((float) 0.0);
 				arguments.add(floatVariable);
-				varTypes.put(floatVariable, Type.FLOAT_TYPE);
 				break;
 			}
 			case Type.DOUBLE: {
 				VariableReference doubleVariable = testCaseBuilder.appendDoublePrimitive(0.0);
 				arguments.add(doubleVariable);
-				varTypes.put(doubleVariable, Type.DOUBLE_TYPE);
+				break;
+			}
+			case Type.OBJECT: {
+				if (argumentClass.equals(String.class)) {
+					VariableReference stringVariable = testCaseBuilder.appendStringPrimitive("");
+					arguments.add(stringVariable);
+				} else {
+					VariableReference objectVariable = testCaseBuilder.appendNull(argumentClass);
+					arguments.add(objectVariable);
+				}
 				break;
 			}
 			default: {
@@ -320,7 +314,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 		testCaseBuilder.appendMethod(targetStaticMethod, arguments.toArray(new VariableReference[] {}));
 		DefaultTestCase testCase = testCaseBuilder.getDefaultTestCase();
 
-		return new TestCaseAndTypes(varTypes, testCase);
+		return testCase;
 	}
 
 	/**

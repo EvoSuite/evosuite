@@ -2,11 +2,14 @@ package org.evosuite.dse;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.NullStatement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
@@ -172,6 +175,32 @@ public class TestCaseBuilder {
 	 */
 	public VariableReference appendShortPrimitive(short s) {
 		ShortPrimitiveStatement primitiveStmt = new ShortPrimitiveStatement(tc, s);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a variable with a initial null value
+	 * 
+	 * @param type
+	 *            the type of the null reference
+	 * @return
+	 */
+	public VariableReference appendNull(Type type) {
+		NullStatement stmt = new NullStatement(tc, type);
+		tc.addStatement(stmt);
+		return stmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a new string primitive to the test case
+	 * 
+	 * @param string
+	 *            the string value to append
+	 * @return
+	 */
+	public VariableReference appendStringPrimitive(String string) {
+		StringPrimitiveStatement primitiveStmt = new StringPrimitiveStatement(tc, string);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
