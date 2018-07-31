@@ -95,13 +95,13 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 		case NE:
 			return distance != 0 ? (long) 0 : (long) 1;
 		case LT:
-			return distance < 0 ? 0 : distance + 1;
+			return distance < 0 ? 0 :distance + 1;
 		case LE:
 			return distance <= 0 ? 0 : distance;
 		case GT:
-			return distance > 0 ? 0 : distance + 1;
+			return distance > 0 ? 0 : Math.abs(distance) + 1;
 		case GE:
-			return distance >= 0 ? 0 : distance;
+			return distance >= 0 ? 0 : Math.abs(distance);
 		default:
 			log.warn("getIntegerDist: unimplemented comparator");
 			return Long.MAX_VALUE;
