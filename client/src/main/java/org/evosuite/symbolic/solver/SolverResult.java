@@ -19,10 +19,16 @@
  */
 package org.evosuite.symbolic.solver;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SolverResult {
+public class SolverResult implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -930589471876011035L;
 
 	private enum SolverResultType {
 		SAT, UNSAT

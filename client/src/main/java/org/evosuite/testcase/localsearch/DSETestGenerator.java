@@ -111,8 +111,7 @@ public class DSETestGenerator {
 		test.clone(); // I am not sure what is the purpose of this
 
 		DefaultTestCase clone_test_case = (DefaultTestCase) test.getTestCase().clone();
-		List<BranchCondition> branchConditions = ConcolicExecution.executeConcolic(clone_test_case);
-		final PathCondition collectedPathCondition = new PathCondition(branchConditions);
+		final PathCondition collectedPathCondition = ConcolicExecution.executeConcolic(clone_test_case);
 
 		logger.info("Done concolic execution");
 
@@ -173,12 +172,11 @@ public class DSETestGenerator {
 
 			DSEStats.getInstance().reportNewConstraints(query);
 
-
 			long startSolvingTime = System.currentTimeMillis();
-			
+
 			// Get solution
 			SolverResult solverResult = solve(query);
-			
+
 			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
 			DSEStats.getInstance().reportNewSolvingTime(estimatedSolvingTime);
 
@@ -219,9 +217,9 @@ public class DSETestGenerator {
 		return null;
 	}
 
-
 	/**
-	 * solves a given query (i.e. list of constraints). 
+	 * solves a given query (i.e. list of constraints).
+	 * 
 	 * @param query
 	 * @return
 	 */
@@ -293,7 +291,6 @@ public class DSETestGenerator {
 		return trueIsCovered && falseIsCovered;
 	}
 
-
 	/**
 	 * Creates a Solver query give a branch condition
 	 * 
@@ -360,19 +357,21 @@ public class DSETestGenerator {
 					// logger.warn("New long value for " + name + " is " +
 					// value);
 					PrimitiveStatement p = getStatement(newTest, name);
-					if (p.getValue().getClass().equals(Character.class))
-						p.setValue((char) value.intValue());
-					else if (p.getValue().getClass().equals(Long.class))
+					if (p.getValue().getClass().equals(Character.class)) {
+						char charValue = (char) value.intValue();
+						p.setValue(charValue);
+					} else if (p.getValue().getClass().equals(Long.class)) {
 						p.setValue(value);
-					else if (p.getValue().getClass().equals(Integer.class))
+					} else if (p.getValue().getClass().equals(Integer.class)) {
 						p.setValue(value.intValue());
-					else if (p.getValue().getClass().equals(Short.class))
+					} else if (p.getValue().getClass().equals(Short.class)) {
 						p.setValue(value.shortValue());
-					else if (p.getValue().getClass().equals(Boolean.class))
+					} else if (p.getValue().getClass().equals(Boolean.class)) {
 						p.setValue(value.intValue() > 0);
-					else if (p.getValue().getClass().equals(Byte.class))
-						p.setValue(value.byteValue() > 0);
-					else
+					} else if (p.getValue().getClass().equals(Byte.class)) {
+						p.setValue(value.byteValue());
+
+					} else
 						logger.warn("New value is of an unsupported type: " + p.getValue().getClass() + val);
 				} else if (val instanceof String) {
 					String name = ((String) key).replace("__SYM", "");

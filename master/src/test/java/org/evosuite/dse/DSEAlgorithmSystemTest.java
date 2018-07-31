@@ -31,20 +31,25 @@ import org.evosuite.Properties.SolverType;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.SystemTestBase;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.dse.Add;
+import com.examples.with.different.packagename.dse.BooleanExample;
+import com.examples.with.different.packagename.dse.ByteExample;
+import com.examples.with.different.packagename.dse.CharExample;
+import com.examples.with.different.packagename.dse.DoubleExample;
+import com.examples.with.different.packagename.dse.FloatExample;
+import com.examples.with.different.packagename.dse.LongExample;
 import com.examples.with.different.packagename.dse.Max;
 import com.examples.with.different.packagename.dse.Min;
 import com.examples.with.different.packagename.dse.MinUnreachableCode;
 import com.examples.with.different.packagename.dse.NoStaticMethod;
+import com.examples.with.different.packagename.dse.ShortExample;
 
-public class DSEStrategySystemTest extends SystemTestBase {
+public class DSEAlgorithmSystemTest extends SystemTestBase {
 
 	@Before
 	public void init() {
@@ -169,6 +174,161 @@ public class DSEStrategySystemTest extends SystemTestBase {
 
 	}
 
+	@Test
+	public void testBooleanInput() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = BooleanExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+
+	}
+
+	@Test
+	public void testShortInput() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = ShortExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+
+	}
+
+	@Test
+	public void testByteInput() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = ByteExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+
+	}
+
+
+	@Test
+	public void testCharInput() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = CharExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+
+	}
+	@Test
+	public void testLongInput() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = LongExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+
+	}
+
+	@Test
+	public void testDoubleInput() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = DoubleExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+
+	}
+
+	@Test
+	public void testFloatInput() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = FloatExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+		assertEquals(2, best.getTests().size());
+
+		assertEquals(3, best.getNumOfCoveredGoals());
+		assertEquals(0, best.getNumOfNotCoveredGoals());
+
+	}
+
+	
 	@Test
 	public void testUnreachableCode() {
 

@@ -28,7 +28,9 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	@Override
 	public String visit(SmtIntConstant n, Void arg) {
 		long longValue = n.getConstantValue();
-		if (longValue < 0) {
+		if (longValue == Long.MIN_VALUE) {
+			return "(- " + String.valueOf(Long.MIN_VALUE).replace("-", "") + ")";
+		} else if (longValue < 0) {
 			long absoluteValue = Math.abs(longValue);
 			return "(- " + String.valueOf(absoluteValue) + ")";
 		} else {
@@ -36,8 +38,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		}
 	}
 
-	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
-			"################0.0################");
+	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat("################0.0################");
 
 	@Override
 	public String visit(SmtRealConstant n, Void arg) {
@@ -99,7 +100,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtBooleanConstant n, Void arg) {
-		if (n.booleanValue()==true) {
+		if (n.booleanValue() == true) {
 			return "true";
 		} else {
 			return "false";

@@ -7,7 +7,14 @@ import java.util.List;
 
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.BytePrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.DoublePrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.FloatPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.LongPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.ShortPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericMethod;
 
@@ -78,4 +85,94 @@ public class TestCaseBuilder {
 		return tc;
 	}
 
+	/**
+	 * Creates a statement declaring a boolean variable
+	 * 
+	 * @param b
+	 * @return
+	 */
+	public VariableReference appendBooleanPrimitive(boolean b) {
+		BooleanPrimitiveStatement primitiveStmt = new BooleanPrimitiveStatement(tc, b);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a float variable to a test case
+	 * 
+	 * @param f
+	 * @return
+	 */
+	public VariableReference appendFloatPrimitive(float f) {
+		FloatPrimitiveStatement primitiveStmt = new FloatPrimitiveStatement(tc, f);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a double variable to a test case
+	 * 
+	 * @param d
+	 * @return
+	 */
+	public VariableReference appendDoublePrimitive(double d) {
+		DoublePrimitiveStatement primitiveStmt = new DoublePrimitiveStatement(tc, d);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a char variable declaration to a test case
+	 * 
+	 * @param c
+	 *            the char value to initialize the char variable
+	 * 
+	 * @return
+	 */
+	public VariableReference appendCharPrimitive(char c) {
+		CharPrimitiveStatement primitiveStmt = new CharPrimitiveStatement(tc, c);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a byte primitive variable declaration to the test case with a
+	 * initialization value
+	 * 
+	 * @param b
+	 *            the byte value to initialize the variable
+	 * @return
+	 */
+	public VariableReference appendBytePrimitive(byte b) {
+		BytePrimitiveStatement primitiveStmt = new BytePrimitiveStatement(tc, b);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a long variable declaration to a test case with a long initialization
+	 * value
+	 * 
+	 * @param l
+	 *            the long value to initialize the variable
+	 * @return
+	 */
+	public VariableReference appendLongPrimitive(long l) {
+		LongPrimitiveStatement primitiveStmt = new LongPrimitiveStatement(tc, l);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	/**
+	 * Appends a short variable declaration to a test case
+	 * 
+	 * @param s
+	 *            the short value to initialize the variable
+	 * @return
+	 */
+	public VariableReference appendShortPrimitive(short s) {
+		ShortPrimitiveStatement primitiveStmt = new ShortPrimitiveStatement(tc, s);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
 }

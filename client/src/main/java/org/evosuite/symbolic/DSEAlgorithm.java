@@ -11,18 +11,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.dse.TestCaseBuilder;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SolverResult;
+import org.evosuite.symbolic.vm.ConstraintFactory;
+import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.localsearch.DSETestGenerator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -42,6 +47,11 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 	private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
 
 	/**
+	 * A cache of previous results from the constraint solver
+	 */
+	private final Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<Set<Constraint<?>>, SolverResult>();
+
+	/**
 	 * Applies DSE test generation on a static non-private method until a stopping
 	 * condition is met or all queries have been explored.
 	 * 
@@ -55,7 +65,10 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
 		List<TestCase> generatedTestCases = new ArrayList<TestCase>();
 
-		TestCase testCaseWithDefaultValues = buildTestCaseWithDefaultValues(staticEntryMethod);
+		TestCaseAndTypes testCaseAndTypes = buildTestCaseWithDefaultValues(staticEntryMethod);
+
+		TestCase testCaseWithDefaultValues = testCaseAndTypes.testCase;
+
 		getBestIndividual().addTest(testCaseWithDefaultValues);
 		generatedTestCases.add(testCaseWithDefaultValues);
 
@@ -70,7 +83,6 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			return;
 		}
 
-		Map<Set<Constraint<?>>, SolverResult> queryCache = new HashMap<Set<Constraint<?>>, SolverResult>();
 		HashSet<Set<Constraint<?>>> collectedPathConditions = new HashSet<Set<Constraint<?>>>();
 
 		for (int currentTestIndex = 0; currentTestIndex < generatedTestCases.size(); currentTestIndex++) {
@@ -86,10 +98,9 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			logger.debug("Starting concolic execution of test case: " + currentTestCase.toCode());
 
 			TestCase clonedTestCase = currentTestCase.clone();
-			List<BranchCondition> collectedBranchConditions = ConcolicExecution
-					.executeConcolic((DefaultTestCase) clonedTestCase);
 
-			final PathCondition collectedPathCondition = new PathCondition(collectedBranchConditions);
+			final PathCondition collectedPathCondition = ConcolicExecution
+					.executeConcolic((DefaultTestCase) clonedTestCase);
 			logger.debug("Path condition collected with : " + collectedPathCondition.size() + " branches");
 
 			Set<Constraint<?>> constraintsSet = new HashSet<Constraint<?>>(collectedPathCondition.getConstraints());
@@ -99,7 +110,10 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			for (int i = collectedPathCondition.size() - 1; i >= 0; i--) {
 				logger.debug("negating index " + i + " of path condition");
 
+				Map<VariableReference, Type> varTypes = testCaseAndTypes.varTypes;
 				List<Constraint<?>> query = DSETestGenerator.buildQuery(collectedPathCondition, i);
+				List<Constraint<?>> varBounds = createVarBounds(query);
+				query.addAll(varBounds);
 
 				Set<Constraint<?>> constraintSet = new HashSet<Constraint<?>>(query);
 
@@ -155,7 +169,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 					logger.debug("Fitness after adding new test " + fitnessAfterAddingNewTest);
 
 					this.notifyIteration();
-					
+
 					if (fitnessAfterAddingNewTest == 0) {
 						logger.debug("No more DSE test generation since fitness is 0");
 						return;
@@ -171,6 +185,42 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 		logger.debug("DSE test generation finished for method " + staticEntryMethod.getName() + ". Exiting with "
 				+ generatedTestCases.size() + " generated test cases");
 		return;
+	}
+
+	private static List<Constraint<?>> createVarBounds(List<Constraint<?>> query) {
+
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		for (Constraint<?> constraint : query) {
+			variables.addAll(constraint.getVariables());
+		}
+
+		List<Constraint<?>> boundsForVariables = new ArrayList<Constraint<?>>();
+		for (Variable<?> variable : variables) {
+			if (variable instanceof IntegerVariable) {
+				IntegerVariable integerVariable = (IntegerVariable) variable;
+				Long minValue = integerVariable.getMinValue();
+				Long maxValue = integerVariable.getMaxValue();
+				if (maxValue == Long.MAX_VALUE && minValue == Long.MIN_VALUE) {
+					// skip constraints for Long variables
+					continue;
+				}
+				IntegerConstant minValueExpr = ExpressionFactory.buildNewIntegerConstant(minValue);
+				IntegerConstant maxValueExpr = ExpressionFactory.buildNewIntegerConstant(maxValue);
+				IntegerConstraint minValueConstraint = ConstraintFactory.gte(integerVariable, minValueExpr);
+				IntegerConstraint maxValueConstraint = ConstraintFactory.lte(integerVariable, maxValueExpr);
+				boundsForVariables.add(minValueConstraint);
+				boundsForVariables.add(maxValueConstraint);
+
+			} else if (variable instanceof RealVariable) {
+				// skip
+			} else if (variable instanceof StringVariable) {
+				// skip
+			} else {
+				throw new UnsupportedOperationException("Unknown variable type " + variable.getClass().getName());
+			}
+		}
+
+		return boundsForVariables;
 	}
 
 	/**
@@ -190,23 +240,76 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 		return false;
 	}
 
+	private static class TestCaseAndTypes {
+		private final DefaultTestCase testCase;
+		private final Map<VariableReference, Type> varTypes;
+
+		public TestCaseAndTypes(Map<VariableReference, Type> varTypes, DefaultTestCase testCase) {
+			this.varTypes = varTypes;
+			this.testCase = testCase;
+		}
+	}
+
 	/**
 	 * Builds a default test case for a static target method
 	 * 
 	 * @param targetStaticMethod
 	 * @return
 	 */
-	private static DefaultTestCase buildTestCaseWithDefaultValues(Method targetStaticMethod) {
+	private static TestCaseAndTypes buildTestCaseWithDefaultValues(Method targetStaticMethod) {
 		TestCaseBuilder testCaseBuilder = new TestCaseBuilder();
 
 		Type[] argumentTypes = Type.getArgumentTypes(targetStaticMethod);
-
+		Map<VariableReference, Type> varTypes = new HashMap<VariableReference, Type>();
 		ArrayList<VariableReference> arguments = new ArrayList<VariableReference>();
 		for (Type argumentType : argumentTypes) {
 			switch (argumentType.getSort()) {
+			case Type.BOOLEAN: {
+				VariableReference booleanVariable = testCaseBuilder.appendBooleanPrimitive(false);
+				arguments.add(booleanVariable);
+				varTypes.put(booleanVariable, Type.BOOLEAN_TYPE);
+				break;
+			}
+			case Type.BYTE: {
+				VariableReference byteVariable = testCaseBuilder.appendBytePrimitive((byte) 0);
+				arguments.add(byteVariable);
+				varTypes.put(byteVariable, Type.BYTE_TYPE);
+				break;
+			}
+			case Type.CHAR: {
+				VariableReference charVariable = testCaseBuilder.appendCharPrimitive((char) 0);
+				arguments.add(charVariable);
+				varTypes.put(charVariable, Type.CHAR_TYPE);
+				break;
+			}
+			case Type.SHORT: {
+				VariableReference shortVariable = testCaseBuilder.appendShortPrimitive((short) 0);
+				arguments.add(shortVariable);
+				varTypes.put(shortVariable, Type.SHORT_TYPE);
+				break;
+			}
 			case Type.INT: {
-				VariableReference variableReference = testCaseBuilder.appendIntPrimitive(0);
-				arguments.add(variableReference);
+				VariableReference intVariable = testCaseBuilder.appendIntPrimitive(0);
+				arguments.add(intVariable);
+				varTypes.put(intVariable, Type.INT_TYPE);
+				break;
+			}
+			case Type.LONG: {
+				VariableReference longVariable = testCaseBuilder.appendLongPrimitive(0L);
+				arguments.add(longVariable);
+				varTypes.put(longVariable, Type.LONG_TYPE);
+				break;
+			}
+			case Type.FLOAT: {
+				VariableReference floatVariable = testCaseBuilder.appendFloatPrimitive((float) 0.0);
+				arguments.add(floatVariable);
+				varTypes.put(floatVariable, Type.FLOAT_TYPE);
+				break;
+			}
+			case Type.DOUBLE: {
+				VariableReference doubleVariable = testCaseBuilder.appendDoublePrimitive(0.0);
+				arguments.add(doubleVariable);
+				varTypes.put(doubleVariable, Type.DOUBLE_TYPE);
 				break;
 			}
 			default: {
@@ -216,7 +319,8 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 		}
 		testCaseBuilder.appendMethod(targetStaticMethod, arguments.toArray(new VariableReference[] {}));
 		DefaultTestCase testCase = testCaseBuilder.getDefaultTestCase();
-		return testCase;
+
+		return new TestCaseAndTypes(varTypes, testCase);
 	}
 
 	/**
@@ -316,18 +420,6 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
 		this.updateFitnessFunctionsAndValues();
 		this.notifySearchFinished();
-	}
-
-	/**
-	 * Returns the fitness value for the criteria of branch coverage
-	 * 
-	 * @param bestIndividual
-	 * @return
-	 */
-	private double computeBranchCoverageFitness(TestSuiteChromosome bestIndividual) {
-		BranchCoverageSuiteFitness ff = new BranchCoverageSuiteFitness();
-		double branchCoverageFitness = ff.getFitness(bestIndividual);
-		return branchCoverageFitness;
 	}
 
 }

@@ -71,8 +71,8 @@ public class ConcolicExecutionEnvironmentTest {
 		System.out.println(tc.toCode());
 
 		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = ConcolicExecution
-				.executeConcolic(tc);
+		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		printConstraints(branch_conditions);
 		return branch_conditions;

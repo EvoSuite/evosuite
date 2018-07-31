@@ -28,6 +28,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.DefaultTestCase;
 
@@ -55,8 +56,9 @@ public abstract class DefaultTestCaseConcolicExecutor {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 	
-		List<BranchCondition> branch_conditions = ConcolicExecution
-				.executeConcolic(tc);
+		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+
 	
 		printConstraints(branch_conditions);
 		return branch_conditions;
