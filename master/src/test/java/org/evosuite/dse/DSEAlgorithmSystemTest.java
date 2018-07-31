@@ -37,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.dse.Add;
+import com.examples.with.different.packagename.dse.ArrayLengthExample;
 import com.examples.with.different.packagename.dse.BooleanExample;
 import com.examples.with.different.packagename.dse.ByteExample;
 import com.examples.with.different.packagename.dse.CharExample;
@@ -497,6 +498,26 @@ public class DSEAlgorithmSystemTest extends SystemTestBase {
 		assertTrue(best.getTests().size() >= 2);
 
 		assertTrue(best.getNumOfCoveredGoals() >= 4);
+
+	}
+
+	@Test
+	public void testArrayLength() {
+
+		EvoSuite evosuite = new EvoSuite();
+		String targetClass = ArrayLengthExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		assertFalse(best.getTests().isEmpty());
+
+		assertTrue(best.getNumOfCoveredGoals() >= 3);
 
 	}
 

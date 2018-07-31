@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.Properties;
-import org.evosuite.dse.TestCaseBuilder;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.symbolic.expr.Constraint;
@@ -296,6 +295,11 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 				arguments.add(doubleVariable);
 				break;
 			}
+			case Type.ARRAY: {
+				VariableReference arrayVariable = testCaseBuilder.appendArrayStmt(argumentClass, 0);
+				arguments.add(arrayVariable);
+				break;
+			}
 			case Type.OBJECT: {
 				if (argumentClass.equals(String.class)) {
 					VariableReference stringVariable = testCaseBuilder.appendStringPrimitive("");
@@ -311,7 +315,8 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 			}
 			}
 		}
-		testCaseBuilder.appendMethod(targetStaticMethod, arguments.toArray(new VariableReference[] {}));
+		
+		testCaseBuilder.appendMethod(null, targetStaticMethod, arguments.toArray(new VariableReference[] {}));
 		DefaultTestCase testCase = testCaseBuilder.getDefaultTestCase();
 
 		return testCase;
