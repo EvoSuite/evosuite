@@ -516,6 +516,11 @@ public class CoverageAnalysis {
             		}
             	}
             } else {
+            	
+            	if (criterion==Criterion.EXCEPTION) {
+            		// TODO collect exception goals from execution results
+            	}
+            	
 	            for (int index_component = 0; index_component < goals.size(); index_component++) {
 	            	TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
 
