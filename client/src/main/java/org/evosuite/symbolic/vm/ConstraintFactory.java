@@ -46,6 +46,11 @@ public abstract class ConstraintFactory {
 
 	}
 
+	public static IntegerConstraint lte(IntegerValue left,
+			IntegerValue right) {
+		return new IntegerConstraint(left, Comparator.LE, right);
+
+	}
 	public static IntegerConstraint gte(IntegerValue left,
 			IntegerValue right) {
 		return new IntegerConstraint(left, Comparator.GE, right);

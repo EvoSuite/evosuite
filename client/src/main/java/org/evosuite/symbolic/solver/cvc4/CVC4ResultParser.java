@@ -33,6 +33,19 @@ import org.slf4j.LoggerFactory;
 
 final class CVC4ResultParser extends ResultParser {
 
+	private static final String MODEL_TOKEN = "model";
+	private static final String SAT_TOKEN = "sat";
+	private static final String BLANK_SPACE_TOKEN = " ";
+	private static final String REAL_TOKEN = "Real";
+	private static final String QUOTE_TOKEN = "\"";
+	private static final String STRING_TOKEN = "String";
+	private static final String SLASH_TOKEN = "/";
+	private static final String MINUS_TOKEN = "-";
+	private static final String INT_TOKEN = "Int";
+	private static final String DEFINE_FUN_TOKEN = "define-fun";
+	private static final String RIGHT_PARENTHESIS_TOKEN = ")";
+	private static final String LEFT_PARENTHESIS_TOKEN = "(";
+	private static final String NEW_LINE_TOKEN = "\n";
 	private final Map<String, Object> initialValues;
 	static Logger logger = LoggerFactory.getLogger(CVC4ResultParser.class);
 
@@ -46,7 +59,7 @@ final class CVC4ResultParser extends ResultParser {
 
 	public SolverResult parse(String cvc4ResultStr)
 			throws SolverParseException, SolverErrorException, SolverTimeoutException {
-		if (cvc4ResultStr.startsWith("sat")) {
+		if (cvc4ResultStr.startsWith(SAT_TOKEN)) {
 			logger.debug("CVC4 outcome was SAT");
 			SolverResult satResult = parseModel(cvc4ResultStr);
 			return satResult;
@@ -73,129 +86,63 @@ final class CVC4ResultParser extends ResultParser {
 
 		String token;
 		StringTokenizer tokenizer = new StringTokenizer(cvc4ResultStr, "() \n\t", true);
-		token = tokenizer.nextToken(); // sat
-		token = tokenizer.nextToken(); //
-		token = tokenizer.nextToken(); // (
-		token = tokenizer.nextToken(); // model
-		token = tokenizer.nextToken(); // \n
+		token = tokenizer.nextToken();
+		checkExpectedToken(SAT_TOKEN, token);
+
+		token = tokenizer.nextToken();
+		checkExpectedToken(NEW_LINE_TOKEN, token);
+
+		token = tokenizer.nextToken();
+		checkExpectedToken(LEFT_PARENTHESIS_TOKEN, token);
+
+		token = tokenizer.nextToken();
+		checkExpectedToken(MODEL_TOKEN, token);
+
+		token = tokenizer.nextToken();
+		checkExpectedToken(NEW_LINE_TOKEN, token);
 
 		while (tokenizer.hasMoreTokens()) {
-			token = tokenizer.nextToken(); // (
-			if (token.equals(")")) {
+			token = tokenizer.nextToken();
+			if (token.equals(RIGHT_PARENTHESIS_TOKEN)) {
 				break;
-			}
-			token = tokenizer.nextToken(); // define-fun ?
-			if (token.equals("define-fun")) {
-				token = tokenizer.nextToken(); //
+			} 
+			
+			checkExpectedToken(LEFT_PARENTHESIS_TOKEN, token);
+
+
+			token = tokenizer.nextToken(); // is "define-fun" token?
+			if (token.equals(DEFINE_FUN_TOKEN)) {
+				token = tokenizer.nextToken();
+				checkExpectedToken(BLANK_SPACE_TOKEN, token);
+
 				String fun_name = tokenizer.nextToken();
 				token = tokenizer.nextToken(); //
+				checkExpectedToken(BLANK_SPACE_TOKEN, token);
+
 				token = tokenizer.nextToken(); // (
+				checkExpectedToken(LEFT_PARENTHESIS_TOKEN, token);
+
 				token = tokenizer.nextToken(); // )
+				checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
 				token = tokenizer.nextToken(); //
+				checkExpectedToken(BLANK_SPACE_TOKEN, token);
 
-				String typeName = tokenizer.nextToken();
-				if (typeName.equals("Int")) {
-					token = tokenizer.nextToken(); // " "
-					token = tokenizer.nextToken(); //
-					boolean neg = false;
-					String integerValueStr;
-					if (token.equals("(")) {
-						neg = true;
-						token = tokenizer.nextToken(); // -
-						token = tokenizer.nextToken(); // " "
-						integerValueStr = tokenizer.nextToken();
-					} else {
-						integerValueStr = token;
-					}
-					Long value;
-					if (neg) {
-						String absoluteIntegerValue = integerValueStr;
-						value = Long.parseLong("-" + absoluteIntegerValue);
-					} else {
-						value = Long.parseLong(integerValueStr);
-					}
-					solution.put(fun_name, value);
-					if (neg) {
-						token = tokenizer.nextToken(); // )
-					}
-					token = tokenizer.nextToken(); // )
-					token = tokenizer.nextToken(); // \n
+				token = tokenizer.nextToken();
+				Object value;
+				if (token.equals(INT_TOKEN)) {
+					value = parseIntegerValue(tokenizer);
 
-				} else if (typeName.equals("Real")) {
-					token = tokenizer.nextToken(); // " "
-					token = tokenizer.nextToken();
-					Double value;
-					if (!token.equals("(")) {
-						value = Double.parseDouble(token);
-					} else {
-						token = tokenizer.nextToken();
-						if (token.equals("-")) {
-							token = tokenizer.nextToken(); // " "
-							token = tokenizer.nextToken(); // ?
-							if (token.equals("(")) {
-								token = tokenizer.nextToken(); // "/"
-								token = tokenizer.nextToken(); // " "
-								String numeratorStr = tokenizer.nextToken();
-								token = tokenizer.nextToken(); // " "
-								String denominatorStr = tokenizer.nextToken();
+				} else if (token.equals(REAL_TOKEN)) {
+					value = parseRealValue(tokenizer);
 
-								value = parseRational(true, numeratorStr, denominatorStr);
-								token = tokenizer.nextToken(); // ")"
-								token = tokenizer.nextToken(); // ")"
-							} else {
-								String absoluteValueStr = token;
-								value = Double.parseDouble("-" + absoluteValueStr);
-								token = tokenizer.nextToken(); // )
-							}
-						} else {
+				} else if (token.equals(STRING_TOKEN)) {
+					value = parseStringValue(tokenizer);
 
-							if (token.equals("/")) {
-								token = tokenizer.nextToken(); // " "
-								String numeratorStr = tokenizer.nextToken();
-								token = tokenizer.nextToken(); // " "
-								String denominatorStr = tokenizer.nextToken();
-								value = parseRational(false,numeratorStr,denominatorStr);
-								token = tokenizer.nextToken(); // )
-							} else {
-
-								value = Double.parseDouble(token);
-							}
-						}
-					}
-					solution.put(fun_name, value);
-					token = tokenizer.nextToken(); // )
-					token = tokenizer.nextToken(); // \n
-
-				} else if (typeName.equals("String")) {
-					token = tokenizer.nextToken();
-					StringBuffer value = new StringBuffer();
-
-					while (!token.startsWith("\"")) { // move until \" is found
-						token = tokenizer.nextToken();
-
-					}
-
-					value.append(token);
-					if (!token.substring(1).endsWith("\"")) {
-						String stringToken;
-						do {
-							if (!tokenizer.hasMoreTokens()) {
-								System.out.println("Error!");
-							}
-							stringToken = tokenizer.nextToken();
-							value.append(stringToken);
-						} while (!stringToken.endsWith("\"")); // append until
-																// \" is found
-					}
-					String stringWithQuotes = value.toString();
-					String stringWithoutQuotes = stringWithQuotes.substring(1, stringWithQuotes.length() - 1);
-					solution.put(fun_name, stringWithoutQuotes);
-					token = tokenizer.nextToken(); // )
-					token = tokenizer.nextToken(); // \n
 				} else {
-					// throw new IllegalArgumentException(
-					// "Must implement this production");
+					throw new IllegalArgumentException("Unknown data type " + token);
 				}
+				solution.put(fun_name, value);
 			}
 		}
 
@@ -219,6 +166,167 @@ final class CVC4ResultParser extends ResultParser {
 
 		SolverResult satResult = SolverResult.newSAT(solution);
 		return satResult;
+	}
+
+	private String parseStringValue(StringTokenizer tokenizer) {
+		String token;
+		token = tokenizer.nextToken();
+		StringBuffer value = new StringBuffer();
+
+		while (!token.startsWith(QUOTE_TOKEN)) { // move until \" is found
+			token = tokenizer.nextToken();
+
+		}
+
+		value.append(token);
+		if (!token.substring(1).endsWith(QUOTE_TOKEN)) {
+			String stringToken;
+			do {
+				if (!tokenizer.hasMoreTokens()) {
+					System.out.println("Error!");
+				}
+				stringToken = tokenizer.nextToken();
+				value.append(stringToken);
+			} while (!stringToken.endsWith(QUOTE_TOKEN)); // append until
+			// \" is found
+		}
+		String stringWithQuotes = value.toString();
+		String stringWithoutQuotes = stringWithQuotes.substring(1, stringWithQuotes.length() - 1);
+		token = tokenizer.nextToken(); // )
+		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
+		token = tokenizer.nextToken(); // \n
+		checkExpectedToken(NEW_LINE_TOKEN, token);
+		return stringWithoutQuotes;
+	}
+
+	private static Double parseRealValue(StringTokenizer tokenizer) {
+		String token;
+		token = tokenizer.nextToken(); // " "
+		checkExpectedToken(BLANK_SPACE_TOKEN, token);
+
+		token = tokenizer.nextToken();
+		Double value;
+		if (!token.equals(LEFT_PARENTHESIS_TOKEN)) {
+			value = Double.parseDouble(token);
+		} else {
+			token = tokenizer.nextToken();
+			if (token.equals(MINUS_TOKEN)) {
+				token = tokenizer.nextToken(); // " "
+				checkExpectedToken(BLANK_SPACE_TOKEN, token);
+
+				token = tokenizer.nextToken(); // ?
+				if (token.equals(LEFT_PARENTHESIS_TOKEN)) {
+					token = tokenizer.nextToken(); // "/"
+					checkExpectedToken(SLASH_TOKEN, token);
+
+					token = tokenizer.nextToken(); // " "
+					checkExpectedToken(BLANK_SPACE_TOKEN, token);
+					String numeratorStr = tokenizer.nextToken();
+					token = tokenizer.nextToken(); // " "
+					checkExpectedToken(BLANK_SPACE_TOKEN, token);
+					String denominatorStr = tokenizer.nextToken();
+
+					value = parseRational(true, numeratorStr, denominatorStr);
+					token = tokenizer.nextToken(); // ")"
+					checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+					token = tokenizer.nextToken(); // ")"
+					checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+				} else {
+					String absoluteValueStr = token;
+					value = Double.parseDouble(MINUS_TOKEN + absoluteValueStr);
+					token = tokenizer.nextToken(); // )
+					checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+				}
+			} else {
+
+				if (token.equals(SLASH_TOKEN)) {
+					token = tokenizer.nextToken(); // " "
+					checkExpectedToken(BLANK_SPACE_TOKEN, token);
+
+					token = tokenizer.nextToken();
+
+					String numeratorStr;
+
+					boolean neg;
+					if (token.equals(LEFT_PARENTHESIS_TOKEN)) {
+						token = tokenizer.nextToken(); // "-"
+						checkExpectedToken(MINUS_TOKEN, token);
+						neg = true;
+						token = tokenizer.nextToken(); // " "
+						checkExpectedToken(BLANK_SPACE_TOKEN, token);
+
+						numeratorStr = tokenizer.nextToken();
+
+						token = tokenizer.nextToken(); // ")"
+						checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+					} else {
+						neg = false;
+						numeratorStr = token;
+					}
+
+					token = tokenizer.nextToken(); // " "
+					checkExpectedToken(BLANK_SPACE_TOKEN, token);
+
+					String denominatorStr = tokenizer.nextToken();
+					value = parseRational(neg, numeratorStr, denominatorStr);
+
+					token = tokenizer.nextToken(); // )
+					checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+				} else {
+
+					value = Double.parseDouble(token);
+				}
+			}
+		}
+		token = tokenizer.nextToken(); // )
+		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+
+		token = tokenizer.nextToken(); // \n
+		checkExpectedToken(NEW_LINE_TOKEN, token);
+		return value;
+	}
+
+	private static Long parseIntegerValue(StringTokenizer tokenizer) {
+		String token;
+		token = tokenizer.nextToken(); // " "
+		checkExpectedToken(BLANK_SPACE_TOKEN, token);
+		token = tokenizer.nextToken(); 
+		boolean neg = false;
+		String integerValueStr;
+		if (token.equals(LEFT_PARENTHESIS_TOKEN)) {
+			neg = true;
+			token = tokenizer.nextToken(); // -
+			checkExpectedToken(MINUS_TOKEN, token);
+			token = tokenizer.nextToken(); // " "
+			checkExpectedToken(BLANK_SPACE_TOKEN, token);
+			integerValueStr = tokenizer.nextToken();
+		} else {
+			integerValueStr = token;
+		}
+		Long value;
+		if (neg) {
+			String absoluteIntegerValue = integerValueStr;
+			value = Long.parseLong(MINUS_TOKEN + absoluteIntegerValue);
+		} else {
+			value = Long.parseLong(integerValueStr);
+		}
+		if (neg) {
+			token = tokenizer.nextToken(); // )
+			checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+		}
+		token = tokenizer.nextToken(); // )
+		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
+		token = tokenizer.nextToken(); // \n
+		checkExpectedToken(NEW_LINE_TOKEN, token);
+		return value;
+	}
+
+	private static void checkExpectedToken(String expectedToken, String actualToken) {
+		if (!actualToken.equals(expectedToken)) {
+			throw new IllegalArgumentException(
+					"Malformed CVC4 solution. Expected \"" + expectedToken + "\" but found \"" + actualToken + "\"");
+		}
 	}
 
 	private static void addMissingValues(Map<String, Object> initialValues, Map<String, Object> solution) {

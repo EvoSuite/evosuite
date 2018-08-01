@@ -156,7 +156,7 @@ public class EvoSuite {
             if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
                 throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
             }
-            
+
             if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
                 ClassPathHacker.initializeToolJar();
             }
@@ -185,6 +185,10 @@ public class EvoSuite {
             CommandLineParameters.handleSeed(javaOpts, line);
 
             CommandLineParameters.addJavaDOptions(javaOpts, line);
+
+            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+                ClassPathHacker.initializeToolJar();
+            }
 
             CommandLineParameters.handleClassPath(line);
 

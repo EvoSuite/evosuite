@@ -28,7 +28,7 @@ import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
 
 class CVC4QueryPrinter {
 
-	private static final String CVC4_LOGIC = "SLIRA"; // previously QF_SLIRA
+	private static final String CVC4_LOGIC = "QF_ALL_SUPPORTED"; // previously QF_SLIRA, SLIRA
 
 	public String print(SmtCheckSatQuery smtQuery) {
 		StringBuffer buff = new StringBuffer();

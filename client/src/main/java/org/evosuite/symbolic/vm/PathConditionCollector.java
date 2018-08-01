@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.evosuite.symbolic.BranchCondition;
+import org.evosuite.symbolic.IfBranchCondition;
+import org.evosuite.symbolic.SwitchBranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 
@@ -43,19 +45,19 @@ public final class PathConditionCollector {
 	}
 
 	/**
-	 * Add a supporting constraint to the current branch condition When the
-	 * branch condition is currently added, then these supporting constraints
-	 * will be added to the new branch condition
+	 * Add a supporting constraint to the current branch condition When the branch
+	 * condition is currently added, then these supporting constraints will be added
+	 * to the new branch condition
 	 * 
 	 * @param c
 	 */
-	public void addSupportingConstraint(IntegerConstraint c) {
+	public void appendSupportingConstraint(IntegerConstraint c) {
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 		currentSupportingConstraints.add(normalizedConstraint);
 	}
 
 	/**
-	 * Add a new constraint to a branch condition
+	 * Add a new constraint to a branch condition for a IF instruction
 	 * 
 	 * @param className
 	 *            the class name where the branch is
@@ -66,19 +68,47 @@ public final class PathConditionCollector {
 	 * @param c
 	 *            the constraint for the branch condition
 	 */
-	public void addBranchCondition(String className, String methName, int branchIndex, IntegerConstraint c) {
+	public void appendIfBranchCondition(String className, String methName, int branchIndex, boolean isTrueBranch,
+			IntegerConstraint c) {
 
 		Constraint<?> normalizedConstraint = normalizeConstraint(c);
 
 		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
 				currentSupportingConstraints);
 
-		BranchCondition new_branch = new BranchCondition(className, methName, branchIndex, normalizedConstraint,
-				branch_supporting_constraints);
+		IfBranchCondition new_branch = new IfBranchCondition(className, methName, branchIndex, normalizedConstraint,
+				branch_supporting_constraints, isTrueBranch);
 
 		branchConditions.add(new_branch);
 
 		currentSupportingConstraints.clear();
+	}
+
+	/**
+	 * Appends a switch branch condition originated by a switch bytecode instruction
+	 * that matched a certain goal
+	 * 
+	 * @param className
+	 * @param methodName
+	 * @param instructionIndex
+	 * @param goal
+	 * @param c
+	 */
+	public void appendSwitchBranchCondition(String className, String methodName, int instructionIndex,
+			IntegerConstraint c, int goal) {
+
+		Constraint<?> normalizedConstraint = normalizeConstraint(c);
+
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+				currentSupportingConstraints);
+
+		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
+				normalizedConstraint, branch_supporting_constraints, goal);
+
+		branchConditions.add(new_branch);
+
+		currentSupportingConstraints.clear();
+
 	}
 
 	/**
@@ -88,6 +118,32 @@ public final class PathConditionCollector {
 	 */
 	public List<BranchCondition> getPathCondition() {
 		return new LinkedList<BranchCondition>(branchConditions);
+	}
+
+	/**
+	 * Appends a switch branch condition originated by the execution of a switch
+	 * bytecode instruction that did not match any goal
+	 * 
+	 * @param className
+	 * @param methodName
+	 * @param instructionIndex
+	 * @param c
+	 */
+	public void appendDefaultSwitchBranchCondition(String className, String methodName, int instructionIndex,
+			IntegerConstraint c) {
+
+		Constraint<?> normalizedConstraint = normalizeConstraint(c);
+
+		LinkedList<Constraint<?>> branch_supporting_constraints = new LinkedList<Constraint<?>>(
+				currentSupportingConstraints);
+
+		SwitchBranchCondition new_branch = new SwitchBranchCondition(className, methodName, instructionIndex,
+				normalizedConstraint, branch_supporting_constraints);
+
+		branchConditions.add(new_branch);
+
+		currentSupportingConstraints.clear();
+
 	}
 
 }
