@@ -26,9 +26,11 @@ public class ExceptionMapGenerator {
 
     private static void handleDependency(String className) {
         ClassNode targetClass = DependencyAnalysis.getClassNode(className);
-        for(MethodNode mn : targetClass.methods) {
-            logger.debug("Method: " + mn.name);
-            handleMethodNode(targetClass, mn);
+        if(targetClass != null){
+            for(MethodNode mn : targetClass.methods) {
+                logger.debug("Method: " + mn.name);
+                handleMethodNode(targetClass, mn);
+            }
         }
     }
 
