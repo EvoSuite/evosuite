@@ -181,9 +181,10 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
             long seed = Randomness.getSeed();
             Properties.PaesArchiveType archiveType = super.PAES_ARCHIVE;
             int population = Properties.POPULATION;
+            int gridDepth = Properties.GRID_DEPTH;
             String[] packagedClassName = RuntimeSettings.className.split("\\.");
             String className = packagedClassName[packagedClassName.length-1];
-            String fileName = className + "_" + population+"_"+archiveType+"_"+seed;
+            String fileName = className + "_" + population+"_"+archiveType+"_"+gridDepth+"_"+seed;
 
             AnalysisFileWriter analysisFileWriter = new AnalysisFileWriter(fileName);
             analysisFileWriter.addAll(this.generationAnalyses);
