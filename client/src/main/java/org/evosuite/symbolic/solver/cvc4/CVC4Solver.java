@@ -19,7 +19,6 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,12 +32,12 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.SmtLibSolver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SmtLibSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
