@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -39,6 +38,7 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		Properties.EPA_XML_PATH = MINI_BOUNDED_STACK_EPA_XML;
 		Properties.TIMEOUT = Integer.MAX_VALUE;
 		EPAMonitor.reset();
+		new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
 	}
 
 	@After
@@ -58,22 +58,12 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 
-		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
-		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
-		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
-		int numOfStates = epa_automata.getStates().size();
-		int numOfActions = epa_automata.getActions().size();
-		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
-		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
-		assertEquals(numOfAdjacentEdgesGoals, goals.size());
-
+		long numOfAdjacentEdgesGoals = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
-
 		suite.addFitness(adjacentEdgesFitness);
 		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
 		int expectedNumOfCoveredGoals = 3;
-		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		long expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
 		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
 	}
 	
@@ -88,22 +78,12 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 
-		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
-		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
-		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
-		int numOfStates = epa_automata.getStates().size();
-		int numOfActions = epa_automata.getActions().size();
-		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
-		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
-		assertEquals(numOfAdjacentEdgesGoals, goals.size());
-
+		long numOfAdjacentEdgesGoals = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
-
 		suite.addFitness(adjacentEdgesFitness);
 		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
 		int expectedNumOfCoveredGoals = 3;
-		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		long expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
 		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
 	}
 	
@@ -118,22 +98,12 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 
-		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
-		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
-		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
-		int numOfStates = epa_automata.getStates().size();
-		int numOfActions = epa_automata.getActions().size();
-		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
-		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
-		assertEquals(numOfAdjacentEdgesGoals, goals.size());
-
+		long numOfAdjacentEdgesGoals = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS; 
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
-
 		suite.addFitness(adjacentEdgesFitness);
 		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
 		int expectedNumOfCoveredGoals = 2;
-		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		long expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
 		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
 	}
 	
@@ -148,22 +118,12 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 
-		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
-		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
-		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
-		int numOfStates = epa_automata.getStates().size();
-		int numOfActions = epa_automata.getActions().size();
-		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
-		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
-		assertEquals(numOfAdjacentEdgesGoals, goals.size());
-
+		long numOfAdjacentEdgesGoals = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
-
 		suite.addFitness(adjacentEdgesFitness);
 		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
 		int expectedNumOfCoveredGoals = 1;
-		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		long expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
 		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
 	}
 	
@@ -178,22 +138,12 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 
-		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
-		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
-		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
-		int numOfStates = epa_automata.getStates().size();
-		int numOfActions = epa_automata.getActions().size();
-		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
-		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
-		assertEquals(numOfAdjacentEdgesGoals, goals.size());
-
+		long numOfAdjacentEdgesGoals = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
-
 		suite.addFitness(adjacentEdgesFitness);
 		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
 		int expectedNumOfCoveredGoals = 1;
-		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		long expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
 		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
 	}
 	
@@ -208,22 +158,12 @@ public class TestEPAAdjacentEdgesCoverage extends TestEPATransitionCoverage {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		suite.addTest(test);
 
-		EPAAdjacentEdgesCoverageFactory factory = new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
-		List<EPAAdjacentEdgesCoverageTestFitness> goals = factory.getCoverageGoals();
-		EPA epa_automata = EPAFactory.buildEPA(Properties.EPA_XML_PATH);
-		int numOfStates = epa_automata.getStates().size();
-		int numOfActions = epa_automata.getActions().size();
-		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
-		int maxNumOfDepartingEdges = numOfActions * numOfStates;
-		int numOfAdjacentEdgesGoals = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
-		assertEquals(numOfAdjacentEdgesGoals, goals.size());
-
+		long numOfAdjacentEdgesGoals = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
 		EPAAdjacentEdgesCoverageSuiteFitness adjacentEdgesFitness = new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
-
 		suite.addFitness(adjacentEdgesFitness);
 		double suiteFitness = adjacentEdgesFitness.getFitness(suite);
 		int expectedNumOfCoveredGoals = 0;
-		int expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
+		long expectedSuiteFitness = numOfAdjacentEdgesGoals - expectedNumOfCoveredGoals;
 		assertEquals(expectedSuiteFitness, suiteFitness, 0.000000001);
 	}
 

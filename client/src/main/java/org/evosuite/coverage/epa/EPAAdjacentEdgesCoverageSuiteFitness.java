@@ -19,7 +19,6 @@ import org.xml.sax.SAXException;
 public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -8137606898642577596L;
-	private final EPA epa;
 
 	public EPAAdjacentEdgesCoverageSuiteFitness(String epaXMLFilename) {
 
@@ -27,9 +26,6 @@ public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFuncti
 			EPA target_epa = EPAFactory.buildEPA(epaXMLFilename);
 			EPASuiteFitness.checkEPAStates(target_epa, Properties.TARGET_CLASS);
 			EPASuiteFitness.checkEPAActionNames(target_epa, Properties.TARGET_CLASS);
-
-			this.epa = target_epa;
-
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new EvosuiteError(e);
 		}
@@ -42,39 +38,39 @@ public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFuncti
 
 		Set<EPAAdjacentEdgesPair> adjacentPairs = new HashSet<EPAAdjacentEdgesPair>();
 		for (ExecutionResult executionResult : executionResults) {
-			Set<EPAAdjacentEdgesPair> adjacentPairsForResult = EPAAdjacentEdgesPair
-					.getAdjacentEdgesPairsExecuted(executionResult);
-			for (EPAAdjacentEdgesPair pair : adjacentPairsForResult) {
-				EPATransition firstTransition = pair.getFirstEpaTransition();
-				EPATransition secondTransition = pair.getSecondEpaTransition();
-				EPAAdjacentEdgesCoverageGoal coverageGoal = new EPAAdjacentEdgesCoverageGoal(Properties.TARGET_CLASS,
-						firstTransition, secondTransition);
-				EPAAdjacentEdgesCoverageTestFitness goal = new EPAAdjacentEdgesCoverageTestFitness(coverageGoal);
-				String key = goal.getKey();
-				if (!EPAAdjacentEdgesCoverageFactory.getGoals().containsKey(key)) {
-					EPAAdjacentEdgesCoverageFactory.getGoals().put(key, goal);
-					if (Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.addGoalToCover(this, goal);
-						TestsArchive.instance.putTest(this, goal, executionResult);
-					}
-				}
-			}
+			Set<EPAAdjacentEdgesPair> adjacentPairsForResult = constructGoals(executionResult, this);
 			adjacentPairs.addAll(adjacentPairsForResult);
 		}
 
 		long coveredGoalsCount = adjacentPairs.size();
-
-		long numOfObservedGoals = EPAAdjacentEdgesCoverageFactory.getGoals().size();
-		long upperBoundOfGoals = this.epa.getStates().size() * this.epa.getActions().size()
-				* this.epa.getStates().size() * 2;
-
-		final double fitness = numOfObservedGoals - coveredGoalsCount;
+		long upperBoundOfGoals = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
+		final double fitness = upperBoundOfGoals - coveredGoalsCount;
 		updateIndividual(this, individual, fitness);
-		final double coverage = (upperBoundOfGoals > 0) ? (coveredGoalsCount / (double) upperBoundOfGoals) : 0;
+		final double coverage = (upperBoundOfGoals > 0) ?
+				(coveredGoalsCount / (double) upperBoundOfGoals) : 0;
 		individual.setCoverage(this, coverage);
 		individual.setNumOfCoveredGoals(this, (int) coveredGoalsCount);
 		individual.setNumOfNotCoveredGoals(this, (int) (upperBoundOfGoals - coveredGoalsCount));
 		return fitness;
+	}
+
+	public static Set<EPAAdjacentEdgesPair> constructGoals(ExecutionResult executionResult, EPAAdjacentEdgesCoverageSuiteFitness contextFitness) {
+		Set<EPAAdjacentEdgesPair> adjacentPairsForResult = EPAAdjacentEdgesPair.getAdjacentEdgesPairsExecuted(executionResult);
+		for (EPAAdjacentEdgesPair pair : adjacentPairsForResult) {
+			EPATransition firstTransition = pair.getFirstEpaTransition();
+			EPATransition secondTransition = pair.getSecondEpaTransition();
+			EPAAdjacentEdgesCoverageGoal coverageGoal = new EPAAdjacentEdgesCoverageGoal(Properties.TARGET_CLASS,firstTransition, secondTransition);
+			EPAAdjacentEdgesCoverageTestFitness goal = new EPAAdjacentEdgesCoverageTestFitness(coverageGoal);
+			String key = goal.getKey();
+			if (!EPAAdjacentEdgesCoverageFactory.getGoals().containsKey(key)) {
+				EPAAdjacentEdgesCoverageFactory.getGoals().put(key, goal);
+				if (Properties.TEST_ARCHIVE && contextFitness != null) {
+					TestsArchive.instance.addGoalToCover(contextFitness, goal);
+					TestsArchive.instance.putTest(contextFitness, goal, executionResult);
+				}
+			}
+		}
+		return adjacentPairsForResult;
 	}
 
 }

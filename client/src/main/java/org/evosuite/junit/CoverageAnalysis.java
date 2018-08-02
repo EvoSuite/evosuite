@@ -33,6 +33,8 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageFactory;
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageSuiteFitness;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -161,6 +163,7 @@ public class CoverageAnalysis {
 				LoggingUtils.getEvoLogger().info("* Coverage analysis for criterion " + pc);
 
 				TestFitnessFactory ffactory = FitnessFunctions.getFitnessFactory(pc);
+
 				goals += ffactory.getCoverageGoals().size();
 
 				FitnessFunction ffunction = FitnessFunctions.getFitnessFunction(pc);
@@ -453,7 +456,6 @@ public class CoverageAnalysis {
 		} else {
 			goals = factory.getCoverageGoals();
 		}
-		totalGoals += goals.size();
 
 		// A dummy Chromosome
 		TestChromosome dummy = new TestChromosome();
@@ -461,6 +463,24 @@ public class CoverageAnalysis {
 
 		// Execution result of a dummy Test Case
 		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+
+		// I need to populate the covered goals for EPAADJACENTEDGES because they are generated on demand
+		if(criterion == Criterion.EPAADJACENTEDGES) {
+			for (int index_test = 0; index_test < results.size(); index_test++) {
+				JUnitResult tR = results.get(index_test);
+
+				ExecutionTrace trace = tR.getExecutionTrace();
+				executionResult.setTrace(trace);
+				EPAAdjacentEdgesCoverageSuiteFitness.constructGoals(executionResult, null);
+			}
+
+			goals = factory.getCoverageGoals();
+			totalGoals += EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
+		} else {
+			totalGoals += goals.size();
+		}
+		
+		//FIXME: EXCEPTION criterion needs to populate the exception covered goals similar to EPAADJACENTEDGES
 
 		// coverage matrix (each row represents the coverage of each test case
 		// and each column represents the coverage of each component (e.g.,
@@ -532,6 +552,11 @@ public class CoverageAnalysis {
 		}
 		logger.info("* CoverageBitString " + str.toString());
 
+		long goalsSize = goals.size();
+		if(criterion == Criterion.EPAADJACENTEDGES) {
+			goalsSize = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
+		}
+
 		RuntimeVariable bitStringVariable = CoverageCriteriaAnalyzer.getBitStringVariable(criterion);
 		if (goals.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
@@ -541,11 +566,11 @@ public class CoverageAnalysis {
 				ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, "1");
 			}
 		} else {
-			double coverage = ((double) covered.cardinality()) / ((double) goals.size());
+			double coverage = ((double) covered.cardinality()) / ((double) goalsSize);
 			LoggingUtils.getEvoLogger().info(
 					"* Coverage of criterion " + criterion + ": " + NumberFormat.getPercentInstance().format(coverage));
 			LoggingUtils.getEvoLogger()
-					.info("* Number of covered goals: " + covered.cardinality() + " / " + goals.size());
+					.info("* Number of covered goals: " + covered.cardinality() + " / " + goalsSize);
 
 			SortedSet<String> missed_goals = new TreeSet<String>();
 			for (int index_component = 0; index_component < goals.size(); index_component++) {

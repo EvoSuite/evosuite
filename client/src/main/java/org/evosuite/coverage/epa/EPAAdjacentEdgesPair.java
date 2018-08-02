@@ -27,7 +27,11 @@ public class EPAAdjacentEdgesPair implements Serializable {
 
 	@Override
 	public java.lang.String toString() {
-		return String.format("{AdjacentEdgesPair[%s],[%s]}", firstTransition.toString(), secondTransition.toString());
+		String first = firstTransition.getClass().getSimpleName() + "{" + firstTransition.getOriginState() + "," +
+				firstTransition.getActionName() + "," + firstTransition.getDestinationState() + "}";
+		String second = secondTransition.getClass().getSimpleName() + "{" + secondTransition.getOriginState() + "," +
+				secondTransition.getActionName() + "," + secondTransition.getDestinationState() + "}";
+		return String.format("{AdjacentEdgesPair[%s],[%s]}", first, second);
 	}
 
 	@Override

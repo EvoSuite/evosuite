@@ -21,16 +21,13 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -111,7 +108,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		TestSuiteChromosome testSuite = null;
 		if (!(Properties.STOP_ZERO && goals.isEmpty()) 
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION) 
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)) {
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAADJACENTEDGES)) {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
 			LoggingUtils.getEvoLogger().info("* Starting evolution");

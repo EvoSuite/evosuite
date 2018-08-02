@@ -5,19 +5,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.ExecutionTracer;
-import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.AbstractFitnessFactory;
 
-public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAdjacentEdgesCoverageTestFitness> {
+public class EPAAdjacentEdgesCoverageFactory extends AbstractFitnessFactory<EPAAdjacentEdgesCoverageTestFitness> {
 
-	// private final EPA epa;
+	public static long UPPER_BOUND_OF_GOALS;
 
 	public EPAAdjacentEdgesCoverageFactory(EPA epaAutomata) {
-		// this.epa = epaAutomata;
-		// this.goals = buildCoverageGoals();
+		int numOfStates = epaAutomata.getStates().size();
+		int numOfActions = epaAutomata.getActions().size();
+		int maxNumOfEdges = numOfStates * numOfActions * numOfStates;
+		int maxNumOfDepartingEdges = numOfActions * numOfStates;
+		UPPER_BOUND_OF_GOALS = (maxNumOfEdges * maxNumOfDepartingEdges) * 2;
 	}
 
 	private static Map<String, EPAAdjacentEdgesCoverageTestFitness> goals = new LinkedHashMap<>();
@@ -26,59 +25,9 @@ public class EPAAdjacentEdgesCoverageFactory implements TestFitnessFactory<EPAAd
 		return goals;
 	}
 
-	// private List<EPAAdjacentEdgesCoverageTestFitness> buildCoverageGoals() {
-	// List<EPAAdjacentEdgesCoverageTestFitness> goals = new
-	// LinkedList<EPAAdjacentEdgesCoverageTestFitness>();
-	// Set<EPAState> states = new HashSet<EPAState>(this.epa.getStates());
-	//
-	// /*
-	// * fromState -> firstActionId -> middleState -> secondActionId -> toState
-	// */
-	// for (EPAState fromState : states)
-	// for (String firstActionId : this.epa.getActions())
-	// for (EPAState middleState : states)
-	// for (String secondActionId : this.epa.getActions())
-	// for (EPAState toState : states) {
-	// EPATransition firstTransition = new EPANormalTransition(fromState,
-	// firstActionId, middleState);
-	// EPATransition secondNormalTransition = new EPANormalTransition(middleState,
-	// secondActionId, toState);
-	// EPAAdjacentEdgesCoverageGoal goal = new
-	// EPAAdjacentEdgesCoverageGoal(Properties.TARGET_CLASS, firstTransition,
-	// secondNormalTransition);
-	// EPAAdjacentEdgesCoverageTestFitness testFitness = new
-	// EPAAdjacentEdgesCoverageTestFitness(goal);
-	// goals.add(testFitness);
-	// EPATransition secondExceptionalTransition = new
-	// EPAExceptionalTransition(middleState, secondActionId, toState, "");
-	// goal = new EPAAdjacentEdgesCoverageGoal(Properties.TARGET_CLASS,
-	// firstTransition, secondExceptionalTransition);
-	// testFitness = new EPAAdjacentEdgesCoverageTestFitness(goal);
-	// goals.add(testFitness);
-	// }
-	// return goals;
-	// }
-
 	@Override
 	public List<EPAAdjacentEdgesCoverageTestFitness> getCoverageGoals() {
 		return new ArrayList<EPAAdjacentEdgesCoverageTestFitness>(goals.values());
-	}
-
-	@Override
-	public double getFitness(TestSuiteChromosome suite) {
-
-		ExecutionTracer.enableTraceCalls();
-
-		int coveredGoals = 0;
-		List<ExecutionResult> executionResults = new ArrayList<>(suite.getTestChromosomes().size());
-		for (TestChromosome test : suite.getTestChromosomes()) {
-			executionResults.add(test.getLastExecutionResult());
-		}
-		coveredGoals = EPAAdjacentEdgesPair.getAdjacentEdgesPairsExecuted(executionResults).size();
-		ExecutionTracer.disableTraceCalls();
-
-		return getCoverageGoals().size() - coveredGoals;
-
 	}
 
 }
