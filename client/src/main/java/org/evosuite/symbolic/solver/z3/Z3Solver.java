@@ -19,8 +19,6 @@
  */
 package org.evosuite.symbolic.solver.z3;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
@@ -38,17 +35,16 @@ import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.SmtLibSolver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SmtLibSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
-import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,31 +59,6 @@ public class Z3Solver extends SmtLibSolver {
 	}
 
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
-
-	private static int dirCounter = 0;
-
-	private static File createNewTmpDir() {
-		File dir = null;
-		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuiteZ3_" + (dirCounter++) + "_"
-				+ System.currentTimeMillis();
-
-		// first create a tmp folder
-		dir = new File(dirName);
-		if (!dir.mkdirs()) {
-			logger.error("Cannot create tmp dir: " + dirName);
-			return null;
-		}
-
-		if (!dir.exists()) {
-			logger.error(
-					"Weird behavior: we created folder, but Java cannot determine if it exists? Folder: " + dirName);
-			return null;
-		}
-
-		return dir;
-	}
-
-	private static final String EVOSUITE_Z3_FILENAME = "evosuite.z3";
 
 	@Override
 	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
@@ -126,13 +97,9 @@ public class Z3Solver extends SmtLibSolver {
 			throw new IllegalStateException(errMsg);
 		}
 
-		File tempDir = createNewTmpDir();
-		String z3TempFileName = tempDir.getAbsolutePath() + File.separatorChar + EVOSUITE_Z3_FILENAME;
-		FileIOUtils.writeFile(smtQueryStr, z3TempFileName);
+		String z3Cmd = Properties.Z3_PATH + " -smt2 -in ";
 
-		String z3Cmd = Properties.Z3_PATH + " -smt2 -file " + z3TempFileName;
-
-		String z3ResultStr = launchNewSolvingProcess(z3Cmd, "", (int) hard_timeout);
+		String z3ResultStr = launchNewSolvingProcess(z3Cmd, smtQueryStr, (int) hard_timeout);
 
 		Map<String, Object> initialValues = getConcreteValues(variables);
 		Z3ResultParser resultParser;

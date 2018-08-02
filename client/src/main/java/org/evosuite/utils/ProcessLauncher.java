@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -46,27 +45,8 @@ public class ProcessLauncher {
 
 	private static Logger logger = LoggerFactory.getLogger(ProcessLauncher.class);
 
-	private static String concatToString(String[] cmd) {
-		String cmdLine = "";
-		for (String cmdStr : cmd) {
-			if (cmdLine.length() == 0) {
-				cmdLine = cmdStr;
-			} else {
-				cmdLine += " " + cmdStr;
-			}
-		}
-		return cmdLine;
-	}
-
 	public int launchNewProcess(String parsedCommand, int timeout) throws IOException, ProcessTimeoutException {
 		int ret_code = launchNewProcess(null, parsedCommand, timeout);
-		return ret_code;
-	}
-
-	private int launchNewProcess(File baseDir, String[] parsedCommand, int timeout)
-			throws IOException, ProcessTimeoutException {
-		String cmdString = concatToString(parsedCommand);
-		int ret_code = launchNewProcess(baseDir, cmdString, timeout);
 		return ret_code;
 	}
 
@@ -101,6 +81,9 @@ public class ProcessLauncher {
 				logger.debug("A timeout occured while executing a process");
 				logger.debug("The command is " + cmdString);
 				throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
+			} else if (this.outAndErr.toString().startsWith("unsat")) {
+				logger.debug("Z3 correctly found UNSAT result");
+				return 0;
 			} else {
 				throw ex;
 			}
