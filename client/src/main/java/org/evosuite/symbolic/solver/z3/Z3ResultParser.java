@@ -29,7 +29,7 @@ import org.evosuite.symbolic.solver.SolverResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Z3ResultParser extends ResultParser {
+public class Z3ResultParser extends ResultParser {
 
 	private final Map<String, Object> initialValues;
 	static Logger logger = LoggerFactory.getLogger(Z3ResultParser.class);
@@ -159,4 +159,6 @@ class Z3ResultParser extends ResultParser {
 			}
 		}
 	}
+
+
 }

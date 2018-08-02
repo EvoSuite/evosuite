@@ -63,6 +63,11 @@ class Z3Str2QueryPrinter {
 		buff.append("(check-sat)");
 		buff.append("\n");
 
+		buff.append("(get-model)");
+		buff.append("\n");
+
+		buff.append("(exit)");
+		buff.append("\n");
 		return buff.toString();
 	}
 }

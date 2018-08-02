@@ -20,6 +20,7 @@
 package org.evosuite.symbolic.solver.z3;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
@@ -41,15 +43,16 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SubProcessSolver;
+import org.evosuite.symbolic.solver.SmtLibSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Z3Solver extends SubProcessSolver {
+public class Z3Solver extends SmtLibSolver {
 
 	public Z3Solver() {
 		super();
@@ -60,6 +63,31 @@ public class Z3Solver extends SubProcessSolver {
 	}
 
 	static Logger logger = LoggerFactory.getLogger(Z3Solver.class);
+
+	private static int dirCounter = 0;
+
+	private static File createNewTmpDir() {
+		File dir = null;
+		String dirName = FileUtils.getTempDirectoryPath() + File.separator + "EvoSuiteZ3_" + (dirCounter++) + "_"
+				+ System.currentTimeMillis();
+
+		// first create a tmp folder
+		dir = new File(dirName);
+		if (!dir.mkdirs()) {
+			logger.error("Cannot create tmp dir: " + dirName);
+			return null;
+		}
+
+		if (!dir.exists()) {
+			logger.error(
+					"Weird behavior: we created folder, but Java cannot determine if it exists? Folder: " + dirName);
+			return null;
+		}
+
+		return dir;
+	}
+
+	private static final String EVOSUITE_Z3_FILENAME = "evosuite.z3";
 
 	@Override
 	public SolverResult solve(Collection<Constraint<?>> constraints) throws SolverTimeoutException, IOException,
@@ -97,13 +125,14 @@ public class Z3Solver extends SubProcessSolver {
 			logger.error(errMsg);
 			throw new IllegalStateException(errMsg);
 		}
-		String z3Cmd = Properties.Z3_PATH + " -smt2 -in";
 
-		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+		File tempDir = createNewTmpDir();
+		String z3TempFileName = tempDir.getAbsolutePath() + File.separatorChar + EVOSUITE_Z3_FILENAME;
+		FileIOUtils.writeFile(smtQueryStr, z3TempFileName);
 
-		launchNewProcess(z3Cmd, smtQueryStr, (int) hard_timeout, stdout);
+		String z3Cmd = Properties.Z3_PATH + " -smt2 -file " + z3TempFileName;
 
-		String z3ResultStr = stdout.toString("UTF-8");
+		String z3ResultStr = launchNewSolvingProcess(z3Cmd, "", (int) hard_timeout);
 
 		Map<String, Object> initialValues = getConcreteValues(variables);
 		Z3ResultParser resultParser;
@@ -114,6 +143,16 @@ public class Z3Solver extends SubProcessSolver {
 		}
 
 		SolverResult result = resultParser.parseResult(z3ResultStr);
+
+		if (result.isSAT()) {
+			// check if solution is correct, otherwise return UNSAT
+			boolean check = checkSAT(constraints, result);
+			if (!check) {
+				logger.debug("Z3-str2 solution does not solve the constraint system!");
+				SolverResult unsatResult = SolverResult.newUNSAT();
+				return unsatResult;
+			}
+		}
 
 		return result;
 	}

@@ -41,7 +41,7 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SubProcessSolver;
+import org.evosuite.symbolic.solver.SmtLibSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -55,13 +55,14 @@ import org.evosuite.symbolic.solver.smt.SmtRealVariable;
 import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariable;
 import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
+import org.evosuite.symbolic.solver.z3.Z3ResultParser;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.utils.FileIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Z3Str2Solver extends SubProcessSolver {
+public class Z3Str2Solver extends SmtLibSolver {
 
 	private static final String EVOSUITE_Z3_STR_FILENAME = "evosuite.z3";
 
@@ -199,20 +200,21 @@ public class Z3Str2Solver extends SubProcessSolver {
 
 		try {
 			FileIOUtils.writeFile(smtQueryStr, z3TempFileName);
-			String z3Cmd = Properties.Z3_STR2_PATH + " -f " + z3TempFileName;
+			String z3Cmd = Properties.Z3_STR2_PATH + " -file " + z3TempFileName;
 			ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-			launchNewProcess(z3Cmd, smtQueryStr, timeout, stdout);
+			launchNewSolvingProcess(z3Cmd, smtQueryStr, timeout);
 
 			String z3str2ResultStr = stdout.toString("UTF-8");
 
-			Z3Str2ResultParser parser = new Z3Str2ResultParser();
 			Set<Variable<?>> variables = getVariables(constraints);
 			Map<String, Object> initialValues = getConcreteValues(variables);
 			SolverResult solverResult;
 			if (addMissingVariables()) {
-				solverResult = parser.parse(z3str2ResultStr, initialValues);
+				Z3ResultParser parser = new Z3ResultParser(initialValues);
+				solverResult = parser.parseResult(z3str2ResultStr);
 			} else {
-				solverResult = parser.parse(z3str2ResultStr);
+				Z3ResultParser parser = new Z3ResultParser();
+				solverResult = parser.parseResult(z3str2ResultStr);
 			}
 
 			if (solverResult.isSAT()) {

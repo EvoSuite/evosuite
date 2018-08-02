@@ -20,43 +20,62 @@
 package org.evosuite.symbolic.solver;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
+import org.apache.commons.exec.ExecuteException;
 import org.evosuite.utils.ProcessLauncher;
 import org.evosuite.utils.ProcessTimeoutException;
 
-public abstract class SubProcessSolver extends Solver {
+public abstract class SmtLibSolver extends Solver {
 
-	public SubProcessSolver(boolean addMissingVariables) {
+	public SmtLibSolver(boolean addMissingVariables) {
 		super(addMissingVariables);
 	}
 
-	public SubProcessSolver() {
+	public SmtLibSolver() {
 		super();
 	}
 
-	protected static int launchNewProcess(String solverCmd, String smtQuery, int hard_timeout, OutputStream outputStream) throws IOException {
+	/**
+	 * 
+	 * @param solverCmd
+	 * @param smtCheckSATQueryStr
+	 * @param hardTimeout
+	 * @return
+	 * @throws IOException
+	 * @throws SolverTimeoutException
+	 * @throws SolverErrorException
+	 */
+	protected static String launchNewSolvingProcess(String solverCmd, String smtCheckSATQueryStr, int hardTimeout)
+			throws IOException, SolverTimeoutException, SolverErrorException {
 
-		ByteArrayInputStream input = new ByteArrayInputStream(smtQuery.getBytes());
+		ByteArrayInputStream input = new ByteArrayInputStream(smtCheckSATQueryStr.getBytes());
+		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 
-		ProcessLauncher launcher = new ProcessLauncher(outputStream, input);
+		ProcessLauncher launcher = new ProcessLauncher(stdout, input);
 
 		long solver_start_time_millis = System.currentTimeMillis();
 		try {
-			int exit_code = launcher.launchNewProcess(solverCmd, hard_timeout);
+			int exit_code = launcher.launchNewProcess(solverCmd, hardTimeout);
+			
 			if (exit_code == 0) {
+				String solverOutput = stdout.toString("UTF-8");
 				logger.debug("Solver execution finished normally");
+				return solverOutput;
 			} else {
-				logger.debug("Solver execution finished abnormally with exit code {}", exit_code);
+				String errMsg = String.format("Solver execution finished abnormally with exit code {}", exit_code);
+				logger.debug(errMsg);
+				throw new SolverErrorException(errMsg);
 			}
-			return exit_code;
-		} catch (IOException ex) {
-			logger.debug("An IO Exception occurred while executing Solver");
-			return -1;
+		} catch (ExecuteException ex) {
+			logger.debug("Solver subprocesses failed");
+			throw new SolverErrorException("Solver subprocesses failed");
+			
 		} catch (ProcessTimeoutException ex) {
-			logger.debug("Solver execution stopped due to solver timeout");
-			return -1;
+			logger.debug("Solver stopped due to solver timeout");
+			throw new SolverTimeoutException();
+			
 		} finally {
 			long solver_end_time_millis = System.currentTimeMillis();
 			long solver_duration_secs = (solver_end_time_millis - solver_start_time_millis) / 1000;
@@ -64,6 +83,5 @@ public abstract class SubProcessSolver extends Solver {
 		}
 
 	}
-
 
 }
