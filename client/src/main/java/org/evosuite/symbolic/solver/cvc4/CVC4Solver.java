@@ -38,7 +38,7 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SubProcessSolver;
+import org.evosuite.symbolic.solver.SmtLibSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
@@ -56,7 +56,7 @@ import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CVC4Solver extends SubProcessSolver {
+public final class CVC4Solver extends SmtLibSolver {
 
 	private boolean reWriteNonLinearConstraints = false;
 
@@ -131,12 +131,13 @@ public final class CVC4Solver extends SubProcessSolver {
 
 		String cvc4Cmd = buildCVC4cmd(cvcTimeout);
 
-		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-
 		try {
-			launchNewProcess(cvc4Cmd, smtQueryStr, (int) cvcTimeout, stdout);
+			String cvc4ResultStr = launchNewSolvingProcess(cvc4Cmd, smtQueryStr, (int) cvcTimeout);
 
-			String cvc4ResultStr = stdout.toString("UTF-8");
+			if (cvc4ResultStr.startsWith("unknown")) {
+				logger.debug("timeout reached when using cvc4");
+				throw new SolverTimeoutException();
+			}
 
 			if (cvc4ResultStr.startsWith("unsat") && cvc4ResultStr.contains(
 					"(error \"Cannot get the current model unless immediately preceded by SAT/INVALID or UNKNOWN response.\")")) {
@@ -259,20 +260,19 @@ public final class CVC4Solver extends SubProcessSolver {
 		/**
 		 * Option --finite-model-find has two effects:
 		 * 
-		 * 1. It extends the ground UF solver to
-		 * "UF + finite cardinality constraints", as described in this paper:
-		 * http://homepage.cs.uiowa.edu/~ajreynol/cav13.pdf This is used to
-		 * minimize the size of the interpretation of uninterpreted sorts.
+		 * 1. It extends the ground UF solver to "UF + finite cardinality constraints",
+		 * as described in this paper: http://homepage.cs.uiowa.edu/~ajreynol/cav13.pdf
+		 * This is used to minimize the size of the interpretation of uninterpreted
+		 * sorts.
 		 * 
-		 * 2. It modifies the quantifier instantiation heuristics, as described
-		 * in this paper: http://homepage.cs.uiowa.edu/~ajreynol/cade24.pdf In
-		 * particular, it disables E-matching and enables
-		 * "model-based quantifier instantiation", which is the strategy that
-		 * enables CVC4 to answer "SAT" in the presence of universally
-		 * quantified formulas.
+		 * 2. It modifies the quantifier instantiation heuristics, as described in this
+		 * paper: http://homepage.cs.uiowa.edu/~ajreynol/cade24.pdf In particular, it
+		 * disables E-matching and enables "model-based quantifier instantiation", which
+		 * is the strategy that enables CVC4 to answer "SAT" in the presence of
+		 * universally quantified formulas.
 		 * 
-		 * More details on both of these points can be found in Sections 5.2 -
-		 * 5.4 of http://homepage.cs.uiowa.edu/~ajreynol/thesis.pdf.
+		 * More details on both of these points can be found in Sections 5.2 - 5.4 of
+		 * http://homepage.cs.uiowa.edu/~ajreynol/thesis.pdf.
 		 */
 		cmd += " --tlimit=" + cvcTimeout; // set timeout to cvcTimeout
 		return cmd;
