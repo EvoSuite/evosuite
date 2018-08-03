@@ -19,6 +19,11 @@
  */
 package org.evosuite.symbolic.solver.z3;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
@@ -421,189 +426,6 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	}
 
 	@Override
-	public SmtExpr visit(StringConstant e, Void v) {
-		throw new IllegalStateException(
-				"This function should not be invoked by the translation!");
-	}
-
-	@Override
-	public SmtExpr visit(StringMultipleExpression e, Void v) {
-		Operator op = e.getOperator();
-		switch (op) {
-		case REPLACEC:
-		case REPLACECS:
-		case REPLACEALL:
-		case REPLACEFIRST:
-		case SUBSTRING: {
-			throw new IllegalStateException(
-					"This function should not be invoked by the translation!");
-
-		}
-		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
-		}
-
-	}
-
-	@Override
-	public SmtExpr visit(StringUnaryExpression e, Void v) {
-		Operator op = e.getOperator();
-		switch (op) {
-		case TRIM:
-		case TOLOWERCASE:
-		case TOUPPERCASE: {
-			throw new IllegalStateException(
-					"This function should not be invoked by the translation!");
-		}
-		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
-		}
-	}
-
-	@Override
-	public SmtExpr visit(StringVariable e, Void v) {
-		throw new IllegalStateException(
-				"This function should not be invoked by the translation!");
-	}
-
-	@Override
-	public SmtExpr visit(StringBinaryExpression e, Void v) {
-		Operator op = e.getOperator();
-		switch (op) {
-		case APPEND_BOOLEAN:
-		case APPEND_CHAR:
-		case APPEND_INTEGER:
-		case APPEND_REAL:
-		case APPEND_STRING:
-		case CONCAT: {
-			throw new IllegalStateException(
-					"This function should not be invoked by the translation!");
-		}
-		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
-		}
-		}
-	}
-
-	@Override
-	public SmtExpr visit(StringBinaryComparison e, Void v) {
-		Operator op = e.getOperator();
-
-		switch (op) {
-		case STARTSWITH: {
-			throw new IllegalArgumentException(
-					"Illegal StringBinaryComparison operator " + op);
-		}
-		case ENDSWITH:
-		case EQUALSIGNORECASE: 
-		case EQUALS:
-		case CONTAINS:
-		case REGIONMATCHES:
-		case PATTERNMATCHES:
-		case APACHE_ORO_PATTERN_MATCHES: {
-			Long longValue = e.getConcreteValue();
-			SmtExpr intConst = createIntegerConstant(longValue);
-			return intConst;
-		}
-		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
-		}
-	}
-
-	@Override
-	public SmtExpr visit(StringBinaryToIntegerExpression e, Void v) {
-		Operator op = e.getOperator();
-		switch (op) {
-		case CHARAT:
-		case INDEXOFC:
-		case INDEXOFS:
-		case LASTINDEXOFC:
-		case LASTINDEXOFS:
-		case COMPARETO:
-		case COMPARETOIGNORECASE: {
-			long concreteValue = e.getConcreteValue();
-			return createIntegerConstant(concreteValue);
-		}
-
-		default: {
-			throw new UnsupportedOperationException("Not implemented yet!"
-					+ e.getOperator());
-		}
-
-		}
-	}
-
-	@Override
-	public SmtExpr visit(StringMultipleComparison e, Void v) {
-		Operator op = e.getOperator();
-
-		switch (op) {
-		case EQUALS:
-		case EQUALSIGNORECASE:
-		case ENDSWITH:
-		case CONTAINS: {
-			throw new IllegalArgumentException(
-					"Illegal StringMultipleComparison operator " + op);
-		}
-		case STARTSWITH:
-		case REGIONMATCHES:
-		case PATTERNMATCHES:
-		case APACHE_ORO_PATTERN_MATCHES: {
-			Long longValue = e.getConcreteValue();
-			SmtExpr intConst = createIntegerConstant(longValue);
-			return intConst;
-		}
-		default:
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
-		}
-	}
-
-	@Override
-	public SmtExpr visit(StringMultipleToIntegerExpression e, Void v) {
-		Operator op = e.getOperator();
-		switch (op) {
-		case INDEXOFCI:
-		case INDEXOFSI:
-		case LASTINDEXOFCI:
-		case LASTINDEXOFSI: {
-			Long concreteValue = e.getConcreteValue();
-			SmtExpr intNum = createIntegerConstant(concreteValue);
-			return intNum;
-		}
-		default: {
-			throw new UnsupportedOperationException("Not implemented yet! "
-					+ op);
-		}
-		}
-	}
-
-	@Override
-	public SmtExpr visit(StringToIntegerCast e, Void v) {
-		long concreteValue = e.getConcreteValue();
-		return createIntegerConstant(concreteValue);
-	}
-
-	@Override
-	public SmtExpr visit(StringUnaryToIntegerExpression e, Void v) {
-		Operator op = e.getOperator();
-		switch (op) {
-			case LENGTH:
-			case IS_INTEGER: {
-				Long concreteValue = e.getConcreteValue();
-				SmtExpr intNum = createIntegerConstant(concreteValue);
-				return intNum;
-			}
-		default:
-			throw new UnsupportedOperationException("Not implemented yet!");
-		}
-	}
-
-	@Override
 	public SmtExpr visit(RealComparison e, Void v) {
 		throw new IllegalStateException(
 				"RealComparison should be removed during normalization");
@@ -617,31 +439,19 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(IntegerToStringCast e, Void v) {
-		throw new IllegalStateException(
-				"This function should not be invoked by the translation!");
+		String stringValue = e.getConcreteValue();
+		return SmtExprBuilder.mkStringConstant(stringValue);
 	}
 
-	@Override
-	public SmtExpr visit(RealToStringCast e, Void v) {
-		throw new IllegalStateException(
-				"This function should not be invoked by the translation!");
-	}
 
 	@Override
-	public SmtExpr visit(StringNextTokenExpr e, Void v) {
-		throw new IllegalStateException(
-				"This function should not be invoked by the translation!");
+	public SmtExpr visit(RealToStringCast n, Void arg) {
+		String stringValue = n.getConcreteValue();
+		return SmtExprBuilder.mkStringConstant(stringValue);
 	}
 
 	@Override
 	public SmtExpr visit(HasMoreTokensExpr e, Void v) {
-		Long longObject = e.getConcreteValue();
-		SmtExpr intConst = createIntegerConstant(longObject);
-		return intConst;
-	}
-
-	@Override
-	public SmtExpr visit(StringReaderExpr e, Void v) {
 		Long longObject = e.getConcreteValue();
 		SmtExpr intConst = createIntegerConstant(longObject);
 		return intConst;
@@ -677,6 +487,371 @@ class ExprToZ3Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	public SmtExpr visit(GetFieldExpression r, Void arg) {
 		throw new UnsupportedOperationException("Translation to Z3 of GetFieldExpression is not yet implemented!");
 
+	}
+
+	@Override
+	public SmtExpr visit(StringBinaryComparison e, Void arg) {
+		Expression<String> leftOperand = e.getLeftOperand();
+		Expression<?> rightOperand = e.getRightOperand();
+		Operator op = e.getOperator();
+	
+		SmtExpr left = leftOperand.accept(this, null);
+		SmtExpr right = rightOperand.accept(this, null);
+	
+		if (left == null || right == null) {
+			return null;
+		}
+	
+		if (!left.isSymbolic() && !right.isSymbolic()) {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+	
+		switch (op) {
+		case EQUALS: {
+			SmtExpr equalsFormula = SmtExprBuilder.mkEq(left, right);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(equalsFormula, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
+			return ifThenElseExpr;
+		}
+		case ENDSWITH: {
+			SmtExpr endsWithExpr = SmtExprBuilder.mkStrSuffixOf(right, left);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(endsWithExpr, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
+			return ifThenElseExpr;
+		}
+		case CONTAINS: {
+			SmtExpr containsExpr = SmtExprBuilder.mkStrContains(left, right);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(containsExpr, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
+			return ifThenElseExpr;
+		}
+		case STARTSWITH: {
+			SmtExpr startsWithExpr = SmtExprBuilder.mkStrPrefixOf(right, left);
+			SmtExpr eqTrue = SmtExprBuilder.mkEq(startsWithExpr, SmtExprBuilder.TRUE);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(eqTrue, SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
+			return ifThenElseExpr;
+		}
+		case EQUALSIGNORECASE:
+		case REGIONMATCHES:
+		case PATTERNMATCHES:
+		case APACHE_ORO_PATTERN_MATCHES: {
+			long longValue = e.getConcreteValue();
+			SmtExpr intConst = SmtExprBuilder.mkIntConstant(longValue);
+			return intConst;
+		}
+		default:
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
+		}
+	
+	}
+
+	@Override
+	public SmtExpr visit(StringBinaryExpression e, Void arg) {
+		SmtExpr left = e.getLeftOperand().accept(this, null);
+		SmtExpr right = e.getRightOperand().accept(this, null);
+		Operator op = e.getOperator();
+	
+		if (left == null || right == null) {
+			return null;
+		}
+	
+		if (!left.isSymbolic() && !right.isSymbolic()) {
+			String stringValue = e.getConcreteValue();
+			return SmtExprBuilder.mkStringConstant(stringValue);
+		}
+	
+		switch (op) {
+		case APPEND_BOOLEAN:
+		case APPEND_CHAR:
+		case APPEND_INTEGER: {
+			long longValue = (Long) e.getRightOperand().getConcreteValue();
+			String concreteRight = String.valueOf(longValue);
+			SmtExpr concreteRightConstant = SmtExprBuilder.mkStringConstant(concreteRight);
+			return SmtExprBuilder.mkStrConcat(left, concreteRightConstant);
+		}
+		case APPEND_REAL: {
+			double doubleValue = (Double) e.getRightOperand().getConcreteValue();
+			String concreteRight = String.valueOf(doubleValue);
+			SmtExpr concreteRightConstant = SmtExprBuilder.mkStringConstant(concreteRight);
+			return SmtExprBuilder.mkStrConcat(left, concreteRightConstant);
+		}
+		case APPEND_STRING:
+		case CONCAT: {
+			return SmtExprBuilder.mkStrConcat(left, right);
+		}
+		default: {
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
+		}
+		}
+	
+	}
+
+	@Override
+	public SmtExpr visit(StringBinaryToIntegerExpression e, Void arg) {
+		Expression<String> leftOperand = e.getLeftOperand();
+		Operator op = e.getOperator();
+		Expression<?> rightOperand = e.getRightOperand();
+	
+		SmtExpr left = leftOperand.accept(this, null);
+		SmtExpr right = rightOperand.accept(this, null);
+	
+		if (left == null || right == null) {
+			return null;
+		}
+	
+		if (!left.isSymbolic() && !right.isSymbolic()) {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+	
+		switch (op) {
+		case INDEXOFS: {
+			SmtExpr indexOfExpr = SmtExprBuilder.mkIndexOf(left, right);
+			return indexOfExpr;
+		}
+		case CHARAT: {
+			SmtExpr charAtExpr = SmtExprBuilder.mkStrAt(left, right);
+			SmtExpr strToInt = SmtExprBuilder.mkCharToInt(charAtExpr);
+			return strToInt;
+		}
+		case INDEXOFC:
+		case LASTINDEXOFC:
+		case LASTINDEXOFS:
+		case COMPARETO:
+		case COMPARETOIGNORECASE: {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+		default: {
+			throw new UnsupportedOperationException("Not implemented yet!" + e.getOperator());
+		}
+		}
+	
+	}
+
+	@Override
+	public SmtExpr visit(StringConstant n, Void arg) {
+		String stringValue = n.getConcreteValue();
+		return SmtExprBuilder.mkStringConstant(stringValue);
+	}
+
+	@Override
+	public SmtExpr visit(StringMultipleComparison e, Void arg) {
+		Expression<String> leftOperand = e.getLeftOperand();
+		Expression<?> rightOperand = e.getRightOperand();
+		Operator op = e.getOperator();
+		ArrayList<Expression<?>> othersOperands = e.getOther();
+	
+		SmtExpr left = leftOperand.accept(this, null);
+		SmtExpr right = rightOperand.accept(this, null);
+		List<SmtExpr> others = new LinkedList<SmtExpr>();
+		for (Expression<?> otherOperand : othersOperands) {
+			SmtExpr other = otherOperand.accept(this, null);
+			others.add(other);
+		}
+	
+		if (left == null || right == null) {
+			return null;
+		}
+		for (SmtExpr expr : others) {
+			if (expr == null) {
+				return null;
+			}
+		}
+	
+		if (!left.isSymbolic() && !right.isSymbolic()) {
+			boolean isSymbolic = false;
+			for (SmtExpr smtExpr : others) {
+				if (smtExpr.isSymbolic()) {
+					isSymbolic = true;
+					break;
+				}
+			}
+			if (!isSymbolic) {
+				long longValue = e.getConcreteValue();
+				return SmtExprBuilder.mkIntConstant(longValue);
+			}
+		}
+	
+		switch (op) {
+		case STARTSWITH: {
+			// discard index (over-approximate solution)
+			SmtExpr startsWithExpr = SmtExprBuilder.mkStrPrefixOf(right, left);
+			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(startsWithExpr, SmtExprBuilder.ONE_INT,
+					SmtExprBuilder.ZERO_INT);
+			return ifThenElseExpr;
+		}
+		case EQUALS:
+		case EQUALSIGNORECASE:
+		case ENDSWITH:
+		case CONTAINS: {
+			throw new IllegalArgumentException("Illegal StringMultipleComparison operator " + op);
+		}
+		case REGIONMATCHES:
+		case PATTERNMATCHES:
+		case APACHE_ORO_PATTERN_MATCHES: {
+			long longValue = e.getConcreteValue();
+			SmtExpr intConst = SmtExprBuilder.mkIntConstant(longValue);
+			return intConst;
+		}
+		default:
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
+		}
+	}
+
+	@Override
+	public SmtExpr visit(StringMultipleExpression e, Void arg) {
+		Expression<String> leftOperand = e.getLeftOperand();
+		Expression<?> rightOperand = e.getRightOperand();
+		Operator op = e.getOperator();
+		ArrayList<Expression<?>> othersOperands = e.getOther();
+	
+		SmtExpr left = leftOperand.accept(this, null);
+		SmtExpr right = rightOperand.accept(this, null);
+		List<SmtExpr> others = new LinkedList<SmtExpr>();
+		for (Expression<?> otherOperand : othersOperands) {
+			SmtExpr other = otherOperand.accept(this, null);
+			others.add(other);
+		}
+	
+		if (left == null || right == null) {
+			return null;
+		}
+		for (SmtExpr expr : others) {
+			if (expr == null) {
+				return null;
+			}
+		}
+	
+		if (!left.isSymbolic() && !right.isSymbolic()) {
+			boolean isSymbolic = false;
+			for (SmtExpr smtExpr : others) {
+				if (smtExpr.isSymbolic()) {
+					isSymbolic = true;
+				}
+			}
+			if (!isSymbolic) {
+				String stringValue = e.getConcreteValue();
+				return SmtExprBuilder.mkStringConstant(stringValue);
+			}
+		}
+	
+		switch (op) {
+		case REPLACECS: {
+			SmtExpr string = left;
+			SmtExpr target = right;
+			SmtExpr replacement = others.get(0);
+			SmtExpr substringExpr = SmtExprBuilder.mkReplace(string, target, replacement);
+			return substringExpr;
+		}
+	
+		case SUBSTRING: {
+			SmtExpr string = left;
+			SmtExpr fromExpr = right;
+			SmtExpr toExpr = others.get(0);
+			SmtExpr substringExpr = SmtExprBuilder.mkSubstring(string, fromExpr, toExpr);
+			return substringExpr;
+		}
+		case REPLACEC:
+		case REPLACEALL:
+		case REPLACEFIRST: {
+			String stringValue = e.getConcreteValue();
+			return SmtExprBuilder.mkStringConstant(stringValue);
+		}
+		default:
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
+		}
+	
+	}
+
+	@Override
+	public SmtExpr visit(StringMultipleToIntegerExpression e, Void arg) {
+	
+		Operator op = e.getOperator();
+		switch (op) {
+		case INDEXOFCI:
+		case INDEXOFSI: {
+			// over-approximate using INDEXOF
+			SmtExpr left = e.getLeftOperand().accept(this, null);
+			SmtExpr right = e.getRightOperand().accept(this, null);
+			SmtExpr indexOfExpr = SmtExprBuilder.mkIndexOf(left, right);
+			return indexOfExpr;
+		}
+		case LASTINDEXOFCI:
+		case LASTINDEXOFSI: {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+		default: {
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
+		}
+		}
+	}
+
+	@Override
+	public SmtExpr visit(StringNextTokenExpr n, Void arg) {
+		String stringValue = n.getConcreteValue();
+		return SmtExprBuilder.mkStringConstant(stringValue);
+	}
+
+	@Override
+	public SmtExpr visit(StringReaderExpr e, Void arg) {
+		long longValue = e.getConcreteValue();
+		SmtExpr intConst = SmtExprBuilder.mkIntConstant(longValue);
+		return intConst;
+	}
+
+	@Override
+	public SmtExpr visit(StringToIntegerCast n, Void arg) {
+		long longValue = n.getConcreteValue();
+		return SmtExprBuilder.mkIntConstant(longValue);
+	}
+
+	@Override
+	public SmtExpr visit(StringUnaryExpression e, Void arg) {
+		Operator op = e.getOperator();
+		switch (op) {
+		case TRIM:
+		case TOLOWERCASE:
+		case TOUPPERCASE: {
+			String stringValue = e.getConcreteValue();
+			return SmtExprBuilder.mkStringConstant(stringValue);
+		}
+		default:
+			throw new UnsupportedOperationException("Not implemented yet! " + op);
+		}
+	}
+
+	@Override
+	public SmtExpr visit(StringUnaryToIntegerExpression e, Void arg) {
+		SmtExpr innerString = e.getOperand().accept(this, null);
+		if (innerString == null) {
+			return null;
+		}
+		if (!innerString.isSymbolic()) {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+	
+		Operator op = e.getOperator();
+		switch (op) {
+		case LENGTH: {
+			return SmtExprBuilder.mkStringLength(innerString);
+		}
+		case IS_INTEGER: {
+			long longValue = e.getConcreteValue();
+			return SmtExprBuilder.mkIntConstant(longValue);
+		}
+		default:
+			throw new UnsupportedOperationException("Not implemented yet!");
+		}
+	}
+
+	@Override
+	public SmtExpr visit(StringVariable e, Void arg) {
+		String varName = e.getName();
+		return SmtExprBuilder.mkStringVariable(varName);
 	}
 
 

@@ -17,20 +17,20 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.z3str2;
+package org.evosuite.symbolic.solver.z3;
 
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.TestSolverReader;
-import org.evosuite.symbolic.solver.z3str2.Z3Str2Solver;
+import org.evosuite.symbolic.solver.TestSolverTokenizer;
 import org.junit.Test;
 
-public class TestZ3Str2StringReader {
+public class TestZ3StringTokenizer extends TestZ3 {
+
 
 	@Test
-	public void testStringReader() throws SecurityException,
+	public void testStringTokenizer() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-		Z3Str2Solver solver = new Z3Str2Solver();
-		TestSolverReader.testStringReader(solver);
+		Z3Solver solver = new Z3Solver();
+		TestSolverTokenizer.testStringTokenizer(solver);
 	}
 
 }

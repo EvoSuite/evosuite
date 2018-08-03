@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.z3str2;
+package org.evosuite.symbolic.solver.z3;
 
 import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertEquals;
@@ -33,17 +33,18 @@ import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.concolic.HardConstraints;
 
-public class TestZ3Str2HardConstraints extends TestZ3Str2 {
+public class TestZ3HardConstraints extends TestZ3 {
 
 	@Test
 	public void test0() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
-		Z3Str2Solver solver = new Z3Str2Solver();
+		Z3Solver solver = new Z3Solver();
 
 		DefaultTestCase tc = buildTestCase0();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
@@ -57,7 +58,7 @@ public class TestZ3Str2HardConstraints extends TestZ3Str2 {
 	
 	@Test
 	public void test1() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
-		Z3Str2Solver solver = new Z3Str2Solver();
+		Z3Solver solver = new Z3Solver();
 
 		DefaultTestCase tc = buildTestCase1();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
@@ -71,7 +72,7 @@ public class TestZ3Str2HardConstraints extends TestZ3Str2 {
 	
 	@Test
 	public void test2() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
-		Z3Str2Solver solver = new Z3Str2Solver();
+		Z3Solver solver = new Z3Solver();
 
 		DefaultTestCase tc = buildTestCase2();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);

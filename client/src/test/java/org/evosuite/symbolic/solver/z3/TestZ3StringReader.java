@@ -17,22 +17,19 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.z3str2;
+package org.evosuite.symbolic.solver.z3;
 
-import java.io.IOException;
-
-import org.evosuite.symbolic.solver.SolverEmptyQueryException;
-import org.evosuite.symbolic.solver.SolverErrorException;
-import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.TestSolverUNSAT;
+import org.evosuite.symbolic.solver.TestSolverReader;
 import org.junit.Test;
 
-public class TestZ3Str2UNSAT extends TestZ3Str2 {
+public class TestZ3StringReader {
+
 	@Test
-	public void testUNSAT() throws SolverTimeoutException, IOException, SolverParseException, SolverEmptyQueryException,
-			SolverErrorException {
-		Z3Str2Solver solver = new Z3Str2Solver();
-		TestSolverUNSAT.testUNSAT(solver);
+	public void testStringReader() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		Z3Solver solver = new Z3Solver();
+		TestSolverReader.testStringReader(solver);
 	}
+
 }

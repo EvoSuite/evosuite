@@ -45,14 +45,14 @@ public class PostCodeValidatorSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testZ3Str2DSE() {
+	public void testZ3DSE() {
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
 		Properties.LOCAL_SEARCH_RATE = 1;
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TESTS;
 		Properties.LOCAL_SEARCH_BUDGET = 100;
 		Properties.SEARCH_BUDGET = 50000;
-		Properties.Z3_STR2_PATH = System.getenv("z3_str2_path");
-		Properties.DSE_SOLVER = SolverType.Z3_STR2_SOLVER;
+		Properties.Z3_PATH = System.getenv("z3_str2_path");
+		Properties.DSE_SOLVER = SolverType.Z3_SOLVER;
 		Properties.RESET_STATIC_FIELD_GETS = true;
 
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
