@@ -19,14 +19,15 @@
  */
 package com.examples.with.different.packagename.solver;
 
-public class TestCaseFloatMod {
+public class TestCaseStringReplaceFirst {
 
-	public static boolean test(double x) {
-		if ((x != 0) && (x == (10.0 % 3.0))) {
-			return true;
-		} else {
-			return false;
+	public static boolean test(String str) {
+		if (str != null) {
+			String replace = str.replaceFirst("x", "y");
+			if (replace.equals("happy")) {
+				return true;
+			}
 		}
+		return true;
 	}
-
 }

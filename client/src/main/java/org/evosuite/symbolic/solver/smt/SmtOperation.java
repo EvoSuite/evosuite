@@ -38,14 +38,14 @@ public final class SmtOperation extends SmtExpr {
 		BVASHR("bvashr"), //
 		BVLSHR("bvlshr"), //
 		GT(">"), //
-		ITE("ite"), // 
-		LT("<"), // 
-		GE(">="), // 
-		REAL2INT("to_int"), // 
+		ITE("ite"), //
+		LT("<"), //
+		GE(">="), //
+		REAL2INT("to_int"), //
 		INT2REAL("to_real"), //
 		DIV("div"), //
 		SLASH("/"), //
-		STR_SUBSTR("str.substr"), // 
+		STR_SUBSTR("str.substr"), //
 		STR_REPLACE("str.replace"), //
 		STR_INDEXOF("str.indexof"), //
 		EQ("="), //
@@ -130,8 +130,7 @@ public final class SmtOperation extends SmtExpr {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(arguments);
-		result = prime * result
-				+ ((operator == null) ? 0 : operator.hashCode());
+		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
 		return result;
 	}
 

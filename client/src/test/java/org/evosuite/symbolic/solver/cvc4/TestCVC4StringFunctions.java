@@ -50,8 +50,6 @@ public class TestCVC4StringFunctions  extends TestCVC4{
 	@Test
 	public void testNegativeLength() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-
 		CVC4Solver solver = new CVC4Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testNegativeLength(solver);
 		assertNull(solution);
@@ -75,21 +73,16 @@ public class TestCVC4StringFunctions  extends TestCVC4{
 	public void testStringAppendString() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringAppendString(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringAppendString(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
 	public void testStringConcat() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
-
-		if (Properties.CVC4_PATH == null) {
-			System.out
-					.println("Warning: cvc4_path should be configured to execute this test case");
-			return;
-		}
-
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringConcat(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringConcat(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
@@ -177,7 +170,8 @@ public class TestCVC4StringFunctions  extends TestCVC4{
 	public void testStringIndexOfChar() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringIndexOfChar(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringIndexOfChar(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
@@ -282,13 +276,15 @@ public class TestCVC4StringFunctions  extends TestCVC4{
 	public void testStringCompareTo() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringCompareTo(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringCompareTo(solver);
+		assertNotNull(solution);
 	}
 	
 	@Test
 	public void testStringEqualsIgnoreCase() throws SecurityException,
 			NoSuchMethodException, SolverTimeoutException {
 		CVC4Solver solver = new CVC4Solver();
-		TestSolverStringFunctions.testStringEqualsIgnoreCase(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringEqualsIgnoreCase(solver);
+		assertNotNull(solution);
 	}
 }

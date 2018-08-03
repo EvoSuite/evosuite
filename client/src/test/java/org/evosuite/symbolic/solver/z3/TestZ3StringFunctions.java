@@ -35,11 +35,9 @@ import org.junit.Test;
 public class TestZ3StringFunctions extends TestZ3 {
 
 	@Test
-	public void testStringLength() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringLength() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		Map<String, Object> solution = TestSolverStringFunctions
-				.testStringLength(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringLength(solver);
 		assertNotNull(solution);
 		String var0 = (String) solution.get("var0");
 
@@ -49,21 +47,17 @@ public class TestZ3StringFunctions extends TestZ3 {
 	}
 
 	@Test
-	public void testNegativeLength() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testNegativeLength() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		Map<String, Object> solution = TestSolverStringFunctions
-				.testNegativeLength(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testNegativeLength(solver);
 		assertNull(solution);
 
 	}
 
 	@Test
-	public void testStringEquals() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringEquals() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		Map<String, Object> solution = TestSolverStringFunctions
-				.testStringEquals(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringEquals(solver);
 		assertNotNull(solution);
 		String var0 = (String) solution.get("var0");
 
@@ -73,25 +67,23 @@ public class TestZ3StringFunctions extends TestZ3 {
 	}
 
 	@Test
-	public void testStringAppendString() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringAppendString() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringAppendString(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringAppendString(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringConcat() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringConcat() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringConcat(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringConcat(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringNotEquals() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringNotEquals() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		Map<String, Object> solution = TestSolverStringFunctions
-				.testStringNotEquals(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringNotEquals(solver);
 		assertNotNull(solution);
 		String var0 = (String) solution.get("var0");
 
@@ -101,11 +93,9 @@ public class TestZ3StringFunctions extends TestZ3 {
 	}
 
 	@Test
-	public void testStringStartsWith() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringStartsWith() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		Map<String, Object> solution = TestSolverStringFunctions
-				.testStringStartsWith(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringStartsWith(solver);
 
 		assertNotNull(solution);
 		String var0 = (String) solution.get("var0");
@@ -118,20 +108,17 @@ public class TestZ3StringFunctions extends TestZ3 {
 	}
 
 	@Test
-	public void testStringStartsWithIndex() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringStartsWithIndex() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringStartsWithIndex(solver);
-
+		Map<String, Object> solution = TestSolverStringFunctions.testStringStartsWithIndex(solver);
+		assertNotNull(solution);
 		// The solution can be UNSAT since the StartsWith has no index in Z3-str
 	}
 
 	@Test
-	public void testStringEndsWith() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringEndsWith() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		Map<String, Object> solution = TestSolverStringFunctions
-				.testStringEndsWith(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringEndsWith(solver);
 		assertNotNull(solution);
 		String var0 = (String) solution.get("var0");
 
@@ -142,8 +129,7 @@ public class TestZ3StringFunctions extends TestZ3 {
 	}
 
 	@Test
-	public void testStringCharAt() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringCharAt() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringCharAt(solver);
 		assertNotNull(solution);
@@ -156,8 +142,7 @@ public class TestZ3StringFunctions extends TestZ3 {
 	}
 
 	@Test
-	public void testStringContains() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringContains() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringContains(solver);
 		assertNotNull(solution);
@@ -170,114 +155,124 @@ public class TestZ3StringFunctions extends TestZ3 {
 	}
 
 	@Test
-	public void testStringIndexOfChar() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringIndexOfChar() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringIndexOfChar(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringIndexOfChar(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringIndexOfCharInt() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringIndexOfCharInt() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringIndexOfCharInt(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringIndexOfCharInt(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringIndexOfString() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringIndexOfString() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringIndexOfString(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringIndexOfString(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringIndexOfStringInt() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringIndexOfStringInt() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringIndexOfStringInt(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringIndexOfStringInt(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringTrim() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringTrim() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringTrim(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringTrim(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringLowerCase() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringLowerCase() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringLowerCase(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringLowerCase(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringUpperCase() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringUpperCase() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringUpperCase(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringUpperCase(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringLastIndexOfChar() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringLastIndexOfChar() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringLastIndexOfChar(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringLastIndexOfChar(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringLastIndexOfCharInt() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringLastIndexOfCharInt() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringLastIndexOfCharInt(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringLastIndexOfCharInt(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringLastIndexOfString() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringLastIndexOfString() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringLastIndexOfString(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringLastIndexOfString(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringLastIndexOfStringInt() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringLastIndexOfStringInt()
+			throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringLastIndexOfStringInt(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringLastIndexOfStringInt(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringSubstring() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringSubstring() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringSubstring(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringSubstring(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringSubstringFromTo() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringSubstringFromTo() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringSubstringFromTo(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringSubstringFromTo(solver);
+		assertNotNull(solution);
+	}
+
+	
+	@Test
+	public void testStringReplaceFirst() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+		Z3Solver solver = new Z3Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringReplaceFirst(solver);
+		assertNotNull(solution);
+	}
+	
+	@Test
+	public void testStringReplaceChar() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+		Z3Solver solver = new Z3Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringReplaceChar(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringReplaceChar() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringReplaceCharSequence()
+			throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringReplaceChar(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringReplaceCharSequence(solver);
+		assertNotNull(solution);
 	}
 
 	@Test
-	public void testStringReplaceCharSequence() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
+	public void testStringCompareTo() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringReplaceCharSequence(solver);
-	}
-
-	@Test
-	public void testStringCompareTo() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverStringFunctions.testStringCompareTo(solver);
+		Map<String, Object> solution = TestSolverStringFunctions.testStringCompareTo(solver);
+		assertNotNull(solution);
 	}
 }

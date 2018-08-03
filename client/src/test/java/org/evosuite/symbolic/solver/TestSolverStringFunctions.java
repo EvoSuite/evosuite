@@ -58,6 +58,7 @@ import com.examples.with.different.packagename.solver.TestCaseStringLowerCase;
 import com.examples.with.different.packagename.solver.TestCaseStringNotEquals;
 import com.examples.with.different.packagename.solver.TestCaseStringReplaceChar;
 import com.examples.with.different.packagename.solver.TestCaseStringReplaceCharSequence;
+import com.examples.with.different.packagename.solver.TestCaseStringReplaceFirst;
 import com.examples.with.different.packagename.solver.TestCaseStringStartsWith;
 import com.examples.with.different.packagename.solver.TestCaseStringStartsWithIndex;
 import com.examples.with.different.packagename.solver.TestCaseStringSubstring;
@@ -631,6 +632,18 @@ public class TestSolverStringFunctions {
 		return tc.getDefaultTestCase();
 	}
 
+	private static DefaultTestCase buildTestReplaceFirst()
+			throws SecurityException, NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("happx");
+
+		Method method = TestCaseStringReplaceFirst.class.getMethod(
+				"test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	
 	private static DefaultTestCase buildTestReplaceCharSequence()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -664,6 +677,18 @@ public class TestSolverStringFunctions {
 		return solution;
 	}
 
+	
+	public static Map<String, Object> testStringReplaceFirst(
+			Solver solver) throws SecurityException, NoSuchMethodException,
+			SolverTimeoutException {
+
+		DefaultTestCase tc = buildTestReplaceFirst();
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
+				.execute(tc);
+		Map<String, Object> solution = solve(solver,constraints);
+		return solution;
+	}
+	
 	private static DefaultTestCase buildTestCompareTo()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();

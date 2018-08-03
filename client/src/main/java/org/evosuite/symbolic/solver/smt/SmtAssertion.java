@@ -31,4 +31,10 @@ public final class SmtAssertion {
 		return formula;
 	}
 
+	public String toString() {
+		SmtQueryPrinter printer = new SmtQueryPrinter();
+		String str = printer.print(this);
+		return str;
+	}
+	
 }

@@ -44,7 +44,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 	@Override
 	public Object visit(IntegerConstraint n, Void arg) {
 
-		ExpressionExecutor visitor = new ExpressionExecutor();
+		ExpressionEvaluator visitor = new ExpressionEvaluator();
 		long leftVal = (Long) n.getLeftOperand().accept(visitor, null);
 		long rightVal = (Long) n.getRightOperand().accept(visitor, null);
 
@@ -154,7 +154,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 
 	@Override
 	public Object visit(RealConstraint n, Void arg) {
-		ExpressionExecutor visitor = new ExpressionExecutor();
+		ExpressionEvaluator visitor = new ExpressionEvaluator();
 		double left = (Double) n.getLeftOperand().accept(visitor, null);
 		double right = (Double) n.getRightOperand().accept(visitor, null);
 
@@ -233,7 +233,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 				Expression<?> theSymbolicIndex = right_constant;
 
 				// check theString.lenght>0
-				ExpressionExecutor exprExecutor = new ExpressionExecutor();
+				ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 				String theConcreteString = (String) theSymbolicString.accept(exprExecutor, null);
 				Long theConcreteIndex = (Long) theSymbolicIndex.accept(exprExecutor, null);
 				if (theConcreteIndex > theConcreteString.length() - 1) {
@@ -252,7 +252,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 	}
 
 	private static long getDistanceRegex(IntegerConstraint n, long leftVal, long rightVal) {
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 
 		if (n.getLeftOperand() instanceof IntegerUnaryExpression) {
 			if (((IntegerUnaryExpression) n.getLeftOperand()).getOperator() == Operator.ISDIGIT) {
@@ -304,7 +304,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 
 	private static long getDistanceIndexOfCFound(IntegerConstraint n, long leftVal, long rightVal) {
 
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 
 		if (n.getLeftOperand() instanceof StringBinaryToIntegerExpression && n.getComparator() == Comparator.NE
 				&& n.getRightOperand() instanceof IntegerConstant) {
@@ -343,7 +343,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 
 	private static long getDistanceIndexOfCIEqualsK(IntegerConstraint n, long leftVal, long rightVal) {
 
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 
 		if (n.getLeftOperand() instanceof StringMultipleToIntegerExpression && n.getComparator() == Comparator.EQ
 				&& n.getRightOperand() instanceof IntegerConstant) {
@@ -379,7 +379,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 
 	private static long getDistanceStringReaderLength(IntegerConstraint n, long leftVal, long rightVal) {
 
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 		Expression<?> left = n.getLeftOperand();
 		Expression<?> right = n.getRightOperand();
 		if (left instanceof StringReaderExpr && right instanceof IntegerConstant) {
@@ -437,7 +437,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 	}
 
 	private static long getDistanceIndexOfCIFound(IntegerConstraint n, long leftVal, long rightVal) {
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 
 		if (n.getLeftOperand() instanceof StringMultipleToIntegerExpression && n.getComparator() == Comparator.NE
 				&& n.getRightOperand() instanceof IntegerConstant) {
@@ -485,7 +485,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 		StringValue delimiter = tokenizerExpr.getDelimiter();
 		int nextTokenCount = tokenizerExpr.getNextTokenCount();
 
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 		String concreteString = (String) string.accept(exprExecutor, null);
 		String concreteDelimiter = (String) delimiter.accept(exprExecutor, null);
 
@@ -511,7 +511,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 
 	private static double getStringDistance(StringBinaryComparison comparison) {
 		try {
-			ExpressionExecutor exprExecutor = new ExpressionExecutor();
+			ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 			String first = (String) comparison.getLeftOperand().accept(exprExecutor, null);
 			String second = (String) comparison.getRightOperand().accept(exprExecutor, null);
 
@@ -578,7 +578,7 @@ public class DistanceCalculator implements ConstraintVisitor<Object, Void> {
 
 	private static double getStringDistance(StringMultipleComparison comparison) {
 		try {
-			ExpressionExecutor exprExecutor = new ExpressionExecutor();
+			ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 
 			String first = (String) comparison.getLeftOperand().accept(exprExecutor, null);
 			String second = (String) comparison.getRightOperand().accept(exprExecutor, null);

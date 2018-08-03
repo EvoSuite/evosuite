@@ -35,15 +35,15 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 
 	private final Set<String> stringConstants = new HashSet<String>();
 	private final ExprToCVC4Visitor exprVisitor;
-	
+
 	public ConstraintToCVC4Visitor() {
 		this(false);
 	}
-	
+
 	public ConstraintToCVC4Visitor(boolean rewriteNonLinearConstraints) {
 		this.exprVisitor = new ExprToCVC4Visitor(rewriteNonLinearConstraints);
 	}
-	
+
 	@Override
 	public SmtExpr visit(IntegerConstraint c, Void arg) {
 		Expression<?> leftOperand = c.getLeftOperand();
@@ -52,8 +52,7 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 		return visit(leftOperand, cmp, rightOperand);
 	}
 
-	private SmtExpr visit(Expression<?> leftOperand, Comparator cmp,
-			Expression<?> rightOperand) {
+	private SmtExpr visit(Expression<?> leftOperand, Comparator cmp, Expression<?> rightOperand) {
 		SmtExpr left = leftOperand.accept(exprVisitor, null);
 		SmtExpr right = rightOperand.accept(exprVisitor, null);
 
@@ -77,11 +76,16 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 		Expression<?> leftOperand = c.getLeftOperand();
 		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
-		return visit(leftOperand, cmp, rightOperand);
+
+		SmtExpr equalsExpr = translateCompareTo(leftOperand , cmp, rightOperand);
+		if (equalsExpr != null) {
+			return equalsExpr;
+		} else {
+			return visit(leftOperand, cmp, rightOperand);
+		}
 	}
 
-	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp,
-			SmtExpr right) {
+	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp, SmtExpr right) {
 		switch (cmp) {
 		case LT: {
 			SmtExpr lt = SmtExprBuilder.mkLt(left, right);
@@ -109,8 +113,7 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 			return ne;
 		}
 		default: {
-			throw new RuntimeException("Unknown comparator for constraint "
-					+ cmp.toString());
+			throw new RuntimeException("Unknown comparator for constraint " + cmp.toString());
 		}
 		}
 	}

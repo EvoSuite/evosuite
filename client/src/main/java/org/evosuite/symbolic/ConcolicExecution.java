@@ -27,7 +27,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.ExpressionExecutor;
+import org.evosuite.symbolic.expr.ExpressionEvaluator;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
@@ -156,7 +156,7 @@ public abstract class ConcolicExecution {
 	private static void logNrOfConstraints(List<BranchCondition> branches) {
 		int nrOfConstraints = 0;
 
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 		for (BranchCondition branchCondition : branches) {
 
 			for (Constraint<?> supporting_constraint : branchCondition.getSupportingConstraints()) {

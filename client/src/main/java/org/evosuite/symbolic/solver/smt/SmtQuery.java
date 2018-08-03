@@ -103,5 +103,11 @@ public final class SmtQuery {
 	public String getOptionValue(String optionName) {
 		return this.options.get(optionName);
 	}
+	
+	public String toString() {
+		SmtQueryPrinter printer = new SmtQueryPrinter();
+		String str = printer.print(this);
+		return str;
+	}
 
 }

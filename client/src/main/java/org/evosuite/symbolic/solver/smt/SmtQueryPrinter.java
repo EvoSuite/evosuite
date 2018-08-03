@@ -38,31 +38,25 @@ public class SmtQueryPrinter {
 		buff.append("\n");
 
 		for (SmtConstantDeclaration constantDeclaration : query.getConstantDeclarations()) {
-			String str = String.format("(declare-const %s %s)", constantDeclaration.getConstantName(),
-					constantDeclaration.getConstantSort());
+			String str = print(constantDeclaration);
 			buff.append(str);
 			buff.append("\n");
 		}
 
 		for (SmtFunctionDeclaration functionDeclaration : query.getFunctionDeclarations()) {
-			String str = String.format("(declare-fun %s () %s)", functionDeclaration.getFunctionName(),
-					functionDeclaration.getFunctionSort());
+			String str = print(functionDeclaration);
 			buff.append(str);
 			buff.append("\n");
 		}
 
 		for (SmtFunctionDefinition functionDeclaration : query.getFunctionDefinitions()) {
-			String str = String.format("(define-fun %s)", functionDeclaration.getFunctionDefinition());
+			String str = print(functionDeclaration);
 			buff.append(str);
 			buff.append("\n");
 		}
 
-		SmtExprPrinter printer = new SmtExprPrinter();
 		for (SmtAssertion smtAssertion : query.getAssertions()) {
-			SmtExpr expr = smtAssertion.getFormula();
-			String exprStr = expr.accept(printer, null);
-
-			String str = String.format("(assert %s)", exprStr);
+			String str = print(smtAssertion);
 			buff.append(str);
 			buff.append("\n");
 		}
@@ -78,5 +72,30 @@ public class SmtQueryPrinter {
 
 		return buff.toString();
 
+	}
+
+	public String print(SmtAssertion smtAssertion) {
+		SmtExprPrinter printer = new SmtExprPrinter();
+		SmtExpr expr = smtAssertion.getFormula();
+		String exprStr = expr.accept(printer, null);
+		String str = String.format("(assert %s)", exprStr);
+		return str;
+	}
+
+	public String print(SmtFunctionDefinition functionDeclaration) {
+		String str = String.format("(define-fun %s)", functionDeclaration.getFunctionDefinition());
+		return str;
+	}
+
+	public String print(SmtFunctionDeclaration functionDeclaration) {
+		String str = String.format("(declare-fun %s () %s)", functionDeclaration.getFunctionName(),
+				functionDeclaration.getFunctionSort());
+		return str;
+	}
+
+	public String print(SmtConstantDeclaration constantDeclaration) {
+		String str = String.format("(declare-const %s %s)", constantDeclaration.getConstantName(),
+				constantDeclaration.getConstantSort());
+		return str;
 	}
 }

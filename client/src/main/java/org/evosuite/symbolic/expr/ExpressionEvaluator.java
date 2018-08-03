@@ -70,11 +70,11 @@ import org.slf4j.LoggerFactory;
  * @author galeotti
  *
  */
-public class ExpressionExecutor implements ExpressionVisitor<Object, Void> {
+public class ExpressionEvaluator implements ExpressionVisitor<Object, Void> {
 
 	private static final long TRUE_VALUE = 1L;
 	private static final long FALSE_VALUE = 0L;
-	protected static final Logger log = LoggerFactory.getLogger(ExpressionExecutor.class);
+	protected static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
 	@Override
 	public Object visit(IntegerBinaryExpression n, Void arg) {

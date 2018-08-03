@@ -541,7 +541,7 @@ final class ExprToCVC4Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			SmtExpr startIndex = right;
 			SmtExpr endIndex = others.get(0);
 			SmtExpr offset = SmtExprBuilder.mkSub(endIndex, startIndex);
-			SmtExpr substring = SmtExprBuilder.mkStrSubstring(left, startIndex, offset);
+			SmtExpr substring = SmtExprBuilder.mkStrSubstr(left, startIndex, offset);
 			return substring;
 		}
 		case REPLACEC: {

@@ -79,24 +79,24 @@ public class Z3Solver extends SmtSolver {
 			variables.addAll(c_variables);
 		}
 
-		SmtQuery smtCheckSatQuery = buildSmtQuery(constraints, hard_timeout);
+		SmtQuery query = buildSmtQuery(constraints, hard_timeout);
 
-		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
+		if (query.getConstantDeclarations().isEmpty()) {
 			logger.debug("Z3 SMT query has no variables");
 			throw new SolverEmptyQueryException("Z3 SMT query has no variables");
 		}
 
-		if (smtCheckSatQuery.getAssertions().isEmpty()) {
+		if (query.getAssertions().isEmpty()) {
 			Map<String, Object> emptySolution = new HashMap<String, Object>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}
 
 		SmtQueryPrinter printer = new SmtQueryPrinter();
-		String smtQueryStr = printer.print(smtCheckSatQuery);
+		String queryStr = printer.print(query);
 
 		logger.debug("Z3 Query:");
-		logger.debug(smtQueryStr);
+		logger.debug(queryStr);
 
 		if (Properties.Z3_PATH == null) {
 			String errMsg = "Property Z3_PATH should be setted in order to use the Z3 Solver!";
@@ -109,7 +109,7 @@ public class Z3Solver extends SmtSolver {
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 		String output;
 		try {
-			launchNewSolvingProcess(z3Cmd, smtQueryStr, (int) hard_timeout, stdout);
+			launchNewSolvingProcess(z3Cmd, queryStr, (int) hard_timeout, stdout);
 			output = stdout.toString("UTF-8");
 		} catch (SolverErrorException ex) {
 			output = stdout.toString("UTF-8");
@@ -132,7 +132,7 @@ public class Z3Solver extends SmtSolver {
 			// check if solution is correct, otherwise return UNSAT
 			boolean check = checkSAT(constraints, result);
 			if (!check) {
-				logger.debug("Z3-str2 solution does not solve the constraint system!");
+				logger.debug("Z3 solution fails to solve the constraint system!");
 				SolverResult unsatResult = SolverResult.newUNSAT();
 				return unsatResult;
 			}
@@ -160,6 +160,29 @@ public class Z3Solver extends SmtSolver {
 			// }
 		}
 		return ret_val;
+	}
+
+	private static String buildIntToCharFunction() {
+		StringBuffer buff = new StringBuffer();
+		buff.append(SmtOperation.Operator.INT_TO_CHAR + "((x!1 Int)) String");
+		buff.append("\n");
+		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
+			char c = (char) i;
+			String str = String.valueOf(c);
+			String encodedStr = encodeString(str);
+			if (i < ASCII_TABLE_LENGTH - 1) {
+				String iteStr = String.format("(ite (= x!1 %s) \"%s\"", i, encodedStr);
+				buff.append(iteStr);
+				buff.append("\n");
+			} else {
+				buff.append("\"" +encodedStr + "\"");
+			}
+		}
+		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
+			buff.append(")");
+		}
+		buff.append("\n");
+		return buff.toString();
 	}
 
 	private static String buildCharToIntFunction() {
@@ -209,13 +232,6 @@ public class Z3Solver extends SmtSolver {
 		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
 		Set<Operator> smtOperators = opCollector.getOperators();
 
-		boolean addCharToIntFunction;
-		if (smtOperators.contains(SmtOperation.Operator.CHAR_TO_INT)) {
-			addCharToIntFunction = true;
-		} else {
-			addCharToIntFunction = false;
-		}
-
 		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(smtVariables);
 
 		for (SmtVariable v1 : smtVariablesToDeclare) {
@@ -234,9 +250,15 @@ public class Z3Solver extends SmtSolver {
 			}
 		}
 
-		if (addCharToIntFunction) {
+		if (smtOperators.contains(SmtOperation.Operator.CHAR_TO_INT)) {
 			String charToInt = buildCharToIntFunction();
 			SmtFunctionDefinition newFunctionDef = new SmtFunctionDefinition(charToInt);
+			query.addFunctionDefinition(newFunctionDef);
+		}
+
+		if (smtOperators.contains(SmtOperation.Operator.INT_TO_CHAR)) {
+			String intToChar = buildIntToCharFunction();
+			SmtFunctionDefinition newFunctionDef = new SmtFunctionDefinition(intToChar);
 			query.addFunctionDefinition(newFunctionDef);
 		}
 

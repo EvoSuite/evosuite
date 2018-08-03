@@ -587,7 +587,7 @@ public class TestSolverFloats {
 	private static DefaultTestCase buildTestCaseFloatMod()
 			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference double0 = tc.appendDoublePrimitive(2.2 % 2.0);
+		VariableReference double0 = tc.appendDoublePrimitive(10.0 % 3.0);
 
 		Method method = TestCaseFloatMod.class.getMethod("test", double.class);
 		tc.appendMethod(null, method, double0);
@@ -660,7 +660,7 @@ public class TestSolverFloats {
 		assertNotNull(solution);
 		Double var0 = (Double) solution.get("var0");
 
-		assertEquals(var0.doubleValue(), 2.2 % 2.0, DELTA);
+		assertEquals(1.0,var0.doubleValue(), DELTA);
 	}
 
 }
