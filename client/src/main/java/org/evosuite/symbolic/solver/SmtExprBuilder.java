@@ -328,11 +328,6 @@ public abstract class SmtExprBuilder {
 
 	}
 
-	public static SmtExpr mkContains(SmtExpr left, SmtExpr right) {
-		return new SmtOperation(SmtOperation.Operator.CONTAINS, left, right);
-
-	}
-
 	public static SmtExpr mkStartsWith(SmtExpr left, SmtExpr right) {
 		return new SmtOperation(SmtOperation.Operator.STARTSWITH, left, right);
 	}

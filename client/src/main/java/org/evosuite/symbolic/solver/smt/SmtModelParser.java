@@ -21,10 +21,12 @@ package org.evosuite.symbolic.solver.smt;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.evosuite.symbolic.solver.ResultParser;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
@@ -193,10 +195,59 @@ public final class SmtModelParser extends ResultParser {
 			// \" is found
 		}
 		String stringWithNoQuotes = removeQuotes(strBuilder.toString());
+		String string = decode(stringWithNoQuotes);
 		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
 		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
 
-		return stringWithNoQuotes;
+		return string;
+	}
+
+	private static String decode(String encodedString) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < encodedString.length(); i++) {
+			char c = encodedString.charAt(i);
+			if (c == '\\') {
+				if (i < encodedString.length() - 1) {
+					switch (encodedString.charAt(i + 1)) {
+					case 'b': {
+						builder.append('\b');
+						i++;
+						break;
+					}
+					case 't': {
+						builder.append('\t');
+						i++;
+						break;
+					}
+					case 'n': {
+						builder.append('\n');
+						i++;
+						break;
+					}
+					case '\\': {
+						builder.append('\\');
+						i++;
+						break;
+					}
+					case 'x': {
+						String hexString = encodedString.substring(i + 2, i + 4);
+						int decimal = Integer.parseInt(hexString, 16);
+						builder.append((char) decimal);
+						i = i + 3;
+						break;
+					}
+					default: {
+						builder.append(c);
+					}
+					}
+				}
+
+			} else {
+				builder.append(c);
+			}
+		}
+		return builder.toString();
+
 	}
 
 	private String removeQuotes(String stringWithQuotes) {
@@ -312,7 +363,7 @@ public final class SmtModelParser extends ResultParser {
 		token = consumeTokens(tokenizer, NEW_LINE_TOKEN, BLANK_SPACE_TOKEN);
 		checkExpectedToken(RIGHT_PARENTHESIS_TOKEN, token);
 
-		return  value;
+		return value;
 	}
 
 	private static void checkExpectedToken(String expectedToken, String actualToken) {

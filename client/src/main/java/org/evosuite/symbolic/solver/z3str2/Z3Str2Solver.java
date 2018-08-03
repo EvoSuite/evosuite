@@ -98,10 +98,10 @@ public class Z3Str2Solver extends SmtLibSolver {
 		}
 
 		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(smtVariables);
-		if (addCharToIntFunction) {
-			Set<SmtStringVariable> charVariables = buildCharVariables();
-			smtVariablesToDeclare.addAll(charVariables);
-		}
+//		if (addCharToIntFunction) {
+//			Set<SmtStringVariable> charVariables = buildCharVariables();
+//			smtVariablesToDeclare.addAll(charVariables);
+//		}
 
 		List<SmtConstantDeclaration> constantDeclarations = new LinkedList<SmtConstantDeclaration>();
 
@@ -174,7 +174,6 @@ public class Z3Str2Solver extends SmtLibSolver {
 			output = stdout.toString("UTF-8");
 		} catch (SolverErrorException ex) {
 			output = stdout.toString("UTF-8");
-			output = stdout.toString("UTF-8");
 			if (!output.startsWith("unsat")) {
 				throw ex;
 			}
@@ -199,9 +198,7 @@ public class Z3Str2Solver extends SmtLibSolver {
 				return unsatResult;
 			}
 		}
-
 		return result;
-
 	}
 
 	private final static int ASCII_TABLE_LENGTH = 90;
@@ -228,7 +225,7 @@ public class Z3Str2Solver extends SmtLibSolver {
 			String str = String.valueOf(c);
 			String encodedStr = ExprToZ3Str2Visitor.encodeString(str);
 			if (i < ASCII_TABLE_LENGTH - 1) {
-				String iteStr = String.format("(ite (= x!1 %s) %s", encodedStr, i);
+				String iteStr = String.format("(ite (= x!1 \"%s\") %s", encodedStr, i);
 				buff.append(iteStr);
 				buff.append("\n");
 			} else {

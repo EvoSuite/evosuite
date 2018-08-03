@@ -483,16 +483,16 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		String ret_val = "";
 		for (int i = 0; i < charArray.length; i++) {
 			char c = charArray[i];
-			if (Character.isISOControl(c)) {
+//			if (Character.isISOControl(c)) {
 				if (Integer.toHexString(c).length() == 1) {
 					// padding
-					ret_val += "_x0" + Integer.toHexString(c);
+					ret_val += "\\x0" + Integer.toHexString(c);
 				} else {
-					ret_val += "_x" + Integer.toHexString(c);
+					ret_val += "\\x" + Integer.toHexString(c);
 				}
-			} else {
-				ret_val += c;
-			}
+//			} else {
+//				ret_val += c;
+//			}
 		}
 		return ret_val;
 	}
@@ -634,7 +634,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return ifThenElseExpr;
 		}
 		case CONTAINS: {
-			SmtExpr containsExpr = SmtExprBuilder.mkContains(left, right);
+			SmtExpr containsExpr = SmtExprBuilder.mkStrContains(left, right);
 			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(containsExpr, SmtExprBuilder.ONE_INT,
 					SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
@@ -683,11 +683,9 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return indexOfExpr;
 		}
 		case CHARAT: {
-			SmtExpr startExpr = right;
-			SmtExpr lengthExpr = SmtExprBuilder.ONE_INT;
-			SmtExpr charAtExpr = SmtExprBuilder.mkSubstring(left, startExpr, lengthExpr);
-			SmtExpr charToInt = SmtExprBuilder.mkCharToInt(charAtExpr);
-			return charToInt;
+			SmtExpr charAtExpr = SmtExprBuilder.mkStrAt(left, right);
+			SmtExpr strToInt = SmtExprBuilder.mkCharToInt(charAtExpr);
+			return strToInt;
 		}
 		case INDEXOFC:
 		case LASTINDEXOFC:
