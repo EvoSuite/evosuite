@@ -33,7 +33,7 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
-import org.evosuite.symbolic.solver.SmtLibSolver;
+import org.evosuite.symbolic.solver.SmtSolver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
@@ -57,7 +57,7 @@ import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CVC4Solver extends SmtLibSolver {
+public final class CVC4Solver extends SmtSolver {
 
 	private boolean reWriteNonLinearConstraints = false;
 

@@ -22,6 +22,7 @@ package org.evosuite.symbolic.solver.z3str2;
 import static org.evosuite.symbolic.solver.TestSolver.solve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -76,11 +77,7 @@ public class TestZ3Str2HardConstraints extends TestZ3Str2 {
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
 		assertTrue(!constraints.isEmpty());
 		Map<String, Object> solution = solve(solver, constraints);
-		assertNotNull(solution);
-
-		Double int0 = (Double) solution.get("var0");
-		assertTrue(3.1416F>=int0.floatValue());
-		assertTrue(3.1415F<=int0.floatValue());
+		assertNull(solution);
 	}
 
 	private DefaultTestCase buildTestCase0() throws NoSuchMethodException, SecurityException {

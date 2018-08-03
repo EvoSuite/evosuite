@@ -27,13 +27,13 @@ import org.apache.commons.exec.ExecuteException;
 import org.evosuite.utils.ProcessLauncher;
 import org.evosuite.utils.ProcessTimeoutException;
 
-public abstract class SmtLibSolver extends Solver {
+public abstract class SmtSolver extends Solver {
 
-	public SmtLibSolver(boolean addMissingVariables) {
+	public SmtSolver(boolean addMissingVariables) {
 		super(addMissingVariables);
 	}
 
-	public SmtLibSolver() {
+	public SmtSolver() {
 		super();
 	}
 
