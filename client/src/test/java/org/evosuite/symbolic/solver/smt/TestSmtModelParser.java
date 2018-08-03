@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.cvc4;
+package org.evosuite.symbolic.solver.smt;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -26,33 +26,50 @@ import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.smt.SmtModelParser;
 import org.junit.Test;
 
-public class TestCVC4ResultParser {
+public class TestSmtModelParser {
 
 	@Test
+	public void parseIntegerValues() throws SolverParseException, SolverErrorException, SolverTimeoutException {
+		StringBuilder buff = new StringBuilder();
+		buff.append("sat\n");
+		buff.append("(model\n");
+		buff.append("(define-fun var0 () Int 0)\n");
+		buff.append("(define-fun var1 () Int 10)\n");
+		buff.append(")\n");
+		String result_str = buff.toString();
+		SmtModelParser parser = new SmtModelParser();
+		SolverResult solution = parser.parse(result_str);
+		assertTrue(solution.isSAT());
+		assertEquals(new Long(0), solution.getValue("var0"));
+		assertEquals(new Long(10), solution.getValue("var1"));
+	}
+	
+	@Test
 	public void parseBlankStringSolution() throws SolverParseException, SolverErrorException, SolverTimeoutException {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		buff.append("sat\n");
 		buff.append("(model\n");
 		buff.append("(define-fun var8 () String \" \")\n");
 		buff.append(")\n");
 		String result_str = buff.toString();
-		CVC4ResultParser parser = new CVC4ResultParser();
+		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
 		assertEquals(" ", solution.getValue("var8"));
 	}
-	
+
 	@Test
 	public void parseEmptyStringSolution() throws SolverParseException, SolverErrorException, SolverTimeoutException {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		buff.append("sat\n");
 		buff.append("(model\n");
 		buff.append("(define-fun var8 () String \"\")\n");
 		buff.append(")\n");
 		String result_str = buff.toString();
-		CVC4ResultParser parser = new CVC4ResultParser();
+		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
 		assertEquals("", solution.getValue("var8"));
@@ -60,27 +77,28 @@ public class TestCVC4ResultParser {
 
 	@Test
 	public void parseSingleStringSolution() throws SolverParseException, SolverErrorException, SolverTimeoutException {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		buff.append("sat\n");
 		buff.append("(model\n");
 		buff.append("(define-fun var8 () String \"Hello\")\n");
 		buff.append(")\n");
 		String result_str = buff.toString();
-		CVC4ResultParser parser = new CVC4ResultParser();
+		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
 		assertEquals("Hello", solution.getValue("var8"));
 	}
-	
+
 	@Test
-	public void parseSingleLineStringSolution() throws SolverParseException, SolverErrorException, SolverTimeoutException {
-		StringBuffer buff = new StringBuffer();
+	public void parseSingleLineStringSolution()
+			throws SolverParseException, SolverErrorException, SolverTimeoutException {
+		StringBuilder buff = new StringBuilder();
 		buff.append("sat\n");
 		buff.append("(model\n");
 		buff.append("(define-fun var8 () String \"Hello World\")\n");
 		buff.append(")\n");
 		String result_str = buff.toString();
-		CVC4ResultParser parser = new CVC4ResultParser();
+		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
 		assertEquals("Hello World", solution.getValue("var8"));
@@ -88,16 +106,49 @@ public class TestCVC4ResultParser {
 
 	@Test
 	public void parseMultiLineSolution() throws SolverParseException, SolverErrorException, SolverTimeoutException {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		buff.append("sat\n");
 		buff.append("(model\n");
 		buff.append("(define-fun var8 () String \"Hello\nBeautiful\nWorld\")\n");
 		buff.append(")\n");
 		String result_str = buff.toString();
-		CVC4ResultParser parser = new CVC4ResultParser();
+		SmtModelParser parser = new SmtModelParser();
 		SolverResult solution = parser.parse(result_str);
 		assertTrue(solution.isSAT());
 		assertEquals("Hello\nBeautiful\nWorld", solution.getValue("var8"));
 	}
 
+	@Test
+	public void parseRealZeroValues() throws SolverParseException, SolverErrorException, SolverTimeoutException {
+		StringBuilder buff = new StringBuilder();
+		buff.append("sat\n");
+		buff.append("(model\n");
+		buff.append("  (define-fun var0 () Real 0.0 )\n");
+		buff.append("  (define-fun var1 () Real 0.0 )\n");
+		buff.append(")\n");
+		String result_str = buff.toString();
+		SmtModelParser parser = new SmtModelParser();
+		SolverResult solution = parser.parse(result_str);
+		assertTrue(solution.isSAT());
+		assertEquals(new Double(0.0), solution.getValue("var0"));
+		assertEquals(new Double(0.0), solution.getValue("var1"));
+	}
+	
+	@Test
+	public void parseRationalValues() throws SolverParseException, SolverErrorException, SolverTimeoutException {
+		StringBuilder buff = new StringBuilder();
+		buff.append("sat\n");
+		buff.append("(model\n");
+		buff.append("  (define-fun var0 () Real 0.0)\n");
+		buff.append("  (define-fun var1 () Real (/ 3141592653589793 1000000000000000))\n");
+		buff.append(")\n");
+		String result_str = buff.toString();
+		SmtModelParser parser = new SmtModelParser();
+		SolverResult solution = parser.parse(result_str);
+		assertTrue(solution.isSAT());
+		assertEquals(new Double(0.0), solution.getValue("var0"));
+		assertEquals(new Double(Math.PI), solution.getValue("var1"));
+	}
+
+	
 }

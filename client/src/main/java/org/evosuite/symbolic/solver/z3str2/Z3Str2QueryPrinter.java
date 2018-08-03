@@ -28,11 +28,12 @@ import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
 
 class Z3Str2QueryPrinter {
 
-	public String print(SmtCheckSatQuery smtQuery) {
+	public String print(SmtCheckSatQuery smtQuery, long timeout) {
 
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
+		buff.append("(set-option :timeout " + timeout + ")");
 		buff.append("\n");
-
+		
 		for (SmtConstantDeclaration constantDeclaration : smtQuery
 				.getConstantDeclarations()) {
 			String str = String.format("(declare-const %s %s)",

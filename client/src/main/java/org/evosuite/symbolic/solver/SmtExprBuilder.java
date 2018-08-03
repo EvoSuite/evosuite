@@ -341,8 +341,8 @@ public abstract class SmtExprBuilder {
 		return new SmtOperation(SmtOperation.Operator.INDEXOF, left, right);
 	}
 
-	public static SmtExpr mkLength(SmtExpr stringExpr) {
-		return new SmtOperation(SmtOperation.Operator.LENGTH, stringExpr);
+	public static SmtExpr mkStringLength(SmtExpr stringExpr) {
+		return new SmtOperation(SmtOperation.Operator.STR_LEN, stringExpr);
 
 	}
 

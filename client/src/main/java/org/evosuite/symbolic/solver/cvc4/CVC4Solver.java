@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtFunctionDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
+import org.evosuite.symbolic.solver.smt.SmtModelParser;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
 import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
 import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
@@ -128,24 +130,26 @@ public final class CVC4Solver extends SmtLibSolver {
 		logger.debug("CVC4 Query:");
 		logger.debug(smtQueryStr);
 
-		String cvc4Cmd = buildCVC4cmd(cvcTimeout);
+		String cmd = buildCVC4cmd(cvcTimeout);
 
 		try {
-			String cvc4ResultStr = launchNewSolvingProcess(cvc4Cmd, smtQueryStr, (int) cvcTimeout);
+			ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+			launchNewSolvingProcess(cmd, smtQueryStr, (int) cvcTimeout, stdout);
+			String output = stdout.toString("UTF-8");
 
-			if (cvc4ResultStr.startsWith("unknown")) {
+			if (output.startsWith("unknown")) {
 				logger.debug("timeout reached when using cvc4");
 				throw new SolverTimeoutException();
 			}
 
-			if (cvc4ResultStr.startsWith("unsat") && cvc4ResultStr.contains(
+			if (output.startsWith("unsat") && output.contains(
 					"(error \"Cannot get the current model unless immediately preceded by SAT/INVALID or UNKNOWN response.\")")) {
 				// UNSAT
 				SolverResult unsatResult = SolverResult.newUNSAT();
 				return unsatResult;
 			}
 
-			if (cvc4ResultStr.contains("error")) {
+			if (output.contains("error")) {
 				String errMsg = "An error occurred while executing CVC4!";
 				logger.error(errMsg);
 				throw new SolverErrorException(errMsg);
@@ -153,13 +157,13 @@ public final class CVC4Solver extends SmtLibSolver {
 
 			// parse solution
 			Map<String, Object> initialValues = getConcreteValues(variables);
-			CVC4ResultParser resultParser;
+			SmtModelParser resultParser;
 			if (addMissingVariables()) {
-				resultParser = new CVC4ResultParser(initialValues);
+				resultParser = new SmtModelParser(initialValues);
 			} else {
-				resultParser = new CVC4ResultParser();
+				resultParser = new SmtModelParser();
 			}
-			SolverResult solverResult = resultParser.parse(cvc4ResultStr);
+			SolverResult solverResult = resultParser.parse(output);
 
 			if (solverResult.isSAT()) {
 				// check if the found solution is useful

@@ -20,8 +20,8 @@
 package org.evosuite.symbolic.solver;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.apache.commons.exec.ExecuteException;
 import org.evosuite.utils.ProcessLauncher;
@@ -40,18 +40,17 @@ public abstract class SmtLibSolver extends Solver {
 	/**
 	 * 
 	 * @param solverCmd
-	 * @param smtCheckSATQueryStr
+	 * @param smtQueryStr
 	 * @param hardTimeout
 	 * @return
 	 * @throws IOException
 	 * @throws SolverTimeoutException
 	 * @throws SolverErrorException
 	 */
-	protected static String launchNewSolvingProcess(String solverCmd, String smtCheckSATQueryStr, int hardTimeout)
+	protected static void launchNewSolvingProcess(String solverCmd, String smtQueryStr, int hardTimeout, OutputStream stdout)
 			throws IOException, SolverTimeoutException, SolverErrorException {
 
-		ByteArrayInputStream input = new ByteArrayInputStream(smtCheckSATQueryStr.getBytes());
-		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+		ByteArrayInputStream input = new ByteArrayInputStream(smtQueryStr.getBytes());
 
 		ProcessLauncher launcher = new ProcessLauncher(stdout, input);
 
@@ -60,9 +59,8 @@ public abstract class SmtLibSolver extends Solver {
 			int exit_code = launcher.launchNewProcess(solverCmd, hardTimeout);
 			
 			if (exit_code == 0) {
-				String solverOutput = stdout.toString("UTF-8");
 				logger.debug("Solver execution finished normally");
-				return solverOutput;
+				return;
 			} else {
 				String errMsg = String.format("Solver execution finished abnormally with exit code {}", exit_code);
 				logger.debug(errMsg);

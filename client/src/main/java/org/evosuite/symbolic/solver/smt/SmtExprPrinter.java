@@ -54,7 +54,8 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtStringConstant n, Void arg) {
-		return "\"" + n.getConstantValue() + "\"";
+		String str = encodeString(n.getConstantValue());
+		return "\"" + str + "\"";
 	}
 
 	@Override
@@ -105,6 +106,25 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		} else {
 			return "false";
 		}
+	}
+
+	public static String encodeString(String str) {
+		char[] charArray = str.toCharArray();
+		String ret_val = "";
+		for (int i = 0; i < charArray.length; i++) {
+			char c = charArray[i];
+			if (Character.isISOControl(c)) {
+				if (Integer.toHexString(c).length() == 1) {
+					// padding
+					ret_val += "_x0" + Integer.toHexString(c);
+				} else {
+					ret_val += "_x" + Integer.toHexString(c);
+				}
+			} else {
+				ret_val += c;
+			}
+		}
+		return ret_val;
 	}
 
 }

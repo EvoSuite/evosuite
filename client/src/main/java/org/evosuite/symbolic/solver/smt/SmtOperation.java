@@ -77,9 +77,9 @@ public final class SmtOperation extends SmtExpr {
 		CONCAT("Concat"), //
 		REPLACE("Replace"), //
 		SUBSTRING("Substring"), //
-		ENDSWITH("EndsWith"), //
+		ENDSWITH("Endswith"), //
 		CONTAINS("Contains"), //
-		STARTSWITH("StartsWith"), //
+		STARTSWITH("StarsWith"), //
 		INDEXOF("Indexof"), //
 		LENGTH("Length");
 

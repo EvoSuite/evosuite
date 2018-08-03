@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.solver.z3;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import org.evosuite.symbolic.solver.smt.SmtAssertion;
 import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.symbolic.solver.smt.SmtModelParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,17 +101,27 @@ public class Z3Solver extends SmtLibSolver {
 
 		String z3Cmd = Properties.Z3_PATH + " -smt2 -in ";
 
-		String z3ResultStr = launchNewSolvingProcess(z3Cmd, smtQueryStr, (int) hard_timeout);
-
-		Map<String, Object> initialValues = getConcreteValues(variables);
-		Z3ResultParser resultParser;
-		if (this.addMissingVariables()) {
-			resultParser = new Z3ResultParser(initialValues);
-		} else {
-			resultParser = new Z3ResultParser();
+		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
+		String output;
+		try {
+			launchNewSolvingProcess(z3Cmd, smtQueryStr, (int) hard_timeout, stdout);
+			output = stdout.toString("UTF-8");
+		} catch (SolverErrorException ex) {
+			output = stdout.toString("UTF-8");
+			if (!output.startsWith("unsat")) {
+				throw ex;
+			}
 		}
 
-		SolverResult result = resultParser.parseResult(z3ResultStr);
+		Map<String, Object> initialValues = getConcreteValues(variables);
+		SmtModelParser parser;
+		if (this.addMissingVariables()) {
+			parser = new SmtModelParser(initialValues);
+		} else {
+			parser = new SmtModelParser();
+		}
+
+		SolverResult result = parser.parse(output);
 
 		if (result.isSAT()) {
 			// check if solution is correct, otherwise return UNSAT

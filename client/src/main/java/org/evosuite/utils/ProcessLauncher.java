@@ -81,9 +81,6 @@ public class ProcessLauncher {
 				logger.debug("A timeout occured while executing a process");
 				logger.debug("The command is " + cmdString);
 				throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
-			} else if (this.outAndErr.toString().startsWith("unsat")) {
-				logger.debug("Z3 correctly found UNSAT result");
-				return 0;
 			} else {
 				throw ex;
 			}

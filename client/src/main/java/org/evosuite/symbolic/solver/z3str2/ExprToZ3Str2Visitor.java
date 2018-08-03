@@ -188,7 +188,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	@Override
 	public SmtExpr visit(IntegerToStringCast e, Void v) {
 		String stringValue = e.getConcreteValue();
-		return mkStringConstant(stringValue);
+		return SmtExprBuilder.mkStringConstant(stringValue);
 	}
 
 	@Override
@@ -443,7 +443,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 
 		if (!left.isSymbolic() && !right.isSymbolic()) {
 			String stringValue = e.getConcreteValue();
-			return mkStringConstant(stringValue);
+			return SmtExprBuilder.mkStringConstant(stringValue);
 		}
 
 		switch (op) {
@@ -452,18 +452,18 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case APPEND_INTEGER: {
 			long longValue = (Long) e.getRightOperand().getConcreteValue();
 			String concreteRight = String.valueOf(longValue);
-			SmtExpr concreteRightConstant = mkStringConstant(concreteRight);
-			return SmtExprBuilder.mkConcat(left, concreteRightConstant);
+			SmtExpr concreteRightConstant = SmtExprBuilder.mkStringConstant(concreteRight);
+			return SmtExprBuilder.mkStrConcat(left, concreteRightConstant);
 		}
 		case APPEND_REAL: {
 			double doubleValue = (Double) e.getRightOperand().getConcreteValue();
 			String concreteRight = String.valueOf(doubleValue);
-			SmtExpr concreteRightConstant = mkStringConstant(concreteRight);
-			return SmtExprBuilder.mkConcat(left, concreteRightConstant);
+			SmtExpr concreteRightConstant = SmtExprBuilder.mkStringConstant(concreteRight);
+			return SmtExprBuilder.mkStrConcat(left, concreteRightConstant);
 		}
 		case APPEND_STRING:
 		case CONCAT: {
-			return SmtExprBuilder.mkConcat(left, right);
+			return SmtExprBuilder.mkStrConcat(left, right);
 		}
 		default: {
 			throw new UnsupportedOperationException("Not implemented yet! " + op);
@@ -475,29 +475,26 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	@Override
 	public SmtExpr visit(StringConstant n, Void arg) {
 		String stringValue = n.getConcreteValue();
-		return mkStringConstant(stringValue);
+		return SmtExprBuilder.mkStringConstant(stringValue);
 	}
 
 	public static String encodeString(String str) {
 		char[] charArray = str.toCharArray();
-		String ret_val = "__cOnStStR_";
+		String ret_val = "";
 		for (int i = 0; i < charArray.length; i++) {
 			char c = charArray[i];
-			if (c >= 0 && c <= 255) {
+			if (Character.isISOControl(c)) {
 				if (Integer.toHexString(c).length() == 1) {
 					// padding
 					ret_val += "_x0" + Integer.toHexString(c);
 				} else {
 					ret_val += "_x" + Integer.toHexString(c);
 				}
+			} else {
+				ret_val += c;
 			}
 		}
 		return ret_val;
-	}
-
-	private static SmtExpr mkStringConstant(String stringValue) {
-		String encodedStr = encodeString(stringValue);
-		return SmtExprBuilder.mkStringVariable(encodedStr);
 	}
 
 	@Override
@@ -533,7 +530,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			}
 			if (!isSymbolic) {
 				String stringValue = e.getConcreteValue();
-				return mkStringConstant(stringValue);
+				return SmtExprBuilder.mkStringConstant(stringValue);
 			}
 		}
 
@@ -557,7 +554,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case REPLACEALL:
 		case REPLACEFIRST: {
 			String stringValue = e.getConcreteValue();
-			return mkStringConstant(stringValue);
+			return SmtExprBuilder.mkStringConstant(stringValue);
 		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet! " + op);
@@ -573,7 +570,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		case TOLOWERCASE:
 		case TOUPPERCASE: {
 			String stringValue = e.getConcreteValue();
-			return mkStringConstant(stringValue);
+			return SmtExprBuilder.mkStringConstant(stringValue);
 		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet! " + op);
@@ -596,7 +593,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	@Override
 	public SmtExpr visit(StringNextTokenExpr n, Void arg) {
 		String stringValue = n.getConcreteValue();
-		return mkStringConstant(stringValue);
+		return SmtExprBuilder.mkStringConstant(stringValue);
 	}
 
 	@Override
@@ -631,7 +628,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return ifThenElseExpr;
 		}
 		case ENDSWITH: {
-			SmtExpr endsWithExpr = SmtExprBuilder.mkEndsWith(left, right);
+			SmtExpr endsWithExpr = SmtExprBuilder.mkStrSuffixOf(right, left);
 			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(endsWithExpr, SmtExprBuilder.ONE_INT,
 					SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
@@ -643,7 +640,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 			return ifThenElseExpr;
 		}
 		case STARTSWITH: {
-			SmtExpr startsWithExpr = SmtExprBuilder.mkStartsWith(left, right);
+			SmtExpr startsWithExpr = SmtExprBuilder.mkStrPrefixOf(right, left);
 			SmtExpr eqTrue = SmtExprBuilder.mkEq(startsWithExpr, SmtExprBuilder.TRUE);
 			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(eqTrue, SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
@@ -748,7 +745,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		switch (op) {
 		case STARTSWITH: {
 			// discard index (over-approximate solution)
-			SmtExpr startsWithExpr = SmtExprBuilder.mkStartsWith(left, right);
+			SmtExpr startsWithExpr = SmtExprBuilder.mkStrPrefixOf(right, left);
 			SmtExpr ifThenElseExpr = SmtExprBuilder.mkITE(startsWithExpr, SmtExprBuilder.ONE_INT,
 					SmtExprBuilder.ZERO_INT);
 			return ifThenElseExpr;
@@ -809,7 +806,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 		Operator op = e.getOperator();
 		switch (op) {
 		case LENGTH: {
-			return SmtExprBuilder.mkLength(innerString);
+			return SmtExprBuilder.mkStringLength(innerString);
 		}
 		case IS_INTEGER: {
 			long longValue = e.getConcreteValue();
@@ -823,7 +820,7 @@ class ExprToZ3Str2Visitor implements ExpressionVisitor<SmtExpr, Void> {
 	@Override
 	public SmtExpr visit(RealToStringCast n, Void arg) {
 		String stringValue = n.getConcreteValue();
-		return mkStringConstant(stringValue);
+		return SmtExprBuilder.mkStringConstant(stringValue);
 	}
 
 	@Override
