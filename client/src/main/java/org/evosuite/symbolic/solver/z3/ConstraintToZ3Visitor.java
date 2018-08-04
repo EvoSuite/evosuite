@@ -61,7 +61,7 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<SmtExpr, Void> {
 		return mkComparison(leftExpr, cmp, rightExpr);
 	}
 
-	public static SmtExpr translateCompareTo(Expression<?> left, Comparator cmp, Expression<?> right) {
+	private static SmtExpr translateCompareTo(Expression<?> left, Comparator cmp, Expression<?> right) {
 		
 		if (!(left instanceof StringBinaryToIntegerExpression)) {
 			return null;
