@@ -63,16 +63,19 @@ public final class SmtOperation extends SmtExpr {
 		STR_TO_INT("str.to.int"), //
 		ABS("abs"), //
 		BVADD("bvadd"), //
-		STR_IN_REG_EXP("str.in.re"), //
-		STR_TO_REG_EXP("str.to.re"), //
-		REG_EXP_CONCAT("re.++"), //
-		REG_EXP_KLEENE_STAR("re.*"), //
-		REG_EXP_UNION("re.union"), //
-		REG_EXP_OPTIONAL("re.opt"), //
-		REG_EXP_ALL_CHAR("re.allchar"), //
-		REG_EXP_KLEENE_CROSS("re.+"), //
-		REG_EXP_LOOP("re.loop"), //
-		REG_EXP_RANGE("re.range"), //
+		// regular expressions
+		STR_IN_RE("str.in.re"), //
+		STR_TO_RE("str.to.re"), //
+		RE_CONCAT("re.++"), //
+		RE_KLEENE_STAR("re.*"), //
+		RE_UNION("re.union"), //
+		RE_OPT("re.opt"), //
+		RE_ALLCHAR("re.allchar"), //
+		RE_KLEENE_CROSS("re.+"), //
+		RE_LOOP("re.loop"), //
+		RE_RANGE("re.range"), //
+		
+		
 		REM("rem"), //
 		CONCAT("Concat"), //
 		REPLACE("Replace"), //

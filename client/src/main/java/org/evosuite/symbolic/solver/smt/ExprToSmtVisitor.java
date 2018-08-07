@@ -311,7 +311,7 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 		if (!operand.isSymbolic()) {
 			return approximateToConcreteValue(e);
 		}
-		return postVisit(e,operand);
+		return postVisit(e, operand);
 
 	}
 
@@ -932,7 +932,21 @@ public class ExprToSmtVisitor implements ExpressionVisitor<SmtExpr, Void> {
 			return SmtExprBuilder.mkStrLen(operand);
 		}
 		case IS_INTEGER: {
-			return approximateToConcreteValue(source);
+			SmtExpr plusRE = SmtExprBuilder.mkStrToRE(SmtExprBuilder.PLUS);
+			SmtExpr minusRE = SmtExprBuilder.mkStrToRE(SmtExprBuilder.MINUS);
+
+			SmtExpr optPlusRE = SmtExprBuilder.mkREOpt(plusRE);
+			SmtExpr optMinusRE = SmtExprBuilder.mkREOpt(minusRE);
+
+			SmtExpr symbols = SmtExprBuilder.mkREUnion(optPlusRE, optMinusRE);
+
+			SmtExpr rangeRE = SmtExprBuilder.mkRERange(SmtExprBuilder.ZERO_STRING, SmtExprBuilder.NINE_STRING);
+			SmtExpr digits = SmtExprBuilder.mkREKleeneCross(rangeRE);
+
+			SmtExpr isIntegerPattern = SmtExprBuilder.mkREConcat(symbols, digits);
+
+			SmtExpr matchesExpr = SmtExprBuilder.mkStrInRE(operand, isIntegerPattern);
+			return SmtExprBuilder.mkITE(matchesExpr, SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
 		}
 		default:
 			throw new UnsupportedOperationException("Not implemented yet!");

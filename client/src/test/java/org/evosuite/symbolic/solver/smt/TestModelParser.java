@@ -29,7 +29,7 @@ import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.smt.SmtModelParser;
 import org.junit.Test;
 
-public class TestSmtModelParser {
+public class TestModelParser {
 
 	@Test
 	public void parseIntegerValues() throws SolverParseException, SolverErrorException, SolverTimeoutException {

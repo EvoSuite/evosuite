@@ -641,16 +641,16 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			return String.valueOf(charAt);
 		}
 
-		case REG_EXP_ALL_CHAR:
-		case REG_EXP_CONCAT:
-		case REG_EXP_KLEENE_CROSS:
-		case REG_EXP_KLEENE_STAR:
-		case REG_EXP_LOOP:
-		case REG_EXP_OPTIONAL:
-		case REG_EXP_RANGE:
-		case REG_EXP_UNION:
-		case STR_IN_REG_EXP:
-		case STR_TO_REG_EXP: {
+		case RE_ALLCHAR:
+		case RE_CONCAT:
+		case RE_KLEENE_CROSS:
+		case RE_KLEENE_STAR:
+		case RE_LOOP:
+		case RE_OPT:
+		case RE_RANGE:
+		case RE_UNION:
+		case STR_IN_RE:
+		case STR_TO_RE: {
 			throw new UnsupportedOperationException("The operation "
 					+ n.getOperator() + " should be implemented!");
 		}

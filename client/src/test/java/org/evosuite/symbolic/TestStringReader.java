@@ -17,9 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver;
+package org.evosuite.symbolic;
 
 import static org.evosuite.symbolic.solver.TestSolver.solve;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -27,15 +28,17 @@ import java.util.Map;
 
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
+import org.junit.Test;
 
 import com.examples.with.different.packagename.solver.TestCaseReader;
 
-public class TestSolverReader {
+public abstract class TestStringReader {
 
-	private static DefaultTestCase buildTestStringReader()
-			throws SecurityException, NoSuchMethodException {
+	private static DefaultTestCase buildTestStringReader() throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 		VariableReference string0 = tc.appendStringPrimitive("Here is Ramon");
 
@@ -44,15 +47,12 @@ public class TestSolverReader {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testStringReader(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
+	@Test
+	public void testStringReader() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildTestStringReader();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+		assertTrue(!constraints.isEmpty());
 	}
 
 }

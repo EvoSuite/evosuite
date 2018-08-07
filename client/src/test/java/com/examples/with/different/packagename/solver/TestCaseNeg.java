@@ -17,19 +17,17 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.z3;
+package com.examples.with.different.packagename.solver;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.TestSolverReader;
-import org.junit.Test;
+public class TestCaseNeg {
 
-public class TestZ3StringReader {
-
-	@Test
-	public void testStringReader() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverReader.testStringReader(solver);
+	public static boolean test(int x) {
+		int neg = -x;
+		if (neg == 10) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

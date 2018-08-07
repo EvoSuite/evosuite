@@ -35,6 +35,18 @@ public abstract class SmtExprBuilder {
 
 	public static final SmtIntConstant ZERO_INT = mkIntConstant(0);
 
+	public static final SmtIntConstant NINE_INT = mkIntConstant(9);
+
+	public static final SmtStringConstant ZERO_STRING = mkStringConstant("0");
+
+	public static final SmtStringConstant NINE_STRING = mkStringConstant("9");
+
+	public static final SmtStringConstant PLUS = mkStringConstant("+");
+
+	public static final SmtStringConstant MINUS = mkStringConstant("-");
+
+	public static final SmtStringConstant BLANK = mkStringConstant("\b");
+
 	public static final SmtRealConstant ZERO_REAL = mkRealConstant(0);
 
 	public static final SmtIntConstant ONE_INT = mkIntConstant(1);
@@ -247,50 +259,50 @@ public abstract class SmtExprBuilder {
 		return new SmtOperation(SmtOperation.Operator.BVADD, left, right);
 	}
 
-	public static SmtExpr mkRegExpConcat(SmtExpr left, SmtExpr right) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_CONCAT, left, right);
+	public static SmtExpr mkREConcat(SmtExpr... args) {
+		return new SmtOperation(SmtOperation.Operator.RE_CONCAT, args);
 
 	}
 
-	public static SmtExpr mkStrToRegExp(SmtStringConstant strConstant) {
-		return new SmtOperation(SmtOperation.Operator.STR_TO_REG_EXP, strConstant);
+	public static SmtExpr mkStrToRE(SmtStringConstant strConstant) {
+		return new SmtOperation(SmtOperation.Operator.STR_TO_RE, strConstant);
 	}
 
-	public static SmtExpr mkReKleeneStar(SmtExpr expr) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_KLEENE_STAR, expr);
+	public static SmtExpr mkREKleeneStar(SmtExpr expr) {
+		return new SmtOperation(SmtOperation.Operator.RE_KLEENE_STAR, expr);
 	}
 
-	public static SmtExpr mkStrInRegExp(SmtExpr left, SmtExpr right) {
-		return new SmtOperation(SmtOperation.Operator.STR_IN_REG_EXP, left, right);
+	public static SmtExpr mkStrInRE(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.STR_IN_RE, left, right);
 	}
 
-	public static SmtExpr mkRegExpUnion(SmtExpr left, SmtExpr right) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_UNION, left, right);
+	public static SmtExpr mkREUnion(SmtExpr left, SmtExpr right) {
+		return new SmtOperation(SmtOperation.Operator.RE_UNION, left, right);
 	}
 
-	public static SmtExpr mkRegExpOptional(SmtExpr e) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_OPTIONAL, e);
+	public static SmtExpr mkREOpt(SmtExpr e) {
+		return new SmtOperation(SmtOperation.Operator.RE_OPT, e);
 	}
 
-	public static SmtExpr mkRegExpAllChar() {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_ALL_CHAR);
+	public static SmtExpr mkREAllChar() {
+		return new SmtOperation(SmtOperation.Operator.RE_ALLCHAR);
 	}
 
-	public static SmtExpr mkRegExpKleeCross(SmtExpr regExpr) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_KLEENE_CROSS, regExpr);
+	public static SmtExpr mkREKleeneCross(SmtExpr regExpr) {
+		return new SmtOperation(SmtOperation.Operator.RE_KLEENE_CROSS, regExpr);
 	}
 
 	public static SmtExpr mkLoop(SmtExpr regExpr, SmtIntConstant minExpr) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_LOOP, regExpr, minExpr);
+		return new SmtOperation(SmtOperation.Operator.RE_LOOP, regExpr, minExpr);
 	}
 
 	public static SmtExpr mkLoop(SmtExpr regExpr, SmtIntConstant minExpr, SmtIntConstant maxExpr) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_LOOP, regExpr, minExpr, maxExpr);
+		return new SmtOperation(SmtOperation.Operator.RE_LOOP, regExpr, minExpr, maxExpr);
 
 	}
 
-	public static SmtExpr mkRegExpRange(SmtExpr fromExpr, SmtExpr toExpr) {
-		return new SmtOperation(SmtOperation.Operator.REG_EXP_RANGE, fromExpr, toExpr);
+	public static SmtExpr mkRERange(SmtExpr fromExpr, SmtExpr toExpr) {
+		return new SmtOperation(SmtOperation.Operator.RE_RANGE, fromExpr, toExpr);
 	}
 
 	public static SmtExpr mkRem(SmtExpr left, SmtExpr right) {

@@ -27,32 +27,31 @@ import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
+import org.junit.Test;
 
 import com.examples.with.different.packagename.solver.TestCaseTokenizer;
 import static org.evosuite.symbolic.solver.TestSolver.solve;
+import static org.junit.Assert.assertNotNull;
 
-public class TestSolverTokenizer {
+public abstract class TestSolverTokenizer extends TestSolver {
 
-	private static DefaultTestCase buildTestTokenizer()
-			throws SecurityException, NoSuchMethodException {
+	private static DefaultTestCase buildTestTokenizer() throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 		VariableReference string0 = tc.appendStringPrimitive("Here is Ramon");
-	
-		Method method = TestCaseTokenizer.class.getMethod("test",
-				String.class);
+
+		Method method = TestCaseTokenizer.class.getMethod("test", String.class);
 		tc.appendMethod(null, method, string0);
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testStringTokenizer(Solver solver)
-			throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-	
+	@Test
+	public void testStringTokenizer() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+
+		Solver solver = getSolver();
 		DefaultTestCase tc = buildTestTokenizer();
-		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor
-				.execute(tc);
-		Map<String, Object> solution = solve(solver,constraints);
-		return solution;
+		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
+		Map<String, Object> solution = solve(solver, constraints);
+		assertNotNull(solution);
 	}
 
 }

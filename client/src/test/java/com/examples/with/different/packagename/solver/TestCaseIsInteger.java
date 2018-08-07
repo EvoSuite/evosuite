@@ -17,20 +17,16 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver.cvc4;
+package com.examples.with.different.packagename.solver;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.TestSolverReader;
-import org.junit.Test;
+public class TestCaseIsInteger {
 
-public class TestCVC4StringReader  extends TestCVC4{
-
-
-	@Test
-	public void testStringReader() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverReader.testStringReader(solver);
+	public static boolean test(String str) {
+		int value = Integer.parseInt(str);
+		if (value == 123) {
+			return true;
+		} else {
+			return false;
+		}
 	}
-
 }

@@ -176,7 +176,7 @@ final class ExprToCVC4Visitor extends ExprToSmtVisitor {
 			if (regExpSmtExpr == null) {
 				return approximateToConcreteValue(source);
 			} else {
-				SmtExpr strInRegExp = SmtExprBuilder.mkStrInRegExp(right, regExpSmtExpr);
+				SmtExpr strInRegExp = SmtExprBuilder.mkStrInRE(right, regExpSmtExpr);
 				return SmtExprBuilder.mkITE(strInRegExp, SmtExprBuilder.ONE_INT, SmtExprBuilder.ZERO_INT);
 			}
 		}

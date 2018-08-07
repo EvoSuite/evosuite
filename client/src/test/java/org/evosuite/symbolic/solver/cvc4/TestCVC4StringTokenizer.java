@@ -19,18 +19,14 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverTokenizer;
-import org.junit.Test;
 
-public class TestCVC4StringTokenizer  extends TestCVC4{
+public class TestCVC4StringTokenizer extends TestSolverTokenizer {
 
-
-	@Test
-	public void testStringTokenizer() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverTokenizer.testStringTokenizer(solver);
+	@Override
+	public Solver getSolver() {
+		return new CVC4Solver();
 	}
 
 }

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.symbolic.solver;
+package org.evosuite.symbolic;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -26,11 +26,14 @@ import java.util.Collection;
 
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.solver.DefaultTestCaseConcolicExecutor;
+import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
+import org.junit.Test;
 
 import com.examples.with.different.packagename.concolic.MIMETypeTest;
 
-public class TestMIMEType extends TestSolver {
+public class TestMIMEType {
 
 	private static DefaultTestCase buildMIMETypeTest() throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
@@ -39,11 +42,12 @@ public class TestMIMEType extends TestSolver {
 		return tc.getDefaultTestCase();
 	}
 
-	public static void testMIMEType(Solver solver)
-			throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+	@Test
+	public void testMIMEType() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 
 		DefaultTestCase tc = buildMIMETypeTest();
 		Collection<Constraint<?>> constraints = DefaultTestCaseConcolicExecutor.execute(tc);
 		assertNotNull(constraints);
 	}
+
 }
