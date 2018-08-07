@@ -582,7 +582,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Object operand = retValues.get(0);
 			return operand;
 		}
-		case INT2REAL: {
+		case TO_REAL: {
 			Object operand = retValues.get(0);
 			Long operandInt = (Long) operand;
 			return new Double(operandInt.longValue());
@@ -594,7 +594,7 @@ public final class SmtExprEvaluator implements SmtExprVisitor<Object, Void> {
 			Long operandInt = (Long) operand;
 			return Long.toString(operandInt);
 		}
-		case REAL2INT: {
+		case TO_INT: {
 			Object operand = retValues.get(0);
 			Double operandReal = (Double) operand;
 			return (Long) operandReal.longValue();

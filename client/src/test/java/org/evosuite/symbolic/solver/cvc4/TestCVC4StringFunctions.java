@@ -30,6 +30,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
+import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.junit.Test;
 
 public class TestCVC4StringFunctions  extends TestCVC4{
@@ -287,4 +288,53 @@ public class TestCVC4StringFunctions  extends TestCVC4{
 		Map<String, Object> solution = TestSolverStringFunctions.testStringEqualsIgnoreCase(solver);
 		assertNotNull(solution);
 	}
+	
+	@Test
+	public void testStringToInteger() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		CVC4Solver solver = new CVC4Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringToInteger(solver);
+		assertNotNull(solution);
+	}
+	
+	@Test
+	public void testIntegerToString() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		CVC4Solver solver = new CVC4Solver ();
+		Map<String, Object> solution = TestSolverStringFunctions.testIntegerToString(solver);
+		assertNotNull(solution);
+	}
+	
+	@Test
+	public void testStringAppendChar() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		CVC4Solver solver = new CVC4Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringAppendChar(solver);
+		assertNotNull(solution);
+	}
+	
+	@Test
+	public void testStringAppendInteger() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		CVC4Solver solver = new CVC4Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringAppendInteger(solver);
+		assertNotNull(solution);
+	}
+	
+	@Test
+	public void testStringAppendBoolean() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		CVC4Solver solver = new CVC4Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringAppendBoolean(solver);
+		assertNotNull(solution);
+	}
+	
+	@Test
+	public void testStringAppendFloat() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		CVC4Solver solver = new CVC4Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringAppendFloat(solver);
+		assertNotNull(solution);
+	}
 }
+

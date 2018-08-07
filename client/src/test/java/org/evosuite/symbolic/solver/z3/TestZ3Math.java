@@ -19,6 +19,7 @@
  */
 package org.evosuite.symbolic.solver.z3;
 
+import org.evosuite.Properties;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverMath;
 import org.junit.Test;
@@ -26,22 +27,25 @@ import org.junit.Test;
 public class TestZ3Math extends TestZ3 {
 
 	@Test
-	public void testAbs() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverMath.testAbs(solver);
+	public void testAbs() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
+		long defaultSolverTimeout = Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS;
+		Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = 1000 * 3;
+		try {
+			Z3Solver solver = new Z3Solver();
+			TestSolverMath.testAbs(solver);
+		} finally {
+			Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = defaultSolverTimeout;
+		}
 	}
 
 	@Test
-	public void testMax() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
+	public void testMax() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
 		TestSolverMath.testMax(solver);
 	}
 
 	@Test
-	public void testMin() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
+	public void testMin() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
 		TestSolverMath.testMin(solver);
 	}

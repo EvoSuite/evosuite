@@ -34,10 +34,18 @@ import org.evosuite.symbolic.solver.smt.SmtStringVariable;
 public abstract class SmtExprBuilder {
 
 	public static final SmtIntConstant ZERO_INT = mkIntConstant(0);
+
 	public static final SmtRealConstant ZERO_REAL = mkRealConstant(0);
+
 	public static final SmtIntConstant ONE_INT = mkIntConstant(1);
+
 	public static final SmtBooleanConstant TRUE = mkBooleanConstant(true);
+
 	public static final SmtBooleanConstant FALSE = mkBooleanConstant(false);
+
+	public static final SmtStringConstant TRUE_STRING = mkStringConstant(Boolean.toString(true));
+
+	public static final SmtStringConstant FALSE_STRING = mkStringConstant(Boolean.toString(false));
 
 	public static SmtExpr mkIntDiv(SmtExpr left, SmtExpr right) {
 		return new SmtOperation(SmtOperation.Operator.DIV, left, right);
@@ -134,12 +142,12 @@ public abstract class SmtExprBuilder {
 		return new SmtOperation(SmtOperation.Operator.MINUS, expr);
 	}
 
-	public static SmtExpr mkReal2Int(SmtExpr realExpr) {
-		return new SmtOperation(SmtOperation.Operator.REAL2INT, realExpr);
+	public static SmtExpr mkToInt(SmtExpr realExpr) {
+		return new SmtOperation(SmtOperation.Operator.TO_INT, realExpr);
 	}
 
-	public static SmtExpr mkInt2Real(SmtExpr intExpr) {
-		return new SmtOperation(SmtOperation.Operator.INT2REAL, intExpr);
+	public static SmtExpr mkToReal(SmtExpr intExpr) {
+		return new SmtOperation(SmtOperation.Operator.TO_REAL, intExpr);
 
 	}
 

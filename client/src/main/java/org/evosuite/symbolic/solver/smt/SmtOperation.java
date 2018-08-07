@@ -41,8 +41,8 @@ public final class SmtOperation extends SmtExpr {
 		ITE("ite"), //
 		LT("<"), //
 		GE(">="), //
-		REAL2INT("to_int"), //
-		INT2REAL("to_real"), //
+		TO_INT("to_int"), //
+		TO_REAL("to_real"), //
 		DIV("div"), //
 		SLASH("/"), //
 		STR_SUBSTR("str.substr"), //

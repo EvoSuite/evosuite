@@ -30,4 +30,5 @@ public class TestCaseStringUpperCase {
 		}
 		return true;
 	}
+
 }

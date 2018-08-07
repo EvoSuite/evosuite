@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.evosuite.symbolic.solver.SolverTimeoutException;
 import org.evosuite.symbolic.solver.TestSolverStringFunctions;
+import org.evosuite.symbolic.solver.cvc4.CVC4Solver;
 import org.evosuite.symbolic.solver.z3.Z3Solver;
 import org.junit.Test;
 
@@ -273,6 +274,22 @@ public class TestZ3StringFunctions extends TestZ3 {
 	public void testStringCompareTo() throws SecurityException, NoSuchMethodException, SolverTimeoutException {
 		Z3Solver solver = new Z3Solver();
 		Map<String, Object> solution = TestSolverStringFunctions.testStringCompareTo(solver);
+		assertNotNull(solution);
+	}
+
+	@Test
+	public void testStringToInteger() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		Z3Solver solver = new Z3Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testStringToInteger(solver);
+		assertNotNull(solution);
+	}
+	
+	@Test
+	public void testIntegerToString() throws SecurityException,
+			NoSuchMethodException, SolverTimeoutException {
+		Z3Solver solver = new Z3Solver();
+		Map<String, Object> solution = TestSolverStringFunctions.testIntegerToString(solver);
 		assertNotNull(solution);
 	}
 }

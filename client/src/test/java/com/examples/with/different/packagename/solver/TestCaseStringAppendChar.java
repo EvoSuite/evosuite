@@ -19,23 +19,15 @@
  */
 package com.examples.with.different.packagename.solver;
 
-import java.util.StringTokenizer;
-
-public class TestCaseTokenizer {
+public class TestCaseStringAppendChar {
 
 	public static boolean test(String str) {
-		StringTokenizer tokenizer = new StringTokenizer(str);
-		String token0 = tokenizer.nextToken();
-		if (token0.equals("Here")) {
-			String token1 = tokenizer.nextToken();
-			if (token1.equals("is")) {
-				String token2 = tokenizer.nextToken();
-				if (token2.equals("Ramon")) {
-					return true;
-				}
+		if (str != null) {
+			String concat = str + ((char)'X');
+			if (concat.equals("haX")) {
+				return true;
 			}
 		}
-		return false;
+		return true;
 	}
-
 }

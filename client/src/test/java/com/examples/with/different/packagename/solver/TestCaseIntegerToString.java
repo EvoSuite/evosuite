@@ -19,23 +19,15 @@
  */
 package com.examples.with.different.packagename.solver;
 
-import java.util.StringTokenizer;
+public class TestCaseIntegerToString {
 
-public class TestCaseTokenizer {
-
-	public static boolean test(String str) {
-		StringTokenizer tokenizer = new StringTokenizer(str);
-		String token0 = tokenizer.nextToken();
-		if (token0.equals("Here")) {
-			String token1 = tokenizer.nextToken();
-			if (token1.equals("is")) {
-				String token2 = tokenizer.nextToken();
-				if (token2.equals("Ramon")) {
-					return true;
-				}
+	public static boolean test(int value) {
+		if (value == 1200) {
+			String str = String.valueOf(value);
+			if (str.equals("1200")) {
+				return true;
 			}
 		}
-		return false;
+		return true;
 	}
-
 }

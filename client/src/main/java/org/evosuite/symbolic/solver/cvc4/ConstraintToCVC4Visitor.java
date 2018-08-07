@@ -19,9 +19,6 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.ConstraintVisitor;
 import org.evosuite.symbolic.expr.Expression;
@@ -36,7 +33,6 @@ import org.evosuite.symbolic.solver.smt.SmtExpr;
 
 final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
-	private final Set<String> stringConstants = new HashSet<String>();
 	private final ExprToCVC4Visitor exprVisitor;
 
 	public ConstraintToCVC4Visitor() {
@@ -164,9 +160,5 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 			throw new RuntimeException("Unknown comparator for constraint " + cmp.toString());
 		}
 		}
-	}
-
-	public Set<String> getStringConstants() {
-		return stringConstants;
 	}
 }

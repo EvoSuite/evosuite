@@ -133,8 +133,8 @@ public final class CVC4Solver extends SmtSolver {
 
 		String cmd = buildCVC4cmd(cvcTimeout);
 
+		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 		try {
-			ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 			launchNewSolvingProcess(cmd, smtQueryStr, (int) cvcTimeout, stdout);
 			String output = stdout.toString("UTF-8");
 
