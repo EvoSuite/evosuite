@@ -39,6 +39,7 @@ import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
 import org.junit.runner.RunWith;
@@ -306,7 +307,12 @@ public class TestSuiteWriter implements Opcodes {
             if(result.noThrownExceptions())
                 continue;
             int exceptionPosition = result.getFirstPositionOfThrownException();
-            result.test.getStatement(exceptionPosition).removeAssertions();
+            Statement st = null;
+            try
+            {
+            	st = result.test.getStatement(exceptionPosition);
+            } catch(Exception e) { continue; }
+            st.removeAssertions();
         }
     }
 
