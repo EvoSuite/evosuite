@@ -202,11 +202,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     @Override
     public void emigrate(Set<? extends Chromosome> immigrants) {
         try {
-
             masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
             LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": Sending " + immigrants.size() + " immigrants");
         } catch (RemoteException e) {
-            logger.error("Cannot send immigrating individuals to master", e);
+            logger.error(ClientProcess.identifier + ": Cannot send immigrating individuals to master", e);
         }
     }
 
@@ -216,7 +215,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
             masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
             LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": sending best solutions to ClientNode0");
         } catch (RemoteException e) {
-            logger.error("Cannot send best solution to master", e);
+            logger.error(ClientProcess.identifier + ": Cannot send best solution to master", e);
         }
     }
 
