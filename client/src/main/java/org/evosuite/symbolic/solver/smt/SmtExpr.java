@@ -24,4 +24,9 @@ public abstract class SmtExpr {
 	public abstract <K, V> K accept(SmtExprVisitor<K, V> v, V arg);
 
 	public abstract boolean isSymbolic();
+
+	public String toString() {
+		SmtExprPrinter printer = new SmtExprPrinter();
+		return this.accept(printer, null);
+	}
 }

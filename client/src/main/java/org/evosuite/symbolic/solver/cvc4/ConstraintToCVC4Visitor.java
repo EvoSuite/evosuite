@@ -19,41 +19,84 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.ConstraintVisitor;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 
 final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
-	private final Set<String> stringConstants = new HashSet<String>();
 	private final ExprToCVC4Visitor exprVisitor;
-	
+
 	public ConstraintToCVC4Visitor() {
 		this(false);
 	}
+
+	private static SmtExpr translateCompareTo(Expression<?> left, Comparator cmp, Expression<?> right) {
+		
+		if (!(left instanceof StringBinaryToIntegerExpression)) {
+			return null;
+		}
+		if (!(right instanceof IntegerConstant)) {
+			return null;
+		}
+		if (cmp != Comparator.NE && cmp!=Comparator.EQ) {
+			return null;
+		}
+		
+		StringBinaryToIntegerExpression leftExpr = (StringBinaryToIntegerExpression)left;
+		if (leftExpr.getOperator()!=Operator.COMPARETO) {
+			return null;
+		}
+		
+		IntegerConstant rightExpr = (IntegerConstant)right;
+		if (rightExpr.getConcreteValue()!=0) {
+			return null;
+		}
+		
+		ExprToCVC4Visitor v = new ExprToCVC4Visitor();
+		SmtExpr leftEquals = leftExpr.getLeftOperand().accept(v, null);
+		SmtExpr rightEquals = leftExpr.getRightOperand().accept(v, null);
+		
+		if (leftEquals==null || rightEquals==null) {
+			return null;
+		}
+		
+		SmtExpr eqExpr = SmtExprBuilder.mkEq(leftEquals, rightEquals);
+		if (cmp==Comparator.EQ) {
+			return eqExpr;
+		} else {
+			return SmtExprBuilder.mkNot(eqExpr);			
+		}
+	}
+
 	
 	public ConstraintToCVC4Visitor(boolean rewriteNonLinearConstraints) {
 		this.exprVisitor = new ExprToCVC4Visitor(rewriteNonLinearConstraints);
 	}
-	
+
 	@Override
 	public SmtExpr visit(IntegerConstraint c, Void arg) {
 		Expression<?> leftOperand = c.getLeftOperand();
 		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
+
+		SmtExpr expr = translateCompareTo(leftOperand, cmp, rightOperand);
+		if (expr != null) {
+			return expr;	
+		} else {
 		return visit(leftOperand, cmp, rightOperand);
+		}
 	}
 
-	private SmtExpr visit(Expression<?> leftOperand, Comparator cmp,
-			Expression<?> rightOperand) {
+	private SmtExpr visit(Expression<?> leftOperand, Comparator cmp, Expression<?> rightOperand) {
 		SmtExpr left = leftOperand.accept(exprVisitor, null);
 		SmtExpr right = rightOperand.accept(exprVisitor, null);
 
@@ -77,11 +120,16 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 		Expression<?> leftOperand = c.getLeftOperand();
 		Expression<?> rightOperand = c.getRightOperand();
 		Comparator cmp = c.getComparator();
-		return visit(leftOperand, cmp, rightOperand);
+
+		SmtExpr equalsExpr = translateCompareTo(leftOperand , cmp, rightOperand);
+		if (equalsExpr != null) {
+			return equalsExpr;
+		} else {
+			return visit(leftOperand, cmp, rightOperand);
+		}
 	}
 
-	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp,
-			SmtExpr right) {
+	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp, SmtExpr right) {
 		switch (cmp) {
 		case LT: {
 			SmtExpr lt = SmtExprBuilder.mkLt(left, right);
@@ -109,13 +157,8 @@ final class ConstraintToCVC4Visitor implements ConstraintVisitor<SmtExpr, Void> 
 			return ne;
 		}
 		default: {
-			throw new RuntimeException("Unknown comparator for constraint "
-					+ cmp.toString());
+			throw new RuntimeException("Unknown comparator for constraint " + cmp.toString());
 		}
 		}
-	}
-
-	public Set<String> getStringConstants() {
-		return stringConstants;
 	}
 }

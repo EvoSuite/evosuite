@@ -66,7 +66,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public synchronized void evosuite_registerClientNode(String clientRmiIdentifier) throws RemoteException {
+	public void evosuite_registerClientNode(String clientRmiIdentifier) throws RemoteException {
 
 		/*
 		 * The client should first register its node, and then inform MasterNode
@@ -88,7 +88,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public synchronized void evosuite_informChangeOfStateInClient(String clientRmiIdentifier,
+	public void evosuite_informChangeOfStateInClient(String clientRmiIdentifier,
 	        ClientState state, ClientStateInformation information) throws RemoteException {
 		clientStates.put(clientRmiIdentifier, state);
 		// To be on the safe side
@@ -155,38 +155,37 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public synchronized void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) {
-		SearchStatistics.getInstance().currentIndividual(clientRmiIdentifier, individual);
+	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) {
+		SearchStatistics.getInstance(clientRmiIdentifier).currentIndividual(individual);
 	}
 
 	@Override
-	public synchronized void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value)
+	public void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value)
 	        throws RemoteException {
-		SearchStatistics.getInstance().setOutputVariable(variable, value);
+		SearchStatistics.getInstance(clientRmiIdentifier).setOutputVariable(variable, value);
 	}
 
 	@Override
-	public synchronized void evosuite_collectTestGenerationResult(
+	public void evosuite_collectTestGenerationResult(
 			String clientRmiIdentifier, List<TestGenerationResult> results)
 			throws RemoteException {
-		SearchStatistics.getInstance().addTestGenerationResult(results);
-		
+		SearchStatistics.getInstance(clientRmiIdentifier).addTestGenerationResult(results);
 	}
 
 	@Override
-	public synchronized void evosuite_flushStatisticsForClassChange(String clientRmiIdentifier)
+	public void evosuite_flushStatisticsForClassChange(String clientRmiIdentifier)
 			throws RemoteException {
-		SearchStatistics.getInstance().writeStatisticsForAnalysis();
+		SearchStatistics.getInstance(clientRmiIdentifier).writeStatisticsForAnalysis();
 	}
 
 	@Override
-	public synchronized void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value)
+	public void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value)
 			throws RemoteException, IllegalArgumentException, IllegalAccessException, NoSuchParameterException {
 		Properties.getInstance().setValue(propertyName, value);
 	}
 
     @Override
-    public synchronized void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants)
+    public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants)
             throws RemoteException {
         //implements ring topology
         try {
@@ -200,7 +199,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
     }
 
     @Override
-    public synchronized void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
+    public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
         try {
             ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode0");
             node.collectBestSolutions(solutions);

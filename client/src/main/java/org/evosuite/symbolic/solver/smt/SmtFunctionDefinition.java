@@ -30,4 +30,10 @@ public final class SmtFunctionDefinition {
 	public String getFunctionDefinition() {
 		return functionDefinition;
 	}
+	
+	public String toString() {
+		SmtQueryPrinter printer = new SmtQueryPrinter();
+		String str = printer.print(this);
+		return str;
+	}
 }

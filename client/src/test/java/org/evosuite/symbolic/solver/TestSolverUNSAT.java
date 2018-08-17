@@ -28,11 +28,15 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.vm.ConstraintFactory;
+import org.junit.Test;
 
-public class TestSolverUNSAT {
+public abstract class TestSolverUNSAT extends TestSolver {
 
-	public static void testUNSAT(Solver solver) throws SolverTimeoutException, IOException, SolverParseException,
-			SolverEmptyQueryException, SolverErrorException {
+	@Test
+	public void testUNSAT() throws SolverTimeoutException, IOException, SolverParseException, SolverEmptyQueryException,
+			SolverErrorException {
+		Solver solver = getSolver();
+
 		Collection<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		IntegerVariable x = new IntegerVariable("x", 1L, Long.MIN_VALUE, Long.MAX_VALUE);
 		IntegerConstraint unsat_constraint = ConstraintFactory.neq(x, x);

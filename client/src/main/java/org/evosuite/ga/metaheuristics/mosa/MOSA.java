@@ -197,8 +197,11 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
                         .getClientNode().getBestSolutions();
 
                 logger.debug("ClientNode0: Received " + collectedSolutions.size() + " solution sets");
-                this.mergeSolutions(collectedSolutions);
-                this.notifyIteration();
+                for (Set<? extends Chromosome> solution : collectedSolutions) {
+                  for (Chromosome t : solution) {
+                    this.calculateFitness((T) t);
+                  }
+                }
             } else {
                 //send end result test cases to ClientNode0
                 Set<T> solutionsSet = new HashSet<T>(getSolutions());
@@ -213,62 +216,4 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
                 this.budgetMonitor.getTime2MaxCoverage());
 		this.notifySearchFinished();
 	}
-	
-	private void mergeSolutions(Set<Set<? extends Chromosome>> solutions) {
-	    // Add own solutions
-        List<T> union = new ArrayList<T>(this.population);
-        int minSize = getSolutions().size();
-        
-        // Add solutions from all other clients
-        for (Set<? extends Chromosome> solution : solutions) {
-            union.addAll((Set<? extends T>) solution);
-            
-            if (solution.size() < minSize) {
-                minSize = solution.size();
-            }
-        }
-        
-        Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
-
-        // Ranking the union
-        logger.debug("Union Size =" + union.size());
-        // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
-        this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
-
-        int remain = minSize;
-        int index = 0;
-        this.population.clear();
-
-        // Obtain the first front
-        List<T> front = this.rankingFunction.getSubfront(index);
-
-        while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
-            // Assign crowding distance to individuals
-            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
-            // Add the individuals of this front
-            this.population.addAll(front);
-
-            // Decrement remain
-            remain = remain - front.size();
-
-            // Obtain the next front
-            index++;
-            if (remain > 0) {
-                front = this.rankingFunction.getSubfront(index);
-            }
-        }
-
-        // Remain is less than front(index).size, insert only the best one
-        if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
-            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
-            Collections.sort(front, new OnlyCrowdingComparator());
-            for (int k = 0; k < remain; k++) {
-                this.population.add(front.get(k));
-            }
-
-            remain = 0;
-        }
-
-        this.currentIteration++;
-    }
 }

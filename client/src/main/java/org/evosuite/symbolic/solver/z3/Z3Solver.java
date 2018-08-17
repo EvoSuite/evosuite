@@ -24,32 +24,38 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.expr.bv.IntegerVariable;
-import org.evosuite.symbolic.expr.fp.RealVariable;
-import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.SmtSolver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SubProcessSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
-import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
+import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
+import org.evosuite.symbolic.solver.smt.SmtIntVariable;
+import org.evosuite.symbolic.solver.smt.SmtModelParser;
+import org.evosuite.symbolic.solver.smt.SmtOperation;
+import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
+import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
+import org.evosuite.symbolic.solver.smt.SmtQuery;
+import org.evosuite.symbolic.solver.smt.SmtQueryPrinter;
+import org.evosuite.symbolic.solver.smt.SmtRealVariable;
+import org.evosuite.symbolic.solver.smt.SmtStringVariable;
+import org.evosuite.symbolic.solver.smt.SmtVariable;
+import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Z3Solver extends SubProcessSolver {
+public class Z3Solver extends SmtSolver {
 
 	public Z3Solver() {
 		super();
@@ -73,81 +79,191 @@ public class Z3Solver extends SubProcessSolver {
 			variables.addAll(c_variables);
 		}
 
-		SmtCheckSatQuery smtCheckSatQuery = buildSmtQuery(constraints, variables);
+		SmtQuery query = buildSmtQuery(constraints, hard_timeout);
 
-		if (smtCheckSatQuery.getConstantDeclarations().isEmpty()) {
+		if (query.getConstantDeclarations().isEmpty()) {
 			logger.debug("Z3 SMT query has no variables");
 			throw new SolverEmptyQueryException("Z3 SMT query has no variables");
 		}
 
-		if (smtCheckSatQuery.getAssertions().isEmpty()) {
+		if (query.getAssertions().isEmpty()) {
 			Map<String, Object> emptySolution = new HashMap<String, Object>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}
 
-		Z3QueryPrinter printer = new Z3QueryPrinter();
-		String smtQueryStr = printer.print(smtCheckSatQuery, hard_timeout);
+		SmtQueryPrinter printer = new SmtQueryPrinter();
+		String queryStr = printer.print(query);
 
 		logger.debug("Z3 Query:");
-		logger.debug(smtQueryStr);
+		logger.debug(queryStr);
 
 		if (Properties.Z3_PATH == null) {
 			String errMsg = "Property Z3_PATH should be setted in order to use the Z3 Solver!";
 			logger.error(errMsg);
 			throw new IllegalStateException(errMsg);
 		}
-		String z3Cmd = Properties.Z3_PATH + " -smt2 -in";
+
+		String z3Cmd = Properties.Z3_PATH + " -smt2 -in ";
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-
-		launchNewProcess(z3Cmd, smtQueryStr, (int) hard_timeout, stdout);
-
-		String z3ResultStr = stdout.toString("UTF-8");
-
-		Map<String, Object> initialValues = getConcreteValues(variables);
-		Z3ResultParser resultParser;
-		if (this.addMissingVariables()) {
-			resultParser = new Z3ResultParser(initialValues);
-		} else {
-			resultParser = new Z3ResultParser();
+		String output;
+		try {
+			launchNewSolvingProcess(z3Cmd, queryStr, (int) hard_timeout, stdout);
+			output = stdout.toString("UTF-8");
+		} catch (SolverErrorException ex) {
+			output = stdout.toString("UTF-8");
+			if (!output.startsWith("unsat")) {
+				throw ex;
+			}
 		}
 
-		SolverResult result = resultParser.parseResult(z3ResultStr);
+		Map<String, Object> initialValues = getConcreteValues(variables);
+		SmtModelParser parser;
+		if (this.addMissingVariables()) {
+			parser = new SmtModelParser(initialValues);
+		} else {
+			parser = new SmtModelParser();
+		}
+
+		SolverResult result = parser.parse(output);
+
+		if (result.isSAT()) {
+			// check if solution is correct, otherwise return UNSAT
+			boolean check = checkSAT(constraints, result);
+			if (!check) {
+				logger.debug("Z3 solution fails to solve the constraint system!");
+				SolverResult unsatResult = SolverResult.newUNSAT();
+				return unsatResult;
+			}
+		}
 
 		return result;
 	}
 
-	private static SmtCheckSatQuery buildSmtQuery(Collection<Constraint<?>> constraints, Set<Variable<?>> variables) {
-		List<SmtConstantDeclaration> constantDeclarations = new LinkedList<SmtConstantDeclaration>();
-		for (Variable<?> v : variables) {
-			String varName = v.getName();
-			if (v instanceof IntegerVariable) {
-				SmtConstantDeclaration intVar = SmtExprBuilder.mkIntConstantDeclaration(varName);
-				constantDeclarations.add(intVar);
-			} else if (v instanceof RealVariable) {
-				SmtConstantDeclaration realVar = SmtExprBuilder.mkRealConstantDeclaration(varName);
-				constantDeclarations.add(realVar);
+	private final static int ASCII_TABLE_LENGTH = 90;
 
-			} else if (v instanceof StringVariable) {
-				// ignore string variables
+	private static String encodeString(String str) {
+		char[] charArray = str.toCharArray();
+		String ret_val = "";
+		for (int i = 0; i < charArray.length; i++) {
+			char c = charArray[i];
+			// if (Character.isISOControl(c)) {
+			if (Integer.toHexString(c).length() == 1) {
+				// padding
+				ret_val += "\\x0" + Integer.toHexString(c);
 			} else {
-				throw new RuntimeException("Unknown variable type " + v.getClass().getCanonicalName());
+				ret_val += "\\x" + Integer.toHexString(c);
+			}
+			// } else {
+			// ret_val += c;
+			// }
+		}
+		return ret_val;
+	}
+
+	private static String buildIntToCharFunction() {
+		StringBuffer buff = new StringBuffer();
+		buff.append(SmtOperation.Operator.INT_TO_CHAR + "((x!1 Int)) String");
+		buff.append("\n");
+		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
+			char c = (char) i;
+			String str = String.valueOf(c);
+			String encodedStr = encodeString(str);
+			if (i < ASCII_TABLE_LENGTH - 1) {
+				String iteStr = String.format("(ite (= x!1 %s) \"%s\"", i, encodedStr);
+				buff.append(iteStr);
+				buff.append("\n");
+			} else {
+				buff.append("\"" +encodedStr + "\"");
 			}
 		}
+		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
+			buff.append(")");
+		}
+		buff.append("\n");
+		return buff.toString();
+	}
 
-		List<SmtAssertion> assertions = new LinkedList<SmtAssertion>();
+	private static String buildCharToIntFunction() {
+		StringBuffer buff = new StringBuffer();
+		buff.append(SmtOperation.Operator.CHAR_TO_INT + "((x!1 String)) Int");
+		buff.append("\n");
+		for (int i = 0; i < ASCII_TABLE_LENGTH; i++) {
+			char c = (char) i;
+			String str = String.valueOf(c);
+			String encodedStr = encodeString(str);
+			if (i < ASCII_TABLE_LENGTH - 1) {
+				String iteStr = String.format("(ite (= x!1 \"%s\") %s", encodedStr, i);
+				buff.append(iteStr);
+				buff.append("\n");
+			} else {
+				buff.append(i);
+			}
+		}
+		for (int i = 0; i < ASCII_TABLE_LENGTH - 1; i++) {
+			buff.append(")");
+		}
+		buff.append("\n");
+		return buff.toString();
+	}
+
+	private static SmtQuery buildSmtQuery(Collection<Constraint<?>> constraints, long timeout) {
+
+		SmtQuery query = new SmtQuery();
+
+		query.addOption(":timeout", String.valueOf(timeout));
+
+		ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
+
+		SmtVariableCollector varCollector = new SmtVariableCollector();
+		SmtOperatorCollector opCollector = new SmtOperatorCollector();
+
 		for (Constraint<?> c : constraints) {
-			ConstraintToZ3Visitor v = new ConstraintToZ3Visitor();
-			SmtExpr bool_expr = c.accept(v, null);
-			if (bool_expr != null && bool_expr.isSymbolic()) {
-				SmtAssertion newAssertion = new SmtAssertion(bool_expr);
-				assertions.add(newAssertion);
+			SmtExpr smtExpr = c.accept(v, null);
+			if (smtExpr != null) {
+				SmtAssertion smtAssertion = new SmtAssertion(smtExpr);
+				query.addAssertion(smtAssertion);
+				smtExpr.accept(varCollector, null);
+				smtExpr.accept(opCollector, null);
 			}
 		}
 
-		SmtCheckSatQuery smtCheckSatQuery = new SmtCheckSatQuery(constantDeclarations, assertions);
-		return smtCheckSatQuery;
+		Set<SmtVariable> smtVariables = varCollector.getSmtVariables();
+		Set<Operator> smtOperators = opCollector.getOperators();
+
+		Set<SmtVariable> smtVariablesToDeclare = new HashSet<SmtVariable>(smtVariables);
+
+		for (SmtVariable v1 : smtVariablesToDeclare) {
+			String varName = v1.getName();
+			if (v1 instanceof SmtIntVariable) {
+				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkIntConstantDeclaration(varName);
+				query.addConstantDeclaration(constantDecl);
+			} else if (v1 instanceof SmtRealVariable) {
+				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkRealConstantDeclaration(varName);
+				query.addConstantDeclaration(constantDecl);
+			} else if (v1 instanceof SmtStringVariable) {
+				SmtConstantDeclaration constantDecl = SmtExprBuilder.mkStringConstantDeclaration(varName);
+				query.addConstantDeclaration(constantDecl);
+			} else {
+				throw new RuntimeException("Unknown variable type " + v1.getClass().getCanonicalName());
+			}
+		}
+
+		if (smtOperators.contains(SmtOperation.Operator.CHAR_TO_INT)) {
+			String charToInt = buildCharToIntFunction();
+			SmtFunctionDefinition newFunctionDef = new SmtFunctionDefinition(charToInt);
+			query.addFunctionDefinition(newFunctionDef);
+		}
+
+		if (smtOperators.contains(SmtOperation.Operator.INT_TO_CHAR)) {
+			String intToChar = buildIntToCharFunction();
+			SmtFunctionDefinition newFunctionDef = new SmtFunctionDefinition(intToChar);
+			query.addFunctionDefinition(newFunctionDef);
+		}
+
+		return query;
+
 	}
 
 }

@@ -39,14 +39,14 @@ public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (leftExpr == null || rightExpr == null) {
 			return null;
 		}
-		SmtExpr unionExpr = SmtExprBuilder.mkRegExpUnion(leftExpr, rightExpr);
+		SmtExpr unionExpr = SmtExprBuilder.mkREUnion(leftExpr, rightExpr);
 		return unionExpr;
 	}
 
 	@Override
 	public SmtExpr visitString(String s) {
 		SmtStringConstant strConstant = SmtExprBuilder.mkStringConstant(s);
-		SmtExpr strToRegExpr = SmtExprBuilder.mkStrToRegExp(strConstant);
+		SmtExpr strToRegExpr = SmtExprBuilder.mkStrToRE(strConstant);
 		return strToRegExpr;
 	}
 
@@ -70,7 +70,7 @@ public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 			return null;
 		}
 		if (min == 1) {
-			SmtExpr kleeneCrossExpr = SmtExprBuilder.mkRegExpKleeCross(regExpr);
+			SmtExpr kleeneCrossExpr = SmtExprBuilder.mkREKleeneCross(regExpr);
 			return kleeneCrossExpr;
 		} else {
 			SmtIntConstant minExpr = SmtExprBuilder.mkIntConstant(min);
@@ -85,7 +85,7 @@ public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (expr == null) {
 			return null;
 		}
-		SmtExpr repeatExpr = SmtExprBuilder.mkReKleeneStar(expr);
+		SmtExpr repeatExpr = SmtExprBuilder.mkREKleeneStar(expr);
 		return repeatExpr;
 	}
 
@@ -95,7 +95,7 @@ public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (expr == null) {
 			return null;
 		}
-		SmtExpr optExpr = SmtExprBuilder.mkRegExpOptional(expr);
+		SmtExpr optExpr = SmtExprBuilder.mkREOpt(expr);
 		return optExpr;
 	}
 
@@ -106,7 +106,7 @@ public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		if (leftExpr == null || rightExpr == null) {
 			return null;
 		}
-		SmtExpr concat = SmtExprBuilder.mkRegExpConcat(leftExpr, rightExpr);
+		SmtExpr concat = SmtExprBuilder.mkREConcat(leftExpr, rightExpr);
 		return concat;
 	}
 
@@ -119,7 +119,7 @@ public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 		String toStr = String.valueOf(to);
 		SmtStringConstant toConstant = SmtExprBuilder.mkStringConstant(toStr);
 
-		SmtExpr rangeExpr = SmtExprBuilder.mkRegExpRange(fromConstant,
+		SmtExpr rangeExpr = SmtExprBuilder.mkRERange(fromConstant,
 				toConstant);
 		return rangeExpr;
 	}
@@ -128,13 +128,13 @@ public final class RegExpToCVC4Visitor extends RegExpVisitor<SmtExpr> {
 	public SmtExpr visitChar(char c) {
 		String str = String.valueOf(c);
 		SmtStringConstant strConstant = SmtExprBuilder.mkStringConstant(str);
-		SmtExpr expr = SmtExprBuilder.mkStrToRegExp(strConstant);
+		SmtExpr expr = SmtExprBuilder.mkStrToRE(strConstant);
 		return expr;
 	}
 
 	@Override
 	public SmtExpr visitAnyChar() {
-		return SmtExprBuilder.mkRegExpAllChar();
+		return SmtExprBuilder.mkREAllChar();
 	}
 
 	@Override

@@ -405,7 +405,7 @@ public class StorageManager {
 
 			File seed = seeds.get(cut);
 			if(seed == null){
-				logger.warn("No '"+Properties.CTG_SEEDS_EXT+"' file was generated for CUT "+cut);
+				logger.debug("No '"+Properties.CTG_SEEDS_EXT+"' file was generated for CUT "+cut);
 				//do not skip, as this might happen if custom factory (ie no archive) was used for some experiments
 			}
 

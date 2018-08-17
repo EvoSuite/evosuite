@@ -117,9 +117,9 @@ public final class EvoSuiteSolver extends Solver {
 			return satResult;
 		} else {
 			setConcreteValues(variables, initialValues);
-			log.debug("Returning null, search was not successful");
-			SolverResult unsatResult = SolverResult.newUNSAT();
-			return unsatResult;
+			log.debug("Returning unknown, search was not successful");
+			SolverResult unknownResult = SolverResult.newUnknown();
+			return unknownResult;
 		}
 
 	}

@@ -19,32 +19,25 @@
  */
 package org.evosuite.symbolic;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.strategy.PropertiesSuiteGAFactory;
 import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.testsuite.similarity.DiversityObserver;
+import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -82,7 +75,20 @@ public class DSEStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
-			testSuite = generateSuite();
+			DSEAlgorithm algorithm = new DSEAlgorithm();
+			StoppingCondition stoppingCondition = getStoppingCondition();
+			algorithm.addFitnessFunctions((List)fitnessFunctions);
+			if (Properties.STOP_ZERO) {
+				
+			}
+			algorithm.setStoppingCondition(stoppingCondition);
+			algorithm.generateSolution();
+			testSuite = algorithm.getBestIndividual();
+
+			if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD) {
+				TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
+			}
+
 		} else {
 			zeroFitness.setFinished();
 			testSuite = new TestSuiteChromosome();
@@ -116,23 +122,6 @@ public class DSEStrategy extends TestGenerationStrategy {
 
 		return testSuite;
 
-	}
-
-	private TestSuiteChromosome generateSuite() {
-		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-		final Set<Method> staticMethods = getStaticMethods(targetClass);
-		TestSuiteChromosome result = new TestSuiteChromosome();
-		for (Method staticMethod : staticMethods) {
-			List<TestChromosome> testCases = generateTests(staticMethod);
-			result.addTests(testCases);
-		}
-		return result;
-	}
-
-	private List<TestChromosome> generateTests(Method staticMethod) {
-		List<TestChromosome> testCases = new LinkedList<TestChromosome>();
-		// TODO DSE Algorithm goes here
-		return testCases;
 	}
 
 	private List<TestFitnessFunction> getGoals(boolean verbose) {
@@ -170,17 +159,6 @@ public class DSEStrategy extends TestGenerationStrategy {
 			}
 		}
 		return goals;
-	}
-
-	private static Set<Method> getStaticMethods(Class<?> targetClass) {
-		Method[] declaredMethods = targetClass.getDeclaredMethods();
-		Set<Method> staticMethods = new HashSet<Method>();
-		for (Method m : declaredMethods) {
-			if (Modifier.isStatic(m.getModifiers())) {
-				staticMethods.add(m);
-			}
-		}
-		return staticMethods;
 	}
 
 }

@@ -22,27 +22,46 @@ package org.evosuite.symbolic.solver;
 import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.vm.ConstraintFactory;
+import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.testcase.DefaultTestCase;
 
 public abstract class DefaultTestCaseConcolicExecutor {
 
-	
 	public static Collection<Constraint<?>> execute(DefaultTestCase tc) {
 		List<BranchCondition> pc = getPathCondition(tc);
-	
+
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		Collection<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		for (BranchCondition condition : pc) {
 			constraints.addAll(condition.getSupportingConstraints());
 			Constraint<?> constraint = condition.getConstraint();
 			constraints.add(constraint);
+			variables.addAll(constraint.getVariables());
 		}
+		for (Variable<?> variable : variables) {
+			if (variable instanceof IntegerVariable) {
+				IntegerVariable integerVariable = (IntegerVariable) variable;
+				IntegerConstant minValue = ExpressionFactory.buildNewIntegerConstant(integerVariable.getMinValue());
+				IntegerConstant maxValue = ExpressionFactory.buildNewIntegerConstant(integerVariable.getMaxValue());
+				constraints.add(ConstraintFactory.gte(integerVariable, minValue));
+				constraints.add(ConstraintFactory.lte(integerVariable, maxValue));
+			}
+		}
+
 		return constraints;
 	}
 
@@ -51,13 +70,13 @@ public abstract class DefaultTestCaseConcolicExecutor {
 		Properties.PRINT_TO_SYSTEM = true;
 		Properties.TIMEOUT = 5000;
 		Properties.CONCOLIC_TIMEOUT = 5000000;
-	
+
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
-	
-		List<BranchCondition> branch_conditions = ConcolicExecution
-				.executeConcolic(tc);
-	
+
+		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+
 		printConstraints(branch_conditions);
 		return branch_conditions;
 	}
