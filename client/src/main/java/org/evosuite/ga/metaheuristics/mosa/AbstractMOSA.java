@@ -548,7 +548,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
             Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
         int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
 
-        double coverage = totalNumberTargets == 0 ? 0.0
+        double coverage = totalNumberTargets == 0 ? 1.0
             : ((double) numberCoveredTargets)
                 / ((double) (numberCoveredTargets + numberUncoveredTargets));
 
