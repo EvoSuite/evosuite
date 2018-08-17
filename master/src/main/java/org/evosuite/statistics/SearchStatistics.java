@@ -49,11 +49,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * This singleton collects all the data values reported by the client node
+ * A singleton of SearchStatistics collects all the data values reported by a single client node.
  * 
  * @author gordon
  *
@@ -63,12 +62,12 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private static final long serialVersionUID = -1859683466333302151L;
 
 	/** Singleton instance */
-	private static SearchStatistics instance = null;
+	private static Map<String, SearchStatistics> instances = new LinkedHashMap<String, SearchStatistics>();
 
 	private static final Logger logger = LoggerFactory.getLogger(SearchStatistics.class);
 
 	/** Map of client id to best individual received from that client so far */
-	private Map<String, TestSuiteChromosome> bestIndividual = new HashMap<String, TestSuiteChromosome>();
+	private TestSuiteChromosome bestIndividual = null;
 
 	/** Backend used to output the data */
 	private StatisticsBackend backend = null;
@@ -92,8 +91,6 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private long startTime = System.currentTimeMillis();
 
 	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
-	
-    private ReentrantLock lock = new ReentrantLock();
 	
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
@@ -155,14 +152,24 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public static SearchStatistics getInstance() {
-		if(instance == null)
-			instance = new SearchStatistics();
+	  return getInstance("ClientNode0");
+	}
 
+	public static SearchStatistics getInstance(String rmiClientIdentifier) {
+	    SearchStatistics instance = instances.get(rmiClientIdentifier);
+	    if (instance == null) {
+	      instance = new SearchStatistics();
+	      instances.put(rmiClientIdentifier, instance);
+		}
 		return instance;
 	}
 
 	public static void clearInstance() {
-		instance = null;
+	    clearInstance("ClientNode0");
+	}
+
+	public static void clearInstance(String rmiClientIdentifier) {
+	    instances.remove(rmiClientIdentifier);
 	}
 
 	/**
@@ -172,27 +179,22 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param rmiClientIdentifier
 	 * @param individual
 	 */
-	public void currentIndividual(String rmiClientIdentifier, Chromosome individual) {
-		lock.lock();
-	    try {
-            if(backend == null)
-                return;
+	public void currentIndividual(Chromosome individual) {
+        if(backend == null)
+            return;
 
-            if(!(individual instanceof TestSuiteChromosome)) {
-                AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
-                return;
-            }
+        if(!(individual instanceof TestSuiteChromosome)) {
+            AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
+            return;
+        }
 
-            logger.debug("Received individual");
-            bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
-            for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
-                setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
-            }
-            for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
-                v.update((TestSuiteChromosome) individual);
-            }
-        } finally {
-		    lock.unlock();
+        logger.debug("Received individual");
+        bestIndividual = (TestSuiteChromosome) individual;
+        for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
+            setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
+        }
+        for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
+            v.update((TestSuiteChromosome) individual);
         }
 	}
 
@@ -342,12 +344,12 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 		outputVariables.put(RuntimeVariable.Total_Time.name(), new OutputVariable<Object>(RuntimeVariable.Total_Time.name(), System.currentTimeMillis() - startTime));
 
-		if(bestIndividual.isEmpty()) {
+		if(bestIndividual == null) {
 			logger.error("No statistics has been saved because EvoSuite failed to generate any test case");
 			return false;
 		}	
 
-		TestSuiteChromosome individual = bestIndividual.get("ClientNode0");
+		TestSuiteChromosome individual = bestIndividual;
 
 		Map<String,OutputVariable<?>> map = getOutputVariables(individual);
 		if(map==null){

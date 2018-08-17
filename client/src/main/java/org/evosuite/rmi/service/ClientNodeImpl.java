@@ -225,7 +225,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	@Override
-	public synchronized void changeState(ClientState state, ClientStateInformation information) {
+	public void changeState(ClientState state, ClientStateInformation information) {
 		if (this.state != state){
 			logger.info(ClientProcess.identifier + ": Client changing state from " + this.state + " to " + state);
 		}
