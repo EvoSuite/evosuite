@@ -549,8 +549,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
 
         double coverage = totalNumberTargets == 0 ? 1.0
-            : ((double) numberCoveredTargets)
-                / ((double) (numberCoveredTargets + numberUncoveredTargets));
+            : ((double) numberCoveredTargets) / ((double) totalNumberTargets);
 
         suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
         suite.setCoverage(suiteFitnessFunction, coverage);
