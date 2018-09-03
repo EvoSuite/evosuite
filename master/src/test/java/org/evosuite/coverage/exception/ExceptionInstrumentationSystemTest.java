@@ -129,8 +129,6 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         // The NPE caused by "foo" being null is now caught outside the exception instrumentation
         // and thus represents a different coverage goal than a RuntimeException thrown _in_ foo.
         // Hence we now only cover 8/9 goals.
-        // Passing assert
-        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 2, 8, 2);
         // Failing assert - skipped branch = 1 since the runtime_exception's true branch would be false.
         checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 2, 8, 1);
     }
