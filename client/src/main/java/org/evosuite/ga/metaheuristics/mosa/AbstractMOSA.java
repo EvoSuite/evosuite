@@ -1,4 +1,6 @@
 /**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
@@ -21,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -461,26 +462,6 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
      * {@inheritDoc}
      */
     @Override
-    protected void calculateFitness() {
-        logger.debug("Calculating fitness for " + this.population.size() + " individuals");
-
-        Iterator<T> iterator = this.population.iterator();
-        while (iterator.hasNext()) {
-            T c = iterator.next();
-            if (this.isFinished()) {
-                if (c.isChanged()) {
-                    iterator.remove();
-                }
-            } else {
-                this.calculateFitness(c);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void calculateFitness(T c) {
         this.fitnessFunctions.forEach(fitnessFunction -> fitnessFunction.getFitness(c));
 
@@ -555,7 +536,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
         return (T) best;
     }
 
-    private void computeCoverageAndFitness(TestSuiteChromosome suite) {
+    protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
       for (Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
           .entrySet()) {
         TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
@@ -565,10 +546,13 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
             Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
         int numberUncoveredTargets =
             Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
+        int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
+
+        double coverage = totalNumberTargets == 0 ? 1.0
+            : ((double) numberCoveredTargets) / ((double) totalNumberTargets);
 
         suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-        suite.setCoverage(suiteFitnessFunction, ((double) numberCoveredTargets)
-            / ((double) (numberCoveredTargets + numberUncoveredTargets)));
+        suite.setCoverage(suiteFitnessFunction, coverage);
         suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
         suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
       }

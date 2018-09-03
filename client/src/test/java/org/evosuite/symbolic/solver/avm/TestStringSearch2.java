@@ -35,6 +35,7 @@ import org.evosuite.Properties;
 import org.evosuite.RandomizedTC;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.PathCondition;
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
@@ -150,8 +151,8 @@ public class TestStringSearch2 extends RandomizedTC {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		// ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = ConcolicExecution.executeConcolic(tc);
+		PathCondition pc = ConcolicExecution.executeConcolic(tc);
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
 
 		printConstraints(branch_conditions);
 		return branch_conditions;

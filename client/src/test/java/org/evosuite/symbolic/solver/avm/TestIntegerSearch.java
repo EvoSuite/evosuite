@@ -316,6 +316,8 @@ public class TestIntegerSearch extends RandomizedTC {
 	public void testGTVariable() throws SolverEmptyQueryException {
 		int var1 = 0;
 		int var2 = 1;
+		 Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = Integer.MAX_VALUE;
+		 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1, -1000000, 1000000), Comparator.GT,
 				new IntegerVariable("test2", var2, -1000000, 1000000)));
@@ -500,6 +502,7 @@ public class TestIntegerSearch extends RandomizedTC {
 
 		try {
 			EvoSuiteSolver solver = new EvoSuiteSolver();
+			Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = Integer.MAX_VALUE;
 			SolverResult solverResult = solver.solve(constraints);
 			assertTrue(solverResult.isSAT());
 			Map<String, Object> model = solverResult.getModel();

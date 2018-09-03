@@ -51,11 +51,11 @@ public class URISystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testZ3Str2() {
-		Assume.assumeTrue(System.getenv("z3_str2_path")!=null);
+	public void testZ3() {
+		Assume.assumeTrue(System.getenv("z3_path")!=null);
 		
-		Properties.Z3_STR2_PATH =System.getenv("z3_str2_path");
-		Properties.DSE_SOLVER = Properties.SolverType.Z3_STR2_SOLVER;
+		Properties.Z3_PATH =System.getenv("z3_path");
+		Properties.DSE_SOLVER = Properties.SolverType.Z3_SOLVER;
 		
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = URI.class.getCanonicalName();

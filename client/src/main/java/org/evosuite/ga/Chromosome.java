@@ -377,9 +377,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * Getter for the field <code>coverage</code>.
 	 * </p>
 	 *
-	 * Returns a single coverage value if
-	 * {@code Properties.COMPOSITIONAL_FITNESS} is {@code false}. Otherwise (
-	 * {@code Properties.COMPOSITIONAL_FITNESS==true}), returns the average of
+	 * Returns a single coverage value calculated as the average of
 	 * coverage values for all fitness functions.
 	 *
 	 * @return a double.

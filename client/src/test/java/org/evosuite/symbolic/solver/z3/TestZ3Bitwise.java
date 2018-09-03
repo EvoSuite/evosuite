@@ -19,58 +19,14 @@
  */
 package org.evosuite.symbolic.solver.z3;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverBitwise;
-import org.junit.Test;
 
-public class TestZ3Bitwise extends TestZ3 {
+public class TestZ3Bitwise extends TestSolverBitwise {
 
-	@Test
-	public void testBitAnd() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testBitAnd(solver);
+	@Override
+	public Solver getSolver() {
+		return new Z3Solver();
 	}
 
-	@Test
-	public void testBitNot() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testBitNot(solver);
-	}
-
-	@Test
-	public void testBitOr() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testBitOr(solver);
-	}
-
-	@Test
-	public void testBitXor() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testBitXor(solver);
-	}
-
-	@Test
-	public void testShiftLeft() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testShiftLeft(solver);
-	}
-
-	@Test
-	public void testShiftRight() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testShiftRight(solver);
-	}
-
-	@Test
-	public void testShiftRightUnsigned() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverBitwise.testShiftRightUnsigned(solver);
-	}
 }

@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.evosuite.symbolic.TestCaseBuilder;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.solver.cvc4.CVC4Solver;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.variable.VariableReference;
 
@@ -90,7 +89,7 @@ public abstract class TestSolverRegex {
 		return solution;
 	}
 
-	public static Map<String, Object> testOptional(CVC4Solver solver)
+	public static Map<String, Object> testOptional(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildTestOptional();
@@ -100,7 +99,7 @@ public abstract class TestSolverRegex {
 		return solution;
 	}
 
-	public static Map<String, Object> testString(CVC4Solver solver)
+	public static Map<String, Object> testString(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildTestString();
@@ -121,7 +120,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testAnyChar(CVC4Solver solver)
+	public static Map<String, Object> testAnyChar(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildTestAnyChar();
@@ -142,7 +141,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testEmpty(CVC4Solver solver)
+	public static Map<String, Object> testEmpty(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildTestEmpty();
@@ -163,7 +162,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testCross(CVC4Solver solver)
+	public static Map<String, Object> testCross(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildTestCross();
@@ -184,7 +183,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testRepeatMin(CVC4Solver solver)
+	public static Map<String, Object> testRepeatMin(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildRepeatMin();
@@ -205,7 +204,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testRepeatMinMax(CVC4Solver solver)
+	public static Map<String, Object> testRepeatMinMax(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildRepeatMinMax();
@@ -226,7 +225,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testRepeatN(CVC4Solver solver)
+	public static Map<String, Object> testRepeatN(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildRepeatN();
@@ -247,7 +246,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testIntersection(CVC4Solver solver)
+	public static Map<String, Object> testIntersection(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildIntersection();
@@ -268,7 +267,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 
-	public static Map<String, Object> testChoice(CVC4Solver solver)
+	public static Map<String, Object> testChoice(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildChoice();
@@ -289,7 +288,7 @@ public abstract class TestSolverRegex {
 		return tc.getDefaultTestCase();
 	}
 	
-	public static Map<String, Object> testRange(CVC4Solver solver)
+	public static Map<String, Object> testRange(Solver solver)
 			throws SecurityException, NoSuchMethodException,
 			SolverTimeoutException {
 		DefaultTestCase tc = buildRange();

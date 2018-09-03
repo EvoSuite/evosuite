@@ -23,9 +23,44 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
+import org.junit.AfterClass;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public abstract class TestSolver {
+
+	private static final String DEFAULT_Z3_PATH = Properties.Z3_PATH;
+
+	private static final String DEFAULT_CVC4_PATH = Properties.CVC4_PATH;
+
+	@BeforeClass
+	public static void configureSolverPath() {
+		String z3_path = System.getenv("z3_path");
+		if (z3_path != null) {
+			Properties.Z3_PATH = z3_path;
+		}
+		String cvc4_path = System.getenv("cvc4_path");
+		if (cvc4_path != null) {
+			Properties.CVC4_PATH = cvc4_path;
+		}
+	}
+
+	@AfterClass
+	public static void restorePaths() {
+		Properties.Z3_PATH = DEFAULT_Z3_PATH;
+		Properties.CVC4_PATH = DEFAULT_CVC4_PATH;
+	}
+
+	@Before
+	public void checkSolverPaths() {
+		Assume.assumeTrue(Properties.Z3_PATH != null);
+		Assume.assumeTrue(Properties.CVC4_PATH != null);
+	}
+
+	public abstract Solver getSolver();
 
 	public static Map<String, Object> solve(Solver solver, Collection<Constraint<?>> constraints)
 			throws SolverTimeoutException {

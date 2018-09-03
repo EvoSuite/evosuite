@@ -22,7 +22,7 @@ package com.examples.with.different.packagename.solver;
 public class TestCaseStringStartsWithIndex {
 
 	public static boolean test(String str) {
-		if (str != null) {
+		if (str != null && str.length()>=".....Hello".length()) {
 			if (str.startsWith("Hello", 5)) {
 				return true;
 			}

@@ -37,4 +37,10 @@ public final class SmtFunctionDeclaration {
 	public String getFunctionSort() {
 		return functionSort;
 	}
+	
+	public String toString() {
+		SmtQueryPrinter printer = new SmtQueryPrinter();
+		String str = printer.print(this);
+		return str;
+	}
 }

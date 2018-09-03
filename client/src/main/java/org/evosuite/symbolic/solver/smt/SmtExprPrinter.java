@@ -28,7 +28,9 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 	@Override
 	public String visit(SmtIntConstant n, Void arg) {
 		long longValue = n.getConstantValue();
-		if (longValue < 0) {
+		if (longValue == Long.MIN_VALUE) {
+			return "(- " + String.valueOf(Long.MIN_VALUE).replace("-", "") + ")";
+		} else if (longValue < 0) {
 			long absoluteValue = Math.abs(longValue);
 			return "(- " + String.valueOf(absoluteValue) + ")";
 		} else {
@@ -36,8 +38,7 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 		}
 	}
 
-	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
-			"################0.0################");
+	private static DecimalFormat DECIMAL_FORMAT = new DecimalFormat("################0.0################");
 
 	@Override
 	public String visit(SmtRealConstant n, Void arg) {
@@ -53,7 +54,8 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtStringConstant n, Void arg) {
-		return "\"" + n.getConstantValue() + "\"";
+		String str = encodeString(n.getConstantValue());
+		return "\"" + str + "\"";
 	}
 
 	@Override
@@ -99,11 +101,30 @@ public final class SmtExprPrinter implements SmtExprVisitor<String, Void> {
 
 	@Override
 	public String visit(SmtBooleanConstant n, Void arg) {
-		if (n.booleanValue()==true) {
+		if (n.booleanValue() == true) {
 			return "true";
 		} else {
 			return "false";
 		}
+	}
+
+	public static String encodeString(String str) {
+		char[] charArray = str.toCharArray();
+		String ret_val = "";
+		for (int i = 0; i < charArray.length; i++) {
+			char c = charArray[i];
+			if (Character.isISOControl(c)) {
+				if (Integer.toHexString(c).length() == 1) {
+					// padding
+					ret_val += "_x0" + Integer.toHexString(c);
+				} else {
+					ret_val += "_x" + Integer.toHexString(c);
+				}
+			} else {
+				ret_val += c;
+			}
+		}
+		return ret_val;
 	}
 
 }

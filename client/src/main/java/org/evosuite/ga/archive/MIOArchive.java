@@ -79,22 +79,19 @@ public class MIOArchive<F extends TestFitnessFunction, T extends TestChromosome>
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public void updateArchive(F target, T solution, double fitnessValue) {
     super.updateArchive(target, solution, fitnessValue);
     assert this.archive.containsKey(target);
 
-    T solutionClone = (T) solution.clone();
-
-    ExecutionResult executionResult = solutionClone.getLastExecutionResult();
+    ExecutionResult executionResult = solution.getLastExecutionResult();
     // remove all statements after an exception
     if (!executionResult.noThrownExceptions()) {
-      solutionClone.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
+      solution.getTestCase().chop(executionResult.getFirstPositionOfThrownException() + 1);
     }
 
     boolean isNewCoveredTarget = this.archive.get(target)
-        .addSolution(1.0 - FitnessFunction.normalize(fitnessValue), solutionClone);
+        .addSolution(1.0 - FitnessFunction.normalize(fitnessValue), solution);
     if (isNewCoveredTarget) {
       this.removeNonCoveredTargetOfAMethod(target);
       this.hasBeenUpdated = true;

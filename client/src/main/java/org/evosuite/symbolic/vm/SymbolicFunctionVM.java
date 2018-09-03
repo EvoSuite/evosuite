@@ -641,7 +641,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		IntegerConstraint constraint = myFunctionUnderExecution
 				.beforeExecuteFunction();
 		if (constraint != null) {
-			pc.addSupportingConstraint(constraint);
+			pc.appendSupportingConstraint(constraint);
 		}
 	}
 

@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.ExpressionExecutor;
+import org.evosuite.symbolic.expr.ExpressionEvaluator;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.str.StringVariable;
@@ -59,7 +59,7 @@ final class StringAVM extends VariableAVM {
 	 */
 	public boolean applyAVM() throws SolverTimeoutException {
 
-		ExpressionExecutor exprExecutor = new ExpressionExecutor();
+		ExpressionEvaluator exprExecutor = new ExpressionEvaluator();
 		// try to remove each
 		log.debug("Trying to remove characters");
 		boolean improvement = false;

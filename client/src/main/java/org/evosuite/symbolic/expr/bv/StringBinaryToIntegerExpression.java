@@ -31,7 +31,7 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.ExpressionExecutor;
+import org.evosuite.symbolic.expr.ExpressionEvaluator;
 import org.evosuite.symbolic.expr.ExpressionVisitor;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
@@ -110,7 +110,7 @@ public final class StringBinaryToIntegerExpression extends
 	public String toString() {
 		if (op == Operator.INDEXOFC) {
 
-			Long longObject = (Long) right.accept(new ExpressionExecutor(),
+			Long longObject = (Long) right.accept(new ExpressionEvaluator(),
 					null);
 			return "(" + left + op.toString() + "\'"
 					+ Character.toChars(longObject.intValue())[0] + "\')";
