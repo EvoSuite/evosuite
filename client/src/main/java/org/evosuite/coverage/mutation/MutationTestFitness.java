@@ -261,7 +261,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
-		oos.writeInt(mutation.getId());
+		oos.writeInt(mutantId);
 	}
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
