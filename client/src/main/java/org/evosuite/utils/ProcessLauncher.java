@@ -38,89 +38,51 @@ public class ProcessLauncher {
 
 	private final InputStream input;
 
-	public ProcessLauncher() {
-		this(null,null);
-	}
-	
-	public ProcessLauncher(OutputStream outAndErr) {
-		this(outAndErr,null);
-	}
-
-	public ProcessLauncher(InputStream input) {
-		this(null,input);
-	}
-
 	public ProcessLauncher(OutputStream outAndErr, InputStream input) {
 		this.outAndErr = outAndErr;
 		this.input = input;
 	}
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ProcessLauncher.class);
+	private static Logger logger = LoggerFactory.getLogger(ProcessLauncher.class);
 
-	private static String concatToString(String[] cmd) {
-		String cmdLine = "";
-		for (String cmdStr : cmd) {
-			if (cmdLine.length() == 0) {
-				cmdLine = cmdStr;
-			} else {
-				cmdLine += " " + cmdStr;
-			}
-		}
-		return cmdLine;
-	}
-
-	public int launchNewProcess(String parsedCommand,
-			int timeout) throws IOException, ProcessTimeoutException {
-		int ret_code =launchNewProcess(null, parsedCommand,
-				timeout);
+	public int launchNewProcess(String parsedCommand, int timeout) throws IOException, ProcessTimeoutException {
+		int ret_code = launchNewProcess(null, parsedCommand, timeout);
 		return ret_code;
 	}
 
-	public int launchNewProcess(File baseDir, String[] parsedCommand,
-			int timeout) throws IOException, ProcessTimeoutException {
-		String cmdString = concatToString(parsedCommand);
-		int ret_code = launchNewProcess(baseDir, cmdString, timeout);
-		return ret_code;
-	}
-	
-	public int launchNewProcess(File baseDir, String cmdString,
-			int timeout) throws IOException, ProcessTimeoutException {
+	private int launchNewProcess(File baseDir, String cmdString, int timeout)
+			throws IOException, ProcessTimeoutException {
 
 		DefaultExecutor executor = new DefaultExecutor();
 		ExecuteWatchdog timeoutWatchdog = new ExecuteWatchdog(timeout);
 		executor.setWatchdog(timeoutWatchdog);
 
-		PumpStreamHandler streamHandler =new PumpStreamHandler(this.outAndErr, this.outAndErr, this.input);
+		PumpStreamHandler streamHandler = new PumpStreamHandler(this.outAndErr, this.outAndErr, this.input);
 		executor.setStreamHandler(streamHandler);
-		if (baseDir!=null) {
+		if (baseDir != null) {
 			executor.setWorkingDirectory(baseDir);
 		}
 
-		int exitValue;
 		try {
 			logger.debug("About to execute command " + cmdString);
-			exitValue = executor.execute(CommandLine.parse(cmdString));
-			if (executor.isFailure(exitValue)
-					&& timeoutWatchdog.killedProcess()) {
+			CommandLine cmdLine = CommandLine.parse(cmdString);
+			int exitValue = executor.execute(cmdLine);
+
+			if (executor.isFailure(exitValue) && timeoutWatchdog.killedProcess()) {
 				// it was killed on purpose by the watchdog
 				logger.debug("A timeout occured while executing a process");
 				logger.debug("The command is " + cmdString);
-				throw new ProcessTimeoutException(
-						"A timeout occurred while executing command "
-								+ cmdString);
+				throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
 			}
 
 			return exitValue;
-		} catch (ExecuteException e) {
+		} catch (ExecuteException ex) {
 			if (timeoutWatchdog.killedProcess()) {
 				logger.debug("A timeout occured while executing a process");
 				logger.debug("The command is " + cmdString);
-				throw new ProcessTimeoutException(
-						"A timeout occurred while executing command "
-								+ cmdString);
+				throw new ProcessTimeoutException("A timeout occurred while executing command " + cmdString);
 			} else {
-				throw e;
+				throw ex;
 			}
 
 		}

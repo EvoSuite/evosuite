@@ -34,6 +34,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -110,6 +111,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 
 		// Bootstrap with random testing to cover easy goals
 		//statistics.searchStarted(suiteGA);
+		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 		StoppingCondition stoppingCondition = getStoppingCondition();
 		TestSuiteChromosome suite = (TestSuiteChromosome) bootstrapRandomSuite(fitnessFunctions.get(0), goalFactories.get(0)); // FIXME: just one fitness and one factory?!

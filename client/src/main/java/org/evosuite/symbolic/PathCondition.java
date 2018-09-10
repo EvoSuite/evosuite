@@ -93,4 +93,8 @@ public class PathCondition {
 	public BranchCondition get(int index) {
 		return this.pathCondition.get(index);
 	}
+	
+	public String toString() {
+	  return pathCondition.toString();
+	}
 }

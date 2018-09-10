@@ -29,6 +29,8 @@ import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageTestFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -93,6 +95,7 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(rhoFactory.getCoverageGoals());
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");        
         LoggingUtils.getEvoLogger().info("  - Rho " + goals.size());
+		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 		double previous_fitness = RhoCoverageFactory.getRho();
 		double best_fitness = 0.0;

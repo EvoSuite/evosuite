@@ -31,7 +31,7 @@ public class SolverResult implements Serializable {
 	private static final long serialVersionUID = -930589471876011035L;
 
 	private enum SolverResultType {
-		SAT, UNSAT
+		SAT, UNSAT, UNKNOWN
 	};
 
 	private final SolverResultType resultType;
@@ -45,6 +45,10 @@ public class SolverResult implements Serializable {
 
 	public static SolverResult newUNSAT() {
 		return new SolverResult(SolverResultType.UNSAT, null);
+	}
+
+	public static SolverResult newUnknown() {
+		return new SolverResult(SolverResultType.UNKNOWN, null);
 	}
 
 	public static SolverResult newSAT(Map<String, Object> values) {

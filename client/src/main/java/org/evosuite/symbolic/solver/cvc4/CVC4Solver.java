@@ -33,19 +33,21 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.SmtSolver;
 import org.evosuite.symbolic.solver.SolverEmptyQueryException;
 import org.evosuite.symbolic.solver.SolverErrorException;
 import org.evosuite.symbolic.solver.SolverParseException;
 import org.evosuite.symbolic.solver.SolverResult;
 import org.evosuite.symbolic.solver.SolverTimeoutException;
-import org.evosuite.symbolic.solver.SubProcessSolver;
 import org.evosuite.symbolic.solver.smt.SmtAssertion;
-import org.evosuite.symbolic.solver.smt.SmtCheckSatQuery;
+import org.evosuite.symbolic.solver.smt.SmtQuery;
+import org.evosuite.symbolic.solver.smt.SmtQueryPrinter;
 import org.evosuite.symbolic.solver.smt.SmtConstantDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 import org.evosuite.symbolic.solver.smt.SmtFunctionDeclaration;
 import org.evosuite.symbolic.solver.smt.SmtFunctionDefinition;
 import org.evosuite.symbolic.solver.smt.SmtIntVariable;
+import org.evosuite.symbolic.solver.smt.SmtModelParser;
 import org.evosuite.symbolic.solver.smt.SmtOperation;
 import org.evosuite.symbolic.solver.smt.SmtOperation.Operator;
 import org.evosuite.symbolic.solver.smt.SmtOperatorCollector;
@@ -56,7 +58,7 @@ import org.evosuite.symbolic.solver.smt.SmtVariableCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CVC4Solver extends SubProcessSolver {
+public final class CVC4Solver extends SmtSolver {
 
 	private boolean reWriteNonLinearConstraints = false;
 
@@ -105,21 +107,21 @@ public final class CVC4Solver extends SubProcessSolver {
 			variables.addAll(c_variables);
 		}
 
-		SmtCheckSatQuery smtQuery = buildSmtCheckSatQuery(constraints);
+		SmtQuery query = buildSmtQuery(constraints);
 
-		if (smtQuery == null) {
+		if (query.getFunctionDeclarations().isEmpty()) {
 			logger.debug("No variables found during the creation of the SMT query.");
 			throw new SolverEmptyQueryException("No variables found during the creation of the SMT query.");
 		}
 
-		if (smtQuery.getAssertions().isEmpty()) {
+		if (query.getAssertions().isEmpty()) {
 			Map<String, Object> emptySolution = new HashMap<String, Object>();
 			SolverResult emptySAT = SolverResult.newSAT(emptySolution);
 			return emptySAT;
 		}
 
-		CVC4QueryPrinter printer = new CVC4QueryPrinter();
-		String smtQueryStr = printer.print(smtQuery);
+		SmtQueryPrinter printer = new SmtQueryPrinter();
+		String smtQueryStr = printer.print(query);
 
 		if (smtQueryStr == null) {
 			logger.debug("No variables found during constraint solving.");
@@ -129,23 +131,26 @@ public final class CVC4Solver extends SubProcessSolver {
 		logger.debug("CVC4 Query:");
 		logger.debug(smtQueryStr);
 
-		String cvc4Cmd = buildCVC4cmd(cvcTimeout);
+		String cmd = buildCVC4cmd(cvcTimeout);
 
 		ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-
 		try {
-			launchNewProcess(cvc4Cmd, smtQueryStr, (int) cvcTimeout, stdout);
+			launchNewSolvingProcess(cmd, smtQueryStr, (int) cvcTimeout, stdout);
+			String output = stdout.toString("UTF-8");
 
-			String cvc4ResultStr = stdout.toString("UTF-8");
+			if (output.startsWith("unknown")) {
+				logger.debug("timeout reached when using cvc4");
+				throw new SolverTimeoutException();
+			}
 
-			if (cvc4ResultStr.startsWith("unsat") && cvc4ResultStr.contains(
+			if (output.startsWith("unsat") && output.contains(
 					"(error \"Cannot get the current model unless immediately preceded by SAT/INVALID or UNKNOWN response.\")")) {
 				// UNSAT
 				SolverResult unsatResult = SolverResult.newUNSAT();
 				return unsatResult;
 			}
 
-			if (cvc4ResultStr.contains("error")) {
+			if (output.contains("error")) {
 				String errMsg = "An error occurred while executing CVC4!";
 				logger.error(errMsg);
 				throw new SolverErrorException(errMsg);
@@ -153,13 +158,13 @@ public final class CVC4Solver extends SubProcessSolver {
 
 			// parse solution
 			Map<String, Object> initialValues = getConcreteValues(variables);
-			CVC4ResultParser resultParser;
+			SmtModelParser resultParser;
 			if (addMissingVariables()) {
-				resultParser = new CVC4ResultParser(initialValues);
+				resultParser = new SmtModelParser(initialValues);
 			} else {
-				resultParser = new CVC4ResultParser();
+				resultParser = new SmtModelParser();
 			}
-			SolverResult solverResult = resultParser.parse(cvc4ResultStr);
+			SolverResult solverResult = resultParser.parse(output);
 
 			if (solverResult.isSAT()) {
 				// check if the found solution is useful
@@ -185,18 +190,26 @@ public final class CVC4Solver extends SubProcessSolver {
 
 	}
 
-	private static SmtCheckSatQuery buildSmtCheckSatQuery(Collection<Constraint<?>> constraints) {
+	private static final String CVC4_LOGIC = "QF_ALL_SUPPORTED"; // previously QF_SLIRA, SLIRA
+
+	private static SmtQuery buildSmtQuery(Collection<Constraint<?>> constraints) {
+
+		SmtQuery query = new SmtQuery();
+
+		query.setLogic(CVC4_LOGIC);
+
+		query.addOption(":produce-models", "true");
+		query.addOption(":strings-exp", "true");
 
 		ConstraintToCVC4Visitor v = new ConstraintToCVC4Visitor(true);
 		SmtVariableCollector varCollector = new SmtVariableCollector();
 		SmtOperatorCollector funCollector = new SmtOperatorCollector();
 
-		List<SmtAssertion> smtAssertions = new LinkedList<SmtAssertion>();
 		for (Constraint<?> c : constraints) {
 			SmtExpr smtExpr = c.accept(v, null);
 			if (smtExpr != null) {
 				SmtAssertion smtAssertion = new SmtAssertion(smtExpr);
-				smtAssertions.add(smtAssertion);
+				query.addAssertion(smtAssertion);
 				smtExpr.accept(varCollector, null);
 				smtExpr.accept(funCollector, null);
 			}
@@ -204,49 +217,39 @@ public final class CVC4Solver extends SubProcessSolver {
 
 		Set<SmtVariable> variables = varCollector.getSmtVariables();
 
-		if (variables.isEmpty()) {
-			return null; // no variables, constraint system is trivial
-		}
-
-		List<SmtFunctionDefinition> functionDefinitions = new LinkedList<SmtFunctionDefinition>();
-
 		final boolean addCharToInt = funCollector.getOperators().contains(Operator.CHAR_TO_INT);
 		if (addCharToInt) {
 			String charToIntFunction = buildCharToIntFunction();
 			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(charToIntFunction);
-			functionDefinitions.add(funcDefinition);
+			query.addFunctionDefinition(funcDefinition);
 		}
 
 		final boolean addIntToChar = funCollector.getOperators().contains(Operator.INT_TO_CHAR);
 		if (addIntToChar) {
 			String intToCharFunction = buildIntToCharFunction();
 			SmtFunctionDefinition funcDefinition = new SmtFunctionDefinition(intToCharFunction);
-			functionDefinitions.add(funcDefinition);
+			query.addFunctionDefinition(funcDefinition);
 		}
 
-		List<SmtFunctionDeclaration> functionDeclarations = new LinkedList<SmtFunctionDeclaration>();
 		for (SmtVariable var : variables) {
 			String varName = var.getName();
 			if (var instanceof SmtIntVariable) {
 				SmtFunctionDeclaration intVar = SmtExprBuilder.mkIntFunctionDeclaration(varName);
-				functionDeclarations.add(intVar);
+				query.addFunctionDeclaration(intVar);
 
 			} else if (var instanceof SmtRealVariable) {
 				SmtFunctionDeclaration realVar = SmtExprBuilder.mkRealFunctionDeclaration(varName);
-				functionDeclarations.add(realVar);
+				query.addFunctionDeclaration(realVar);
 
 			} else if (var instanceof SmtStringVariable) {
 				SmtFunctionDeclaration stringVar = SmtExprBuilder.mkStringFunctionDeclaration(varName);
-				functionDeclarations.add(stringVar);
+				query.addFunctionDeclaration(stringVar);
 			} else {
 				throw new RuntimeException("Unknown variable type " + var.getClass().getCanonicalName());
 			}
 		}
 
-		SmtCheckSatQuery smtQuery = new SmtCheckSatQuery(new LinkedList<SmtConstantDeclaration>(), functionDeclarations,
-				functionDefinitions, smtAssertions);
-
-		return smtQuery;
+		return query;
 
 	}
 
@@ -259,20 +262,19 @@ public final class CVC4Solver extends SubProcessSolver {
 		/**
 		 * Option --finite-model-find has two effects:
 		 * 
-		 * 1. It extends the ground UF solver to
-		 * "UF + finite cardinality constraints", as described in this paper:
-		 * http://homepage.cs.uiowa.edu/~ajreynol/cav13.pdf This is used to
-		 * minimize the size of the interpretation of uninterpreted sorts.
+		 * 1. It extends the ground UF solver to "UF + finite cardinality constraints",
+		 * as described in this paper: http://homepage.cs.uiowa.edu/~ajreynol/cav13.pdf
+		 * This is used to minimize the size of the interpretation of uninterpreted
+		 * sorts.
 		 * 
-		 * 2. It modifies the quantifier instantiation heuristics, as described
-		 * in this paper: http://homepage.cs.uiowa.edu/~ajreynol/cade24.pdf In
-		 * particular, it disables E-matching and enables
-		 * "model-based quantifier instantiation", which is the strategy that
-		 * enables CVC4 to answer "SAT" in the presence of universally
-		 * quantified formulas.
+		 * 2. It modifies the quantifier instantiation heuristics, as described in this
+		 * paper: http://homepage.cs.uiowa.edu/~ajreynol/cade24.pdf In particular, it
+		 * disables E-matching and enables "model-based quantifier instantiation", which
+		 * is the strategy that enables CVC4 to answer "SAT" in the presence of
+		 * universally quantified formulas.
 		 * 
-		 * More details on both of these points can be found in Sections 5.2 -
-		 * 5.4 of http://homepage.cs.uiowa.edu/~ajreynol/thesis.pdf.
+		 * More details on both of these points can be found in Sections 5.2 - 5.4 of
+		 * http://homepage.cs.uiowa.edu/~ajreynol/thesis.pdf.
 		 */
 		cmd += " --tlimit=" + cvcTimeout; // set timeout to cvcTimeout
 		return cmd;

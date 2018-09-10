@@ -372,6 +372,19 @@ public class TestClusterGenerator {
 		}
 	}
 
+	private boolean isInterfaceWithDefaultMethods(Class<?> clazz) {
+		if(!clazz.isInterface()) {
+			return false;
+		}
+
+		for(Method m : clazz.getDeclaredMethods()) {
+			if(m.isDefault()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * All public methods defined directly in the SUT should be covered
 	 *
@@ -392,33 +405,14 @@ public class TestClusterGenerator {
 		}
 		targetClasses.add(targetClass);
 		addDeclaredClasses(targetClasses, targetClass);
-		if (Modifier.isAbstract(targetClass.getModifiers())) {
+		if ((!targetClass.isInterface() && Modifier.isAbstract(targetClass.getModifiers())) || isInterfaceWithDefaultMethods(targetClass)) {
 			logger.info("SUT is an abstract class");
+
 			Set<Class<?>> subclasses = ConcreteClassAnalyzer.getInstance().getConcreteClasses(targetClass,
 					inheritanceTree);
 			logger.info("Found " + subclasses.size() + " concrete subclasses");
 			targetClasses.addAll(subclasses);
 		}
-
-		// load all the interesting classes from the callgraph,
-		// need more testing, seems to slow down the search
-		// if(Properties.INSTRUMENT_CONTEXT){
-		// Set<String> toLoad;
-		// if(Properties.INSTRUMENT_LIBRARIES){
-		// toLoad = callGraph.getClassesUnderTest();
-		// }else{
-		// toLoad = new HashSet<>();
-		// for (String className : callGraph.getClassesUnderTest()) {
-		// if (!Properties.INSTRUMENT_LIBRARIES
-		// && !DependencyAnalysis.isTargetProject(className))
-		// continue;
-		// toLoad.add(className);
-		// }
-		//
-		// }
-		// targetClasses.addAll(loadClasses(toLoad));
-		//
-		// }
 
 		// To make sure we also have anonymous inner classes double check inner
 		// classes using ASM
@@ -527,6 +521,11 @@ public class TestClusterGenerator {
 				if (TestUsageChecker.canUse(method, clazz)) {
 					logger.debug("Adding method " + clazz.getName() + "." + method.getName()
 							+ org.objectweb.asm.Type.getMethodDescriptor(method));
+
+					if(clazz.isInterface() && Modifier.isAbstract(method.getModifiers())) {
+						logger.debug("Not adding interface method {}", method);
+						continue;
+					}
 
 					GenericMethod genericMethod = new GenericMethod(method, clazz);
 					if (method.getDeclaringClass().equals(clazz))

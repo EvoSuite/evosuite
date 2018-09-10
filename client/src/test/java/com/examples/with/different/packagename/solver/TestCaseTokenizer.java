@@ -24,11 +24,15 @@ import java.util.StringTokenizer;
 public class TestCaseTokenizer {
 
 	public static boolean test(String str) {
-		StringTokenizer tokenizer = new StringTokenizer(str," ");
-		while (tokenizer.hasMoreTokens()) {
-			String token = tokenizer.nextToken();
-			if (token.equals("Ramon")) {
-				return true;
+		StringTokenizer tokenizer = new StringTokenizer(str);
+		String token0 = tokenizer.nextToken();
+		if (token0.equals("Here")) {
+			String token1 = tokenizer.nextToken();
+			if (token1.equals("is")) {
+				String token2 = tokenizer.nextToken();
+				if (token2.equals("Ramon")) {
+					return true;
+				}
 			}
 		}
 		return false;

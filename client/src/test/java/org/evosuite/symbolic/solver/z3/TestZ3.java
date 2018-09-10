@@ -46,4 +46,6 @@ public abstract class TestZ3 {
 	public void checkZ3() {
 		Assume.assumeTrue(Properties.Z3_PATH!=null);
 	}
+
+	
 }

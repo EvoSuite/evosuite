@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,6 +95,10 @@ public class MethodCoverageFactory extends
 						logger.debug("Excluding valueOf for Enum " + m.toString());
 						continue;
 					}
+				}
+				if(clazz.isInterface() && Modifier.isAbstract(m.getModifiers())) {
+					// Don't count interface declarations as targets
+					continue;
 				}
 				String methodName = m.getName() + Type.getMethodDescriptor(m);
 				if (!matcher.methodMatches(methodName)) {
