@@ -87,45 +87,18 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         TryCatchBlock block = new TryCatchBlock(start, end, catchLabel, null);
         instrumentedTryCatchBlocks.add(block);
 
-        Type returnType = Type.getReturnType(desc);
-        int returnVar = -1;
-
-        // Save return value as local, and restore it after exception handling
-        if(!returnType.equals(Type.VOID_TYPE)) {
-            returnVar = newLocal(returnType);
-            switch(returnType.getSort()) {
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                    push(0);
-                    break;
-                case 6:
-                    push(0.0f);
-                    break;
-                case 7:
-                    push(0L);
-                    break;
-                case 8:
-                    push(0.0);
-                    break;
-                default:
-                    push((String)null);
-            }
-
-            storeLocal(returnVar);
-        }
         mark(start);
-
         super.visitMethodInsn(opcode, owner, name, desc, itf);
-
-        if(returnVar > -1) {
-            storeLocal(returnVar);
-        }
 
         // Insert end of try block label
         mark(end);
+
+        // If there was no exception, skip ahead to rest of the code
+        loadLocal(exceptionInstanceVar);
+        Label noExceptionLabel = newLabel();
+        tagBranch();
+        ifNull(noExceptionLabel);
+        tagBranchExit();
 
         // Skip catch block if no exception was thrown
         Label afterCatch = newLabel();
@@ -136,21 +109,9 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         // catchException(start, end, null);
         // super.visitTryCatchBlock(start, end, end, null);
 
+
         // assign exception to exceptionInstanceVar
         storeLocal(exceptionInstanceVar);
-
-        // TODO: Here the JVM is expecting the proper stack but it is cleared except for the throwable
-
-        // Insert end of catch block label
-        mark(afterCatch);
-
-
-        // If there was no exception, skip ahead to rest of the code
-        loadLocal(exceptionInstanceVar);
-        Label noExceptionLabel = newLabel();
-        tagBranch();
-        ifNull(noExceptionLabel);
-        tagBranchExit();
 
         // If there was an exception, rethrow it, with one if per declared exception type
         for(Type exceptionType : declaredExceptions) {
@@ -180,11 +141,12 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         throwException();
         tagBranchExit();
 
+        // Insert end of catch block label
+        mark(afterCatch);
+
 
         mark(noExceptionLabel);
-        if(returnVar > -1) {
-            loadLocal(returnVar);
-        }
+
     }
 
 
