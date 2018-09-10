@@ -44,7 +44,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	private static Logger logger = LoggerFactory.getLogger(MasterNodeImpl.class);
 
 	private final Registry registry;
-	private final Set<ClientNodeRemote> clients;
+	private final Map<String, ClientNodeRemote> clients;
 
 	protected final Collection<Listener<ClientStateInformation>> listeners = Collections.synchronizedList(new ArrayList<Listener<ClientStateInformation>>());
 
@@ -59,7 +59,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	private final Map<String, ClientStateInformation> clientStateInformation;
 
 	public MasterNodeImpl(Registry registry) {
-		clients = new CopyOnWriteArraySet<ClientNodeRemote>();
+		clients = new ConcurrentHashMap<String, ClientNodeRemote>();
 		clientStates = new ConcurrentHashMap<String, ClientState>();
 		clientStateInformation = new ConcurrentHashMap<String, ClientStateInformation>();
 		this.registry = registry;
@@ -82,7 +82,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 			return;
 		}
 		synchronized (clients) {
-			clients.add(node);
+			clients.put(clientRmiIdentifier, node);
 			clients.notifyAll();
 		}
 	}
@@ -137,13 +137,15 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 				}
 				clients.wait(timeRemained);
 			}
-			return Collections.unmodifiableSet(clients);
+			
+			Set<ClientNodeRemote> clientSet = new CopyOnWriteArraySet<>(clients.values());
+			return Collections.unmodifiableSet(clientSet);
 		}
 	}
 
 	@Override
 	public void cancelAllClients() {
-		for (ClientNodeRemote client : clients) {
+		for (ClientNodeRemote client : clients.values()) {
 			try {
 				LoggingUtils.getEvoLogger().info("Trying to kill client " + client);
 				client.cancelCurrentSearch();
@@ -188,22 +190,18 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
     public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants)
             throws RemoteException {
         //implements ring topology
-        try {
-            int idNeighbour = (Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", "")) + 1) % Properties.PARALLEL_RUN;
+        int idNeighbour = (Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", "")) + 1) % Properties.PARALLEL_RUN;
 
-            ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode" + idNeighbour);
-            node.immigrate(migrants);
-        } catch (NotBoundException e) {
-            logger.error("Client with id " + clientRmiIdentifier + "not found");
-        }
+        ClientNodeRemote node = clients.get("ClientNode" + idNeighbour);
+        node.immigrate(migrants);
     }
 
     @Override
     public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
         try {
-            ClientNodeRemote node = (ClientNodeRemote) registry.lookup("ClientNode0");
+            ClientNodeRemote node = clients.get("ClientNode0");
             node.collectBestSolutions(solutions);
-        } catch (RemoteException | NotBoundException e) {
+        } catch (RemoteException e) {
             logger.error("Cannot send best solutions to client 0", e);
         }
     }
