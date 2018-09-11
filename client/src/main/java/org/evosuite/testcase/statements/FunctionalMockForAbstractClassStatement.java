@@ -5,6 +5,7 @@ import org.evosuite.testcase.fm.EvoAbstractMethodInvocationListener;
 import org.evosuite.testcase.fm.EvoInvocationListener;
 import org.evosuite.testcase.fm.MethodDescriptor;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.generic.GenericClass;
 import org.mockito.MockSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,16 +23,16 @@ public class FunctionalMockForAbstractClassStatement extends FunctionalMockState
 
     private static final Logger logger = LoggerFactory.getLogger(FunctionalMockForAbstractClassStatement.class);
 
-    public FunctionalMockForAbstractClassStatement(TestCase tc, VariableReference retval, Class<?> targetClass) throws IllegalArgumentException {
+    public FunctionalMockForAbstractClassStatement(TestCase tc, VariableReference retval, GenericClass targetClass) throws IllegalArgumentException {
         super(tc, retval, targetClass);
     }
 
-    public FunctionalMockForAbstractClassStatement(TestCase tc, Type retvalType, Class<?> targetClass) throws IllegalArgumentException {
+    public FunctionalMockForAbstractClassStatement(TestCase tc, Type retvalType, GenericClass targetClass) throws IllegalArgumentException {
         super(tc, retvalType, targetClass);
     }
 
     protected void checkTarget() {
-        if(! canBeFunctionalMockedIncludingSUT(targetClass)){
+        if(! canBeFunctionalMockedIncludingSUT(targetClass.getRawClass())){
             throw new IllegalArgumentException("Cannot create a basic functional mock for class "+targetClass);
         }
     }
