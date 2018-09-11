@@ -196,7 +196,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
         if (getClass() != obj.getClass())
             return false;
         StatementCoverageTestFitness other = (StatementCoverageTestFitness) obj;
-        if (this.className != other.className) {
+        if (!this.className.equals(other.className)) {
           return false;
         } else if (!this.methodName.equals(other.methodName)) {
           return false;

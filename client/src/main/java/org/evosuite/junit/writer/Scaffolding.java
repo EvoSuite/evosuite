@@ -84,7 +84,12 @@ public class Scaffolding {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results, wasSecurityException));
-		builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
+		if(results.isEmpty()) {
+			builder.append(METHOD_SPACE);
+			builder.append("// Empty scaffolding for empty test suite\n");
+		} else {
+			builder.append(new Scaffolding().getBeforeAndAfterMethods(name, wasSecurityException, results));
+		}
 		builder.append(getFooter());
 
 		return builder.toString();

@@ -224,7 +224,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 		if (getClass() != obj.getClass())
 			return false;
 		LineCoverageTestFitness other = (LineCoverageTestFitness) obj;
-		if (className != other.className) {
+		if (!className.equals(other.className)) {
 			return false;
 		} else if (! methodName.equals(other.methodName)) {
 			return false;
