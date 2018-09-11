@@ -299,7 +299,7 @@ public class Properties {
     @Parameter(key = "parallel_run", group = "Test Creation", description = "Run EvoSuite with more the one client in parallel")
     public static int PARALLEL_RUN = 1;
     
-    @Parameter(key = "frequency", group = "Test Creation", description = "Determines amount of iterations between sending migrants to other client.")
+    @Parameter(key = "frequency", group = "Test Creation", description = "Determines amount of iterations between sending migrants to other client (-1 to disable any iterations between clients)")
     public static int FREQUENCY = 2;
     
     @Parameter(key = "rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
