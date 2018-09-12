@@ -24,11 +24,16 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.statistics.OutputVariable;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Map;
 
 /**
  * Created by gordon on 17/03/2016.
@@ -44,7 +49,7 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         Properties.CRITERION = defaultCriterion;
     }
 
-    public void checkCoverageGoals(Class<?> classUnderTest, int branchGoals, int exceptionGoals, int expectedCoveredGoals) {
+    public void checkCoverageGoals(Class<?> classUnderTest, int branchGoals, int exceptionGoals, int skipppedBranches) {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = classUnderTest.getCanonicalName();
@@ -53,7 +58,11 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
         Properties.EXCEPTION_BRANCHES = true;
 
-        String[] command = new String[] { "-generateSuite", "-class", targetClass };
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        StringBuilder s = new StringBuilder();
+        s.append(RuntimeVariable.TryCatchCoverage);
+        Properties.OUTPUT_VARIABLES = s.toString();
 
         Object result = evosuite.parseCommandLine(command);
         GeneticAlgorithm<?> ga = getGAFromResult(result);
@@ -62,7 +71,17 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
 
         Assert.assertEquals(branchGoals, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
         Assert.assertEquals(exceptionGoals, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-        Assert.assertEquals("Non-optimal coverage: ", (double)expectedCoveredGoals/(double)(branchGoals + exceptionGoals), best.getCoverage(), 0.001);
+
+        Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
+        Assert.assertNotNull(map);
+        OutputVariable<Double> tryCatchCoverage = (OutputVariable<Double>) map.get(RuntimeVariable.TryCatchCoverage.toString());
+
+        double branchCoverageFitness = 1; // Since all the branches are always covered
+        double tryCatchCoverageFitness = ((double) (exceptionGoals - skipppedBranches) / (double) exceptionGoals);
+        double coverage = (branchCoverageFitness + tryCatchCoverageFitness) * 0.5;
+
+//        Assert.assertEquals("Non-optimal TryCatchCoverage: ", 1, tryCatchCoverage.getValue(), 0.001);
+        Assert.assertEquals("Non-optimal coverage: ", coverage, best.getCoverage(), 0.001);
     }
 
 
@@ -71,22 +90,37 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         // # branches == 0
         // # branchless methods == 1 (<init>)
         // # additional branches: 4 (FileNotFoundException true/false, RuntimeException true/false)
-        checkCoverageGoals(SimpleTryCatch.class, 2, 2, 4);
+        // Passing assert
+        // checkCoverageGoals(SimpleTryCatch.class, 2, 4, 1);
+        // Failing assert
+        checkCoverageGoals(SimpleTryCatch.class, 2, 4, 0);
     }
 
     @Test
     public void testCheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(SimpleTry2Catches.class, 2, 3, 5);
+        // Passing assert
+        // checkCoverageGoals(SimpleTry2Catches.class, 2, 6, 2);
+        // Failing assert
+        checkCoverageGoals(SimpleTry2Catches.class, 2, 6, 1);
     }
 
     @Test
     public void testReThrownCheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(Rethrow2Exceptions.class, 2, 3, 5);
+        // Passing assert
+        // checkCoverageGoals(Rethrow2Exceptions.class, 2, 6, 2);
+        // Failing assert
+        checkCoverageGoals(Rethrow2Exceptions.class, 2, 6, 1);
+
     }
+
 
     @Test
     public void testReThrownCheckedAndUncheckedExceptionBranchesTwoThrows() {
-        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 2, 3, 5);
+        // Runtime Exception is thrown hence 5/6 TryCatchCoverage fitness value.
+        // Passing assert
+        // checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 2, 6, 1);
+        // Failing assert
+        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 2, 6, 0);
     }
 
     @Test
@@ -95,12 +129,13 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         // The NPE caused by "foo" being null is now caught outside the exception instrumentation
         // and thus represents a different coverage goal than a RuntimeException thrown _in_ foo.
         // Hence we now only cover 8/9 goals.
-        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 2, 4, 6);
+        // Failing assert - skipped branch = 1 since the runtime_exception's true branch would be false.
+        checkCoverageGoals(Rethrow2ExceptionsAndUncheckedException.class, 2, 8, 1);
     }
 
     @Test
     public void testCatchWithUnknownThrow() {
-        checkCoverageGoals(CatchWithUnknownThrow.class, 2, 2, 4);
+        checkCoverageGoals(CatchWithUnknownThrow.class, 2, 4, 1);
     }
 
 }

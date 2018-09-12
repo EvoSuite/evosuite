@@ -20,6 +20,7 @@
 package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
@@ -43,7 +44,6 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
     private static int maxExceptionsCovered = 0;
-    
 
 	public ExceptionCoverageSuiteFitness() {
 	}
@@ -117,7 +117,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions,
             Map<String, Set<Class<?>>> declaredTypesOfExceptions, ExceptionCoverageSuiteFitness contextFitness)
 		throws IllegalArgumentException{
-		
+
+		MethodNameMatcher matcher = new MethodNameMatcher();
+
 		if(results==null || implicitTypesOfExceptions==null || explicitTypesOfExceptions==null ||
 				!implicitTypesOfExceptions.isEmpty() || !explicitTypesOfExceptions.isEmpty() ||
                 declaredTypesOfExceptions==null || !declaredTypesOfExceptions.isEmpty()){
@@ -147,6 +149,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 				Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
 				String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
+				if (!matcher.methodMatches(methodIdentifier)) {
+					logger.info("Method {} does not match criteria. ",methodIdentifier);
+					continue;
+				}
 				boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
 
 				/*

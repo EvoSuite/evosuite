@@ -55,7 +55,7 @@ public class TestGeneration {
 			CommandLine line) {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
-		
+
 		if (strategy == null) {
 			strategy = Strategy.EVOSUITE;
 		} 

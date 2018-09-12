@@ -34,6 +34,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -152,6 +153,14 @@ public class EvoSuite {
 
             setupProperties();
 
+            if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
+                throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
+            }
+
+            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+                ClassPathHacker.initializeToolJar();
+            }
+
             if (!line.hasOption("regressionSuite")) {
                 if (line.hasOption("criterion")) {
                     //TODO should check if already defined
@@ -180,7 +189,7 @@ public class EvoSuite {
             if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
                 ClassPathHacker.initializeToolJar();
             }
-            
+
             CommandLineParameters.handleClassPath(line);
 
             CommandLineParameters.handleJVMOptions(javaOpts, line);
@@ -219,6 +228,7 @@ public class EvoSuite {
                     LoggingUtils.getEvoLogger().info("* Configuration: " + conf);
                 }
             }
+
 
             if(Properties.CLIENT_ON_THREAD){
                 MSecurityManager.setRunningClientOnThread(true);

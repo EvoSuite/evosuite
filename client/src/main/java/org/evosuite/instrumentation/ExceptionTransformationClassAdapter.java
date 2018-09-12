@@ -49,7 +49,8 @@ public class ExceptionTransformationClassAdapter extends ClassVisitor {
     public ExceptionTransformationClassAdapter(ClassVisitor cv, String className) {
         super(Opcodes.ASM5, cv);
         this.className = className;
-        methodExceptionMap.put(className, new LinkedHashMap<>());
+        if(!methodExceptionMap.containsKey(className))
+            methodExceptionMap.put(className, new LinkedHashMap<>());
     }
 
     /* (non-Javadoc)
