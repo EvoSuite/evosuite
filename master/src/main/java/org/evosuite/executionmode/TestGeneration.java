@@ -23,7 +23,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.*;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
@@ -269,7 +268,7 @@ public class TestGeneration {
 		
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
-// EVOSUITE -class dadsa -projectCP sdadas -Ddebug=true
+
 		if (Properties.DEBUG) {
 			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
 			cmdLine.add("-Ddebug=true");
