@@ -331,6 +331,26 @@ public class TestGeneration {
 			break;
 		case MOSUITE:
 			cmdLine.add("-Dstrategy=MOSuite");
+
+			// Set up defaults for MOSA if not specified by user
+			boolean algorithmSet = false;
+			boolean selectionSet = false;
+			for (String arg : args) {
+				if (arg.startsWith("-Dalgorithm")) {
+					algorithmSet = true;
+				}
+				if (arg.startsWith("-Dselection_function")) {
+					selectionSet = true;
+				}
+			}
+
+			if(!selectionSet) {
+				cmdLine.add("-Dselection_function=RANK_CROWD_DISTANCE_TOURNAMENT");
+			}
+
+			if(!algorithmSet) {
+				cmdLine.add("-Dalgorithm=MOSA");
+			}
 			break;
 		case DSE:
 			cmdLine.add("-Dstrategy=DSE");
