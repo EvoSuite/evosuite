@@ -21,21 +21,23 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
+import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public class StringNextTokenExprTest {
+public class NextTokenizerExprTest {
+
 
     @Test
     public void testEquals() {
         StringConstant helloWorldStr = new StringConstant("Hello World");
         StringConstant delimiterStr = new StringConstant(" ");
         NewTokenizerExpr newTokenizerExpr = new NewTokenizerExpr(helloWorldStr, delimiterStr);
-        StringNextTokenExpr left = new StringNextTokenExpr(newTokenizerExpr, helloWorldStr.getConcreteValue());
-        StringNextTokenExpr right = new StringNextTokenExpr(newTokenizerExpr, helloWorldStr.getConcreteValue());
+        NextTokenizerExpr left = new NextTokenizerExpr(newTokenizerExpr);
+        NextTokenizerExpr right = new NextTokenizerExpr(newTokenizerExpr);
         assertEquals(left, right);
     }
 
@@ -45,10 +47,10 @@ public class StringNextTokenExprTest {
         StringConstant goodByeWorldStr = new StringConstant("Goodbye World");
         StringConstant delimiterStr = new StringConstant(" ");
         NewTokenizerExpr leftNewTokenizerExpr = new NewTokenizerExpr(helloWorldStr, delimiterStr);
-        StringNextTokenExpr left = new StringNextTokenExpr(leftNewTokenizerExpr, helloWorldStr.getConcreteValue());
+        NextTokenizerExpr left = new NextTokenizerExpr(leftNewTokenizerExpr);
 
         NewTokenizerExpr rightNewTokenizerExpr = new NewTokenizerExpr(goodByeWorldStr, delimiterStr);
-        StringNextTokenExpr right = new StringNextTokenExpr(rightNewTokenizerExpr, helloWorldStr.getConcreteValue());
+        NextTokenizerExpr right = new NextTokenizerExpr(rightNewTokenizerExpr);
         assertNotEquals(left, right);
     }
 }

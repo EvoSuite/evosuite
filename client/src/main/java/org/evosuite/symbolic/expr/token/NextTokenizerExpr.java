@@ -58,7 +58,7 @@ public final class NextTokenizerExpr extends TokenizerExpr {
 			return true;
 
 		if (obj instanceof NextTokenizerExpr) {
-			NextTokenizerExpr that = this;
+			NextTokenizerExpr that = (NextTokenizerExpr)obj;
 			return this.tokenizerExpr.equals(that.tokenizerExpr);
 		} else
 			return false;
