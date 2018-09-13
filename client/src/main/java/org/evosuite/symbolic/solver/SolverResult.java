@@ -74,7 +74,7 @@ public class SolverResult implements Serializable {
 	}
 
 	public Map<String, Object> getModel() {
-		HashMap<String, Object> newModel = new HashMap<String, Object>(model);
+		HashMap<String, Object> newModel = model == null ? new HashMap<>() : new HashMap<>(model);
 		return newModel;
 	}
 
