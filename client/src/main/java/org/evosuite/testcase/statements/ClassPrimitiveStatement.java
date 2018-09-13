@@ -142,6 +142,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
+		oos.writeObject(new GenericClass(value));
 		List<GenericClass> currentAssignableClasses = new ArrayList<GenericClass>();
 		for (Class<?> assignableClass : assignableClasses)
 			currentAssignableClasses.add(new GenericClass(assignableClass));
@@ -152,7 +153,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
-		this.value = retval.getGenericClass().getRawClass();
+		this.value = ((GenericClass) ois.readObject()).getRawClass();
 		List<GenericClass> newAssignableClasses = (List<GenericClass>) ois.readObject();
 		assignableClasses = new LinkedHashSet<Class<?>>();
 		for (GenericClass assignableClass : newAssignableClasses) {
