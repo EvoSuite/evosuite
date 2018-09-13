@@ -288,7 +288,7 @@ public class TestSuiteMinimizer {
         SecondaryObjective strategy = Properties.SECONDARY_OBJECTIVE[0];
 
         boolean size = false;
-        if (strategy.equals("size")) {
+        if (strategy == SecondaryObjective.SIZE) {
             size = true;
             // If we want to remove tests, start with shortest
             Collections.sort(suite.tests, new Comparator<TestChromosome>() {
@@ -297,7 +297,7 @@ public class TestSuiteMinimizer {
                     return chromosome1.size() - chromosome2.size();
                 }
             });
-        } else if (strategy.equals("maxlength")) {
+        } else if (strategy == SecondaryObjective.MAX_LENGTH) {
             // If we want to remove the longest test, start with longest
             Collections.sort(suite.tests, new Comparator<TestChromosome>() {
                 @Override
