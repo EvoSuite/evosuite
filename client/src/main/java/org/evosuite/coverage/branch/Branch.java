@@ -300,4 +300,14 @@ public class Branch implements Serializable, Comparable<Branch> {
 	public void setInstrumented(boolean isInstrumented) {
 		this.isInstrumented = isInstrumented;
 	}
+
+	private boolean ignoreFalse = false;
+
+	public boolean ignoreFalseBranch() {
+		return ignoreFalse;
+	}
+
+	public void setIgnoreFalse(boolean value) {
+		ignoreFalse = value;
+	}
 }

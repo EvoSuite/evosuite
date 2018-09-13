@@ -98,6 +98,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 										logger.debug("Found artificial branch: "+v);
 										Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(v);
 										b.setInstrumented(true);
+										if(aLabel.shouldIgnoreFalse())
+											b.setIgnoreFalse(true);
 									} else {
 										continue;
 									}

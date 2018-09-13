@@ -152,7 +152,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * If there is an exception in a superconstructor, then the corresponding
 	 * constructor might not be included in the execution trace
 	 * 
-	 * @param results
+	 * @param result
 	 * @param callCount
 	 */
 	private void handleConstructorExceptions(TestChromosome test, ExecutionResult result,
@@ -258,7 +258,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected void handleFalseDistances(TestChromosome test, ExecutionResult result, Map<Integer, Double> falseDistance) {
 		for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
-			if(!branchesId.contains(entry.getKey())||removedBranchesF.contains(entry.getKey())) continue;
+			if(!branchesId.contains(entry.getKey())||!branchCoverageFalseMap.containsKey(entry.getKey())||removedBranchesF.contains(entry.getKey())) continue;
 			if (!falseDistance.containsKey(entry.getKey()))
 				falseDistance.put(entry.getKey(), entry.getValue());
 			else {
