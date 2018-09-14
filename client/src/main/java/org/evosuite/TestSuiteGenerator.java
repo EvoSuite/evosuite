@@ -247,12 +247,13 @@ public class TestSuiteGenerator {
 		// phases (as no CPU cycles would be wasted updating the Archive).
 		Properties.TEST_ARCHIVE = false;
 
-        postProcessTests(testCases);
-        ClientServices.getInstance().getClientNode().publishPermissionStatistics();
-        PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
         TestGenerationResult result = null;
-
+        
         if ("ClientNode0".equals(ClientProcess.identifier)) {
+            postProcessTests(testCases);
+            ClientServices.getInstance().getClientNode().publishPermissionStatistics();
+            PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
+            
             // progressMonitor.setCurrentPhase("Writing JUnit test cases");
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier + ": Writing tests to file");
             result = writeJUnitTestsAndCreateResult(testCases);
