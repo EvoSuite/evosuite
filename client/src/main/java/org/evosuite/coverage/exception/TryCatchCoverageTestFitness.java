@@ -31,13 +31,4 @@ public class TryCatchCoverageTestFitness extends BranchCoverageTestFitness {
     public TryCatchCoverageTestFitness(BranchCoverageGoal goal) throws IllegalArgumentException {
         super(goal);
     }
-
-    @Override
-    public int compareTo(TestFitnessFunction other) {
-        if (other instanceof TryCatchCoverageTestFitness) {
-            TryCatchCoverageTestFitness otherBranchFitness = (TryCatchCoverageTestFitness) other;
-            return getBranchGoal().compareTo(otherBranchFitness.getBranchGoal());
-        }
-        return compareClassName(other);
-    }
 }
