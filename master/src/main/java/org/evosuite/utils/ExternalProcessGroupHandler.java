@@ -17,6 +17,7 @@ import sun.misc.SignalHandler;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 
 public class ExternalProcessGroupHandler {
@@ -603,20 +604,30 @@ public class ExternalProcessGroupHandler {
 
         try {
             long start = System.currentTimeMillis();
-            Set<ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(timeout);
+            Map<String, ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode()
+                                                        .getClientsOnceAllConnected(timeout);
             
             if (clients == null) {
                 logger.error("Could not access client process");
                 return TestGenerationResultBuilder.buildErrorResult("Could not access client process");
             }
-
-            for (ClientNodeRemote client : clients) {
+            
+            for (Entry<String, ClientNodeRemote> entry : clients.entrySet()) {
                 long passed = System.currentTimeMillis() - start;
                 long remaining = timeout - passed;
+                
                 if (remaining <= 0) {
                     remaining = 1;
                 }
-                boolean finished = client.waitUntilFinished(remaining);
+
+                boolean finished = false;
+                ClientState clientState = MasterServices.getInstance().getMasterNode().getCurrentState(entry.getKey());
+
+                if (!clientState.equals(ClientState.FINISHED)) {
+                    finished = entry.getValue().waitUntilFinished(remaining);
+                } else {
+                    finished = true;
+                }
 
                 if (!finished) {
                     /*

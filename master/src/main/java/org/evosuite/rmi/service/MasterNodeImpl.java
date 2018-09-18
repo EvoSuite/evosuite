@@ -102,7 +102,12 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		return clientStates.values();
 	}
 
-	@Override
+    @Override
+    public ClientState getCurrentState(String clientId) {
+        return clientStates.get(clientId);
+    }
+
+    @Override
 	public Collection<ClientStateInformation> getCurrentStateInformation() {
 		return clientStateInformation.values();
 	}
@@ -121,7 +126,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public Set<ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs)
+	public Map<String, ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs)
 	        throws InterruptedException {
 
 		long start = System.currentTimeMillis();
@@ -138,8 +143,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 				clients.wait(timeRemained);
 			}
 			
-			Set<ClientNodeRemote> clientSet = new CopyOnWriteArraySet<>(clients.values());
-			return Collections.unmodifiableSet(clientSet);
+			return Collections.unmodifiableMap(clients);
 		}
 	}
 

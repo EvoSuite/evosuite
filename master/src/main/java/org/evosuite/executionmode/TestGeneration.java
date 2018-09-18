@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TestGeneration {
 
@@ -469,7 +470,8 @@ public class TestGeneration {
 			Set<ClientNodeRemote> clients = null;
 			try {
 				//FIXME: timeout here should be handled by TimeController
-				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(60000);
+				clients = new CopyOnWriteArraySet<ClientNodeRemote>(MasterServices.getInstance().getMasterNode()
+                        .getClientsOnceAllConnected(60000).values());
 			} catch (InterruptedException ignored) {
 			}
 			if (clients == null) {
@@ -490,7 +492,7 @@ public class TestGeneration {
 				}
 
 				int time = TimeController.getInstance().calculateForHowLongClientWillRunInSeconds();
-				handler.waitForResult(time * 1000); 
+				handler.waitForResult(time * 1000);
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException ignored) {

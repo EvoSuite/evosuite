@@ -25,6 +25,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -141,7 +142,8 @@ public class WriteDependencies {
 		if (handler.startProcess(newArgs)) {
 			Set<ClientNodeRemote> clients = null;
 			try {
-				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
+				clients = new CopyOnWriteArraySet<ClientNodeRemote>(MasterServices.getInstance().getMasterNode()
+                        .getClientsOnceAllConnected(10000).values());
 			} catch (InterruptedException e) {
 			}
 			if (clients == null) {

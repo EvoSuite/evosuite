@@ -24,6 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 
 import org.evosuite.ClientProcess;
@@ -595,7 +596,8 @@ public class ExternalProcessHandler {
 
 		try {
 			long start = System.currentTimeMillis();
-			Set<ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(timeout);
+			Set<ClientNodeRemote> clients = new CopyOnWriteArraySet<ClientNodeRemote>(MasterServices.getInstance()
+                                    .getMasterNode().getClientsOnceAllConnected(timeout).values());
 			if(clients==null){
 				logger.error("Could not access client process");
 				return TestGenerationResultBuilder.buildErrorResult("Could not access client process");

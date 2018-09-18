@@ -22,14 +22,14 @@ package org.evosuite.executionmode;
 import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.evosuite.*;
+import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
@@ -165,7 +165,8 @@ public class MeasureCoverage {
 		if (handler.startProcess(newArgs)) {
 			Set<ClientNodeRemote> clients = null;
 			try {
-				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
+				clients = new CopyOnWriteArraySet<ClientNodeRemote>(MasterServices.getInstance().getMasterNode()
+                                .getClientsOnceAllConnected(10000).values());
 			} catch (InterruptedException e) {
 			}
 			if (clients == null) {
