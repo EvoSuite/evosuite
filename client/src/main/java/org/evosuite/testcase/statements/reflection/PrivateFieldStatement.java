@@ -53,7 +53,7 @@ public class PrivateFieldStatement extends MethodStatement {
 
 	private static Method setVariable;
 
-    private transient Class<?> ownerClass;
+    private GenericClass ownerClass;
 
     private String className;
 
@@ -87,7 +87,7 @@ public class PrivateFieldStatement extends MethodStatement {
         );
         this.className = klass.getCanonicalName();
         this.fieldName = fieldName;
-        this.ownerClass = klass;
+        this.ownerClass = new GenericClass(klass);
 
         List<GenericClass> parameterTypes = new ArrayList<>();
         parameterTypes.add(new GenericClass(klass));
@@ -121,7 +121,7 @@ public class PrivateFieldStatement extends MethodStatement {
             VariableReference owner = parameters.get(1).copy(newTestCase, offset);
             VariableReference value = parameters.get(3).copy(newTestCase, offset);
 
-            pf = new PrivateFieldStatement(newTestCase, ownerClass, fieldName, owner, value);
+            pf = new PrivateFieldStatement(newTestCase, ownerClass.getRawClass(), fieldName, owner, value);
 
             return pf;
         } catch(NoSuchFieldException | ConstructionFailedException e) {
@@ -135,7 +135,7 @@ public class PrivateFieldStatement extends MethodStatement {
         return false;
         //return super.mutate(test,factory); //tricky, as should do some restrictions
     }
-    
+
 	@Override
 	public boolean isReflectionStatement() {
 		return true;
