@@ -15,6 +15,7 @@ import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 import java.io.*;
+import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -624,7 +625,13 @@ public class ExternalProcessGroupHandler {
                 ClientState clientState = MasterServices.getInstance().getMasterNode().getCurrentState(entry.getKey());
 
                 if (!clientState.equals(ClientState.FINISHED)) {
-                    finished = entry.getValue().waitUntilFinished(remaining);
+                    try {
+                        finished = entry.getValue().waitUntilFinished(remaining);
+                    } catch (ConnectException e) {
+                        logger.warn("Failed to connect to client. Client with id " + entry.getKey()
+                                + " is already finished.");
+                        finished = true;
+                    }
                 } else {
                     finished = true;
                 }
