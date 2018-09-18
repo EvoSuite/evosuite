@@ -36,6 +36,8 @@ public class AnnotatedLabel extends Label {
 	private boolean isStart = false;
 	
 	private boolean ignore = false;
+
+	private boolean ignoreFalse = false;
 	
 	private LabelNode parent = null;
 	
@@ -56,6 +58,14 @@ public class AnnotatedLabel extends Label {
 	
 	public boolean shouldIgnore() {
 		return ignore;
+	}
+
+	public void setIgnoreFalse(boolean value) {
+		ignoreFalse = value;
+	}
+
+	public boolean shouldIgnoreFalse() {
+		return ignoreFalse;
 	}
 
 	public LabelNode getParent() {

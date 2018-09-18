@@ -21,6 +21,7 @@ package org.evosuite.coverage.exception;
 
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.testcase.TestFitnessFunction;
 
 /**
  * Created by gordon on 03/04/2016.

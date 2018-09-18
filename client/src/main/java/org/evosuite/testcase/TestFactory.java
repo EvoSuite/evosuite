@@ -1253,6 +1253,11 @@ public class TestFactory {
 						}
 
 						if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
+
+						    // Workaround for https://issues.apache.org/jira/browse/LANG-1420
+                            if(!clazz.getRawClass().isAssignableFrom(var.getGenericClass().getRawClass())) {
+                                continue;
+                            }
 							logger.debug("Reusing variable at position {}",var.getStPosition());
 							return var;
 						}

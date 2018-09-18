@@ -142,7 +142,10 @@ public class StatisticsListener implements SearchListener {
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		numFitnessEvaluations++;
-		
+		if(!(individual instanceof TestSuiteChromosome)) {
+			// Statistics expects TestSuiteChromosome individuals
+			return;
+		}
 		double fitness = individual.getFitness();
 		if(minimizing) {
 			if(fitness < bestFitness) {

@@ -20,6 +20,7 @@
 package org.evosuite.coverage.method;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -48,7 +49,7 @@ public class MethodTraceCoverageFactory extends
 		AbstractFitnessFactory<MethodTraceCoverageTestFitness> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MethodTraceCoverageFactory.class);
-
+	private final MethodNameMatcher matcher = new MethodNameMatcher();
 
 	protected static boolean isUsable(Method m) {
 		return !m.isSynthetic() &&
@@ -116,6 +117,10 @@ public class MethodTraceCoverageFactory extends
 					}
 				}
 				String methodName = m.getName() + Type.getMethodDescriptor(m);
+				if (!matcher.methodMatches(methodName)) {
+					logger.info("Method {} does not match criteria. ",methodName);
+					continue;
+				}
 				logger.info("Adding goal for method " + className + "." + methodName);
 				goals.add(new MethodTraceCoverageTestFitness(className, methodName));
 			}
