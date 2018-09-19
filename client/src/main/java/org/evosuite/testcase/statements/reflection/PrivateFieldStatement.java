@@ -31,7 +31,6 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
-
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -85,12 +84,12 @@ public class PrivateFieldStatement extends MethodStatement {
                         param // Object value
                 )
         );
-        this.className = klass.getCanonicalName();
-        this.fieldName = fieldName;
         this.ownerClass = new GenericClass(klass);
+        this.className = this.ownerClass.getRawClass().getCanonicalName();
+        this.fieldName = fieldName;
 
         List<GenericClass> parameterTypes = new ArrayList<>();
-        parameterTypes.add(new GenericClass(klass));
+        parameterTypes.add(this.ownerClass);
         this.method.setTypeParameters(parameterTypes);
         determineIfFieldIsStatic(klass, fieldName);
     }
