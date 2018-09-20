@@ -43,7 +43,7 @@ public class StatementFitnessGraph<T extends Chromosome, V extends FitnessFuncti
 				continue;
 			BasicBlock bb = branchFitness.getBranch().getInstruction().getBasicBlock();
 			for (BytecodeInstruction instr : bb){
-				StatementCoverageTestFitness newStmt = new StatementCoverageTestFitness(instr);
+				StatementCoverageTestFitness newStmt = new StatementCoverageTestFitness(instr.getClassName(), instr.getMethodName(), instr.getInstructionId());
 				if (this.graph.containsVertex((FitnessFunction<T>) newStmt))
 					this.rootStatements.add((FitnessFunction<T>) newStmt);
 			}
@@ -68,7 +68,7 @@ public class StatementFitnessGraph<T extends Chromosome, V extends FitnessFuncti
 					if (bb.equals(stmt.getGoalInstruction().getBasicBlock()))
 						continue;
 					for (BytecodeInstruction instr : bb){
-						StatementCoverageTestFitness newStmt = new StatementCoverageTestFitness(instr);
+						StatementCoverageTestFitness newStmt = new StatementCoverageTestFitness(instr.getClassName(), instr.getMethodName(), instr.getInstructionId());
 						if (this.graph.containsVertex((FitnessFunction<T>) newStmt))
 							graph.addEdge((FitnessFunction<T>) newStmt, fitness);
 					}
@@ -90,7 +90,7 @@ public class StatementFitnessGraph<T extends Chromosome, V extends FitnessFuncti
 					if (bb.equals(stmt.getGoalInstruction().getBasicBlock()))
 						continue;
 					for (BytecodeInstruction instr : bb){
-						StatementCoverageTestFitness newStmt = new StatementCoverageTestFitness(instr);
+						StatementCoverageTestFitness newStmt = new StatementCoverageTestFitness(instr.getClassName(), instr.getMethodName(), instr.getInstructionId());
 						if (this.graph.containsVertex((FitnessFunction<T>) newStmt))
 							graph.addEdge((FitnessFunction<T>) newStmt, fitness);
 					}
