@@ -58,8 +58,11 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.evosuite.Properties.Criterion.*;
 
 public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalManager<T>{
 
@@ -83,26 +86,42 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 
 		// initialize the dependency graph between branches and other coverage targets (e.g., statements)
 		// let's derive the dependency graph between branches and other coverage targets (e.g., statements)
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.LINE))
-			addDependencies4Line();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT))
-			addDependencies4Statement();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION))
-			addDependencies4WeakMutation();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION))
-			addDependencies4StrongMutation();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.METHOD))
-			addDependencies4Methods();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.INPUT))
-			addDependencies4Input();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.OUTPUT))
-			addDependencies4Output();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.TRYCATCH))
-			addDependencies4TryCatch();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.METHODNOEXCEPTION))
-			addDependencies4MethodsNoException();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH))
-			addDependencies4CBranch();
+		for (Criterion criterion : Properties.CRITERION){
+			switch (criterion){
+				case LINE:
+					addDependencies4Line();
+					break;
+				case STATEMENT:
+					addDependencies4Statement();
+					break;
+				case WEAKMUTATION:
+					addDependencies4WeakMutation();
+					break;
+				case STRONGMUTATION:
+					addDependencies4StrongMutation();
+					break;
+				case METHOD:
+					addDependencies4Methods();
+					break;
+				case INPUT:
+					addDependencies4Input();
+					break;
+				case OUTPUT:
+					addDependencies4Output();
+					break;
+				case TRYCATCH:
+					addDependencies4TryCatch();
+					break;
+				case METHODNOEXCEPTION:
+					addDependencies4MethodsNoException();
+					break;
+				case CBRANCH:
+					addDependencies4CBranch();
+					break;
+				default:
+					LoggingUtils.getEvoLogger().error("The criterion {} is not currently supported in DynaMOSA", criterion.getClass());
+			}
+		}
 
 		// initialize current goals
 		this.currentGoals.addAll(graph.getRootBranches());
@@ -398,7 +417,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		}
 
 		// let's manage the exception coverage
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)){
+		if (ArrayUtil.contains(Properties.CRITERION, EXCEPTION)){
 			// if one of the coverage criterion is Criterion.EXCEPTION,
 			// then we have to analyze the results of the execution do look
 			// for generated exceptions
@@ -418,7 +437,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	/**
 	 * This method analyzes the execution results of a TestChromosome looking for generated exceptions.
 	 * Such exceptions are converted in instances of the class {@link ExceptionCoverageTestFitness},
-	 * which are additional covered goals when using as criterion {@link Properties.Criterion.EXCEPTION}
+	 * which are additional covered goals when using as criterion {@link EXCEPTION}
 	 * @param t TestChromosome to analyze
 	 * @return list of exception goals being covered by t
 	 */
