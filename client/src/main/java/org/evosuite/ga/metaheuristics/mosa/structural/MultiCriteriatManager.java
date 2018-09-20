@@ -31,7 +31,6 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
@@ -43,6 +42,7 @@ import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
+import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
@@ -89,6 +89,8 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 			addDependencies4Statement();
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION))
 			addDependencies4WeakMutation();
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION))
+			addDependencies4StrongMutation();
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.METHOD))
 			addDependencies4Methods();
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.INPUT))
@@ -248,6 +250,28 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		for (FitnessFunction<T> ff : this.uncoveredGoals){
 			if (ff instanceof WeakMutationTestFitness){
 				WeakMutationTestFitness mutation = (WeakMutationTestFitness) ff;
+				Set<BranchCoverageGoal> goals = mutation.getMutation().getControlDependencies();
+				if (goals.size() == 0){
+					this.currentGoals.add(ff);
+				} else {
+					for (BranchCoverageGoal goal : goals) {
+						BranchCoverageTestFitness fitness = new BranchCoverageTestFitness(goal);
+						this.dependencies.get(fitness).add(ff);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * This methods derive the dependencies between {@link org.evosuite.coverage.mutation.StrongMutationTestFitness} and branches.
+	 * Therefore, it is used to update 'this.dependencies'
+	 */
+	private void addDependencies4StrongMutation() {
+		logger.debug("Added dependencies for Strong-Mutation");
+		for (FitnessFunction<T> ff : this.uncoveredGoals){
+			if (ff instanceof StrongMutationTestFitness){
+				StrongMutationTestFitness mutation = (StrongMutationTestFitness) ff;
 				Set<BranchCoverageGoal> goals = mutation.getMutation().getControlDependencies();
 				if (goals.size() == 0){
 					this.currentGoals.add(ff);
