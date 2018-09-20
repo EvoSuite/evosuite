@@ -31,6 +31,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
@@ -78,19 +79,9 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		uncoveredGoals.addAll(fitnessFunctions);
 
 		// initialize the dependency graph among branches 
+		this.graph = getControlDepencies4Branches(fitnessFunctions);
+
 		// initialize the dependency graph between branches and other coverage targets (e.g., statements)
-		Set<FitnessFunction<T>> setOfBranches = new LinkedHashSet<FitnessFunction<T>>();
-		this.dependencies = new LinkedHashMap<BranchCoverageTestFitness, Set<FitnessFunction<T>>>();
-
-		for (FitnessFunction<T> ff : fitnessFunctions){
-			if (ff instanceof BranchCoverageTestFitness){
-				setOfBranches.add(ff);
-				this.dependencies.put((BranchCoverageTestFitness) ff, new LinkedHashSet<FitnessFunction<T>>());
-			}
-		}
-		graph = new BranchFitnessGraph<T, FitnessFunction<T>>(setOfBranches);
-
-
 		// let's derive the dependency graph between branches and other coverage targets (e.g., statements)
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.LINE))
 			addDependencies4Line();
@@ -113,9 +104,6 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 
 		// initialize current goals
 		this.currentGoals.addAll(graph.getRootBranches());
-
-		// initialize the maps
-		this.initializeMaps(setOfBranches);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -444,5 +432,21 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 			}
 		}
 		return covered_exceptions;
+	}
+
+	public BranchFitnessGraph getControlDepencies4Branches(List<FitnessFunction<T>> fitnessFunctions){
+		Set<FitnessFunction<T>> setOfBranches = new LinkedHashSet<FitnessFunction<T>>();
+		this.dependencies = new LinkedHashMap();
+
+		List<BranchCoverageTestFitness> branches = new BranchCoverageFactory().getCoverageGoals();
+		for (BranchCoverageTestFitness branch : branches){
+			setOfBranches.add((FitnessFunction<T>) branch);
+			this.dependencies.put(branch, new LinkedHashSet<FitnessFunction<T>>());
+		}
+
+		// initialize the maps
+		this.initializeMaps(setOfBranches);
+
+		return new BranchFitnessGraph<T, FitnessFunction<T>>(setOfBranches);
 	}
 }
