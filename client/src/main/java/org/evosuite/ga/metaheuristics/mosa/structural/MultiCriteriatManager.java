@@ -42,6 +42,7 @@ import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
+import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
@@ -57,8 +58,11 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.evosuite.Properties.Criterion.*;
 
 public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalManager<T>{
 
@@ -78,44 +82,49 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		uncoveredGoals.addAll(fitnessFunctions);
 
 		// initialize the dependency graph among branches 
-		// initialize the dependency graph between branches and other coverage targets (e.g., statements)
-		Set<FitnessFunction<T>> setOfBranches = new LinkedHashSet<FitnessFunction<T>>();
-		this.dependencies = new LinkedHashMap<BranchCoverageTestFitness, Set<FitnessFunction<T>>>();
+		this.graph = getControlDepencies4Branches(fitnessFunctions);
 
-		for (FitnessFunction<T> ff : fitnessFunctions){
-			if (ff instanceof BranchCoverageTestFitness){
-				setOfBranches.add(ff);
-				this.dependencies.put((BranchCoverageTestFitness) ff, new LinkedHashSet<FitnessFunction<T>>());
+		// initialize the dependency graph between branches and other coverage targets (e.g., statements)
+		// let's derive the dependency graph between branches and other coverage targets (e.g., statements)
+		for (Criterion criterion : Properties.CRITERION){
+			switch (criterion){
+				case LINE:
+					addDependencies4Line();
+					break;
+				case STATEMENT:
+					addDependencies4Statement();
+					break;
+				case WEAKMUTATION:
+					addDependencies4WeakMutation();
+					break;
+				case STRONGMUTATION:
+					addDependencies4StrongMutation();
+					break;
+				case METHOD:
+					addDependencies4Methods();
+					break;
+				case INPUT:
+					addDependencies4Input();
+					break;
+				case OUTPUT:
+					addDependencies4Output();
+					break;
+				case TRYCATCH:
+					addDependencies4TryCatch();
+					break;
+				case METHODNOEXCEPTION:
+					addDependencies4MethodsNoException();
+					break;
+				case CBRANCH:
+					addDependencies4CBranch();
+					break;
+				default:
+					LoggingUtils.getEvoLogger().error("The criterion {} is not currently supported in DynaMOSA", criterion.getClass());
 			}
 		}
-		graph = new BranchFitnessGraph<T, FitnessFunction<T>>(setOfBranches);
-
-
-		// let's derive the dependency graph between branches and other coverage targets (e.g., statements)
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.LINE))
-			addDependencies4Line();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT))
-			addDependencies4Statement();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.WEAKMUTATION))
-			addDependencies4WeakMutation();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.METHOD))
-			addDependencies4Methods();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.INPUT))
-			addDependencies4Input();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.OUTPUT))
-			addDependencies4Output();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.TRYCATCH))
-			addDependencies4TryCatch();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.METHODNOEXCEPTION))
-			addDependencies4MethodsNoException();
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.CBRANCH))
-			addDependencies4CBranch();
 
 		// initialize current goals
 		this.currentGoals.addAll(graph.getRootBranches());
-
-		// initialize the maps
-		this.initializeMaps(setOfBranches);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -274,6 +283,28 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	}
 
 	/**
+	 * This methods derive the dependencies between {@link org.evosuite.coverage.mutation.StrongMutationTestFitness} and branches.
+	 * Therefore, it is used to update 'this.dependencies'
+	 */
+	private void addDependencies4StrongMutation() {
+		logger.debug("Added dependencies for Strong-Mutation");
+		for (FitnessFunction<T> ff : this.uncoveredGoals){
+			if (ff instanceof StrongMutationTestFitness){
+				StrongMutationTestFitness mutation = (StrongMutationTestFitness) ff;
+				Set<BranchCoverageGoal> goals = mutation.getMutation().getControlDependencies();
+				if (goals.size() == 0){
+					this.currentGoals.add(ff);
+				} else {
+					for (BranchCoverageGoal goal : goals) {
+						BranchCoverageTestFitness fitness = new BranchCoverageTestFitness(goal);
+						this.dependencies.get(fitness).add(ff);
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * This methods derive the dependencies between  {@link LineCoverageTestFitness} and branches. 
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
@@ -386,7 +417,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		}
 
 		// let's manage the exception coverage
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)){
+		if (ArrayUtil.contains(Properties.CRITERION, EXCEPTION)){
 			// if one of the coverage criterion is Criterion.EXCEPTION,
 			// then we have to analyze the results of the execution do look
 			// for generated exceptions
@@ -406,7 +437,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 	/**
 	 * This method analyzes the execution results of a TestChromosome looking for generated exceptions.
 	 * Such exceptions are converted in instances of the class {@link ExceptionCoverageTestFitness},
-	 * which are additional covered goals when using as criterion {@link Properties.Criterion.EXCEPTION}
+	 * which are additional covered goals when using as criterion {@link EXCEPTION}
 	 * @param t TestChromosome to analyze
 	 * @return list of exception goals being covered by t
 	 */
@@ -444,5 +475,21 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 			}
 		}
 		return covered_exceptions;
+	}
+
+	public BranchFitnessGraph getControlDepencies4Branches(List<FitnessFunction<T>> fitnessFunctions){
+		Set<FitnessFunction<T>> setOfBranches = new LinkedHashSet<FitnessFunction<T>>();
+		this.dependencies = new LinkedHashMap();
+
+		List<BranchCoverageTestFitness> branches = new BranchCoverageFactory().getCoverageGoals();
+		for (BranchCoverageTestFitness branch : branches){
+			setOfBranches.add((FitnessFunction<T>) branch);
+			this.dependencies.put(branch, new LinkedHashSet<FitnessFunction<T>>());
+		}
+
+		// initialize the maps
+		this.initializeMaps(setOfBranches);
+
+		return new BranchFitnessGraph<T, FitnessFunction<T>>(setOfBranches);
 	}
 }

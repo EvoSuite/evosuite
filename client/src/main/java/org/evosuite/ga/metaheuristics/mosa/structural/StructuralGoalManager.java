@@ -59,7 +59,7 @@ public abstract class StructuralGoalManager<T extends Chromosome> {
 
 	/**
 	 * Update the set of covered goals and the set of current goals (actual objectives)
-	 * @param population list of TestChromosome
+	 * @param c a TestChromosome
 	 * @return covered goals along with the corresponding test case
 	 */
 	public abstract void calculateFitness(T c);

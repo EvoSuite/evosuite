@@ -35,6 +35,7 @@ import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +137,9 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		this.goalsManager = new MultiCriteriatManager<T>(this.fitnessFunctions);
 
+		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynMOSA = " +
+				this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
+
 		logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
 
 		//initialize population
@@ -152,6 +156,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++){
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.goalsManager.getCurrentGoals());
 		}
+
 		// next generations
 		while (!isFinished() && this.goalsManager.getUncoveredGoals().size() > 0) {
 			this.evolve();
