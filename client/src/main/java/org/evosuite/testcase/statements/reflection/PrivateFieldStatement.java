@@ -31,7 +31,6 @@ import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
-
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -53,7 +52,7 @@ public class PrivateFieldStatement extends MethodStatement {
 
 	private static Method setVariable;
 
-    private transient Class<?> ownerClass;
+    private GenericClass ownerClass;
 
     private String className;
 
@@ -85,12 +84,12 @@ public class PrivateFieldStatement extends MethodStatement {
                         param // Object value
                 )
         );
-        this.className = klass.getCanonicalName();
+        this.ownerClass = new GenericClass(klass);
+        this.className = this.ownerClass.getRawClass().getCanonicalName();
         this.fieldName = fieldName;
-        this.ownerClass = klass;
 
         List<GenericClass> parameterTypes = new ArrayList<>();
-        parameterTypes.add(new GenericClass(klass));
+        parameterTypes.add(this.ownerClass);
         this.method.setTypeParameters(parameterTypes);
         determineIfFieldIsStatic(klass, fieldName);
     }
@@ -121,7 +120,7 @@ public class PrivateFieldStatement extends MethodStatement {
             VariableReference owner = parameters.get(1).copy(newTestCase, offset);
             VariableReference value = parameters.get(3).copy(newTestCase, offset);
 
-            pf = new PrivateFieldStatement(newTestCase, ownerClass, fieldName, owner, value);
+            pf = new PrivateFieldStatement(newTestCase, ownerClass.getRawClass(), fieldName, owner, value);
 
             return pf;
         } catch(NoSuchFieldException | ConstructionFailedException e) {
@@ -135,7 +134,7 @@ public class PrivateFieldStatement extends MethodStatement {
         return false;
         //return super.mutate(test,factory); //tricky, as should do some restrictions
     }
-    
+
 	@Override
 	public boolean isReflectionStatement() {
 		return true;
