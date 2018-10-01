@@ -236,7 +236,7 @@ public class TestGenerationJob extends Job {
 							"Error during test generation",
 							null, // image
 							"EvoSuite failed to generate tests for class "
-							+ targetClass,
+							+ targetClass +". Please refer to eclipse log/console for details",
 							MessageDialog.OK, new String[] { "Ok" }, 0);
 					dialog.open();
 				}					
