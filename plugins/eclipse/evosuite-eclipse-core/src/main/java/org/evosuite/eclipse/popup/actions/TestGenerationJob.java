@@ -274,11 +274,24 @@ public class TestGenerationJob extends Job {
 						IWorkbenchWindow iw = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow();
 						IWorkbenchPage page = iw.getActivePage();
 						IEditorPart part = IDE.openEditor(page, generatedSuite, true);
-						if ( Activator.organizeImports() ) {
-							OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
-							a.run(cu);
-							cu.commitWorkingCopy(true, null);
-							cu.save(null, true);
+						//TODO: to provide support for external programs if used as Default Editor.
+						if(part == null){
+							// External Program is set as the Default Editor.
+							MessageDialog dialog = new MessageDialog(
+									shell,
+									"Error opening the generated tests",
+									null, // image
+									"Please use internal programs as the Default Editor for this Eclipse",
+									MessageDialog.OK, new String[] { "Ok" }, 0);
+							dialog.open();
+						}
+						else{
+							if ( Activator.organizeImports() ) {
+								OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
+								a.run(cu);
+								cu.commitWorkingCopy(true, null);
+								cu.save(null, true);
+							}
 						}
 					} catch (PartInitException e1) {
 						System.out.println("Could not open test suite to organize imports");
