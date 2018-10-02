@@ -228,20 +228,20 @@ public class TestGenerationJob extends Job {
 		} else {
 			System.out.println("File " + suiteFileName + " does not exist");
 			// TODO: Dialog
-			Display.getDefault().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog dialog = new MessageDialog(
-							shell,
-							"Error during test generation",
-							null, // image
-							"EvoSuite failed to generate tests for class "
-							+ targetClass +". Please refer to eclipse log/console for details",
-							MessageDialog.OK, new String[] { "Ok" }, 0);
-					dialog.open();
-				}					
-			});
-			return Status.CANCEL_STATUS;
+//			Display.getDefault().syncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					MessageDialog dialog = new MessageDialog(
+//							shell,
+//							"Error during test generation",
+//							null, // image
+//							"EvoSuite failed to generate tests for class"
+//							+ suiteClass,
+//							MessageDialog.OK, new String[] { "Ok" }, 0);
+//					dialog.open();
+//				}
+//			});
+//			return Status.CANCEL_STATUS;
 		}
 		
 		setThread(new Thread());
@@ -272,37 +272,13 @@ public class TestGenerationJob extends Job {
 						final IFile generatedSuite = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
 						ICompilationUnit cu=JavaCore.createCompilationUnitFrom(generatedSuite);
 						IWorkbenchWindow iw = Activator.getDefault().getWorkbench().getActiveWorkbenchWindow();
-                        if(iw == null){
-                            // Very rare case.
-                            MessageDialog dialog = new MessageDialog(
-                                    shell,
-                                    "Error while generating tests",
-                                    null, // image
-                                    "This happens most likely when the current workbench is closed",
-                                    MessageDialog.OK, new String[] { "Ok" }, 0);
-                            dialog.open();
-                            return;
-                        }
 						IWorkbenchPage page = iw.getActivePage();
 						IEditorPart part = IDE.openEditor(page, generatedSuite, true);
-						//TODO: to provide support for external programs if used as Default Editor.
-						if(part == null){
-							// External Program is set as the Default Editor.
-							MessageDialog dialog = new MessageDialog(
-									shell,
-									"Error opening the generated tests",
-									null, // image
-									"Please use internal programs as the Default Editor for this Eclipse",
-									MessageDialog.OK, new String[] { "Ok" }, 0);
-							dialog.open();
-						}
-						else{
-							if ( Activator.organizeImports() ) {
-								OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
-								a.run(cu);
-								cu.commitWorkingCopy(true, null);
-								cu.save(null, true);
-							}
+						if ( Activator.organizeImports() ) {
+							OrganizeImportsAction a=new OrganizeImportsAction(part.getSite());
+							a.run(cu);
+							cu.commitWorkingCopy(true, null);
+							cu.save(null, true);
 						}
 					} catch (PartInitException e1) {
 						System.out.println("Could not open test suite to organize imports");
