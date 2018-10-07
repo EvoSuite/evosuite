@@ -698,6 +698,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		Integer useId = (Integer) ois.readObject();
 		Integer defId = (Integer) ois.readObject();
 		Use use = DefUsePool.getUseByUseId(useId);
+		//TODO: Need to find a better solution.
+		if(use == null)
+			return;
 
 		if (type == DefUsePairType.PARAMETER) {
 			initParameterUse(use);
