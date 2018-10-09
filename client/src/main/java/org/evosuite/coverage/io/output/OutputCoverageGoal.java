@@ -20,6 +20,7 @@
 package org.evosuite.coverage.io.output;
 
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.Inspector;
@@ -207,7 +208,14 @@ public class OutputCoverageGoal implements Serializable, Comparable<OutputCovera
 
         String methodNameWithDesc = methodName + methodDesc;
         Type returnType = Type.getReturnType(methodDesc);
-        switch (returnType.getSort()) {
+
+        int typeSort = returnType.getSort();
+        if(typeSort == Type.OBJECT && returnValue != null) {
+            if(ClassUtils.isPrimitiveWrapper(returnValue.getClass())) {
+                typeSort = Type.getType(ClassUtils.wrapperToPrimitive(returnValue.getClass())).getSort();
+            }
+        }
+        switch (typeSort) {
             case Type.BOOLEAN:
                 String desc = ((boolean) returnValue) ? BOOL_TRUE : BOOL_FALSE;
                 goals.add(new OutputCoverageGoal(className, methodNameWithDesc, returnType, desc));

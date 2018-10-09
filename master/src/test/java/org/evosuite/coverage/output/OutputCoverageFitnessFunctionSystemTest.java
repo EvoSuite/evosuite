@@ -19,10 +19,7 @@
  */
 package org.evosuite.coverage.output;
 
-import com.examples.with.different.packagename.coverage.ClassWithHashCode;
-import com.examples.with.different.packagename.coverage.MethodReturnsArray;
-import com.examples.with.different.packagename.coverage.MethodReturnsObject;
-import com.examples.with.different.packagename.coverage.MethodReturnsPrimitive;
+import com.examples.with.different.packagename.coverage.*;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -30,6 +27,7 @@ import org.evosuite.SystemTestBase;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.*;
 
@@ -85,23 +83,32 @@ public class OutputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
-	@Test @Ignore("Changed output coverage for Objects")
-	public void testOutputCoverageObjectTypeWithArchive() {
-		Properties.TEST_ARCHIVE = true;
-		testOutputCoverageObjectType();
-	}
-	
-	@Test @Ignore("Changed output coverage for Objects")
-	public void testOutputCoverageObjectTypeWithoutArchive() {
-		Properties.TEST_ARCHIVE = false;
-		testOutputCoverageObjectType();
+	@Test
+	public void testOutputCoverageWrapperTypes() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = MethodReturnsWrapper.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		int goals = 0;
+		for (TestFitnessFactory ff : TestGenerationStrategy.getFitnessFactories())
+			goals += ff.getCoverageGoals().size();
+		Assert.assertEquals("Unexpected number of goals", 29, goals);
+		Assert.assertEquals("Non-optimal fitness: ", 5.0, best.getFitness(), 0.001);
 	}
 
+	@Test
 	public void testOutputCoverageObjectType() {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = MethodReturnsObject.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		//Properties.SEARCH_BUDGET = 60;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
@@ -110,8 +117,8 @@ public class OutputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		int goals = 0;
 		for (TestFitnessFactory ff : TestGenerationStrategy.getFitnessFactories())
 			goals += ff.getCoverageGoals().size();
-		Assert.assertEquals("Unexpected number of goals", 14, goals);
-		Assert.assertEquals("Unexpected coverage: ", 0.888d, best.getCoverage(), 0.001); // sub-optimal due to hashcode observer
+		Assert.assertEquals("Unexpected number of goals", 11, goals);
+		Assert.assertEquals("Unexpected coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
 	@Test
