@@ -306,49 +306,4 @@ public class GridNode<C extends Chromosome> implements GridNodeInterface<C> {
     public boolean isRoot() {
         return parent == null;
     }
-
-
-    public static void main(String[] args){
-        DummyFitnessFunction ff1 = new DummyFitnessFunction();
-        DummyFitnessFunction ff2 = new DummyFitnessFunction();
-        DummyFitnessFunction ff3 = new DummyFitnessFunction();
-        Map<FitnessFunction<?>,Double> upperBounds = new LinkedHashMap<>();
-        Map<FitnessFunction<?>,Double> lowerBounds = new LinkedHashMap<>();
-        upperBounds.put(ff1,1.0);
-        upperBounds.put(ff2,1.0);
-        upperBounds.put(ff3,1.0);
-        lowerBounds.put(ff1,0.0);
-        lowerBounds.put(ff2,0.0);
-        lowerBounds.put(ff3,0.0);
-        GridNode<DummyChromosome> node = new GridNode<>(lowerBounds,upperBounds,3,null);
-        DummyChromosome c1 = new DummyChromosome();
-        DummyChromosome c2 = new DummyChromosome();
-        DummyChromosome c3 = new DummyChromosome();
-        DummyChromosome current = new DummyChromosome();
-        DummyChromosome candidate = new DummyChromosome();
-        c1.setFitness(ff1, 1);
-        c1.setFitness(ff2, 0.1);
-        c1.setFitness(ff3, 0.3);
-        c2.setFitness(ff1, 0.99);
-        c2.setFitness(ff2, 0.11);
-        c2.setFitness(ff3, 0.29);
-        c3.setFitness(ff1, 0.4);
-        c3.setFitness(ff2, 0.7);
-        c3.setFitness(ff3, 0.1);
-        current.setFitness(ff1, 0.9);
-        current.setFitness(ff2, 0.1);
-        current.setFitness(ff3, 0.31);
-        candidate.setFitness(ff1,0.39);
-        candidate.setFitness(ff2, 0.71);
-        candidate.setFitness(ff3, 0.1);
-        node.add(c1);
-        node.add(c2);
-        node.add(c3);
-        List<GridNodeInterface<DummyChromosome>> l1 = node.regions(c1);
-        List<GridNodeInterface<DummyChromosome>> l2 = node.regions(c2);
-        List<GridNodeInterface<DummyChromosome>> l3 = node.regions(c3);
-        GridLocation<DummyChromosome> lcurrent = node.region(current);
-        GridLocation<DummyChromosome> lcandidate = node.region(candidate);
-        int x= node.decide(candidate,current);
-    }
 }

@@ -4,28 +4,40 @@ import org.evosuite.ga.archive.Archive;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.paes.Grid.DummyChromosome;
-import org.evosuite.ga.metaheuristics.paes.Grid.DummyFitnessFunction;
-import org.evosuite.ga.metaheuristics.paes.Grid.GridNode;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestFitnessFunction;
 
 import java.util.*;
 
 /**
+ *
+ *
  * Created by Sebastian on 04.07.2018.
  */
 public class PaesDistanceArchive<C extends Chromosome> implements PaesArchiveInterface<C> {
     private List<C> archivedChromosomes = new ArrayList<C>();
     private CrowdingDistance<C> distance = new CrowdingDistance<C>();
-    private List<FitnessFunction<C>> fitnessFunctions;
+    private Set<FitnessFunction<C>> fitnessFunctions;
     private static boolean FAVOUR_CANDIDATE = Properties.FAVOUR_CANDIDATE;
     private static int MAX_SIZE = Properties.POPULATION;
 
-    public PaesDistanceArchive(List<FitnessFunction<C>> fitnessFunctions){
+    /**
+     * Constructor for a PAES archive using the distance crowding measure to decide about
+     * PAES acceptance
+     *
+     * @param fitnessFunctions
+     */
+    public PaesDistanceArchive(Set<FitnessFunction<C>> fitnessFunctions){
         this.fitnessFunctions = fitnessFunctions;
     }
 
+    public PaesDistanceArchive(List<FitnessFunction<C>> fitnessFunctions){
+        this.fitnessFunctions = new HashSet<>(fitnessFunctions);
+    }
+
+    /**
+     * {@InheritDoc}
+     */
     @Override
     public boolean add(C c) {
 
@@ -37,7 +49,7 @@ public class PaesDistanceArchive<C extends Chromosome> implements PaesArchiveInt
         if(archivedChromosomes.size() >= MAX_SIZE){
             List<C> withC = new ArrayList<>(archivedChromosomes);
             withC.add(c);
-            this.distance.crowdingDistanceAssignment(withC,this.fitnessFunctions);
+            this.distance.crowdingDistanceAssignment(withC,new ArrayList<FitnessFunction<C>>(this.fitnessFunctions));
             C min = withC.get(0);
             for(C c1 : withC){
                 if(c1.getDistance() < min.getDistance())
@@ -52,11 +64,18 @@ public class PaesDistanceArchive<C extends Chromosome> implements PaesArchiveInt
         }
     }
 
+
+    /**
+     * {@InheritDoc}
+     */
     @Override
     public List<C> getChromosomes() {
         return archivedChromosomes;
     }
 
+    /**
+     * {@InheritDoc}
+     */
     @Override
     public boolean decide(C candidate, C current) {
         List<FitnessFunction<C>> uncovered = new ArrayList<>();
@@ -72,6 +91,15 @@ public class PaesDistanceArchive<C extends Chromosome> implements PaesArchiveInt
         return candidate.getDistance() > current.getDistance();
     }
 
+    /**
+     * Decides between candidate and current for uncovered targets.
+     * Does not check for Pareto Optionals
+     *
+     * @param candidate candidate chromosome for acceptance decision
+     * @param current current chromosome for acceptance decision
+     * @param uncovered remaining uncovered targets for the decision
+     * @return
+     */
     public boolean decide(C candidate, C current, List<FitnessFunction<C>> uncovered) {
         List<C> withCandidateCurrent = new ArrayList<>(archivedChromosomes);
         withCandidateCurrent.add(candidate);
@@ -82,6 +110,9 @@ public class PaesDistanceArchive<C extends Chromosome> implements PaesArchiveInt
         return candidate.getDistance() > current.getDistance();
     }
 
+    /**
+     * {@InheritDoc}
+     */
     @Override
     public void removeDominated(C c) {
         List<FitnessFunction<?>> ffs = new ArrayList<>(this.fitnessFunctions);
@@ -92,46 +123,11 @@ public class PaesDistanceArchive<C extends Chromosome> implements PaesArchiveInt
         this.archivedChromosomes.removeAll(dominated);
     }
 
+    /**
+     * {@InheritDoc}
+     */
     @Override
-    public void updateFitnessFunctions(Set<FitnessFunction<?>> fitnessFunctions) {
-    }
-
-    public static void main(String[] args){
-        DummyFitnessFunction ff1 = new DummyFitnessFunction();
-        DummyFitnessFunction ff2 = new DummyFitnessFunction();
-        DummyFitnessFunction ff3 = new DummyFitnessFunction();
-        Map<FitnessFunction<?>,Double> upperBounds = new LinkedHashMap<>();
-        Map<FitnessFunction<?>,Double> lowerBounds = new LinkedHashMap<>();
-        upperBounds.put(ff1,1.0);
-        upperBounds.put(ff2,1.0);
-        upperBounds.put(ff3,1.0);
-        lowerBounds.put(ff1,0.0);
-        lowerBounds.put(ff2,0.0);
-        lowerBounds.put(ff3,0.0);
-        DummyChromosome c1 = new DummyChromosome();
-        DummyChromosome c2 = new DummyChromosome();
-        DummyChromosome c3 = new DummyChromosome();
-        DummyChromosome current = new DummyChromosome();
-        DummyChromosome candidate = new DummyChromosome();
-        c1.setFitness(ff1, 1);
-        c1.setFitness(ff2, 0);
-        c1.setFitness(ff3, 1);
-        c2.setFitness(ff1, 0);
-        c2.setFitness(ff2, 1);
-        c2.setFitness(ff3, 0);
-        current.setFitness(ff1, 0.5);
-        current.setFitness(ff2, 0.4);
-        current.setFitness(ff3, 0.3);
-        candidate.setFitness(ff1,0.55);
-        candidate.setFitness(ff2, 0.35);
-        candidate.setFitness(ff3, 0.3);
-        List<FitnessFunction<DummyChromosome>> ffs = new ArrayList<>();
-        ffs.add(ff1);
-        ffs.add(ff2);
-        ffs.add(ff3);
-        PaesDistanceArchive<DummyChromosome> archive = new PaesDistanceArchive<DummyChromosome>(ffs);
-        archive.add(c1);
-        archive.add(c2);
-        System.out.println(archive.decide(current, candidate, ffs));
+    public void updateFitnessFunctions(Set<FitnessFunction<C>> fitnessFunctions) {
+        this.fitnessFunctions = fitnessFunctions;
     }
 }

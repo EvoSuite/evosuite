@@ -118,51 +118,81 @@ public class GridLocation <C extends Chromosome> implements GridNodeInterface<C>
         return this.isInBounds(c) ? this : null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GridNodeInterface<C> current_region(C c) {
         return this.isInBounds(c) ? this : null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int decide(C candidate, C current) {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GridLocation<C> recursiveMostCrowdedRegion() {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isLeaf() {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<FitnessFunction<?>> getObjectives() {
         return this.upperBounds.keySet();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<FitnessFunction<?>, Double> getUpperBounds() {
         return this.upperBounds;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<FitnessFunction<?>, Double> getLowerBounds() {
         return this.lowerBounds;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public GridNode<C> getParent() {
         return this.parent;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isRoot() {
         return parent == null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<GridNodeInterface<C>> regions(C c){
         List<GridNodeInterface<C>> result = new ArrayList<>();

@@ -139,7 +139,7 @@ public class PaesArchive<C extends Chromosome> implements PaesArchiveInterface<C
     }
 
     @Override
-    public void updateFitnessFunctions(Set<FitnessFunction<?>> fitnessFunctions) {
+    public void updateFitnessFunctions(Set<FitnessFunction<C>> fitnessFunctions) {
         Map<FitnessFunction<?>,Double> upperBounds = new HashMap<>();
         Map<FitnessFunction<?>,Double> lowerBounds = new HashMap<>();
         for(FitnessFunction<?> ff : fitnessFunctions){

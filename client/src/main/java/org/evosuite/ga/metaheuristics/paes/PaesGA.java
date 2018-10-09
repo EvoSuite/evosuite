@@ -44,6 +44,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
     protected void evolve() {
         //Save time for AvgTime calculation
         long start = 0;
+        // save current archive size
         int archiveSize = this.archive.getChromosomes().size();
         if(PaesGA.PAES_ANALYTIC_MODE)
             start = System.currentTimeMillis();
@@ -54,6 +55,7 @@ public class PaesGA<C extends Chromosome> extends AbstractPAES<C> {
         candidate.mutate();
         candidate.getFitnessValues().clear();
         this.calculateFitness(candidate);
+        // define and calculate if needed candidate and current fitness
         double candidateFit = 0.0;
         double currentFit = 0.0;
         if(PAES_ANALYTIC_MODE){

@@ -52,5 +52,5 @@ public interface PaesArchiveInterface<C extends Chromosome> {
      */
     void removeDominated(C c);
 
-    void updateFitnessFunctions(Set<FitnessFunction<?>> fitnessFunctions);
+    void updateFitnessFunctions(Set<FitnessFunction<C>> fitnessFunctions);
 }

@@ -1,13 +1,11 @@
 package org.evosuite.ga.metaheuristics.paes;
 
-import org.evosuite.*;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.AbstractMOSuiteGA;
 
 import java.util.*;
-import java.util.Properties;
 
 /**
  * Created by Sebastian on 20.06.2018.
