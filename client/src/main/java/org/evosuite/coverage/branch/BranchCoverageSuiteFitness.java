@@ -19,6 +19,9 @@
  */
 package org.evosuite.coverage.branch;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,10 +59,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public int totalGoals;
 	public int totalMethods;
 	public int totalBranches;
-	private final Set<String> branchlessMethods;
-	private final Set<String> methods;
+	private final Set<String> branchlessMethods = new LinkedHashSet<String>();
+	private final Set<String> methods = new LinkedHashSet<String>();
 
-	protected final Set<Integer> branchesId;
+	protected final Set<Integer> branchesId = new LinkedHashSet<Integer>();
 	
 	// Some stuff for debug output
 	public int maxCoveredBranches = 0;
@@ -67,9 +70,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double bestFitness = Double.MAX_VALUE;
 
 	// Each test gets a set of distinct covered goals, these are mapped by branch id
-	protected final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new LinkedHashMap<Integer, TestFitnessFunction>();
-	protected final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new LinkedHashMap<Integer, TestFitnessFunction>();
-	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
+	protected transient Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new LinkedHashMap<Integer, TestFitnessFunction>();
+	protected transient Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new LinkedHashMap<Integer, TestFitnessFunction>();
+	private   transient Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
 
 	private final Set<Integer> toRemoveBranchesT = new LinkedHashSet<>();
 	private final Set<Integer> toRemoveBranchesF = new LinkedHashSet<>();
@@ -105,12 +108,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		totalMethods = CFGMethodAdapter.getNumMethodsPrefix(classLoader, prefix);
 		totalBranches = BranchPool.getInstance(classLoader).getBranchCountForPrefix(prefix);
-		branchlessMethods = BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix);
-		methods = CFGMethodAdapter.getMethodsPrefix(classLoader, prefix);
+		branchlessMethods.addAll(BranchPool.getInstance(classLoader).getBranchlessMethodsPrefix(prefix));
+		methods.addAll(CFGMethodAdapter.getMethodsPrefix(classLoader, prefix));
 
-		branchesId = new LinkedHashSet<>();
-
-		determineCoverageGoals();
+		determineCoverageGoals(true);
 
 		totalGoals = branchCoverageTrueMap.size() + branchCoverageFalseMap.size() + branchlessMethodCoverageMap.size();
 
@@ -123,7 +124,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * Initialize the set of known coverage goals
 	 */
-	protected void determineCoverageGoals() {
+	protected void determineCoverageGoals(boolean updateArchive) {
 		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
 		for (BranchCoverageTestFitness goal : goals) {
 			// Skip instrumented branches - we only want real branches
@@ -132,7 +133,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					continue;
 				}
 			}
-			if(Properties.TEST_ARCHIVE)
+			if(updateArchive && Properties.TEST_ARCHIVE)
 				Archive.getArchiveInstance().addTarget(goal);
 			
 			if (goal.getBranch() == null) {
@@ -152,7 +153,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * If there is an exception in a superconstructor, then the corresponding
 	 * constructor might not be included in the execution trace
 	 * 
-	 * @param results
+	 * @param result
 	 * @param callCount
 	 */
 	private void handleConstructorExceptions(TestChromosome test, ExecutionResult result,
@@ -258,7 +259,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected void handleFalseDistances(TestChromosome test, ExecutionResult result, Map<Integer, Double> falseDistance) {
 		for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
-			if(!branchesId.contains(entry.getKey())||removedBranchesF.contains(entry.getKey())) continue;
+			if(!branchesId.contains(entry.getKey())||!branchCoverageFalseMap.containsKey(entry.getKey())||removedBranchesF.contains(entry.getKey())) continue;
 			if (!falseDistance.containsKey(entry.getKey()))
 				falseDistance.put(entry.getKey(), entry.getValue());
 			else {
@@ -527,5 +528,19 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+	}
+
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		ois.defaultReadObject();
+
+		branchCoverageTrueMap = new LinkedHashMap<Integer, TestFitnessFunction>();
+		branchCoverageFalseMap = new LinkedHashMap<Integer, TestFitnessFunction>();
+		branchlessMethodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
+
+		determineCoverageGoals(false);
 	}
 }

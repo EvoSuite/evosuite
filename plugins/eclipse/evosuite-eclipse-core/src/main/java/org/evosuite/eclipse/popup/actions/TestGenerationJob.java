@@ -239,7 +239,7 @@ public class TestGenerationJob extends Job {
 //							+ suiteClass,
 //							MessageDialog.OK, new String[] { "Ok" }, 0);
 //					dialog.open();
-//				}					
+//				}
 //			});
 //			return Status.CANCEL_STATUS;
 		}

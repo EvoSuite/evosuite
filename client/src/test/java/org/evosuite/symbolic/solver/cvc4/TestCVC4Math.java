@@ -19,30 +19,14 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverMath;
-import org.junit.Test;
 
-public class TestCVC4Math  extends TestCVC4{
+public class TestCVC4Math  extends TestSolverMath {
 
-	@Test
-	public void testAbs() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverMath.testAbs(solver);
+	@Override
+	public Solver getSolver() {
+		return new CVC4Solver();
 	}
 
-	@Test
-	public void testMax() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverMath.testMax(solver);
-	}
-
-	@Test
-	public void testMin() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverMath.testMin(solver);
-	}
 }

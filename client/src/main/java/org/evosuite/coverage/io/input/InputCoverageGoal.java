@@ -19,10 +19,14 @@
  */
 package org.evosuite.coverage.io.input;
 
+import org.apache.commons.lang3.ClassUtils;
+import org.evosuite.assertion.Inspector;
+import org.evosuite.assertion.InspectorManager;
 import org.objectweb.asm.Type;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static org.evosuite.coverage.io.IOCoverageConstants.*;
@@ -222,9 +226,16 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
               continue;
             }
 
-            switch (argType.getSort()) {
+            int typeSort = argType.getSort();
+            if(typeSort == Type.OBJECT) { // argValue is known not to be null here
+                if(ClassUtils.isPrimitiveWrapper(argValue.getClass())) {
+                    typeSort = Type.getType(ClassUtils.wrapperToPrimitive(argValue.getClass())).getSort();
+                }
+            }
+            switch (typeSort) {
                 case Type.BOOLEAN:
                     argValueDesc = (((boolean) argValue)) ? BOOL_TRUE : BOOL_FALSE;
+                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.CHAR:
                     char c = (char) argValue;
@@ -235,6 +246,7 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                         argValueDesc = CHAR_DIGIT;
                     else
                         argValueDesc = CHAR_OTHER;
+                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.BYTE:
                 case Type.SHORT:
@@ -252,33 +264,73 @@ public class InputCoverageGoal implements Serializable, Comparable<InputCoverage
                     }
                     numberValue = value;
                     argValueDesc = (value < 0) ? NUM_NEGATIVE : (value == 0) ? NUM_ZERO : NUM_POSITIVE;
+                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.ARRAY:
                     argValueDesc = (Array.getLength(argValue) == 0) ? ARRAY_EMPTY : ARRAY_NONEMPTY;
+                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     break;
                 case Type.OBJECT:
                     if (argType.getClassName().equals("java.lang.String")) {
                         argValueDesc = ((String) argValue).isEmpty() ? STRING_EMPTY : STRING_NONEMPTY;
+                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     }
                     else if(argValue instanceof List) {
                         argValueDesc = ((List) argValue).isEmpty() ? LIST_EMPTY : LIST_NONEMPTY;
+                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     }
                     else if(argValue instanceof Set) {
                         argValueDesc = ((Set) argValue).isEmpty() ? SET_EMPTY : SET_NONEMPTY;
+                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     }
                     else if(argValue instanceof Map) {
                         argValueDesc = ((Map) argValue).isEmpty() ? MAP_EMPTY : MAP_NONEMPTY;
+                        goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
                     }
-                    else
-                        argValueDesc = REF_NONNULL;
+                    else {
+                        Collection<Inspector> inspectors = InspectorManager.getInstance().getInspectors(argValue.getClass());
+                        for (Inspector inspector : inspectors) {
+                            String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
+                            try {
+                                Object val = inspector.getValue(argValue);
+                                if (val instanceof Boolean) {
+                                    String valDesc = ((boolean) val) ? BOOL_TRUE : BOOL_FALSE;
+                                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, REF_NONNULL + ":" + argType.getClassName() + ":" + insp + ":" + valDesc));
+                                } else if (isJavaNumber(val)) {
+                                    double dv = ((Number) val).doubleValue();
+                                    String valDesc = (dv < 0) ? NUM_NEGATIVE : (dv == 0) ? NUM_ZERO : NUM_POSITIVE;
+                                    goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, REF_NONNULL + ":" + argType.getClassName() + ":" + insp + ":" + valDesc));
+                                }
+                            } catch (InvocationTargetException e) {
+                                // Exceptions in inspectors can happen
+                            } catch (IllegalAccessException e) {
+                            }
+                        }
+                        if (inspectors.isEmpty()) {
+                            argValueDesc = REF_NONNULL;
+                            goals.add(new InputCoverageGoal(className, methodName + methodDesc, i, argType, argValueDesc, numberValue));
+                        }
+                    }
                     break;
                 default:
                     break;
             }
-            if (!argValueDesc.isEmpty())
-                goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
+//            if (!argValueDesc.isEmpty())
+//                goals.add(new InputCoverageGoal(className, methodName+methodDesc, i, argType, argValueDesc, numberValue));
         }
 
         return goals;
+    }
+
+    /**
+     * The SUT could have classes extending Number. Calling doubleValue()
+     * on those would lead to many problems, like for example security and
+     * loop counter checks.
+     *
+     * @param val
+     * @return
+     */
+    private static boolean isJavaNumber(Object val){
+        return val instanceof Number && val.getClass().getName().startsWith("java.");
     }
 }

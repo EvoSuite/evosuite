@@ -19,16 +19,19 @@
  */
 package org.evosuite.ga.metaheuristics;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author José Campos
  */
-public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class MIO<T extends Chromosome> extends AbstractMOSA<T> {
 
   private static final long serialVersionUID = -5660970130698891194L;
 
@@ -50,7 +53,7 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   private int n = Properties.NUMBER_OF_TESTS_PER_TARGET;
 
-  private TestSuiteChromosome solution = null;
+  private TestChromosome solution = null;
 
   /**
    * Constructor.
@@ -81,8 +84,6 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
         || this.solution
             .getNumberOfEvaluations() >= Properties.MAX_NUM_FITNESS_EVALUATIONS_BEFORE_GIVING_UP)) {
 
-      this.solution = new TestSuiteChromosome(this.randomFactory);
-
       TestChromosome test = null;
       if (Randomness.nextDouble() < this.pr) {
         test = this.randomFactory.getChromosome();
@@ -98,7 +99,7 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
         }
       }
       assert test != null && test.size() != 0;
-      this.solution.addTest(test);
+      this.solution = test;
     }
     assert this.solution != null;
 
@@ -107,9 +108,7 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     this.solution.mutate();
 
     // evaluate it
-    for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
-      fitnessFunction.getFitness((T) this.solution);
-    }
+    this.calculateFitness((T) this.solution);
 
     double usedBudget = this.progress();
     if (Double.compare(usedBudget, Properties.EXPLOITATION_STARTS_AT_PERCENT) >= 0) {
@@ -147,7 +146,7 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
     // will be randomly generated.
     this.generateInitialPopulation(1);
     assert this.population.size() == 1;
-    this.solution = (TestSuiteChromosome) this.population.get(0).clone();
+    this.solution = (TestChromosome) this.population.get(0).clone();
 
     // update fitness values of all individuals
     this.calculateFitnessAndSortPopulation();
@@ -201,5 +200,49 @@ public class MIO<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     TimeController.execute(this::updateBestIndividualFromArchive, "Update from archive", 5_000);
     this.notifySearchFinished();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<T> getBestIndividuals() {
+      // get final test suite (i.e., non dominated solutions in Archive)
+      TestSuiteChromosome bestTestCases = new TestSuiteChromosome();
+      Set<TestChromosome> solutions = Archive.getArchiveInstance().getSolutions();
+      bestTestCases.addTests(solutions);
+
+      // compute overall fitness and coverage
+      this.computeCoverageAndFitness(bestTestCases);
+
+      List<T> bests = new ArrayList<T>(1);
+      bests.add((T) bestTestCases);
+
+      return bests;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public T getBestIndividual() {
+      TestSuiteChromosome best = new TestSuiteChromosome();
+      Set<TestChromosome> solutions = Archive.getArchiveInstance().getSolutions();
+      best.addTests(solutions);
+
+      if (solutions.isEmpty()) {
+        for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions.keySet()) {
+          best.setCoverage(suiteFitness, 0.0);
+          best.setFitness(suiteFitness,  1.0);
+        }
+        return (T) best;
+      }
+
+      // compute overall fitness and coverage
+      this.computeCoverageAndFitness(best);
+
+      return (T) best;
   }
 }

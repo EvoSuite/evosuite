@@ -342,7 +342,7 @@
                 <!-- Apache 2 -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.7</version>
+                <version>3.8</version>
                 <!-- Version 3.2.1 leads to a NPE in org.jcvi.jillion.fasta.qual.QualityFastaRecordWriterBuilder
                     in 92_jcvi-javacommon -->
             </dependency>

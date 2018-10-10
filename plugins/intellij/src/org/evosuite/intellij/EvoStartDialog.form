@@ -16,29 +16,7 @@
       <font size="20"/>
     </border>
     <children>
-      <grid id="e3588" layout-manager="FormLayout">
-        <rowspec value="center:15dlu:noGrow"/>
-        <rowspec value="top:3dlu:noGrow"/>
-        <rowspec value="center:15dlu:noGrow"/>
-        <rowspec value="top:3dlu:noGrow"/>
-        <rowspec value="center:15dlu:noGrow"/>
-        <rowspec value="top:3dlu:noGrow"/>
-        <rowspec value="center:15dlu:noGrow"/>
-        <rowspec value="top:3dlu:noGrow"/>
-        <rowspec value="center:15dlu:noGrow"/>
-        <rowspec value="top:3dlu:noGrow"/>
-        <rowspec value="center:15dlu:noGrow"/>
-        <rowspec value="top:3dlu:noGrow"/>
-        <rowspec value="center:15dlu:noGrow"/>
-        <colspec value="fill:170px:grow"/>
-        <colspec value="fill:13px:noGrow"/>
-        <colspec value="fill:200px:grow(5.0)"/>
-        <colspec value="left:4dlu:noGrow"/>
-        <colspec value="fill:max(d;4px):noGrow"/>
-        <colspec value="left:4dlu:noGrow"/>
-        <colspec value="fill:37px:noGrow"/>
-        <colspec value="left:4dlu:noGrow"/>
-        <colspec value="fill:max(d;4px):noGrow"/>
+      <grid id="e3588" layout-manager="GridBagLayout">
         <constraints>
           <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <forms top="5" left="5" bottom="5" right="5" defaultalign-vert="false"/>
@@ -49,7 +27,7 @@
           <component id="aed90" class="javax.swing.JLabel">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Number of cores:"/>
@@ -58,17 +36,17 @@
           </component>
           <component id="c947a" class="javax.swing.JFormattedTextField" binding="coreField" custom-create="true">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-              <forms/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties/>
           </component>
           <component id="9c0f0" class="javax.swing.JLabel">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Memory per core (MB):"/>
@@ -77,17 +55,17 @@
           </component>
           <component id="2ed63" class="javax.swing.JFormattedTextField" binding="memoryField" custom-create="true">
             <constraints>
-              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-              <forms defaultalign-horz="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties/>
           </component>
           <component id="a49ce" class="javax.swing.JLabel">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Time per class (minutes):"/>
@@ -96,17 +74,17 @@
           </component>
           <component id="b93b3" class="javax.swing.JFormattedTextField" binding="timeField" custom-create="true">
             <constraints>
-              <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-              <forms defaultalign-horz="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties/>
           </component>
           <component id="b4454" class="javax.swing.JLabel">
             <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Export folder:"/>
@@ -115,17 +93,17 @@
           </component>
           <component id="4e8ef" class="javax.swing.JTextField" binding="folderField">
             <constraints>
-              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-              <forms defaultalign-horz="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties/>
           </component>
           <component id="22e89" class="javax.swing.JLabel">
             <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Maven location:"/>
@@ -134,8 +112,8 @@
           </component>
           <component id="210ac" class="javax.swing.JLabel">
             <constraints>
-              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="JAVA_HOME:"/>
@@ -144,10 +122,10 @@
           </component>
           <component id="4cf36" class="javax.swing.JTextField" binding="mavenField">
             <constraints>
-              <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-              <forms defaultalign-horz="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <editable value="false"/>
@@ -156,10 +134,10 @@
           </component>
           <component id="854ce" class="javax.swing.JTextField" binding="javaHomeField">
             <constraints>
-              <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-              <forms defaultalign-horz="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <editable value="false"/>
@@ -168,8 +146,8 @@
           </component>
           <component id="fd43b" class="javax.swing.JButton" binding="selectMavenButton">
             <constraints>
-              <grid row="8" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Select"/>
@@ -177,8 +155,8 @@
           </component>
           <component id="28ca8" class="javax.swing.JButton" binding="selectJavaHomeButton">
             <constraints>
-              <grid row="12" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Select"/>
@@ -186,8 +164,8 @@
           </component>
           <component id="48a75" class="javax.swing.JLabel">
             <constraints>
-              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="EvoSuite location:"/>
@@ -196,10 +174,10 @@
           </component>
           <component id="a321f" class="javax.swing.JTextField" binding="evosuiteLocationTesxField">
             <constraints>
-              <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
               </grid>
-              <forms defaultalign-horz="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
             </constraints>
             <properties>
               <editable value="false"/>
@@ -208,8 +186,8 @@
           </component>
           <component id="a0476" class="javax.swing.JButton" binding="evosuiteSelectionButton">
             <constraints>
-              <grid row="10" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Select"/>
@@ -217,8 +195,8 @@
           </component>
           <component id="a800a" class="javax.swing.JRadioButton" binding="mavenRadioButton">
             <constraints>
-              <grid row="8" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value=""/>
@@ -226,33 +204,36 @@
           </component>
           <component id="6b10c" class="javax.swing.JRadioButton" binding="evosuiteRadioButton">
             <constraints>
-              <grid row="10" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value=""/>
             </properties>
           </component>
+          <component id="92cfe" class="javax.swing.JLabel" binding="javaVersionWarningLabel">
+            <constraints>
+              <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="javaVersionWarning"/>
+            </properties>
+          </component>
         </children>
       </grid>
-      <grid id="94766" layout-manager="FormLayout">
-        <rowspec value="center:20px:grow"/>
-        <colspec value="fill:max(d;4px):noGrow"/>
-        <colspec value="left:161dlu:grow"/>
-        <colspec value="fill:100px:noGrow"/>
-        <colspec value="left:13dlu:noGrow"/>
-        <colspec value="fill:100px:noGrow"/>
+      <grid id="94766" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-          <forms top="5" left="5" bottom="5" right="5" defaultalign-vert="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <forms top="5" left="5" bottom="5" right="5" defaultalign-horz="false" defaultalign-vert="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
           <component id="5723f" class="javax.swing.JButton" binding="buttonCancel">
             <constraints>
-              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-              <forms defaultalign-vert="false"/>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="1.0"/>
             </constraints>
             <properties>
               <text value="Cancel"/>
@@ -260,8 +241,8 @@
           </component>
           <component id="e7465" class="javax.swing.JButton" binding="buttonOK">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-              <forms defaultalign-vert="false"/>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="1.0"/>
             </constraints>
             <properties>
               <maximumSize width="66" height="27"/>

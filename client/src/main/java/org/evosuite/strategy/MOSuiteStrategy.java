@@ -20,7 +20,6 @@
 package org.evosuite.strategy;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.ChromosomeFactory;
@@ -86,14 +85,9 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// executed with -prefix!
 		
 //		List<TestFitnessFunction> goals = getGoals(true);
-		
-		if (Properties.ALGORITHM == Properties.Algorithm.LIPS)
-			LoggingUtils.getEvoLogger().info("* Total number of test goals for LIPS: {}", fitnessFunctions.size());
-		else if (Properties.ALGORITHM == Properties.Algorithm.MOSA)
-			LoggingUtils.getEvoLogger().info("* Total number of test goals for MOSA: {}", fitnessFunctions.size());
-		else if (Properties.ALGORITHM == Properties.Algorithm.PAES)
-			LoggingUtils.getEvoLogger().info("* Total number of test goals for PAES: {}", fitnessFunctions.size());
-
+    
+		LoggingUtils.getEvoLogger().info("* Total number of test goals for {}: {}", Properties.ALGORITHM.name(), fitnessFunctions.size());
+    
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
 //		if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())

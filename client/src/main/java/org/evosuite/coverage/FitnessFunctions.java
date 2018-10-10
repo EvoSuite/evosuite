@@ -87,6 +87,8 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 /**
  * factory class for fitness functions
  * @author mattia
@@ -156,8 +158,7 @@ public class FitnessFunctions {
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
 		default:
-			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
-			        + " using default one (BranchCoverageSuiteFitness)");
+			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();
 		}
 	}

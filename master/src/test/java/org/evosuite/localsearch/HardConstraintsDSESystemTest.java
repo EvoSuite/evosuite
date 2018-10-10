@@ -54,31 +54,6 @@ public class HardConstraintsDSESystemTest extends SystemTestBase {
 	}
 	
 	@Test
-	public void testZ3Str2() {
-		String z3StrPath = System.getenv("z3_str2_path");
-		Assume.assumeTrue(z3StrPath != null);
-		Properties.Z3_STR2_PATH = z3StrPath;
-		Properties.DSE_SOLVER = Properties.SolverType.Z3_STR2_SOLVER;
-
-		EvoSuite evosuite = new EvoSuite();
-		String targetClass = HardConstraints.class.getCanonicalName();
-		Properties.TARGET_CLASS = targetClass;
-
-		Properties.CRITERION = new Criterion[] { Criterion.BRANCH, Criterion.EXCEPTION };
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println("EvolvedTestSuite:\n" + best);
-		
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
-				0.001);
-
-	}
-
-	@Test
 	public void testCVC4() {
 		String cvc4Path = System.getenv("cvc4_path");
 		Assume.assumeTrue(cvc4Path != null);

@@ -65,8 +65,10 @@ public class TryCatchCoverageFactory extends AbstractFitnessFactory<TryCatchCove
                     if(b.isInstrumented()) {
                         goals.add(new TryCatchCoverageTestFitness(new BranchCoverageGoal(b,
                                 true, b.getClassName(), b.getMethodName())));
-                        goals.add(new TryCatchCoverageTestFitness(new BranchCoverageGoal(b,
-                                false, b.getClassName(), b.getMethodName())));
+                        if(!b.ignoreFalseBranch()) {
+                            goals.add(new TryCatchCoverageTestFitness(new BranchCoverageGoal(b,
+                                    false, b.getClassName(), b.getMethodName())));
+                        }
                     }
                 }
             }

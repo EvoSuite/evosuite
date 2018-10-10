@@ -30,6 +30,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.archive.Archive;
+import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -224,7 +225,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 		if (getClass() != obj.getClass())
 			return false;
 		LineCoverageTestFitness other = (LineCoverageTestFitness) obj;
-		if (className != other.className) {
+		if (!className.equals(other.className)) {
 			return false;
 		} else if (! methodName.equals(other.methodName)) {
 			return false;
@@ -271,7 +272,11 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
 		branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
-		setupDependencies();
+		if(GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(className,
+				methodName) != null) {
+			// TODO: Figure out why the CFG may not exist
+			setupDependencies();
+		}
 	}
 	
 	private void writeObject(ObjectOutputStream oos) throws ClassNotFoundException, IOException {

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.ConstraintEvaluator;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
@@ -68,8 +69,7 @@ public abstract class Solver {
 	 * @throws IOException
 	 *             an IOException occurred while executing the solver
 	 * @throws SolverParseException
-	 *             the solver's result could not be parsed into a valid
-	 *             SolverResult
+	 *             the solver's result could not be parsed into a valid SolverResult
 	 * @throws SolverEmptyQueryException
 	 *             the solver
 	 * @throws SolverErrorException
@@ -147,8 +147,6 @@ public abstract class Solver {
 		}
 	}
 
-	private static final double DELTA = 1e-15;
-
 	protected static boolean checkSAT(Collection<Constraint<?>> constraints, SolverResult satResult) {
 
 		if (satResult == null) {
@@ -165,16 +163,24 @@ public abstract class Solver {
 		// set new values
 		Map<String, Object> newValues = satResult.getModel();
 		setConcreteValues(variables, newValues);
-		// check SAT with new values
-		double distance = DistanceEstimator.getDistance(constraints);
-		// restore values
-		setConcreteValues(variables, initialValues);
-		if (distance <= DELTA) {
+
+		try {
+			// check SAT with new values
+			ConstraintEvaluator evaluator = new ConstraintEvaluator();
+			for (Constraint<?> constraint : constraints) {
+				Boolean evaluation = (Boolean) constraint.accept(evaluator, null);
+				if (evaluation == null) {
+					throw new NullPointerException();
+				}
+				if (evaluation == false) {
+					return false;
+				}
+			}
 			return true;
-		} else {
-			return false;
+		} finally {
+			// restore values
+			setConcreteValues(variables, initialValues);
 		}
 	}
-
 
 }

@@ -80,6 +80,8 @@ public class ConstraintVerifier {
             } else if(st instanceof ConstructorStatement){
                 ConstructorStatement cs = (ConstructorStatement) st;
                 ao = cs.getConstructor().getConstructor();
+            } else {
+                return false;
             }
 
             for(Annotation annotation : ao.getDeclaredAnnotations()){

@@ -117,14 +117,14 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
      */
     protected final Map<String, int[]> methodParameters;
 
-    protected Class<?> targetClass;
+    protected GenericClass targetClass;
 
     protected transient volatile EvoInvocationListener listener;
 
     protected transient Method mockCreator;
 
 
-    public FunctionalMockStatement(TestCase tc, VariableReference retval, Class<?> targetClass) throws IllegalArgumentException {
+    public FunctionalMockStatement(TestCase tc, VariableReference retval, GenericClass targetClass) throws IllegalArgumentException {
         super(tc, retval);
         Inputs.checkNull(targetClass);
         this.targetClass = targetClass;
@@ -136,12 +136,12 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     }
 
 
-    public FunctionalMockStatement(TestCase tc, Type retvalType, Class<?> targetClass) throws IllegalArgumentException {
+    public FunctionalMockStatement(TestCase tc, Type retvalType, GenericClass targetClass) throws IllegalArgumentException {
         super(tc, retvalType);
         Inputs.checkNull(targetClass);
 
         Class<?> rawType = new GenericClass(retvalType).getRawClass();
-        if (!targetClass.equals(rawType)) {
+        if (!targetClass.getRawClass().equals(rawType)) {
             throw new IllegalArgumentException("Mismatch between raw type " + rawType + " and target class " + targetClass);
         }
 
@@ -154,7 +154,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     }
 
     private void setUpMockCreator(){
-        ClassLoader loader = targetClass.getClassLoader();
+        ClassLoader loader = targetClass.getRawClass().getClassLoader();
         try {
             Class<?> mockito = loader.loadClass(Mockito.class.getName());
             mockCreator = mockito.getDeclaredMethod("mock",
@@ -168,25 +168,20 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     @Override
     public void changeClassLoader(ClassLoader loader) {
 
-        try {
-            targetClass = loader.loadClass(targetClass.getName());
-            for(MethodDescriptor descriptor : mockedMethods){
-                if(descriptor != null){
-                    descriptor.changeClassLoader(loader);
-                }
+        targetClass.changeClassLoader(loader);
+        for(MethodDescriptor descriptor : mockedMethods){
+            if(descriptor != null){
+                descriptor.changeClassLoader(loader);
             }
-            if(listener != null){
-                listener.changeClassLoader(loader);
-            }
-        } catch (ClassNotFoundException e) {
-            logger.error("Failed to update target class from new classloader: " + e.getMessage());
         }
-
+        if(listener != null){
+            listener.changeClassLoader(loader);
+        }
         super.changeClassLoader(loader);
     }
 
     protected void checkTarget() {
-        if(! canBeFunctionalMocked(targetClass)){
+        if(! canBeFunctionalMocked(targetClass.getRawClass())){
             throw new IllegalArgumentException("Cannot create a basic functional mock for class "+targetClass);
         }
     }
@@ -272,7 +267,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
 
     public Class<?> getTargetClass() {
-        return targetClass;
+        return targetClass.getRawClass();
     }
 
     public List<MethodDescriptor> getMockedMethods() {
@@ -608,7 +603,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     try {
                         logger.debug("Mockito: create mock for {}",targetClass);
 
-                        ret = mock(targetClass, createMockSettings());
+                        ret = mock(targetClass.getRawClass(), createMockSettings());
                         //ret = mockCreator.invoke(null,targetClass,withSettings().invocationListeners(listener));
 
                         //execute all "when" statements
@@ -643,7 +638,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
                                 String msg = "Mismatch between callee's class "+ret.getClass()+" and method's class "+
                                         method.getDeclaringClass();
-                                msg += "\nTarget class classloader "+targetClass.getClassLoader() +
+                                msg += "\nTarget class classloader "+targetClass.getRawClass().getClassLoader() +
                                         " vs method's classloader " + method.getDeclaringClass().getClassLoader();
                                 throw new EvosuiteError(msg);
                             }
@@ -659,7 +654,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 }
                             } catch (InvocationTargetException e){
                                 logger.error("Invocation of mocked {}.{}() threw an exception. " +
-                                        "This means the method was not mocked",targetClass.getName(), method.getName());
+                                        "This means the method was not mocked",targetClass.getClassName(), method.getName());
                                 throw e;
                             } catch (IllegalArgumentException | IllegalAccessError e){
                                 // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite

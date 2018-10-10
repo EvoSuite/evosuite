@@ -21,12 +21,16 @@ package org.evosuite.symbolic.solver.z3;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.ConstraintVisitor;
+import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.evosuite.symbolic.solver.SmtExprBuilder;
+import org.evosuite.symbolic.solver.smt.ExprToSmtVisitor;
 import org.evosuite.symbolic.solver.smt.SmtExpr;
 
 class ConstraintToZ3Visitor implements ConstraintVisitor<SmtExpr, Void> {
@@ -36,21 +40,65 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(IntegerConstraint c, Void arg) {
-		ExprToZ3Visitor v = new ExprToZ3Visitor();
+		Expression<?> left = c.getLeftOperand();
+		Comparator cmp = c.getComparator();
+		Expression<?> right = c.getRightOperand();
 
-		SmtExpr left = c.getLeftOperand().accept(v, null);
-		SmtExpr right = c.getRightOperand().accept(v, null);
+		SmtExpr equalsExpr = translateCompareTo(left, cmp, right);
+		if (equalsExpr != null) {
+			return equalsExpr;
+		}
 
-		if (left == null || right == null) {
+		ExprToSmtVisitor v = new ExprToSmtVisitor();
+		SmtExpr leftExpr = left.accept(v, null);
+		SmtExpr rightExpr = right.accept(v, null);
+
+		if (leftExpr == null || rightExpr == null) {
 			return null;
 		}
 
-		Comparator cmp = c.getComparator();
-		return mkComparison(left, cmp, right);
+		return mkComparison(leftExpr, cmp, rightExpr);
 	}
 
-	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp,
-			SmtExpr right) {
+	private static SmtExpr translateCompareTo(Expression<?> left, Comparator cmp, Expression<?> right) {
+
+		if (!(left instanceof StringBinaryToIntegerExpression)) {
+			return null;
+		}
+		if (!(right instanceof IntegerConstant)) {
+			return null;
+		}
+		if (cmp != Comparator.NE && cmp != Comparator.EQ) {
+			return null;
+		}
+
+		StringBinaryToIntegerExpression leftExpr = (StringBinaryToIntegerExpression) left;
+		if (leftExpr.getOperator() != Operator.COMPARETO) {
+			return null;
+		}
+
+		IntegerConstant rightExpr = (IntegerConstant) right;
+		if (rightExpr.getConcreteValue() != 0) {
+			return null;
+		}
+
+		ExprToSmtVisitor v = new ExprToSmtVisitor();
+		SmtExpr leftEquals = leftExpr.getLeftOperand().accept(v, null);
+		SmtExpr rightEquals = leftExpr.getRightOperand().accept(v, null);
+
+		if (leftEquals == null || rightEquals == null) {
+			return null;
+		}
+
+		SmtExpr eqExpr = SmtExprBuilder.mkEq(leftEquals, rightEquals);
+		if (cmp == Comparator.EQ) {
+			return eqExpr;
+		} else {
+			return SmtExprBuilder.mkNot(eqExpr);
+		}
+	}
+
+	private static SmtExpr mkComparison(SmtExpr left, Comparator cmp, SmtExpr right) {
 		switch (cmp) {
 		case LT: {
 			SmtExpr lt = SmtExprBuilder.mkLt(left, right);
@@ -78,15 +126,14 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<SmtExpr, Void> {
 			return ne;
 		}
 		default: {
-			throw new RuntimeException("Unknown comparator for constraint "
-					+ cmp.toString());
+			throw new RuntimeException("Unknown comparator for constraint " + cmp.toString());
 		}
 		}
 	}
 
 	@Override
 	public SmtExpr visit(RealConstraint c, Void arg) {
-		ExprToZ3Visitor v = new ExprToZ3Visitor();
+		ExprToSmtVisitor v = new ExprToSmtVisitor();
 
 		SmtExpr left = c.getLeftOperand().accept(v, null);
 		SmtExpr right = c.getRightOperand().accept(v, null);
@@ -102,11 +149,10 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<SmtExpr, Void> {
 
 	@Override
 	public SmtExpr visit(StringConstraint c, Void arg) {
-		ExprToZ3Visitor v = new ExprToZ3Visitor();
+		ExprToSmtVisitor v = new ExprToSmtVisitor();
 
-		StringComparison stringComparison = (StringComparison) c
-				.getLeftOperand();
-
+		StringComparison stringComparison = (StringComparison) c.getLeftOperand();
+		Comparator cmp = c.getComparator();
 		IntegerConstant integerConstant = (IntegerConstant) c.getRightOperand();
 
 		SmtExpr left = stringComparison.accept(v, null);
@@ -116,7 +162,6 @@ class ConstraintToZ3Visitor implements ConstraintVisitor<SmtExpr, Void> {
 			return null;
 		}
 
-		Comparator cmp = c.getComparator();
 		return mkComparison(left, cmp, right);
 	}
 }

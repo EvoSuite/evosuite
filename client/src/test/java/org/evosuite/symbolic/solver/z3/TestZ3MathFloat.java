@@ -19,45 +19,14 @@
  */
 package org.evosuite.symbolic.solver.z3;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverMathFloat;
-import org.junit.Test;
 
-public class TestZ3MathFloat extends TestZ3 {
+public class TestZ3MathFloat extends TestSolverMathFloat{
 
-	@Test
-	public void testFloatAbs() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverMathFloat.testAbs(solver);
-	}
-
-	@Test
-	public void testFloatTrigonometry() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverMathFloat.testTrigonometry(solver);
-	}
-
-	@Test
-	public void testFloatMax() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverMathFloat.testMax(solver);
-	}
-
-	@Test
-	public void testFloatMin() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverMathFloat.testMin(solver);
-	}
-
-	@Test
-	public void testFloatRound() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		Z3Solver solver = new Z3Solver();
-		TestSolverMathFloat.testRound(solver);
+	@Override
+	public Solver getSolver() {
+		return new Z3Solver();
 	}
 
 }

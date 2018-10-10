@@ -19,59 +19,15 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverBitwise;
-import org.junit.Test;
 
-public class TestCVC4Bitwise extends TestCVC4 {
+public class TestCVC4Bitwise extends TestSolverBitwise {
 
-
-	@Test
-	public void testBitAnd() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverBitwise.testBitAnd(solver);
+	@Override
+	public Solver getSolver() {
+		return new CVC4Solver();
 	}
 
-	@Test
-	public void testBitNot() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverBitwise.testBitNot(solver);
-	}
 
-	@Test
-	public void testBitOr() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverBitwise.testBitOr(solver);
-	}
-
-	@Test
-	public void testBitXor() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverBitwise.testBitXor(solver);
-	}
-
-	@Test
-	public void testShiftLeft() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverBitwise.testShiftLeft(solver);
-	}
-
-	@Test
-	public void testShiftRight() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverBitwise.testShiftRight(solver);
-	}
-
-	@Test
-	public void testShiftRightUnsigned() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverBitwise.testShiftRightUnsigned(solver);
-	}
 }

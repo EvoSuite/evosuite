@@ -19,94 +19,14 @@
  */
 package org.evosuite.symbolic.solver.cvc4;
 
-import org.evosuite.symbolic.solver.SolverTimeoutException;
+import org.evosuite.symbolic.solver.Solver;
 import org.evosuite.symbolic.solver.TestSolverFloats;
-import org.junit.Test;
 
-public class TestCVC4Floats  extends TestCVC4 {
+public class TestCVC4Floats extends TestSolverFloats {
 
-
-	@Test
-	public void testFloatEq() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testEq(solver);
+	@Override
+	public Solver getSolver() {
+		return new CVC4Solver();
 	}
 
-	@Test
-	public void testFloatNeq() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testNeq(solver);
-	}
-
-	@Test
-	public void testFloatLt() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testLt(solver);
-	}
-
-	@Test
-	public void testFloatGt() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testGt(solver);
-	}
-
-	@Test
-	public void testFloatLte() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testLte(solver);
-	}
-
-	@Test
-	public void testFloatGte() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testGte(solver);
-	}
-
-	@Test
-	public void testFloatFraction() throws SecurityException,
-			NoSuchMethodException, SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testFraction(solver);
-	}
-
-	@Test
-	public void testFloatAdd() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testAdd(solver);
-	}
-
-	@Test
-	public void testFloatSub() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testSub(solver);
-	}
-
-	@Test
-	public void testFloatMul() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testMul(solver);
-	}
-
-	@Test
-	public void testFloatDiv() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testDiv(solver);
-	}
-
-	@Test
-	public void testFloatMod() throws SecurityException, NoSuchMethodException,
-			SolverTimeoutException {
-		CVC4Solver solver = new CVC4Solver();
-		TestSolverFloats.testMod(solver);
-	}
 }

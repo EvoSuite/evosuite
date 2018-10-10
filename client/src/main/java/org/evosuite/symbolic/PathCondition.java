@@ -25,7 +25,7 @@ import java.util.List;
 import org.evosuite.symbolic.expr.Constraint;
 
 /**
- * Represents a sequence of branch conditions
+ * Represents a sequence of branch conditions.
  * 
  * @author galeotti
  *
@@ -55,33 +55,6 @@ public class PathCondition {
 			constraints.add(b.getConstraint());
 		}
 		return constraints;
-	}
-
-	/**
-	 * Creates a new path condition by negating the branch condition at index
-	 * <code>branchConditionIndex</code>
-	 * 
-	 * @param branchConditionIndex
-	 * @return
-	 */
-	public PathCondition negate(int branchConditionIndex) {
-		if (branchConditionIndex < 0 || branchConditionIndex >= this.pathCondition.size()) {
-			throw new IndexOutOfBoundsException("The position " + branchConditionIndex + " does not exists");
-		}
-
-		List<BranchCondition> newPathCondition = new LinkedList<BranchCondition>();
-		for (int i = 0; i < branchConditionIndex; i++) {
-			BranchCondition b = pathCondition.get(i);
-			newPathCondition.add(b);
-		}
-		BranchCondition targetBranch = this.pathCondition.get(branchConditionIndex);
-		Constraint<?> negation = targetBranch.getConstraint().negate();
-		BranchCondition negatedBranch = new BranchCondition(targetBranch.getClassName(), targetBranch.getMethodName(),
-				targetBranch.getBranchIndex(), negation, targetBranch.getSupportingConstraints());
-		newPathCondition.add(negatedBranch);
-
-		return new PathCondition(newPathCondition);
-
 	}
 
 	/**
@@ -119,5 +92,9 @@ public class PathCondition {
 	 */
 	public BranchCondition get(int index) {
 		return this.pathCondition.get(index);
+	}
+	
+	public String toString() {
+	  return pathCondition.toString();
 	}
 }

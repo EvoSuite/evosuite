@@ -175,7 +175,7 @@ public class TestFactory {
 		}
 
 		//TODO this needs to be fixed once we handle Generics in mocks
-		FunctionalMockStatement fms = new FunctionalMockStatement(test, type, new GenericClass(type).getRawClass());
+		FunctionalMockStatement fms = new FunctionalMockStatement(test, type, new GenericClass(type));
 		VariableReference ref = test.addStatement(fms, position);
 
 		//note: when we add a new mock, by default it will have no parameter at the beginning
@@ -194,7 +194,7 @@ public class TestFactory {
 		}
 
 		//TODO this needs to be fixed once we handle Generics in mocks
-		FunctionalMockForAbstractClassStatement fms = new FunctionalMockForAbstractClassStatement(test, type, new GenericClass(type).getRawClass());
+		FunctionalMockForAbstractClassStatement fms = new FunctionalMockForAbstractClassStatement(test, type, new GenericClass(type));
 		VariableReference ref = test.addStatement(fms, position);
 
 		//note: when we add a new mock, by default it will have no parameter at the beginning
@@ -1253,6 +1253,11 @@ public class TestFactory {
 						}
 
 						if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
+
+						    // Workaround for https://issues.apache.org/jira/browse/LANG-1420
+                            if(!clazz.getRawClass().isAssignableFrom(var.getGenericClass().getRawClass())) {
+                                continue;
+                            }
 							logger.debug("Reusing variable at position {}",var.getStPosition());
 							return var;
 						}
