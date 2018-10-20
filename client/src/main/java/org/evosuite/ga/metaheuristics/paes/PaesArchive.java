@@ -6,7 +6,6 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridLocation;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridNode;
 import org.evosuite.ga.metaheuristics.paes.Grid.GridNodeInterface;
-import org.evosuite.symbolic.vm.math.MAX;
 
 import java.util.*;
 
