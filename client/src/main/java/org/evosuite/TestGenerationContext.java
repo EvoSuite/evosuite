@@ -213,20 +213,24 @@ public class TestGenerationContext {
 		CarvingManager.getInstance().clear();
 
 		// TODO: Why are we doing this?
-		if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
+		/*if (Properties.INSTRUMENT_CONTEXT || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
 				|| ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.IBRANCH)) {
 			// || ArrayUtil.contains(Properties.CRITERION,
 			// Properties.Criterion.CBRANCH)) {
 			try {
+				// 1. Initialize the callGraph before using
+				String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));s
 				testClusterGenerator = new TestClusterGenerator(
 						DependencyAnalysis.getInheritanceTree());
+				// 2. Use the callGraph
 				testClusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
 				logger.error(e.getMessage(), e);
 			}
-		}
+		}*/
 
 		if (Properties.CHECK_CONTRACTS) {
 			FailingTestSet.changeClassLoader(classLoader);

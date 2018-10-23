@@ -186,9 +186,9 @@ public class EvoSuite {
 
             CommandLineParameters.addJavaDOptions(javaOpts, line);
 
-            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
-                ClassPathHacker.initializeToolJar();
-            }
+//            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+//                ClassPathHacker.initializeToolJar();
+//            }
 
             CommandLineParameters.handleClassPath(line);
 
