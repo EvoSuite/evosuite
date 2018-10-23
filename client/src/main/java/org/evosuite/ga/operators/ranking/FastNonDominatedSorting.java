@@ -63,7 +63,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	/**
 	 * This method ranks the remaining test cases using the traditional "Non-Dominated Sorting Algorithm"
 	 * @param solutionSet set of test cases to rank with "Non-Dominated Sorting Algorithm"
-	 * @param covered_goal set of goals
+	 * @param uncovered_goals set of goals
 	 * @return the list of fronts according to the uncovered goals
 	 */
 	@SuppressWarnings("unchecked")
@@ -166,9 +166,5 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	public int getNumberOfSubfronts() {
 		return ranking_.length;
 	} // getNumberOfSubfronts
-
-	public Map<FitnessFunction<T>, T> getNewCoveredGoals() {
-		return newCoveredGoals;
-	}
 
 } // Ranking
