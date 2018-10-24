@@ -34,6 +34,7 @@ import static org.evosuite.coverage.io.IOCoverageConstants.REF_NULL;
 import static org.evosuite.coverage.io.IOCoverageConstants.STRING_EMPTY;
 import static org.evosuite.coverage.io.IOCoverageConstants.STRING_NONEMPTY;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -87,7 +88,16 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                 logger.info("Adding goals for method " + className + "." + methodName);
                 Type returnType = Type.getReturnType(method);
 
-                switch (returnType.getSort()) {
+                int typeSort = returnType.getSort();
+                if(typeSort == Type.OBJECT) {
+                    Class<?> typeClass = method.getReturnType();
+                    if(ClassUtils.isPrimitiveWrapper(typeClass)) {
+                        typeSort = Type.getType(ClassUtils.wrapperToPrimitive(typeClass)).getSort();
+                        goals.add(createGoal(className, methodName, returnType, REF_NULL));
+                    }
+                }
+
+                switch (typeSort) {
                     case Type.BOOLEAN:
                         goals.add(createGoal(className, methodName, returnType, BOOL_TRUE));
                         goals.add(createGoal(className, methodName, returnType, BOOL_FALSE));
@@ -151,7 +161,9 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
     }
 
     public static OutputCoverageTestFitness createGoal(String className, String methodName, Type returnType, String suffix) {
-        return new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType, suffix));
+        OutputCoverageGoal goal = new OutputCoverageGoal(className, methodName, returnType, suffix);
+        logger.info("Created output coverage goal: {}", goal);
+        return new OutputCoverageTestFitness(goal);
     }
 
     /**
