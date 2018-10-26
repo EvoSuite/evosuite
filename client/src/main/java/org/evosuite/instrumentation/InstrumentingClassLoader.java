@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -58,8 +57,6 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<>();
 	private boolean isRegression = false;
-	
-	private ReentrantLock lock = new ReentrantLock();
 	
 	/**
 	 * <p>
@@ -129,8 +126,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-        lock.lock();
-        try {
+        synchronized(getClassLoadingLock(name)) {
             ClassLoader dbLoader = DBManager.getInstance().getSutClassLoader();
             if (dbLoader != null && dbLoader != this && !isRegression) {
                 /*
@@ -173,8 +169,6 @@ public class InstrumentingClassLoader extends ClassLoader {
                 return instrumentedClass;
             }
             
-        } finally {
-		    lock.unlock();
         }
 	}
 
