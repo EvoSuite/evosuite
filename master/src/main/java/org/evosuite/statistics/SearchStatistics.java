@@ -176,8 +176,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * This method is called when a new individual is sent from a client.
 	 * The individual represents the best individual of the current generation.
 	 * 
-	 * @param rmiClientIdentifier
-	 * @param individual
+	 * @param individual best individual of current generation
 	 */
 	public void currentIndividual(Chromosome individual) {
         if(backend == null)

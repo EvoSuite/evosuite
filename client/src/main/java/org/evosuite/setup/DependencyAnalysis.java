@@ -374,12 +374,12 @@ public class DependencyAnalysis {
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Branches_Real,
-						((BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter() - BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()))/2);
+						((BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter() - BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()))*2);
 		ClientServices
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Branches_Instrumented,
-						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()));
+						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches() * 2));
 		ClientServices
 				.getInstance()
 				.getClientNode()
