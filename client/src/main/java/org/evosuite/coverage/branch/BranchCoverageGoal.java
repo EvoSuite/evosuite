@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -344,6 +344,13 @@ public class BranchCoverageGoal implements Serializable, Comparable<BranchCovera
 
 	@Override
 	public int compareTo(BranchCoverageGoal o) {
+		if(branch != null && o.getBranch() != null && branch.isInstrumented() != o.getBranch().isInstrumented()) {
+			if(branch.isInstrumented()) {
+				return 1;
+			} else {
+				return -1;
+			}
+		}
 		int diff = lineNumber - o.lineNumber;
 		if(diff == 0) {
 			return 0;

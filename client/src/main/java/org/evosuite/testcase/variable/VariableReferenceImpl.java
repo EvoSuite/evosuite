@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -87,6 +87,9 @@ public class VariableReferenceImpl implements VariableReference {
 	 * 
 	 * The position of the statement, defining this VariableReference, in the
 	 * testcase.
+	 *
+	 * TODO: Notify change listener also when return value changes
+	 *
 	 */
 	@Override
 	public synchronized int getStPosition() {

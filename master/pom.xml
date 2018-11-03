@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.evosuite</groupId>
         <artifactId>evosuite</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>evosuite-master</artifactId>
@@ -43,6 +43,13 @@
             <artifactId>evosuite-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency> <!--TODO: this is added in parent pom too -->
+            <!-- FindBugs Jsr305 -->
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>2.0.1</version>
+            <scope>test</scope>
+        </dependency>
 
 
         <!-- External Libraries -->
@@ -69,8 +76,11 @@
             <artifactId>cdi-api</artifactId>
             <scope>compile</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <optional>true</optional>
+        </dependency>
 
     </dependencies>
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,11 +23,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.evosuite.ga.FitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * by Ilinca Ciupa, Andreas Leitner, Manuel Oriol, Bertrand Meyer (<a
  * href="http://se.ethz.ch/~meyer/publications/testing/object_distance.pdf"
  * >http://se.ethz.ch/~meyer/publications/testing/object_distance.pdf</a>).
- * 
+ *
  * We implemented the following changes:
  * <ul>
  * <li>In the paper if a reference field does not match (i.e., is different
@@ -55,434 +52,437 @@ import org.slf4j.LoggerFactory;
  * <li>There is no distance given for two characters. We defined that to be C =
  * 10.</li>
  * </ul>
- * 
- * @author roessler
  */
 public class ObjectDistanceCalculator {
 
-	private static final double B = 1;
-	private static final double R = 10;
-	private static final double V = 10;
-	private static final double C = 10;
-	private static final int MAX_RECURSION = 4;
-	
-	public static int different_variables = 0;
+  private static final Logger logger = LoggerFactory.getLogger(ObjectDistanceCalculator.class);
+  private static final double B = 1;
+  private static final double R = 10;
+  private static final double V = 10;
+  private static final double C = 10;
+  private static final int MAX_RECURSION = 4;
+  private final Map<Integer, Integer> hashRecursionCntMap = new LinkedHashMap<>();
+  private final Map<Integer, Double> resultCache = new LinkedHashMap<>();
 
-	public static double getObjectDistance(Object p, Object q) {
-		double distance = new ObjectDistanceCalculator().getObjectDistanceImpl(
-				p, q);
-		// assert distance >= 0.0 : "Result was " + distance;
-		// assert !Double.isNaN(distance);
-		// assert !Double.isInfinite(distance);
-		return distance;
-	}
+  private int numDifferentVariables = 0;
 
-	private static Collection<Field> getAllFields(Class<?> commonAncestor) {
-		Collection<Field> result = new ArrayList<Field>();
-		Class<?> ancestor = commonAncestor;
-		while (!ancestor.equals(Object.class)) {
-			result.addAll(Arrays.asList(ancestor.getDeclaredFields()));
-			ancestor = ancestor.getSuperclass();
-		}
-		return result;
-	}
+  public static double getObjectDistance(Object p, Object q) {
+    ObjectDistanceCalculator calculator = new ObjectDistanceCalculator();
+    return calculator.getObjectDistanceImpl(p, q) + normalize(calculator.numDifferentVariables);
+  }
 
-	private static Class<?> getCommonAncestor(Object p, Object q) {
-		double pInheritCnt = getTypeDistance(Object.class, p);
-		double qInheritCnt = getTypeDistance(Object.class, q);
+  private static Collection<Field> getAllFields(Class<?> commonAncestor) {
+    Collection<Field> result = new ArrayList<>();
+    Class<?> ancestor = commonAncestor;
+    while (!ancestor.equals(Object.class)) {
+      result.addAll(Arrays.asList(ancestor.getDeclaredFields()));
+      ancestor = ancestor.getSuperclass();
+    }
+    return result;
+  }
 
-		Class<?> pClass = p.getClass();
-		Class<?> qClass = q.getClass();
+  private static Class<?> getCommonAncestor(Object p, Object q) {
+    double pInheritCnt = getTypeDistance(Object.class, p);
+    double qInheritCnt = getTypeDistance(Object.class, q);
 
-		while (!pClass.equals(qClass)) {
-			if (pInheritCnt > qInheritCnt) {
-				pClass = pClass.getSuperclass();
-				pInheritCnt--;
-			} else {
-				qClass = qClass.getSuperclass();
-				qInheritCnt--;
-			}
-		}
-		return pClass;
-	}
+    Class<?> pClass = p.getClass();
+    Class<?> qClass = q.getClass();
 
-	private static double getElementaryDistance(Boolean p, Boolean q) {
-		if (p.equals(q)) {
-			return 0;
-		}
-		return B;
-	}
+    while (!pClass.equals(qClass)) {
+      if (pInheritCnt > qInheritCnt) {
+        pClass = pClass.getSuperclass();
+        pInheritCnt--;
+      } else {
+        qClass = qClass.getSuperclass();
+        qInheritCnt--;
+      }
+    }
+    return pClass;
+  }
 
-	private static double normalize(double x) {
-		return x / (x + 1.0);
-	}
+  private static double getElementaryDistance(Boolean p, Boolean q) {
+    if (p.equals(q)) {
+      return 0;
+    }
+    return B;
+  }
 
-	private static double normalize_inverse(double x) {
-		return 1.0 / (x + 1.0);
-	}
+  private static double normalize(double x) {
+    return x / (x + 1.0);
+  }
 
-	private static double getElementaryDistance(Character p, Character q) {
-		if (p.equals(q)) {
-			return 0;
-		} else {
-			different_variables++;
-		}
-		
-		return normalize(Math.abs(p.charValue() - q.charValue()));
-	}
+  private static double normalizeTowardsZero(double x) {
+    return 1.0 / (x + 1.0);
+  }
 
-	private static double getElementaryDistance(Number p, Number q) {
-		//if(p.equals(-1) && !q.equals(-1))
-		//System.out.println("Num1: " + p + " | Num2: " + q);
-		if(!p.equals(q))
-			different_variables++;
-		
-		if ((p instanceof Double)
-				&& (((Double) p).isNaN() || ((Double) p).isInfinite())) {
-			if (p.equals(q))
-				return 0;
-			else
-				return 1;
-		}
+  private static Object getFieldValue(Field field, Object p) {
+    try {
+      Class<?> fieldType = field.getType();
+      field.setAccessible(true);
+      if (fieldType.isPrimitive()) {
+        if (fieldType.equals(Boolean.TYPE)) {
+          return field.getBoolean(p);
+        }
+        if (fieldType.equals(Integer.TYPE)) {
+          return field.getInt(p);
+        }
+        if (fieldType.equals(Byte.TYPE)) {
+          return field.getByte(p);
+        }
+        if (fieldType.equals(Short.TYPE)) {
+          return field.getShort(p);
+        }
+        if (fieldType.equals(Long.TYPE)) {
+          return field.getLong(p);
+        }
+        if (fieldType.equals(Double.TYPE)) {
+          return field.getDouble(p);
+        }
+        if (fieldType.equals(Float.TYPE)) {
+          return field.getFloat(p);
+        }
+        if (fieldType.equals(Character.TYPE)) {
+          return field.getChar(p);
+        }
+        throw new UnsupportedOperationException(
+            "Primitive type " + fieldType + " not implemented!");
+      }
+      return field.get(p);
+    } catch (IllegalAccessException exc) {
+      throw new RuntimeException(exc);
+    }
+  }
 
-		if ((p instanceof Float)
-				&& (((Float) p).isNaN() || ((Float) p).isInfinite())) {
-			if (p.equals(q))
-				return 0;
-			else
-				return 1;
-		}
-		
-		double distance = Math.abs(p.doubleValue() - q.doubleValue());
-		
-		// If the epsilon is less than 0.01D (as is used for assertion generation)
-		// set distance to 0.
-		if(p instanceof Double){
-			if(distance<0.01)
-				distance = 0;
-		}
-		
-		return normalize(distance);
-	}
+  private static Integer getHasCode(Object p, Object q) {
+    return ((p == null) ? 0 : p.hashCode()) + ((q == null) ? 0 : q.hashCode());
+  }
 
-	private static double getElementaryDistance(String p, String q) {
-		// Levenshtein distance
-		if(!p.equals(q))
-			different_variables++;
-		int[][] distanceMatrix = new int[p.length() + 1][q.length() + 1];
-		for (int idx = 0; idx <= p.length(); idx++) {
-			distanceMatrix[idx][0] = idx;
-		}
-		for (int jdx = 1; jdx <= q.length(); jdx++) {
-			distanceMatrix[0][jdx] = jdx;
-		}
-		for (int idx = 1; idx <= p.length(); idx++) {
-			for (int jdx = 1; jdx <= q.length(); jdx++) {
-				int cost;
-				if (p.charAt(idx - 1) == q.charAt(jdx - 1)) {
-					cost = 0;
-				} else {
-					cost = 1;
-				}
-				distanceMatrix[idx][jdx] = Math.min(
-						distanceMatrix[idx - 1][jdx] + 1, // deletion
-						Math.min(distanceMatrix[idx][jdx - 1] + 1, // insertion
-								distanceMatrix[idx - 1][jdx - 1] + cost // substitution
-						));
-				if ((idx > 1) && (jdx > 1)
-						&& (p.charAt(idx - 1) == q.charAt(jdx - 2))
-						&& (p.charAt(idx - 2) == q.charAt(jdx - 1))) {
-					distanceMatrix[idx][jdx] = Math.min(
-							distanceMatrix[idx][jdx],
-							distanceMatrix[idx - 2][jdx - 2] + cost // transposition
-					);
-				}
-			}
-		}
-		return normalize(distanceMatrix[p.length()][q.length()]);
-	}
+  private static Collection<Field> getNonSharedFields(Class<?> commonAncestor, Object p) {
+    Collection<Field> result = new ArrayList<>();
+    Class<?> ancestor = p.getClass();
+    while (!ancestor.equals(commonAncestor)) {
+      result.addAll(Arrays.asList(ancestor.getDeclaredFields()));
+      ancestor = ancestor.getSuperclass();
+    }
+    return result;
+  }
 
-	private static Object getFieldValue(Field field, Object p) {
-		try {
-			Class<?> fieldType = field.getType();
-			field.setAccessible(true);
-			if (fieldType.isPrimitive()) {
-				if (fieldType.equals(Boolean.TYPE)) {
-					return field.getBoolean(p);
-				}
-				if (fieldType.equals(Integer.TYPE)) {
-					return field.getInt(p);
-				}
-				if (fieldType.equals(Byte.TYPE)) {
-					return field.getByte(p);
-				}
-				if (fieldType.equals(Short.TYPE)) {
-					return field.getShort(p);
-				}
-				if (fieldType.equals(Long.TYPE)) {
-					return field.getLong(p);
-				}
-				if (fieldType.equals(Double.TYPE)) {
-					return field.getDouble(p);
-				}
-				if (fieldType.equals(Float.TYPE)) {
-					return field.getFloat(p);
-				}
-				if (fieldType.equals(Character.TYPE)) {
-					return field.getChar(p);
-				}
-				throw new UnsupportedOperationException("Primitive type "
-						+ fieldType + " not implemented!");
-			}
-			return field.get(p);
-		} catch (IllegalAccessException exc) {
-			throw new RuntimeException(exc);
-		}
-	}
+  private static double getTypeDistance(Class<?> commonAncestor, Object p) {
+    double result = 0.0;
+    Class<?> ancestor = p.getClass();
+    while (!ancestor.equals(commonAncestor)) {
+      ancestor = ancestor.getSuperclass();
+      result++;
+    }
+    return result;
+  }
 
-	private static Integer getHasCode(Object p, Object q) {
-		return ((p == null) ? 0 : p.hashCode())
-				+ ((q == null) ? 0 : q.hashCode());
-	}
+  private static double getTypeDistance(Class<?> commonAncestor, Object p, Object q) {
+    double result = getTypeDistance(commonAncestor, p) + getTypeDistance(commonAncestor, q);
+    result += getNonSharedFields(commonAncestor, p).size() * R;
+    result += getNonSharedFields(commonAncestor, q).size() * R;
+    return result;
+  }
 
-	private static Collection<Field> getNonSharedFields(
-			Class<?> commonAncestor, Object p) {
-		Collection<Field> result = new ArrayList<Field>();
-		Class<?> ancestor = p.getClass();
-		while (!ancestor.equals(commonAncestor)) {
-			result.addAll(Arrays.asList(ancestor.getDeclaredFields()));
-			ancestor = ancestor.getSuperclass();
-		}
-		return result;
-	}
+  private double getElementaryDistance(Character p, Character q) {
+    if (p.equals(q)) {
+      return 0;
+    } else {
+      numDifferentVariables++;
+    }
 
-	private static double getTypeDistance(Class<?> commonAncestor, Object p) {
-		double result = 0.0;
-		Class<?> ancestor = p.getClass();
-		while (!ancestor.equals(commonAncestor)) {
-			ancestor = ancestor.getSuperclass();
-			result++;
-		}
-		return result;
-	}
+    return normalize(Math.abs(p - q));
+  }
 
-	private static double getTypeDistance(Class<?> commonAncestor, Object p,
-			Object q) {
-		double result = getTypeDistance(commonAncestor, p)
-				+ getTypeDistance(commonAncestor, q);
-		result += getNonSharedFields(commonAncestor, p).size() * R;
-		result += getNonSharedFields(commonAncestor, q).size() * R;
-		return result;
-	}
+  private double getElementaryDistance(Number p, Number q) {
+    if (!p.equals(q)) {
+      numDifferentVariables++;
+    }
 
-	private final Map<Integer, Integer> hashRecursionCntMap = new LinkedHashMap<Integer, Integer>();
-	private final Map<Integer, Double> resultCache = new LinkedHashMap<Integer, Double>();
+    if ((p instanceof Double) && (((Double) p).isNaN() || ((Double) p).isInfinite())) {
+      if (p.equals(q)) {
+        return 0;
+      } else {
+        return 1;
+      }
+    }
 
-	private boolean breakRecursion(Object p, Object q) {
-		Integer hashCode = getHasCode(p, q);
-		Integer recursionCnt = hashRecursionCntMap.get(hashCode);
-		if (recursionCnt == null) {
-			recursionCnt = 0;
-		}
-		if (recursionCnt >= MAX_RECURSION) {
-			return true;
-		}
-		recursionCnt++;
-		hashRecursionCntMap.put(hashCode, recursionCnt);
-		return false;
-	}
+    if ((p instanceof Float) && (((Float) p).isNaN() || ((Float) p).isInfinite())) {
+      if (p.equals(q)) {
+        return 0;
+      } else {
+        return 1;
+      }
+    }
 
-	private double getCompositeObjectDistance(Object p, Object q) {
-		Double cachedDistance = resultCache.get(getHasCode(p, q));
-		if (cachedDistance != null) {
-			return cachedDistance;
-		}
-		if (breakRecursion(p, q)) {
-			return 0.0;
-		}
-		Class<?> commonAncestor = getCommonAncestor(p, q);
-		double distance = getTypeDistance(commonAncestor, p, q);
-		distance += getFieldDistance(commonAncestor, p, q);
-		resultCache.put(getHasCode(p, q), distance);
-		return distance;
-	}
+    double distance;
+    if (p instanceof Long) {
+      distance = Math.abs(p.longValue() - q.longValue());
+    } else {
+      distance = Math.abs(p.doubleValue() - q.doubleValue());
+    }
 
-	private double getFieldDistance(Class<?> commonAncestor, Object p, Object q) {
-		Collection<Field> fields = getAllFields(commonAncestor);
-		double sum = 0;
-		for (Field field : fields) {
-			sum += getObjectDistanceImpl(getFieldValue(field, p),
-					getFieldValue(field, q));
-		}
-		if (sum == 0.0) {
-			return sum;
-		}
-		return sum / fields.size();
-	}
+    // If the epsilon is less than 0.01D (as is used for assertion generation)
+    // set distance to 0.
+    if (p instanceof Double) {
+      if (distance < 0.01) {
+        distance = 0;
+      }
+    }
 
-	private static double getObjectDistanceImpl(Object p, Object q) {
-		
-		if (p == q) {
-			return 0.0;
-		}
+    return normalize(distance);
+  }
 
-		// both are null
-		if ((p == null) || (q == null)) {
-			return 0;
-		}
+  /* Levenshtein distance */
+  private double getElementaryDistance(String p, String q) {
+    if (!p.equals(q)) {
+      numDifferentVariables++;
+    }
+    int[][] distanceMatrix = new int[p.length() + 1][q.length() + 1];
+    for (int idx = 0; idx <= p.length(); idx++) {
+      distanceMatrix[idx][0] = idx;
+    }
+    for (int jdx = 1; jdx <= q.length(); jdx++) {
+      distanceMatrix[0][jdx] = jdx;
+    }
+    for (int idx = 1; idx <= p.length(); idx++) {
+      for (int jdx = 1; jdx <= q.length(); jdx++) {
+        int cost;
+        if (p.charAt(idx - 1) == q.charAt(jdx - 1)) {
+          cost = 0;
+        } else {
+          cost = 1;
+        }
+        distanceMatrix[idx][jdx] = Math.min(
+            distanceMatrix[idx - 1][jdx] + 1, // deletion
+            Math.min(distanceMatrix[idx][jdx - 1] + 1, // insertion
+                distanceMatrix[idx - 1][jdx - 1] + cost // substitution
+            ));
+        if ((idx > 1) && (jdx > 1)
+            && (p.charAt(idx - 1) == q.charAt(jdx - 2))
+            && (p.charAt(idx - 2) == q.charAt(jdx - 1))) {
+          distanceMatrix[idx][jdx] = Math.min(
+              distanceMatrix[idx][jdx],
+              distanceMatrix[idx - 2][jdx - 2] + cost // transposition
+          );
+        }
+      }
+    }
+    return normalize(distanceMatrix[p.length()][q.length()]);
+  }
 
-		// type mismatch
-		if (((p instanceof Double) && (!(q instanceof Double)))
-				|| ((q instanceof Double) && (!(p instanceof Double))))
-			return 1;
-		
-		
-		
-		
-		
-		/*if (((p instanceof Double) && 
-				((Double.isNaN((Double) p)) || Double.isInfinite((Double) p)))
-				|| ((q instanceof Double) && ((Double.isNaN((Double) q)) 
-						|| Double.isInfinite((Double) q)))) {*/
-		if ( (p instanceof Double) && (q instanceof Double) )
-				{
-			
-			// One is NaN, other is Infinity
-			if (((Double.isNaN((Double) p)) && (Double.isInfinite((Double) q)))
-					|| ((Double.isNaN((Double) q)) && (Double
-							.isInfinite((Double) p))))
-				return 1;
-			
-			if ( ((Double.isNaN((Double) p)) && (!Double.isNaN((Double) q)) )
-					|| ((Double.isNaN((Double) q)) && (!Double.isNaN((Double) p)) ) )
-				return 1;
-			
-			
-			if ( ((Double.isInfinite((Double) p)) && (!Double.isInfinite((Double) q)) )
-					|| ((Double.isInfinite((Double) q)) && (!Double.isInfinite((Double) p)) ) )
-				return 1;
-			
-			if ( (Double.isInfinite((Double) p)) && (Double.isInfinite((Double) q)) ){
-				if(!((Double) p).equals(((Double) q)))
-					return 1;
-			}
-			
-			
-			
-			/*if ((((p instanceof Double) && ((Double.isNaN((Double) p)) || Double
-					.isInfinite((Double) p))) && (!((q instanceof Double) && ((Double
-					.isNaN((Double) q)) || Double.isInfinite((Double) q)))))
-					|| (!(((p instanceof Double) && ((Double.isNaN((Double) p)) || Double
-							.isInfinite((Double) p)))) && (((q instanceof Double) && ((Double
-							.isNaN((Double) q)) || Double
-							.isInfinite((Double) q))))))
-				return 1;
-			else
-				return 0;
-				*/
-		}
-		
-		
-		if (((p instanceof Float) && (!(q instanceof Float)))
-				|| ((q instanceof Float) && (!(p instanceof Float))))
-			return 1;
-		
-		
-		if ( (p instanceof Float) && (q instanceof Float) )
-		{
-	
-			// One is NaN, other is Infinity
-			if (((Float.isNaN((Float) p)) && (Float.isInfinite((Float) q)))
-					|| ((Float.isNaN((Float) q)) && (Float
-							.isInfinite((Float) p))))
-				return 1;
-			
-			if ( ((Float.isNaN((Float) p)) && (!Float.isNaN((Float) q)) )
-					|| ((Float.isNaN((Float) q)) && (!Float.isNaN((Float) p)) ) )
-				return 1;
-			
-			
-			if ( ((Float.isInfinite((Float) p)) && (!Float.isInfinite((Float) q)) )
-					|| ((Float.isInfinite((Float) q)) && (!Float.isInfinite((Float) p)) ) )
-				return 1;
-			
-			if ( (Float.isInfinite((Float) p)) && (Float.isInfinite((Float) q)) ){
-				if(!((Float) p).equals(((Float) q)))
-					return 1;
-			}
-		
-		}
-		
+  private double getObjectDistanceImpl(Object p, Object q) {
+    if (p == q) {
+      return 0.0;
+    }
 
-		if (!p.getClass().equals(q.getClass()))
-			return 0;
+    // one is null, the other isn't
+    if (p == null || q == null) {
+      // if only one of them is null
+      numDifferentVariables++;
+      return 0;
+    }
 
-		// What if one is a primitive and the other not?
-		// if (!value.getClass().equals(value2.getClass())) ?
-		if (p instanceof Number) {
-			return getElementaryDistance((Number) p, (Number) q);
-		}
-		if (p instanceof Boolean) {
-			return getElementaryDistance((Boolean) p, (Boolean) q);
-		}
-		if (p instanceof String) {
-			return getElementaryDistance((String) p, (String) q);
-		}
-		if (p instanceof Character) {
-			return getElementaryDistance((Character) p, (Character) q);
-		}
+    // type mismatch
+    boolean isNumberP = p instanceof Number;
+    boolean isNumberQ = q instanceof Number;
+    if (isNumberP != isNumberQ) {
+      return 1;
+    }
 
-		if (p instanceof Map) {
-			return normalize(getObjectMapDistance((Map<String, Object>) p,
-					(Map<String, Object>) q));
-		}
-		
-		// TODO: enums.
-		if (p instanceof Enum) {
-			return 0;
-			/*return getElementaryDistance(((Enum) p).ordinal(),
-					((Enum) q).ordinal());*/
-		}
+    // if they're both numbers, check NaN / Infinity status
+    if (isNumberP && haveDifferentNaNOrInfinity(p, q)) {
+      return 1;
+    }
 
-		throw new Error("Distance of unknown type!");
-	}
+    // if they're from different classes
+    if (!p.getClass().getName().equals(q.getClass().getName())) {
+      numDifferentVariables++;
+      return 0;
+    }
 
-	protected static final Logger logger = LoggerFactory
-			.getLogger(ObjectDistanceCalculator.class);
+    // What if one is a primitive and the other not?
+    if (p instanceof Number) {
+      return getElementaryDistance((Number) p, (Number) q);
+    }
 
-	public static double getObjectMapDistance(Map<String, Object> map1,
-			Map<String, Object> map2) {
-		double distance = 0.0;
+    if (p instanceof Boolean) {
+      return getElementaryDistance((Boolean) p, (Boolean) q);
+    }
 
-		for (String fieldName : map1.keySet()) {
-			if (!map2.containsKey(fieldName))
-				continue;
-			Object value1 = map1.get(fieldName);
-			Object value2 = map2.get(fieldName);
-			double tmpDistance = 0;
-			try{
-				tmpDistance = getObjectDistanceImpl(value1, value2);
-			}catch(OutOfMemoryError e){
-				e.printStackTrace();
-			}
-			/*if(tmpDistance !=0)
-			//if(fieldName.equals("fake_var_java_lang_Double"))
-			 System.out.println("field: " + fieldName + ", d: " +
-					 tmpDistance+" <");
-			*/
-			if (Double.valueOf(tmpDistance).isNaN()
-					|| Double.valueOf(tmpDistance).isInfinite()) {
-				different_variables++;
-				tmpDistance = 0;
-				
-			}
+    if (p instanceof String) {
+      return getElementaryDistance((String) p, (String) q);
+    }
 
-			distance += tmpDistance;
-			
-			 
-		}
-		// System.out.println("final dis: " + distance+" +");
+    if (p instanceof Character) {
+      return getElementaryDistance((Character) p, (Character) q);
+    }
 
-		return distance;
-	}
+    if (p instanceof Map && isStringObjectMap((Map) p) && isStringObjectMap((Map) q)) {
+      return normalize(getObjectMapDistance((Map<String, Object>) p, (Map<String, Object>) q));
+    }
+
+    /*
+    TODO: add support for maps of other types.
+    One possible approach is perhaps to turn the object into json and turning it back to a
+    recursive Map<String,Object> and apply the method above to it. (Jackson library is able
+    to do this pretty quickly).
+    */
+
+    if (p instanceof Enum) {
+      // Levenshtein distance of enum name
+      return getElementaryDistance(((Enum) p).name(), ((Enum) q).name());
+    }
+
+    return getCompositeObjectDistance(p, q);
+
+    // throw new Error("Distance of unknown type!");
+  }
+
+  /**
+   * This following relatively-hacky way, checks whether the map keys are strings
+   */
+  private boolean isStringObjectMap(Map p) {
+    if(p.isEmpty()){
+      return true;
+    }
+    return p.keySet().iterator().next().getClass().getName().equals(String.class.getName());
+  }
+
+  private boolean haveDifferentNaNOrInfinity(Object p, Object q) {
+    boolean isNanP = false;
+    boolean isNanQ = false;
+
+    boolean isInfiniteP = false;
+    boolean isInfiniteQ = false;
+
+    if (p instanceof Double) {
+      Double doubleP = (Double) p;
+      isNanP = Double.isNaN(doubleP);
+      isInfiniteP = Double.isInfinite(doubleP);
+    }
+
+    if (q instanceof Double) {
+      Double doubleQ = (Double) q;
+      isNanQ = Double.isNaN(doubleQ);
+      isInfiniteQ = Double.isInfinite(doubleQ);
+    }
+
+    if (p instanceof Float) {
+      Float floatP = (Float) p;
+      isNanP = Float.isNaN(floatP);
+      isInfiniteP = Float.isInfinite(floatP);
+    }
+
+    if (q instanceof Float) {
+      Float floatQ = (Float) q;
+      isNanQ = Float.isNaN(floatQ);
+      isInfiniteQ = Float.isInfinite(floatQ);
+    }
+
+    // One is NaN, other is Infinity
+    if (isNanP && isInfiniteQ || isNanQ && isInfiniteP) {
+      return true;
+    }
+
+    // one is Nan, the other isn't
+    if (isNanP != isNanQ) {
+      return true;
+    }
+
+    // one is infinite, the other isn't
+    if (isInfiniteP != isInfiniteQ) {
+      return true;
+    }
+
+    /*
+      both are infinite (previous condition ensures equality), and they don't match
+      (e.g., one is positive infinity, and the other is negative)
+    */
+    if (isInfiniteP && !p.equals(q)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  public double getObjectMapDistance(Map<String, Object> map1, Map<String, Object> map2) {
+    double distance = 0.0;
+    int missingFields = 0;
+
+    for (String fieldName : map1.keySet()) {
+      if (!map2.containsKey(fieldName)) {
+        missingFields++;
+        continue;
+      }
+      Object value1 = map1.get(fieldName);
+      Object value2 = map2.get(fieldName);
+      double tmpDistance = 0;
+      try {
+        tmpDistance = getObjectDistanceImpl(value1, value2);
+      } catch (OutOfMemoryError e) {
+        e.printStackTrace();
+      }
+
+      if (Double.valueOf(tmpDistance).isNaN() || Double.valueOf(tmpDistance).isInfinite()) {
+        numDifferentVariables++;
+        tmpDistance = 0;
+      }
+
+      distance += tmpDistance;
+    }
+
+    // account for field differences
+    distance += getElementaryDistance(map1.size(), map2.size());
+    if (map1.size() == map2.size()) {
+      distance += normalize(missingFields);
+    }
+
+    return distance;
+  }
+
+  private boolean breakRecursion(Object p, Object q) {
+    Integer hashCode = getHasCode(p, q);
+    Integer recursionCount = hashRecursionCntMap.get(hashCode);
+    if (recursionCount == null) {
+      recursionCount = 0;
+    }
+    if (recursionCount >= MAX_RECURSION) {
+      return true;
+    }
+    recursionCount++;
+    hashRecursionCntMap.put(hashCode, recursionCount);
+    return false;
+  }
+
+  private double getCompositeObjectDistance(Object p, Object q) {
+    Double cachedDistance = resultCache.get(getHasCode(p, q));
+    if (cachedDistance != null) {
+      return cachedDistance;
+    }
+    if (breakRecursion(p, q)) {
+      return 0.0;
+    }
+    Class<?> commonAncestor = getCommonAncestor(p, q);
+    double distance = getTypeDistance(commonAncestor, p, q);
+    distance += getFieldDistance(commonAncestor, p, q);
+    resultCache.put(getHasCode(p, q), distance);
+    return distance;
+  }
+
+  private double getFieldDistance(Class<?> commonAncestor, Object p, Object q) {
+    Collection<Field> fields = getAllFields(commonAncestor);
+    double sum = 0;
+    for (Field field : fields) {
+      sum += getObjectDistanceImpl(getFieldValue(field, p), getFieldValue(field, q));
+    }
+    if (sum == 0.0) {
+      return sum;
+    }
+    return sum / fields.size();
+  }
+
+  public int getNumDifferentVariables() {
+    return numDifferentVariables;
+  }
 }

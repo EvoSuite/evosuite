@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -90,7 +90,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		List<GenericAccessibleObject<?>> testCalls = TestCluster.getInstance().getTestCalls();
 		System.out.println(testCalls.toString());
 		assertEquals("Expected 5 test calls, but got: " + testCalls.size() + ": "
-		        + testCalls, 5, testCalls.size());
+		        + testCalls, 4, testCalls.size());
 	}
 
 	@Test

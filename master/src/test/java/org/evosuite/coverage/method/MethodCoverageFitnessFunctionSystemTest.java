@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,9 +19,13 @@
  */
 package org.evosuite.coverage.method;
 
+import com.examples.with.different.packagename.ClassWithInnerClass;
 import com.examples.with.different.packagename.Compositional;
 
 import com.examples.with.different.packagename.contracts.EqualsHashCode;
+import com.examples.with.different.packagename.exception.ConstructorWithException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -34,7 +38,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.instrumentation.testability.FlagExample3;
 import com.examples.with.different.packagename.SingleMethod;
 
 /**
@@ -154,7 +158,6 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		String targetClass = EqualsHashCode.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
-		Properties.CRITERION = new Properties.Criterion[] { Properties.Criterion.METHOD };
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -166,5 +169,47 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void systemTestMethodCoverageInnerClasses(){
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ClassWithInnerClass.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
+		Assert.assertEquals(4, goals);
+		System.out.println("EvolvedTestSuite:\n" + best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testConstructorWithException() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ConstructorWithException.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] {"-generateSuite", "-class", targetClass};
+
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		assertFalse("Test suite must have at least one test case, however it is empty", best.getTests().isEmpty());
+
+		assertEquals("Test suite must have covered the only existing goal (constructor of the class under test)", 1,
+		    best.getNumOfCoveredGoals());
+		assertEquals("Test suite must have covered the only existing goal (constructor of the class under test)", 1,
+		    best.getCoverage(), 0.0);
+		assertEquals("Test suite must have covered the only existing goal (constructor of the class under test)", 0.0,
+		    best.getFitness(), 0.0);
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -29,6 +29,7 @@ import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.runtime.mock.java.lang.MockThread;
 import org.evosuite.runtime.mock.java.util.MockLocale;
 import org.evosuite.runtime.mock.java.util.MockTimeZone;
+import org.evosuite.runtime.mock.java.util.prefs.MockPreferences;
 import org.evosuite.runtime.mock.javax.naming.EvoNamingContext;
 import org.evosuite.runtime.thread.ThreadCounter;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -82,6 +83,7 @@ public class Runtime {
             ThreadCounter.getInstance().resetSingleton();
             MockTimeZone.reset();
             MockLocale.reset();
+			MockPreferences.resetPreferences();
 			JComponent.setDefaultLocale(Locale.getDefault());
 		}
 
@@ -107,7 +109,11 @@ public class Runtime {
 			 * NOTE: this is expensive (some seconds), but only the first time, so should not be a major bottleneck.
 			 */
 			if(DBManager.getInstance().isWasAccessed()) {
+				// DB Resetting may execute SUT code
+				boolean wasLoopCheckOn = LoopCounter.getInstance().isActivated();
+				LoopCounter.getInstance().setActive(false);
 				DBManager.getInstance().initDB();
+				LoopCounter.getInstance().setActive(wasLoopCheckOn);
 			}
 		}
 

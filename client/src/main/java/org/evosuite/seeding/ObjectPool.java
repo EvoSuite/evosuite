@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -217,9 +217,11 @@ public class ObjectPool implements Serializable {
 				}
 			}
 			*/
+			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+			
 			if (!testChromosome.hasException()
-			        && test.hasObject(Properties.getTargetClass(), test.size())) {
-				pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
+			        && test.hasObject(targetClass, test.size())) {
+				pool.addSequence(new GenericClass(targetClass), test);
 			}
 		}
 
@@ -242,7 +244,7 @@ public class ObjectPool implements Serializable {
 
 		try {
 			// instrument target class
-			classLoader.loadClass(Properties.getTargetClass().getCanonicalName());
+			classLoader.loadClass(Properties.TARGET_CLASS);
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -251,7 +253,8 @@ public class ObjectPool implements Serializable {
 		//final Result result = 
 		runner.run(testSuite);
 		
-		for (TestCase test : listener.getTestCases().get(Properties.getTargetClass())) {
+
+		for (TestCase test : listener.getTestCases().get(Properties.getTargetClassAndDontInitialise())) {
 			// TODO: Maybe we would get the targetClass from the last object generated in the sequence?
 			pool.addSequence(targetClass, test);
 		}

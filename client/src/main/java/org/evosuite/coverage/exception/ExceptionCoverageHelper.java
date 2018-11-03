@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -91,13 +91,15 @@ public class ExceptionCoverageHelper {
         if (result.test.getStatement(exceptionPosition) instanceof MethodStatement) {
             MethodStatement ms = (MethodStatement) result.test.getStatement(exceptionPosition);
             Method method = ms.getMethod().getMethod();
-            if (method.getDeclaringClass().equals(Properties.getTargetClass())){
+			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+            if (method.getDeclaringClass().equals(targetClass)){
                 return true;
             }
         } else if (result.test.getStatement(exceptionPosition) instanceof ConstructorStatement) {
             ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(exceptionPosition);
             Constructor<?> constructor = cs.getConstructor().getConstructor();
-            if (constructor.getDeclaringClass().equals(Properties.getTargetClass())){
+			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+            if (constructor.getDeclaringClass().equals(targetClass)){
                 return true;
             }
         }
@@ -127,10 +129,14 @@ public class ExceptionCoverageHelper {
             return true;
         }
 
-        // This is to cover cases not handled by CodeUnderTestException, or if bug in EvoSuite itself
-        if (t.getStackTrace() != null && t.getStackTrace().length > 0 
-                && t.getStackTrace()[0].getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase")) {
-            return true;
+        if (t.getStackTrace() != null && t.getStackTrace().length > 0 && t.getStackTrace()[0] != null) {
+            // This is to cover cases not handled by CodeUnderTestException, or if bug in EvoSuite itself
+            if(t.getStackTrace()[0].getClassName().startsWith(PackageInfo.getEvoSuitePackage()+".testcase"))
+                return true;
+
+            // Enum valueOf exceptions are not interesting, they just result from invalid strings
+            if(t.getStackTrace()[0].getClassName().startsWith(Enum.class.getCanonicalName()) && t.getStackTrace()[0].getMethodName().startsWith("valueOf"))
+                return true;
         }
 
         return false;

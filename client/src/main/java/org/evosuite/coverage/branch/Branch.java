@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -299,5 +299,15 @@ public class Branch implements Serializable, Comparable<Branch> {
 	 */
 	public void setInstrumented(boolean isInstrumented) {
 		this.isInstrumented = isInstrumented;
+	}
+
+	private boolean ignoreFalse = false;
+
+	public boolean ignoreFalseBranch() {
+		return ignoreFalse;
+	}
+
+	public void setIgnoreFalse(boolean value) {
+		ignoreFalse = value;
 	}
 }

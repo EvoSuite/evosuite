@@ -1,5 +1,9 @@
 /**
+<<<<<<< HEAD
  * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+=======
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+>>>>>>> upstream/master
  * contributors
  *
  * This file is part of EvoSuite.
@@ -235,7 +239,7 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         // Avoid downcasts that could break
-        //removeUnnecessaryDownCasts(results);
+        removeUnnecessaryDownCasts(results);
 
         // Sometimes some timeouts lead to assertions being attached to statements
         // related to exceptions. This is not currently handled, so as a workaround
@@ -243,7 +247,7 @@ public class TestSuiteWriter implements Opcodes {
         removeAssertionsAfterException(results);
 
 
-        if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
+        if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED || testCases.size() == 0) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
             content = getUnitTestsAllInSameFile(name, results);
@@ -294,25 +298,22 @@ public class TestSuiteWriter implements Opcodes {
     	return bd.toString();
     }
 
-//    private void removeUnnecessaryDownCasts(List<ExecutionResult> results) {
-//        for(ExecutionResult result : results) {
-//            if(result.test instanceof DefaultTestCase) {
-//                ((DefaultTestCase)result.test).removeDownCasts();
-//            }
-//        }
-//    }
+    private void removeUnnecessaryDownCasts(List<ExecutionResult> results) {
+        for(ExecutionResult result : results) {
+            if(result.test instanceof DefaultTestCase) {
+                ((DefaultTestCase)result.test).removeDownCasts();
+            }
+        }
+    }
 
     private void removeAssertionsAfterException(List<ExecutionResult> results) {
         for(ExecutionResult result : results) {
             if(result.noThrownExceptions())
                 continue;
             int exceptionPosition = result.getFirstPositionOfThrownException();
-            Statement st = null;
-            try
-            {
-            	st = result.test.getStatement(exceptionPosition);
-            } catch(Exception e) { continue; }
-            st.removeAssertions();
+            // TODO: Not clear how that can happen...
+            if(result.test.size() > exceptionPosition)
+                result.test.getStatement(exceptionPosition).removeAssertions();
         }
     }
 
@@ -428,13 +429,14 @@ public class TestSuiteWriter implements Opcodes {
         }
         visitor.clearExceptions();
 
-//        if(doesUseMocks(results)){
-//            String mockito = Mockito.class.getCanonicalName();
-//            String extension = MockitoExtension.class.getCanonicalName();
-//            builder.append("import static "+mockito+".*;"+NEWLINE);
-//            builder.append("import static "+extension+".*;"+NEWLINE);
-//            imports.add(ViolatedAssumptionAnswer.class);
-//        }
+        if(doesUseMocks(results)){
+            String mockito = Mockito.class.getCanonicalName();
+            builder.append("import static "+mockito+".*;"+NEWLINE);
+            // MockitoExtension is now deprecated
+            //String extension = MockitoExtension.class.getCanonicalName();
+            //builder.append("import static "+extension+".*;"+NEWLINE);
+            imports.add(ViolatedAssumptionAnswer.class);
+        }
 
         if(hasException && !Properties.NO_RUNTIME_DEPENDENCY) {
         	builder.append("import static "+ EvoAssertions.class.getCanonicalName()+".*;"+NEWLINE);
@@ -584,7 +586,9 @@ public class TestSuiteWriter implements Opcodes {
             list.add("useJEE = true");
         }
         
-
+        if (Properties.REPLACE_GUI) {
+            list.add("mockGUI = true");
+        }
 
         if (!list.isEmpty()) {
             s += list.get(0);

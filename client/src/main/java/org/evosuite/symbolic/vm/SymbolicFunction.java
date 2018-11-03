@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,6 +23,8 @@ import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
  * This class represents the execution of a concrete method (Math.abs(), new
@@ -54,7 +56,7 @@ public abstract class SymbolicFunction {
 
 	/* assignable references */
 	private Object conc_receiver;
-	private Reference symb_receiver;
+	private ReferenceExpression symb_receiver;
 
 	private Object conc_ret_val;
 	private Object symb_ret_val;
@@ -67,7 +69,7 @@ public abstract class SymbolicFunction {
 		return name;
 	}
 
-	void setReceiver(Object conc_receiver, Reference symb_receiver) {
+	void setReceiver(Object conc_receiver, ReferenceExpression symb_receiver) {
 		this.conc_receiver = conc_receiver;
 		this.symb_receiver = symb_receiver;
 	}
@@ -117,7 +119,7 @@ public abstract class SymbolicFunction {
 
 	// Reference params
 
-	void setParam(int i, Object conc_arg, Reference symb_arg) {
+	void setParam(int i, Object conc_arg, ReferenceExpression symb_arg) {
 		this.conc_args[i] = conc_arg;
 		this.symb_args[i] = symb_arg;
 	}
@@ -147,7 +149,7 @@ public abstract class SymbolicFunction {
 		this.symb_ret_val = symb_ret_val;
 	}
 
-	void setReturnValue(Object conc_ret_val, Reference symb_ret_val) {
+	void setReturnValue(Object conc_ret_val, ReferenceExpression symb_ret_val) {
 		this.conc_ret_val = conc_ret_val;
 		this.symb_ret_val = symb_ret_val;
 	}
@@ -162,8 +164,8 @@ public abstract class SymbolicFunction {
 	 * 
 	 * @return a NonNullReference with the symbolic object receiver.
 	 */
-	final protected NonNullReference getSymbReceiver() {
-		return (NonNullReference) symb_receiver;
+	final protected ReferenceConstant getSymbReceiver() {
+		return (ReferenceConstant) symb_receiver;
 	}
 
 	/**
@@ -322,8 +324,8 @@ public abstract class SymbolicFunction {
 	 *            the parameter index.
 	 * @return a symbolic reference.
 	 */
-	final protected Reference getSymbArgument(int i) {
-		Reference ref = (Reference) this.symb_args[i];
+	final protected ReferenceExpression getSymbArgument(int i) {
+		ReferenceExpression ref = (ReferenceExpression) this.symb_args[i];
 		return ref;
 	}
 
@@ -333,8 +335,8 @@ public abstract class SymbolicFunction {
 	 * 
 	 * @return a symbolic reference of the return value.
 	 */
-	final protected Reference getSymbRetVal() {
-		return (Reference) this.symb_ret_val;
+	final protected ReferenceExpression getSymbRetVal() {
+		return (ReferenceExpression) this.symb_ret_val;
 	}
 
 	/**

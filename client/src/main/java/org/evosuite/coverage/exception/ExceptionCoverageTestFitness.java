@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,8 +19,11 @@
  */
 package org.evosuite.coverage.exception;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.*;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.utils.generic.GenericClass;
 
 
 /**
@@ -51,7 +54,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     /**
      * The class representing the thrown exception, eg NPE an IAE
      */
-    protected final Class<?> exceptionClass;
+    protected final GenericClass exceptionClass;
 
     protected final ExceptionType type;
 
@@ -66,13 +69,13 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
             throw new IllegalArgumentException("method name and exception class and type cannot be null");
         }
         this.className = className;
-        this.exceptionClass = exceptionClass;
+        this.exceptionClass = new GenericClass(exceptionClass);
         this.methodIdentifier = methodIdentifier;
         this.type = type;
     }
 
     public String getKey(){
-        return methodIdentifier + "_" + exceptionClass.getName() + "_" + type;
+        return methodIdentifier + "_" + exceptionClass.getClassName() + "_" + type;
     }
 
     /**
@@ -87,7 +90,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
     }
 
     public Class<?> getExceptionClass() {
-        return exceptionClass;
+        return exceptionClass.getRawClass();
     }
 
     /**
@@ -127,13 +130,23 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
 
                 ExceptionType type = ExceptionCoverageHelper.getType(result,i);
 
-                if (this.methodIdentifier.equals(methodIdentifier) && this.exceptionClass.equals(exceptionClass) &&
+                if (this.methodIdentifier.equals(methodIdentifier) && this.exceptionClass.getRawClass().equals(exceptionClass) &&
                         this.type.equals(type)) {
                     fitness = 0.0;
                     break;
                 }
             }
         }
+
+        if (fitness == 0.0) {
+            individual.getTestCase().addCoveredGoal(this);
+        }
+
+        if (Properties.TEST_ARCHIVE) {
+            Archive.getArchiveInstance().addTarget(this);
+            Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+        }
+
         return fitness;
     }
 
@@ -182,7 +195,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
                 if (exceptionClass.equals(((ExceptionCoverageTestFitness) other).exceptionClass)) {
                     return this.type.compareTo(((ExceptionCoverageTestFitness) other).type);
                 } else
-                    return exceptionClass.getName().compareTo(otherMethodFitness.exceptionClass.getName());
+                    return exceptionClass.getClassName().compareTo(otherMethodFitness.exceptionClass.getClassName());
             } else
                 return methodIdentifier.compareTo(otherMethodFitness.getMethod());
         }

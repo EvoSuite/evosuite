@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,9 +20,9 @@
 package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -40,12 +40,12 @@ public final class ToUpperCase extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// object receiver
-		NonNullReference symb_str = this.getSymbReceiver();
+		ReferenceConstant symb_str = this.getSymbReceiver();
 		String conc_str = (String) this.getConcReceiver();
 
 		// return value
 		String conc_ret_val = (String) this.getConcRetVal();
-		NonNullReference symb_ret_val = (NonNullReference) this.getSymbRetVal();
+		ReferenceConstant symb_ret_val = (ReferenceConstant) this.getSymbRetVal();
 
 		StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
 				SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);

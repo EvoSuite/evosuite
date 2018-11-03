@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,6 +25,7 @@ import java.util.LinkedList;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
  * 
@@ -38,7 +39,7 @@ public final class OperandStack implements Iterable<Operand> {
 	public OperandStack() {
 	}
 
-	public void pushRef(Reference r) {
+	public void pushRef(ReferenceExpression r) {
 		stack.push(new ReferenceOperand(r));
 	}
 
@@ -58,7 +59,7 @@ public final class OperandStack implements Iterable<Operand> {
 		stack.push(new Fp64Operand(e));
 	}
 
-	public Reference popRef() {
+	public ReferenceExpression popRef() {
 		Operand ret_val = this.popOperand();
 		ReferenceOperand ref = (ReferenceOperand) ret_val;
 		return ref.getReference();
@@ -136,14 +137,14 @@ public final class OperandStack implements Iterable<Operand> {
 		return stack.iterator();
 	}
 
-	public Reference peekRef() {
+	public ReferenceExpression peekRef() {
 		Operand operand = this.peekOperand();
 		if (!(operand instanceof ReferenceOperand)) {
 			throw new ClassCastException(
 					"top of stack is not a reference but an operand of type " + operand.getClass().getCanonicalName());
 		}
 		ReferenceOperand refOp = (ReferenceOperand) operand;
-		Reference ref = refOp.getReference();
+		ReferenceExpression ref = refOp.getReference();
 		return ref;
 	}
 
@@ -169,6 +170,7 @@ public final class OperandStack implements Iterable<Operand> {
 	}
 
 	public void pushNullRef() {
-		this.stack.push(new ReferenceOperand(NullReference.getInstance()));
+		ReferenceExpression nullExpression = ExpressionFactory.buildNewNullExpression();
+		this.stack.push(new ReferenceOperand(nullExpression));
 	}
 }

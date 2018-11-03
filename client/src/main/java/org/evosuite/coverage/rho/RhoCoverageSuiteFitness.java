@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -46,6 +46,10 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
+		return this.getFitness(suite, true);
+	}
+
+	protected double getFitness(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, boolean updateFitness) {
 
 		Set<Set<Integer>> tmp_coverage_matrix = new LinkedHashSet<Set<Integer>>(this.coverage_matrix_generated_so_far);
 
@@ -102,7 +106,9 @@ public class RhoCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness = Math.abs(0.5 - fitness);
 		}
 
-		updateIndividual(this, suite, fitness);
+		if (updateFitness) {
+			updateIndividual(this, suite, fitness);
+		}
 		return fitness;
 	}
 

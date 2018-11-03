@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -27,6 +27,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationHistory;
+import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
@@ -38,9 +39,9 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public class TestChromosome extends ExecutableChromosome {
 	protected MutationHistory<TestMutationHistoryEntry> mutationHistory = new MutationHistory<TestMutationHistoryEntry>();
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
+	private static final List<SecondaryObjective<TestChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestChromosome>>();
 
 	/**
 	 * <p>
@@ -111,7 +112,6 @@ public class TestChromosome extends ExecutableChromosome {
 		if (changed) {
 			clearCachedResults();
 		}
-		CurrentChromosomeTracker.getInstance().changed(this);
 	}
 
 	/**
@@ -135,6 +135,10 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 		}
 		// c.mutationHistory.set(mutationHistory);
+		c.setNumberOfMutations(this.getNumberOfMutations());
+		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
+		c.setKineticEnergy(getKineticEnergy());
+		c.setNumCollisions(getNumCollisions());
 
 		return c;
 	}
@@ -171,22 +175,31 @@ public class TestChromosome extends ExecutableChromosome {
 	public void crossOver(Chromosome other, int position1, int position2)
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
+		TestChromosome otherChromosome = (TestChromosome)other;
 		TestChromosome offspring = new TestChromosome();
 		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
 			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
 		}
+
 		for (int i = position2; i < other.size(); i++) {
+			GenericAccessibleObject<?> accessibleObject = otherChromosome.test.getStatement(i).getAccessibleObject();
+			if(accessibleObject != null) {
+				if (accessibleObject.getDeclaringClass().equals(Injector.class))
+					continue;
+				if(!ConstraintVerifier.isValidPositionForInsertion(accessibleObject, offspring.test, offspring.test.size())) {
+					continue;
+				}
+			}
 			testFactory.appendStatement(offspring.test,
-			                            ((TestChromosome) other).test.getStatement(i));
+					otherChromosome.test.getStatement(i));
 		}
 		if (!Properties.CHECK_MAX_LENGTH
-		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
+				|| offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
 			test = offspring.test;
+			setChanged(true);
 		}
-
-		setChanged(true);
 	}
 
 	/**
@@ -249,8 +262,10 @@ public class TestChromosome extends ExecutableChromosome {
 					if (!(mutation.getStatement() instanceof PrimitiveStatement<?>))
 						continue;
 				}
+				final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
 				if (!test.hasReferences(mutation.getStatement().getReturnValue())
-				        && !mutation.getStatement().getReturnClass().equals(Properties.getTargetClass())) {
+				        && !mutation.getStatement().getReturnClass().equals(targetClass)) {
 					continue;
 				}
 
@@ -281,7 +296,7 @@ public class TestChromosome extends ExecutableChromosome {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		TestCaseLocalSearch localSearch = TestCaseLocalSearch.getLocalSearch();
+		TestCaseLocalSearch localSearch = TestCaseLocalSearch.selectTestCaseLocalSearch();
 		return localSearch.doSearch(this,
 		                            (LocalSearchObjective<TestChromosome>) objective);
 	}
@@ -300,8 +315,8 @@ public class TestChromosome extends ExecutableChromosome {
 			changed = true;
 		}
 
-		int lastPosition = getLastMutatableStatement();
 		if(Properties.CHOP_MAX_LENGTH && size() >= Properties.CHROMOSOME_LENGTH) {
+			int lastPosition = getLastMutatableStatement();
 			test.chop(lastPosition + 1);
 		}
 
@@ -327,6 +342,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 
 		if (changed) {
+			this.increaseNumberOfMutations();
 			setChanged(true);
 			test.clearCoveredGoals();
 		}
@@ -371,7 +387,8 @@ public class TestChromosome extends ExecutableChromosome {
 				List<Type> missing = fms.updateMockedMethods();
 				int pos = st.getPosition();
 				logger.debug("Generating parameters for mock call");
-				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing, pos, 0, true, false,true);
+				// Added 'null' as additional parameter - fix for @NotNull annotations issue on evo mailing list
+				List<VariableReference> refs = TestFactory.getInstance().satisfyParameters(test, null, missing,null, pos, 0, true, false,true);
 				fms.addMissingInputs(refs);
 			} catch (Exception e){
 				//shouldn't really happen because, in the worst case, we could create mocks for missing parameters
@@ -536,7 +553,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 *
 	 * @return
 	 */
-	private boolean mutationInsert() {
+	public boolean mutationInsert() {
 		boolean changed = false;
 		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
@@ -593,7 +610,7 @@ public class TestChromosome extends ExecutableChromosome {
 		        + " target branches");
 
 		// Try to solve negated constraint
-		TestCase newTest = ConcolicMutation.negateCondition(branch, test);
+		TestCase newTest = ConcolicMutation.negateCondition(branches, branch, test);
 
 		// If successful, add resulting test to test suite
 		if (newTest != null) {
@@ -697,7 +714,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
+	public static void addSecondaryObjective(SecondaryObjective<TestChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -726,7 +743,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 *
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<SecondaryObjective<?>> getSecondaryObjectives() {
+	public static List<SecondaryObjective<TestChromosome>> getSecondaryObjectives() {
 		return secondaryObjectives;
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -269,7 +269,7 @@ public class ExternalProcessHandler {
 			};
 			clientRunningOnThread.setName("client");
 			clientRunningOnThread.start();
-            Sandbox.addPriviligedThread(clientRunningOnThread);
+            Sandbox.addPrivilegedThread(clientRunningOnThread);
 		}
 
 		startSignalHandler();

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -18,24 +18,23 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.regression;
+
+
 /*
- *  * @ a: all measures
-	 * 
-	 * @ s: state difference
-	 * 
-	 * @ b: branch distance
-	 * 
-	 * @ c: coverage
-	 * 
-	 * @ o: coverage old
-	 * 
-	 * @ n: coverage new
+ * [GA] ALL_MEASURES: Coverage old + Coverage new + State difference + branch distance (only if REGRESSION_BRANCH_DISTANCE is true), 
+ * [GA] STATE_DIFFERENCE, 
+ * [GA] BRANCH_DISTANCE, 
+ * [GA] COVERAGE: Coverage old + Coverage new, 
+ * [GA] COVERAGE_OLD, 
+ * [GA] COVERAGE_NEW, 
+ * (default) [Random Search] RANDOM
  */
 public enum RegressionMeasure {
-	ALL_MEASURES,
-	STATE_DIFFERENCE,
-	BRANCH_DISTANCE,
-	COVERAGE,
-	COVERAGE_OLD,
-	COVERAGE_NEW	 
+  ALL_MEASURES,
+  STATE_DIFFERENCE,
+  BRANCH_DISTANCE,
+  COVERAGE,
+  COVERAGE_OLD,
+  COVERAGE_NEW,
+  RANDOM
 }

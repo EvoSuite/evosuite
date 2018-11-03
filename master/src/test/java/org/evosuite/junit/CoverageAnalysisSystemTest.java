@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -65,8 +65,8 @@ public class CoverageAnalysisSystemTest extends SystemTestBase {
 		});
 
 		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(10, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(10, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
 	}
 
 	@Test
@@ -76,8 +76,8 @@ public class CoverageAnalysisSystemTest extends SystemTestBase {
 		});
 
 		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(10, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(10, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
 	}
 
 	@Test
@@ -120,8 +120,8 @@ public class CoverageAnalysisSystemTest extends SystemTestBase {
 		});
 
 		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(10, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(10, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class CoverageAnalysisSystemTest extends SystemTestBase {
 		});
 
 		Map<String, OutputVariable<?>> variables = statistics.getOutputVariables();
-		assertEquals(10, (Integer) variables.get("Total_Goals").getValue(), 0.0);
-		assertEquals(10, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Total_Goals").getValue(), 0.0);
+		assertEquals(11, (Integer) variables.get("Covered_Goals").getValue(), 0.0);
 	}
 }

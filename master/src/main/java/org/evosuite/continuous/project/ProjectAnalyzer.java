@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -172,7 +172,7 @@ public class ProjectAnalyzer {
 				}
 			} catch (ClassNotFoundException e) {
 				logger.error(""+e,e);
-			} catch(ExceptionInInitializerError | NoClassDefFoundError e){
+			} catch(ExceptionInInitializerError | NoClassDefFoundError | UnsatisfiedLinkError e){
                 /**
                  * TODO: for now we skip it, but at a certain point
                  * we should able to handle it, especially if it

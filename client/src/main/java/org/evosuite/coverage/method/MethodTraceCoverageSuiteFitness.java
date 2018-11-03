@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,19 +19,11 @@
  */
 package org.evosuite.coverage.method;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.Map.Entry;
-
+import java.util.List;
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,35 +40,6 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 
 	private final static Logger logger = LoggerFactory.getLogger(MethodTraceCoverageSuiteFitness.class);
 
-	@Override
-    protected void determineMethods() {
-        String className = Properties.TARGET_CLASS;
-        Class<?> clazz = null;
-        try {
-            clazz = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (clazz != null) {
-            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor<?> c : allConstructors) {
-                if (MethodTraceCoverageFactory.isUsable(c)) {
-                    String descriptor = Type.getConstructorDescriptor(c);
-                    logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
-                    methods.add(c.getDeclaringClass().getName() + ".<init>" + descriptor);
-                }
-            }
-            Method[] allMethods = clazz.getDeclaredMethods();
-            for (Method m : allMethods) {
-                if (MethodTraceCoverageFactory.isUsable(m)) {
-                    String descriptor = Type.getMethodDescriptor(m);
-                    logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
-                    methods.add(m.getDeclaringClass().getName() + "." + m.getName() + descriptor);
-                }
-            }
-        }
-    }
-
 	/**
 	 * Initialize the set of known coverage goals
 	 */
@@ -86,82 +49,8 @@ public class MethodTraceCoverageSuiteFitness extends MethodCoverageSuiteFitness 
 		for (MethodTraceCoverageTestFitness goal : goals) {
 			methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
-	}
-
-	/**
-	 * If there is an exception in a superconstructor, then the corresponding
-	 * constructor might not be included in the execution trace
-	 * 
-	 * @param results
-	 * @param callCount
-	 */
-	@Override
-	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-			List<ExecutionResult> results,
-			Set<String> calledMethods) {
-
-		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()
-			        || result.noThrownExceptions())
-				continue;
-
-			Integer exceptionPosition = result.getFirstPositionOfThrownException();
-			Statement statement = result.test.getStatement(exceptionPosition);
-			if (statement instanceof ConstructorStatement) {
-				ConstructorStatement c = (ConstructorStatement) statement;
-				String className = c.getConstructor().getName();
-				String methodName = "<init>"
-				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
-				String name = className + "." + methodName;
-				if (methodCoverageMap.containsKey(name) && calledMethods.contains(name) && !removedMethods.contains(name)) {
-                    // only consider goal methods
-					calledMethods.add(name);
-                    result.test.addCoveredGoal(methodCoverageMap.get(name));
-					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, methodCoverageMap.get(name), result);
-						toRemoveMethods.add(name);
-						suite.isToBeUpdated(true);
-					}
-
-				}
-			}
-		}
-	}
-
-	/**
-	 * Iterate over all execution results and summarize statistics
-	 * 
-	 * @param results
-	 * @param callCount
-	 * @return
-	 */
-	@Override
-	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, 
-			List<ExecutionResult> results,
-	        Set<String> calledMethods) {
-		boolean hasTimeoutOrTestException = false;
-
-		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException()) {
-				hasTimeoutOrTestException = true;
-			}
-
-			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
-				if(!methods.contains(entry.getKey())||removedMethods.contains(entry.getKey())) continue;
-				if (methodCoverageMap.containsKey(entry.getKey())) {
-					calledMethods.add(entry.getKey());
-					result.test.addCoveredGoal(methodCoverageMap.get(entry.getKey()));					
-					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, methodCoverageMap.get(entry.getKey()), result);
-						toRemoveMethods.add(entry.getKey());
-						suite.isToBeUpdated(true);
-					}
-                }
-			}
-		}
-		return hasTimeoutOrTestException;
 	}
 
 	/**

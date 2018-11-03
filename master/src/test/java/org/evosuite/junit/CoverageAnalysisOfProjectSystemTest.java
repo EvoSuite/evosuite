@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -58,7 +58,7 @@ import com.examples.with.different.packagename.WordUtilsTest;
 import com.examples.with.different.packagename.coverage.MethodWithSeveralInputArguments;
 import com.examples.with.different.packagename.coverage.TestMethodWithSeveralInputArguments;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 
 public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
@@ -124,7 +124,7 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
 
         CSVReader reader = new CSVReader(new FileReader(statistics_file));
         List<String[]> rows = reader.readAll();
-        assertTrue(rows.size() == 8); // header + 7 classes
+        assertEquals(8, rows.size()); // header + 7 classes
         reader.close();
 
         // assert TargetClasses
@@ -141,11 +141,11 @@ public class CoverageAnalysisOfProjectSystemTest extends SystemTestBase {
         List<String> coverages = CsvJUnitData.getValues(rows, "Coverage");
         assertTrue(coverages.size() == 7);
         Collections.sort(coverages);
-        assertEquals(0.88, Double.valueOf(coverages.get(0)), 0.01);
-        assertEquals(1.00, Double.valueOf(coverages.get(1)), 0.00);
-        assertEquals(1.00, Double.valueOf(coverages.get(2)), 0.00);
-        assertEquals(1.00, Double.valueOf(coverages.get(3)), 0.00);
-        assertEquals(1.00, Double.valueOf(coverages.get(4)), 0.00);
+        assertEquals(0.80, Double.valueOf(coverages.get(0)), 0.01);
+        assertEquals(0.80, Double.valueOf(coverages.get(1)), 0.00);
+        assertEquals(0.90, Double.valueOf(coverages.get(2)), 0.00);
+        assertEquals(0.93, Double.valueOf(coverages.get(3)), 0.01);
+        assertEquals(0.95, Double.valueOf(coverages.get(4)), 0.00);
         assertEquals(1.00, Double.valueOf(coverages.get(5)), 0.00);
         assertEquals(1.00, Double.valueOf(coverages.get(6)), 0.00);
 	}

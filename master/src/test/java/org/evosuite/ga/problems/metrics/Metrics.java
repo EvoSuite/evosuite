@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -61,5 +61,52 @@ public abstract class Metrics
             distance += Math.pow(a[i] - b[i], 2.0);
 
         return Math.sqrt(distance);
+    }
+
+    public double[] getMaximumValues(double[][] front)
+    {
+        double[] maximumValue = new double[front[0].length];
+        for (int i = 0; i < front[0].length; i++)
+            maximumValue[i] = Double.NEGATIVE_INFINITY;
+
+        for (double[] aFront : front)
+            for (int j = 0; j < aFront.length; j++)
+                if (aFront[j] > maximumValue[j])
+                    maximumValue[j] = aFront[j];
+
+        return maximumValue;
+    }
+
+    public double[] getMinimumValues(double[][] front)
+    {
+        double[] minimumValue = new double[front[0].length];
+        for (int i = 0; i < front[0].length; i++)
+            minimumValue[i] = Double.MAX_VALUE;
+
+        for (double[] aFront : front)
+            for (int j = 0; j < aFront.length; j++)
+                if (aFront[j] < minimumValue[j])
+                    minimumValue[j] = aFront[j];
+
+        return minimumValue;
+    }
+
+    public double[][] getNormalizedFront(double[][] front, double[] maximumValue, double[] minimumValue)
+    {
+        double[][] normalizedFront = new double[front.length][];
+
+        for (int i = 0; i < front.length; i++)
+        {
+            normalizedFront[i] = new double[front[i].length];
+            for (int j = 0; j < front[i].length; j++) {
+                if (maximumValue[j] == minimumValue[j]) {
+                    normalizedFront[i][j] = front[i][j];
+                } else {
+                    normalizedFront[i][j] = (front[i][j] - minimumValue[j]) / (maximumValue[j] - minimumValue[j]);
+                }
+            }
+        }
+
+        return normalizedFront;
     }
 }

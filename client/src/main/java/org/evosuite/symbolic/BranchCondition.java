@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,9 +19,7 @@
  */
 package org.evosuite.symbolic;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.symbolic.expr.Constraint;
@@ -33,25 +31,32 @@ import org.evosuite.symbolic.expr.Constraint;
  * 
  * @author Gordon Fraser
  */
-public class BranchCondition {
+public abstract class BranchCondition {
+	/**
+	 * Class where the branch instruction is
+	 */
 	private final String className;
+
+	/**
+	 * Method where the branch instruction is
+	 */
 	private final String methodName;
-	private final int branchIndex;
 
-	private final BranchCondition previousBranchCondition;
+	/**
+	 * Position of the instruction in the method bytecode
+	 */
+	private final int instructionIndex;
 
-	private final Constraint<?> localConstraint;
+	private final Constraint<?> constraint;
 
 	private final List<Constraint<?>> supportingConstraints;
 
 	/**
-	 * <p>
-	 * Constructor for BranchCondition.
-	 * </p>
+	 * A branch condition is identified by the className, methodName and branchIndex
+	 * belonging to the class in the SUT, the target constraint and all the
+	 * suporting constraint for that particular branch (zero checks, etc)
 	 * 
-	 * @param previousBranchCondition
-	 *            TODO
-	 * @param localConstraint
+	 * @param constraint
 	 *            TODO
 	 * @param supportingConstraints
 	 *            a {@link java.util.Set} object.
@@ -60,17 +65,14 @@ public class BranchCondition {
 	 * @param ins
 	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(BranchCondition previousBranchCondition, String className,
-	        String methodName, int branchIndex, Constraint<?> localConstraint,
-	        List<Constraint<?>> supportingConstraints) {
+	public BranchCondition(String className, String methodName, int instructionIndex, Constraint<?> constraint,
+			List<Constraint<?>> supportingConstraints) {
 
 		this.className = ResourceList.getClassNameFromResourcePath(className);
 		this.methodName = methodName;
-		this.branchIndex = branchIndex;
+		this.instructionIndex = instructionIndex;
 
-		this.previousBranchCondition = previousBranchCondition;
-
-		this.localConstraint = localConstraint;
+		this.constraint = constraint;
 		this.supportingConstraints = supportingConstraints;
 	}
 
@@ -82,7 +84,7 @@ public class BranchCondition {
 			ret += " " + c + "\n";
 		}
 
-		ret += this.localConstraint;
+		ret += this.constraint;
 		return ret;
 	}
 
@@ -91,52 +93,35 @@ public class BranchCondition {
 	}
 
 	public int getInstructionIndex() {
-		return branchIndex;
+		return instructionIndex;
 	}
 
 	public String getFullName() {
 		return className + "." + methodName;
 	}
 
-	private BranchCondition getPreviousBranchCondition() {
-		return previousBranchCondition;
-	}
-
 	/**
-	 * Returns a set of all the reaching constraints
+	 * Returns the constraint for actual branch. This constraint has to be negated
+	 * to take another path.
 	 * 
 	 * @return
 	 */
-	public Set<Constraint<?>> getReachingConstraints() {
-		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
-		constraints.addAll(supportingConstraints);
-
-		BranchCondition current = previousBranchCondition;
-		while (current != null) {
-			constraints.addAll(current.supportingConstraints);
-			constraints.add(current.localConstraint);
-			current = current.getPreviousBranchCondition();
-		}
-		return constraints;
+	public Constraint<?> getConstraint() {
+		return constraint;
 	}
 
 	/**
-	 * Returns the constraint for actual branch
-	 * 
-	 * @return
-	 */
-	public Constraint<?> getLocalConstraint() {
-		return localConstraint;
-	}
-
-	/**
-	 * Returns a list of implicit constraints (nullity checks, zero division,
-	 * index within bounds, negative size array length, etc.) collected before
-	 * the current branch condtion and after the last symbolic branch condition
+	 * Returns a list of implicit constraints (nullity checks, zero division, index
+	 * within bounds, negative size array length, etc.) collected before the current
+	 * branch condtion and after the last symbolic branch condition
 	 * 
 	 * @return
 	 */
 	public List<Constraint<?>> getSupportingConstraints() {
 		return supportingConstraints;
+	}
+
+	public String getMethodName() {
+		return methodName;
 	}
 }

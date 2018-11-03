@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,10 +19,13 @@
  */
 package org.evosuite.coverage.line;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -40,6 +43,24 @@ public class LineCoverageFactory extends
 		AbstractFitnessFactory<LineCoverageTestFitness> {
 
 	private static final Logger logger = LoggerFactory.getLogger(LineCoverageFactory.class);
+	private final MethodNameMatcher matcher = new MethodNameMatcher();
+
+	private boolean isEnumDefaultConstructor(String className, String methodName) {
+		if(!methodName.equals("<init>(Ljava/lang/String;I)V")) {
+			return false;
+		}
+		try {
+			Class<?> targetClass = Class.forName(className, false, TestGenerationContext.getInstance().getClassLoaderForSUT());
+			if (!targetClass.isEnum()) {
+				logger.debug("Class is not enum");
+				return false;
+			}
+			return Modifier.isPrivate(targetClass.getDeclaredConstructor(String.class, int.class).getModifiers());
+		} catch(ClassNotFoundException | NoSuchMethodException e) {
+			logger.debug("Exception "+e);
+			return false;
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -60,6 +81,13 @@ public class LineCoverageFactory extends
 				continue;
 
 			for(String methodName : LinePool.getKnownMethodsFor(className)) {
+				if(isEnumDefaultConstructor(className, methodName)) {
+					continue;
+				}
+				if (!matcher.methodMatches(methodName)) {
+					logger.info("Method {} does not match criteria. ",methodName);
+					continue;
+				}
 				Set<Integer> lines = LinePool.getLines(className, methodName);
 				for (Integer line : lines) {
 					logger.info("Adding goal for method " + className + "."+methodName+", Line " + line + ".");

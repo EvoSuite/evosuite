@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.SecondaryObjective;
 import org.evosuite.SystemTestBase;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.strategy.TestGenerationStrategy;
@@ -86,7 +87,7 @@ public class IBranchSystemTest extends SystemTestBase {
 	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION; 
 	private double oldPrimitivePool = Properties.PRIMITIVE_POOL;
 	private long budget = Properties.SEARCH_BUDGET;
-	private String secondary = Properties.SECONDARY_OBJECTIVE;
+	private SecondaryObjective[] secondary = Properties.SECONDARY_OBJECTIVE;
 	private boolean oldArchive = Properties.TEST_ARCHIVE;
 	
 	@Before
@@ -118,7 +119,7 @@ public class IBranchSystemTest extends SystemTestBase {
 	@Test
 	public void testIBranchAsSecondaryObjective() {
         Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
-        Properties.SECONDARY_OBJECTIVE="ibranch:totallength";
+        Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.IBRANCH, Properties.SecondaryObjective.TOTAL_LENGTH };
         
         Properties.TEST_ARCHIVE = false;
         Properties.SEARCH_BUDGET = 60000;
@@ -140,7 +141,7 @@ public class IBranchSystemTest extends SystemTestBase {
 	@Test
 	public void testArchiveIBranchAsSecondaryObjective() {
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
-        Properties.SECONDARY_OBJECTIVE="ibranch:totallength";
+		Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.IBRANCH, Properties.SecondaryObjective.TOTAL_LENGTH };
 		
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
@@ -162,7 +163,7 @@ public class IBranchSystemTest extends SystemTestBase {
 	public void testIBranch() {
 		Properties.SEARCH_BUDGET = 140000;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.IBRANCH };
-        Properties.SECONDARY_OBJECTIVE="totallength";
+		Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.TOTAL_LENGTH };
         Properties.TEST_ARCHIVE = false;
 		
 		EvoSuite evosuite = new EvoSuite();
@@ -184,7 +185,7 @@ public class IBranchSystemTest extends SystemTestBase {
 	public void testArchiveIBranch() {
 		Properties.SEARCH_BUDGET = 100000;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.IBRANCH };
-        Properties.SECONDARY_OBJECTIVE="totallength";
+		Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.TOTAL_LENGTH };
 		
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();

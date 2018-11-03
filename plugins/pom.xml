@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.evosuite</groupId>
 		<artifactId>evosuite</artifactId>
-		<version>1.0.4-SNAPSHOT</version>
+		<version>1.0.7-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.evosuite.plugins</groupId>
@@ -15,6 +15,8 @@
 
 	<modules>
 		<module>maven</module>
+		<module>maven-test</module>
+		<module>build-support-test</module>
 		<!-- <module>eclipse</module> -->
 	</modules>
 

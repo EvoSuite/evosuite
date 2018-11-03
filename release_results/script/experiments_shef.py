@@ -21,12 +21,12 @@
 
 
 # How to run EvoSuite
-EVOSUITE="java -Xmx400M -jar /fastdata/ac1gf/release_results/evosuite-master-1.0.1-SNAPSHOT.jar"
+EVOSUITE="java -Xmx400M -jar /fastdata/ac1gf/release_results/evosuite-master-1.0.6-SNAPSHOT.jar"
 
 # Location of SF110
 CASESTUDY_DIR="/data/ac1gf/sf110"
 
-CONFIG_NAME = "1.0.1"
+CONFIG_NAME = "1.0.6"
 
 EXPERIMENT_NAME="EvoSuite"
 
@@ -35,9 +35,8 @@ def getScriptHead():
     s += "#$  -l h_rt=8:00:00\n"
     s += "#$  -l mem=8G\n"
     s += "#$  -l rmem=4G\n"
-    s += "module load apps/java/1.7.0u55\n"
+    s += "module load apps/java/1.8u71\n"
     s += "export MALLOC_ARENA_MAX=1\n"
-    s += "export JAVA_HOME=/data/ac1gf/jdk1.8.0_51/\n"
     s += "export PATH=$JAVA_HOME/bin:$PATH\n"
     s += "export _JAVA_OPTIONS=-Xmx1500M\n"
     return s

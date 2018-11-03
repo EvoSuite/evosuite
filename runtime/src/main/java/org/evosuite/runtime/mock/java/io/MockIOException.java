@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -34,16 +34,16 @@ public class MockIOException extends IOException  implements OverrideMock{
 	 * So, just need to override constructors, and delegate methods.
 	 * 
 	 *  All subclasses will have same code, albeit with different class names.
-	 *  Unfortunately, we end up with copy&paste, which cannot be avoided, as
+	 *  Unfortunately, we end up with copy&amp;paste, which cannot be avoided, as
 	 *  we cannot have multi-inheritance. 
 	 *  
-	 *  WARN: any change would likely end up in having to redo the copy&paste :(  
+	 *  WARN: any change would likely end up in having to redo the copy&amp;paste :(
 	 */
 
 	private static final long serialVersionUID = 8001149552489118355L;
 
 	/**
-	 * Instead of copy&paste functionalities from MockThrowable, use a delegate
+	 * Instead of copy&amp;paste functionalities from MockThrowable, use a delegate
 	 */
 	private volatile MockThrowable delegate;
 

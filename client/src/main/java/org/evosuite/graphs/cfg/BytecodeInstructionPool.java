@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,12 +19,7 @@
  */
 package org.evosuite.graphs.cfg;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
@@ -49,7 +44,7 @@ public class BytecodeInstructionPool {
 
 	private static Logger logger = LoggerFactory.getLogger(BytecodeInstructionPool.class);
 
-	private static Map<ClassLoader, BytecodeInstructionPool> instanceMap = new HashMap<ClassLoader, BytecodeInstructionPool>();
+	private static Map<ClassLoader, BytecodeInstructionPool> instanceMap = new LinkedHashMap<>();
 
 	private final ClassLoader classLoader;
 
@@ -67,9 +62,9 @@ public class BytecodeInstructionPool {
 
 	// maps className -> method inside that class -> list of
 	// BytecodeInstructions
-	private final Map<String, Map<String, List<BytecodeInstruction>>> instructionMap = new HashMap<String, Map<String, List<BytecodeInstruction>>>();
+	private final Map<String, Map<String, List<BytecodeInstruction>>> instructionMap = new LinkedHashMap<>();
 
-	private final List<MethodNode> knownMethodNodes = new ArrayList<MethodNode>();
+	private final List<MethodNode> knownMethodNodes = new ArrayList<>();
 
 	// fill the pool
 
@@ -244,10 +239,10 @@ public class BytecodeInstructionPool {
 
 		if (!instructionMap.containsKey(className))
 			instructionMap.put(className,
-			                   new HashMap<String, List<BytecodeInstruction>>());
+			                   new LinkedHashMap<>());
 		if (!instructionMap.get(className).containsKey(methodName))
 			instructionMap.get(className).put(methodName,
-			                                  new ArrayList<BytecodeInstruction>());
+			                                  new ArrayList<>());
 
 		instructionMap.get(className).get(methodName).add(instruction);
 		logger.debug("Registering instruction "+instruction);
@@ -388,7 +383,7 @@ public class BytecodeInstructionPool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<String> knownClasses() {
-		return new HashSet<String>(instructionMap.keySet());
+		return new LinkedHashSet<>(instructionMap.keySet());
 	}
 
 	/**
@@ -401,7 +396,7 @@ public class BytecodeInstructionPool {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<String> knownMethods(String className) {
-		Set<String> r = new HashSet<String>();
+		Set<String> r = new LinkedHashSet<>();
 
 		if (instructionMap.get(className) != null)
 			r.addAll(instructionMap.get(className).keySet());
@@ -432,7 +427,7 @@ public class BytecodeInstructionPool {
 		        || instructionMap.get(className).get(methodName) == null)
 			return null;
 
-		List<BytecodeInstruction> r = new ArrayList<BytecodeInstruction>();
+		List<BytecodeInstruction> r = new ArrayList<>();
 		r.addAll(instructionMap.get(className).get(methodName));
 
 		return r;
@@ -442,7 +437,7 @@ public class BytecodeInstructionPool {
 		if (instructionMap.get(className) == null)
 			return null;
 
-		List<BytecodeInstruction> r = new ArrayList<BytecodeInstruction>();
+		List<BytecodeInstruction> r = new ArrayList<>();
 		Map<String, List<BytecodeInstruction>> methodMap = instructionMap.get(className);
 		for(List<BytecodeInstruction> methodInstructions : methodMap.values()) {
 			r.addAll(methodInstructions);
@@ -452,7 +447,7 @@ public class BytecodeInstructionPool {
 	}
 	
 	public List<BytecodeInstruction> getAllInstructions() {
-		List<BytecodeInstruction> r = new ArrayList<BytecodeInstruction>();
+		List<BytecodeInstruction> r = new ArrayList<>();
 		for(String className : instructionMap.keySet()) {
 			Map<String, List<BytecodeInstruction>> methodMap = instructionMap.get(className);
 			for(List<BytecodeInstruction> methodInstructions : methodMap.values()) {

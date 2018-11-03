@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,6 +22,7 @@ package org.evosuite.setup;
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.annotations.EvoSuiteTest;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
@@ -85,7 +86,8 @@ public class TestUsageChecker {
 			return false;
 
 		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-			if(Properties.hasTargetClassBeenLoaded() && !c.getDeclaringClass().equals(Properties.getTargetClass())) {
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+			if(Properties.hasTargetClassBeenLoaded() && !c.getDeclaringClass().equals(targetClass)) {
 				logger.debug("Excluding deprecated constructor " + c.getName());
 				return false;
 			}
@@ -143,7 +145,9 @@ public class TestUsageChecker {
             return false;
 
         if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-            if(Properties.hasTargetClassBeenLoaded() && !c.equals(Properties.getTargetClass())) {
+    		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(Properties.hasTargetClassBeenLoaded() && !c.equals(targetClass)) {
                 logger.debug("Skipping deprecated class " + c.getName());
                 return false;
             }
@@ -178,7 +182,16 @@ public class TestUsageChecker {
             return false;
         }
 
-        if(c.getName().contains("EnhancerByMockito")){
+        if(c.getName().contains("EnhancerByMockito")) {
+            return false;
+        }
+
+        if(c.getName().contains("$MockitoMock")) {
+            return false;
+        }
+
+        // Don't use Lambdas...for now
+        if(c.getName().contains("$$Lambda")) {
             return false;
         }
 
@@ -221,7 +234,9 @@ public class TestUsageChecker {
             return false;// handled here to avoid printing reasons
 
         if (!Properties.USE_DEPRECATED && f.isAnnotationPresent(Deprecated.class)) {
-            if(Properties.hasTargetClassBeenLoaded() && !f.getDeclaringClass().equals(Properties.getTargetClass())) {
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(Properties.hasTargetClassBeenLoaded() && !f.getDeclaringClass().equals(targetClass)) {
                 logger.debug("Skipping deprecated field " + f.getName());
                 return false;
             }
@@ -243,6 +258,10 @@ public class TestUsageChecker {
 
         // in, out, err
         if(f.getDeclaringClass().equals(FileDescriptor.class)) {
+            return false;
+        }
+
+        if(f.getName().equals("serialVersionUID")) {
             return false;
         }
 
@@ -278,6 +297,13 @@ public class TestUsageChecker {
 
     public static boolean canUse(Method m, Class<?> ownerClass) {
 
+        final MethodNameMatcher matcher = new MethodNameMatcher();
+        String methodSignature = m.getName() + Type.getMethodDescriptor(m);
+        if (!matcher.methodMatches(methodSignature)) {
+            logger.debug("Excluding method '" + methodSignature + "' that does not match criteria");
+            return false;
+        }
+
         if (m.isBridge()) {
             logger.debug("Excluding bridge method: " + m.toString());
             return false;
@@ -289,7 +315,9 @@ public class TestUsageChecker {
         }
 
         if (!Properties.USE_DEPRECATED && m.isAnnotationPresent(Deprecated.class)) {
-            if(Properties.hasTargetClassBeenLoaded() && !m.getDeclaringClass().equals(Properties.getTargetClass())) {
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(Properties.hasTargetClassBeenLoaded() && !m.getDeclaringClass().equals(targetClass)) {
                 logger.debug("Excluding deprecated method " + m.getName());
                 return false;
             }
@@ -344,7 +372,9 @@ public class TestUsageChecker {
 
         // Hashcode only if we need to cover it
         if (m.getName().equals("hashCode")) {
-            if(!m.getDeclaringClass().equals(Properties.getTargetClass()))
+			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+
+            if(!m.getDeclaringClass().equals(targetClass))
                 return false;
             else {
                 if(GraphPool.getInstance(ownerClass.getClassLoader()).getActualCFG(Properties.TARGET_CLASS, m.getName() + Type.getMethodDescriptor(m)) == null) {
@@ -402,7 +432,8 @@ public class TestUsageChecker {
             String packageName = ClassUtils.getPackageName(ownerClass);
             String declaredPackageName = ClassUtils.getPackageName(m.getDeclaringClass());
             if (packageName.equals(Properties.CLASS_PREFIX)
-                    && packageName.equals(declaredPackageName)) {
+                    && packageName.equals(declaredPackageName)
+                    && !Modifier.isAbstract(m.getModifiers())) {
             		TestClusterUtils.makeAccessible(m);
                 return true;
             }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,13 +19,19 @@
  */
 package org.evosuite.symbolic.solver;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SolverResult {
+public class SolverResult implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -930589471876011035L;
 
 	private enum SolverResultType {
-		SAT, UNSAT
+		SAT, UNSAT, UNKNOWN
 	};
 
 	private final SolverResultType resultType;
@@ -39,6 +45,10 @@ public class SolverResult {
 
 	public static SolverResult newUNSAT() {
 		return new SolverResult(SolverResultType.UNSAT, null);
+	}
+
+	public static SolverResult newUnknown() {
+		return new SolverResult(SolverResultType.UNKNOWN, null);
 	}
 
 	public static SolverResult newSAT(Map<String, Object> values) {
@@ -64,7 +74,7 @@ public class SolverResult {
 	}
 
 	public Map<String, Object> getModel() {
-		HashMap<String, Object> newModel = new HashMap<String, Object>(model);
+		HashMap<String, Object> newModel = model == null ? new HashMap<>() : new HashMap<>(model);
 		return newModel;
 	}
 
@@ -85,4 +95,9 @@ public class SolverResult {
 		}
 		return buff.toString();
 	}
+
+    public boolean isUnknown() {
+        return resultType.equals(SolverResultType.UNKNOWN);
+    }
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -75,6 +75,8 @@ public class DependencyAnalysis {
 	private static void initInheritanceTree(List<String> classPath) {
 		logger.debug("Calculate inheritance hierarchy");
 		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
+		TestClusterGenerator clusterGenerator = new TestClusterGenerator(inheritanceTree);
+		TestGenerationContext.getInstance().setTestClusterGenerator(clusterGenerator);
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
 	}
 
@@ -113,8 +115,7 @@ public class DependencyAnalysis {
 		// update: we instrument only classes reachable from the class
 		// under test, the callgraph is populated with all classes, but only the
 		// set of relevant ones are instrumented - mattia
-		TestClusterGenerator clusterGenerator = new TestClusterGenerator(inheritanceTree);
-		clusterGenerator.generateCluster(callGraph);
+		TestGenerationContext.getInstance().getTestClusterGenerator().generateCluster(callGraph);
 
 		gatherStatistics();
 	}
@@ -373,12 +374,12 @@ public class DependencyAnalysis {
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Branches_Real,
-						((BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter() - BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()))/2);
+						((BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCounter() - BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()))*2);
 		ClientServices
 				.getInstance()
 				.getClientNode()
 				.trackOutputVariable(RuntimeVariable.Total_Branches_Instrumented,
-						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches()));
+						(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumArtificialBranches() * 2));
 		ClientServices
 				.getInstance()
 				.getClientNode()

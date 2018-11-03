@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.evosuite.ga.Chromosome;
@@ -29,9 +30,10 @@ import org.evosuite.ga.FitnessFunction;
  * 
  * @author José Campos
  */
-public class SortByFitness
-    implements Comparator<Chromosome>
-{
+public class SortByFitness implements Comparator<Chromosome>, Serializable {
+
+    private static final long serialVersionUID = 4982933698286500461L;
+
     private FitnessFunction<?> ff;
 
     private boolean order;

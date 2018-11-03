@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -28,7 +28,6 @@ import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
@@ -36,6 +35,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -56,29 +56,25 @@ import java.util.Set;
  */
 public abstract class AssertionGenerator {
 
-	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(AssertionGenerator.class);
 
-	/** Constant <code>primitive_observer</code> */
 	protected static final PrimitiveTraceObserver primitiveObserver = new PrimitiveTraceObserver();
 
-	/** Constant <code>comparison_observer</code> */
 	protected static final ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
 
-	/** Constant <code>same_observer</code> */
 	protected static final SameTraceObserver sameObserver = new SameTraceObserver();
 
-	/** Constant <code>inspector_observer</code> */
 	protected static final InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
 
-	/** Constant <code>field_observer</code> */
 	protected static final PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
 
-	/** Constant <code>null_observer</code> */
 	protected static final NullTraceObserver nullObserver = new NullTraceObserver();
 
-	/** Constant <code>null_observer</code> */
 	protected static final ArrayTraceObserver arrayObserver = new ArrayTraceObserver();
+
+	protected static final ArrayLengthObserver arrayLengthObserver = new ArrayLengthObserver();
+
+	protected static final ContainsTraceObserver containsTraceObserver = new ContainsTraceObserver();
 
 	/**
 	 * <p>
@@ -94,6 +90,8 @@ public abstract class AssertionGenerator {
 		TestCaseExecutor.getInstance().addObserver(sameObserver);
 		if(!Properties.isRegression())
 			TestCaseExecutor.getInstance().addObserver(arrayObserver);
+		TestCaseExecutor.getInstance().addObserver(arrayLengthObserver);
+		TestCaseExecutor.getInstance().addObserver(containsTraceObserver);
 	}
 
 	/**
@@ -145,6 +143,8 @@ public abstract class AssertionGenerator {
 			result.setTrace(sameObserver.getTrace(), SameTraceEntry.class);
 			if(!Properties.isRegression())
 				result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
+			result.setTrace(arrayLengthObserver.getTrace(), ArrayLengthTraceEntry.class);
+			result.setTrace(containsTraceObserver.getTrace(), ContainsTraceEntry.class);
 		} catch (Exception e) {
 			throw new Error(e);
 		}
@@ -208,9 +208,8 @@ public abstract class AssertionGenerator {
 		if (!Properties.RESET_STATIC_FIELDS) {
 			return;
 		}
-		ResetManager.getInstance().disableTracing();
-		ResetManager.getInstance().setResetAllClasses(true);
-		ResetManager.getInstance().setResetFinalFields(true);
+		final boolean reset_all_classes = Properties.RESET_ALL_CLASSES_DURING_ASSERTION_GENERATION;
+		ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
 		changeClassLoader(suite);
 	}
 	
@@ -223,7 +222,10 @@ public abstract class AssertionGenerator {
 
 			TestGenerationContext.getInstance().resetContext();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
-			Properties.getTargetClass();
+			// We need to reset the target Class since it requires a different instrumentation
+			// for handling assertion generation.
+			Properties.resetTargetClass();
+			Properties.getInitializedTargetClass();
 
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Mutants, MutationPool.getMutantCounter());
 

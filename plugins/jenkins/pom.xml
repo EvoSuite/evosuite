@@ -57,7 +57,7 @@
     <dependency>
       <groupId>org.evosuite</groupId>
       <artifactId>evosuite-master</artifactId>
-      <version>1.0.4-SNAPSHOT</version>
+      <version>1.0.5-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>de.java2html</groupId>

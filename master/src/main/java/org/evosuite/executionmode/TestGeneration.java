@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -35,6 +35,7 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JarPathing;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
@@ -54,7 +55,7 @@ public class TestGeneration {
 			CommandLine line) {
 		
 		Strategy strategy = getChosenStrategy(javaOpts, line);
-		
+
 		if (strategy == null) {
 			strategy = Strategy.EVOSUITE;
 		} 
@@ -118,7 +119,8 @@ public class TestGeneration {
 				new Option("generateNumRandom",true, "generate fixed number of random tests"),	
 				new Option("regressionSuite", "generate a regression test suite"),
 				new Option("regressionTests", "generate a regression test suite of individual tests"),
-				new Option("generateMOSuite", "use many objective test generation (MOSA). ")
+				new Option("generateMOSuite", "use many objective test generation (MOSA). "),
+				new Option("generateSuiteUsingDSE", "use Dynamic Symbolic Execution to generate test suite")
 		};
 	}
 
@@ -127,6 +129,10 @@ public class TestGeneration {
 		if (javaOpts.contains("-Dstrategy="+Strategy.ENTBUG.name())
 				&& line.hasOption("generateTests")) {
 			strategy = Strategy.ENTBUG;
+			// TODO: Find a better way to integrate this
+		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
+			// TODO: Find a better way to integrate this
+			strategy = Strategy.NOVELTY;
 		} else if (line.hasOption("generateTests")) {
 			strategy = Strategy.ONEBRANCH;
 		} else if (line.hasOption("generateSuite")) {
@@ -135,14 +141,14 @@ public class TestGeneration {
 			strategy = Strategy.RANDOM;
 		} else if (line.hasOption("regressionSuite")) {
 			strategy = Strategy.REGRESSION;
-		} else if (line.hasOption("regressionTests")) {
-			strategy = Strategy.REGRESSIONTESTS;
 		} else if (line.hasOption("generateNumRandom")) {
 			strategy = Strategy.RANDOM_FIXED;
 			javaOpts.add("-Dnum_random_tests="
 					+ line.getOptionValue("generateNumRandom"));
 		} else if (line.hasOption("generateMOSuite")){
 			strategy = Strategy.MOSUITE;
+		} else if (line.hasOption("generateSuiteUsingDSE")) {
+			strategy = Strategy.DSE;
 		}
 		return strategy;
 	}
@@ -220,7 +226,7 @@ public class TestGeneration {
 		}
 
 		List<String> cmdLine = new ArrayList<>();
-		cmdLine.add(EvoSuite.JAVA_CMD);
+		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
 
 		handleClassPath(cmdLine);
 
@@ -296,6 +302,7 @@ public class TestGeneration {
 			cmdLine.add("-Dcom.sun.management.jmxremote.ssl=false");
 		}
 		cmdLine.add("-XX:MaxJavaStackTraceDepth=1000000");
+		cmdLine.add("-XX:+StartAttachListener");
 
 		for (String arg : args) {
 			if (!arg.startsWith("-DCP=")) {
@@ -319,14 +326,37 @@ public class TestGeneration {
 		case REGRESSION:
 			cmdLine.add("-Dstrategy=Regression");
 			break;
-		case REGRESSIONTESTS:
-			cmdLine.add("-Dstrategy=RegressionTests");
-			break;	
 		case ENTBUG:
 			cmdLine.add("-Dstrategy=EntBug");
 			break;
 		case MOSUITE:
 			cmdLine.add("-Dstrategy=MOSuite");
+
+			// Set up defaults for MOSA if not specified by user
+			boolean algorithmSet = false;
+			boolean selectionSet = false;
+			for (String arg : args) {
+				if (arg.startsWith("-Dalgorithm")) {
+					algorithmSet = true;
+				}
+				if (arg.startsWith("-Dselection_function")) {
+					selectionSet = true;
+				}
+			}
+
+			if(!selectionSet) {
+				cmdLine.add("-Dselection_function=RANK_CROWD_DISTANCE_TOURNAMENT");
+			}
+
+			if(!algorithmSet) {
+				cmdLine.add("-Dalgorithm=MOSA");
+			}
+			break;
+		case DSE:
+			cmdLine.add("-Dstrategy=DSE");
+			break;
+		case NOVELTY:
+			cmdLine.add("-Dstrategy=Novelty");
 			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
@@ -587,7 +617,7 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: " + sut);
-			results.addAll(generateTests(Strategy.EVOSUITE,sut,args));
+			results.addAll(generateTests(strategy,sut,args));
 		}
 		
 		return results;

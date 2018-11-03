@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,11 +21,7 @@ package com.examples.with.different.packagename.errorbranch;
 
 public class Fieldaccess {
 
-	private String foo;
-	
-	public Fieldaccess(String x) {
-		foo = x;
-	}
+	public String foo;
 	
 	public void testMe() {
 		foo.toString();

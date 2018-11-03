@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,13 +19,9 @@
  */
 package org.evosuite.runtime.javaee.injection;
 
-import org.evosuite.runtime.annotation.BoundInputVariable;
-import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.util.Inputs;
+import org.evosuite.runtime.util.ReflectionUtils;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -49,7 +45,7 @@ public class InjectionCache {
     private final List<Class<? extends Annotation>> annotations;
 
 
-    public InjectionCache(Class<?> fieldClass, Class<? extends Annotation>... annotations){
+    public InjectionCache(Class<?> fieldClass, Class<? extends Annotation>... annotations) {
         Inputs.checkNull(fieldClass,annotations);
 
         this.fieldClass = fieldClass;
@@ -57,11 +53,11 @@ public class InjectionCache {
     }
 
 
-    public  String getFieldName( Class<?> clazz) throws IllegalArgumentException{
+    public  String getFieldName( Class<?> clazz) throws IllegalArgumentException {
 
         Inputs.checkNull(clazz);
 
-        if(!hasField(clazz)){
+        if(!hasField(clazz)) {
             throw new IllegalArgumentException("The class " + clazz.getName() +
                     " does not have a valid injectable field for " + fieldClass.getName());
         }
@@ -72,19 +68,17 @@ public class InjectionCache {
         return field;
     }
 
-    public Field getField(Class<?> klass) throws IllegalArgumentException{
+    public Field getField(Class<?> klass) throws IllegalArgumentException {
         Inputs.checkNull(klass);
 
-        if(!hasField(klass)){
+        if(!hasField(klass)) {
             return null;
         }
 
-        try {
-            return klass.getDeclaredField(cache.get(klass.getName()));
-        } catch (NoSuchFieldException e) {
-            //should never happen
-            return null;
-        }
+        // it should never return null
+        Field field = ReflectionUtils.getDeclaredField(klass, cache.get(klass.getName()));
+        assert field != null;
+        return field;
     }
 
     public  boolean hasField( Class<?> klass) throws IllegalArgumentException{
@@ -92,15 +86,15 @@ public class InjectionCache {
         Inputs.checkNull(klass);
 
         String className = klass.getName();
-        if(! cache.containsKey(className)){
+        if(!cache.containsKey(className)) {
             String fieldName = null;
-            outer : for(Field field : klass.getDeclaredFields()){
-                if(! fieldClass.isAssignableFrom(field.getType()) ){
+            outer : for(Field field : ReflectionUtils.getDeclaredFields(klass)) {
+                if(!fieldClass.isAssignableFrom(field.getType()) ) {
                     continue;
                 }
-                for(Annotation annotation : field.getDeclaredAnnotations()){
-                    for(Class<? extends Annotation> valid : annotations){
-                        if(valid.isAssignableFrom(annotation.getClass())){
+                for(Annotation annotation : ReflectionUtils.getDeclaredAnnotations(field)) {
+                    for(Class<? extends Annotation> valid : annotations) {
+                        if(valid.isAssignableFrom(annotation.getClass())) {
                             fieldName = field.getName();
                             break outer;
                         }

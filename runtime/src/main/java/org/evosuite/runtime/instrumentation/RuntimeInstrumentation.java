@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -27,6 +27,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * This class is responsible for the bytecode instrumentation
@@ -86,9 +88,25 @@ public class RuntimeInstrumentation {
 			return false;
 		}
 
+		if(className.contains("__CLR")) {
+			// Instrumenting clover coverage instrumentation helper classes breaks clover
+			return false;
+		}
+
 		return true;
 	}
 
+	public boolean isAlreadyInstrumented(ClassReader reader) {
+		ClassNode classNode = new ClassNode();
+
+		int readFlags = ClassReader.SKIP_FRAMES | ClassReader.SKIP_CODE;
+		reader.accept(classNode, readFlags);
+		for(String interfaceName : ((List<String>)classNode.interfaces)) {
+			if(InstrumentedClass.class.getName().equals(interfaceName.replace('/', '.')))
+				return true;
+		}
+		return false;
+	}
 
 	public byte[] transformBytes(ClassLoader classLoader, String className,
 			ClassReader reader, boolean skipInstrumentation) {
@@ -111,8 +129,7 @@ public class RuntimeInstrumentation {
 			 * FIXME: currently reset does add a new method, but that does no work
 			 * when retransformingMode :(
 			 */
-				CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className);
-				resetClassAdapter.setRemoveFinalModifierOnStaticFields(true);
+				CreateClassResetClassAdapter resetClassAdapter = new CreateClassResetClassAdapter(cv, className, true);
 				cv = resetClassAdapter;
 			}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,10 +23,10 @@ import java.lang.reflect.Array;
 import java.math.BigInteger;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicFunction;
-import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
@@ -44,15 +44,15 @@ public final class BigInteger_DivideAndRemainder extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		BigInteger conc_left_big_integer = (BigInteger) this.getConcReceiver();
-		NonNullReference symb_left_big_integer = this.getSymbReceiver();
+		ReferenceConstant symb_left_big_integer = this.getSymbReceiver();
 
 		BigInteger conc_right_big_integer = (BigInteger) this
 				.getConcArgument(0);
-		NonNullReference symb_right_big_integer = (NonNullReference) this
+		ReferenceConstant symb_right_big_integer = (ReferenceConstant) this
 				.getSymbArgument(0);
 
 		Object res = this.getConcRetVal();
-		Reference symb_res = this.getSymbRetVal();
+		ReferenceExpression symb_res = this.getSymbRetVal();
 
 		if (res != null && conc_left_big_integer != null
 				&& conc_right_big_integer != null) {
@@ -74,7 +74,7 @@ public final class BigInteger_DivideAndRemainder extends SymbolicFunction {
 				BigInteger conc_quotient = (BigInteger) Array.get(res,
 						QUOTIENT_ARRAY_INDEX);
 
-				NonNullReference symb_quotient = (NonNullReference) this.env.heap
+				ReferenceConstant symb_quotient = (ReferenceConstant) this.env.heap
 						.getReference(conc_quotient);
 
 				IntegerValue symb_div_value = ExpressionFactory.div(
@@ -89,7 +89,7 @@ public final class BigInteger_DivideAndRemainder extends SymbolicFunction {
 				BigInteger conc_remainder = (BigInteger) Array.get(res,
 						REMAINDER_ARRAY_INDEX);
 
-				NonNullReference symb_remainder = (NonNullReference) this.env.heap
+				ReferenceConstant symb_remainder = (ReferenceConstant) this.env.heap
 						.getReference(conc_remainder);
 
 				IntegerValue symb_rem_value = ExpressionFactory.rem(

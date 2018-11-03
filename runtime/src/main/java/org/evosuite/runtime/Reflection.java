@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,7 +31,7 @@ import java.util.List;
 
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.instrumentation.RemoveFinalClassAdapter;
-import org.mockito.asm.Opcodes;
+import org.evosuite.runtime.util.ReflectionUtils;
 
 /**
  * The content of arrays in reflection methods may differ between classloaders, therefore
@@ -55,54 +56,58 @@ public class Reflection {
 	}
 	
 	public static Annotation[] getAnnotations(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getAnnotations());
+		return sortArrayInPlace(ReflectionUtils.getAnnotations(clazz));
 	}
 
 	public static Class<?>[] getClasses(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getClasses());
+		return sortArrayInPlace(ReflectionUtils.getClasses(clazz));
 	}
 
 	// TODO: Should return mocked methods?
 	public static Method[] getMethods(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getMethods());
+		return sortArrayInPlace(ReflectionUtils.getMethods(clazz));
 	}
 
 	public static Field[] getFields(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getFields());
+		return sortArrayInPlace(ReflectionUtils.getFields(clazz));
 	}
 
 	public static Constructor<?>[] getConstructors(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getConstructors());
+		return sortArrayInPlace(ReflectionUtils.getConstructors(clazz));
 	}
 
 	public static Class<?>[] getInterfaces(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(Arrays.stream(clazz.getInterfaces()).filter(c -> !c.equals(InstrumentedClass.class)).toArray(Class[]::new));
+		return sortArrayInPlace(Arrays.stream(ReflectionUtils.getInterfaces(clazz)).filter(c -> !c.equals(InstrumentedClass.class)).toArray(Class[]::new));
 	}
 
 	public static Annotation[] getDeclaredAnnotations(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getDeclaredAnnotations());
+		return sortArrayInPlace(ReflectionUtils.getDeclaredAnnotations(clazz));
 	}
-	
+
+	public static Annotation[] getDeclaredAnnotations(Field field) throws SecurityException {
+		return sortArrayInPlace(ReflectionUtils.getDeclaredAnnotations(field));
+	}
+
 	public static Class<?>[] getDeclaredClasses(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getDeclaredClasses());
+		return sortArrayInPlace(ReflectionUtils.getDeclaredClasses(clazz));
 	}
 
 	public static Method[] getDeclaredMethods(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getDeclaredMethods());
+		return sortArrayInPlace(ReflectionUtils.getDeclaredMethods(clazz));
 	}
 	
 	public static Field[] getDeclaredFields(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getDeclaredFields());
+		return sortArrayInPlace(ReflectionUtils.getDeclaredFields(clazz));
 	}
 
 	public static Constructor<?>[] getDeclaredConstructors(Class<?> clazz) throws SecurityException {
-		return sortArrayInPlace(clazz.getDeclaredConstructors());
+		return sortArrayInPlace(ReflectionUtils.getDeclaredConstructors(clazz));
 	}
 	
 	public static int getModifiers(Class<?> clazz) {
 		int modifier = clazz.getModifiers();
 		if(RemoveFinalClassAdapter.finalClasses.contains(clazz.getCanonicalName())) {
-			modifier = modifier | Opcodes.ACC_FINAL;
+			modifier = modifier | Modifier.FINAL;
 		}
 		return modifier;
 	}

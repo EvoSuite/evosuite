@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,11 +19,11 @@
  */
 package org.evosuite.testcase.mutation;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
@@ -33,14 +33,19 @@ import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.ListUtil;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RandomInsertion implements InsertionStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(RandomInsertion.class);
-	
+
 	@Override
 	public int insertStatement(TestCase test, int lastPosition) {
 		double r = Randomness.nextDouble();
@@ -48,7 +53,7 @@ public class RandomInsertion implements InsertionStrategy {
 
 		/*
 			TODO: if allow inserting a UUT method in the middle of a test,
-			 we need to handle case of not breaking any initialzing bounded variable
+			 we need to handle case of not breaking any initializing bounded variable
 		 */
 		int max = lastPosition;
 		if (max == test.size())
@@ -74,7 +79,7 @@ public class RandomInsertion implements InsertionStrategy {
 		if (insertUUT) {
 			// Insert a call to the UUT at the end
 			position = test.size();
-			success = TestFactory.getInstance().insertRandomCall(test, position);
+			success = TestFactory.getInstance().insertRandomCall(test, lastPosition + 1);
 		} else if (insertEnv) {
 			/*
 				Insert a call to the environment. As such call is likely to depend on many constraints,
@@ -84,7 +89,6 @@ public class RandomInsertion implements InsertionStrategy {
 			success = (position >= 0);
 		} else if (insertParam){
 			// Insert a call to a parameter
-
 			VariableReference var = selectRandomVariableForCall(test, lastPosition);
 			if (var != null) {
 				int lastUsage = var.getStPosition();
@@ -101,9 +105,15 @@ public class RandomInsertion implements InsertionStrategy {
 				} else {
 
 					if (lastUsage > var.getStPosition() + 1) {
-						position = Randomness.nextInt(var.getStPosition(), // call has to be after the object is created
-								lastUsage) + 1;
+						// If there is more than 1 statement where it is used, we randomly choose a position
+						position = Randomness.nextInt(var.getStPosition() + 1, // call has to be after the object is created
+								lastUsage                // but before the last usage
+						);
+					} else if(lastUsage == var.getStPosition()) {
+						// The variable isn't used
+						position = lastUsage + 1;
 					} else {
+						// The variable is used at only one position, we insert at exactly that position
 						position = lastUsage;
 					}
 				}
@@ -147,15 +157,16 @@ public class RandomInsertion implements InsertionStrategy {
 			return null;
 
 		List<VariableReference> allVariables = test.getObjects(position);
-		Set<VariableReference> candidateVariables = new LinkedHashSet<>();
+		List<VariableReference> candidateVariables = new ArrayList<>();
 
 		for(VariableReference var : allVariables) {
 
 			if (!(var instanceof NullReference) &&
 					!var.isVoid() &&
+					!var.getGenericClass().isObject() &&
 					!(test.getStatement(var.getStPosition()) instanceof PrimitiveStatement) &&
 					!var.isPrimitive() &&
-					test.hasReferences(var) &&
+					(test.hasReferences(var) || var.getVariableClass().equals(Properties.getInitializedTargetClass()))&&
 					/* Note: this check has been added only recently,
 						to avoid having added calls to UUT in the middle of the test
 					 */
@@ -174,9 +185,11 @@ public class RandomInsertion implements InsertionStrategy {
 
 		if(candidateVariables.isEmpty()) {
 			return null;
+		} else if(Properties.SORT_OBJECTS) {
+			candidateVariables = candidateVariables.stream().sorted(Comparator.comparingInt(item -> item.getDistance())).collect(Collectors.toList());
+			return ListUtil.selectRankBiased(candidateVariables);
 		} else {
-			VariableReference choice = Randomness.choice(candidateVariables);
-			return choice;
+			return Randomness.choice(candidateVariables);
 		}
 	}
 

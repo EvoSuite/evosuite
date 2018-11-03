@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -30,15 +30,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -68,7 +60,7 @@ public class GenericClass implements Serializable {
 	/**
 	 * Set of wrapper classes
 	 */
-	private static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(
+	private static final Set<Class<?>> WRAPPER_TYPES = new LinkedHashSet<Class<?>>(
 	        Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
 	                      Integer.class, Long.class, Float.class, Double.class,
 	                      Void.class));
@@ -178,7 +170,7 @@ public class GenericClass implements Serializable {
 		}
 	}
 
-	private static boolean isMissingTypeParameters(Type type) {
+	public static boolean isMissingTypeParameters(Type type) {
 		if (type instanceof Class) {
 			for (Class<?> clazz = (Class<?>) type; clazz != null; clazz = clazz.getEnclosingClass()) {
 				if (clazz.getTypeParameters().length != 0)
@@ -186,6 +178,12 @@ public class GenericClass implements Serializable {
 			}
 			return false;
 		} else if (type instanceof ParameterizedType) {
+			return false;
+		} else if(type instanceof GenericArrayType) {
+			return false;
+		} else if(type instanceof TypeVariable) {
+			return false;
+		} else if(type instanceof WildcardType) {
 			return false;
 		} else {
 			throw new AssertionError("Unexpected type " + type.getClass());
@@ -286,9 +284,18 @@ public class GenericClass implements Serializable {
 		if (isAssignableTo(otherType))
 			return true;
 
-		if (!isTypeVariable() && !otherType.isTypeVariable()
-		        && otherType.isGenericSuperTypeOf(this))
-			return true;
+		if (!isTypeVariable() && !otherType.isTypeVariable()) {
+			try {
+				if (otherType.isGenericSuperTypeOf(this))
+					return true;
+			} catch (RuntimeException e) {
+				// FIXME: GentyRef sometimes throws:
+				// java.lang.RuntimeException: not implemented: class sun.reflect.generics.reflectiveObjects.TypeVariableImpl
+				// While I have no idea why, it should be safe to proceed if we can ignore this type
+				return false;
+			}
+
+		}
 
 		Class<?> otherRawClass = otherType.getRawClass();
 		if (otherRawClass.isAssignableFrom(rawClass)) {
@@ -317,8 +324,6 @@ public class GenericClass implements Serializable {
 				return false;
 			}
 		}
-		// TODO
-		logger.debug("Not assignable? Want: {}, have {}", otherType, toString());
 
 		return false;
 	}
@@ -597,7 +602,6 @@ public class GenericClass implements Serializable {
 	 * Instantiate generic component type
 	 * 
 	 * @param typeMap
-	 * @param recursionL
 	 * @throws ConstructionFailedException
 	 *             evel
 	 * @return
@@ -620,56 +624,56 @@ public class GenericClass implements Serializable {
 	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
 	        throws ConstructionFailedException {
 		if (typeMap.containsKey(type)) {
+			logger.debug("Type contains {}: {}", toString(), typeMap);
 			if(typeMap.get(type) == type) {
+				// FIXXME: How does this happen?
 				throw new ConstructionFailedException("Type points to itself");
 			}
-			logger.debug("Type contains " + toString() + ": " + typeMap);
+			//TODO: If typeMap.get(type) is a wildcard we need to keep the bounds of the
+			//      type variable in mind anyway, so this needs to be rewritten/fixed.
 			GenericClass selectedClass = new GenericClass(typeMap.get(type)).getGenericInstantiation(typeMap,
-			                                                                                         recursionLevel + 1);
+					recursionLevel + 1);
 			if (!selectedClass.satisfiesBoundaries((TypeVariable<?>) type)) {
-				logger.debug("Cannot be instantiated to: " + selectedClass);
-				throw new ConstructionFailedException("Unable to instantiate "
-				        + toString());
+				logger.debug("Cannot be instantiated to: {}", selectedClass);
 			} else {
-				logger.debug("Can be instantiated to: " + selectedClass);
+				logger.debug("Can be instantiated to: {}", selectedClass);
+				return selectedClass;
 			}
+		}
+		logger.debug("Type map does not contain {}: {}", toString(), typeMap);
 
-			return selectedClass;
-		} else {
-			logger.debug("Type map does not contain " + toString() + ": " + typeMap);
+		GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
+				recursionLevel < Properties.MAX_GENERIC_DEPTH,
+				typeMap);
 
-			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
-			                                                                            recursionLevel < Properties.MAX_GENERIC_DEPTH,
-			                                                                            typeMap);
-
-			if (selectedClass == null) {
-				throw new ConstructionFailedException("Unable to instantiate "
-				        + toString());
-			}
-			logger.debug("Getting instantiation of type variable " + toString() + ": "
-			        + selectedClass);
-			Map<TypeVariable<?>, Type> extendedMap = new HashMap<TypeVariable<?>, Type>(
-			        typeMap);
-			extendedMap.putAll(getTypeVariableMap());
-			for (Type bound : ((TypeVariable<?>) type).getBounds()) {
-				GenericClass boundClass = new GenericClass(bound);
-				extendedMap.putAll(boundClass.getTypeVariableMap());
-				if(boundClass.isParameterizedType()) {
-					Class<?> boundRawClass = boundClass.getRawClass();
-					if(boundRawClass.isAssignableFrom(selectedClass.getRawClass())) {
-						Map<TypeVariable<?>, Type> xmap = TypeUtils.determineTypeArguments(selectedClass.getRawClass(), (ParameterizedType) boundClass.getType());
-						extendedMap.putAll(xmap);
-					}
+		if (selectedClass == null) {
+			throw new ConstructionFailedException("Unable to instantiate "
+					+ toString());
+		}
+		logger.debug("Getting instantiation of type variable {}: {}", toString(), selectedClass);
+		Map<TypeVariable<?>, Type> extendedMap = new HashMap<TypeVariable<?>, Type>(
+				typeMap);
+		extendedMap.putAll(getTypeVariableMap());
+		for (Type bound : ((TypeVariable<?>) type).getBounds()) {
+			logger.debug("Current bound of variable {}: {}", type, bound);
+			GenericClass boundClass = new GenericClass(bound);
+			extendedMap.putAll(boundClass.getTypeVariableMap());
+			if(boundClass.isParameterizedType()) {
+				Class<?> boundRawClass = boundClass.getRawClass();
+				if(boundRawClass.isAssignableFrom(selectedClass.getRawClass())) {
+					Map<TypeVariable<?>, Type> xmap = TypeUtils.determineTypeArguments(selectedClass.getRawClass(), (ParameterizedType) boundClass.getType());
+					extendedMap.putAll(xmap);
 				}
 			}
-			
-			logger.debug("Updated type variable map to " + extendedMap);
-
-			GenericClass instantiation = selectedClass.getGenericInstantiation(extendedMap,
-			                                                                   recursionLevel + 1);
-			typeMap.put((TypeVariable<?>) type, instantiation.getType());
-			return instantiation;
 		}
+
+		logger.debug("Updated type variable map to {}", extendedMap);
+
+		GenericClass instantiation = selectedClass.getGenericInstantiation(extendedMap,
+				recursionLevel + 1);
+		typeMap.put((TypeVariable<?>) type, instantiation.getType());
+		return instantiation;
+
 	}
 
 	/**
@@ -709,6 +713,12 @@ public class GenericClass implements Serializable {
 	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
 	        throws ConstructionFailedException {
 
+		// FIXME: This negatively affects coverage. Why was it added?
+		//
+		//		if(isClass() && !hasTypeVariables()) {
+		//			return this;
+		//		}
+
 		List<TypeVariable<?>> typeParameters = getTypeVariables();
 
 		Type[] parameterTypes = new Type[typeParameters.size()];
@@ -717,7 +727,7 @@ public class GenericClass implements Serializable {
 		int numParam = 0;
 		
 		for (GenericClass parameterClass : getParameterClasses()) {
-			logger.debug("Current parameter to instantiate: " + parameterClass);
+			logger.debug("Current parameter to instantiate",  parameterClass);
 			/*
 			 * If the parameter is a parameterized type variable such as T extends Map<String, K extends Number>
 			 * then the boundaries of the parameters of the type variable need to be respected
@@ -896,7 +906,7 @@ public class GenericClass implements Serializable {
 		//logger.debug("Getting type variable map for " + type);
 		List<TypeVariable<?>> typeVariables = getTypeVariables();
 		List<Type> types = getParameterTypes();
-		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<TypeVariable<?>, Type>();
 		try {
 			if (rawClass.getSuperclass() != null
 			        && !rawClass.isAnonymousClass()
@@ -1482,30 +1492,39 @@ public class GenericClass implements Serializable {
 		}
 		ownerVariableMap.putAll(typeMap);
 		boolean changed = true;
+
 		while(changed) {
 			changed = false;
 			for (TypeVariable<?> var : ownerVariableMap.keySet()) {
-				//logger.debug("Type var: "+var+" of "+var.getGenericDeclaration());
+
+				// If the type variable points to a typevariable, let it point to what the other typevariable points to
+				// A -> B
+				// B -> C
+				// ==> A -> C
 				if(ownerVariableMap.get(var) instanceof TypeVariable<?>) {
-					//logger.debug("Is set to type var: "+ownerVariableMap.get(var)+" of "+((TypeVariable<?>)ownerVariableMap.get(var)).getGenericDeclaration());
+					// Other type variable, i.e., the one this is currently pointing to
 					TypeVariable<?> value = (TypeVariable<?>)ownerVariableMap.get(var);
 					if(ownerVariableMap.containsKey(value)) {
+
 						Type other = ownerVariableMap.get(value);
-						if(var != other && value != other) {
-							//logger.debug("Replacing "+var+" with "+other);
+						if (other instanceof TypeVariable<?>) {
+							// If the value (C) is also a typevariable, check we don't have a recursion here
+							if (ownerVariableMap.containsKey(other)) {
+								Type x = ownerVariableMap.get(other);
+								if (x == var || x == value || x == other) {
+									continue;
+								}
+							}
+						}
+						if (var != other && value != other) {
 							ownerVariableMap.put(var, other);
 							changed = true;
 						}
-					} else {
-						//logger.debug("Not in map: "+value);
 					}
-				} else {
-					//logger.debug("Is set to concrete type: "+ownerVariableMap.get(var));
 				}
 			}
-			//logger.debug("Current iteration of map: " + ownerVariableMap);
 		}
-		
+
 		GenericClass concreteClass = new GenericClass(GenericUtils.replaceTypeVariables(type, ownerVariableMap));
 		//logger.debug("Concrete class after variable replacement: " + concreteClass);
 

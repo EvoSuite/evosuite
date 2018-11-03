@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,13 +19,7 @@
  */
 package org.evosuite.instrumentation.error;
 
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.errorbranch.IntAddOverflow;
@@ -33,98 +27,62 @@ import com.examples.with.different.packagename.errorbranch.IntDivOverflow;
 import com.examples.with.different.packagename.errorbranch.IntMulOverflow;
 import com.examples.with.different.packagename.errorbranch.IntSubOverflow;
 
-public class OverflowInstrumentationSystemTest extends SystemTestBase {
+public class OverflowInstrumentationSystemTest extends AbstractErrorBranchTest {
 
 	@Test
-	public void testIntAddOverflow() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = IntAddOverflow.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
+	public void testIntAddOverflowWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntAddOverflow.class, 3, 0, 3, 0);
 	}
 
 	@Test
-	public void testIntSubOverflow() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = IntSubOverflow.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
+	public void testIntAddOverflowWithErrorBranches() {
 		Properties.ERROR_BRANCHES = true;
-		Properties.SEARCH_BUDGET = 50000;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
-
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntAddOverflow.class, 3, 4, 3, 4);
 	}
 
 	@Test
-	public void testIntDivOverflow() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = IntDivOverflow.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
-		Properties.ERROR_BRANCHES = true;
-		Properties.SEARCH_BUDGET = 20000;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		System.out.println(best.toString());
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
-
+	public void testIntSubOverflowWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntSubOverflow.class, 3, 0, 3, 0);
 	}
 
 	@Test
-	public void testIntMulOverflow() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = IntMulOverflow.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
+	public void testIntSubOverflowWithErrorBranches() {
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-		Assert.assertEquals("Non-optimal coverage: ", 5d / 5d, best.getCoverage(), 0.001);
-
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntSubOverflow.class, 3, 4, 3, 4);
 	}
+
+	@Test
+	public void testIntDivOverflowWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntDivOverflow.class, 3, 0, 3, 0);
+	}
+
+	@Test
+	public void testIntDivOverflowWithErrorBranches() {
+		Properties.ERROR_BRANCHES = true;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntDivOverflow.class, 3, 2, 3, 2);
+	}
+
+	@Test
+	public void testMulDivOverflowWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntMulOverflow.class, 3, 0, 3, 0);
+	}
+
+	@Test
+	public void testIntMulOverflowWithErrorBranches() {
+		Properties.ERROR_BRANCHES = true;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.OVERFLOW};
+		checkErrorBranches(IntMulOverflow.class, 3, 4, 3, 4);
+	}
+
 }

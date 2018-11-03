@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
@@ -49,26 +50,52 @@ public class SimpleMutationAssertionGenerator extends MutationAssertionGenerator
 
 	private final static Logger logger = LoggerFactory.getLogger(SimpleMutationAssertionGenerator.class);
 
+
 	@Override
 	public void addAssertions(TestSuiteChromosome suite) {
 		
 		setupClassLoader(suite);
 		
+		if (!Properties.hasTargetClassBeenLoaded()) {
+	        // Need to load class explicitly since it was re-instrumented
+			Properties.getTargetClassAndDontInitialise();
+	        if (!Properties.hasTargetClassBeenLoaded()) {
+	        	logger.warn("Could not initialize SUT before Assertion generation" );
+	        }
+		}
+		
 		Set<Integer> tkilled = new HashSet<>();
 		int numTest = 0;
+		boolean timeIsShort = false;
+
 		for (TestCase test : suite.getTests()) {
 			if (! TimeController.getInstance().isThereStillTimeInThisPhase()) {
-				logger.info("Reached maximum time to generate assertions!");
+				logger.warn("Reached maximum time to generate assertions, aborting assertion generation");
 				break;
 			}
-			// Set<Integer> killed = new HashSet<Integer>();
-			addAssertions(test, tkilled);
-			//progressMonitor.updateStatus((100 * numTest++) / tests.size());
-			ClientState state = ClientState.ASSERTION_GENERATION;
-			ClientStateInformation information = new ClientStateInformation(state);
-			information.setProgress((100 * numTest++) / suite.size());
-			ClientServices.getInstance().getClientNode().changeState(state, information);
-		}	
+
+			// If at 50% of the time we have only done X% of the tests, then don't minimise
+			if(!timeIsShort && TimeController.getInstance().getPhasePercentage() > Properties.ASSERTION_MINIMIZATION_FALLBACK_TIME) {
+				if(numTest < Properties.ASSERTION_MINIMIZATION_FALLBACK * suite.size()) {
+					logger.warn("Assertion minimization is taking too long ({}% of time used, but only {}/{} tests minimized), falling back to using all assertions", TimeController.getInstance().getPhasePercentage(), numTest, suite.size());
+					timeIsShort = true;
+				}
+			}
+
+			if(timeIsShort) {
+				CompleteAssertionGenerator generator = new CompleteAssertionGenerator();
+				generator.addAssertions(test);
+				numTest++;
+			} else {
+				// Set<Integer> killed = new HashSet<Integer>();
+				addAssertions(test, tkilled);
+				//progressMonitor.updateStatus((100 * numTest++) / tests.size());
+				ClientState state = ClientState.ASSERTION_GENERATION;
+				ClientStateInformation information = new ClientStateInformation(state);
+				information.setProgress((100 * numTest++) / suite.size());
+				ClientServices.getInstance().getClientNode().changeState(state, information);
+			}
+		}
 		
 		calculateMutationScore(tkilled);
 		restoreCriterion(suite);

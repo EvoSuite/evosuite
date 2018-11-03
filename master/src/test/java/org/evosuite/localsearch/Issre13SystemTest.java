@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -68,7 +68,8 @@ public class Issre13SystemTest extends SystemTestBase {
 		Properties.LOCAL_SEARCH_BUDGET = 500;
 		Properties.SEARCH_BUDGET = 100000;
 		Properties.RESET_STATIC_FIELD_GETS = true;
-
+		Properties.P_FUNCTIONAL_MOCKING = 0.0;
+		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 	}
 
 	@Test
@@ -97,6 +98,8 @@ public class Issre13SystemTest extends SystemTestBase {
 	@Test
 	public void testOnSpecificTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
 		Properties.TARGET_CLASS = DseBar.class.getCanonicalName();
+		Properties.DSE_PROBABILITY = 1.0; // force using DSE
+		
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
 		Class<?> fooClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(DseFoo.class.getCanonicalName());
 		GenericClass clazz = new GenericClass(sut);
@@ -141,7 +144,7 @@ public class Issre13SystemTest extends SystemTestBase {
 
 		System.out.println("Test suite: "+suite);
 		
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -39,6 +39,7 @@ public class ResetStaticFieldSystemTest extends SystemTestBase {
 	public void saveProperties() {
 		reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
 		Properties.RESET_STATIC_FIELDS = true;
+		Properties.RESET_STATIC_FIELD_GETS = true;
 	}
 
 	@After

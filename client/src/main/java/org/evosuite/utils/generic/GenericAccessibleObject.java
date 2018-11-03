@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,12 +23,7 @@
 package org.evosuite.utils.generic;
 
 import java.io.Serializable;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -411,6 +406,14 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	public boolean isStatic() {
 		return false;
 	}
+
+	public abstract boolean isPublic();
+
+	public abstract boolean isPrivate();
+
+	public abstract boolean isProtected();
+
+	public abstract boolean isDefault();
 
 	/**
 	 * Maps type parameters in a type to their values.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -44,4 +44,6 @@ public @interface EvoRunnerParameters {
     boolean separateClassLoader() default false;
 
     boolean useJEE() default false;
+    
+    boolean mockGUI() default false;
 }

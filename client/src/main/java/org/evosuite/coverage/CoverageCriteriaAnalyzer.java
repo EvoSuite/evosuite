@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -66,8 +66,7 @@ public class CoverageCriteriaAnalyzer {
 
     private static void reinstrument(TestSuiteChromosome testSuite, Properties.Criterion criterion) {
 
-        if (Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("ibranch")
-                || Properties.SECONDARY_OBJECTIVE.toLowerCase().contains("archiveibranch")) {
+        if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
             ExecutionTracer.enableContext();
         }
         if (!ExecutionTracer.isTraceCallsEnabled()) {
@@ -88,7 +87,7 @@ public class CoverageCriteriaAnalyzer {
 
         // Need to load class explicitly in case there are no test cases.
         // If there are tests, then this is redundant
-        Properties.getTargetClass();
+        Properties.getInitializedTargetClass();
 
         // TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
         logger.info("Changing classloader of test suite for criterion: " + criterion);
@@ -148,9 +147,9 @@ public class CoverageCriteriaAnalyzer {
             case STATEMENT:
                 return RuntimeVariable.StatementCoverage;
             case RHO:
-                return RuntimeVariable.RhoCoverage;
+                return RuntimeVariable.RhoScore;
             case AMBIGUITY:
-                return RuntimeVariable.AmbiguityCoverage;
+                return RuntimeVariable.AmbiguityScore;
             case STRONGMUTATION:
             case MUTATION:
                 return RuntimeVariable.MutationScore;

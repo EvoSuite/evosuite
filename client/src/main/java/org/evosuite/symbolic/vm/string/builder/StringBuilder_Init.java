@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,9 +19,9 @@
  */
 package org.evosuite.symbolic.vm.string.builder;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -40,15 +40,15 @@ public final class StringBuilder_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// symbolic receiver (new object)
-		NonNullReference symb_str_builder = (NonNullReference) this
+		ReferenceConstant symb_str_builder = (ReferenceConstant) this
 				.getSymbReceiver();
 
 		// string argument
 		String conc_str = (String) this.getConcArgument(0);
-		Reference symb_str = this.getSymbArgument(0);
+		ReferenceExpression symb_str = this.getSymbArgument(0);
 
-		if (symb_str instanceof NonNullReference) {
-			NonNullReference non_null_symb_string = (NonNullReference) symb_str;
+		if (symb_str instanceof ReferenceConstant) {
+			ReferenceConstant non_null_symb_string = (ReferenceConstant) symb_str;
 			assert conc_str != null;
 
 			StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,

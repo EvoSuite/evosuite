@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -38,10 +38,10 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective<
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
@@ -52,12 +52,10 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective<
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome,
-	 * org.evosuite.ga.Chromosome)
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override

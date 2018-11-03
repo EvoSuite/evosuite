@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,6 +20,7 @@
 package org.evosuite.jee;
 
 import com.examples.with.different.packagename.jee.db.SimpleDBInteraction;
+import com.examples.with.different.packagename.jee.db.SimpleDBWrite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.junit.Test;
@@ -29,7 +30,13 @@ import org.junit.Test;
  */
 public class DBSystemTest extends SystemTestBase {
 
-    @Test
+    @Test(timeout = 60_000) // This test case hanged in Jenkins
+    public void testSimpleDBWrite(){
+        Properties.JEE = true;
+        do100percentLineTest(SimpleDBWrite.class);
+    }
+
+    @Test(timeout = 60_000) // This test case hanged in Jenkins
     public void testSimpleDBInteraction(){
         Properties.JEE = true;
         do100percentLineTest(SimpleDBInteraction.class);

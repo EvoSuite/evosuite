@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,9 +21,9 @@ package org.evosuite.symbolic.vm.regex;
 
 import java.util.regex.Matcher;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -42,19 +42,19 @@ public final class Pattern_Matcher extends SymbolicFunction {
 
 		// receiver
 		@SuppressWarnings("unused")
-		NonNullReference symb_receiver = this.getSymbReceiver();
+		ReferenceConstant symb_receiver = this.getSymbReceiver();
 
 		// argument
 		CharSequence conc_char_seq = (CharSequence) this.getConcArgument(0);
-		Reference symb_char_seq= this.getSymbArgument(0);
+		ReferenceExpression symb_char_seq= this.getSymbArgument(0);
 
 		// return value
 		Matcher conc_matcher = (Matcher) this.getConcRetVal();
-		NonNullReference symb_matcher = (NonNullReference) this.getSymbRetVal();
+		ReferenceConstant symb_matcher = (ReferenceConstant) this.getSymbRetVal();
 
 		if (conc_char_seq != null && conc_char_seq instanceof String) {
-			assert symb_char_seq instanceof NonNullReference;
-			NonNullReference symb_string = (NonNullReference)symb_char_seq;
+			assert symb_char_seq instanceof ReferenceConstant;
+			ReferenceConstant symb_string = (ReferenceConstant)symb_char_seq;
 			
 			String string = (String) conc_char_seq;
 			StringValue symb_input = env.heap.getField(Types.JAVA_LANG_STRING,

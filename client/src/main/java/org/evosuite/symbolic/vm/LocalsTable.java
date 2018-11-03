@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 
 /**
  * 
@@ -42,7 +43,7 @@ public final class LocalsTable {
 			locals.add(null);
 	}
 
-	public Reference getRefLocal(int i) {
+	public ReferenceExpression getRefLocal(int i) {
 		Operand x = locals.get(i);
 		ReferenceOperand refOp = (ReferenceOperand) x;
 		return refOp.getReference();
@@ -53,7 +54,7 @@ public final class LocalsTable {
 		return x;
 	}
 
-	public void setRefLocal(int i, Reference o) {
+	public void setRefLocal(int i, ReferenceExpression o) {
 		locals.set(i, new ReferenceOperand(o));
 	}
 

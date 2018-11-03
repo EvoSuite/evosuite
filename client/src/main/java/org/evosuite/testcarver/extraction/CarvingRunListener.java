@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -81,7 +81,8 @@ public class CarvingRunListener extends RunListener {
 
 	private List<Class<?>> getObservedClasses(final CaptureLog log) {
 		List<Class<?>> targetClasses = new ArrayList<Class<?>>();
-		targetClasses.add(Properties.getTargetClass());
+		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+		targetClasses.add(targetClass);
 		String prop = Properties.SELECTED_JUNIT;
 		if (prop == null || prop.trim().isEmpty()) {
 			throw new IllegalStateException(

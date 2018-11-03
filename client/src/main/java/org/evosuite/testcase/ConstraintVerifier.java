@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -80,6 +80,8 @@ public class ConstraintVerifier {
             } else if(st instanceof ConstructorStatement){
                 ConstructorStatement cs = (ConstructorStatement) st;
                 ao = cs.getConstructor().getConstructor();
+            } else {
+                return false;
             }
 
             for(Annotation annotation : ao.getDeclaredAnnotations()){

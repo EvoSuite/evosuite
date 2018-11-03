@@ -8,8 +8,9 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -55,6 +56,12 @@ public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFuncti
 	}
 
 	public static Set<EPAAdjacentEdgesPair> constructGoals(ExecutionResult executionResult, EPAAdjacentEdgesCoverageSuiteFitness contextFitness) {
+
+		TestChromosome test = new TestChromosome();
+		test.setTestCase(executionResult.test);
+		test.setLastExecutionResult(executionResult);
+		test.setChanged(false);
+
 		Set<EPAAdjacentEdgesPair> adjacentPairsForResult = EPAAdjacentEdgesPair.getAdjacentEdgesPairsExecuted(executionResult);
 		for (EPAAdjacentEdgesPair pair : adjacentPairsForResult) {
 			EPATransition firstTransition = pair.getFirstEpaTransition();
@@ -64,9 +71,10 @@ public class EPAAdjacentEdgesCoverageSuiteFitness extends TestSuiteFitnessFuncti
 			String key = goal.getKey();
 			if (!EPAAdjacentEdgesCoverageFactory.getGoals().containsKey(key)) {
 				EPAAdjacentEdgesCoverageFactory.getGoals().put(key, goal);
+				test.getTestCase().addCoveredGoal(goal);
 				if (Properties.TEST_ARCHIVE && contextFitness != null) {
-					TestsArchive.instance.addGoalToCover(contextFitness, goal);
-					TestsArchive.instance.putTest(contextFitness, goal, executionResult);
+					Archive.getArchiveInstance().addTarget(goal);
+					Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
 				}
 			}
 		}

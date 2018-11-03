@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -84,7 +84,7 @@ public class TestBooths
 
         //GeneticAlgorithm<?> ga = new NSGAII(factory);
         GeneticAlgorithm<?> ga = new NSGAII(factory);
-        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
+        BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
         //BinaryTournament ts = new BinaryTournament();
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());

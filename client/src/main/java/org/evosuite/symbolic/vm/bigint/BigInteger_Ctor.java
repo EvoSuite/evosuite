@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,8 +22,8 @@ package org.evosuite.symbolic.vm.bigint;
 import java.math.BigInteger;
 
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -39,7 +39,7 @@ public final class BigInteger_Ctor extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		String conc_string = (String) this.getConcArgument(0);
-		NonNullReference str_ref = (NonNullReference) this.getSymbArgument(0);
+		ReferenceConstant str_ref = (ReferenceConstant) this.getSymbArgument(0);
 
 		StringValue symb_string = this.env.heap.getField(
 				Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
@@ -47,7 +47,7 @@ public final class BigInteger_Ctor extends SymbolicFunction {
 
 		if (symb_string.containsSymbolicVariable()) {
 
-			NonNullReference symb_big_integer = (NonNullReference) env
+			ReferenceConstant symb_big_integer = (ReferenceConstant) env
 					.topFrame().operandStack.peekRef();
 
 			BigInteger bigInteger = new BigInteger(conc_string);

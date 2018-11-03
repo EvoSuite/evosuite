@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -29,6 +29,9 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.AbstractClassWithStaticFactory;
 import com.examples.with.different.packagename.AbstractSuperClass;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AbstractSUTSystemTest extends SystemTestBase {
 
@@ -60,6 +63,11 @@ public class AbstractSUTSystemTest extends SystemTestBase {
 		String targetClass = AbstractClassWithStaticFactory.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+
+		// Just using line coverage because it's not clear if covering default constructors of anonymous and abstract classes makes sense...
+		List<Properties.Criterion> criteria = new ArrayList<>();
+		criteria.add(Properties.Criterion.LINE);
+		Properties.CRITERION = criteria.toArray(Properties.CRITERION);
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

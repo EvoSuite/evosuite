@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,7 +20,7 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -35,7 +35,7 @@ public final class B_ByteValue extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullReference symb_byte = this.getSymbReceiver();
+		ReferenceConstant symb_byte = this.getSymbReceiver();
 		Byte conc_byte = (Byte) this.getConcReceiver();
 
 		int conc_byte_value = this.getConcByteRetVal();

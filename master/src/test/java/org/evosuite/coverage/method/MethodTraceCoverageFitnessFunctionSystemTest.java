@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.method;
 
+import com.examples.with.different.packagename.ClassWithInnerClass;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -32,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.Compositional;
-import com.examples.with.different.packagename.FlagExample3;
+import com.examples.with.different.packagename.instrumentation.testability.FlagExample3;
 import com.examples.with.different.packagename.SingleMethod;
 
 /**
@@ -111,7 +112,7 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
 		
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
-		Assert.assertEquals(3, goals);
+		Assert.assertEquals(2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 
@@ -143,4 +144,23 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
         Assert.assertEquals(4, goals );
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
+
+	@Test
+	public void systemTestMethodTraceCoverageInnerClasses(){
+
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ClassWithInnerClass.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		Object result = evosuite.parseCommandLine(command);
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+
+		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
+		Assert.assertEquals(4, goals);
+		System.out.println("EvolvedTestSuite:\n" + best);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
 }

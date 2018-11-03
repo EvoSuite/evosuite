@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,6 +22,7 @@ package org.evosuite.testcase.fm;
 import org.evosuite.utils.ParameterizedTypeImpl;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -106,7 +107,7 @@ public class EvoInvocationListenerTest {
         when(foo.parseString(any())).thenReturn(1);
         when(foo.parseString(any(), anyBoolean())).thenReturn(2);
         when(foo.parseString(any(), any(Object.class))).thenReturn(3);
-        when(foo.parseString(any(), any(Foo.class))).thenReturn(4);
+        when(foo.parseString(any(), ArgumentMatchers.nullable(Foo.class))).thenReturn(4);
 
         List<MethodDescriptor> list = listener.getCopyOfMethodDescriptors();
         Assert.assertEquals(0, list.size()); //not active yet
@@ -123,6 +124,9 @@ public class EvoInvocationListenerTest {
 
         res = foo.parseString("bar",new Object());
         Assert.assertEquals(3, res);
+
+        res = foo.parseString("bar", foo);
+        Assert.assertEquals(4, res);
 
         res = foo.parseString("bar", (Foo) null);
         Assert.assertEquals(4, res);

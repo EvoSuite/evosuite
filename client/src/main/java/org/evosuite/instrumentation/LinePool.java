@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -125,6 +125,10 @@ public class LinePool {
 			return new HashSet<String>();
 		else
 			return lineMap.get(className).keySet();
+	}
+
+	public static void removeClass(String className) {
+		lineMap.remove(className);
 	}
 
 	public static void reset() {

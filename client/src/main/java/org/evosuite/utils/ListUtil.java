@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -17,28 +17,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
- * contributors
- *
- * This file is part of EvoSuite.
- *
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- *
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
- * @author Gordon Fraser
- */
 package org.evosuite.utils;
 
+import org.evosuite.*;
+
 import java.util.*;
+import java.util.Properties;
+
 public abstract class ListUtil {
 	/**
 	 * <p>tail</p>
@@ -94,5 +79,27 @@ public abstract class ListUtil {
 		ArrayList<T> result = new ArrayList<T>(list);
 		Collections.shuffle(result, rnd);
 		return result;
+	}
+
+	private static int getIndex(List<?> population) {
+		double r = Randomness.nextDouble();
+		double d = org.evosuite.Properties.RANK_BIAS
+				- Math.sqrt((org.evosuite.Properties.RANK_BIAS * org.evosuite.Properties.RANK_BIAS)
+				- (4.0 * (org.evosuite.Properties.RANK_BIAS - 1.0) * r));
+		int length = population.size();
+
+		d = d / 2.0 / (org.evosuite.Properties.RANK_BIAS - 1.0);
+
+		//this is not needed because population is sorted based on Maximization
+		//if(maximize)
+		//	d = 1.0 - d; // to do that if we want to have Maximisation
+
+		int index = (int) (length * d);
+		return index;
+	}
+
+	public static <T> T selectRankBiased(List<T> list) {
+		int index = getIndex(list);
+		return list.get(index);
 	}
 }

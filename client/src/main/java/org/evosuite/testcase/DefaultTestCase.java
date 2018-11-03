@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.InspectorAssertion;
+import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
@@ -54,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
+import org.springframework.util.ClassUtils;
 
 /**
  * A test case is a list of statements
@@ -146,6 +150,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void addCoveredGoal(TestFitnessFunction goal) {
 		coveredGoals.add(goal);
 		// TODO: somehow adds the same goal more than once (fitnessfunction.equals()?)
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeCoveredGoal(TestFitnessFunction goal) {
+		coveredGoals.remove(goal);
 	}
 
 	@Override
@@ -574,11 +586,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public List<VariableReference> getObjects(Type type, int position) {
 		List<VariableReference> variables = new LinkedList<VariableReference>();
 
-		boolean isPrimitive = false;
-		if(type instanceof Class<?>) {
-			if(((Class<?>)type).isPrimitive())
-				isPrimitive = true;
-		}
+		GenericClass genericClass = new GenericClass(type);
+		Class<?> rawClass = genericClass.getRawClass();
 		for (int i = 0; i < position && i < size(); i++) {
 			Statement statement = statements.get(i);
 			if(statement instanceof MethodStatement) {
@@ -595,7 +604,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 				// that an array is assignable to its component type
 				// TODO: Fix
 				boolean isClassUtilsBug = false;
-				Class<?> rawClass = GenericTypeReflector.erase(type);
 				if (value.isArray()) {
 					Class<?> arrayClass = value.getVariableClass();
 					isClassUtilsBug = isClassUtilsBug(rawClass, arrayClass);
@@ -604,7 +612,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 					isClassUtilsBug = isClassUtilsBug(value.getVariableClass(), rawClass);
 				}
 
-				if (value.isAssignableTo(type) && !isClassUtilsBug) {
+				if (value.isAssignableTo(type) && !isClassUtilsBug && value.isArray() == rawClass.isArray()) {
 					logger.debug("Array is assignable: " + value.getType() + " to "
 					        + type + ", " + value.isArray() + ", " + rawClass.isArray());
 					variables.add(value);
@@ -615,8 +623,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 					}
 
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
-						//logger.info("Adding array index " + index + " to array "
-						//       + value.getSimpleClassName() + " " + value.getName());
 						if (((ArrayReference) value).isInitialized(index, position))
 							variables.add(new ArrayIndex(this, (ArrayReference) value,
 							        index));
@@ -624,7 +630,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 				}
 			} else if (value instanceof ArrayIndex) {
 				// Don't need to add this because array indices are created for array statement
-			} else if (value.isAssignableTo(type) && value.isPrimitive() == isPrimitive) {
+			} else if (value.isAssignableTo(type) && value.isPrimitive() == rawClass.isPrimitive() &&
+					value.isArray() == rawClass.isArray()) {
 				variables.add(value);
 			} else {
 				addFields(variables, value, type);
@@ -653,7 +660,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				iterator.remove();
 			else if (var.isPrimitive() || var.isWrapperType())
 				iterator.remove();
-			else if(this.getStatement(var.getStPosition()) instanceof FunctionalMockStatement)
+			else if(this.getStatement(var.getStPosition()) instanceof FunctionalMockStatement && !(this.getStatement(var.getStPosition()) instanceof FunctionalMockForAbstractClassStatement))
 				iterator.remove();
 		}
 		if (variables.isEmpty())
@@ -844,7 +851,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasObject(Type type, int position) {
-		for (int i = 0; i < position; i++) {
+		for (int i = 0; i < position && i < size(); i++) {
 			Statement st = statements.get(i);
 			if (st.getReturnValue() == null)
 				continue; // Nop
@@ -907,6 +914,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public boolean isFailing() {
 		return isFailing;
+	}
+
+	@Override
+	public void setFailing() {
+		isFailing = true;
 	}
 
 	/* (non-Javadoc)
@@ -985,6 +997,127 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public void removeAssertions() {
 		for (Statement s : statements) {
 			s.removeAssertions();
+		}
+	}
+
+	private boolean methodNeedsDownCast(MethodStatement methodStatement, VariableReference var, Class<?> abstractClass) {
+
+		if(!methodStatement.isStatic() && methodStatement.getCallee().equals(var)) {
+			if(!ClassUtils.hasMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes())) {
+				// Need downcast for real
+				return true;
+			} else {
+				Method superClassMethod = ClassUtils.getMethod(abstractClass, methodStatement.getMethod().getName(), methodStatement.getMethod().getRawParameterTypes());
+				if(!methodStatement.getMethod().getRawGeneratedType().equals(superClassMethod.getReturnType())) {
+					// Overriding can also change return value, in which case we need to keep the downcast
+					return true;
+				}
+			}
+		}
+		List<VariableReference> parameters = methodStatement.getParameterReferences();
+		Class<?>[] parameterTypes = methodStatement.getMethod().getRawParameterTypes();
+		for(int i = 0; i < parameters.size(); i++) {
+			VariableReference param = parameters.get(i);
+			if(param.equals(var) && !parameterTypes[i].isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean constructorNeedsDownCast(ConstructorStatement constructorStatement, VariableReference var, Class<?> abstractClass) {
+		List<VariableReference> parameters = constructorStatement.getParameterReferences();
+		Class<?>[] parameterTypes = constructorStatement.getConstructor().getConstructor().getParameterTypes();
+		for(int i = 0; i < parameters.size(); i++) {
+			VariableReference param = parameters.get(i);
+			if(param.equals(var) && !parameterTypes[i].isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean fieldNeedsDownCast(FieldReference fieldReference, VariableReference var, Class<?> abstractClass) {
+		if(fieldReference.getSource().equals(var)) {
+			if(!fieldReference.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean fieldNeedsDownCast(FieldStatement fieldStatement, VariableReference var, Class<?> abstractClass) {
+		if(!fieldStatement.isStatic() && fieldStatement.getSource().equals(var)) {
+			if(!fieldStatement.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
+				// Need downcast for real
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean assertionsNeedDownCast(Statement s, VariableReference var, Class<?> abstractClass) {
+		for(Assertion assertion : s.getAssertions()) {
+			if(assertion instanceof InspectorAssertion && assertion.getSource().equals(var)) {
+				InspectorAssertion inspectorAssertion = (InspectorAssertion)assertion;
+				Method inspectorMethod = inspectorAssertion.getInspector().getMethod();
+				if(!ClassUtils.hasMethod(abstractClass, inspectorMethod.getName(), inspectorMethod.getParameterTypes())) {
+					return true;
+				}
+			} else if(assertion instanceof PrimitiveFieldAssertion && assertion.getSource().equals(var)) {
+				PrimitiveFieldAssertion fieldAssertion = (PrimitiveFieldAssertion)assertion;
+				if(!fieldAssertion.getField().getDeclaringClass().isAssignableFrom(abstractClass)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public void removeDownCasts() {
+		for(Statement s : statements) {
+			if(s instanceof MethodStatement) {
+				MethodStatement ms = (MethodStatement)s;
+				VariableReference retVal = s.getReturnValue();
+				Class<?> variableClass = retVal.getVariableClass();
+				Class<?> methodReturnClass = ms.getMethod().getRawGeneratedType();
+				if(!variableClass.equals(methodReturnClass) && methodReturnClass.isAssignableFrom(variableClass)) {
+					logger.debug("Found downcast from {} to {}", methodReturnClass.getName(), variableClass);
+					if(assertionsNeedDownCast(ms, retVal, methodReturnClass)) {
+						return;
+					}
+					for(VariableReference ref : getReferences(retVal)) {
+						Statement usageStatement = statements.get(ref.getStPosition());
+						if(assertionsNeedDownCast(usageStatement, retVal, methodReturnClass)) {
+							return;
+						}
+						if(usageStatement instanceof MethodStatement) {
+							if(methodNeedsDownCast((MethodStatement)usageStatement, retVal, methodReturnClass)) {
+								return;
+							}
+						} else if(usageStatement instanceof ConstructorStatement) {
+							if(constructorNeedsDownCast((ConstructorStatement)usageStatement, retVal, methodReturnClass)) {
+								return;
+							}
+
+						} else if(usageStatement instanceof FieldStatement) {
+							if(fieldNeedsDownCast((FieldStatement)usageStatement, retVal, methodReturnClass)) {
+								return;
+							}
+						}
+						if(ref.isFieldReference()) {
+							if(fieldNeedsDownCast((FieldReference)ref, retVal, methodReturnClass)) {
+								return;
+							}
+						}
+					}
+					logger.debug("Downcast not needed, replacing with {}", ms.getMethod().getReturnType());
+					retVal.setType(ms.getMethod().getReturnType());
+				}
+			}
 		}
 	}
 

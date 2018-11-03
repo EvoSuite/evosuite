@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,10 +24,10 @@ import java.util.Collections;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -45,38 +45,38 @@ public final class ReplaceFirst extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// receiver
-		NonNullReference symb_receiver = this.getSymbReceiver();
+		ReferenceConstant symb_receiver = this.getSymbReceiver();
 		String conc_receiver = (String) this.getConcReceiver();
 		// regex argument
-		Reference symb_regex = this.getSymbArgument(0);
+		ReferenceExpression symb_regex = this.getSymbArgument(0);
 		String conc_regex = (String) this.getConcArgument(0);
 		// replacement argument
-		Reference symb_replacement = this.getSymbArgument(1);
+		ReferenceExpression symb_replacement = this.getSymbArgument(1);
 		String conc_replacement = (String) this.getConcArgument(1);
 		// return value
 		String conc_ret_val = (String) this.getConcRetVal();
-		Reference symb_ret_val = this.getSymbRetVal();
+		ReferenceExpression symb_ret_val = this.getSymbRetVal();
 
 		StringValue stringReceiverExpr = env.heap.getField(
 				Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 				conc_receiver, symb_receiver, conc_receiver);
 
-		if (symb_regex instanceof NonNullReference
-				&& symb_replacement instanceof NonNullReference) {
+		if (symb_regex instanceof ReferenceConstant
+				&& symb_replacement instanceof ReferenceConstant) {
 
-			NonNullReference non_null_symb_regex = (NonNullReference) symb_regex;
+			ReferenceConstant non_null_symb_regex = (ReferenceConstant) symb_regex;
 			StringValue regexExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 					SymbolicHeap.$STRING_VALUE, conc_regex,
 					non_null_symb_regex, conc_regex);
 
-			NonNullReference non_null_symb_replacement = (NonNullReference) symb_replacement;
+			ReferenceConstant non_null_symb_replacement = (ReferenceConstant) symb_replacement;
 			StringValue replacementExpr = env.heap.getField(
 					Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 					conc_replacement, non_null_symb_replacement,
 					conc_replacement);
 
-			if (symb_ret_val instanceof NonNullReference) {
-				NonNullReference non_null_symb_ret_val = (NonNullReference) symb_ret_val;
+			if (symb_ret_val instanceof ReferenceConstant) {
+				ReferenceConstant non_null_symb_ret_val = (ReferenceConstant) symb_ret_val;
 
 				StringMultipleExpression symb_value = new StringMultipleExpression(
 						stringReceiverExpr, Operator.REPLACEFIRST, regexExpr,

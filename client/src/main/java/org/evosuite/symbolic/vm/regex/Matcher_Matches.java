@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,10 +23,10 @@ import java.util.regex.Matcher;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -42,7 +42,7 @@ public final class Matcher_Matches extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 		Matcher conc_matcher = (Matcher) this.getConcReceiver();
-		NonNullReference symb_matcher = (NonNullReference) this
+		ReferenceConstant symb_matcher = (ReferenceConstant) this
 				.getSymbReceiver();
 		boolean res = this.getConcBooleanRetVal();
 

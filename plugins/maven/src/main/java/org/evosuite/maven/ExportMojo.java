@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -74,7 +74,7 @@ public class ExportMojo extends AbstractMojo{
 			throw new MojoFailureException(msg);
 		}
 
-		File target = new File(basedir.getAbsolutePath()+File.separator+targetFolder);
+		File target = ContinuousTestGeneration.resolveExportFolder(basedir.getAbsolutePath(), targetFolder);
 		getLog().info("Exported tests to "+target);
 	}
 

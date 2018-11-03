@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,7 +22,7 @@ package com.examples.with.different.packagename.solver;
 public class TestCaseStringLastIndexOfChar {
 
 	public static boolean test(String str) {
-		if (str != null) {
+		if (str != null && str.equals(".....Xello")) {
 			if (str.lastIndexOf('H') == -1) {
 				return true;
 			}

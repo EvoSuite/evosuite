@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -27,6 +27,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -35,6 +37,8 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.line.LineCoverageFactory;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
@@ -45,6 +49,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.FileIOUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -58,50 +63,22 @@ public class ClassStatisticsPrinter {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClassStatisticsPrinter.class);
 
-	private static boolean reinstrument(Properties.Criterion criterion) {
-		Properties.CRITERION = new Properties.Criterion[1];
-		Properties.CRITERION[0] = criterion;
-
-		logger.info("Re-instrumenting for criterion: " + criterion);
-		TestGenerationContext.getInstance().resetContext();
-
-		try {
-			// we have to analyse the dependencies of the TargetClass
-			// again, because resetContext() of TestGenerationContext
-			// class is just generating a new TestCluster for some
-			// specific cases. and if the dependencies are not analysed,
-			// could be that for example inner classes are not loaded,
-			// and therefore their goals will not be considered
-			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
-					Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
-		} catch (ClassNotFoundException | RuntimeException e) {
-			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
-                    + (e.getMessage() != null ? e.getMessage()
-                            : e.toString()));
-			return false;
-		}
-
-		// Need to load class explicitly in case there are no test cases.
-		// If there are tests, then this is redundant
-		Properties.getTargetClass(false);
-
-		return true;
-	}
-
 	/**
 	 * Identify all JUnit tests starting with the given name prefix, instrument
 	 * and run tests
 	 */
 	public static void printClassStatistics() {
-		Sandbox.goingToExecuteSUTCode();
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
-		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		ExecutionTracer.disable();
+		ExecutionTracer.setCheckCallerThread(false);
 		try {
 			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
 					Arrays.asList(ClassPathHandler.getInstance().getClassPathElementsForTargetProject()));
 
+			Sandbox.goingToExecuteSUTCode();
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 			// Load SUT without initialising it
-			Class<?> targetClass = Properties.getTargetClass(false);
+			Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 			if(targetClass != null) {
 				LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 			} else {
@@ -179,25 +156,26 @@ public class ClassStatisticsPrinter {
 
 		StringBuilder allGoals = new StringBuilder();
 
-		Properties.Criterion oldCriterion[] = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
-		for (Criterion criterion : oldCriterion) {
-			if (!reinstrument(criterion)) {
-				return ;
-			}
+		List<TestFitnessFactory<?>> factories = TestGenerationStrategy.getFitnessFactories();
 
-			List<TestFitnessFactory<?>> factories = TestGenerationStrategy.getFitnessFactories();
-
-			int numGoals = 0;
-			for (TestFitnessFactory<?> factory : factories) {
-				if (Properties.PRINT_GOALS) {
-  					for (TestFitnessFunction goal : factory.getCoverageGoals()) {
-  					  allGoals.append(goal.toString() + java.lang.System.getProperty("line.separator"));
-  					}
+		int numCriterion = 0;
+		for (TestFitnessFactory<?> factory : factories) {
+			List<TestFitnessFunction> goals = (List<TestFitnessFunction>) factory.getCoverageGoals();
+			LoggingUtils.getEvoLogger().info("* Criterion " + Properties.CRITERION[numCriterion++]+ ": " + goals.size());
+			if (Properties.PRINT_GOALS) {
+				if (factory instanceof LineCoverageFactory) {
+					Collections.sort(goals, new Comparator<TestFitnessFunction>() {
+						@Override
+						public int compare(TestFitnessFunction l1, TestFitnessFunction l2) {
+							return Integer.compare(((LineCoverageTestFitness) l1).getLine(),
+									((LineCoverageTestFitness) l2).getLine());
+						}
+					});
 				}
-				numGoals += factory.getCoverageGoals().size();
+				for (TestFitnessFunction goal : goals) {
+					allGoals.append(goal.toString() + java.lang.System.getProperty("line.separator"));
+				}
 			}
-
-			LoggingUtils.getEvoLogger().info("* Criterion " + criterion + ": " + numGoals);
 		}
 
 		if (allGoals.length() > 0 && Properties.PRINT_GOALS) {

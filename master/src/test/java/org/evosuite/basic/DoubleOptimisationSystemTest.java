@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -48,7 +48,7 @@ public class DoubleOptimisationSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.PRIMITIVE_POOL = 0.0;
-		Properties.SEARCH_BUDGET = 30000;
+		Properties.SEARCH_BUDGET = 50000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

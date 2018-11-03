@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -35,6 +35,12 @@ public final class SmtConstantDeclaration {
 
 	public String getConstantSort() {
 		return sort;
+	}
+	
+	public String toString() {
+		SmtQueryPrinter printer = new SmtQueryPrinter();
+		String str = printer.print(this);
+		return str;
 	}
 
 }

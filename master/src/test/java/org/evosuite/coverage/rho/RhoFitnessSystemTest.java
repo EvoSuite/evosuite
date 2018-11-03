@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -44,7 +44,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.Compositional;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 
 public class RhoFitnessSystemTest extends SystemTestBase {
 
@@ -53,8 +53,10 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 		final File tmp = new File(path);
 		tmp.mkdirs();
 
+		Properties.COVERAGE_MATRIX_FILENAME = path + File.separator + Properties.TARGET_CLASS + ".matrix";
+
 		try {
-			final File matrix = new File(path + File.separator + Properties.TARGET_CLASS + ".matrix");
+			final File matrix = new File(Properties.COVERAGE_MATRIX_FILENAME);
 			matrix.createNewFile();
 
 			FileWriter fw = new FileWriter(matrix.getAbsoluteFile());
@@ -111,7 +113,7 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 		Assert.assertNotNull(result);
 
 		List<?> goals = RhoCoverageFactory.getGoals();
-		assertEquals(11, goals.size());
+		assertEquals(12, goals.size());
 
 		String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
 
@@ -149,10 +151,10 @@ public class RhoFitnessSystemTest extends SystemTestBase {
 		Assert.assertNotNull(result);
 
 		List<?> goals = RhoCoverageFactory.getGoals();
-		assertEquals(11, goals.size());
+		assertEquals(12, goals.size());
 		assertEquals(15, RhoCoverageFactory.getNumber_of_Ones());
 		assertEquals(2, RhoCoverageFactory.getNumber_of_Test_Cases());
-		assertEquals((15.0 / 11.0 / 2.0) - 0.5, RhoCoverageFactory.getRho(), 0.0001);
+		assertEquals((15.0 / 12.0 / 2.0) - 0.5, RhoCoverageFactory.getRho(), 0.0001);
 
 		String statistics_file = System.getProperty("user.dir") + File.separator + Properties.REPORT_DIR + File.separator + "statistics.csv";
 

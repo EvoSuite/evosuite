@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -48,6 +48,8 @@ public class DseWithUrlSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 50000;
 //		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		Properties.RESET_STATIC_FIELD_GETS = true;
+		Properties.P_FUNCTIONAL_MOCKING = 0.0;
+		Properties.P_REFLECTION_ON_PRIVATE = 0.0;
 
 	}
 

@@ -4,7 +4,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.runtime.classhandling.ResetManager;
+//import org.evosuite.runtime.classhandling.ResetManager;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
@@ -25,7 +25,7 @@ public abstract class TestEPACoverage {
 		Properties.TARGET_CLASS = "";
 
 		TestGenerationContext.getInstance().resetContext();
-		ResetManager.getInstance().clearManager();
+		//ResetManager.getInstance().clearManager();
 		Randomness.setSeed(42);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
@@ -44,7 +44,7 @@ public abstract class TestEPACoverage {
 			ExecutionTracer.disableTraceCalls();
 		}
 		TestGenerationContext.getInstance().resetContext();
-		ResetManager.getInstance().clearManager();
+		//ResetManager.getInstance().clearManager();
 		System.setProperties(currentProperties);
 		Properties.getInstance().resetToDefaults();
 	}

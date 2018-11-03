@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.vm;
 
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
+
 /**
  * 
  * @author galeotti
@@ -26,13 +28,13 @@ package org.evosuite.symbolic.vm;
  */
 public class ReferenceOperand implements SingleWordOperand {
 
-	private final Reference ref;
+	private final ReferenceExpression ref;
 
-	public ReferenceOperand(Reference o) {
+	public ReferenceOperand(ReferenceExpression o) {
 		this.ref = o;
 	}
 
-	public Reference getReference() {
+	public ReferenceExpression getReference() {
 		return this.ref;
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -178,6 +178,16 @@ public class GenerateMojo extends AbstractMojo {
 			//build the classpath
 			Set<String> alreadyAdded = new HashSet<>();
 			for(String element : project.getTestClasspathElements()){
+				if(element.toLowerCase().contains("powermock")){
+					//PowerMock just leads to a lot of troubles, as it includes tools.jar code
+					getLog().warn("Skipping PowerMock dependency at: "+element);
+					continue;
+				}
+				if(element.toLowerCase().contains("jmockit")){
+					//JMockit has same issue
+					getLog().warn("Skipping JMockit dependency at: "+element);
+					continue;
+				}
 				getLog().debug("TEST ELEMENT: "+element);
 				cp = addPathIfExists(cp, element, alreadyAdded);
 			}

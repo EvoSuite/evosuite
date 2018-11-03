@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,7 +22,7 @@ package com.examples.with.different.packagename.solver;
 public class TestCaseFloatMod {
 
 	public static boolean test(double x) {
-		if ((x != 0) && (x == (2.2 % 2.0))) {
+		if ((x != 0) && (x == (10.0 % 3.0))) {
 			return true;
 		} else {
 			return false;

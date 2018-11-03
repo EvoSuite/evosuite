@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -39,8 +39,7 @@ public class TestLogbackConfiguration {
 		LoggingUtils.changeLogbackFile("logback.xml");
 	}
 
-    @Ignore // With evosuite-logback.xml using the shaded logger this cannot work
-	@Test
+    @Test
 	public void testStdOutErr() {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(out));

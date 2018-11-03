@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -36,11 +36,11 @@ import org.apache.maven.project.MavenProject;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.runtime.InitializingListener;
+import org.evosuite.runtime.InitializingListenerUtils;
 
 /**
- * Workaround mojo to overcome bug in Maven.
- * Needed when EvoSuite tests are run together with manual ones
- *
+ * Mojo needed to prepare the EvoSuite tests for execution.
+ * This is needed to make sure that bytecode is properly instrumented.
  *
  */
 @Mojo( name = "prepare")
@@ -63,7 +63,7 @@ public class PrepareMojo extends AbstractMojo{
 		
 		File dir = new File(dirName);
 		getLog().info("Analyzing test folder: "+dir.getAbsolutePath());
-		//NOTE: this test can fail, likely due to permissions...
+		//NOTE: this check can fail, likely due to permissions...
 		//if(!dir.isDirectory()){
 		//	getLog().error("Target folder for compiled tests is not a folder: "+dir.getAbsolutePath());
 		//	return;
@@ -74,24 +74,8 @@ public class PrepareMojo extends AbstractMojo{
 			return;
 		}
 		
-		List<String> list = new ArrayList<>();
-		
-		Iterator<File> iterator =  FileUtils.iterateFiles(dir, new String[]{"class"}, true);
-		while(iterator.hasNext()){
-			File file = iterator.next();
-			/*
-			 * not a robust check, as that parameter could had been changed.
-			 * but anyway, this class is a tmp hack till Maven gets fixed
-			 */
-			if(! file.getName().endsWith(Properties.SCAFFOLDING_SUFFIX+".class")){
-				continue;
-			}
-			
-			String resource = file.getAbsolutePath().substring(dir.getAbsolutePath().length() + 1 , file.getAbsolutePath().length());
-			String className = ResourceList.getClassNameFromResourcePath(resource);
-			list.add(className);
-		}
-		
+		List<String> list = InitializingListenerUtils.scanClassesToInit(dir);
+
 		getLog().info("Found "+list.size()+" EvoSuite scaffolding files");
 		
 		File scaffolding = new File(project.getBasedir() + File.separator + InitializingListener.SCAFFOLDING_LIST_FILE_STRING);

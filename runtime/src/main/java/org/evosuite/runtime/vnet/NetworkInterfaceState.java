@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -102,7 +102,7 @@ public class NetworkInterfaceState {
 	}
 
 	public byte[] getMacAddr(){
-		return mac.clone(); 
+		return mac!=null ? mac.clone() : null;
 	}
 	
 	public int getMTU(){

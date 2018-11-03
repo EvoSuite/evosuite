@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,10 +19,10 @@
  */
 package org.evosuite.symbolic.vm.string.tokenizer;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.token.NewTokenizerExpr;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -41,27 +41,27 @@ public final class StringTokenizer_Init extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// symbolic receiver (new object)
-		NonNullReference symb_str_tokenizer = (NonNullReference) this
+		ReferenceConstant symb_str_tokenizer = (ReferenceConstant) this
 				.getSymbReceiver();
 
 		// string argument
 		String conc_str = (String) this.getConcArgument(0);
-		Reference symb_str = this.getSymbArgument(0);
+		ReferenceExpression symb_str = this.getSymbArgument(0);
 
 		// delim argument
 		String conc_delim = (String) this.getConcArgument(1);
-		Reference symb_delim = this.getSymbArgument(1);
+		ReferenceExpression symb_delim = this.getSymbArgument(1);
 
-		if (symb_str instanceof NonNullReference
-				&& symb_delim instanceof NonNullReference) {
-			NonNullReference non_null_symb_string = (NonNullReference) symb_str;
+		if (symb_str instanceof ReferenceConstant
+				&& symb_delim instanceof ReferenceConstant) {
+			ReferenceConstant non_null_symb_string = (ReferenceConstant) symb_str;
 			assert conc_str != null;
 
 			StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 					SymbolicHeap.$STRING_VALUE, conc_str, non_null_symb_string,
 					conc_str);
 
-			NonNullReference non_null_symb_delim = (NonNullReference) symb_delim;
+			ReferenceConstant non_null_symb_delim = (ReferenceConstant) symb_delim;
 			assert conc_delim != null;
 
 			StringValue delimExpr = env.heap.getField(Types.JAVA_LANG_STRING,

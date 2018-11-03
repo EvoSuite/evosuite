@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -131,15 +131,16 @@ public class LocalSearchSystemTest extends SystemTestBase {
 		String targetClass = FloatLocalSearchExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.LOCAL_SEARCH_RATE = 2;
+		Properties.LOCAL_SEARCH_RATE = 2; // no adaptation
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.TESTS;
+		Properties.LOCAL_SEARCH_BUDGET = 10;
 		Properties.LOCAL_SEARCH_REFERENCES = false;
 		Properties.LOCAL_SEARCH_ARRAYS = false;
 		
 		// Make sure that local search will have effect
 		Properties.CHROMOSOME_LENGTH = 5;
 		Properties.MAX_INITIAL_TESTS = 2;
-		// Properties.SEARCH_BUDGET = 20000;
+		//Properties.SEARCH_BUDGET = 20000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

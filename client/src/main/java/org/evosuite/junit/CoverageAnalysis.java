@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -458,107 +458,102 @@ public class CoverageAnalysis {
 		}
 
 		// A dummy Chromosome
-		TestChromosome dummy = new TestChromosome();
-		dummy.setChanged(false);
+        TestChromosome dummy = new TestChromosome();
+        dummy.setChanged(false);
 
-		// Execution result of a dummy Test Case
-		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+        // Execution result of a dummy Test Case
+        ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 
-		// I need to populate the covered goals for EPAADJACENTEDGES because they are generated on demand
-		if(criterion == Criterion.EPAADJACENTEDGES) {
-			for (int index_test = 0; index_test < results.size(); index_test++) {
-				JUnitResult tR = results.get(index_test);
+			// I need to populate the covered goals for EPAADJACENTEDGES because they are generated on demand
+			if(criterion == Criterion.EPAADJACENTEDGES) {
+				for (int index_test = 0; index_test < results.size(); index_test++) {
+					JUnitResult tR = results.get(index_test);
 
-				ExecutionTrace trace = tR.getExecutionTrace();
-				executionResult.setTrace(trace);
-				EPAAdjacentEdgesCoverageSuiteFitness.constructGoals(executionResult, null);
-			}
-
-			goals = factory.getCoverageGoals();
-			totalGoals += EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
-		} else {
-			totalGoals += goals.size();
-		}
-		
-		//FIXME: EXCEPTION criterion needs to populate the exception covered goals similar to EPAADJACENTEDGES
-
-		// coverage matrix (each row represents the coverage of each test case
-		// and each column represents the coverage of each component (e.g.,
-		// line)
-		// this coverage matrix is useful for Rho fitness
-		boolean[][] coverage_matrix = new boolean[results.size()][goals.size() + 1]; // +1
-																						// because
-																						// we
-																						// also
-																						// want
-																						// to
-																						// include
-																						// the
-																						// test
-																						// result
-		BitSet covered = new BitSet(goals.size());
-
-		for (int index_test = 0; index_test < results.size(); index_test++) {
-			JUnitResult tR = results.get(index_test);
-
-			ExecutionTrace trace = tR.getExecutionTrace();
-			executionResult.setTrace(trace);
-			dummy.getTestCase().clearCoveredGoals();
-			dummy.setLastExecutionResult(executionResult);
-
-			if (criterion == Criterion.MUTATION || criterion == Criterion.STRONGMUTATION) {
-				for (Integer mutationID : trace.getTouchedMutants()) {
-					Mutation mutation = MutationPool.getMutant(mutationID);
-
-					if (goals.contains(mutation)) {
-						MutationObserver.activateMutation(mutationID);
-						List<JUnitResult> mutationResults = executeTests(tR.getJUnitClass());
-						MutationObserver.deactivateMutation();
-
-						for (JUnitResult mR : mutationResults) {
-							if (mR.getFailureCount() != tR.getFailureCount()) {
-								logger.info("Mutation killed: " + mutationID);
-								covered.set(mutation.getId());
-								coverage_matrix[index_test][mutationID.intValue()] = true;
-								break;
-							}
-						}
-					}
+					ExecutionTrace trace = tR.getExecutionTrace();
+					executionResult.setTrace(trace);
+					EPAAdjacentEdgesCoverageSuiteFitness.constructGoals(executionResult, null);
 				}
+
+				goals = factory.getCoverageGoals();
+				totalGoals += EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
 			} else {
-				for (int index_component = 0; index_component < goals.size(); index_component++) {
-					TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
-
-					if (goal.isCovered(dummy)) {
-						covered.set(index_component);
-						coverage_matrix[index_test][index_component] = true;
-					} else {
-						coverage_matrix[index_test][index_component] = false;
-					}
-				}
+				totalGoals += goals.size();
 			}
 
-			coverage_matrix[index_test][goals.size()] = tR.wasSuccessful();
-		}
-		totalCoveredGoals += covered.cardinality();
+        // coverage matrix (each row represents the coverage of each test case
+        // and each column represents the coverage of each component (e.g., line)
+        // this coverage matrix is useful for Rho fitness
+    	boolean[][] coverage_matrix = new boolean[results.size()][goals.size() + 1]; // +1 because we also want to include the test result
+    	BitSet covered = new BitSet(goals.size());
 
-		if (Properties.COVERAGE_MATRIX) {
-			CoverageReportGenerator.writeCoverage(coverage_matrix, criterion);
-		}
+        for (int index_test = 0; index_test < results.size(); index_test++) {
+        	JUnitResult tR = results.get(index_test);
 
-		StringBuilder str = new StringBuilder();
-		for (int index_component = 0; index_component < goals.size(); index_component++) {
-			str.append(covered.get(index_component) ? "1" : "0");
-		}
-		logger.info("* CoverageBitString " + str.toString());
+        	ExecutionTrace trace = tR.getExecutionTrace();
+            executionResult.setTrace(trace);
+            dummy.getTestCase().clearCoveredGoals();
+            dummy.setLastExecutionResult(executionResult);
 
-		long goalsSize = goals.size();
-		if(criterion == Criterion.EPAADJACENTEDGES) {
-			goalsSize = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
-		}
+            if (criterion == Criterion.MUTATION
+            		|| criterion ==  Criterion.STRONGMUTATION) {
+            	for (Integer mutationID : trace.getTouchedMutants()) {
+            		Mutation mutation = MutationPool.getMutant(mutationID);
 
-		RuntimeVariable bitStringVariable = CoverageCriteriaAnalyzer.getBitStringVariable(criterion);
-		if (goals.isEmpty()) {
+            		if (goals.contains(mutation)) {
+            			MutationObserver.activateMutation(mutationID);
+            			List<JUnitResult> mutationResults = executeTests(tR.getJUnitClass());
+            			MutationObserver.deactivateMutation();
+
+            			for (JUnitResult mR : mutationResults) {
+            				if (mR.getFailureCount() != tR.getFailureCount()) {
+            					logger.info("Mutation killed: " + mutationID);
+            					covered.set(mutation.getId());
+                                coverage_matrix[index_test][mutationID.intValue()] = true;
+                                break;
+            				}
+            			}
+            		}
+            	}
+            } else {
+            	
+            	if (criterion==Criterion.EXCEPTION) {
+            		// TODO collect exception goals from execution results
+            	}
+            	
+	            for (int index_component = 0; index_component < goals.size(); index_component++) {
+	            	TestFitnessFunction goal = (TestFitnessFunction) goals.get(index_component);
+
+	                if (goal.isCovered(dummy)) {
+	                	covered.set(index_component);
+	                	coverage_matrix[index_test][index_component] = true;
+	                }
+	                else {
+	                	coverage_matrix[index_test][index_component] = false;
+	                }
+	            }
+            }
+
+            coverage_matrix[index_test][goals.size()] = tR.wasSuccessful();
+        }
+        totalCoveredGoals += covered.cardinality();
+
+        if (Properties.COVERAGE_MATRIX) {
+		    CoverageReportGenerator.writeCoverage(coverage_matrix, criterion);
+        }
+
+        StringBuilder str = new StringBuilder();
+        for (int index_component = 0; index_component < goals.size(); index_component++) {
+        	str.append(covered.get(index_component) ? "1" : "0");
+        }
+        logger.info("* CoverageBitString " + str.toString());
+
+        long goalsSize = goals.size();
+        if(criterion == Criterion.EPAADJACENTEDGES) {
+        	goalsSize = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
+        }
+
+        RuntimeVariable bitStringVariable = CoverageCriteriaAnalyzer.getBitStringVariable(criterion);
+        if (goals.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion + ": 100% (no goals)");
 			ClientServices.getInstance().getClientNode()
 					.trackOutputVariable(CoverageCriteriaAnalyzer.getCoverageVariable(criterion), 1.0);

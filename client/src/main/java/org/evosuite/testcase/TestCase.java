@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -41,8 +41,7 @@ import org.evosuite.utils.Listenable;
  * @author Gordon Fraser
  * @author Sebastian Steenbuck
  */
-public interface TestCase extends Iterable<Statement>, Cloneable,
-        Listenable<Void> {
+public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Void> {
 
 	/**
 	 * Get an unique id representing this test.
@@ -73,6 +72,13 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
 	 */
 	public void addCoveredGoal(TestFitnessFunction goal);
+
+	/**
+	 * Remove goal that may have been covered
+	 * 
+	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 */
+	public void removeCoveredGoal(TestFitnessFunction goal);
 
 	/**
 	 * Keep track of an additional test failure
@@ -393,6 +399,8 @@ public interface TestCase extends Iterable<Statement>, Cloneable,
 	public boolean isEmpty();
 
 	public boolean isFailing();
+
+	public void setFailing();
 
 	/**
 	 * Check if the current test case does cover the given goal.

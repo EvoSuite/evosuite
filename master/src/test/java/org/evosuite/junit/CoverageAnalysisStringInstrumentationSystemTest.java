@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -72,22 +72,23 @@ public class CoverageAnalysisStringInstrumentationSystemTest extends SystemTestB
 
         Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
 
-        assertEquals(19, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
+        assertEquals(20, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
         assertEquals(19, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
-        assertEquals(1.0, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
+        assertEquals(0.95, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
-        assertEquals("1111111111111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+        assertEquals("01111111111111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +
         		Properties.REPORT_DIR + File.separator +
-        		"data" + File.separator + Properties.TARGET_CLASS + "." + Properties.Criterion.LINE.name() + ".matrix";
+        		"data" + File.separator + Properties.TARGET_CLASS + File.separator +
+        		Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("CoverageMatrix file " + coveragematrix_file);
 
         List<String> lines = Files.readAllLines(Paths.get(coveragematrix_file));
         // coverage of one test case
         assertEquals(1, lines.size());
         // all components have been covered ("1"), and the test case pass ("+")
-        assertTrue(lines.get(0).equals("1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 +"));
+        assertEquals("0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 +", lines.get(0));
 	}
 }

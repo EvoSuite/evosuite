@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -32,16 +32,16 @@ public class MockRuntimeException extends RuntimeException  implements OverrideM
 	 * So, just need to override constructors, and delegate methods.
 	 * 
 	 *  All subclasses will have same code, albeit with different class names.
-	 *  Unfortunately, we end up with copy&paste, which cannot be avoided, as
+	 *  Unfortunately, we end up with copy&amp;paste, which cannot be avoided, as
 	 *  we cannot have multi-inheritance. 
 	 *  
-	 *  WARN: any change would likely end up in having to redo the copy&paste :(  
+	 *  WARN: any change would likely end up in having to redo the copy&amp;paste :(
 	 */
 	
 	private static final long serialVersionUID = 8001149552489118355L;
 
 	/**
-	 * Instead of copy&paste functionalities from MockThrowable, use a delegate
+	 * Instead of copy&amp;paste functionalities from MockThrowable, use a delegate
 	 */
 	private volatile MockThrowable delegate;
 	
@@ -52,7 +52,10 @@ public class MockRuntimeException extends RuntimeException  implements OverrideM
 	private MockThrowable getDelegate(){
 		if(delegate == null){
 			delegate = new MockThrowable(); //placeholder
-			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+			if(super.getStackTrace().length > 0) {
+				// stack trace may be empty
+				delegate.setOriginForDelegate(super.getStackTrace()[0]);
+			}
 		}
 		return delegate;
 	}
@@ -62,25 +65,37 @@ public class MockRuntimeException extends RuntimeException  implements OverrideM
 	public MockRuntimeException() {
 		super();
 		delegate = new MockThrowable();
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 	
 	public MockRuntimeException(String message) {
 		super(message);
 		delegate = new MockThrowable(message);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 
 	public MockRuntimeException(Throwable cause) {
 		super(cause);
 		delegate = new MockThrowable(cause);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 
 	public MockRuntimeException(String message, Throwable cause) {
 		super(message, cause);
 		delegate = new MockThrowable(message, cause);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 	
 	protected MockRuntimeException(String message, Throwable cause,
@@ -88,7 +103,10 @@ public class MockRuntimeException extends RuntimeException  implements OverrideM
 			boolean writableStackTrace) {
 		super(message,cause,enableSuppression,writableStackTrace);
 		delegate = new MockThrowable(message, cause, enableSuppression, writableStackTrace);
-		delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		if(super.getStackTrace().length > 0) {
+			// stack trace may be empty
+			delegate.setOriginForDelegate(super.getStackTrace()[0]);
+		}
 	}
 	
 	

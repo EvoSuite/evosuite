@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -321,6 +321,53 @@ public class TestCoverageGoalNameGeneration {
         assertEquals("testFooTakingNoArguments",     naming.getName(test1));
         assertEquals("testFooTakingInt", naming.getName(test2));
         assertEquals("testFooTaking2Arguments", naming.getName(test3));
+    }
+
+    @Test
+    public void testOverloadedMethodDifferentArgArrayType() {
+        TestCase test1 = new DefaultTestCase();
+        MethodCoverageTestFitness goal1 = new MethodCoverageTestFitness("FooClass", "foo([B)");
+        test1.addCoveredGoal(goal1);
+        OutputCoverageTestFitness outputGoal = new OutputCoverageTestFitness(new OutputCoverageGoal("FooClass", "foo", stringType(), BOOL_FALSE));
+        test1.addCoveredGoal(outputGoal);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        MethodCoverageTestFitness goal2 = new MethodCoverageTestFitness("FooClass", "foo([I)");
+        test2.addCoveredGoal(goal2);
+        test2.addCoveredGoal(outputGoal);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooTakingByteArray",     naming.getName(test1));
+        assertEquals("testFooTakingIntArray", naming.getName(test2));
+    }
+
+    @Test
+    public void testMultipleRedundantGoals() {
+        MethodCoverageTestFitness methodGoal1 = new MethodCoverageTestFitness("FooClass", "foo(SS)Z");
+        MethodCoverageTestFitness methodGoal2 = new MethodCoverageTestFitness("FooClass", "foo(Ljava/lang/Object;Ljava/lang/Object;)Z");
+
+        OutputCoverageTestFitness outputGoal1 = new OutputCoverageTestFitness(new OutputCoverageGoal("FooClass", "foo(SS)Z", Type.BOOLEAN_TYPE, BOOL_FALSE));
+        OutputCoverageTestFitness outputGoal2 = new OutputCoverageTestFitness(new OutputCoverageGoal("FooClass", "foo(Ljava/lang/Object;Ljava/lang/Object;)Z", Type.BOOLEAN_TYPE, BOOL_FALSE));
+
+        TestCase test1 = new DefaultTestCase();
+        test1.addCoveredGoal(methodGoal1);
+        test1.addCoveredGoal(outputGoal1);
+
+        TestCase test2 = new DefaultTestCase();
+        test2.addStatement(new IntPrimitiveStatement(test2, 0)); // Need to add statements to change hashCode
+        test2.addCoveredGoal(methodGoal2);
+        test2.addCoveredGoal(outputGoal2);
+
+        List<TestCase> tests = new ArrayList<>();
+        tests.add(test1);
+        tests.add(test2);
+        CoverageGoalTestNameGenerationStrategy naming = new CoverageGoalTestNameGenerationStrategy(tests);
+        assertEquals("testFooTaking2Shorts",     naming.getName(test1));
+        assertEquals("testFooTaking2Objects", naming.getName(test2));
     }
 
     @Test

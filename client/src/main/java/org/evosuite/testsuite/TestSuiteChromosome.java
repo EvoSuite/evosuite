@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,7 +21,7 @@ package org.evosuite.testsuite;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +45,7 @@ import org.evosuite.testsuite.localsearch.TestSuiteLocalSearch;
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
 
 	/** Secondary objectives used during ranking */
-	private static final List<SecondaryObjective<?>> secondaryObjectives = new ArrayList<SecondaryObjective<?>>();
+	private static final List<SecondaryObjective<TestSuiteChromosome>> secondaryObjectives = new ArrayList<SecondaryObjective<TestSuiteChromosome>>();
 	private static int secondaryObjIndex = 0;
 	private static final long serialVersionUID = 88380759969800800L;
 
@@ -56,7 +56,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @param objective
 	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
-	public static void addSecondaryObjective(SecondaryObjective<?> objective) {
+	public static void addSecondaryObjective(SecondaryObjective<TestSuiteChromosome> objective) {
 		secondaryObjectives.add(objective);
 	}
 
@@ -215,18 +215,17 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<TestFitnessFunction> getCoveredGoals() {
-		Set<TestFitnessFunction> goals = new HashSet<TestFitnessFunction>();
+		Set<TestFitnessFunction> goals = new LinkedHashSet<TestFitnessFunction>();
 		for (TestChromosome test : tests) {
-			goals.addAll(test.getTestCase().getCoveredGoals());
+			final Set<TestFitnessFunction> goalsForTest = test.getTestCase().getCoveredGoals();
+			goals.addAll(goalsForTest);
 		}
 		return goals;
 	}
 	
 	public void removeCoveredGoal(TestFitnessFunction f) {
 		for (TestChromosome test : tests) {
-			if(test.getTestCase().getCoveredGoals().remove(f)) {
-				
-			}
+			test.getTestCase().removeCoveredGoal(f);
 		}
 	}
 
@@ -248,7 +247,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean localSearch(LocalSearchObjective<? extends Chromosome> objective) {
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		return localSearch.doSearch(this, (LocalSearchObjective<TestSuiteChromosome>) objective);
 	}
 	

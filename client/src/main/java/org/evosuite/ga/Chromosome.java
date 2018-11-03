@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,7 +22,7 @@ package org.evosuite.ga;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+import org.evosuite.Properties;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
@@ -47,7 +47,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	protected Chromosome() {
 		// empty
 	}
-	protected boolean toBeUpdated=false;
 	/** Last recorded fitness value */
 	private LinkedHashMap<FitnessFunction<?>, Double> fitnessValues = new LinkedHashMap<FitnessFunction<?>, Double>();
 	
@@ -79,6 +78,21 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/** */
 	protected double distance = 0.0;
+
+	/** Keep track of how many times this Chromosome has been mutated */
+	private int numberOfMutations = 0;
+
+	/** Keep track of how many times this Chromosome has been evaluated */
+	private int numberOfEvaluations = 0;
+
+	// It is a non-negative number and it quantifies the tolerance of the system accepting a worse
+	// solution than the existing one. (field used by Chemical Reaction Optimization algorithms)
+	protected double kineticEnergy = Properties.INITIAL_KINETIC_ENERGY;
+
+	// When a molecule undergoes a collision, one of the elementary reactions will be triggered and it
+	// may experience a change in its molecular structure. It is a record of the total number of collisions
+	// a molecule has taken. (field used by Chemical Reaction Optimization algorithms)
+	protected int numCollisions = 0;
 
 	/**
 	 * Return current fitness value
@@ -123,14 +137,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		this.previousFitnessValues.putAll(lastFits);
 	}
 
-	public boolean isToBeUpdated() {
-		return toBeUpdated;
-	}
-
-	public void isToBeUpdated(boolean toBeUpdated) {
-		this.toBeUpdated = toBeUpdated;
-	}
-
 	/**
 	 * Adds a fitness function and sets fitness, coverage, and numCoveredGoal
 	 * default.
@@ -169,11 +175,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 *            the coverage value for {@code ff}
 	 */
 	public void addFitness(FitnessFunction<?> ff, double fitnessValue, double coverage) {
-		this.fitnessValues.put(ff, fitnessValue);
-		this.previousFitnessValues.put(ff, fitnessValue);
-		this.coverageValues.put(ff, coverage);
-		this.numsCoveredGoals.put(ff, 0);
-		this.numsNotCoveredGoals.put(ff, -1);
+		this.addFitness(ff, fitnessValue, coverage, 0);
 	}
 
 	/**
@@ -375,9 +377,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * Getter for the field <code>coverage</code>.
 	 * </p>
 	 *
-	 * Returns a single coverage value if
-	 * {@code Properties.COMPOSITIONAL_FITNESS} is {@code false}. Otherwise (
-	 * {@code Properties.COMPOSITIONAL_FITNESS==true}), returns the average of
+	 * Returns a single coverage value calculated as the average of
 	 * coverage values for all fitness functions.
 	 *
 	 * @return a double.
@@ -536,5 +536,103 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 				return coverageValues.get(fitnessFunction);
 		}
 		return 0.0;
+	}
+
+	/**
+	 * Increases by one the number of times this chromosome has been mutated
+	 */
+	public void increaseNumberOfMutations() {
+		this.numberOfMutations++;
+	}
+
+	/**
+	 * Return number of times this chromosome has been mutated
+	 */
+	public int getNumberOfMutations() {
+		return this.numberOfMutations;
+	}
+
+	/**
+	 * Set number of times this chromosome has been mutated
+	 */
+	public void setNumberOfMutations(int numberOfMutations) {
+		this.numberOfMutations = numberOfMutations;
+	}
+
+	/**
+	 * Increases by one the number of times this chromosome has been evaluated
+	 */
+	public void increaseNumberOfEvaluations() {
+		this.numberOfEvaluations++;
+	}
+
+	/**
+	 * Return number of times this chromosome has been evaluated
+	 */
+	public int getNumberOfEvaluations() {
+		return this.numberOfEvaluations;
+	}
+
+	/**
+	 * Set number of times this chromosome has been evaluated
+	 */
+	public void setNumberOfEvaluations(int numberOfEvaluations) {
+		this.numberOfEvaluations = numberOfEvaluations;
+	}
+
+	/**
+	 * Returns the tolerance of the system accepting a worse solution than the existing one. (Note:
+	 * method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @return a double value
+	 */
+	public double getKineticEnergy() {
+		return this.kineticEnergy;
+	}
+
+	/**
+	 * Sets the tolerance of the system accepting a worse solution than the existing one. (Note:
+	 * method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @param kineticEnergy a double value
+	 */
+	public void setKineticEnergy(double kineticEnergy) {
+		this.kineticEnergy = kineticEnergy;
+	}
+
+	/**
+	 * Returns the total number of collisions a chromosome (i.e., a molecule in a CRO scenario) has
+	 * taken. (Note: method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @return a integer value
+	 */
+	public int getNumCollisions() {
+		return this.numCollisions;
+	}
+
+	/**
+	 * Sets the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario).
+	 * (Note: method used by Chemical Reaction Optimization algorithms)
+	 * 
+	 * @param numCollisions a integer value
+	 */
+	public void setNumCollisions(int numCollisions) {
+		this.numCollisions = numCollisions;
+	}
+
+	/**
+	 * Sets the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario) to
+	 * zero. (Note: method used by Chemical Reaction Optimization algorithms)
+	 */
+	public void resetNumCollisions() {
+		this.numCollisions = 0;
+	}
+
+	/**
+	 * Increases the total number of collisions of a chromosome (i.e., a molecule in a CRO scenario)
+	 * by one. (Note: method used by Chemical Reaction Optimization algorithms)
+	 */
+	public void increaseNumCollisionsByOne() {
+		this.numCollisions++;
 	}
 }

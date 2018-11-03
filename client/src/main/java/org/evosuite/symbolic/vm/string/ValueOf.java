@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,10 +20,10 @@
 package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.IntegerToStringCast;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -43,14 +43,14 @@ public abstract class ValueOf extends SymbolicFunction {
 
 			IntegerValue symb_arg = this.getSymbIntegerArgument(0);
 
-			Reference symb_ret_val = this.getSymbRetVal();
+			ReferenceExpression symb_ret_val = this.getSymbRetVal();
 			String conc_ret_val = (String) this.getConcRetVal();
 
 			if (symb_arg.containsSymbolicVariable()) {
 				StringValue symbExpr = new IntegerToStringCast(symb_arg,
 						conc_ret_val);
 
-				NonNullReference symb_non_null_ret_val = (NonNullReference) symb_ret_val;
+				ReferenceConstant symb_non_null_ret_val = (ReferenceConstant) symb_ret_val;
 
 				env.heap.putField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_ret_val,
@@ -75,22 +75,22 @@ public abstract class ValueOf extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			Reference symb_arg = this.getSymbArgument(0);
+			ReferenceExpression symb_arg = this.getSymbArgument(0);
 			Object conc_arg = this.getConcArgument(0);
 
-			Reference symb_ret_val = this.getSymbRetVal();
+			ReferenceExpression symb_ret_val = this.getSymbRetVal();
 			String conc_ret_val = (String) this.getConcRetVal();
 
 			if (conc_arg != null && conc_arg instanceof String) {
 
 				String conc_str_arg = (String) conc_arg;
-				NonNullReference symb_non_null_str = (NonNullReference) symb_arg;
+				ReferenceConstant symb_non_null_str = (ReferenceConstant) symb_arg;
 
 				StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_str_arg,
 						symb_non_null_str, conc_str_arg);
 
-				NonNullReference symb_non_null_ret_val = (NonNullReference) symb_ret_val;
+				ReferenceConstant symb_non_null_ret_val = (ReferenceConstant) symb_ret_val;
 
 				env.heap.putField(Types.JAVA_LANG_STRING,
 						SymbolicHeap.$STRING_VALUE, conc_ret_val,

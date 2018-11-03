@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,10 +21,10 @@ package org.evosuite.symbolic.vm.string.tokenizer;
 
 import java.util.StringTokenizer;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.token.NextTokenizerExpr;
 import org.evosuite.symbolic.expr.token.StringNextTokenExpr;
 import org.evosuite.symbolic.expr.token.TokenizerExpr;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -42,7 +42,7 @@ public final class NextToken extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullReference symb_receiver = this.getSymbReceiver();
+		ReferenceConstant symb_receiver = this.getSymbReceiver();
 		StringTokenizer conc_receiver = (StringTokenizer) this
 				.getConcReceiver();
 
@@ -53,7 +53,7 @@ public final class NextToken extends SymbolicFunction {
 
 		if (tokenizerExpr != null && tokenizerExpr.containsSymbolicVariable()) {
 
-			NonNullReference symb_ret_val = (NonNullReference) this
+			ReferenceConstant symb_ret_val = (ReferenceConstant) this
 					.getSymbRetVal();
 			String conc_ret_val = (String) this.getConcRetVal();
 

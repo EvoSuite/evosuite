@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,20 +19,20 @@
  */
 package org.evosuite.coverage.ibranch;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -58,17 +58,17 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	/** Branchless methods map. */
 	private final Map<String, Map<CallContext, IBranchTestFitness>> methodsMap;
 
-	private final Set<IBranchTestFitness> toRemoveBranchesT = new HashSet<>();
-	private final Set<IBranchTestFitness> toRemoveBranchesF = new HashSet<>();
-	private final Set<IBranchTestFitness> toRemoveRootBranches = new HashSet<>();
+	private final Set<IBranchTestFitness> toRemoveBranchesT = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> toRemoveBranchesF = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> toRemoveRootBranches = new LinkedHashSet<>();
 
-	private final Set<IBranchTestFitness> removedBranchesT = new HashSet<>();
-	private final Set<IBranchTestFitness> removedBranchesF = new HashSet<>();
-	private final Set<IBranchTestFitness> removedRootBranches = new HashSet<>();
+	private final Set<IBranchTestFitness> removedBranchesT = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> removedBranchesF = new LinkedHashSet<>();
+	private final Set<IBranchTestFitness> removedRootBranches = new LinkedHashSet<>();
 
 	public IBranchSuiteFitness() {
-		goalsMap = new HashMap<>();
-		methodsMap = new HashMap<>();
+		goalsMap = new LinkedHashMap<>();
+		methodsMap = new LinkedHashMap<>();
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
 		countGoals(branchGoals);
@@ -79,20 +79,23 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 				Map<CallContext, Set<IBranchTestFitness>> innermap = goalsMap.get(branchId);
 				if (innermap == null) {
-					goalsMap.put(branchId, innermap = new HashMap<>());
+					goalsMap.put(branchId, innermap = new LinkedHashMap<>());
 				}
 				Set<IBranchTestFitness> tempInSet = innermap.get(goal.getContext());
 				if (tempInSet == null) {
-					innermap.put(goal.getContext(), tempInSet = new HashSet<>());
+					innermap.put(goal.getContext(), tempInSet = new LinkedHashSet<>());
 				}
 				tempInSet.add(goal);
 			} else {
 				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
 				Map<CallContext, IBranchTestFitness> innermap = methodsMap.get(methodName);
 				if (innermap == null) {
-					methodsMap.put(methodName, innermap = new HashMap<>());
+					methodsMap.put(methodName, innermap = new LinkedHashMap<>());
 				}
 				innermap.put(goal.getContext(), goal);
+			}
+			if (Properties.TEST_ARCHIVE) {
+				Archive.getArchiveInstance().addTarget(goal);
 			}
 			logger.info("Context goal: " + goal.toString());
 		}
@@ -147,10 +150,18 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		double fitness = 0.0; // branchFitness.getFitness(suite);
 		List<ExecutionResult> results = runTestSuite(suite);
 
-		Map<IBranchTestFitness, Double> distanceMap = new HashMap<>();
-		Map<IBranchTestFitness, Integer> callCount = new HashMap<>();
+		Map<IBranchTestFitness, Double> distanceMap = new LinkedHashMap<>();
+		Map<IBranchTestFitness, Integer> callCount = new LinkedHashMap<>();
 
 		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException()) {
+				continue;
+			}
+
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			for (Integer branchId : result.getTrace().getTrueDistancesContext().keySet()) {
 				Map<CallContext, Double> trueMap = result.getTrace().getTrueDistancesContext()
@@ -166,18 +177,17 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceT, 0.0) == 0) {
 						if(updateChromosome)
-						result.test.addCoveredGoal(goalT);
-						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalT, result);
-							toRemoveBranchesT.add(goalT);
-							suite.isToBeUpdated(true);
-						}
+						  test.getTestCase().addCoveredGoal(goalT);
+						toRemoveBranchesT.add(goalT);
+					}
+
+					if (Properties.TEST_ARCHIVE) {
+						Archive.getArchiveInstance().updateArchive(goalT, test, distanceT);
 					}
 				}
 			}
 
 			for (Integer branchId : result.getTrace().getFalseDistancesContext().keySet()) {
-
 				Map<CallContext, Double> falseMap = result.getTrace().getFalseDistancesContext()
 						.get(branchId);
 
@@ -191,12 +201,12 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					}
 					if (Double.compare(distanceF, 0.0) == 0) {
 						if(updateChromosome)
-							result.test.addCoveredGoal(goalF);
-						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goalF, result);
-							toRemoveBranchesF.add(goalF);
-							suite.isToBeUpdated(true);
-						}
+							test.getTestCase().addCoveredGoal(goalF);
+						toRemoveBranchesF.add(goalF);
+					}
+
+					if (Properties.TEST_ARCHIVE) {
+						Archive.getArchiveInstance().updateArchive(goalF, test, distanceF);
 					}
 				}
 			}
@@ -214,11 +224,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 					if (count > 0) {
 						if(updateChromosome)
 							result.test.addCoveredGoal(goal);
-						if(Properties.TEST_ARCHIVE) {
-							TestsArchive.instance.putTest(this, goal, result);
-							toRemoveRootBranches.add(goal);
-							suite.isToBeUpdated(true);
-						}
+						toRemoveRootBranches.add(goal);
 					}
 				}
 			}
@@ -272,10 +278,10 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public boolean updateCoveredGoals() {
-
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
-		
+		}
+
 		for (IBranchTestFitness method : toRemoveRootBranches) {
 			boolean removed = branchGoals.remove(method);
 

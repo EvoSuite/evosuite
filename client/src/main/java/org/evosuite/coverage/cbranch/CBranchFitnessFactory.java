@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -50,7 +50,7 @@ public class CBranchFitnessFactory extends AbstractFitnessFactory<CBranchTestFit
 	@Override
 	public List<CBranchTestFitness> getCoverageGoals() {
 		//TODO this creates duplicate goals. Momentary fixed using a Set, but it should be optimised
-		Set<CBranchTestFitness> goals = new HashSet<CBranchTestFitness>();
+		Set<CBranchTestFitness> goals = new HashSet<>();
 
 		// retrieve set of branches
 		BranchCoverageFactory branchFactory = new BranchCoverageFactory();
@@ -62,8 +62,7 @@ public class CBranchFitnessFactory extends AbstractFitnessFactory<CBranchTestFit
 			logger.info("Adding context branches for " + branchGoal.toString());
 			for (CallContext context : callGraph.getMethodEntryPoint(branchGoal.getClassName(),
 				                          branchGoal.getMethod())) {
-
-				goals.add(new CBranchTestFitness(branchGoal.getBranchGoal(), context));				
+				goals.add(new CBranchTestFitness(branchGoal.getBranchGoal(), context));
 			}
 		} 
 		

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -45,8 +45,12 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
 		return sum;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override
@@ -54,8 +58,12 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective<Tes
 		return getNumExceptions(chromosome1) - getNumExceptions(chromosome2);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.evosuite.testcase.secondaryobjectives.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
 	@Override

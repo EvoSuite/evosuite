@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -26,10 +26,10 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringMultipleExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -50,7 +50,7 @@ public abstract class Substring extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_receiver = this.getSymbReceiver();
+			ReferenceConstant symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 
 			IntegerValue beginIndexExpr = this.getSymbIntegerArgument(0);
@@ -60,7 +60,7 @@ public abstract class Substring extends SymbolicFunction {
 					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
 					conc_receiver);
 
-			NonNullReference symb_ret_val = (NonNullReference) this
+			ReferenceConstant symb_ret_val = (ReferenceConstant) this
 					.getSymbRetVal();
 			String conc_ret_val = (String) this.getConcRetVal();
 
@@ -86,7 +86,7 @@ public abstract class Substring extends SymbolicFunction {
 		@Override
 		public Object executeFunction() {
 
-			NonNullReference symb_receiver = this.getSymbReceiver();
+			ReferenceConstant symb_receiver = this.getSymbReceiver();
 			String conc_receiver = (String) this.getConcReceiver();
 
 			IntegerValue beginIndexExpr = this.getSymbIntegerArgument(0);
@@ -95,7 +95,7 @@ public abstract class Substring extends SymbolicFunction {
 					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
 					conc_receiver);
 
-			NonNullReference symb_ret_val = (NonNullReference) this
+			ReferenceConstant symb_ret_val = (ReferenceConstant) this
 					.getSymbRetVal();
 			String conc_ret_val = (String) this.getConcRetVal();
 

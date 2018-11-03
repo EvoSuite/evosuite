@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,8 +22,8 @@ package org.evosuite.symbolic.vm.string.reader;
 import java.io.StringReader;
 
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -40,7 +40,7 @@ public final class StringReader_Read extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullReference symb_str_reader = this.getSymbReceiver();
+		ReferenceConstant symb_str_reader = this.getSymbReceiver();
 		StringReader conc_str_reader = (StringReader) this.getConcReceiver();
 
 		StringReaderExpr stringReaderExpr = (StringReaderExpr) env.heap

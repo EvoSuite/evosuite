@@ -28,9 +28,10 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -122,7 +123,15 @@ public class EPAMiningCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Set<EPAMiningCoverageTestFitness> goalsCoveredByResults = new HashSet<EPAMiningCoverageTestFitness>();
 
 		for (ExecutionResult result : results) {
+
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
+
 			for (EPATrace epa_trace : result.getTrace().getEPATraces()) {
+
+
 				for (EPATransition epa_transition : epa_trace.getEpaTransitions()) {
 					if (epa_transition.getDestinationState().equals(EPAState.INVALID_OBJECT_STATE)) {
 						break;
@@ -143,9 +152,10 @@ public class EPAMiningCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 					if (!EPAMiningCoverageFactory.getGoals().containsKey(key)) {
 						EPAMiningCoverageFactory.getGoals().put(key, goal);
+						test.getTestCase().addCoveredGoal(goal);
 						if (Properties.TEST_ARCHIVE && contextFitness != null) {
-							TestsArchive.instance.addGoalToCover(contextFitness, goal);
-							TestsArchive.instance.putTest(contextFitness, goal, result);
+							Archive.getArchiveInstance().addTarget(goal);
+							Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
 						}
 					}
 				}

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,14 +25,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
-import org.evosuite.instrumentation.LinePool;
+import org.evosuite.coverage.rho.RhoAux;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -71,12 +72,15 @@ public class AmbiguityCoverageFactory extends
 	 */
 	protected static void loadCoverage() {
 
+		if (!new File(Properties.COVERAGE_MATRIX_FILENAME).exists()) {
+			return ;
+		}
+
 		BufferedReader br = null;
 
 		try {
 			String sCurrentLine;
-			br = new BufferedReader(new FileReader("evosuite-report" + File.separator + 
-					Properties.TARGET_CLASS + ".matrix"));
+			br = new BufferedReader(new FileReader(Properties.COVERAGE_MATRIX_FILENAME));
 
 			List<StringBuilder> matrix = new ArrayList<StringBuilder>();
 			while ((sCurrentLine = br.readLine()) != null) {
@@ -95,10 +99,7 @@ public class AmbiguityCoverageFactory extends
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Size_T0, matrix.size());
 		}
 		catch (IOException e) {
-			// the coverage matrix file does not exist, ok no problem...
-			// we will generate new test cases from scratch
-			logger.debug("there is no " + "evosuite-report" + File.separator +
-					Properties.TARGET_CLASS + ".matrix" );
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -130,19 +131,21 @@ public class AmbiguityCoverageFactory extends
 			return goals;
 		}
 
-		for(String className : LinePool.getKnownClasses()) {
-			Set<Integer> lines = LinePool.getLines(className);
-			for (Integer line : lines) {
-				logger.info("Adding goal for method " + className + ". Line " + line + ".");
-				goals.add(new LineCoverageTestFitness(className, Properties.TARGET_METHOD, line));
-			}
-		}
+		goals = RhoAux.getLineGoals();
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
 		max_ambiguity_score = (1.0) // goals.size() / goals.size()
 								* ( (((double) goals.size()) - 1.0) / 2.0 );
 
 		if (Properties.USE_EXISTING_COVERAGE) {
+			// extremely important: before loading any previous coverage (i.e., from a coverage
+			// matrix) goals need to be sorted. otherwise any previous coverage won't match!
+			Collections.sort(goals, new Comparator<LineCoverageTestFitness>() {
+				@Override
+				public int compare(LineCoverageTestFitness l1, LineCoverageTestFitness l2) {
+					return Integer.compare(l1.getLine(), l2.getLine());
+				}
+			});
 			loadCoverage();
 		} else {
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.AmbiguityScore_T0, 1.0);

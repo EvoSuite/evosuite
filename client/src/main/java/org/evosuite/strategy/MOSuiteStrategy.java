@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,7 +20,6 @@
 package org.evosuite.strategy;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.ChromosomeFactory;
@@ -52,10 +51,14 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 	@Override	
 	public TestSuiteChromosome generateTests() {
+		// Currently only LIPS uses its own Archive
+		if (Properties.ALGORITHM == Properties.Algorithm.LIPS) {
+			Properties.TEST_ARCHIVE = false;
+		}
+
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 
-		Properties.ALGORITHM = Algorithm.MOSA;
 		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
 		
 		// Override chromosome factory
@@ -82,8 +85,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// executed with -prefix!
 		
 //		List<TestFitnessFunction> goals = getGoals(true);
-		
-		LoggingUtils.getEvoLogger().info("* Total number of test goals for MOSA: {}", fitnessFunctions.size());
+		LoggingUtils.getEvoLogger().info("* Total number of test goals for {}: {}", Properties.ALGORITHM.name(), fitnessFunctions.size());
 		
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
@@ -99,8 +101,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			ExecutionTracer.enableTraceCalls();
 
 		algorithm.resetStoppingConditions();
-
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, fitnessFunctions.size());
+		
 		TestSuiteChromosome testSuite = null;
 
 		if (!(Properties.STOP_ZERO && fitnessFunctions.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)) {
@@ -110,12 +111,10 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			algorithm.generateSolution();
-			List<TestSuiteChromosome> bestSuites = (List<TestSuiteChromosome>) algorithm.getBestIndividuals();
-			if (bestSuites.isEmpty()) {
-				LoggingUtils.getEvoLogger().warn("Could not find any suitable chromosome");
-				return new TestSuiteChromosome();
-			}else{
-				testSuite = bestSuites.get(0);
+
+			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
+			if (testSuite.getTestChromosomes().isEmpty()) {
+				LoggingUtils.getEvoLogger().warn("Could not generate any test case");
 			}
 		} else {
 			zeroFitness.setFinished();
@@ -146,6 +145,12 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// Search is finished, send statistics
 		sendExecutionStatistics();
 
+		// We send the info about the total number of coverage goals/targets only after 
+		// the end of the search. This is because the number of coverage targets may vary
+		// when the criterion Properties.Criterion.EXCEPTION is used (exception coverage
+		// goal are dynamically added when the generated tests trigger some exceptions
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, algorithm.getFitnessFunctions().size());
+		
 		return testSuite;
 	}
 	

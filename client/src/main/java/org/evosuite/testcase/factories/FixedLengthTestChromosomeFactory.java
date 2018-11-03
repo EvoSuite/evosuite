@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -54,7 +54,7 @@ public class FixedLengthTestChromosomeFactory implements
 
 		// Then add random stuff
 		while (test.size() < size && num < Properties.MAX_ATTEMPTS) {
-			testFactory.insertRandomStatement(test, test.size());
+			testFactory.insertRandomStatement(test, test.size() - 1);
 			num++;
 		}
 		//logger.debug("Randomized test case:" + test.toCode());

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,12 +20,9 @@
 package org.evosuite.testcase.execution;
 
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -36,25 +33,18 @@ import java.util.concurrent.TimeoutException;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.TimeController;
-import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.runtime.LoopCounter;
-import org.evosuite.setup.TestCluster;
-import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
-import org.evosuite.testcase.variable.FieldReference;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testcase.statements.FieldStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.utils.ResetExecutor;
-import org.evosuite.runtime.classhandling.ResetManager;
+import org.evosuite.runtime.Runtime;
+import org.evosuite.runtime.javaee.db.DBManager;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
 import org.evosuite.runtime.sandbox.Sandbox;
+import org.evosuite.runtime.util.JOptionPaneInputs;
 import org.evosuite.runtime.util.SystemInUtil;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,8 +73,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public static final String TEST_EXECUTION_THREAD = "TEST_EXECUTION_THREAD";
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(TestCaseExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
 	private static final PrintStream systemErr = System.err;
@@ -116,8 +105,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	public volatile int threadCounter;
 
 	static {
-		PermissionStatistics.getInstance().setThreadGroupToMonitor(
-				TEST_EXECUTION_THREAD_GROUP);
+		PermissionStatistics.getInstance().setThreadGroupToMonitor(TEST_EXECUTION_THREAD_GROUP);
 	}
 
 	/**
@@ -151,8 +139,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.debug("Executing test");
 			result = executor.execute(test);
 
-			MaxStatementsStoppingCondition.statementsExecuted(result
-					.getExecutedStatements());
+			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 
 		} catch (Exception e) {
 			logger.error("TG: Exception caught: ", e);
@@ -255,7 +242,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	public void newObservers() {
 		observers = new LinkedHashSet<>();
 	}
-	
+
 	public Set<ExecutionObserver> getExecutionObservers() {
 		return new LinkedHashSet<ExecutionObserver>(observers);
 	}
@@ -278,120 +265,6 @@ public class TestCaseExecutor implements ThreadFactory {
 		return result;
 	}
 
-	private void resetClasses(TestCase tc, ExecutionResult result) {
-		List<String> classesToReset;
-		if (ResetManager.getInstance().getResetAllClasses()) {
-			ResetExecutor.getInstance().resetAllClasses();
-		} else {
-			// reset only classes that were "selected" during trace execution
-			ExecutionTrace trace = result.getTrace();
-			classesToReset = new LinkedList<String>(
-					trace.getClassesForStaticReset());
-			HashSet<String> moreClassesForReset = getMoreClassesToReset(tc,
-					result);
-			classesToReset.addAll(moreClassesForReset);
-			// sort classes to reset
-			Collections.sort(classesToReset);
-
-			ClassLoader loader = null;
-			if (tc instanceof DefaultTestCase) {
-				DefaultTestCase defaultTestCase = (DefaultTestCase) tc;
-				ClassLoader changedClassLoader = defaultTestCase
-						.getChangedClassLoader();
-				if (changedClassLoader != null) {
-					loader = changedClassLoader;
-				}
-			}
-			if (loader == null) {
-				ResetExecutor.getInstance().resetClasses(classesToReset);
-			} else {
-				ResetExecutor.getInstance()
-						.resetClasses(classesToReset, loader);
-			}
-		}
-
-	}
-
-    /*
-     * TODO: I think this would be nicer if each type of statement registered the classes
-     *       to reset as part of their execute() method
-     */
-	private static HashSet<String> getMoreClassesToReset(TestCase tc,
-			ExecutionResult result) {
-		HashSet<String> moreClassesForStaticReset = new HashSet<String>();
-		for (int position = 0; position < result.getExecutedStatements(); position++) {
-			Statement statement = tc.getStatement(position);
-
-			// If we reset also after reads, get all fields
-			if(Properties.RESET_STATIC_FIELD_GETS) {
-				for(VariableReference var : statement.getVariableReferences()) {
-					if(var.isFieldReference()) {
-						FieldReference fieldReference = (FieldReference) var;
-						moreClassesForStaticReset.add(fieldReference.getField()
-								.getOwnerClass().getClassName());
-					}
-				}
-			}
-
-			// Check for explicit assignments to static fields
-			if (statement.isAssignmentStatement()) {
-				if (statement.getReturnValue() instanceof FieldReference) {
-					FieldReference fieldReference = (FieldReference) statement
-							.getReturnValue();
-					if (fieldReference.getField().isStatic()) {
-						moreClassesForStaticReset.add(fieldReference.getField()
-								.getOwnerClass().getClassName());
-					}
-				}
-			} else if (statement instanceof FieldStatement) {
-				// Check if we are invoking a non-pure method on a static field
-				// variable
-				FieldStatement fieldStatement = (FieldStatement) statement;
-				if (fieldStatement.getField().isStatic()) {
-					VariableReference fieldReference = fieldStatement
-							.getReturnValue();
-					if(Properties.RESET_STATIC_FIELD_GETS) {
-						moreClassesForStaticReset
-								.add(fieldStatement.getField()
-										.getOwnerClass()
-										.getClassName());
-
-					} else {
-						// Check if the field was passed to a non-pure method
-						for (int i = fieldStatement.getPosition() + 1; i < result
-								.getExecutedStatements(); i++) {
-							Statement invokedStatement = tc.getStatement(i);
-							if (invokedStatement.references(fieldReference)) {
-								if (invokedStatement instanceof MethodStatement) {
-									if (fieldReference
-											.equals(((MethodStatement) invokedStatement)
-													.getCallee())) {
-										if (!CheapPurityAnalyzer
-												.getInstance()
-												.isPure(((MethodStatement) invokedStatement)
-														.getMethod().getMethod())) {
-											moreClassesForStaticReset
-													.add(fieldStatement.getField()
-															.getOwnerClass()
-															.getClassName());
-											break;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			} else if (statement instanceof PrivateFieldStatement) {
-				PrivateFieldStatement fieldStatement = (PrivateFieldStatement) statement;
-				if(fieldStatement.isStaticField()) {
-					moreClassesForStaticReset.add(fieldStatement.getOwnerClassName());
-				}
-			}
-		}
-		return moreClassesForStaticReset;
-	}
-
 	/**
 	 * Execute a test case on a new scope
 	 * 
@@ -405,7 +278,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		if (Properties.RESET_STATIC_FIELDS) {
 			logger.debug("Resetting classes after execution");
-			resetClasses(tc, result);
+			ClassReInitializer.getInstance().reInitializeClassesAfterTestExecution(tc, result);
 		}
 		return result;
 	}
@@ -427,6 +300,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		resetObservers();
 		ExecutionObserver.setCurrentTest(tc);
 		MaxTestsStoppingCondition.testExecuted();
+		Runtime.getInstance().resetRuntime();
 
 		long startTime = System.currentTimeMillis();
 
@@ -452,21 +326,19 @@ public class TestCaseExecutor implements ThreadFactory {
 
 			// important to call it before setting up the sandbox
 			SystemInUtil.getInstance().initForTestCase();
+			JOptionPaneInputs.getInstance().initForTestCase();
 
 			Sandbox.goingToExecuteSUTCode();
 			TestGenerationContext.getInstance().goingToExecuteSUTCode();
 			try {
-				result = handler.execute(callable, executor, timeout,
-						Properties.CPU_TIMEOUT);
+				result = handler.execute(callable, executor, timeout, Properties.CPU_TIMEOUT);
 			} finally {
 				Sandbox.doneWithExecutingSUTCode();
 				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			}
 
-			PermissionStatistics.getInstance().countThreads(
-					threadGroup.activeCount());
-			result.setSecurityException(PermissionStatistics.getInstance()
-					.getAndResetExceptionInfo());
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
+			result.setSecurityException(PermissionStatistics.getInstance().getAndResetExceptionInfo());
 			/*
 			 * TODO: this will need proper care when we ll start to handle
 			 * threads in the search.
@@ -506,9 +378,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			System.setOut(systemOut);
 			System.setErr(systemErr);
 
-			logger.error(
-					"ExecutionException (this is likely a serious error in the framework)",
-					e1);
+			logger.error("ExecutionException (this is likely a serious error in the framework)", e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
@@ -531,8 +401,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
 			try {
-				handler.getLastTask().get(Properties.SHUTDOWN_TIMEOUT,
-						TimeUnit.MILLISECONDS);
+				handler.getLastTask().get(Properties.SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e2) {
 			} catch (ExecutionException e2) {
 			} catch (TimeoutException e2) {
@@ -555,8 +424,7 @@ public class TestCaseExecutor implements ThreadFactory {
 					logger.info("Run still not finished, but awaiting for static initializer to finish.");
 
 					try {
-						executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
-								TimeUnit.MILLISECONDS);
+						executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
 					} catch (InterruptedException e) {
 						logger.info("Interrupted");
 						e.printStackTrace();
@@ -569,8 +437,7 @@ public class TestCaseExecutor implements ThreadFactory {
 					handler.getLastTask().cancel(true);
 					logger.info("Run not finished, waiting...");
 					try {
-						executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT,
-								TimeUnit.MILLISECONDS);
+						executor.awaitTermination(Properties.SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
 					} catch (InterruptedException e) {
 						logger.info("Interrupted");
 						e.printStackTrace();
@@ -583,13 +450,11 @@ public class TestCaseExecutor implements ThreadFactory {
 						executor.shutdownNow();
 						if (currentThread.isAlive()) {
 							logger.info("Thread survived - unsafe operation.");
-							for (StackTraceElement element : currentThread
-									.getStackTrace()) {
+							for (StackTraceElement element : currentThread.getStackTrace()) {
 								logger.info(element.toString());
 							}
 							logger.info("Killing thread:");
-							for (StackTraceElement elem : currentThread
-									.getStackTrace()) {
+							for (StackTraceElement elem : currentThread.getStackTrace()) {
 								logger.info(elem.toString());
 							}
 							currentThread.stop();
@@ -603,22 +468,20 @@ public class TestCaseExecutor implements ThreadFactory {
 					executor = Executors.newSingleThreadExecutor(this);
 				}
 			} else {
-				logger.info("Run is finished - " + currentThread.isAlive()
-						+ ": " + getNumStalledThreads());
+				logger.info("Run is finished - " + currentThread.isAlive() + ": " + getNumStalledThreads());
 
 			}
 			ExecutionTracer.disable();
 
-            // TODO: If this is true, is this problematic?
-			if(Sandbox.isOnAndExecutingSUTCode()) {
+			// TODO: If this is true, is this problematic?
+			if (Sandbox.isOnAndExecutingSUTCode()) {
 				Sandbox.doneWithExecutingSUTCode();
 				TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 			}
 
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.setThrownExceptions(callable.getExceptionsThrown());
-			result.reportNewThrownException(tc.size(),
-					new TestCaseExecutor.TimeoutExceeded());
+			result.reportNewThrownException(tc.size(), new TestCaseExecutor.TimeoutExceeded());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			ExecutionTracer.setKillSwitch(false);
@@ -629,8 +492,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} finally {
 			if (threadGroup != null)
-				PermissionStatistics.getInstance().countThreads(
-						threadGroup.activeCount());
+				PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 			TestCluster.getInstance().handleRuntimeAccesses(tc);
 		}
 	}
@@ -639,14 +501,15 @@ public class TestCaseExecutor implements ThreadFactory {
 		for (StackTraceElement elem : currentThread.getStackTrace()) {
 			if (elem.getMethodName().equals("<clinit>"))
 				return true;
-			if (elem.getMethodName().equals("loadClass")
-					&& elem.getClassName()
-							.equals(org.evosuite.instrumentation.InstrumentingClassLoader.class
-									.getCanonicalName()))
+			if (elem.getMethodName().equals("loadClass") && elem.getClassName()
+					.equals(org.evosuite.instrumentation.InstrumentingClassLoader.class.getCanonicalName()))
 				return true;
 			// CFontManager is responsible for loading fonts
 			// which can take seconds
 			if (elem.getClassName().equals("sun.font.CFontManager"))
+				return true;
+			// JDBC initialisation can take a while, and interrupting can mess things up
+			if (elem.getClassName().equals(DBManager.class.getCanonicalName()) && elem.getMethodName().equals("initDB"))
 				return true;
 		}
 		return false;
@@ -676,22 +539,19 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (currentThread != null && currentThread.isAlive()) {
 			currentThread.setPriority(Thread.MIN_PRIORITY);
 			stalledThreads.add(currentThread);
-			logger.info("Current number of stalled threads: "
-					+ getNumStalledThreads());
+			logger.info("Current number of stalled threads: " + getNumStalledThreads());
 		} else {
 			logger.info("No stalled threads");
 		}
 
 		if (threadGroup != null) {
-			PermissionStatistics.getInstance().countThreads(
-					threadGroup.activeCount());
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 		}
 		threadGroup = new ThreadGroup(TEST_EXECUTION_THREAD_GROUP);
 		currentThread = new Thread(threadGroup, r);
 		currentThread.setName(TEST_EXECUTION_THREAD + "_" + threadCounter);
 		threadCounter++;
-		currentThread.setContextClassLoader(TestGenerationContext.getInstance()
-				.getClassLoaderForSUT());
+		currentThread.setContextClassLoader(TestGenerationContext.getInstance().getClassLoaderForSUT());
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}

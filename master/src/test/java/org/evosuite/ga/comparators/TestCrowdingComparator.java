@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -55,7 +55,7 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        CrowdingComparator cc = new CrowdingComparator(false);
+        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(false);
         Collections.sort(population, cc);
 
         // assert by Rank
@@ -91,7 +91,7 @@ public class TestCrowdingComparator
         population.add(c2);
         population.add(c3);
 
-        CrowdingComparator cc = new CrowdingComparator(true);
+        RankAndCrowdingDistanceComparator cc = new RankAndCrowdingDistanceComparator(true);
         Collections.sort(population, cc);
 
         // assert by Rank

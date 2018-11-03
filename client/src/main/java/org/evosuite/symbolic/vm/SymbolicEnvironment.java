@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.instrument.ConcolicInstrumentingClassLoader;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.objectweb.asm.Type;
@@ -186,7 +187,7 @@ public final class SymbolicEnvironment {
 			boolean isInstrumented = isInstrumented(mainMethod);
 			fakeMainCallerFrame.invokeInstrumentedCode(isInstrumented);
 			String[] emptyStringArray = new String[] {};
-			Reference emptyStringRef = heap.getReference(emptyStringArray);
+			ReferenceExpression emptyStringRef = heap.getReference(emptyStringArray);
 			fakeMainCallerFrame.operandStack.pushRef(emptyStringRef);
 		}
 		this.pushFrame(fakeMainCallerFrame);

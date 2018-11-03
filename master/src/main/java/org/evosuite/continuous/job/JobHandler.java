@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,19 +20,11 @@
 package org.evosuite.continuous.job;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
@@ -40,6 +32,7 @@ import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.runtime.util.JarPathing;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -213,7 +206,7 @@ public class JobHandler extends Thread {
 	private List<String> getCommandString(JobDefinition job) {
 
 		List<String> commands = new ArrayList<>();
-		commands.add("java");		
+		commands.add(JavaExecCmdUtil.getJavaBinExecutablePath()/*"java"*/);
 
 		commands.add("-cp");
 		commands.add(configureAndGetClasspath());
@@ -327,9 +320,13 @@ public class JobHandler extends Thread {
 		commands.add("-Dreport_dir=" + reports.getAbsolutePath() + File.separator + job.cut);
 		commands.add("-Dtest_dir=" + tests.getAbsolutePath());
 
-		String seedsFileName = job.cut + "." + Properties.CTG_SEEDS_EXT;
-		commands.add("-Dctg_seeds_file_out=" + seedOut.getAbsolutePath() + File.separator +seedsFileName);
-		commands.add("-Dctg_seeds_file_in=" + seedIn.getAbsolutePath() + File.separator +seedsFileName);
+		if (Properties.CTG_SCHEDULE == Properties.AvailableSchedule.SEEDING
+				|| Properties.CTG_SCHEDULE == Properties.AvailableSchedule.BUDGET_AND_SEEDING
+				|| Properties.CTG_SCHEDULE == Properties.AvailableSchedule.HISTORY) {
+			String seedsFileName = job.cut + "." + Properties.CTG_SEEDS_EXT;
+			commands.add("-Dctg_seeds_file_out=" + seedOut.getAbsolutePath() + File.separator +seedsFileName);
+			commands.add("-Dctg_seeds_file_in=" + seedIn.getAbsolutePath() + File.separator +seedsFileName);
+		}
 
 		commands.addAll(getOutputVariables());
 		commands.add("-Danalysis_criteria=" + Properties.ANALYSIS_CRITERIA);

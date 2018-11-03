@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -50,8 +50,7 @@ public interface ExecutionTrace {
 	 * @param bytecode_id
 	 *            a int.
 	 */
-	public void branchPassed(int branch, int bytecode_id, double true_distance,
-	        double false_distance);
+	public void branchPassed(int branch, int bytecode_id, double true_distance, double false_distance);
 
 	/**
 	 * Retrieve minimum branch distance to false branch
@@ -190,8 +189,8 @@ public interface ExecutionTrace {
 	public Set<Integer> getCoveredLines(String className);
 
 	/**
-	 * Retrieve the set of line numbers covered
-	 * of {@link org.evosuite.Properties.TARGET_CLASS} class
+	 * Retrieve the set of line numbers covered of
+	 * {@link org.evosuite.Properties.TARGET_CLASS} class
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
@@ -253,8 +252,7 @@ public interface ExecutionTrace {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.Map} object.
 	 */
-	public Map<Integer, HashMap<Integer, Integer>> getPassedDefinitions(
-	        String variableName);
+	public Map<Integer, HashMap<Integer, Integer>> getPassedDefinitions(String variableName);
 
 	/**
 	 * Retrieve the data uses for a given variable
@@ -286,12 +284,12 @@ public interface ExecutionTrace {
 	 */
 	public Set<String> getCoveredMethods();
 
-    /**
-     * Retrieve the names of all covered branchless methods
-     *
-     * @return a {@link java.util.Set} object.
-     */
-    public Set<String> getCoveredBranchlessMethods();
+	/**
+	 * Retrieve the names of all covered branchless methods
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
+	public Set<String> getCoveredBranchlessMethods();
 
 	/**
 	 * Retrieve the minimum infection distance for a mutant
@@ -324,15 +322,13 @@ public interface ExecutionTrace {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getTouchedMutants();
-	
+
 	/**
-	 * Retrieve IDs of all executed mutants
-	 * with an infection distance == 0.0
+	 * Retrieve IDs of all executed mutants with an infection distance == 0.0
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getInfectedMutants();
-	
 
 	/**
 	 * Reset to 0
@@ -433,8 +429,8 @@ public interface ExecutionTrace {
 	 *            a int.
 	 * @return a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
 	 */
-	public ExecutionTrace getTraceInDUCounterRange(DefUse targetDU,
-	        boolean wantToCoverTargetDU, int duCounterStart, int duCounterEnd);
+	public ExecutionTrace getTraceInDUCounterRange(DefUse targetDU, boolean wantToCoverTargetDU, int duCounterStart,
+			int duCounterEnd);
 
 	/**
 	 * Add line to currently active method call
@@ -585,7 +581,7 @@ public interface ExecutionTrace {
 	public Set<Integer> getPassedDefIDs();
 
 	/**
-	 * Record a PUTSTATIC statement 
+	 * Record a PUTSTATIC statement
 	 * 
 	 * @param classNameWithDots
 	 * @param fieldName
@@ -601,14 +597,26 @@ public interface ExecutionTrace {
 	public void getStaticPassed(String classNameWithDots, String fieldName);
 
 	/**
-	 * Retrieve if a given class's static fields were referred using PUTSTATIC.
+	 * Retrieve a list of those classes that were affected by a PUTSTATIC.
 	 *
 	 * @return
 	 */
+	public Set<String> getClassesWithStaticWrites();
 
-	public Set<String> getClassesForStaticReset();
+	/**
+	 * Retrieve a list of those classes that were affected by a GETSTATIC.
+	 *
+	 * @return
+	 */
+	public Set<String> getClassesWithStaticReads();
 
-	
+	/**
+	 * Logs that a <clinit> was completed during this test execution
+	 * 
+	 * @param classNameWithDots
+	 */
+	public void classInitialized(String classNameWithDots);
+
 	/**
 	 * Appends a new transition to the given object
 	 * 
@@ -624,4 +632,11 @@ public interface ExecutionTrace {
 	 */
 	public Set<EPATrace> getEPATraces();
 
+	/**
+	 * Returns the list (with no repetitions) following the order in which the
+	 * <clinit> method was finished during this test execution
+	 * 
+	 * @return
+	 */
+	public List<String> getInitializedClasses();
 }

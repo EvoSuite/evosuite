@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -46,9 +46,9 @@ public final class ArithmeticVM extends AbstractVM {
 
 	private final SymbolicEnvironment env;
 
-	private final PathConstraint pathConstraint;
+	private final PathConditionCollector pathConstraint;
 
-	public ArithmeticVM(SymbolicEnvironment env, PathConstraint pathConstraint) {
+	public ArithmeticVM(SymbolicEnvironment env, PathConditionCollector pathConstraint) {
 		this.env = env;
 		this.pathConstraint = pathConstraint;
 	}
@@ -63,7 +63,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		if (zeroCheck.getLeftOperand().containsSymbolicVariable()
 				|| zeroCheck.getRightOperand().containsSymbolicVariable())
-			pathConstraint.pushSupportingConstraint(zeroCheck);
+			pathConstraint.appendSupportingConstraint(zeroCheck);
 
 		if (valueConcrete == 0) {
 			// JVM will throw an exception

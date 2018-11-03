@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,15 +19,21 @@
  */
 package org.evosuite.coverage.mutation;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
-
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * <p>
@@ -40,6 +46,10 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -1812256816400338180L;
 
+	public WeakMutationSuiteFitness() {
+		super(Properties.Criterion.WEAKMUTATION);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
@@ -50,7 +60,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		/**
 		 * e.g. classes with only static constructors
 		 */
-		if (mutationGoals.size() == 0) {
+		if (this.numMutants == 0) {
 			updateIndividual(this, individual, 0.0);
 			((TestSuiteChromosome) individual).setCoverage(this, 1.0);
 			((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, 0);
@@ -65,38 +75,62 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		 * Note: results are cached, so the test suite is not executed again when we
 		 * calculated the branch fitness
 		 */
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		double fitness = branchFitness.getFitness(individual);
-		Map<Integer, Double> mutant_distance = new HashMap<Integer, Double>();
-		Set<Integer> touchedMutants = new HashSet<Integer>(removedMutants);
+		Properties.TEST_ARCHIVE =  archive;
+
+		Map<Integer, Double> mutant_distance = new LinkedHashMap<Integer, Double>();
+		Set<Integer> touchedMutants = new LinkedHashSet<Integer>();
 
 		for (ExecutionResult result : results) {
 			// Using private reflection can lead to false positives
 			// that represent unrealistic behaviour. Thus, we only
 			// use reflection for basic criteria, not for mutation
-			if(result.calledReflection())
+			if (result.hasTimeout() || result.hasTestException() || result.calledReflection()) {
 				continue;
+			}
 
 			touchedMutants.addAll(result.getTrace().getTouchedMutants());
 
-			for (Entry<Integer, Double> entry : result.getTrace().getMutationDistances().entrySet()) {
-				if(!mutants.contains(entry.getKey()) || removedMutants.contains(entry.getKey()))
-					continue;
+			Map<Integer, Double> touchedMutantsDistances = result.getTrace().getMutationDistances();
+			if (touchedMutantsDistances.isEmpty()) {
+			  // if 'result' does not touch any mutant, no need to continue
+			  continue;
+			}
 
-				if(entry.getValue() == 0.0) {
-					result.test.addCoveredGoal(mutantMap.get(entry.getKey()));
-					if(Properties.TEST_ARCHIVE) {
-						toRemoveMutants.add(entry.getKey());
-						TestsArchive.instance.putTest(this, mutantMap.get(entry.getKey()), result);
-						individual.isToBeUpdated(true);
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
+
+			Iterator<Entry<Integer, MutationTestFitness>> it = this.mutantMap.entrySet().iterator();
+			while (it.hasNext()) {
+				Entry<Integer, MutationTestFitness> entry = it.next();
+
+				int mutantID = entry.getKey();
+				TestFitnessFunction goal = entry.getValue();
+
+				double fit = 0.0;
+				if (touchedMutantsDistances.containsKey(mutantID)) {
+					fit = touchedMutantsDistances.get(mutantID);
+
+					if (!mutant_distance.containsKey(mutantID)) {
+						mutant_distance.put(mutantID, fit);
+					} else {
+						mutant_distance.put(mutantID, Math.min(mutant_distance.get(mutantID), fit));
 					}
+				} else {
+					fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
 				}
-				
-				if (!mutant_distance.containsKey(entry.getKey()))
-					mutant_distance.put(entry.getKey(), entry.getValue());
-				else {
-					mutant_distance.put(entry.getKey(),
-					                    Math.min(mutant_distance.get(entry.getKey()),
-					                             entry.getValue()));
+
+				if (fit == 0.0) {
+					test.getTestCase().addCoveredGoal(goal); // update list of covered goals
+					this.toRemoveMutants.add(mutantID); // goal to not be considered by the next iteration of the evolutionary algorithm
+				}
+
+				if (Properties.TEST_ARCHIVE) {
+					Archive.getArchiveInstance().updateArchive(goal, test, fit);
 				}
 			}
 		}
@@ -119,9 +153,9 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		}
 		
 		updateIndividual(this, individual, fitness);
-		((TestSuiteChromosome) individual).setCoverage(this, 1.0 * covered / mutationGoals.size());
+		((TestSuiteChromosome) individual).setCoverage(this, (double) covered / (double) this.numMutants);
 		((TestSuiteChromosome) individual).setNumOfCoveredGoals(this, covered);
-		
+
 		return fitness;
 	}
 }

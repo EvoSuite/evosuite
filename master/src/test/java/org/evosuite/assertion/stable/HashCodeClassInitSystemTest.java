@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -29,7 +29,6 @@ import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,13 +36,6 @@ import org.junit.Test;
 import com.examples.with.different.packagename.stable.HashCodeClassInit;
 
 public class HashCodeClassInitSystemTest extends SystemTestBase {
-	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
-	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
-	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
-	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
-	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
-	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
-	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 
 	@Before
 	public void configureProperties() {
@@ -54,17 +46,6 @@ public class HashCodeClassInitSystemTest extends SystemTestBase {
 		Properties.JUNIT_CHECK = true;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
-	}
-
-	@After
-	public void restoreProperties() {
-		Properties.SANDBOX = DEFAULT_SANDBOX;
-		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS;
-		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC_FIELDS;
-		Properties.REPLACE_CALLS = DEFAULT_REPLACE_CALLS;
-		Properties.JUNIT_CHECK = DEFAULT_JUNIT_CHECK;
-		Properties.JUNIT_TESTS = DEFAULT_JUNIT_TESTS;
-		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
 	}
 
 	@Test

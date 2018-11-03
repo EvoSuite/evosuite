@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -28,6 +28,9 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Instruments classes to call the tracer each time a new line of the source
  * code is passed.
@@ -46,6 +49,8 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	private final String className;
 
 	private boolean hadInvokeSpecial = false;
+
+	private List<Integer> skippedLines = new ArrayList<>();
 
 	int currentLine = 0;
 
@@ -67,6 +72,16 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 			hadInvokeSpecial = true;
 	}
 
+	private void addLineNumberInstrumentation(int line) {
+		LinePool.addLine(className, fullMethodName, line);
+		this.visitLdcInsn(className);
+		this.visitLdcInsn(fullMethodName);
+		this.visitLdcInsn(line);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+				PackageInfo.getNameWithSlash(ExecutionTracer.class),
+				"passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V", false);
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public void visitLineNumber(int line, Label start) {
@@ -76,16 +91,12 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 		if (methodName.equals("<clinit>"))
 			return;
 
-		if (!hadInvokeSpecial)
+		if (!hadInvokeSpecial) {
+			skippedLines.add(line);
 			return;
+		}
 
-		LinePool.addLine(className, fullMethodName, line);
-		this.visitLdcInsn(className);
-		this.visitLdcInsn(fullMethodName);
-		this.visitLdcInsn(line);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-				PackageInfo.getNameWithSlash(ExecutionTracer.class),
-		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V", false);
+		addLineNumberInstrumentation(line);
 	}
 
 	/* (non-Javadoc)
@@ -94,11 +105,16 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-		if (opcode == Opcodes.INVOKESPECIAL) {
-			if (methodName.equals("<init>"))
-				hadInvokeSpecial = true;
-		}
 		super.visitMethodInsn(opcode, owner, name, desc, itf);
+		if (opcode == Opcodes.INVOKESPECIAL) {
+			if (methodName.equals("<init>")) {
+				hadInvokeSpecial = true;
+				for(int line : skippedLines) {
+					addLineNumberInstrumentation(line);
+				}
+				skippedLines.clear();
+			}
+		}
 	}
 
 	/* (non-Javadoc)

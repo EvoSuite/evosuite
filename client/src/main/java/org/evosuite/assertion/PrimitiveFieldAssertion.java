@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -45,6 +45,10 @@ public class PrimitiveFieldAssertion extends Assertion {
 	 */
 	public Field getField() {
 		return field;
+	}
+
+	public void setField(Field field) {
+		this.field = field;
 	}
 
 	/** {@inheritDoc} */

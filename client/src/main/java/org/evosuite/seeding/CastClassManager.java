@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -427,7 +427,7 @@ public class CastClassManager {
 				continue;
 			}
 			if (!allowRecursion && key.hasWildcardOrTypeVariables()) {
-				logger.debug("Recursion not allowed but type has wilcard or type variables");
+				logger.debug("Recursion not allowed but type has wildcard or type variables");
 				continue;
 			}
 
@@ -448,18 +448,22 @@ public class CastClassManager {
 	        boolean allowRecursion, Map<TypeVariable<?>, Type> ownerVariableMap) {
 
 		List<GenericClass> assignableClasses = getAssignableClasses(typeVariable,
-		                                                            false,
+		                                                            allowRecursion,
 		                                                            ownerVariableMap);
 
 		logger.debug("Assignable classes to " + typeVariable + ": " + assignableClasses);
 
+		// FIXME: If we disallow recursion immediately, then we will never actually
+		// do recursion since we always have Object, Integer, and String as candidates.
+		// Including recursion may influence performance negatively.
+		//
 		// If we were not able to find an assignable class without recursive types
 		// we try again but allowing recursion
-		if(assignableClasses.isEmpty()) {
-			assignableClasses = getAssignableClasses(typeVariable,
-                    allowRecursion,
-                    ownerVariableMap);
-		}
+//		if(assignableClasses.isEmpty()) {
+//			assignableClasses = getAssignableClasses(typeVariable,
+//                    allowRecursion,
+//                    ownerVariableMap);
+//		}
 
 		//special case
 		if (assignableClasses.isEmpty()) {

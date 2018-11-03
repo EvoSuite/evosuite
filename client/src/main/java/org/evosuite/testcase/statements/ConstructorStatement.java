@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -245,7 +245,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 
 				@Override
 				public Set<Class<? extends Throwable>> throwableExceptions() {
-					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
+					Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
 					t.add(InvocationTargetException.class);
 					return t;
 				}

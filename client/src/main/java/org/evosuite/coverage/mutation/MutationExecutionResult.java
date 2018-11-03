@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,6 +22,8 @@
  */
 package org.evosuite.coverage.mutation;
 
+import org.evosuite.testcase.execution.ExecutionResult;
+
 /**
  * <p>MutationExecutionResult class.</p>
  *
@@ -36,6 +38,16 @@ public class MutationExecutionResult {
 	boolean hasTimeout = false;
 
 	boolean hasException = false;
+
+	public MutationExecutionResult clone() {
+		MutationExecutionResult result = new MutationExecutionResult();
+		result.numAssertions = numAssertions;
+		result.impact = impact;
+		result.hasTimeout = hasTimeout;
+		result.hasException = hasException;
+
+		return result;
+	}
 
 	/**
 	 * <p>Getter for the field <code>numAssertions</code>.</p>

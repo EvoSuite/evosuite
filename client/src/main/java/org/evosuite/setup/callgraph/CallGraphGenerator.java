@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -151,19 +151,6 @@ public class CallGraphGenerator {
 	@SuppressWarnings("unchecked")
 	private static void handleMethodNode(CallGraph callGraph, ClassNode cn, MethodNode mn, int depth) {
 		handlePublicMethodNode(callGraph, cn, mn);
-
-		// TODO: Integrate this properly - it is currently an unexpected side-effect
-		if(!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(cn.name))
-			ExceptionTransformationClassAdapter.methodExceptionMap.put(cn.name, new LinkedHashMap<>());
-
-		String methodNameDesc = mn.name + mn.desc;
-		Set<Type> exceptionTypes = new LinkedHashSet<>();
-		if(mn.exceptions != null) {
-			for (String exceptionName : ((List<String>)mn.exceptions)) {
-				exceptionTypes.add(Type.getType(exceptionName));
-			}
-		}
-		ExceptionTransformationClassAdapter.methodExceptionMap.get(cn.name).put(methodNameDesc, exceptionTypes);
 
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();

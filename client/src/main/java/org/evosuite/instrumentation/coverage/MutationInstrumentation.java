@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -45,6 +45,7 @@ import org.evosuite.instrumentation.mutation.ReplaceComparisonOperator;
 import org.evosuite.instrumentation.mutation.ReplaceConstant;
 import org.evosuite.instrumentation.mutation.ReplaceVariable;
 import org.evosuite.runtime.classhandling.ClassResetter;
+import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Opcodes;
@@ -175,8 +176,25 @@ public class MutationInstrumentation implements MethodInstrumentation {
 				}
 			}
 
+			boolean inInstrumentation = false;
 			for (BytecodeInstruction v : graph.vertexSet()) {
 
+				// If the bytecode is instrumented by EvoSuite, then don't mutate
+				if(v.isLabel()) {
+					LabelNode labelNode = (LabelNode)v.getASMNode();
+
+					if (labelNode.getLabel() instanceof AnnotatedLabel) {
+						AnnotatedLabel aLabel = (AnnotatedLabel) labelNode.getLabel();
+						if (aLabel.isStartTag()) {
+							inInstrumentation = true;
+						} else {
+							inInstrumentation = false;
+						}
+					}
+				}
+				if(inInstrumentation) {
+					continue;
+				}
 				// If this is in the CFG
 				if (in.equals(v.getASMNode())) {
 					logger.info(v.toString());

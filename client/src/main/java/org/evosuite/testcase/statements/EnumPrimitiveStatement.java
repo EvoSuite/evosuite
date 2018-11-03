@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -233,7 +233,8 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 				 */
 				constants = enumClass.getEnumConstants();
 			}
-			if (constants .length>0) {
+			//TODO: the hack above has a drawback: sometimes the new constant array doesn't contain the element at constants[pos]
+			if (constants.length > pos) {
 				value = constants[pos];
 			}
 		} catch (ClassNotFoundException e) {

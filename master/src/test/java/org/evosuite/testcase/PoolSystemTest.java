@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -211,7 +211,7 @@ public class PoolSystemTest extends SystemTestBase {
 		String targetClass = DependencyClassWithException.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.getTargetClass();
+		Properties.getTargetClassAndDontInitialise();
 		TestCase test = new DefaultTestCase();
 		VariableReference instance = test.addStatement(new ConstructorStatement(test, new GenericConstructor(DependencyClassWithException.class.getConstructors()[0], DependencyClassWithException.class),
 				new ArrayList<VariableReference>()));
@@ -253,7 +253,8 @@ public class PoolSystemTest extends SystemTestBase {
 		f.delete();
 
 	}
-	
+
+	@Ignore // Can now pass even without pool...
 	@Test
 	public void testNoPoolWithException() throws IOException {
 		EvoSuite evosuite = new EvoSuite();

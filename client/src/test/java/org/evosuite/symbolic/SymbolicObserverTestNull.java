@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -40,8 +40,9 @@ public class SymbolicObserverTestNull {
 		VariableReference int0 = builder.appendIntPrimitive(10);
 		builder.appendAssignment(var0, x_field, int0);
 		DefaultTestCase testCase = builder.getDefaultTestCase();
-		List<BranchCondition> branch_conditions = ConcolicExecution
-				.executeConcolic(testCase);
+		PathCondition pc = ConcolicExecution.executeConcolic(testCase);
+		List<BranchCondition> branch_conditions = pc.getBranchConditions();
+
 		assertTrue(branch_conditions.isEmpty());
 	}
 }

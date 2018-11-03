@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,10 +20,7 @@
 package org.evosuite.testcase.statements;
 
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -108,19 +105,6 @@ public class PrimitiveExpression extends AbstractStatement {
 		this.rightOperand = rightOperand;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.testcase.StatementInterface#changeClassLoader
-	 * (java.lang.ClassLoader)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		// No-op
-	}
-
 	/** {@inheritDoc} */
 	@Override
 	public Statement copy(TestCase newTestCase, int offset) {
@@ -136,17 +120,16 @@ public class PrimitiveExpression extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException {
+	        throws IllegalArgumentException {
 		try {
 			Object o1 = leftOperand.getObject(scope);
 			Object o2 = rightOperand.getObject(scope);
 			switch (operator) {
 				case EQUALS:
-					if (o1 == o2) {
+					if(Objects.equals(o1, o2)) {
 						scope.setObject(retval, true);
 					} else {
-						scope.setObject(retval, true);
+						scope.setObject(retval, false);
 					}
 					break;
 				default:
@@ -218,18 +201,18 @@ public class PrimitiveExpression extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> result = new HashSet<VariableReference>();
+		Set<VariableReference> result = new LinkedHashSet<>();
 		result.add(retval);
 		result.add(leftOperand);
 		result.add(rightOperand);
+		result.addAll(getAssertionReferences());
 		return result;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
-		throw new UnsupportedOperationException(
-		        "Method isAssignmentStatement not implemented!");
+		return false;
 	}
 
 	/** {@inheritDoc} */

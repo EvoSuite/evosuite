@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -173,13 +173,28 @@ public class Randomness implements Serializable {
 
 	/**
 	 * <p>
-	 * nextDouble
+	 * returns a randomly generated double in the range [0,1]
 	 * </p>
 	 * 
-	 * @return a double.
+	 * @return a double between 0.0 and 1.0
 	 */
 	public static double nextDouble() {
 		return random.nextDouble();
+	}
+
+	/**
+	 * <p>
+	 * nextDouble
+	 * </p>
+	 * 
+	 * @param min
+	 *            a double.
+	 * @param max
+	 *            a double.
+	 * @return a double.
+	 */
+	public static double nextDouble(double min, double max) {
+		return min + (random.nextDouble() * (max - min));
 	}
 
 	/**

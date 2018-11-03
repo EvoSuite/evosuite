@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,8 +20,10 @@
 package org.evosuite.coverage.exception;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.coverage.MethodNameMatcher;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -42,7 +44,6 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 
     private static int maxExceptionsCovered = 0;
-    
 
 	public ExceptionCoverageSuiteFitness() {
 	}
@@ -116,7 +117,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions,
             Map<String, Set<Class<?>>> declaredTypesOfExceptions, ExceptionCoverageSuiteFitness contextFitness)
 		throws IllegalArgumentException{
-		
+
+		MethodNameMatcher matcher = new MethodNameMatcher();
+
 		if(results==null || implicitTypesOfExceptions==null || explicitTypesOfExceptions==null ||
 				!implicitTypesOfExceptions.isEmpty() || !explicitTypesOfExceptions.isEmpty() ||
                 declaredTypesOfExceptions==null || !declaredTypesOfExceptions.isEmpty()){
@@ -129,8 +132,14 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			// Using private reflection can lead to false positives
 			// that represent unrealistic behaviour. Thus, we only
 			// use reflection for basic criteria, not for exception
-			if(result.calledReflection())
+			if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions() || result.calledReflection()) {
 				continue;
+			}
+
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
 
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
@@ -140,6 +149,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 				Class<?> exceptionClass = ExceptionCoverageHelper.getExceptionClass(result,i);
 				String methodIdentifier = ExceptionCoverageHelper.getMethodIdentifier(result, i); //eg name+descriptor
+				if (!matcher.methodMatches(methodIdentifier)) {
+					logger.info("Method {} does not match criteria. ",methodIdentifier);
+					continue;
+				}
 				boolean sutException = ExceptionCoverageHelper.isSutException(result,i); // was the exception originated by a direct call on the SUT?
 
 				/*
@@ -189,9 +202,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
                     String key = goal.getKey();
                     if(!ExceptionCoverageFactory.getGoals().containsKey(key)) {
                     	ExceptionCoverageFactory.getGoals().put(key, goal);
+                    	test.getTestCase().addCoveredGoal(goal);
                     	if(Properties.TEST_ARCHIVE && contextFitness != null) {
-                    		TestsArchive.instance.addGoalToCover(contextFitness, goal);
-                    		TestsArchive.instance.putTest(contextFitness, goal, result);
+                               Archive.getArchiveInstance().addTarget(goal);
+                               Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
                     	}
                     }
 				}

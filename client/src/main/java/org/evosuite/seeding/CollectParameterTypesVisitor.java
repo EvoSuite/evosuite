@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -50,7 +50,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	}
 
 	/**
-	 * @param api
+	 * @param className
 	 */
 	public CollectParameterTypesVisitor(String className) {
 		super(Opcodes.ASM5);

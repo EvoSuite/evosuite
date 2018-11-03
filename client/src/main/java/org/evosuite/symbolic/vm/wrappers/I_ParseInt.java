@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,8 +25,8 @@ import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -43,7 +43,7 @@ public final class I_ParseInt extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullReference symb_string_ref = (NonNullReference) this
+		ReferenceConstant symb_string_ref = (ReferenceConstant) this
 				.getSymbArgument(0);
 		String conc_string = (String) this.getConcArgument(0);
 
@@ -71,7 +71,7 @@ public final class I_ParseInt extends SymbolicFunction {
 			return null;
 		} catch (NumberFormatException ex) {
 
-			NonNullReference symb_string_ref = (NonNullReference) this
+			ReferenceConstant symb_string_ref = (ReferenceConstant) this
 					.getSymbArgument(0);
 			StringValue symb_string_value = env.heap.getField(
 					org.evosuite.symbolic.vm.regex.Types.JAVA_LANG_STRING,

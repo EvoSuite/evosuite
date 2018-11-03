@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -39,6 +39,7 @@ import org.evosuite.result.TestGenerationResult;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.statistics.backend.*;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
@@ -172,6 +173,11 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		if(backend == null)
 			return;
 
+		if(!(individual instanceof TestSuiteChromosome)) {
+			AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
+			return;
+		}
+
 		logger.debug("Received individual");
 		bestIndividual.put(rmiClientIdentifier, (TestSuiteChromosome) individual);
         for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
@@ -266,15 +272,23 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		}
 		return variableNames;
 	}
+	
+	/**
+	 * Shorthand for getOutputVariables(individual, false)
+	 */
+	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
+		return getOutputVariables(individual, false);
+	}
 
 	/**
 	 * Extract output variables from input <code>individual</code>.
 	 * Add also all the other needed search-level variables. 
 	 * 
 	 * @param individual
+	 * @param skip_missing whether or not to skip missing output variables
 	 * @return <code>null</code> if some data is missing
 	 */
-	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual) {
+	private Map<String, OutputVariable<?>> getOutputVariables(TestSuiteChromosome individual, boolean skip_missing) {
 		Map<String, OutputVariable<?>> variables = new LinkedHashMap<String, OutputVariable<?>>();
 		
 		for(String variableName : getOutputVariableNames()) {
@@ -295,8 +309,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				for(OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
 					variables.put(var.getName(), var); 
 				}
-			}
-			else {
+			} else if(skip_missing) {
+				// if variable doesn't exist, return an empty value instead
+				variables.put(variableName, new OutputVariable<String>(variableName, ""));
+			} else {
 				logger.error("No obtained value for output variable: "+variableName);
 				return null;
 			}
@@ -351,6 +367,10 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 					map = getOutputVariables(individual);
 					counter++;
 				}
+			}
+			
+			if(map == null && Properties.IGNORE_MISSING_STATISTICS){
+				map = getOutputVariables(individual, true);
 			}
 
 			if(map == null) {
@@ -742,7 +762,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
         @Override
         public Double getValue(TestSuiteChromosome individual) {
-            return individual.getFitnessInstanceOf(RhoCoverageSuiteFitness.class);
+            Double d = individual.getFitnessInstanceOf(RhoCoverageSuiteFitness.class);
+            return d > 1.0 ? 0.0 : d;
         }
     }
 

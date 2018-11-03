@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -49,6 +49,11 @@ public class RuntimeSettings {
      */
     public static boolean mockSystemIn = false;
 
+    
+    /**
+     * Should the use the GUI (javax.swing, etc.) be mocked?
+     */
+    public static boolean mockGUI = false;
     /**
      * Shall the test cases use a virtual file system?
      */
@@ -91,7 +96,7 @@ public class RuntimeSettings {
      * Should tests be executed in a separate instrumenting class loader
      * or with the standard classloader and instrumentation via an agent?
      */
-    public static boolean useSeparateClassLoader = false;
+    public static boolean useSeparateClassLoader = true;
 
     /**
      * If the class is serializable, then doing any change (adding hashCode, static reset, etc)
@@ -110,19 +115,21 @@ public class RuntimeSettings {
      */
     public static boolean isRunningASystemTest = false;
 
-    public static boolean isUsingAnyMocking(){
-        return mockJVMNonDeterminism || useVFS || useVNET;
+    public static boolean isUsingAnyMocking() {
+        return mockJVMNonDeterminism || useVFS || useVNET || mockGUI;
     }
 
-    public static void deactivateAllMocking(){
+    public static void deactivateAllMocking() {
         mockJVMNonDeterminism = false;
+        mockGUI = false;
         useVNET = false;
         useVFS = false;
-        assert ! isUsingAnyMocking();
+        assert !isUsingAnyMocking();
     }
 
-    public static void activateAllMocking(){
+    public static void activateAllMocking() {
         mockJVMNonDeterminism = true;
+        mockGUI = true;
         useVNET = true;
         useVFS = true;
         assert isUsingAnyMocking();

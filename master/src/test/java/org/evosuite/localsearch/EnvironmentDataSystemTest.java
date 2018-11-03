@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -120,13 +120,13 @@ public class EnvironmentDataSystemTest extends SystemTestBase {
 		
 		Properties.CONCOLIC_TIMEOUT = Integer.MAX_VALUE;
 		
-		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.getLocalSearch();
+		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
 		localObjective.addFitnessFunction(fitness);
 		localSearch.doSearch(suite, localObjective);
 		System.out.println("Fitness: "+fitness.getFitness(suite));
 		System.out.println("Test suite: "+suite);
-		assertEquals(0.0, fitness.getFitness(suite), 0.1F);
+		assertEquals("Local search failed to cover class", 0.0, fitness.getFitness(suite), 0.1F);
 		BranchCoverageMap.getInstance().searchFinished(null);
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -60,16 +60,16 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
         Properties.OUTPUT_VARIABLES = RuntimeVariable.Total_Goals + "," + RuntimeVariable.LineCoverage;
         Properties.STATISTICS_BACKEND = StatisticsBackend.CSV;
         Properties.COVERAGE_MATRIX = true;
+        Properties.SANDBOX = false;
+        Properties.VIRTUAL_FS = false;
+        Properties.VIRTUAL_NET = false;
+        Properties.REPLACE_CALLS = false;
+        Properties.REPLACE_SYSTEM_IN = false;
+        Properties.MAX_LOOP_ITERATIONS = -1;
 
         String[] command = new String[] {
             "-class", targetClass,
             "-Djunit=" + testClass,
-            "-Dsandbox=false",
-            "-Dvirtual_fs=false",
-            "-Dvirtual_net=false",
-            "-Dreplace_calls=false",
-            "-Dreplace_system_in=false",
-            "-Dmax_loop_iterations=-1",
             "-measureCoverage"
         };
 
@@ -78,22 +78,24 @@ public class CoverageAnalysisCharSequenceSystemTest extends SystemTestBase {
 
         Map<String, OutputVariable<?>> outputVariables = statistics.getOutputVariables();
 
-        assertEquals(9, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
+        assertEquals(10, (Integer) outputVariables.get(RuntimeVariable.Total_Goals.name()).getValue(), 0.0);
         assertEquals(9, (Integer) outputVariables.get(RuntimeVariable.Covered_Goals.name()).getValue(), 0.0);
-        assertEquals(1.0, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
+        assertEquals(0.9, (Double) outputVariables.get(RuntimeVariable.LineCoverage.name()).getValue(), 0.0);
         assertEquals(1, (Integer) outputVariables.get(RuntimeVariable.Tests_Executed.name()).getValue(), 0.0);
-        assertEquals("111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
+        // the constructor of 'WordUtils' is not covered
+        assertEquals("0111111111", (String) outputVariables.get(RuntimeVariable.LineCoverageBitString.name()).getValue());
 
         // check coverage matrix
         String coveragematrix_file = System.getProperty("user.dir") + File.separator +
                 Properties.REPORT_DIR + File.separator +
-                "data" + File.separator + Properties.TARGET_CLASS + "." + Properties.Criterion.LINE.name() + ".matrix";
+                "data" + File.separator + Properties.TARGET_CLASS + File.separator +
+                Properties.Criterion.LINE.name() + File.separator + Properties.COVERAGE_MATRIX_FILENAME;
         System.out.println("CoverageMatrix file " + coveragematrix_file);
 
         List<String> lines = Files.readAllLines(Paths.get(coveragematrix_file));
         // coverage of one test case
         assertEquals(1, lines.size());
-        // all components have been covered ("1"), and the test case pass ("+")
-        assertTrue(lines.get(0).equals("1 1 1 1 1 1 1 1 1 +"));
+        // all components except the WordUtils' constructor are covered ("1"), and the test case passes ("+")
+        assertTrue(lines.get(0).equals("0 1 1 1 1 1 1 1 1 1 +"));
     }
 }

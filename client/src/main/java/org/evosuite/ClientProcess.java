@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -133,6 +133,7 @@ public class ClientProcess {
 		RuntimeSettings.useVFS = Properties.VIRTUAL_FS;
 		RuntimeSettings.mockJVMNonDeterminism = Properties.REPLACE_CALLS;
 		RuntimeSettings.mockSystemIn = Properties.REPLACE_SYSTEM_IN;
+		RuntimeSettings.mockGUI = Properties.REPLACE_GUI;
 		RuntimeSettings.sandboxMode = Properties.SANDBOX_MODE;
         RuntimeSettings.maxNumberOfThreads = Properties.MAX_STARTED_THREADS;
         RuntimeSettings.maxNumberOfIterationsPerLoop = Properties.MAX_LOOP_ITERATIONS;

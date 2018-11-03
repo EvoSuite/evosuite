@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,7 +22,7 @@ package org.evosuite.testcase.statements;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -284,7 +284,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 
 				@Override
 				public Set<Class<? extends Throwable>> throwableExceptions() {
-					Set<Class<? extends Throwable>> t = new HashSet<Class<? extends Throwable>>();
+					Set<Class<? extends Throwable>> t = new LinkedHashSet<Class<? extends Throwable>>();
 					t.add(InvocationTargetException.class);
 					return t;
 				}
@@ -301,6 +301,9 @@ public class MethodStatement extends EntityWithParametersStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isDeclaredException(Throwable t) {
+		if(t == null)
+			return false;
+
 		for (Class<?> declaredException : method.getMethod().getExceptionTypes()) {
 			if (declaredException.isAssignableFrom(t.getClass()))
 				return true;

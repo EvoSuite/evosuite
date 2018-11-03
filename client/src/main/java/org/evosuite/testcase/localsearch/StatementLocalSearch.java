@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -91,17 +91,6 @@ public abstract class StatementLocalSearch {
     }
 
     public static StatementLocalSearch getLocalSearchFor(Statement statement) {
-
-        boolean useDSE = Properties.LOCAL_SEARCH_DSE == DSEType.STATEMENT &&
-                Randomness.nextDouble() < Properties.DSE_PROBABILITY;
-
-        if (useDSE) {
-            if (statement instanceof PrimitiveStatement<?>) {
-                return new DSELocalSearch();
-            } else {
-                return null;
-            }
-        }
 
         StatementLocalSearch search = null;
         if (statement instanceof NullStatement) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -66,8 +66,9 @@ public class JUnitAnalyzer {
 	private static final String JAVA = ".java";
 	private static final String CLASS = ".class";
 
-	private static final NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
 
+	private static NonInstrumentingClassLoader loader = new NonInstrumentingClassLoader();
+	
 	/**
 	 * Try to compile each test separately, and remove the ones that cannot be
 	 * compiled
@@ -165,7 +166,9 @@ public class JUnitAnalyzer {
 				return numUnstable;
 			}
 
-			Class<?>[] testClasses = loadTests(generated);
+            // Create a new classloader so that each test gets freshly loaded classes
+			loader = new NonInstrumentingClassLoader();
+            Class<?>[] testClasses = loadTests(generated);
 
 			if (testClasses == null) {
 				logger.error("Found no classes for compiled tests");
@@ -178,7 +181,6 @@ public class JUnitAnalyzer {
 				return numUnstable; // everything is OK
 			}
 
-			logger.error("" + result.getFailureCount() + " test cases failed");
 
 			failure_loop: for (JUnitFailure failure : result.getFailures()) {
 				String testName = failure.getDescriptionMethodName();// TODO
@@ -194,7 +196,7 @@ public class JUnitAnalyzer {
 					}
 				}
 
-				if (testName == null) {
+				if(testName == null){
 					/*
 					 * this can happen if there is a failure in the scaffolding
 					 * (eg @AfterClass/@BeforeClass). in such case, everything
@@ -212,9 +214,17 @@ public class JUnitAnalyzer {
 					return numUnstable;
 				}
 
-				logger.warn("Found unstable test named " + testName + " -> " + failure.getExceptionClassName() + ": "
-						+ failure.getMessage());
+				// On the Sheffield cluster, the "well-known fle is not secure" issue is impossible to understand,
+				// so it might be best to ignore it for now.
+				if(testName.equals("initializationError") && failure.getMessage().contains("Failed to attach Java Agent")) {
+					logger.warn("Likely error with EvoSuite instrumentation, ignoring failure in test execution");
+					continue failure_loop;
+				}
 
+
+				logger.warn("Found unstable test named " + testName + " -> "
+				        + failure.getExceptionClassName() + ": " + failure.getMessage());
+				
 				for (String elem : failure.getExceptionStackTrace()) {
 					logger.info(elem);
 				}
@@ -289,19 +299,25 @@ public class JUnitAnalyzer {
 			privileged = Sandbox.resetDefaultSecurityManager();
 		}
 
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
+		Result result = null;
+		ClassLoader currentLoader = Thread.currentThread().getContextClassLoader();
 
-		JDKClassResetter.reset(); // be sure we reset it here, otherwise "init"
-									// in the test case would take current
-									// changed state
-		Result result = runner.run(testClasses);
+		try {
+			TestGenerationContext.getInstance().goingToExecuteSUTCode();
+			Thread.currentThread().setContextClassLoader(testClasses[0].getClassLoader());
+			JDKClassResetter.reset(); //be sure we reset it here, otherwise "init" in the test case would take current changed state
+			result = runner.run(testClasses);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentLoader);
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+		}
 
 		TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 
-		if (wasSandboxOn) {
-			// only activate Sandbox if it was already active before
-
-			Sandbox.initializeSecurityManagerForSUT(privileged);
+		if(wasSandboxOn){
+			//only activate Sandbox if it was already active before
+			if(!Sandbox.isSecurityManagerInitialized())
+				Sandbox.initializeSecurityManagerForSUT(privileged);
 		} else {
 			if (Sandbox.isSecurityManagerInitialized()) {
 				logger.warn(

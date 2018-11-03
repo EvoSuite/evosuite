@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,6 +22,7 @@ package org.evosuite.instrumentation;
 
 import java.lang.reflect.Method;
 
+import com.examples.with.different.packagename.RegexNullExample;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.instrumentation.testability.StringHelper;
@@ -54,5 +55,26 @@ public class RegexInstrumentationSystemTest extends SystemTestBase {
 		Method m = sut.getMethod("foo", String.class);
 		Boolean b = (Boolean) m.invoke(null, matching);
 		Assert.assertTrue(b);
+	}
+
+	@Test
+	public void testRegexThrowsSameExceptionOnNull() throws Throwable {
+		//first check if it works with Java directly
+		String[] stringArray0 = new String[6];
+		stringArray0[0] = "Kge^";
+		stringArray0[1] = "--A=";
+
+		// Method returns false if NPE occurred
+		Assert.assertFalse(RegexNullExample.testMe(stringArray0));
+
+		//actually load the class, and see if it works
+		String targetClass = RegexNullExample.class.getCanonicalName();
+		Properties.TARGET_CLASS = targetClass;
+		InstrumentingClassLoader loader = new InstrumentingClassLoader();
+		Class<?> sut = loader.loadClass(targetClass);
+		Method m = sut.getMethod("testMe", String[].class);
+		Boolean b = (Boolean) m.invoke(null, new Object[]{stringArray0});
+		Assert.assertFalse(b);
+
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,6 +22,7 @@ package org.evosuite.testsuite;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
+import org.evosuite.Properties.SecondaryObjective;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.CoverageAnalysis;
@@ -85,9 +86,7 @@ public class TestSuiteMinimizer {
     public void minimize(TestSuiteChromosome suite, boolean minimizePerTest) {
         startTime = System.currentTimeMillis();
 
-        String strategy = Properties.SECONDARY_OBJECTIVE;
-        if (strategy.contains(":"))
-            strategy = strategy.substring(0, strategy.indexOf(':'));
+        SecondaryObjective strategy = Properties.SECONDARY_OBJECTIVE[0];
 
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
                 suite.size());
@@ -248,7 +247,7 @@ public class TestSuiteMinimizer {
         }
 
         if (Properties.MINIMIZE_SECOND_PASS) {
-            removeRedundantTestCases(suite);
+            removeRedundantTestCases(suite, goals);
         }
 
         double suiteCoverage = suite.getCoverage();
@@ -279,8 +278,6 @@ public class TestSuiteMinimizer {
      */
     private void minimizeSuite(TestSuiteChromosome suite) {
 
-        CurrentChromosomeTracker.getInstance().modification(suite);
-
         // Remove previous results as they do not contain method calls
         // in the case of whole suite generation
         for (ExecutableChromosome test : suite.getTestChromosomes()) {
@@ -288,12 +285,10 @@ public class TestSuiteMinimizer {
             test.clearCachedResults();
         }
 
-        String strategy = Properties.SECONDARY_OBJECTIVE;
-        if (strategy.contains(":"))
-            strategy = strategy.substring(0, strategy.indexOf(':'));
+        SecondaryObjective strategy = Properties.SECONDARY_OBJECTIVE[0];
 
         boolean size = false;
-        if (strategy.equals("size")) {
+        if (strategy == SecondaryObjective.SIZE) {
             size = true;
             // If we want to remove tests, start with shortest
             Collections.sort(suite.tests, new Comparator<TestChromosome>() {
@@ -302,7 +297,7 @@ public class TestSuiteMinimizer {
                     return chromosome1.size() - chromosome2.size();
                 }
             });
-        } else if (strategy.equals("maxlength")) {
+        } else if (strategy == SecondaryObjective.MAX_LENGTH) {
             // If we want to remove the longest test, start with longest
             Collections.sort(suite.tests, new Comparator<TestChromosome>() {
                 @Override
@@ -312,9 +307,12 @@ public class TestSuiteMinimizer {
             });
         }
 
+        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
         List<Double> fitness = new ArrayList<Double>();
-        for (TestFitnessFactory<?> ff : testFitnessFactories)
+        for (TestFitnessFactory<?> ff : testFitnessFactories) {
+            goals.addAll(ff.getCoverageGoals());
             fitness.add(ff.getFitness(suite));
+        }
 
         boolean changed = true;
         while (changed && !isTimeoutReached()) {
@@ -402,7 +400,7 @@ public class TestSuiteMinimizer {
         }
 
         this.removeEmptyTestCases(suite);
-        this.removeRedundantTestCases(suite);
+        this.removeRedundantTestCases(suite, goals);
     }
 
     private void removeEmptyTestCases(TestSuiteChromosome suite) {
@@ -416,7 +414,7 @@ public class TestSuiteMinimizer {
         }
     }
 
-    private void removeRedundantTestCases(TestSuiteChromosome suite) {
+    private void removeRedundantTestCases(TestSuiteChromosome suite, List<TestFitnessFunction> goals) {
         // Subsuming tests are inserted in the back, so we start inserting the final tests from there
         List<TestChromosome> tests = suite.getTestChromosomes();
         logger.debug("Before removing redundant tests: " + tests.size());
@@ -424,11 +422,6 @@ public class TestSuiteMinimizer {
         Collections.reverse(tests);
         List<TestChromosome> finalTests = new ArrayList<TestChromosome>();
         Set<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
-        List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-
-        for (TestFitnessFactory<?> tf : testFitnessFactories) {
-            goals.addAll(tf.getCoverageGoals());
-        }
 
         for (TestChromosome test : tests) {
             boolean addsNewGoals = false;

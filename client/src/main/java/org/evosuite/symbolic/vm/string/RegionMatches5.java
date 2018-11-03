@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -26,8 +26,8 @@ import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -44,7 +44,7 @@ public final class RegionMatches5 extends SymbolicFunction {
 	@Override
 	public Object executeFunction() {
 
-		NonNullReference symb_receiver = (NonNullReference) this
+		ReferenceConstant symb_receiver = (ReferenceConstant) this
 				.getSymbReceiver();
 		String conc_receiver = (String) this.getConcReceiver();
 		StringValue stringReceiverExpr = env.heap.getField(
@@ -54,7 +54,7 @@ public final class RegionMatches5 extends SymbolicFunction {
 		IntegerValue ignoreCaseExpr = new IntegerConstant(0);
 		IntegerValue toffsetExpr = this.getSymbIntegerArgument(0);
 
-		NonNullReference symb_other = (NonNullReference) this
+		ReferenceConstant symb_other = (ReferenceConstant) this
 				.getSymbArgument(1);
 		String conc_other = (String) this.getConcArgument(1);
 		StringValue otherExpr = env.heap.getField(Types.JAVA_LANG_STRING,

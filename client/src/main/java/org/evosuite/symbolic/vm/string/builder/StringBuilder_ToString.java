@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,8 +19,8 @@
  */
 package org.evosuite.symbolic.vm.string.builder;
 
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -37,7 +37,7 @@ public final class StringBuilder_ToString extends SymbolicFunction {
 
 	@Override
 	public Object executeFunction() {
-		NonNullReference symb_str_builder = (NonNullReference) this
+		ReferenceConstant symb_str_builder = (ReferenceConstant) this
 				.getSymbReceiver();
 
 		// receiver
@@ -47,7 +47,7 @@ public final class StringBuilder_ToString extends SymbolicFunction {
 		String res = (String) this.getConcRetVal();
 
 		if (res != null) {
-			NonNullReference symb_ret_val = (NonNullReference) this
+			ReferenceConstant symb_ret_val = (ReferenceConstant) this
 					.getSymbRetVal();
 
 			StringValue symb_value = env.heap.getField(

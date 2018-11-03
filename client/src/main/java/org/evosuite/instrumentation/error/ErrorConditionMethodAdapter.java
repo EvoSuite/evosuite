@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,8 +25,10 @@ package org.evosuite.instrumentation.error;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
+import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -85,20 +87,34 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	}
 	
 	private void initErrorBranchInstrumenters() {
-		instrumentation = new ArrayList<ErrorBranchInstrumenter>();
-		instrumentation.add(new ArrayInstrumentation(this));
-		instrumentation.add(new ArrayListInstrumentation(this));
-		instrumentation.add(new CastErrorInstrumentation(this));
-		instrumentation.add(new DequeInstrumentation(this));
-		instrumentation.add(new DivisionByZeroInstrumentation(this));
-		instrumentation.add(new LinkedHashSetInstrumentation(this));
+		instrumentation = new ArrayList<>();
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAY))
+			instrumentation.add(new ArrayInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LIST))
+			instrumentation.add(new ListInstrumentation(this));
+		/*if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.ARRAYLIST))
+			instrumentation.add(new ArrayListInstrumentation(this));*/
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.CAST))
+			instrumentation.add(new CastErrorInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.DEQUE))
+			instrumentation.add(new DequeInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.DIVISIONBYZERO))
+			instrumentation.add(new DivisionByZeroInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDHASHSET))
+			instrumentation.add(new LinkedHashSetInstrumentation(this));
 		// instrumentation.add(new ListInstrumentation(this));
-		instrumentation.add(new LinkedListInstrumentation(this));
-		instrumentation.add(new NullPointerExceptionInstrumentation(this));
-		instrumentation.add(new OverflowInstrumentation(this));
-		instrumentation.add(new QueueInstrumentation(this));
-		instrumentation.add(new StackInstrumentation(this));
-		instrumentation.add(new VectorInstrumentation(this));
+		/*if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.LINKEDLIST))
+			instrumentation.add(new LinkedListInstrumentation(this));*/
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.NPE))
+			instrumentation.add(new NullPointerExceptionInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.OVERFLOW))
+			instrumentation.add(new OverflowInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.QUEUE))
+			instrumentation.add(new QueueInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.STACK))
+			instrumentation.add(new StackInstrumentation(this));
+		if(ArrayUtil.contains(Properties.ERROR_INSTRUMENTATION, Properties.ErrorInstrumentation.VECTOR))
+			instrumentation.add(new VectorInstrumentation(this));
 	}
 	
 	

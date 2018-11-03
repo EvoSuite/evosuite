@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -42,6 +42,7 @@ import java.util.LinkedHashSet;
 import java.util.PropertyPermission;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.FileHandler;
 import java.util.logging.LoggingPermission;
 
 import javax.management.MBeanPermission;
@@ -205,16 +206,16 @@ public class MSecurityManager extends SecurityManager {
      *
      * @param remoteNode
      */
-    public static void setupMasterNodeRemoteHandling(Class<?> remoteNode){
+    public static void setupMasterNodeRemoteHandling(Class<?> remoteNode) {
         Method[] methods = remoteNode.getMethods();
         Set<String> names = new HashSet<>();
-        for(Method m : methods){
+        for(Method m : methods) {
             names.add(m.getName());
         }
         masterNodeRemoteMethodNames = Collections.unmodifiableSet(names);
     }
 
-	public Set<Thread> getPrivilegedThreads(){
+	public Set<Thread> getPrivilegedThreads() {
 		Set<Thread> set = new LinkedHashSet<>();
 		set.addAll(privilegedThreads);
 		return set;
@@ -232,7 +233,7 @@ public class MSecurityManager extends SecurityManager {
 	 * 
 	 * @return
 	 */
-	public static File getRealTmpFile(){
+	public static File getRealTmpFile() {
 		return tmpFile;
 	}
 
@@ -259,9 +260,9 @@ public class MSecurityManager extends SecurityManager {
 	 * 
 	 * @return
 	 */
-	public boolean isSafeToExecuteSUTCode(){
+	public boolean isSafeToExecuteSUTCode() {
 		Thread current = Thread.currentThread();
-		if(!privilegedThreads.contains(current)){
+		if(!privilegedThreads.contains(current)) {
 			//the thread is not privileged, so run inside the box
 			return true;
 		} else {
@@ -350,7 +351,7 @@ public class MSecurityManager extends SecurityManager {
 		executingTestCase = true;
 	}
 
-	public boolean isExecutingTestCase(){
+	public boolean isExecutingTestCase() {
 		return executingTestCase;
 	}
 
@@ -366,7 +367,7 @@ public class MSecurityManager extends SecurityManager {
 		 */
 		org.evosuite.runtime.System.restoreProperties();
 
-		for(File file : filesToDelete){
+		for(File file : filesToDelete) {
 			file.deleteOnExit();
 		}
 
@@ -389,7 +390,7 @@ public class MSecurityManager extends SecurityManager {
             String current = Thread.currentThread().getName();
             String msg = "Unprivileged thread \""+current+"\" cannot add a privileged thread: failed to add \""+t.getName()+"\"";
             msg += "\nCurrent privileged threads are: ";
-            for(Thread p : privilegedThreads){
+            for(Thread p : privilegedThreads) {
                 msg += "\n\""+p.getName()+"\"";
             }
 			throw new SecurityException(msg);
@@ -501,7 +502,7 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 		
-		if(checkIfEvoSuiteRMI(perm) || checkIfRMIDuringTests(perm)){
+		if(checkIfEvoSuiteRMI(perm) || checkIfRMIDuringTests(perm)) {
 			return true;
 		}
 
@@ -510,7 +511,7 @@ public class MSecurityManager extends SecurityManager {
 
 			//it is an EvoSuite thread but, in special occasions, we might want to ignore its privileged status 
 
-			if(privilegedThreadToIgnore == null || !Thread.currentThread().equals(privilegedThreadToIgnore)){
+			if(privilegedThreadToIgnore == null || !Thread.currentThread().equals(privilegedThreadToIgnore)) {
 
 				if (defaultManager == null) {
 					return true; // no security manager, so allow it
@@ -678,7 +679,7 @@ public class MSecurityManager extends SecurityManager {
 		 * we have to take, ie allowing SUT permissions
 		 */
 		if (canonicalName.startsWith("java")) {
-			if(! unrecognizedPermissions.contains(perm)){
+			if(!unrecognizedPermissions.contains(perm)) {
 				unrecognizedPermissions.add(perm);
 				logger.debug("Unrecognized permission type: " + canonicalName);
 			}
@@ -716,7 +717,7 @@ public class MSecurityManager extends SecurityManager {
 			This would be a reason more to actually mock RMI in VNET
 		 */
 
-		if(! Thread.currentThread().getName().startsWith("RMI ")){
+		if(!Thread.currentThread().getName().startsWith("RMI ") && !Thread.currentThread().getName().equals("Statistics sender in client process")) {
 			return false;
 		}
 
@@ -724,35 +725,35 @@ public class MSecurityManager extends SecurityManager {
 		boolean foundRMI = false;
 
 		//first check if there is any reference to RMI in the stack trace
-		for(StackTraceElement element : Thread.currentThread().getStackTrace()){
-			if(element.toString().startsWith(pattern)){
+		for(StackTraceElement element : Thread.currentThread().getStackTrace()) {
+			if(element.toString().startsWith(pattern)) {
 				foundRMI = true;
 				break;
 			}
 		}
 
-		if(!foundRMI){
+		if(!foundRMI) {
 			//found no reference to RMI
 			return false;
 		}
 
 		boolean foundMasterNode = false;
 
-		traceLoop: for(StackTraceElement element : Thread.currentThread().getStackTrace()){
-			for(String masterNodeMethod : masterNodeRemoteMethodNames){
-				if(element.toString().contains(masterNodeMethod)){
+		traceLoop: for(StackTraceElement element : Thread.currentThread().getStackTrace()) {
+			for(String masterNodeMethod : masterNodeRemoteMethodNames) {
+				if(element.toString().contains(masterNodeMethod)) {
 					foundMasterNode = true;
 					break traceLoop;
 				}
 			}
 		}
 
-		if(!foundMasterNode){
+		if(!foundMasterNode) {
 			//found no reference to RMI
 			return false;
 		}
 
-		if(perm instanceof FilePermission && !perm.getActions().equals("read")){
+		if(perm instanceof FilePermission && !perm.getActions().equals("read")) {
 			//we do this just as a safety mechanism...
 			logger.error("EvoSuite RMI is trying to interact with files: "+perm);
 			return false;
@@ -761,14 +762,14 @@ public class MSecurityManager extends SecurityManager {
 		return true;
 	}
 
-	public boolean checkIfRMIDuringTests(Permission perm){
+	public boolean checkIfRMIDuringTests(Permission perm) {
 		
 		/*
 		 * if we are running test cases to debug EvoSuite, we always want to allow RMI.
 		 * this is particularly true as we do have RMI in the Master as well, which usually
 		 * would run without a sandbox
 		 */
-		if(runningClientOnThread && Thread.currentThread().getName().startsWith("RMI TCP")){
+		if(runningClientOnThread && Thread.currentThread().getName().startsWith("RMI TCP")) {
 			return true;
 		}
 		
@@ -788,7 +789,8 @@ public class MSecurityManager extends SecurityManager {
         String action = perm.getActions();
         String name = perm.getName();
 
-        if(action.equals("resolve") && name.equals(LOCALHOST_NAME)){
+        // TODO: Relaxing this a bit due to issues with statistics handling
+        if(action.contains("resolve") && name.equals(LOCALHOST_NAME) || name.contains(InetAddress.getLoopbackAddress().toString())) {
             /*
                 this kind of special: we do allow resolve of local host, although we do mock InetAddress.
                 This is due to all kind of indirect calls in Swing that we do not fully mock, eg like
@@ -1020,7 +1022,7 @@ public class MSecurityManager extends SecurityManager {
 			return false;
 		}
 
-		if(name.equals("createSecurityManager")){
+		if(name.equals("createSecurityManager")) {
 			return true; //just creating should not be a problem
 		}
 
@@ -1043,7 +1045,7 @@ public class MSecurityManager extends SecurityManager {
 		}
 		
 		if(name.equals("shutdownHooks")) {
-			if(RuntimeSettings.mockJVMNonDeterminism){
+			if(RuntimeSettings.mockJVMNonDeterminism) {
 				return true; // the hooks will be handled by mocking framework
 			} else {
 				return false;
@@ -1177,7 +1179,7 @@ public class MSecurityManager extends SecurityManager {
 		/*
 		 * this is also useful for checking types in the String constants, and to be warned if they ll change in future JDKs
 		 */
-		if(! unrecognizedPermissions.contains(perm)){
+		if(!unrecognizedPermissions.contains(perm)) {
 			unrecognizedPermissions.add(perm);
 			logger.warn("SUT asked for a runtime permission that EvoSuite does not recognize: " + name);
 		}
@@ -1191,11 +1193,11 @@ public class MSecurityManager extends SecurityManager {
 		 * TODO: this will need to be removed once REPLACE_CALLS
 		 * will be on by default 
 		 */
-		if (perm.getName().equals("sun.font.fontmanager")){
+		if (perm.getName().equals("sun.font.fontmanager")) {
 			return true;
 		}
 
-		if(perm.getActions().contains("write") && !executingTestCase){
+		if(perm.getActions().contains("write") && !executingTestCase) {
 			if(org.evosuite.runtime.System.isSystemProperty(perm.getName())) {
 				return false;
 			} else {
@@ -1222,6 +1224,25 @@ public class MSecurityManager extends SecurityManager {
 		return true;
 	}
 
+	/**
+	 * Check if this is an access of a file needed for FileHandler, or its parent directory check
+	 * @param fp
+	 * @return
+	 */
+	private boolean isFileHandlerCall(FilePermission fp) {
+		if(fp.getName().contains(FILE_HANDLER_NAME_PATTERN))
+			return true;
+		if (fp.getActions().equals("write")) {
+			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+				if(e.getClassName().equals(FileHandler.class.getName()) && e.getMethodName().equals("isParentWritable")) {
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	protected boolean checkFilePermission(FilePermission fp) {
 		String action = fp.getActions();
 		if (action == null) {
@@ -1238,13 +1259,13 @@ public class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
-		if(RuntimeSettings.useVFS){
+		if(RuntimeSettings.useVFS) {
 
 			//we need at least one real file with all permissions, otherwise the VFS will not work
 			boolean isTmpFile = fp.getName().equals(VirtualFileSystem.getInstance().getRealTmpFile().getPath());
-			boolean isFileHandlerFile = fp.getName().contains(FILE_HANDLER_NAME_PATTERN);
+			boolean isFileHandlerFile = isFileHandlerCall(fp);
 
-			if(isFileHandlerFile){
+			if(isFileHandlerFile) {
 				/*
 				 * Note: story here is complicated, see MockFileHandler class.
 				 * As we do not know which files will be generated in its superclass FileHandler, 
@@ -1255,9 +1276,15 @@ public class MSecurityManager extends SecurityManager {
 				//File tmpFile = new File(fp.getName());
 				//tmpFile.deleteOnExit(); //Note: we cannot do it here, otherwise we end up in a infinite recursion...
 				//filesToDelete.add(tmpFile);
+				/*
+				 * Note: As we do not delete the files, they will remain on the FS. FileHandler will then create
+				 * a new file the next time, but once it runs out of IDs, it will check if the parent directory
+				 * is writable, which would cause a security exception. We therefore either have to delete the file
+				 * or check the stack trace to see if we are in FileHandler.isParentWritable
+				 *
+				 */
 			}
-
-			if(isTmpFile || isFileHandlerFile){
+			if(isTmpFile || isFileHandlerFile) {
 				return true;
 			}
 		}
@@ -1265,8 +1292,8 @@ public class MSecurityManager extends SecurityManager {
 		String fontDir = USER_DIR+File.separator+".java"+File.separator+
 				"fonts"+File.separator+JAVA_VERSION;
 
-		if(action.equals("write") && 
-				fp.getName().startsWith(fontDir)){
+		if(action.equals("write")) {
+			if(fp.getName().startsWith(fontDir)) {
 			/*
 			 * NOTE: this is a very tricky situation.
 			 * Issue arises in GUI classes like javax.swing.JComponent,
@@ -1286,7 +1313,40 @@ public class MSecurityManager extends SecurityManager {
 			 *   refactor/extend this class to handle AccessController.doPrivileged blocks.
 			 *        
 			 */
-			return true;
+				return true;
+			} else if(fp.getName().contains("jacoco")) {
+				/*
+				 * This is not 100% secure, but Jacoco support
+				 * is important
+				 */
+				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+					if(e.getClassName().startsWith("org.jacoco.")) {
+						return true;
+					}
+				}
+			} else if(fp.getName().contains("clover")) {
+				/*
+				 * To make sure this is really clover trying to write a report
+				 * we also check that this is invoked by clover
+				 */
+				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+					if(e.getClassName().startsWith("com.atlassian.clover.")) {
+						return true;
+					}
+				}
+			}
+		} else if(action.equals("delete")) {
+			if(fp.getName().contains("clover.db.liverec")) {
+				/*
+				 * To make sure this is really clover trying to write a report
+				 * we also check that this is invoked by clover
+				 */
+				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+					if(e.getClassName().startsWith("com.atlassian.clover.")) {
+						return true;
+					}
+				}
+			}
 		}
 
 		return false;

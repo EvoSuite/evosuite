@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,4 +24,9 @@ public abstract class SmtExpr {
 	public abstract <K, V> K accept(SmtExprVisitor<K, V> v, V arg);
 
 	public abstract boolean isSymbolic();
+
+	public String toString() {
+		SmtExprPrinter printer = new SmtExprPrinter();
+		return this.accept(printer, null);
+	}
 }

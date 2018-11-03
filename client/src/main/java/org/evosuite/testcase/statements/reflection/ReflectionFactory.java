@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -54,7 +54,7 @@ public class ReflectionFactory {
         fields = new ArrayList<>();
         methods = new ArrayList<>();
 
-        for(Method m : target.getDeclaredMethods()){
+        for(Method m : Reflection.getDeclaredMethods(target)){
             if(Modifier.isPrivate(m.getModifiers()) && !m.isBridge() && !m.isSynthetic()){
                 //only interested in private methods, as the others can be called directly
                 methods.add(m);
@@ -67,11 +67,14 @@ public class ReflectionFactory {
             toSkip = Injector.getAllFieldsToInject(target);
         }
 
-        for(Field f : target.getDeclaredFields()){
+        for(Field f : Reflection.getDeclaredFields(target)){
             if(Modifier.isPrivate(f.getModifiers())
                     && !f.isSynthetic()
                     && (toSkip==null || ! toSkip.contains(f))
                     && !f.getName().equals("serialVersionUID")
+                    // read/writeObject must not be invoked directly, otherwise it raises a java.io.NotActiveException
+                    && !f.getName().equals("writeObject")
+                    && !f.getName().equals("readObject")
                     // final primitives cannot be changed
                     && !(Modifier.isFinal(f.getModifiers()) && f.getType().isPrimitive())
                     // changing final strings also doesn't make much sense

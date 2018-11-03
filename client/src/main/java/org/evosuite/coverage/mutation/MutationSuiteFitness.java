@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,23 +22,21 @@
  */
 package org.evosuite.coverage.mutation;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-import org.evosuite.utils.ArrayUtil;
 
 /**
  * <p>
@@ -53,50 +51,54 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final BranchCoverageSuiteFitness branchFitness;
 
-	protected final List<MutationTestFitness> mutationGoals;
+	// target goals
+	protected final Map<Integer, MutationTestFitness> mutantMap = new LinkedHashMap<Integer, MutationTestFitness>();
+	protected final int numMutants;
 
-	public final Set<Integer> mutants = new HashSet<Integer>();
+	protected final Set<Integer> removedMutants = new LinkedHashSet<Integer>();
+	protected final Set<Integer> toRemoveMutants = new LinkedHashSet<Integer>();
 
-	public final Set<Integer> removedMutants = new HashSet<Integer>();
+	public MutationSuiteFitness(Criterion criterion) {
+		if (criterion != Criterion.STRONGMUTATION && criterion != Criterion.WEAKMUTATION
+		    && criterion != Criterion.ONLYMUTATION) {
+			throw new RuntimeException("Invalid initialisation of MutationSuiteFitness with criterion '"
+			    + criterion.name()
+			    + "'. MutationSuiteFitness can only be invoked with STRONGMUTATION, WEAKMUTATION, and ONLYMUTATION");
+		}
+		MutationFactory factory = (MutationFactory) FitnessFunctions.getFitnessFactory(criterion);
 
-	public final Set<Integer> toRemoveMutants = new HashSet<Integer>();
-
-	public final Map<Integer, MutationTestFitness> mutantMap = new HashMap<Integer, MutationTestFitness>();
-
-	public MutationSuiteFitness() {
-		MutationFactory factory = new MutationFactory(
-		        ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION));
-		mutationGoals = factory.getCoverageGoals();
-		logger.info("Mutation goals: " + mutationGoals.size());
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		branchFitness = new BranchCoverageSuiteFitness();
-		
-		for(MutationTestFitness goal : mutationGoals) {
+		Properties.TEST_ARCHIVE = archive;
+
+		for (MutationTestFitness goal : factory.getCoverageGoals()) {
 			mutantMap.put(goal.getMutation().getId(), goal);
-			mutants.add(goal.getMutation().getId());
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
 
+		this.numMutants = this.mutantMap.size();
 	}
 
 	@Override
 	public boolean updateCoveredGoals() {
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
-		
-		for (Integer mutant : toRemoveMutants) {
-			boolean removed = mutants.remove(mutant);
-			TestFitnessFunction f = mutantMap.remove(mutant);
-			if (removed && f != null) {
-				removedMutants.add(mutant);
+		}
+
+		for (Integer mutant : this.toRemoveMutants) {
+			TestFitnessFunction ff = this.mutantMap.remove(mutant);
+			if (ff != null) {
+				this.removedMutants.add(mutant);
 			} else {
 				throw new IllegalStateException("goal to remove not found");
 			}
 		}
 
-		toRemoveMutants.clear();
-		logger.info("Current state of archive: "+TestsArchive.instance.toString());
-		
+		this.toRemoveMutants.clear();
+		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
+
 		return true;
 	}
 	
@@ -104,10 +106,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	@Override
 	public ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
-	}
-
-	public int getNumMutants() {
-		return mutationGoals.size();
 	}
 
 	/**

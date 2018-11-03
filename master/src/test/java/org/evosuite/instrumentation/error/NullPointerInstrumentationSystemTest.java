@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,65 +19,40 @@
  */
 package org.evosuite.instrumentation.error;
 
-import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.SystemTestBase;
-import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.strategy.TestGenerationStrategy;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.errorbranch.Fieldaccess;
 import com.examples.with.different.packagename.errorbranch.Methodcall;
 
-public class NullPointerInstrumentationSystemTest extends SystemTestBase {
+public class NullPointerInstrumentationSystemTest extends AbstractErrorBranchTest {
+
+	@Test
+	public void testMethodCallWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+		checkErrorBranches(Methodcall.class, 2, 0, 2, 0);
+	}
 
 	@Test
 	public void testMethodCallWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = Methodcall.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		// Null strings are not so likely, so we give more budget
-		Properties.SEARCH_BUDGET = 20000;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+		checkErrorBranches(Methodcall.class, 2, 2, 2, 2);
+	}
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(1, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	@Test
+	public void testFieldWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+		checkErrorBranches(Fieldaccess.class, 2, 0, 2, 0);
 	}
 
 	@Test
 	public void testFieldWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = Fieldaccess.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(2, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.NPE};
+		checkErrorBranches(Fieldaccess.class, 2, 4, 2, 3);
 	}
+
 }

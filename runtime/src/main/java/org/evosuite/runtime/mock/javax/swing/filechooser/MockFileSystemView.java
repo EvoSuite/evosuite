@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -529,10 +529,19 @@ class MockWindowsFileSystemView extends MockFileSystemView {
 	}
 
 	/**
-	 * @return the Desktop folder.
+	 * @return the home directory on the drive the code exists on.
 	 */
 	public File getHomeDirectory() {
-		return getRoots()[0];
+		File executionPath = createFileObject(System.getProperty("user.dir"));
+		File[] roots = getRoots();
+
+		for (File root : roots) {
+			if(root.toPath().getRoot().equals(executionPath.toPath().getRoot())) {
+				return root;
+			}
+		}
+
+		return roots[0];
 	}
 
 	/**

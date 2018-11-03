@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,7 +22,6 @@ package org.evosuite.assertion;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -212,7 +211,7 @@ public abstract class Assertion implements Serializable {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<VariableReference> getReferencedVariables() {
-		Set<VariableReference> vars = new HashSet<VariableReference>();
+		Set<VariableReference> vars = new LinkedHashSet<>();
 		vars.add(source);
 		return vars;
 	}

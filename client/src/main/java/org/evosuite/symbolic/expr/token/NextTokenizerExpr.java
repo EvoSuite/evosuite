@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -58,7 +58,7 @@ public final class NextTokenizerExpr extends TokenizerExpr {
 			return true;
 
 		if (obj instanceof NextTokenizerExpr) {
-			NextTokenizerExpr that = this;
+			NextTokenizerExpr that = (NextTokenizerExpr)obj;
 			return this.tokenizerExpr.equals(that.tokenizerExpr);
 		} else
 			return false;

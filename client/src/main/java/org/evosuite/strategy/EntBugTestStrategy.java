@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -29,6 +29,8 @@ import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageTestFitness;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResultBuilder;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -68,6 +70,9 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 
 	@Override
 	public TestSuiteChromosome generateTests() {
+		// In order to improve strategy's performance, in here we explicitly disable EvoSuite's
+		// archive, as it is not used anyway by this strategy
+		Properties.TEST_ARCHIVE = false;
 
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for individual test generation (ASE'13)");
@@ -90,6 +95,7 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(rhoFactory.getCoverageGoals());
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");        
         LoggingUtils.getEvoLogger().info("  - Rho " + goals.size());
+		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 		double previous_fitness = RhoCoverageFactory.getRho();
 		double best_fitness = 0.0;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -47,7 +47,7 @@ private static final String LISTNAME = Stack.class.getCanonicalName().replace('.
 				tagBranchStart();
 				mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LISTNAME,
 	                      "empty", "()Z", false);
-				insertBranchWithoutTag(Opcodes.IFLE, "java/util/EmptyStackException");
+				insertBranch(Opcodes.IFLE, "java/util/EmptyStackException");
 				tagBranchEnd();
 				restoreMethodParameters(tempVariables, desc);
 				

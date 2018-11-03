@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -30,52 +30,34 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class LinkedListInstrumentationSystemTest extends SystemTestBase {
+public class LinkedListInstrumentationSystemTest extends AbstractErrorBranchTest {
+
+	@Test
+	public void testLinkedListWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+		checkErrorBranches(LinkedListAccess.class, 3, 0, 3, 0);
+	}
 
 	@Test
 	public void testLinkedListWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = LinkedListAccess.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(5, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+		checkErrorBranches(LinkedListAccess.class, 3, 2, 3, 2);
 	}
 
+	@Test
+	public void testLinkedListIndexWithoutErrorBranches() {
+		Properties.ERROR_BRANCHES = false;
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+		checkErrorBranches(LinkedListAccessIndex.class, 3, 0, 3, 0);
+	}
 
 	@Test
 	public void testLinkedListIndexWithErrorBranches() {
-
-		EvoSuite evosuite = new EvoSuite();
-
-		String targetClass = LinkedListAccessIndex.class.getCanonicalName();
-
-		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
-		Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
-
-		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
-		Assert.assertEquals(3, TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size());
-		Assert.assertEquals(6, TestGenerationStrategy.getFitnessFactories().get(1).getCoverageGoals().size());
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-
+		Properties.ERROR_INSTRUMENTATION = new Properties.ErrorInstrumentation[]{Properties.ErrorInstrumentation.LIST};
+		checkErrorBranches(LinkedListAccessIndex.class, 3, 4, 3, 4);
 	}
+
 }

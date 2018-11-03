@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -34,6 +34,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -65,6 +66,10 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 	
 	@Override
 	public TestSuiteChromosome generateTests() {
+		// In order to improve strategy's performance, in here we explicitly disable EvoSuite's
+		// archive, as it is not used anyway by this strategy
+		Properties.TEST_ARCHIVE = false;
+
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for individual test generation");
 		ExecutionTracer.enableTraceCalls();
@@ -106,6 +111,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 
 		// Bootstrap with random testing to cover easy goals
 		//statistics.searchStarted(suiteGA);
+		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 		StoppingCondition stoppingCondition = getStoppingCondition();
 		TestSuiteChromosome suite = (TestSuiteChromosome) bootstrapRandomSuite(fitnessFunctions.get(0), goalFactories.get(0)); // FIXME: just one fitness and one factory?!

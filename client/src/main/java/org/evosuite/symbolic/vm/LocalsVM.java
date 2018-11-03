@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -23,7 +23,8 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.evosuite.symbolic.expr.fp.RealValue;
-
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.dse.AbstractVM;
 
 /**
@@ -182,7 +183,7 @@ public final class LocalsVM extends AbstractVM {
 		if (x == null) {
 			env.topFrame().operandStack.pushNullRef();
 		} else {
-			NonNullReference stringRef = (NonNullReference) env.heap
+			ReferenceConstant stringRef = (ReferenceConstant) env.heap
 					.getReference(x);
 			env.topFrame().operandStack.pushRef(stringRef);
 		}
@@ -204,7 +205,7 @@ public final class LocalsVM extends AbstractVM {
 	 */
 	@Override
 	public void LDC(Class<?> x) {
-		Reference ref = env.heap.getReference(x);
+		ReferenceExpression ref = env.heap.getReference(x);
 		env.topFrame().operandStack.pushRef(ref);
 	}
 

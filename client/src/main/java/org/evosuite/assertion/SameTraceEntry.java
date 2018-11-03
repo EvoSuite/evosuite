@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.assertion;
 
@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.regression.ObjectDistanceCalculator;
 import org.evosuite.testcase.variable.VariableReference;
@@ -40,137 +39,173 @@ import org.slf4j.LoggerFactory;
  */
 public class SameTraceEntry implements OutputTraceEntry {
 
-	private final VariableReference var;
+  private final static Logger logger = LoggerFactory.getLogger(SameTraceEntry.class);
+  private final VariableReference var;
+  private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
+  private final Map<Integer, VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
 
-	private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
-	
-	private final Map<Integer,VariableReference> equalityMapIntVar = new HashMap<Integer, VariableReference>();
-	
-	private final static Logger logger = LoggerFactory.getLogger(SameTraceEntry.class);
+  /**
+   * <p>Constructor for SameTraceEntry.</p>
+   *
+   * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
+   */
+  public SameTraceEntry(VariableReference var) {
+    this.var = var;
+  }
 
-	/**
-	 * <p>Constructor for SameTraceEntry.</p>
-	 *
-	 * @param var a {@link org.evosuite.testcase.variable.VariableReference} object.
-	 */
-	public SameTraceEntry(VariableReference var) {
-		this.var = var;
-	}
-
-	/**
-	 * <p>addEntry</p>
-	 *
-	 * @param other a {@link org.evosuite.testcase.variable.VariableReference} object.
-	 * @param value a boolean.
-	 */
-	public void addEntry(VariableReference other, boolean value) {
-		equalityMap.put(other, value);
-		equalityMapIntVar.put(other.getStPosition(),other);
-	}
+  /**
+   * <p>addEntry</p>
+   *
+   * @param other a {@link org.evosuite.testcase.variable.VariableReference} object.
+   * @param value a boolean.
+   */
+  public void addEntry(VariableReference other, boolean value) {
+    equalityMap.put(other, value);
+    equalityMapIntVar.put(other.getStPosition(), other);
+  }
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
+   * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
 	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean differs(OutputTraceEntry other) {
-		if (other instanceof SameTraceEntry) {
-			if (!((SameTraceEntry) other).var.equals(var))
-				return false;
 
-			SameTraceEntry otherEntry = (SameTraceEntry) other;
-			for (VariableReference otherVar : equalityMap.keySet()) {
-				if (!otherEntry.equalityMap.containsKey(otherVar))
-					continue;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean differs(OutputTraceEntry other) {
+    if (other instanceof SameTraceEntry) {
+      if (!((SameTraceEntry) other).var.equals(var)) {
+        return false;
+      }
 
-				if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar)))
-					return true;
-			}
+      SameTraceEntry otherEntry = (SameTraceEntry) other;
+      for (VariableReference otherVar : equalityMap.keySet()) {
+        if (!otherEntry.equalityMap.containsKey(otherVar)) {
+          continue;
+        }
 
-		}
-		return false;
-	}
+        if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar))) {
+          return true;
+        }
+      }
+
+    }
+    return false;
+  }
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
+   * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
 	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<Assertion> getAssertions(OutputTraceEntry other) {
-		Set<Assertion> assertions = new HashSet<Assertion>();
 
-		if (other instanceof SameTraceEntry) {
-			SameTraceEntry otherEntry = (SameTraceEntry) other;
-			for (Integer otherVar : equalityMapIntVar.keySet()) {
-				if (!otherEntry.equalityMapIntVar.containsKey(otherVar))
-					continue;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<Assertion> getAssertions(OutputTraceEntry other) {
+    Set<Assertion> assertions = new HashSet<Assertion>();
 
-				if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)).equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
-					if(Properties.isRegression()){
-						double distance = ObjectDistanceCalculator.getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)), otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
-						if(distance==0)
-							return assertions;
-					}
-					SameAssertion assertion = new SameAssertion();
-					assertion.source = var;
-					assertion.dest = equalityMapIntVar.get(otherVar);
-					assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
-					if(Properties.isRegression())
-						assertion.setComment("// (Same) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar)) +" | Regression Value: " + otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
-					assertions.add(assertion);
-					assert (assertion.isValid());
-				}
-			}
-		}
-		return assertions;
-	}
+    if (other instanceof SameTraceEntry) {
+      SameTraceEntry otherEntry = (SameTraceEntry) other;
+      for (Integer otherVar : equalityMapIntVar.keySet()) {
+        if (!otherEntry.equalityMapIntVar.containsKey(otherVar)) {
+          continue;
+        }
+
+        if (!otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar))
+            .equals(equalityMap.get(equalityMapIntVar.get(otherVar)))) {
+          if (Properties.isRegression()) {
+            double distance = ObjectDistanceCalculator
+                .getObjectDistance(equalityMap.get(equalityMapIntVar.get(otherVar)),
+                    otherEntry.equalityMap.get(otherEntry.equalityMapIntVar.get(otherVar)));
+            if (distance == 0) {
+              return assertions;
+            }
+          }
+          SameAssertion assertion = new SameAssertion();
+          assertion.source = var;
+          assertion.dest = equalityMapIntVar.get(otherVar);
+          assertion.value = equalityMap.get(equalityMapIntVar.get(otherVar));
+          if (Properties.isRegression()) {
+            assertion.setComment(
+                "// (Same) Original Value: " + equalityMap.get(equalityMapIntVar.get(otherVar))
+                    + " | Regression Value: " + otherEntry.equalityMap
+                    .get(otherEntry.equalityMapIntVar.get(otherVar)));
+          }
+          assertions.add(assertion);
+          assert (assertion.isValid());
+        }
+      }
+    }
+    return assertions;
+  }
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
+   * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
 	 */
-	/** {@inheritDoc} */
-	@Override
-	public Set<Assertion> getAssertions() {
-		Set<Assertion> assertions = new HashSet<Assertion>();
 
-		for (VariableReference otherVar : equalityMap.keySet()) {
-			if (otherVar == null)
-				continue;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<Assertion> getAssertions() {
+    Set<Assertion> assertions = new HashSet<Assertion>();
 
-			SameAssertion assertion = new SameAssertion();
-			assertion.source = var;
-			assertion.dest = otherVar;
-			assertion.value = equalityMap.get(otherVar);
-			assertions.add(assertion);
-			assert (assertion.isValid());
-		}
-		return assertions;
-	}
+    for (VariableReference otherVar : equalityMap.keySet()) {
+      if (otherVar == null) {
+        continue;
+      }
+
+      SameAssertion assertion = new SameAssertion();
+      assertion.source = var;
+      assertion.dest = otherVar;
+      assertion.value = equalityMap.get(otherVar);
+      assertions.add(assertion);
+      assert (assertion.isValid());
+    }
+    return assertions;
+  }
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
 	 */
-	/** {@inheritDoc} */
-	@Override
-	public boolean isDetectedBy(Assertion assertion) {
-		if (assertion instanceof SameAssertion) {
-			SameAssertion ass = (SameAssertion) assertion;
-			if (ass.source.equals(var) && equalityMap.containsKey(ass.dest))
-				return !equalityMap.get(ass.dest).equals(ass.value);
-		}
-		return false;
-	}
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isDetectedBy(Assertion assertion) {
+    if (assertion instanceof SameAssertion) {
+      SameAssertion ass = (SameAssertion) assertion;
+      if (ass.source.equals(var)) {
+        if (Properties.isRegression()) {
+          if (equalityMapIntVar.get(ass.dest.getStPosition()) != null &&
+              equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition())) != null) {
+            return !equalityMap.get(equalityMapIntVar.get(ass.dest.getStPosition()))
+                .equals(ass.value);
+          }
+        } else {
+          if (equalityMap.containsKey(ass.dest)) {
+            return !equalityMap.get(ass.dest).equals(ass.value);
+          }
+        }
+      }
+    }
+    return false;
+  }
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
 	 */
-	/** {@inheritDoc} */
-	@Override
-	public OutputTraceEntry cloneEntry() {
-		SameTraceEntry copy = new SameTraceEntry(var);
-		copy.equalityMap.putAll(equalityMap);
-		copy.equalityMapIntVar.putAll(equalityMapIntVar);
-		return copy;
-	}
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public OutputTraceEntry cloneEntry() {
+    SameTraceEntry copy = new SameTraceEntry(var);
+    copy.equalityMap.putAll(equalityMap);
+    copy.equalityMapIntVar.putAll(equalityMapIntVar);
+    return copy;
+  }
 
 }

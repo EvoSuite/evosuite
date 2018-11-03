@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -40,5 +40,6 @@ public class DivisionByZeroInstrumentation extends ErrorBranchInstrumenter {
 			mv.visitInsn(Opcodes.LCMP);
 			insertBranch(Opcodes.IFNE, "java/lang/ArithmeticException");
 		}
+		// TODO: Could add a branch also for doubles, but not throw an exception?
 	}
 }

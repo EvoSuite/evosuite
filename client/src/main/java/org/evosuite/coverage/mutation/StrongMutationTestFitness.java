@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,8 +22,10 @@
  */
 package org.evosuite.coverage.mutation;
 
+import org.evosuite.Properties;
 import org.evosuite.assertion.*;
 import org.evosuite.coverage.TestCoverageGoal;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -51,13 +53,13 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	/** Constant <code>observerClasses</code> */
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
 	        ComparisonTraceEntry.class, InspectorTraceEntry.class,
-	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class, ArrayTraceEntry.class };
+	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class, ArrayTraceEntry.class, ArrayLengthTraceEntry.class };
 
 	/** Constant <code>observers</code> */
 	protected static AssertionTraceObserver<?>[] observers = {
 	        new PrimitiveTraceObserver(), new ComparisonTraceObserver(),
 	        new InspectorTraceObserver(), new PrimitiveFieldTraceObserver(),
-	        new NullTraceObserver(), new ArrayTraceObserver() };
+	        new NullTraceObserver(), new ArrayTraceObserver(), new ArrayLengthObserver() };
 
 	/**
 	 * <p>
@@ -91,7 +93,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 				logger.debug("Executing test for mutant " + mutant.getId() + ": \n"
 				        + test.toCode());
 			else
-				logger.debug("Executing test witout mutant");
+				logger.debug("Executing test without mutant");
 
 			if (mutant != null)
 				MutationObserver.activateMutation(mutant);
@@ -129,9 +131,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			result.setHasTimeout(true);
 		}
 
-		if (!originalResult.noThrownExceptions()) {
-			if (mutationResult.noThrownExceptions())
-				result.setHasTimeout(true);
+		if (mutationResult.noThrownExceptions()) {
+			result.setHasException(true);
 		}
 
 		int numAssertions = getNumAssertions(originalResult, mutationResult);
@@ -280,6 +281,18 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		return num;
 	}
 
+	private void ensureExecutionResultHasTraces(TestChromosome individual, ExecutionResult result) {
+		if(result.getTraces().isEmpty() && observerClasses.length > 0) {
+			ExecutionResult newResult = runTest(individual.getTestCase());
+			for(Class<?> observerClass : observerClasses) {
+				OutputTrace<?> trace = newResult.getTrace(observerClass);
+				result.setTrace(trace, observerClass);
+			}
+		}
+
+
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
@@ -303,13 +316,15 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 
 		// Get control flow distance
 		if (!result.getTrace().getTouchedMutants().contains(mutation.getId()))
-			executionDistance = getExecutionDistance(result);
+			executionDistance = normalize(getExecutionDistance(result));
 		else
 			executionDistance = 0.0;
 
 		double infectionDistance = 1.0;
 
 		double impactDistance = 1.0;
+
+		boolean exceptionCase = false;
 
 		// If executed...but not with reflection
 		if (executionDistance <= 0 && !result.calledReflection()) {
@@ -327,6 +342,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			// If infected check if it is also killed
 			else if (infectionDistance <= 0) {
 
+				// If the trace was generated without observers, we need to re-execute
+				ensureExecutionResultHasTraces(individual, result);
 				
 				logger.debug("Running test on mutant " + mutation.getId());
 				MutationExecutionResult mutationResult = individual.getLastExecutionResult(mutation);
@@ -339,10 +356,16 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 				if (mutationResult.hasTimeout()) {
 					logger.debug("Found timeout in mutant!");
 					MutationTimeoutStoppingCondition.timeOut(mutation);
+					fitness = 0.0; // Timeout = dead
+					exceptionCase = true;
 				}
 
 				if (mutationResult.hasException()) {
 					logger.debug("Mutant raises exception");
+					if(result.noThrownExceptions()) {
+						fitness = 0.0; // Exception difference
+						exceptionCase = true;
+					}
 				}
 
 				if (mutationResult.getNumAssertions() == 0) {
@@ -359,7 +382,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			}
 		}
 
-		fitness = impactDistance + infectionDistance + executionDistance;
+		if(!exceptionCase)
+			fitness = impactDistance + infectionDistance + executionDistance;
 		logger.debug("Individual fitness: " + impactDistance + " + " + infectionDistance
 		        + " + " + executionDistance + " = " + fitness);
 		//if (fitness == 0.0) {
@@ -370,7 +394,15 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		updateIndividual(this, individual, fitness);
 		if (fitness == 0.0) {
 			individual.getTestCase().addCoveredGoal(this);
+			//assert(isCovered(individual, result));
 		}
+		assert(fitness >= 0.0);
+		assert(fitness <= executionDistance + 2.0);
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+		}
+
 		return fitness;
 	}
 
@@ -386,17 +418,22 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	@Override
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
 		boolean covered = false;
-
 		if (individual.getLastExecutionResult(mutation) == null) {
 			covered = getFitness(individual, result) == 0.0;
 		}
 
 		if (!covered && individual.getLastExecutionResult(mutation) != null) {
 			MutationExecutionResult mutantResult = individual.getLastExecutionResult(mutation);
-			if (mutantResult.hasTimeout())
+			if (mutantResult.hasTimeout()) {
 				covered = true;
-			else if (mutantResult.hasException() && result.noThrownExceptions())
+			}
+			else if (mutantResult.hasException() && result.noThrownExceptions()) {
 				covered = true;
+			}
+			else if (mutantResult.getNumAssertions() > 0) {
+				covered = true;
+			}
+
 		}
 
 		return covered;

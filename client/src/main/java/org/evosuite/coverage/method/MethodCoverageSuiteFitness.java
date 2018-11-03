@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,15 +19,18 @@
  */
 package org.evosuite.coverage.method;
 
-
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.coverage.archive.TestsArchive;
-import org.evosuite.setup.TestUsageChecker;
-import org.evosuite.testcase.*;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -35,15 +38,8 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.*;
-
-
-
-
 /**
- * Fitness function for a whole test suite for all methods considering only normal behaviour (no exceptions)
+ * Fitness function for a whole test suite for all methods, including exceptional behaviour
  *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
@@ -51,21 +47,18 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 3359321076367091582L;
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(MethodCoverageSuiteFitness.class);
 
-    // Coverage targets
+	// Each test gets a set of distinct covered goals, these are mapped by branch id
+	protected final Map<String, TestFitnessFunction> methodCoverageMap = new LinkedHashMap<String, TestFitnessFunction>();
 	protected final int totalMethods;
-	protected final Set<String> methods;
+
+	private Set<String> toRemoveMethods = new LinkedHashSet<>();
+	private Set<String> removedMethods  = new LinkedHashSet<>();
 
     // Some stuff for debug output
     protected int maxCoveredMethods = 0;
     protected double bestFitness = Double.MAX_VALUE;
-
-    protected Set<String> toRemoveMethods = new LinkedHashSet<>();
-    protected Set<String> removedMethods  = new LinkedHashSet<>();
-
-    // Each test gets a set of distinct covered goals, these are mapped by branch id
-    protected final Map<String, TestFitnessFunction> methodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
     /**
 	 * <p>
@@ -73,35 +66,10 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * </p>
 	 */
 	public MethodCoverageSuiteFitness() {
-        methods = new HashSet<String>();
-        determineMethods();
-		totalMethods = methods.size();
-		logger.info("Total methods: " + totalMethods + ": " + methods);
 		determineCoverageGoals();
+		totalMethods = methodCoverageMap.size();
+		logger.info("Total methods: " + totalMethods);
 	}
-
-    protected void determineMethods() {
-        String className = Properties.TARGET_CLASS;
-		Class<?> clazz = Properties.getTargetClass();
-        if (clazz != null) {
-            Constructor<?>[] allConstructors = clazz.getDeclaredConstructors();
-            for (Constructor<?> c : allConstructors) {
-                if (TestUsageChecker.canUse(c)) {
-                    String descriptor = Type.getConstructorDescriptor(c);
-                    logger.info("Adding goal for constructor " + className + ".<init>" + descriptor);
-                    methods.add(c.getDeclaringClass().getName() + ".<init>" + descriptor);
-                }
-            }
-            Method[] allMethods = clazz.getDeclaredMethods();
-            for (Method m : allMethods) {
-                if (TestUsageChecker.canUse(m)) {
-                    String descriptor = Type.getMethodDescriptor(m);
-                    logger.info("Adding goal for method " + className + "." + m.getName() + descriptor);
-                    methods.add(m.getDeclaringClass().getName() + "." + m.getName() + descriptor);
-                }
-            }
-        }
-    }
 
 	/**
 	 * Initialize the set of known coverage goals
@@ -111,7 +79,7 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (MethodCoverageTestFitness goal : goals) {
             methodCoverageMap.put(goal.getClassName() + "." + goal.getMethod(), goal);
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
 	}
 
@@ -119,17 +87,15 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * If there is an exception in a super-constructor, then the corresponding
 	 * constructor might not be included in the execution trace
 	 *
+	 * @param suite
 	 * @param results
 	 * @param calledMethods
 	 */
-	protected void handleConstructorExceptions(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-			List<ExecutionResult> results,
-	        Set<String> calledMethods) {
+	protected void handleConstructorExceptions(TestChromosome test, ExecutionResult result, Set<String> calledMethods) {
 
-		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()
 			        || result.noThrownExceptions())
-				continue;
+				return;
 
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
 			Statement statement = result.test.getStatement(exceptionPosition);
@@ -139,19 +105,20 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				String methodName = "<init>"
 				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if (methodCoverageMap.containsKey(name) && !calledMethods.contains(name) && !removedMethods.contains(name)) {
-                    // only include methods being called
-                    calledMethods.add(name);
-                    result.test.addCoveredGoal(methodCoverageMap.get(name));
-					if(Properties.TEST_ARCHIVE) {
-						TestsArchive.instance.putTest(this, methodCoverageMap.get(name), result);
-						toRemoveMethods.add(name);
-						suite.isToBeUpdated(true);
+				if (methodCoverageMap.containsKey(name) && !calledMethods.contains(name)) {
+					TestFitnessFunction goal = methodCoverageMap.get(name);
+
+					// only include methods being called
+					test.getTestCase().addCoveredGoal(goal);
+					calledMethods.add(name);
+					this.toRemoveMethods.add(name);
+
+					if (Properties.TEST_ARCHIVE) {
+						Archive.getArchiveInstance().updateArchive(goal, test, 0.0);
 					}
 				}
 			}
 
-		}
 	}
 
 	/**
@@ -161,56 +128,36 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param calledMethods
 	 * @return
 	 */
-	protected boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
-			List<ExecutionResult> results,
-	        Set<String> calledMethods) {
+	protected boolean analyzeTraces(List<ExecutionResult> results, Set<String> calledMethods) {
 		boolean hasTimeoutOrTestException = false;
 
 		for (ExecutionResult result : results) {
-            if (result.hasTimeout() || result.hasTestException()) {
-                hasTimeoutOrTestException = true;
-            }
+			if (result.hasTimeout() || result.hasTestException()) {
+				hasTimeoutOrTestException = true;
+				continue;
+			}
 
-            for (Statement stmt : result.test) {
-                if (! isValidPosition(result, stmt.getPosition()))
-                    break;
-                if ((stmt instanceof MethodStatement || stmt instanceof ConstructorStatement)) {
-					EntityWithParametersStatement ps = (EntityWithParametersStatement)stmt;
-					String className  = ps.getDeclaringClassName();
-					String methodDesc = ps.getDescriptor();
-					String methodName = ps.getMethodName() + methodDesc;
-                    String fullName = className + "." + methodName;
-    				if(!methods.contains(fullName)||removedMethods.contains(fullName)) continue;
-                    if (methodCoverageMap.containsKey(fullName)) {
-                        calledMethods.add(fullName);
-                        result.test.addCoveredGoal(methodCoverageMap.get(fullName));
-    					if(Properties.TEST_ARCHIVE) {
-    						TestsArchive.instance.putTest(this, methodCoverageMap.get(fullName), result);
-    						toRemoveMethods.add(fullName);
-    						suite.isToBeUpdated(true);
-    					}
-                    }
-                }
-            }
-        }
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
+
+			for (String methodName : this.methodCoverageMap.keySet()) {
+				TestFitnessFunction goal = this.methodCoverageMap.get(methodName);
+
+				double fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
+
+				if (fit == 0.0) {
+					calledMethods.add(methodName); // helper to count the number of covered goals
+					this.toRemoveMethods.add(methodName); // goal to not be considered by the next iteration of the evolutionary algorithm
+				}
+			}
+
+			// In case there were exceptions in a constructor
+			handleConstructorExceptions(test, result, calledMethods);
+		}
 		return hasTimeoutOrTestException;
 	}
-
-    protected boolean isValidPosition(ExecutionResult result, Integer position) {
-        List<Integer> exceptionPositions = asSortedList(result.getPositionsWhereExceptionsWereThrown());
-        if (Properties.BREAK_ON_EXCEPTION) {
-            return exceptionPositions.isEmpty() ? true : position > exceptionPositions.get(0);
-        } else
-            return true;
-
-
-    }
-
-    protected static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
-        List<T> list = new ArrayList<T>(c);
-        java.util.Collections.sort(list);
-        return list;
-    }
 
 	/**
 	 * {@inheritDoc}
@@ -224,26 +171,15 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		double fitness = 0.0;
 
 		List<ExecutionResult> results = runTestSuite(suite);
-		Set<String> calledMethods = new HashSet<String>();
 
 		// Collect stats in the traces
-		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, calledMethods);
+		Set<String> calledMethods = new LinkedHashSet<String>();
+		boolean hasTimeoutOrTestException = analyzeTraces(results, calledMethods);
 
-		// In case there were exceptions in a constructor
-		handleConstructorExceptions(suite, results, calledMethods);
-
-		// Ensure all methods are called
-		int missingMethods = 0;
-		for (String e : methods) {
-			if (!calledMethods.contains(e)) {
-				fitness += 1.0;
-				missingMethods += 1;
-			}
-		}
-
-        // Calculate coverage
-        int coveredMethods = calledMethods.size() + removedMethods.size();
-        assert (totalMethods == coveredMethods + missingMethods);
+		int coveredMethods = calledMethods.size() + this.removedMethods.size();
+		int missingMethods = this.totalMethods - coveredMethods;
+		assert (this.totalMethods == coveredMethods + missingMethods);
+		fitness = 1.0 * missingMethods;
 
         printStatusMessages(suite, totalMethods - missingMethods, fitness);
 
@@ -301,23 +237,23 @@ public class MethodCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	@Override
 	public boolean updateCoveredGoals() {
-
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
+		}
 
-		for (String method : toRemoveMethods) {
-			boolean removed = methods.remove(method);
-			TestFitnessFunction f = methodCoverageMap.remove(method);
-			if (removed && f != null) {
-				// totalMethods--;
-				methods.remove(method);
-				removedMethods.add(method);
-				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
+		for (String method : this.toRemoveMethods) {
+			TestFitnessFunction f = this.methodCoverageMap.remove(method);
+			if (f != null) {
+				this.removedMethods.add(method);
 			} else {
 				throw new IllegalStateException("Goal to remove not found: "+method+", candidates: "+methodCoverageMap.keySet());
 			}
 		}
-		toRemoveMethods.clear();
+
+		this.toRemoveMethods.clear();
+		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
+
+		assert this.totalMethods == this.methodCoverageMap.size() + this.removedMethods.size();
 
 		return true;
 	}

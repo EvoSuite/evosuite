@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -130,14 +130,20 @@ import static org.objectweb.asm.Opcodes.TABLESWITCH;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.tree.LabelNode;
 
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.
@@ -375,14 +381,14 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		super.visitInsn(opcode); // user code ByteCode instruction
 	}
 
-	private int branchCounter = 0;
+	private int branchCounter = 1;
 
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
+		
 		// The use of branchCounter is inlined so that branchIds match
 		// what EvoSuite produces
 		//
-		// final int currentBranchIndex = branchCounter++;
 		switch (opcode) {
 		case IFEQ: // http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#ifcond
 		case IFNE:
@@ -873,6 +879,8 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	 */
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
+		
+		
 		int currentBranchIndex = branchCounter++;
 
 		mv.visitInsn(DUP); // pass concrete int value
@@ -899,6 +907,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 
+		
 		int currentBranchIndex = branchCounter++;
 
 		mv.visitInsn(DUP); // pass concrete int value

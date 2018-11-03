@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -62,7 +62,8 @@ public class CoverageReportGenerator {
 
 		FileIOUtils.writeFile(suite.toString(), new File(getReportDir().getAbsolutePath() +
 				File.separator + "data" + File.separator +
-				Properties.TARGET_CLASS + "." + criterion.toString() + ".matrix"));
+				Properties.TARGET_CLASS + File.separator +
+				criterion.toString() + File.separator + Properties.COVERAGE_MATRIX_FILENAME));
 	}
 
 	/**

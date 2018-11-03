@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
+import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -36,7 +37,6 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 
 	private static Pattern addressPattern = Pattern.compile(".*[\\w+\\.]+@[abcdef\\d]+.*", Pattern.MULTILINE);
 	
-	private final InspectorManager manager = InspectorManager.getInstance();
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
@@ -54,15 +54,17 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 		if(statement.isAssignmentStatement() && statement.getReturnValue().isArrayIndex())
 			return;
 		
-		if(statement instanceof ConstructorStatement && statement.getReturnValue().isWrapperType())
-			return;
+		if(statement instanceof ConstructorStatement) {
+			if(statement.getReturnValue().isWrapperType() || statement.getReturnValue().isAssignableTo(EvoSuiteMock.class))
+				return;
+		}
 
 		if (var.isPrimitive() || var.isString() || var.isWrapperType())
 			return;
 
 		logger.debug("Checking for inspectors of " + var + " at statement "
 		        + statement.getPosition());
-		List<Inspector> inspectors = manager.getInspectors(var.getVariableClass());
+		List<Inspector> inspectors = InspectorManager.getInstance().getInspectors(var.getVariableClass());
 
 		InspectorTraceEntry entry = new InspectorTraceEntry(var);
 
@@ -99,6 +101,12 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 						// The word "hashCode" is also suspicious
 						if(((String)value).toLowerCase().contains("hashcode"))
 							continue;
+						// Avoid asserting anything on values referring to mockito proxy objects
+						if(((String)value).toLowerCase().contains("EnhancerByMockito"))
+							continue;
+						if(((String)value).toLowerCase().contains("$MockitoMock$"))
+							continue;
+
 						if(target instanceof URL) {
 							// Absolute paths may be different between executions
 							if(((String) value).startsWith("/") || ((String) value).startsWith("file:/"))
@@ -112,7 +120,7 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 				if (e instanceof TimeoutException) {
 					logger.debug("Timeout during inspector call - deactivating inspector "
 					        + i.getMethodCall());
-					manager.removeInspector(var.getVariableClass(), i);
+					InspectorManager.getInstance().removeInspector(var.getVariableClass(), i);
 				}
 				logger.debug("Exception " + e + " / " + e.getCause());
 				if (e.getCause() != null

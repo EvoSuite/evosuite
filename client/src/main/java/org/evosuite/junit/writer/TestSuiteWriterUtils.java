@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -33,6 +33,8 @@ import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.statements.FunctionalMockStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +63,19 @@ public class TestSuiteWriterUtils {
 		return Properties.REPLACE_CALLS || Properties.VIRTUAL_FS
 				|| Properties.RESET_STATIC_FIELDS || Properties.VIRTUAL_NET;
 	}
-	
+
+
+	public static boolean doesUseMocks(List<ExecutionResult> results) {
+		for(ExecutionResult er : results){
+			for(Statement st : er.test){
+				if(st instanceof FunctionalMockStatement){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public static boolean hasAnySecurityException(List<ExecutionResult> results) {
 		for (ExecutionResult result : results) {
 			if (result.hasSecurityException()) {

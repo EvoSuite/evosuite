@@ -1,0 +1,326 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>maven-test-project</groupId>
+    <artifactId>MavenTestProjects</artifactId>
+    <name>Test Project For Maven Support</name>
+    <version>0.1.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>SimpleModule</module>
+        <module>ModuleWithOneDependency</module>
+        <module>EnvModule</module>
+        <module>CoverageModule</module>
+    </modules>
+
+    <properties>
+        <jacoco.version>0.7.6.201602180812</jacoco.version>
+        <jmockit.version>1.23</jmockit.version>
+        <junit.version>4.12</junit.version>
+        <surefire.version>2.19.1</surefire.version>
+        <powermock.version>1.6.5</powermock.version>
+        <cobertura.version>2.7</cobertura.version>
+        <pit.version>1.1.9</pit.version>
+        <forkCount>1</forkCount>
+
+        <pit.tests>org.maven_test_project*</pit.tests>
+
+        <!-- this needs to be set with -D. Done automatically from tests.
+        Uncomment (and update) if open from IDE  -->
+        <!--<evosuiteVersion>1.0.5-SNAPSHOT</evosuiteVersion>-->
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.evosuite</groupId>
+            <artifactId>evosuite-standalone-runtime</artifactId>
+            <version>${evosuiteVersion}</version>
+        </dependency>
+
+        <!-- Both PowerMock and JMockit ship with tools.jar code from OpenJDK, and
+        that does have side-effects.
+         -->
+    </dependencies>
+
+
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.evosuite.plugins</groupId>
+                <artifactId>evosuite-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <forkCount>${forkCount}</forkCount>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>org.evosuite.runtime.InitializingListener</value>
+                        </property>
+                    </properties>
+                </configuration>
+            </plugin>
+
+
+
+
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.3.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven-3</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/evo</source>
+                                <source>foo</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+        </plugins>
+
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.evosuite.plugins</groupId>
+                    <artifactId>evosuite-maven-plugin</artifactId>
+                    <version>${evosuiteVersion}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare</goal>
+                            </goals>
+                            <phase>process-test-classes</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+    <profiles>
+
+        <profile>
+            <id>pitOneTest</id>
+            <properties>
+                <pit.tests>org.maven_test_project*SimpleClassPartialTest*</pit.tests>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>pit</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <version>${pit.version}</version>
+                        <configuration>
+                            <mutationThreshold>50</mutationThreshold>
+                            <coverageThreshold>99</coverageThreshold>
+                            <targetClasses>
+                                <param>org.maven_test_project*</param>
+                            </targetClasses>
+                            <targetTests>
+                                <param>${pit.tests}</param>
+                            </targetTests>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>mutationCoverage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>cobertura</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>cobertura-maven-plugin</artifactId>
+                        <version>${cobertura.version}</version>
+                        <configuration>
+                            <check>
+                                <lineRate>99</lineRate>
+                                <haltOnFailure>true</haltOnFailure>
+                            </check>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>clean</goal>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+
+        <profile>
+            <id>jacoco</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco.version}</version>
+                        <executions>
+                            <execution>
+                                <id>default-prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>default-report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>default-check</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <rule>
+                                            <element>BUNDLE</element>
+                                            <limits>
+                                                <limit>
+                                                    <counter>COMPLEXITY</counter>
+                                                    <value>COVEREDRATIO</value>
+                                                    <minimum>0.99</minimum>
+                                                </limit>
+                                            </limits>
+                                        </rule>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>powermock</id>
+            <dependencies>
+                <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4-rule-agent</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+
+        <profile>
+            <id>jmockit</id>
+            <dependencies>
+                <dependency>
+                <groupId>org.jmockit</groupId>
+                <artifactId>jmockit-coverage</artifactId>
+                <version>${jmockit.version}</version>
+                <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>
+                                 -javaagent:"${settings.localRepository}"/org/jmockit/jmockit-coverage/${jmockit.version}/jmockit-coverage-${jmockit.version}.jar
+                                 -Dcoverage-outputDir=target/jmockit
+                                 -Dcoverage-check=99
+                            </argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>coverage.check</id>
+                                <goals><goal>enforce</goal></goals>
+                                <phase>test</phase>
+                                <configuration>
+                                    <rules>
+                                        <requireFilesDontExist>
+                                            <files><file>coverage.check.failed</file></files>
+                                        </requireFilesDontExist>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+
+
+    </profiles>
+
+
+</project>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -118,12 +118,10 @@ public enum RuntimeVariable {
 	RhoScore,
 	RhoScore_T0,
 	RhoScoreTimeline,
-	RhoCoverage,
 	/** The obtained ambiguity coverage */
 	AmbiguityScore,
 	AmbiguityScore_T0,
 	AmbiguityScoreTimeline,
-	AmbiguityCoverage,
 	/** Not only the covered branches ratio, but also including the branchless methods. FIXME: this will need to be changed */
 	BranchCoverage,
 	/** Coverage of instrumented branches */
@@ -262,7 +260,6 @@ public enum RuntimeVariable {
 	Exception_Difference,
 	State_Distance,
 	Testsuite_Diversity,
-	Regression_ID,
 	/** Timings */
 	Time_Assertion,
 	Time_Coverage,
@@ -390,7 +387,12 @@ public enum RuntimeVariable {
 	/** How many SAT queries led to Useful (i.e. better fitness) new tests*/ 
 	NumberOfUsefulNewTests,
 	/** How many SAT queries led to Unuseful (i.e. no better fitness) new tests*/ 
-	NumberOfUnusefulNewTests
+	NumberOfUnusefulNewTests,
+	
+	/* -------------------------------------------------------------------- */
+	/** Search budget needed to reach the maximum coverage */ 
+	/** Used in the comparison between LISP and MOSA */
+	Time2MaxCoverage
 	
 	;
 	/* -------------------------------------------------- */

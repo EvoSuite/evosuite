@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,7 +21,11 @@ package com.examples.with.different.packagename;
 
 public class ClassWithAnonymousClass {
 
+  public ClassWithAnonymousClass() {}
+
   public class MyCompareClass {
+
+    public MyCompareClass() {}
 
     public void sort(java.util.List<String> l) {
       java.util.Collections.sort(l, new java.util.Comparator<String>() {

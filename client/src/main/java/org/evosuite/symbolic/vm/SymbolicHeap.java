@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -20,14 +20,14 @@
 package org.evosuite.symbolic.vm;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceVariable;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -40,8 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class SymbolicHeap {
 
-	protected static final Logger logger = LoggerFactory
-			.getLogger(SymbolicHeap.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SymbolicHeap.class);
 
 	private static final class FieldKey {
 		private String owner;
@@ -61,8 +60,7 @@ public final class SymbolicHeap {
 		public boolean equals(Object o) {
 			if (o != null && o.getClass().equals(FieldKey.class)) {
 				FieldKey that = (FieldKey) o;
-				return this.owner.equals(that.owner)
-						&& this.name.equals(that.name);
+				return this.owner.equals(that.owner) && this.name.equals(that.name);
 			} else {
 				return false;
 			}
@@ -73,11 +71,6 @@ public final class SymbolicHeap {
 			return this.owner + "/" + this.name;
 		}
 	}
-
-	/**
-	 * Number of modCount operations before GC() is executed.
-	 */
-	private static final int SYMBOLIC_GC_THRESHOLD = 9000000;
 
 	/**
 	 * Counter for instances
@@ -94,12 +87,13 @@ public final class SymbolicHeap {
 	 * 
 	 * @return
 	 */
-	public NonNullReference newReference(Type objectType) {
+	public ReferenceConstant buildNewReferenceConstant(Type objectType) {
 
 		if (objectType.getClassName() == null)
 			throw new IllegalArgumentException();
 
-		return new NonNullReference(objectType, newInstanceCount++);
+		final int newInstanceId = newInstanceCount++;
+		return new ReferenceConstant(objectType, newInstanceId);
 	}
 
 	/**
@@ -108,13 +102,13 @@ public final class SymbolicHeap {
 	 * mapping is used.
 	 * 
 	 */
-	private final Map<Integer, NonNullReference> nonNullRefs = new HashMap<Integer, NonNullReference>();
+	private final Map<Integer, ReferenceExpression> nonNullRefs = new HashMap<Integer, ReferenceExpression>();
 
 	/**
 	 * Stores a mapping between NonNullReferences and their symbolic values. The
 	 * Expression<?> contains at least one symbolic variable.
 	 */
-	private final Map<FieldKey, Map<NonNullReference, Expression<?>>> symb_fields = new HashMap<FieldKey, Map<NonNullReference, Expression<?>>>();
+	private final Map<FieldKey, Map<ReferenceExpression, Expression<?>>> symb_fields = new HashMap<FieldKey, Map<ReferenceExpression, Expression<?>>>();
 
 	/**
 	 * Mapping between for symbolic values stored in static fields. The
@@ -123,17 +117,11 @@ public final class SymbolicHeap {
 	private final Map<FieldKey, Expression<?>> symb_static_fields = new HashMap<FieldKey, Expression<?>>();
 
 	/**
-	 * This counter is used to count the number of operations before GC() is
-	 * executed
-	 */
-	private int modCount;
-
-	/**
 	 * Updates an instance field. The symbolic expression is stored iif it is
 	 * not a constant expression (i.e. it has at least one variable).
 	 * 
-	 * @param owner
-	 * @param name
+	 * @param className
+	 * @param fieldName
 	 * @param conc_receiver
 	 *            The concrete Object receiver instance
 	 * @param symb_receiver
@@ -142,34 +130,22 @@ public final class SymbolicHeap {
 	 *            The Expression to be stored. Null value means the previous
 	 *            symbolic expression has to be erased.
 	 */
-	public void putField(String owner, String name, Object conc_receiver,
-			NonNullReference symb_receiver, Expression<?> symb_value) {
+	public void putField(String className, String fieldName, Object conc_receiver, ReferenceExpression symb_receiver,
+			Expression<?> symb_value) {
 
-		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
-				owner, name);
+		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
 		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
 			symb_field.remove(symb_receiver);
 		} else {
 			symb_field.put(symb_receiver, symb_value);
 		}
-
-		monitor_gc();
 	}
 
-	private void monitor_gc() {
-		modCount++;
-		if (modCount > SYMBOLIC_GC_THRESHOLD) {
-			symbolic_gc();
-			modCount = 0;
-		}
-	}
-
-	private Map<NonNullReference, Expression<?>> getOrCreateSymbolicField(
-			String owner, String name) {
+	private Map<ReferenceExpression, Expression<?>> getOrCreateSymbolicField(String owner, String name) {
 		FieldKey k = new FieldKey(owner, name);
-		Map<NonNullReference, Expression<?>> symb_field = symb_fields.get(k);
+		Map<ReferenceExpression, Expression<?>> symb_field = symb_fields.get(k);
 		if (symb_field == null) {
-			symb_field = new HashMap<NonNullReference, Expression<?>>();
+			symb_field = new HashMap<ReferenceExpression, Expression<?>>();
 			symb_fields.put(k, symb_field);
 		}
 
@@ -186,72 +162,17 @@ public final class SymbolicHeap {
 	 * @param conc_value
 	 * @return
 	 */
-	public IntegerValue getField(String owner, String name,
-			Object conc_receiver, NonNullReference symb_receiver,
+	public IntegerValue getField(String owner, String name, Object conc_receiver, ReferenceExpression symb_receiver,
 			long conc_value) {
 
-		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
-				owner, name);
+		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(owner, name);
 		IntegerValue symb_value = (IntegerValue) symb_field.get(symb_receiver);
-		if (symb_value == null
-				|| ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
+		if (symb_value == null || ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
 			symb_field.remove(symb_receiver);
 		}
 
-		monitor_gc();
 		return symb_value;
-	}
-
-	/**
-	 * Symbolic Garbage collector
-	 */
-	private void symbolic_gc() {
-
-		logger.debug("DSE: starting symbolic heap garbage collection");
-
-		Set<NonNullReference> collected_refs = new HashSet<NonNullReference>();
-		// field reys
-		for (Entry<FieldKey, Map<NonNullReference, Expression<?>>> symb_field_entry : symb_fields
-				.entrySet()) {
-
-			Map<NonNullReference, Expression<?>> symb_field = symb_field_entry
-					.getValue();
-			Set<NonNullReference> keySet = new HashSet<NonNullReference>(
-					symb_field.keySet());
-			for (NonNullReference non_null_ref : keySet) {
-				if (non_null_ref.isCollectable()) {
-					symb_field.remove(non_null_ref);
-					collected_refs.add(non_null_ref);
-				}
-			}
-		}
-
-		// array refs
-		Set<NonNullReference> keySet = new HashSet<NonNullReference>(
-				this.symb_arrays.keySet());
-		for (NonNullReference array_ref : keySet) {
-			if (array_ref.isCollectable()) {
-				symb_arrays.remove(array_ref);
-				collected_refs.add(array_ref);
-			}
-		}
-
-		// stored null refs
-		Set<Entry<Integer, NonNullReference>> entry_set = new HashSet<Entry<Integer, NonNullReference>>(
-				this.nonNullRefs.entrySet());
-		for (Entry<Integer, NonNullReference> entry : entry_set) {
-			if (entry.getValue().isCollectable()) {
-				nonNullRefs.remove(entry.getKey());
-				collected_refs.add(entry.getValue());
-
-			}
-		}
-
-		logger.debug("Nr of collected non-null references = "
-				+ collected_refs.size());
-		logger.debug("DSE: symbolic heap garbage collection ended");
-
 	}
 
 	/**
@@ -263,20 +184,16 @@ public final class SymbolicHeap {
 	 * @param conc_value
 	 * @return
 	 */
-	public RealValue getField(String className, String fieldName,
-			Object conc_receiver, NonNullReference symb_receiver,
-			double conc_value) {
+	public RealValue getField(String className, String fieldName, Object conc_receiver,
+			ReferenceExpression symb_receiver, double conc_value) {
 
-		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
-				className, fieldName);
+		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
 		RealValue symb_value = (RealValue) symb_field.get(symb_receiver);
-		if (symb_value == null
-				|| ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
+		if (symb_value == null || ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
 			symb_field.remove(symb_receiver);
 		}
 
-		monitor_gc();
 		return symb_value;
 	}
 
@@ -289,20 +206,16 @@ public final class SymbolicHeap {
 	 * @param conc_value
 	 * @return
 	 */
-	public StringValue getField(String className, String fieldName,
-			Object conc_receiver, NonNullReference symb_receiver,
-			String conc_value) {
+	public StringValue getField(String className, String fieldName, Object conc_receiver,
+			ReferenceExpression symb_receiver, String conc_value) {
 
-		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
-				className, fieldName);
+		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
 		StringValue symb_value = (StringValue) symb_field.get(symb_receiver);
-		if (symb_value == null
-				|| !((String) symb_value.getConcreteValue()).equals(conc_value)) {
+		if (symb_value == null || !((String) symb_value.getConcreteValue()).equals(conc_value)) {
 			symb_value = ExpressionFactory.buildNewStringConstant(conc_value);
 			symb_field.remove(symb_receiver);
 		}
 
-		monitor_gc();
 		return symb_value;
 	}
 
@@ -315,18 +228,15 @@ public final class SymbolicHeap {
 	 * @param symb_receiver
 	 * @return
 	 */
-	public Expression<?> getField(String className, String fieldName,
-			Object conc_receiver, NonNullReference symb_receiver) {
+	public Expression<?> getField(String className, String fieldName, Object conc_receiver,
+			ReferenceExpression symb_receiver) {
 
-		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
-				className, fieldName);
+		Map<ReferenceExpression, Expression<?>> symb_field = getOrCreateSymbolicField(className, fieldName);
 		Expression<?> symb_value = symb_field.get(symb_receiver);
-		monitor_gc();
 		return symb_value;
 	}
 
-	public void putStaticField(String owner, String name,
-			Expression<?> symb_value) {
+	public void putStaticField(String owner, String name, Expression<?> symb_value) {
 
 		FieldKey k = new FieldKey(owner, name);
 		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
@@ -335,21 +245,17 @@ public final class SymbolicHeap {
 			symb_static_fields.put(k, symb_value);
 		}
 
-		monitor_gc();
 	}
 
-	public IntegerValue getStaticField(String owner, String name,
-			long conc_value) {
+	public IntegerValue getStaticField(String owner, String name, long conc_value) {
 
 		FieldKey k = new FieldKey(owner, name);
 		IntegerValue symb_value = (IntegerValue) symb_static_fields.get(k);
-		if (symb_value == null
-				|| ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
+		if (symb_value == null || ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
 			symb_static_fields.remove(k);
 		}
 
-		monitor_gc();
 		return symb_value;
 
 	}
@@ -358,54 +264,81 @@ public final class SymbolicHeap {
 
 		FieldKey k = new FieldKey(owner, name);
 		RealValue symb_value = (RealValue) symb_static_fields.get(k);
-		if (symb_value == null
-				|| ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
+		if (symb_value == null || ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
 			symb_static_fields.remove(k);
 		}
 
-		monitor_gc();
 		return symb_value;
 
 	}
 
-	public StringValue getStaticField(String owner, String name,
-			String conc_value) {
+	public StringValue getStaticField(String owner, String name, String conc_value) {
 
 		FieldKey k = new FieldKey(owner, name);
 		StringValue symb_value = (StringValue) symb_static_fields.get(k);
-		if (symb_value == null
-				|| !((String) symb_value.getConcreteValue()).equals(conc_value)) {
+		if (symb_value == null || !((String) symb_value.getConcreteValue()).equals(conc_value)) {
 			symb_value = ExpressionFactory.buildNewStringConstant(conc_value);
 			symb_static_fields.remove(k);
 		}
 
-		monitor_gc();
 		return symb_value;
 	}
 
-	public Reference getReference(Object conc_ref) {
+	/**
+	 * Returns a <code>ReferenceConstant</code> if the concrete reference is
+	 * null. Otherwise, it looks in the list of non-null symbolic references for
+	 * a symbolic reference with the concrete value. If it is found, that
+	 * symbolic reference is returned, otherwise a new reference constant is
+	 * created (and added ot the list of non-null symbolic references)
+	 * 
+	 * @param conc_ref
+	 * @return
+	 */
+	public ReferenceExpression getReference(Object conc_ref) {
 		if (conc_ref == null) {
-			return NullReference.getInstance();
-
+			// null reference
+			ReferenceConstant nullConstant = ExpressionFactory.buildNewNullExpression();
+			return nullConstant;
 		} else {
-
 			int identityHashCode = System.identityHashCode(conc_ref);
-			NonNullReference symb_ref = nonNullRefs.get(identityHashCode);
-			if (symb_ref == null
-					|| symb_ref.getWeakConcreteObject() != conc_ref) {
-				// unknown object or out of synch object
-				symb_ref = new NonNullReference(Type.getType(conc_ref
-						.getClass()), newInstanceCount++);
-				symb_ref.initializeReference(conc_ref);
-				nonNullRefs.put(identityHashCode, symb_ref);
+			if (nonNullRefs.containsKey(identityHashCode)) {
+				// already known object
+				ReferenceExpression symb_ref = nonNullRefs.get(identityHashCode);
+				return symb_ref;
+			} else {
+				// unknown object
+				final Type type = Type.getType(conc_ref.getClass());
+				ReferenceConstant ref_constant = new ReferenceConstant(type, newInstanceCount++);
+				ref_constant.initializeReference(conc_ref);
+				nonNullRefs.put(identityHashCode, ref_constant);
+				return ref_constant;
 			}
-			return symb_ref;
 		}
 	}
 
-	public void array_store(Object conc_array, NonNullReference symb_array,
-			int conc_index, Expression<?> symb_value) {
+	/**
+	 * Builds a new reference variable using a var_name and a concrete obhect
+	 * The concrete object can be null.
+	 * 
+	 * @param conc_object
+	 * @param var_name
+	 * @return
+	 */
+	public ReferenceVariable buildNewReferenceVariable(Object conc_object, String var_name) {
+		final Type referenceType;
+		if (conc_object == null) {
+			referenceType = Type.getType(Object.class);
+		} else {
+			referenceType = Type.getType(conc_object.getClass());
+		}
+		final int newInstanceId = newInstanceCount++;
+		final ReferenceVariable r = new ReferenceVariable(referenceType, newInstanceId, var_name, conc_object);
+		return r;
+	}
+
+	public void array_store(Object conc_array, ReferenceExpression symb_array, int conc_index,
+			Expression<?> symb_value) {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
 
@@ -415,10 +348,9 @@ public final class SymbolicHeap {
 			symb_array_contents.put(conc_index, symb_value);
 		}
 
-		monitor_gc();
 	}
 
-	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new HashMap<NonNullReference, Map<Integer, Expression<?>>>();
+	private final Map<ReferenceExpression, Map<Integer, Expression<?>>> symb_arrays = new HashMap<ReferenceExpression, Map<Integer, Expression<?>>>();
 
 	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
@@ -450,11 +382,9 @@ public final class SymbolicHeap {
 
 	public static final String $STRING_VALUE = "$stringValue";
 
-	private Map<Integer, Expression<?>> getOrCreateSymbolicArray(
-			NonNullReference symb_array_ref) {
+	private Map<Integer, Expression<?>> getOrCreateSymbolicArray(ReferenceExpression symb_array_ref) {
 
-		Map<Integer, Expression<?>> symb_array_contents = symb_arrays
-				.get(symb_array_ref);
+		Map<Integer, Expression<?>> symb_array_contents = symb_arrays.get(symb_array_ref);
 		if (symb_array_contents == null) {
 			symb_array_contents = new HashMap<Integer, Expression<?>>();
 			symb_arrays.put(symb_array_ref, symb_array_contents);
@@ -463,60 +393,54 @@ public final class SymbolicHeap {
 		return symb_array_contents;
 	}
 
-	public StringValue array_load(NonNullReference symb_array, int conc_index,
-			String conc_value) {
+	public StringValue array_load(ReferenceExpression symb_array, int conc_index, String conc_value) {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
-		StringValue symb_value = (StringValue) symb_array_contents
-				.get(conc_index);
-		if (symb_value == null
-				|| !((String) symb_value.getConcreteValue()).equals(conc_value)) {
+		StringValue symb_value = (StringValue) symb_array_contents.get(conc_index);
+		if (symb_value == null || !((String) symb_value.getConcreteValue()).equals(conc_value)) {
 			symb_value = ExpressionFactory.buildNewStringConstant(conc_value);
 			symb_array_contents.remove(conc_index);
 		}
 
-		monitor_gc();
 		return symb_value;
 	}
 
-	public IntegerValue array_load(NonNullReference symb_array, int conc_index,
-			long conc_value) {
+	public IntegerValue array_load(ReferenceExpression symb_array, int conc_index, long conc_value) {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
-		IntegerValue symb_value = (IntegerValue) symb_array_contents
-				.get(conc_index);
-		if (symb_value == null
-				|| ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
+		IntegerValue symb_value = (IntegerValue) symb_array_contents.get(conc_index);
+		if (symb_value == null || ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
 			symb_array_contents.remove(conc_index);
 		}
 
-		monitor_gc();
 		return symb_value;
 	}
 
-	public RealValue array_load(NonNullReference symb_array, int conc_index,
-			double conc_value) {
+	public RealValue array_load(ReferenceExpression symb_array, int conc_index, double conc_value) {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
 		RealValue symb_value = (RealValue) symb_array_contents.get(conc_index);
-		if (symb_value == null
-				|| ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
+		if (symb_value == null || ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
 			symb_array_contents.remove(conc_index);
 		}
 
-		monitor_gc();
 		return symb_value;
 	}
 
-	public void initializeReference(Object conc_ref, Reference symb_ref) {
+	/**
+	 * Initializes a reference using a concrete object
+	 * 
+	 * @param conc_ref
+	 * @param symb_ref
+	 */
+	public void initializeReference(Object conc_ref, ReferenceExpression symb_ref) {
 		if (conc_ref != null) {
-			NonNullReference symb_non_null_ref = (NonNullReference) symb_ref;
-			if (!symb_non_null_ref.isInitialized()) {
-				symb_non_null_ref.initializeReference(conc_ref);
+			if (!symb_ref.isInitialized()) {
+				symb_ref.initializeReference(conc_ref);
 				int identityHashCode = System.identityHashCode(conc_ref);
-				nonNullRefs.put(identityHashCode, symb_non_null_ref);
+				nonNullRefs.put(identityHashCode, symb_ref);
 			}
 		}
 	}

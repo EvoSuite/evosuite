@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -36,6 +36,8 @@ public class AnnotatedLabel extends Label {
 	private boolean isStart = false;
 	
 	private boolean ignore = false;
+
+	private boolean ignoreFalse = false;
 	
 	private LabelNode parent = null;
 	
@@ -56,6 +58,14 @@ public class AnnotatedLabel extends Label {
 	
 	public boolean shouldIgnore() {
 		return ignore;
+	}
+
+	public void setIgnoreFalse(boolean value) {
+		ignoreFalse = value;
+	}
+
+	public boolean shouldIgnoreFalse() {
+		return ignoreFalse;
 	}
 
 	public LabelNode getParent() {

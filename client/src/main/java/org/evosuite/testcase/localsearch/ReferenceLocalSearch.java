@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -145,7 +145,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 	 *
 	 * @param test
 	 * @param statement
-	 * @param objective
 	 */
 	private boolean addCall(TestChromosome test, int statement) {
 
@@ -167,7 +166,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 	 *
 	 * @param test
 	 * @param statement
-	 * @param objective
 	 * @return
 	 */
 	private boolean replace(TestChromosome test, int statement) {
@@ -213,7 +211,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 	 *
 	 * @param test
 	 * @param statement
-	 * @param objective
 	 * @return
 	 */
 	private boolean changeParameters(TestChromosome test, int statement) {
@@ -236,7 +233,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 	 *
 	 * @param test
 	 * @param statement
-	 * @param objective
 	 */
 	private boolean replaceMethodParameter(TestChromosome test, MethodStatement statement) {
 
@@ -293,7 +289,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 	 *
 	 * @param test
 	 * @param statement
-	 * @param objective
 	 */
 	private boolean replaceConstructorParameter(TestChromosome test,
 	        ConstructorStatement statement) {
@@ -334,7 +329,6 @@ public class ReferenceLocalSearch extends StatementLocalSearch {
 	 *
 	 * @param test
 	 * @param statement
-	 * @param objective
 	 */
 	private boolean replaceFieldSource(TestChromosome test, FieldStatement statement) {
 		if (!statement.isStatic()) {

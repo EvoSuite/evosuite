@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,17 +19,15 @@
  */
 package org.evosuite.strategy;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -37,7 +35,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.regression.RegressionAssertionCounter;
-import org.evosuite.regression.RegressionSearchListener;
+import org.evosuite.regression.RegressionMeasure;
 import org.evosuite.regression.RegressionTestChromosome;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosome;
@@ -57,420 +55,370 @@ import org.evosuite.utils.Randomness;
 
 public class RegressionSuiteStrategy extends TestGenerationStrategy {
 
-	private final RegressionSearchListener regressionMonitor = new RegressionSearchListener();
+  public final static ZeroFitnessStoppingCondition
+      zero_fitness = new ZeroFitnessStoppingCondition();
 
-	public final static ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
+  @Override
+  public TestSuiteChromosome generateTests() {
+    track(RuntimeVariable.Total_Goals, 0);
+    track(RuntimeVariable.Generated_Assertions, 0);
+    track(RuntimeVariable.Coverage_Old, 0);
+    track(RuntimeVariable.Coverage_New, 0);
+    track(RuntimeVariable.Exception_Difference, 0);
+    track(RuntimeVariable.State_Distance, 0);
+    track(RuntimeVariable.Testsuite_Diversity, 0);
 
-	@Override
-	public TestSuiteChromosome generateTests() {
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, 0);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Generated_Assertions, 0);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage_Old, 0);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Coverage_New, 0);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Exception_Difference, 0);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.State_Distance, 0);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Testsuite_Diversity, 0);
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
-		
-		
-		if (Properties.REGRESSION_USE_FITNESS == 10) {
-			Properties.REGRESSION_USE_FITNESS = 1;
-			Properties.REGRESSION_DIFFERENT_BRANCHES = false;
+    // Disable test archive
+    Properties.TEST_ARCHIVE = false;
 
-			 return generateRandomRegressionTests();
-		}
+    // Disable functional mocking stuff (due to incompatibilities)
+    Properties.P_FUNCTIONAL_MOCKING = 0;
+    Properties.FUNCTIONAL_MOCKING_INPUT_LIMIT = 0;
+    Properties.FUNCTIONAL_MOCKING_PERCENT = 0;
 
-		LoggingUtils.getEvoLogger().info(
-				"* Setting up search algorithm for REGRESSION suite generation");
-		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
-		GeneticAlgorithm<?> algorithm = algorithmFactory.getSearchAlgorithm();
+    // Regression random strategy switch.
+    if (Properties.REGRESSION_FITNESS == RegressionMeasure.RANDOM) {
+      return generateRandomRegressionTests();
+    }
 
-		if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
-			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(
-					algorithm);
+    LoggingUtils.getEvoLogger().info(
+        "* Setting up search algorithm for REGRESSION suite generation");
+    PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
+    GeneticAlgorithm<?> algorithm = algorithmFactory.getSearchAlgorithm();
 
-		long startTime = System.currentTimeMillis() / 1000;
+    if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD) {
+      TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
+    }
 
-		Properties.CRITERION = new Criterion[] {Criterion.REGRESSION};
-		// What's the search target
-		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
+    long startTime = System.currentTimeMillis() / 1000;
 
-		// TODO: Argh, generics.
-		algorithm.addFitnessFunctions((List) fitnessFunctions);
+    Properties.CRITERION = new Criterion[]{Criterion.REGRESSION};
+    // What's the search target
+    List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
-		algorithm.addListener(regressionMonitor); // FIXME progressMonitor may
-													// cause
-		// client hang if EvoSuite is
-		// executed with -prefix!
+    // TODO: Argh, generics.
+    algorithm.addFitnessFunctions((List) fitnessFunctions);
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
-				|| ArrayUtil
-						.contains(Properties.CRITERION, Criterion.STATEMENT)
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
-				|| ArrayUtil
-						.contains(Properties.CRITERION, Criterion.AMBIGUITY))
-			ExecutionTracer.enableTraceCalls();
+    //algorithm.addListener(regressionMonitor);
 
-		// TODO: why it was only if "analyzing"???
-		// if (analyzing)
-		algorithm.resetStoppingConditions();
+    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
+        || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
+        || ArrayUtil
+        .contains(Properties.CRITERION, Criterion.STATEMENT)
+        || ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
+        || ArrayUtil
+        .contains(Properties.CRITERION, Criterion.AMBIGUITY)) {
+      ExecutionTracer.enableTraceCalls();
+    }
 
-		List<TestFitnessFunction> goals = getGoals(true);
+    // TODO: why it was only if "analyzing"???
+    // if (analyzing)
+    algorithm.resetStoppingConditions();
 
+    List<TestFitnessFunction> goals = getGoals(true);
 
-		// List<TestSuiteChromosome> bestSuites = new
-		// ArrayList<TestSuiteChromosome>();
-		TestSuiteChromosome bestSuites = new TestSuiteChromosome();
-		RegressionTestSuiteChromosome best = null;
-		if (!(Properties.STOP_ZERO && goals.isEmpty())) {
-			// logger.warn("performing search ... ############################################################");
-			// Perform search
-			LoggingUtils.getEvoLogger().info("* Using seed {}",
-					Randomness.getSeed());
-			LoggingUtils.getEvoLogger().info("* Starting evolution");
-			ClientServices.getInstance().getClientNode()
-					.changeState(ClientState.SEARCH);
+    // List<TestSuiteChromosome> bestSuites = new
+    // ArrayList<TestSuiteChromosome>();
+    TestSuiteChromosome bestSuites = new TestSuiteChromosome();
+    RegressionTestSuiteChromosome best = null;
+    if (!Properties.STOP_ZERO || !goals.isEmpty()) {
+      // logger.warn("performing search ... ############################################################");
+      // Perform search
+      LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed());
+      LoggingUtils.getEvoLogger().info("* Starting evolution");
+      ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
-			algorithm.generateSolution();
-			best = (RegressionTestSuiteChromosome) algorithm.getBestIndividual();
-			// List<TestSuiteChromosome> tmpTestSuiteList = new
-			// ArrayList<TestSuiteChromosome>();
-			for (TestCase t : best.getTests())
-				bestSuites.addTest(t);
-			// bestSuites = (List<TestSuiteChromosome>) ga.getBestIndividuals();
-			if (bestSuites.size() == 0) {
-				LoggingUtils.getEvoLogger().warn(
-						"Could not find any suiteable chromosome");
-				return bestSuites;
-			}
-		} else {			
-			zeroFitness.setFinished();
-			bestSuites = new TestSuiteChromosome();
-			for (FitnessFunction<?> ff : bestSuites.getFitnessValues().keySet()) {
-				bestSuites.setCoverage(ff, 1.0);
-			}
-		}
+      algorithm.generateSolution();
+      best = (RegressionTestSuiteChromosome) algorithm.getBestIndividual();
+      // List<TestSuiteChromosome> tmpTestSuiteList = new
+      // ArrayList<TestSuiteChromosome>();
+      for (TestCase t : best.getTests()) {
+        bestSuites.addTest(t);
+      }
+      // bestSuites = (List<TestSuiteChromosome>) ga.getBestIndividuals();
+      if (bestSuites.size() == 0) {
+        LoggingUtils.getEvoLogger().warn("Could not find any suiteable chromosome");
+        return bestSuites;
+      }
+    } else {
+      zeroFitness.setFinished();
+      bestSuites = new TestSuiteChromosome();
+      for (FitnessFunction<?> ff : bestSuites.getFitnessValues().keySet()) {
+        bestSuites.setCoverage(ff, 1.0);
+      }
+    }
 
-		long end_time = System.currentTimeMillis() / 1000;
-		
-		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
-        
-              
+    long end_time = System.currentTimeMillis() / 1000;
 
-		// Newline after progress bar
-		if (Properties.SHOW_PROGRESS)
-			LoggingUtils.getEvoLogger().info("");
-		String text = " statements, best individual has fitness: ";
-		if (bestSuites.size() > 1) {
-			text = " statements, best individuals have fitness: ";
-		}
-		LoggingUtils.getEvoLogger().info(
-				"* Search finished after "
-						+ (end_time - startTime)
-						+ "s and "
-						+ algorithm.getAge()
-						+ " generations, "
-						+ MaxStatementsStoppingCondition
-								.getNumExecutedStatements() + text
-						+ best.getFitness());
+    goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
+    track(RuntimeVariable.Total_Goals, goals.size());
 
-		// progressMonitor.updateStatus(33);
+    // Newline after progress bar
+    if (Properties.SHOW_PROGRESS) {
+      LoggingUtils.getEvoLogger().info("");
+    }
+    String text = " statements, best individual has fitness: ";
+    if (bestSuites.size() > 1) {
+      text = " statements, best individuals have fitness: ";
+    }
+    LoggingUtils.getEvoLogger().info(
+        "* Search finished after "
+            + (end_time - startTime)
+            + "s and "
+            + algorithm.getAge()
+            + " generations, "
+            + MaxStatementsStoppingCondition
+            .getNumExecutedStatements() + text
+            + ((best != null) ? best.getFitness() : ""));
 
-		// progressMonitor.updateStatus(66);
+    // progressMonitor.updateStatus(33);
 
-		if (Properties.COVERAGE) {
-			for (Properties.Criterion pc : Properties.CRITERION)
-				CoverageCriteriaAnalyzer.analyzeCoverage(bestSuites, pc); // FIXME: can
-																	// we send
-																	// all
-																	// bestSuites?
-		}
+    // progressMonitor.updateStatus(66);
 
-		// progressMonitor.updateStatus(99);
+    if (Properties.COVERAGE) {
+      for (Properties.Criterion pc : Properties.CRITERION) {
+        CoverageCriteriaAnalyzer.analyzeCoverage(bestSuites, pc); // FIXME: can
+      }
+      // we send
+      // all
+      // bestSuites?
+    }
 
-		int number_of_test_cases = 0;
-		int totalLengthOfTestCases = 0;
-		double coverage = 0.0;
+    // progressMonitor.updateStatus(99);
 
-		// for (TestSuiteChromosome tsc : bestSuites) {
-		number_of_test_cases += bestSuites.size();
-		totalLengthOfTestCases += bestSuites.totalLengthOfTestCases();
-		coverage += bestSuites.getCoverage();
-		// }
-		// coverage = coverage / ((double)bestSuites.size());
+    int number_of_test_cases = 0;
+    int totalLengthOfTestCases = 0;
+    double coverage = 0.0;
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
-				|| ArrayUtil.contains(Properties.CRITERION,
-						Criterion.STRONGMUTATION)) {
-			// SearchStatistics.getInstance().mutationScore(coverage);
-		}
+    // for (TestSuiteChromosome tsc : bestSuites) {
+    number_of_test_cases += bestSuites.size();
+    totalLengthOfTestCases += bestSuites.totalLengthOfTestCases();
+    coverage += bestSuites.getCoverage();
+    // }
+    // coverage = coverage / ((double)bestSuites.size());
 
-		// StatisticsSender.executedAndThenSendIndividualToMaster(bestSuites);
-		// // FIXME: can we send all bestSuites?
-		// statistics.iteration(ga);
-		// statistics.minimized(bestSuites.get(0)); // FIXME: can we send all
-		// bestSuites?
-		LoggingUtils.getEvoLogger().info(
-				"* Generated " + number_of_test_cases
-						+ " tests with total length " + totalLengthOfTestCases);
+    if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
+        || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
+      // SearchStatistics.getInstance().mutationScore(coverage);
+    }
 
-		// TODO: In the end we will only need one analysis technique
-		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
-			// SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
-			// coverage);
-			CoverageCriteriaAnalyzer.analyzeCriteria(bestSuites,
-					Properties.ANALYSIS_CRITERIA); // FIXME: can we send all
-													// bestSuites?
-		}
+    // StatisticsSender.executedAndThenSendIndividualToMaster(bestSuites);
+    // // FIXME: can we send all bestSuites?
+    // statistics.iteration(ga);
+    // statistics.minimized(bestSuites.get(0)); // FIXME: can we send all
+    // bestSuites?
+    LoggingUtils.getEvoLogger().info(
+        "* Generated " + number_of_test_cases
+            + " tests with total length " + totalLengthOfTestCases);
 
-		LoggingUtils.getEvoLogger().info(
-				"* Resulting test suite's coverage: "
-						+ NumberFormat.getPercentInstance().format(coverage));
+    // TODO: In the end we will only need one analysis technique
+    if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
+      // SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
+      // coverage);
+      CoverageCriteriaAnalyzer.analyzeCriteria(bestSuites, Properties.ANALYSIS_CRITERIA);
+      // FIXME: can we send all bestSuites?
+    }
 
-		algorithm.printBudget();
+    LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
+        + NumberFormat.getPercentInstance().format(coverage));
 
-		// System.exit(0);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
+    algorithm.printBudget();
 
-		return bestSuites;
-	}
+    return bestSuites;
+  }
 
-	private TestSuiteChromosome generateRandomRegressionTests() {
-		LoggingUtils.getEvoLogger().info(
-				"* Using RANDOM regression test generation");
+  private TestSuiteChromosome generateRandomRegressionTests() {
+    LoggingUtils.getEvoLogger().info("* Using RANDOM regression test generation");
 
-		RegressionTestSuiteChromosome suite = new RegressionTestSuiteChromosome();
-		
-		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
-		GeneticAlgorithm<?> suiteGA = algorithmFactory.getSearchAlgorithm();
-		
-		//statistics.searchStarted(suiteGA);
+    if (Properties.KEEP_REGRESSION_ARCHIVE) {
+      Properties.TEST_ARCHIVE = true;
+    }
 
+    RegressionTestSuiteChromosome suite = new RegressionTestSuiteChromosome();
 
-		regressionMonitor.searchStarted(suiteGA);
-		RegressionTestChromosomeFactory factory = new RegressionTestChromosomeFactory();
-		LoggingUtils.getEvoLogger().warn("*** generating RANDOM regression tests");
-		// TODO: Shutdown hook?
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-				goals.size());
-		
-		StoppingCondition stoppingCondition = getStoppingCondition();
-		// fitnessFunction.getFitness(suite);
-		int totalTestCount = 0;
-		int usefulTestCount = 0;
+    PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
+    GeneticAlgorithm<?> suiteGA = algorithmFactory.getSearchAlgorithm();
 
-		int simulatedAge = 0;
-		int numAssertions = 0;
-		
-		int executedStatemets = 0;
+    //statistics.searchStarted(suiteGA);
 
-		boolean firstTry = true;
-		// Properties.REGRESSION_RANDOM_STRATEGY:
-		// 0: skip evaluation after first find, dont keep tests 
-		// 1: dont skip evaluation after first find, dont keep tests
-		// 2: dont skip evaluation after first find, keep tests
-		// 3: skip evaluation after first find, keep tests [default]
+    BranchCoverageSuiteFitness branchCoverageSuiteFitness = new BranchCoverageSuiteFitness(
+        TestGenerationContext.getInstance().getClassLoaderForSUT());
 
-		long startTime = System.currentTimeMillis();
-		while (!stoppingCondition.isFinished() || (numAssertions != 0)) {
+    //regressionMonitor.searchStarted(suiteGA);
+    RegressionTestChromosomeFactory factory = new RegressionTestChromosomeFactory();
+    LoggingUtils.getEvoLogger().warn("*** generating RANDOM regression tests");
+    // TODO: Shutdown hook?
+    List<TestFitnessFunction> goals = getGoals(true);
+    track(RuntimeVariable.Total_Goals, goals.size());
 
-			if (numAssertions == 0 || Properties.REGRESSION_RANDOM_STRATEGY==1 || Properties.REGRESSION_RANDOM_STRATEGY==2 ) {
+    StoppingCondition stoppingCondition = getStoppingCondition();
+    // fitnessFunction.getFitness(suite);
+    int totalTestCount = 0;
+    int usefulTestCount = 0;
 
-				RegressionTestChromosome test = factory.getChromosome();
-				RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
-				clone.addTest(test);
-				
-				List<TestCase> testCases = clone.getTests();
-				// fitnessFunction.getFitness(clone);
-				/*
-				 * logger.debug("Old fitness: {}, new fitness: {}",
-				 * suite.getFitness(), clone.getFitness());
-				 */
-				executedStatemets+= test.size();
-				numAssertions = RegressionAssertionCounter.getNumAssertions(clone);
-				if(numAssertions>0)
-					LoggingUtils.getEvoLogger().warn("Generated test with {} assertions.", numAssertions);
-				totalTestCount++;
-				if (numAssertions > 0) {
-					numAssertions = 0;
-					//boolean compilable = JUnitAnalyzer.verifyCompilationAndExecution(testCases);
-					if(true){
-						JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
-						JUnitAnalyzer.handleTestsThatAreUnstable(testCases);	
-						if(testCases.size()>0){
-							clone = new RegressionTestSuiteChromosome();
-							
-							for(TestCase t: testCases){
-								RegressionTestChromosome rtc = new RegressionTestChromosome();
-								if(t.isUnstable())
-									continue;
-								TestChromosome tc = new TestChromosome();
-								tc.setTestCase(t);
-								rtc.setTest(tc);
-								clone.addTest(rtc);
-							}
-							//test.set
-							//clone.addTest(testCases);
-							 
-							numAssertions = RegressionAssertionCounter.getNumAssertions(
-									clone, false ,false);
-							LoggingUtils.getEvoLogger().warn("Keeping {} assertions.", numAssertions);
-							if (numAssertions > 0) {
-								usefulTestCount++;
-								suite.addTest(test);
-							}
-						} else {
-							LoggingUtils.getEvoLogger().warn("ignored assertions. tests were removed.");
-						}
-					} else {
-						LoggingUtils.getEvoLogger().warn("ignored assertions. not compilable.");
-					}
-				}
-			} else {
-				
-				if(numAssertions > 0)
-					break;
-				/*
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				*/
-			}
+    int simulatedAge = 0;
+    int numAssertions = 0;
 
-			// regressionMonitor.fitnessEvaluation(suite);
-			// regressionMonitor.iteration(suiteGA);
-			if (firstTry
-					|| (System.currentTimeMillis() - startTime) >= 4000) {
-				try {
+    int executedStatemets = 0;
 
-					startTime = System.currentTimeMillis();
-					simulatedAge++;
-					if(!RegressionSearchListener.skipWritingStats){
-					RegressionSearchListener
-							.statsFileWriter.write(
-									"\r\n"
-											+ "0,"
-											+ totalTestCount
-											+ ","
-											+ suite.totalLengthOfTestCases()
-											+ ",0,0,0,0,"
-											+ RegressionSearchListener.exceptionDiff
-											+",0,0," + executedStatemets
-											+ ","
-											+ simulatedAge
-											+ ","
-											+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
-											+ "," + numAssertions + ","
-											+ (firstTry ? "F" : "P") + ",,,,,,");
-					
-					RegressionSearchListener
-					.statsFileWriter.flush();
-					}
-					firstTry = false;
-				} catch (Exception e) {
-					e.printStackTrace();
-				} catch(Throwable t){
-					// something happened, we don't care :-)
-					t.printStackTrace();
-				}
-			}
-		}
+    boolean firstTry = true;
+    // Properties.REGRESSION_RANDOM_STRATEGY:
+    // 0: skip evaluation after first find, dont keep tests
+    // 1: dont skip evaluation after first find, dont keep tests
+    // 2: dont skip evaluation after first find, keep tests
+    // 3: skip evaluation after first find, keep tests [default]
 
-		RegressionSearchListener.lastLine = "\r\n"
-				+ "0,"
-				+ totalTestCount //suite.size()
-				+ ","
-				+ suite.totalLengthOfTestCases()
-				+ ",0,0,0,0,0,0,0," + executedStatemets
-				+ ","
-				+ (++simulatedAge)
-				+ ","
-				+ (System.currentTimeMillis() - RegressionSearchListener.startTime)
-				+ "," + "ASSERTIONS" + "," + "L"
-				+ ",0,0,0,0,0,0";
-		
-		if(!Properties.MINIMIZE)
-			RegressionSearchListener.flushLastLine(numAssertions,totalTestCount,suite.totalLengthOfTestCases());
+    long startTime = System.currentTimeMillis();
+    while (!stoppingCondition.isFinished() || (numAssertions != 0)) {
 
-		// regressionMonitor.searchFinished(suiteGA);
-		LoggingUtils.getEvoLogger().warn("*** Random test generation finished.");
-		LoggingUtils.getEvoLogger().warn("*=*=*=* Total tests: {} | Tests with assertion: {}",
-				totalTestCount, usefulTestCount);
-		
-		//statistics.searchFinished(suiteGA);
-		zero_fitness.setFinished();
+      if (numAssertions == 0 || Properties.REGRESSION_RANDOM_STRATEGY == 1
+          || Properties.REGRESSION_RANDOM_STRATEGY == 2) {
 
-		LoggingUtils.getEvoLogger().info(
-				"* Generated " + suite.size() + " tests with total length "
-						+ suite.totalLengthOfTestCases());
-		try {
-			File file = new File("results.txt");
-			System.out.println("\n\r" + numAssertions + ", "
-					+ suite.totalLengthOfTestCases());
-			FileUtils.writeStringToFile(file, "\r\n" + executedStatemets + ", "
-					+ suite.totalLengthOfTestCases(), true);
-		} catch (IOException e) {
-			assert false;
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        RegressionTestChromosome test = factory.getChromosome();
+        RegressionTestSuiteChromosome clone = new RegressionTestSuiteChromosome();
+        clone.addTest(test);
 
-		suiteGA.printBudget();
+        List<TestCase> testCases = clone.getTests();
+        // fitnessFunction.getFitness(clone);
+        /*
+         * logger.debug("Old fitness: {}, new fitness: {}",
+         * suite.getFitness(), clone.getFitness());
+         */
+        executedStatemets += test.size();
+        numAssertions = RegressionAssertionCounter.getNumAssertions(clone);
+        if (Properties.KEEP_REGRESSION_ARCHIVE) {
+          branchCoverageSuiteFitness.getFitness(clone.getTestSuite());
+        }
+        if (numAssertions > 0) {
+          LoggingUtils.getEvoLogger().warn("Generated test with {} assertions.", numAssertions);
+        }
+        totalTestCount++;
+        if (numAssertions > 0) {
+          numAssertions = 0;
+          //boolean compilable = JUnitAnalyzer.verifyCompilationAndExecution(testCases);
 
-		if (!(Properties.REGRESSION_RANDOM_STRATEGY == 2 || Properties.REGRESSION_RANDOM_STRATEGY == 3))
-			suite = new RegressionTestSuiteChromosome();
+          JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+          JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
+          if (testCases.size() > 0) {
+            clone = new RegressionTestSuiteChromosome();
 
-		TestSuiteChromosome bestSuites = new TestSuiteChromosome();
-		
+            for (TestCase t : testCases) {
+              RegressionTestChromosome rtc = new RegressionTestChromosome();
+              if (t.isUnstable()) {
+                continue;
+              }
+              TestChromosome tc = new TestChromosome();
+              tc.setTestCase(t);
+              rtc.setTest(tc);
+              clone.addTest(rtc);
+            }
+            //test.set
+            //clone.addTest(testCases);
 
-		for(TestCase t:suite.getTests())
-			bestSuites.addTest(t);
-		
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Regression_ID, RegressionSearchListener.statsID);
-		
-		return bestSuites;
-	}
+            numAssertions = RegressionAssertionCounter.getNumAssertions(
+                clone, false, false);
+            LoggingUtils.getEvoLogger().warn("Keeping {} assertions.", numAssertions);
+            if (numAssertions > 0) {
+              usefulTestCount++;
+              suite.addTest(test);
+            }
 
-	private List<TestFitnessFunction> getGoals(boolean verbose) {
-		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-		List<TestFitnessFunction> goals = new ArrayList<>();
+          } else {
+            LoggingUtils.getEvoLogger().warn("ignored assertions. tests were removed.");
+          }
+        }
+      } else {
 
-		if (goalFactories.size() == 1) {
-			TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories
-					.iterator().next();
-			goals.addAll(factory.getCoverageGoals());
+        if (numAssertions > 0) {
+          break;
+        }
+        /*
+        try {
+                Thread.sleep(1000);
+        } catch (InterruptedException e) {
+                e.printStackTrace();
+        }
+        */
+      }
 
-			if (verbose) {
-				LoggingUtils.getEvoLogger().info(
-						"* Total number of test goals: {}",
-						factory.getCoverageGoals().size());
-			}
-		} else {
-			if (verbose) {
-				LoggingUtils.getEvoLogger().info(
-						"* Total number of test goals: ");
-			}
+      // regressionMonitor.fitnessEvaluation(suite);
+      // regressionMonitor.iteration(suiteGA);
+      if (firstTry || (System.currentTimeMillis() - startTime) >= 4000) {
+        startTime = System.currentTimeMillis();
+        simulatedAge++;
+        firstTry = false;
+      }
+    }
 
-			for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-				goals.addAll(goalFactory.getCoverageGoals());
+    // regressionMonitor.searchFinished(suiteGA);
+    LoggingUtils.getEvoLogger().warn("*** Random test generation finished.");
+    LoggingUtils.getEvoLogger().warn("*=*=*=* Total tests: {} | Tests with assertion: {}",
+        totalTestCount, usefulTestCount);
 
-				if (verbose) {
-					LoggingUtils.getEvoLogger().info(
-							"  - "
-									+ goalFactory.getClass().getSimpleName()
-											.replace("CoverageFactory", "")
-									+ " "
-									+ goalFactory.getCoverageGoals().size());
-				}
-			}
-		}
-		return goals;
-	}
+    //statistics.searchFinished(suiteGA);
+    zero_fitness.setFinished();
+
+    LoggingUtils.getEvoLogger().info("* Generated " + suite.size() + " tests with total length "
+        + suite.totalLengthOfTestCases());
+
+    goals = getGoals(false);
+    track(RuntimeVariable.Total_Goals, goals.size());
+
+    suiteGA.printBudget();
+
+    if (!(Properties.REGRESSION_RANDOM_STRATEGY == 2
+        || Properties.REGRESSION_RANDOM_STRATEGY == 3)) {
+      suite = new RegressionTestSuiteChromosome();
+    }
+
+    TestSuiteChromosome bestSuites = new TestSuiteChromosome();
+
+    for (TestCase t : suite.getTests()) {
+      bestSuites.addTest(t);
+    }
+
+    return bestSuites;
+  }
+
+  private List<TestFitnessFunction> getGoals(boolean verbose) {
+    List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
+    //LoggingUtils.getEvoLogger().warn("Factories: {}" , goalFactories);
+    List<TestFitnessFunction> goals = new ArrayList<>();
+
+    if (goalFactories.size() == 1) {
+      TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
+      goals.addAll(factory.getCoverageGoals());
+
+      if (verbose) {
+        LoggingUtils.getEvoLogger()
+            .info("* Total number of test goals: {}", factory.getCoverageGoals().size());
+      }
+    } else {
+      if (verbose) {
+        LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
+      }
+
+      for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+        goals.addAll(goalFactory.getCoverageGoals());
+
+        if (verbose) {
+          LoggingUtils.getEvoLogger().info(
+              "  - "
+                  + goalFactory.getClass().getSimpleName()
+                  .replace("CoverageFactory", "")
+                  + " "
+                  + goalFactory.getCoverageGoals().size());
+        }
+      }
+    }
+    return goals;
+  }
+
+  /**
+   * Helper for tracking output values
+   */
+  private void track(RuntimeVariable variable, Object value) {
+    ClientServices.getInstance().getClientNode().trackOutputVariable(variable, value);
+  }
 
 }

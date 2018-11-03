@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -89,6 +89,10 @@ public class ConcreteClassAnalyzer {
             return getConcreteClassesComparable();
         else if (clazz.equals(java.util.Comparator.class))
             return new LinkedHashSet<Class<?>>();
+        else if (clazz.equals(java.io.Reader.class))
+            return getConcreteClassesReader();
+        else if (clazz.equals(java.io.Writer.class))
+            return getConcreteClassesWriter();
 
         Set<Class<?>> actualClasses = new LinkedHashSet<Class<?>>();
         if (Modifier.isAbstract(clazz.getModifiers())
@@ -213,6 +217,34 @@ public class ConcreteClassAnalyzer {
             setClazz = Class.forName("java.util.LinkedHashSet",
                                      false,
                                      TestGenerationContext.getInstance().getClassLoaderForSUT());
+            mapClasses.add(setClazz);
+        } catch (ClassNotFoundException e) {
+            logger.error(e.getMessage());
+        }
+        return mapClasses;
+    }
+
+    private Set<Class<?>> getConcreteClassesReader() {
+        Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
+        Class<?> setClazz;
+        try {
+            setClazz = Class.forName("java.io.StringReader",
+                    false,
+                    TestGenerationContext.getInstance().getClassLoaderForSUT());
+            mapClasses.add(setClazz);
+        } catch (ClassNotFoundException e) {
+            logger.error(e.getMessage());
+        }
+        return mapClasses;
+    }
+
+    private Set<Class<?>> getConcreteClassesWriter() {
+        Set<Class<?>> mapClasses = new LinkedHashSet<Class<?>>();
+        Class<?> setClazz;
+        try {
+            setClazz = Class.forName("java.io.StringWriter",
+                    false,
+                    TestGenerationContext.getInstance().getClassLoaderForSUT());
             mapClasses.add(setClazz);
         } catch (ClassNotFoundException e) {
             logger.error(e.getMessage());

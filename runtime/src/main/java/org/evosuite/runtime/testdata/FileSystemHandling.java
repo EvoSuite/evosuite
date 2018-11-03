@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,7 +19,6 @@
  */
 package org.evosuite.runtime.testdata;
 
-import org.evosuite.runtime.testdata.EvoSuiteFile;
 import org.evosuite.runtime.vfs.FSObject;
 import org.evosuite.runtime.vfs.VFile;
 import org.evosuite.runtime.vfs.VirtualFileSystem;
@@ -45,9 +44,7 @@ public class FileSystemHandling {
 	 * Append a string to the given file.
 	 * If the file does not exist, it will be created.
 	 * 
-	 * @param filePath
-	 * @param line
-	 * @return 
+	 * @return
 	 */
 	public static boolean appendStringToFile(EvoSuiteFile file, String value){
 		
@@ -63,9 +60,7 @@ public class FileSystemHandling {
 	 * to the next line.
 	 * If the file does not exist, it will be created.
 	 * 
-	 * @param filePath
-	 * @param line
-	 * @return 
+	 * @return
 	 */
 	public static boolean appendLineToFile(EvoSuiteFile file, String line){
 		
@@ -82,7 +77,6 @@ public class FileSystemHandling {
 	 * Append a byte array to the given file.
 	 * If the file does not exist, it will be created.
 	 * 
-	 * @param filePath
 	 * @param data
 	 * @return
 	 */

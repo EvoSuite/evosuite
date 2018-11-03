@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/EvoSuite/evosuite.svg?branch=master)](https://travis-ci.org/EvoSuite/evosuite)
+[![CircleCI](https://circleci.com/gh/EvoSuite/evosuite.svg?style=svg&circle-token=f00c8d84b9dcf7dae4a82438441823f3be9df090)](https://circleci.com/gh/EvoSuite/evosuite)
+
 # What is EvoSuite?
 
 EvoSuite automatically generates JUnit test suites for Java classes, targeting code coverage criteria such as branch coverage. It uses an evolutionary approach based on a genetic algorithm to derive test suites. To improve readability, the generated unit tests are minimized, and regression assertions that capture the current behavior of the tested classes are added to the tests.
@@ -8,11 +11,11 @@ There are different ways to use EvoSuite:
 
 ### EvoSuite on the command line
 
-EvoSuite comes as an executable jar file which you can be called as follows:
+EvoSuite comes as an executable jar file which you can call as follows:
 
 ```java -jar evosuite.jar <options>```
 
-To generate a test suite using use the following command:
+To generate a test suite using EvoSuite, use the following command:
 
 ```java -jar evosuite.jar <target> [options]```
 
@@ -21,7 +24,7 @@ The target can be a class:
 ```-class <ClassName>```
 
 or a package prefix, in which case EvoSuite tries to generate a test
-suite for each class in the classpath that match the prefix:
+suite for each class in the classpath that matches the prefix:
 
 ```-prefix <PrefixName>```
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,22 +19,17 @@
  */
 package org.evosuite.coverage.line;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.TestsArchive;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.instrumentation.LinePool;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -51,62 +46,64 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -6369027784777941998L;
 
-	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(LineCoverageSuiteFitness.class);
 
-	// Coverage targets
-	public final Set<Integer> lines = new HashSet<Integer>();
+	// target goals
+	private final int numLines;
+	private final Map<Integer, TestFitnessFunction> lineGoals = new LinkedHashMap<>();
 
-	public final Set<Integer> removedLines = new HashSet<Integer>();
+	private final Set<Integer> removedLines = new LinkedHashSet<>();
+	private final Set<Integer> toRemoveLines = new LinkedHashSet<>();
 
-	public final Set<Integer> toRemoveLines = new HashSet<Integer>();
+	// Some stuff for debug output
+    private int maxCoveredLines = 0;
+    private double bestFitness = Double.MAX_VALUE;
+
+    private Set<Integer> branchesToCoverTrue  = new LinkedHashSet<>();
+    private Set<Integer> branchesToCoverFalse = new LinkedHashSet<>();
+    private Set<Integer> branchesToCoverBoth  = new LinkedHashSet<>();
 
 	public LineCoverageSuiteFitness() {
 		@SuppressWarnings("unused")
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		/* TODO: Would be nice to use a prefix here */
-		for(String className : LinePool.getKnownClasses()) {		
-			lines.addAll(LinePool.getLines(className));
-		}
-		logger.info("Total line coverage goals: " + lines);
+//		for(String className : LinePool.getKnownClasses()) {
+//			lines.addAll(LinePool.getLines(className));
+//		}
 
 		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
-			linesCoverageMap.put(goal.getLine(), goal);
+			lineGoals.put(goal.getLine(), goal);
 			if(Properties.TEST_ARCHIVE)
-				TestsArchive.instance.addGoalToCover(this, goal);
+				Archive.getArchiveInstance().addTarget(goal);
 		}
-		
+		this.numLines = lineGoals.size();
+		logger.info("Total line coverage goals: " + this.numLines);
+
 		initializeControlDependencies();
 	}
-	
-	// Some stuff for debug output
-	public int maxCoveredLines = 0;
-	public double bestFitness = Double.MAX_VALUE;
-
-	// Each test gets a set of distinct covered goals, these are mapped by line id
-	private final Map<Integer, TestFitnessFunction> linesCoverageMap = new HashMap<Integer, TestFitnessFunction>();
-
 
 	@Override
 	public boolean updateCoveredGoals() {
-		if(!Properties.TEST_ARCHIVE)
+		if (!Properties.TEST_ARCHIVE) {
 			return false;
-		
-		for (Integer line : toRemoveLines) {
-			boolean removed = lines.remove(line);
-			TestFitnessFunction f = linesCoverageMap.remove(line);
-			if (removed && f != null) {
-				removedLines.add(line);
-				//removeTestCall(f.getTargetClass(), f.getTargetMethod());
+		}
+
+		for (Integer goalID : this.toRemoveLines) {
+			TestFitnessFunction ff = this.lineGoals.remove(goalID);
+			if (ff != null) {
+				this.removedLines.add(goalID);
 			} else {
 				throw new IllegalStateException("goal to remove not found");
 			}
 		}
 
-		toRemoveLines.clear();
-		logger.info("Current state of archive: "+TestsArchive.instance.toString());
-		
+		this.toRemoveLines.clear();
+		logger.info("Current state of archive: " + Archive.getArchiveInstance().toString());
+
+		assert this.numLines == this.lineGoals.size() + this.removedLines.size();
+
 		return true;
 	}
 	
@@ -114,10 +111,10 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Iterate over all execution results and summarize statistics
 	 * 
 	 * @param results
-	 * @param callCount
+	 * @param coveredLines
 	 * @return
 	 */
-	private boolean analyzeTraces(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite, List<ExecutionResult> results, Map<String, Integer> callCount) {
+	private boolean analyzeTraces(List<ExecutionResult> results, Set<Integer> coveredLines) {
 		boolean hasTimeoutOrTestException = false;
 
 		for (ExecutionResult result : results) {
@@ -126,17 +123,19 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				continue;
 			}
 
-			for (Integer line : result.getTrace().getAllCoveredLines()) {
-				if (linesCoverageMap.containsKey(line)) {
-					if(!lines.contains(line) || removedLines.contains(line)) 
-						continue;
-					
-					result.test.addCoveredGoal(linesCoverageMap.get(line));
-					if(Properties.TEST_ARCHIVE) {
-						toRemoveLines.add(line);
-						TestsArchive.instance.putTest(this, linesCoverageMap.get(line), result);
-						suite.isToBeUpdated(true);
-					}
+			TestChromosome test = new TestChromosome();
+			test.setTestCase(result.test);
+			test.setLastExecutionResult(result);
+			test.setChanged(false);
+
+			for (Integer goalID : this.lineGoals.keySet()) {
+				TestFitnessFunction goal = this.lineGoals.get(goalID);
+
+				double fit = goal.getFitness(test, result); // archive is updated by the TestFitnessFunction class
+
+				if (fit == 0.0) {
+					coveredLines.add(goalID); // helper to count the number of covered goals
+					this.toRemoveLines.add(goalID); // goal to not be considered by the next iteration of the evolutionary algorithm
 				}
 			}
 		}
@@ -159,21 +158,11 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		fitness += getControlDependencyGuidance(results);
 		logger.info("Branch distances: "+fitness);
 
-		Map<String, Integer> callCount = new HashMap<String, Integer>();
-		Set<Integer> coveredLines = new HashSet<Integer>();
+		Set<Integer> coveredLines = new LinkedHashSet<>();
+		boolean hasTimeoutOrTestException = analyzeTraces(results, coveredLines);
 
-		// Collect stats in the traces 
-		boolean hasTimeoutOrTestException = analyzeTraces(suite, results, callCount);
-
-		for (ExecutionResult result : results) {
-			for(Integer line : result.getTrace().getCoveredLines()) {
-				if(!removedLines.contains(line))
-					coveredLines.add(line);
-			}
-		}
-
-		int totalLines = lines.size() + removedLines.size();
-		int numCoveredLines = coveredLines.size() + removedLines.size();
+		int totalLines = this.numLines;
+		int numCoveredLines = coveredLines.size() + this.removedLines.size();
 		
 		logger.debug("Covered " + numCoveredLines + " out of " + totalLines + " lines, "+removedLines.size() +" in archive");
 		fitness += normalize(totalLines - numCoveredLines);
@@ -217,14 +206,14 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (coveredLines > maxCoveredLines) {
 			maxCoveredLines = coveredLines;
 			logger.info("(Lines) Best individual covers " + coveredLines + "/"
-			        + lines + " lines");
+			        + this.numLines + " lines");
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
 		}
 
 		if (fitness < bestFitness) {
 			logger.info("(Fitness) Best individual covers " + coveredLines + "/"
-			        + lines + " lines");
+			        + this.numLines + " lines");
 			bestFitness = fitness;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
@@ -232,28 +221,34 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 	}
 	
-	
-	private Set<Integer> branchesToCoverTrue  = new HashSet<Integer>();
-	private Set<Integer> branchesToCoverFalse = new HashSet<Integer>();
-	private Set<Integer> branchesToCoverBoth  = new HashSet<Integer>();
-	
 	/**
 	 * Add guidance to the fitness function by including branch distances on
 	 * all control dependencies
 	 */
 	private void initializeControlDependencies() {
 		// In case we target more than one class (context, or inner classes) 
-		Set<String> targetClasses = new LinkedHashSet<String>();
-		for(TestFitnessFunction ff : linesCoverageMap.values()) {
+		Set<String> targetClasses = new LinkedHashSet<>();
+		for(TestFitnessFunction ff : lineGoals.values()) {
 			targetClasses.add(ff.getTargetClass());
 		}
 		for(String className : targetClasses) {
-			for(BytecodeInstruction bi : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className)) {
+			List<BytecodeInstruction> instructions = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className);
+
+			if(instructions == null) {
+				logger.info("No instructions known for class {} (is it an enum?)", className);
+				continue;
+			}
+			for(BytecodeInstruction bi : instructions) {
 				if(bi.getBasicBlock() == null) {
 					// Labels get no basic block. TODO - why?
 					continue;
 				}
-				for(ControlDependency cd : bi.getControlDependencies()) {
+
+				// The order of CDs may be nondeterminstic
+				// TODO: A better solution would be to make the CD order deterministic rather than sorting here
+				List<ControlDependency> cds = new ArrayList<>(bi.getControlDependencies());
+				Collections.sort(cds);
+				for(ControlDependency cd : cds) {
 					if(cd.getBranchExpressionValue()) {
 						branchesToCoverTrue.add(cd.getBranch().getActualBranchId());
 					} else {
@@ -273,9 +268,9 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	private double getControlDependencyGuidance(List<ExecutionResult> results) {
-		Map<Integer, Integer> predicateCount = new HashMap<Integer, Integer>();
-		Map<Integer, Double> trueDistance = new HashMap<Integer, Double>();
-		Map<Integer, Double> falseDistance = new HashMap<Integer, Double>();
+		Map<Integer, Integer> predicateCount = new LinkedHashMap<Integer, Integer>();
+		Map<Integer, Double> trueDistance = new LinkedHashMap<Integer, Double>();
+		Map<Integer, Double> falseDistance = new LinkedHashMap<Integer, Double>();
 
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {
@@ -341,6 +336,5 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		return distance;
 	}
-
 
 }

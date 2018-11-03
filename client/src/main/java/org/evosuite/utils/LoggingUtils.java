@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -178,8 +178,7 @@ public class LoggingUtils {
 									/*
 									 * TODO: unclear why it happens... need more investigation 
 									 */
-									logger.error("Error in de-serialized log event: "
-									        + ice.getMessage());
+									logger.error("Error in de-serialized log event: " + ice.getMessage());
 								} catch (Exception e) {
 									logger.error("Problem in reading loggings", e);
 								}

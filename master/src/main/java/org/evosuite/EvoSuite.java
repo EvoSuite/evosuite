@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -34,6 +34,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -45,8 +46,8 @@ import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.runtime.agent.ToolsJarLocator;
 import org.evosuite.runtime.sandbox.MSecurityManager;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.LoggingUtils;
@@ -71,14 +72,14 @@ public class EvoSuite {
     private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
     private static String separator = System.getProperty("file.separator");
-    private static String javaHome = System.getProperty("java.home");
+    //private static String javaHome = System.getProperty("java.home");
 
     /**
+     * Functional moved to @{@link JavaExecCmdUtil#getJavaBinExecutablePath()}
      * Constant
      * <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
      */
-    public final static String JAVA_CMD = javaHome + separator + "bin" + separator
-            + "java";
+    //public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
 
     public static String base_dir_path = System.getProperty("user.dir");
 
@@ -152,6 +153,10 @@ public class EvoSuite {
 
             setupProperties();
 
+            if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
+                throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
+            }
+
             if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
                 ClassPathHacker.initializeToolJar();
             }
@@ -180,6 +185,10 @@ public class EvoSuite {
             CommandLineParameters.handleSeed(javaOpts, line);
 
             CommandLineParameters.addJavaDOptions(javaOpts, line);
+
+            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+                ClassPathHacker.initializeToolJar();
+            }
 
             CommandLineParameters.handleClassPath(line);
 
@@ -219,6 +228,7 @@ public class EvoSuite {
                     LoggingUtils.getEvoLogger().info("* Configuration: " + conf);
                 }
             }
+
 
             if(Properties.CLIENT_ON_THREAD){
                 MSecurityManager.setRunningClientOnThread(true);

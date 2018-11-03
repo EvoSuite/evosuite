@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,7 +21,6 @@ package org.evosuite.testcase.execution;
 
 import java.util.Map;
 
-import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
@@ -264,7 +263,7 @@ public class ExecutionTracer {
 	 *            a {@link java.lang.String} object.
 	 * @param caller
 	 *            a {@link java.lang.Object} object.
-	 * @throws org.evosuite.testcase.TestCaseExecutor$TimeoutExceeded
+	 * @throws org.evosuite.testcase.execution.TestCaseExecutor$TimeoutExceeded
 	 *             if any.
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
@@ -542,6 +541,34 @@ public class ExecutionTracer {
 		tracer.trace.putStaticPassed(classNameWithDots, fieldName);
 	}
 
+	
+	/**
+	 * This method is added in the transformed bytecode
+	 *
+	 * @param className
+	 */
+	public static void exitClassInit(String className) {
+		
+		final String classNameWithDots = className.replace('/', '.');
+
+		ExecutionTracer tracer = getExecutionTracer();
+//		if (tracer.disabled)
+//			return;
+//
+//		if (isThreadNeqCurrentThread())
+//			return;
+//
+//		checkTimeout();
+		
+		tracer.trace.classInitialized(classNameWithDots);
+		
+	}
+	
+	/**
+	 * 
+	 * @param classNameWithDots
+	 * @param fieldName
+	 */
 	public static void passedGetStatic(String classNameWithDots, String fieldName) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)

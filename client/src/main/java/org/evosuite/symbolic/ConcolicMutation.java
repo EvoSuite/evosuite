@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -60,20 +60,28 @@ public class ConcolicMutation {
 	/**
 	 * Generate new constraint and ask solver for solution
 	 * 
-	 * @param condition
+	 * @param pathCondition
+	 * 
+	 * @param targetCondition
 	 *            a {@link org.evosuite.symbolic.BranchCondition} object.
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	// @SuppressWarnings({ "rawtypes", "unchecked" })
-	@SuppressWarnings("unchecked")
-	public static TestCase negateCondition(BranchCondition condition, TestCase test) {
+	public static TestCase negateCondition(List<BranchCondition> pathCondition, BranchCondition targetCondition,
+			TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-		constraints.addAll(condition.getReachingConstraints());
-		// constraints.addAll(condition.localConstraints);
-		Constraint<Long> c = (Constraint<Long>) condition.getLocalConstraint();
-		Constraint<Long> targetConstraint = c.negate();
+
+		for (BranchCondition b : pathCondition) {
+			constraints.addAll(b.getSupportingConstraints());
+			if (b == targetCondition) {
+				break;
+			} else {
+				constraints.add(b.getConstraint());
+			}
+		}
+		final Constraint<?> targetConstraint = targetCondition.getConstraint().negate();
 		constraints.add(targetConstraint);
 
 		if (!targetConstraint.isSolveable()) {
@@ -109,7 +117,7 @@ public class ConcolicMutation {
 						String name = ((String) key).replace("__SYM", "");
 						logger.debug("New value for " + name + " is " + value);
 						PrimitiveStatement<?> p = getStatement(newTest, name);
-						assert(p != null);
+						assert (p != null);
 						if (p instanceof BooleanPrimitiveStatement) {
 							BooleanPrimitiveStatement bp = (BooleanPrimitiveStatement) p;
 							bp.setValue(value.intValue() > 0);
@@ -126,7 +134,7 @@ public class ConcolicMutation {
 							LongPrimitiveStatement lp = (LongPrimitiveStatement) p;
 							lp.setValue(value);
 						} else {
-							assert(p instanceof IntPrimitiveStatement);
+							assert (p instanceof IntPrimitiveStatement);
 							IntPrimitiveStatement ip = (IntPrimitiveStatement) p;
 							ip.setValue(value.intValue());
 						}

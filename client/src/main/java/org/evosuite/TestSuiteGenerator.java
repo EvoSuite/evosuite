@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,18 +22,13 @@ package org.evosuite;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
-import org.evosuite.assertion.AssertionGenerator;
-import org.evosuite.assertion.CompleteAssertionGenerator;
-import org.evosuite.assertion.SimpleMutationAssertionGenerator;
-import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classpath.ClassPathHandler;
+import org.evosuite.classpath.ResourceList;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.coverage.epa.EPA;
 import org.evosuite.coverage.epa.EPAFactory;
@@ -44,7 +39,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
-import org.evosuite.regression.RegressionSearchListener;
+import org.evosuite.regression.bytecode.RegressionClassDiff;
 import org.evosuite.regression.RegressionSuiteMinimizer;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -52,34 +47,43 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.sandbox.PermissionStatistics;
-import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
 import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.ExceptionMapGenerator;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
 import org.evosuite.strategy.*;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.ConstantInliner;
+import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.ExecutionTraceImpl;
+import org.evosuite.testcase.execution.ExecutionTrace;
+import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.execution.reset.ClassReInitializer;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.StringPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.*;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
 import org.evosuite.utils.LoggingUtils;
-import org.objectweb.asm.Opcodes;
+import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -93,7 +97,30 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class TestSuiteGenerator {
 
+	private static final String FOR_NAME = "forName";
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
+
+
+	private void initializeTargetClass() throws Throwable {
+		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
+		// Here is where the <clinit> code should be invoked for the first time
+		DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
+		ExecutionResult execResult = TestCaseExecutor.getInstance().execute(test, Integer.MAX_VALUE);
+
+		if (hasThrownInitializerError(execResult)) {
+			// create single test suite with Class.forName()
+			writeJUnitTestSuiteForFailedInitialization();
+			ExceptionInInitializerError ex = getInitializerError(execResult);
+			throw ex;
+		} else if (!execResult.getAllThrownExceptions().isEmpty()) {
+			// some other exception has been thrown during initialization
+			Throwable t = execResult.getAllThrownExceptions().iterator().next();
+			throw t;
+		}
+
+		DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
+		LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
+	}
 
 	/**
 	 * Generate a test suite for the target class
@@ -106,45 +133,126 @@ public class TestSuiteGenerator {
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
 
-		// Deactivate loop counter to make sure classes initizlie properly
+		// Deactivate loop counter to make sure classes initialize properly
 		LoopCounter.getInstance().setActive(false);
+		ExceptionMapGenerator.initializeExceptionMap(Properties.TARGET_CLASS);
 
 		TestCaseExecutor.initExecutor();
-		Sandbox.goingToExecuteSUTCode();
-		TestGenerationContext.getInstance().goingToExecuteSUTCode();
-		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
-		try {
-			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-			DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
-			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 
+		try {
+			initializeTargetClass();
 		} catch (Throwable e) {
-			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
-					+ (e.getMessage() != null ? e.getMessage() : e.toString()));
-			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
-			return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
+
+			// If the bytecode for a method exceeds 64K, Java will complain
+			// Very often this is due to mutation instrumentation, so this dirty
+			// hack adds a fallback mode without mutation.
+			// This currently breaks statistics and assertions, so we have to also set these properties
+			boolean error = true;
+
+			String message = e.getMessage();
+			if (message != null && (message.contains("Method code too large") || message.contains("Class file too large"))) {
+				LoggingUtils.getEvoLogger().info("* Instrumentation exceeds Java's 64K limit per method in target class");
+				Properties.Criterion[] newCriteria = Arrays.stream(Properties.CRITERION).filter(t -> !t.equals(Properties.Criterion.STRONGMUTATION) && !t.equals(Properties.Criterion.WEAKMUTATION) && !t.equals(Properties.Criterion.MUTATION)).toArray(Properties.Criterion[]::new);
+				if(newCriteria.length < Properties.CRITERION.length) {
+					TestGenerationContext.getInstance().resetContext();
+					LoggingUtils.getEvoLogger().info("* Attempting re-instrumentation without mutation");
+					Properties.CRITERION = newCriteria;
+					if(Properties.NEW_STATISTICS) {
+						LoggingUtils.getEvoLogger().info("* Deactivating EvoSuite statistics because of instrumentation problem");
+						Properties.NEW_STATISTICS = false;
+					}
+
+					try {
+						initializeTargetClass();
+						error = false;
+					} catch(Throwable t) {
+						// No-op, error handled below
+					}
+					if(Properties.ASSERTIONS && Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
+						LoggingUtils.getEvoLogger().info("* Deactivating assertion minimization because mutation instrumentation does not work");
+						Properties.ASSERTION_STRATEGY = AssertionStrategy.ALL;
+					}
+				}
+			}
+
+		    if(error) {
+				LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
+						+ (e.getMessage() != null ? e.getMessage() : e.toString()));
+				logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
+				return TestGenerationResultBuilder.buildErrorResult(e.getMessage() != null ? e.getMessage() : e.toString());
+			}
+
 		} finally {
-			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
-			Sandbox.doneWithExecutingSUTCode();
-			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			if (Properties.RESET_STATIC_FIELDS) {
+				configureClassReInitializer();
+
+			}
 			// Once class loading is complete we can start checking loops
 			// without risking to interfere with class initialisation
 			LoopCounter.getInstance().setActive(true);
 		}
 
 		/*
-		 * Initialises the object pool with objects carved from SELECTED_JUNIT classes
+		 * Initialises the object pool with objects carved from SELECTED_JUNIT
+		 * classes
 		 */
 		// TODO: Do parts of this need to be wrapped into sandbox statements?
 		ObjectPoolManager.getInstance();
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class " + Properties.TARGET_CLASS);
-		printTestCriterion();
+		TestSuiteGeneratorHelper.printTestCriterion();
 
-		if (Properties.getTargetClass() == null)
+		if (!Properties.hasTargetClassBeenLoaded()) {
+			// initialization failed, then build error message
 			return TestGenerationResultBuilder.buildErrorResult("Could not load target class");
+		}
+
+		if (Properties.isRegression() && Properties.REGRESSION_SKIP_SIMILAR) {
+			// Sanity checks
+			if (Properties.getTargetClassRegression(true) == null) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
+				logger.error("class {} was not on the regression projectCP", Properties.TARGET_CLASS);
+				return TestGenerationResultBuilder.buildErrorResult("Could not load target regression class");
+			}
+			if (!ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT())
+					.hasClass(Properties.TARGET_CLASS)) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
+				logger.error("class {} was not on the regression_cp", Properties.TARGET_CLASS);
+				return TestGenerationResultBuilder.buildErrorResult(
+						"Class " + Properties.TARGET_CLASS + " did not exist on regression classpath");
+
+			}
+
+			boolean areDifferent = RegressionClassDiff.differentAcrossClassloaders(Properties.TARGET_CLASS);
+
+			// If classes are different, no point in continuing.
+			// TODO: report it to master to create a nice regression report
+			if (!areDifferent) {
+			    Properties.IGNORE_MISSING_STATISTICS = false;
+				logger.error("class {} was equal on both versions", Properties.TARGET_CLASS);
+				return TestGenerationResultBuilder.buildErrorResult(
+						"Class " + Properties.TARGET_CLASS + " was not changed between the two versions");
+			}
+		}
+
+		if (Properties.isRegression() && Properties.REGRESSION_SKIP_DIFFERENT_CFG) {
+			// Does the class have the same CFG across the two versions of the program?
+			boolean sameBranches = RegressionClassDiff.sameCFG();
+
+			if (!sameBranches) {
+				Properties.IGNORE_MISSING_STATISTICS = false;
+				logger.error("Could not match the branches across the two versions.");
+				return TestGenerationResultBuilder.buildErrorResult("Could not match the branches across the two versions.");
+			}
+		}
 
 		TestSuiteChromosome testCases = generateTests();
+
+		// As post process phases such as minimisation, coverage analysis, etc., may call getFitness()
+		// of each fitness function, which may try to update the Archive, in here we explicitly disable
+		// Archive to avoid any problem and at the same time to improve the performance of post process
+		// phases (as no CPU cycles would be wasted updating the Archive).
+		Properties.TEST_ARCHIVE = false;
 
 		postProcessTests(testCases);
 		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
@@ -152,7 +260,7 @@ public class TestSuiteGenerator {
 
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		TestGenerationResult result = writeJUnitTestsAndCreateResult(testCases);
-
+		writeJUnitFailingTests();
 		TestCaseExecutor.pullDown();
 		/*
 		 * TODO: when we will have several processes running in parallel, we ll need to
@@ -167,18 +275,123 @@ public class TestSuiteGenerator {
 	}
 
 	/**
-	 * Apply any readability optimizations and other techniques that should use or
-	 * modify the generated tests
+	 * Returns true iif the test case execution has thrown an instance of ExceptionInInitializerError
 	 * 
+	 * @param execResult of the test case execution
+	 * @return true if the test case has thrown an ExceptionInInitializerError
+	 */
+	private static boolean hasThrownInitializerError(ExecutionResult execResult) {
+		for (Throwable t : execResult.getAllThrownExceptions()) {
+			if (t instanceof ExceptionInInitializerError) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Returns the initialized  error from the test case execution
+	 * 
+	 * @param execResult of the test case execution
+	 * @return null if there were no thrown instances of ExceptionInInitializerError
+	 */
+	private static ExceptionInInitializerError getInitializerError(ExecutionResult execResult) {
+		for (Throwable t : execResult.getAllThrownExceptions()) {
+			if (t instanceof ExceptionInInitializerError) {
+				ExceptionInInitializerError exceptionInInitializerError = (ExceptionInInitializerError)t;
+				return exceptionInInitializerError;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Reports the initialized classes during class initialization to the
+	 * ClassReInitializater and configures the ClassReInitializer accordingly
+	 */
+	private void configureClassReInitializer() {
+		// add loaded classes during building of dependency graph
+		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
+		final List<String> initializedClasses = execTrace.getInitializedClasses();
+		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
+		// set the behaviour of the ClassReInitializer
+		final boolean reset_all_classes = Properties.RESET_ALL_CLASSES_DURING_TEST_GENERATION;
+		ClassReInitializer.getInstance().setReInitializeAllClasses(reset_all_classes);
+	}
+
+	private static void writeJUnitTestSuiteForFailedInitialization() throws EvosuiteError {
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		DefaultTestCase test = buildLoadTargetClassTestCase(Properties.TARGET_CLASS);
+		suite.addTest(test);
+		writeJUnitTestsAndCreateResult(suite);
+	}
+
+	/**
+	 * Creates a single Test Case that only loads the target class. 
+	 * <code>
+	 * Thread currentThread = Thread.currentThread();
+	 * ClassLoader classLoader = currentThread.getClassLoader();
+	 * classLoader.load(className);
+	 * </code>
+	 * @param className the class to be loaded
+	 * @return
+	 * @throws EvosuiteError if a reflection error happens while creating the test case
+	 */
+	private static DefaultTestCase buildLoadTargetClassTestCase(String className) throws EvosuiteError {
+		DefaultTestCase test = new DefaultTestCase();
+
+		StringPrimitiveStatement stmt0 = new StringPrimitiveStatement(test, className);
+		VariableReference string0 = test.addStatement(stmt0);
+		try {
+			Method currentThreadMethod = Thread.class.getMethod("currentThread");
+			Statement currentThreadStmt = new MethodStatement(test,
+					new GenericMethod(currentThreadMethod, currentThreadMethod.getDeclaringClass()), null,
+					Collections.emptyList());
+			VariableReference currentThreadVar = test.addStatement(currentThreadStmt);
+
+			Method getContextClassLoaderMethod = Thread.class.getMethod("getContextClassLoader");
+			Statement getContextClassLoaderStmt = new MethodStatement(test,
+					new GenericMethod(getContextClassLoaderMethod, getContextClassLoaderMethod.getDeclaringClass()),
+					currentThreadVar, Collections.emptyList());
+			VariableReference contextClassLoaderVar = test.addStatement(getContextClassLoaderStmt);
+
+//			Method loadClassMethod = ClassLoader.class.getMethod("loadClass", String.class);
+//			Statement loadClassStmt = new MethodStatement(test,
+//					new GenericMethod(loadClassMethod, loadClassMethod.getDeclaringClass()), contextClassLoaderVar,
+//					Collections.singletonList(string0));
+//			test.addStatement(loadClassStmt);
+
+			BooleanPrimitiveStatement stmt1 = new BooleanPrimitiveStatement(test, true);
+			VariableReference boolean0 = test.addStatement(stmt1);
+			
+			Method forNameMethod = Class.class.getMethod("forName",String.class, boolean.class, ClassLoader.class);
+			Statement forNameStmt = new MethodStatement(test,
+					new GenericMethod(forNameMethod, forNameMethod.getDeclaringClass()), null,
+					Arrays.<VariableReference>asList(string0, boolean0, contextClassLoaderVar));
+			test.addStatement(forNameStmt);
+
+			return test;
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new EvosuiteError("Unexpected exception while creating Class Initializer Test Case");
+		}
+	}
+
+	/**
+	 * Apply any readability optimizations and other techniques that should use
+	 * or modify the generated tests
+	 *
 	 * @param testSuite
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
 
 		// If overall time is short, the search might not have had enough time
-		// to come up with a suite without timeouts. However, they will slow down
+		// to come up with a suite without timeouts. However, they will slow
+		// down
 		// the rest of the process, and may lead to invalid tests
 		testSuite.getTestChromosomes()
-				.removeIf(t -> t.getLastExecutionResult() != null && t.getLastExecutionResult().hasTimeout());
+				.removeIf(t -> t.getLastExecutionResult() != null && (t.getLastExecutionResult().hasTimeout() ||
+																	  t.getLastExecutionResult().hasTestException()));
 
 		if (Properties.CTG_SEEDS_FILE_OUT != null) {
 			TestSuiteSerialization.saveTests(testSuite, new File(Properties.CTG_SEEDS_FILE_OUT));
@@ -188,13 +401,13 @@ public class TestSuiteGenerator {
 		}
 
 		/*
-		 * Remove covered goals that are not part of the minimization targets, as they
-		 * might screw up coverage analysis when a minimization timeout occurs. This may
-		 * happen e.g. when MutationSuiteFitness calls BranchCoverageSuiteFitness which
-		 * adds branch goals.
+		 * Remove covered goals that are not part of the minimization targets,
+		 * as they might screw up coverage analysis when a minimization timeout
+		 * occurs. This may happen e.g. when MutationSuiteFitness calls
+		 * BranchCoverageSuiteFitness which adds branch goals.
 		 */
-		// TODO: This creates an inconsistency between suite.getCoveredGoals().size()
-		// and suite.getNumCoveredGoals()
+		// TODO: This creates an inconsistency between
+		// suite.getCoveredGoals().size() and suite.getNumCoveredGoals()
 		// but it is not clear how to update numcoveredgoals
 		List<TestFitnessFunction> goals = new ArrayList<>();
 		for (TestFitnessFactory<?> ff : getFitnessFactories()) {
@@ -222,14 +435,11 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
 				LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
-						testSuite.size());
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size,
-						testSuite.size());
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length,
-						testSuite.totalLengthOfTestCases());
-				ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length,
-						testSuite.totalLengthOfTestCases());
+
+				ClientServices.track(RuntimeVariable.Result_Size, testSuite.size());
+				ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
+				ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
+				ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
 			} else if (Properties.isRegression()) {
 				RegressionSuiteMinimizer minimizer = new RegressionSuiteMinimizer();
 				minimizer.minimize(testSuite);
@@ -252,14 +462,11 @@ public class TestSuiteGenerator {
 				LoggingUtils.getEvoLogger().info("* Skipping minimization because not enough time is left");
 			}
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Size,
-					testSuite.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Size,
-					testSuite.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Result_Length,
-					testSuite.totalLengthOfTestCases());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Minimized_Length,
-					testSuite.totalLengthOfTestCases());
+
+			ClientServices.track(RuntimeVariable.Result_Size, testSuite.size());
+			ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
+			ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
+			ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
 		}
 
 		if (Properties.COVERAGE) {
@@ -282,8 +489,9 @@ public class TestSuiteGenerator {
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			// SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
 			// coverage);
-			CoverageCriteriaAnalyzer.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA); // FIXME: can we send all
-																								// bestSuites?
+
+			CoverageCriteriaAnalyzer.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA);
+			// FIXME: can we send all bestSuites?
 		}
 		if (Properties.CRITERION.length > 1)
 			LoggingUtils.getEvoLogger()
@@ -331,24 +539,29 @@ public class TestSuiteGenerator {
 			if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
 				LoggingUtils.getEvoLogger().info("* Skipping assertion generation because not enough time is left");
 			} else {
-				addAssertions(testSuite);
+
+				TestSuiteGeneratorHelper.addAssertions(testSuite);
 			}
-			StatisticsSender.sendIndividualToMaster(testSuite); // FIXME: can we pass the list of testsuitechromosomes?
+			StatisticsSender.sendIndividualToMaster(testSuite); // FIXME: can we
+																// pass the list
+																// of
+																// testsuitechromosomes?
 		}
 
-		if (Properties.CHECK_CONTRACTS) {
-			for (TestCase failing_test : FailingTestSet.getFailingTests()) {
-				testSuite.addTest(failing_test);
-			}
-			FailingTestSet.sendStatistics();
+		if(Properties.NO_RUNTIME_DEPENDENCY) {
+			LoggingUtils.getEvoLogger().info("* Property NO_RUNTIME_DEPENDENCY is set to true - skipping JUnit compile check");
+			LoggingUtils.getEvoLogger().info("* WARNING: Not including the runtime dependencies is likely to lead to flaky tests!");
 		}
-
-		if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
+		else if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
 			compileAndCheckTests(testSuite);
 		}
 
 		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
-			RegressionTestSuiteSerialization.performRegressionAnalysis(testSuite);
+			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);
+		}
+
+		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
+			RegressionSuiteSerializer.storeRegressionArchive();
 		}
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)) {
@@ -379,9 +592,9 @@ public class TestSuiteGenerator {
 	}
 
 	/**
-	 * Compile and run the given tests. Remove from input list all tests that do not
-	 * compile, and handle the cases of instability (either remove tests or comment
-	 * out failing assertions)
+	 * Compile and run the given tests. Remove from input list all tests that do
+	 * not compile, and handle the cases of instability (either remove tests or
+	 * comment out failing assertions)
 	 *
 	 * @param chromosome
 	 */
@@ -411,7 +624,8 @@ public class TestSuiteGenerator {
 			return;
 		}
 
-		List<TestCase> testCases = chromosome.getTests(); // make copy of current tests
+		List<TestCase> testCases = chromosome.getTests(); // make copy of
+															// current tests
 
 		// first, let's just get rid of all the tests that do not compile
 		JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
@@ -428,20 +642,22 @@ public class TestSuiteGenerator {
 			list.add(tc);
 			numUnstable += JUnitAnalyzer.handleTestsThatAreUnstable(list);
 			if (list.isEmpty()) {
-				// if the test was unstable and deleted, need to remove it from final testSuite
+				// if the test was unstable and deleted, need to remove it from
+				// final testSuite
 				iter.remove();
 			}
 		}
 		/*
-		 * compiling and running each single test individually will take more than
-		 * compiling/running everything in on single suite. so it can be used as an
-		 * upper bound
+		 * compiling and running each single test individually will take more
+		 * than compiling/running everything in on single suite. so it can be
+		 * used as an upper bound
 		 */
 		long delta = java.lang.System.currentTimeMillis() - start;
 
 		numUnstable += checkAllTestsIfTime(testCases, delta);
 
-		// second passage on reverse order, this is to spot dependencies among tests
+		// second passage on reverse order, this is to spot dependencies among
+		// tests
 		if (testCases.size() > 1) {
 			Collections.reverse(testCases);
 			numUnstable += checkAllTestsIfTime(testCases, delta);
@@ -458,13 +674,13 @@ public class TestSuiteGenerator {
 			logger.warn("JUnit checking timed out");
 		}
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.HadUnstableTests, unstable);
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.NumUnstableTests, numUnstable);
+		ClientServices.track(RuntimeVariable.HadUnstableTests, unstable);
+		ClientServices.track(RuntimeVariable.NumUnstableTests, numUnstable);
 		Properties.USE_SEPARATE_CLASSLOADER = junitSeparateClassLoader;
 
 	}
 
-	private int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
+	private static int checkAllTestsIfTime(List<TestCase> testCases, long delta) {
 		if (TimeController.getInstance().hasTimeToExecuteATestCase()
 				&& TimeController.getInstance().isThereStillTimeInThisPhase(delta)) {
 			return JUnitAnalyzer.handleTestsThatAreUnstable(testCases);
@@ -487,7 +703,7 @@ public class TestSuiteGenerator {
 			TestCaseExecutor.getInstance().addObserver(checker);
 		}
 
-		TestGenerationStrategy strategy = getTestGenerationStrategy();
+		TestGenerationStrategy strategy = TestSuiteGeneratorHelper.getTestGenerationStrategy();
 		TestSuiteChromosome testSuite = strategy.generateTests();
 
 		if (Properties.CHECK_CONTRACTS) {
@@ -495,7 +711,7 @@ public class TestSuiteGenerator {
 		}
 
 		StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
-		getBytecodeStatistics();
+		TestSuiteGeneratorHelper.getBytecodeStatistics();
 
 		ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 
@@ -550,35 +766,11 @@ public class TestSuiteGenerator {
 			TestSuiteWriter suiteWriter = new TestSuiteWriter();
 			suiteWriter.insertTests(tests);
 
-			if (Properties.CHECK_CONTRACTS) {
-				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
-				// suite.insertAllTests(FailingTestSet.getFailingTests());
-				FailingTestSet.writeJUnitTestSuite(suiteWriter);
-			}
-
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test case '" + (name + suffix) + "' to " + testDir);
 			suiteWriter.writeTestSuite(name + suffix, testDir, testSuite.getLastExecutionResults());
-
-			// If in regression mode, create a separate copy of the tests
-			if (!RegressionSearchListener.statsID.equals("")) {
-				File evosuiterTestDir = new File("evosuiter-stats");
-
-				boolean madeDir = false;
-				if (!evosuiterTestDir.exists() || !evosuiterTestDir.isDirectory()) {
-					madeDir = evosuiterTestDir.mkdirs();
-				}
-				if (madeDir) {
-					String regressionTestName = "T" + RegressionSearchListener.statsID + "Test";
-
-					LoggingUtils.getEvoLogger()
-							.info("* Writing JUnit test case '" + (regressionTestName) + "' to " + evosuiterTestDir);
-
-					suiteWriter.writeTestSuite(regressionTestName, evosuiterTestDir.getName(), Collections.EMPTY_LIST);
-				}
-			}
 		}
 		return TestGenerationResultBuilder.buildSuccessResult();
 	}
@@ -592,21 +784,31 @@ public class TestSuiteGenerator {
 		return writeJUnitTestsAndCreateResult(testSuite, Properties.JUNIT_SUFFIX);
 	}
 
-	private void addAssertions(TestSuiteChromosome tests) {
-		AssertionGenerator asserter;
-		ContractChecker.setActive(false);
+	public void writeJUnitFailingTests() {
+		if (!Properties.CHECK_CONTRACTS)
+			return;
 
-		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
-			asserter = new SimpleMutationAssertionGenerator();
-		} else if (Properties.ASSERTION_STRATEGY == AssertionStrategy.ALL) {
-			asserter = new CompleteAssertionGenerator();
-		} else
-			asserter = new UnitAssertionGenerator();
+		FailingTestSet.sendStatistics();
 
-		asserter.addAssertions(tests);
+		if (Properties.JUNIT_TESTS) {
 
-		if (Properties.FILTER_ASSERTIONS)
-			asserter.filterFailingAssertions(tests);
+			TestSuiteWriter suiteWriter = new TestSuiteWriter();
+			//suiteWriter.insertTests(FailingTestSet.getFailingTests());
+
+			TestSuiteChromosome suite = new TestSuiteChromosome();
+			for(TestCase test : FailingTestSet.getFailingTests()) {
+				test.setFailing();
+				suite.addTest(test);
+			}
+
+			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+			String testDir = Properties.TEST_DIR;
+			LoggingUtils.getEvoLogger().info("* Writing failing test cases '" + (name + Properties.JUNIT_SUFFIX) + "' to " + testDir);
+			suiteWriter.insertAllTests(suite.getTests());
+			FailingTestSet.writeJUnitTestSuite(suiteWriter);
+
+			suiteWriter.writeTestSuite(name + Properties.JUNIT_FAILED_SUFFIX, testDir, suite.getLastExecutionResults());
+		}
 	}
 
 	private void writeObjectPool(TestSuiteChromosome suite) {
@@ -614,207 +816,6 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("* Writing sequences to pool");
 			ObjectPool pool = ObjectPool.getPoolFromTestSuite(suite);
 			pool.writePool(Properties.WRITE_POOL);
-		}
-	}
-
-	private void getBytecodeStatistics() {
-		if (Properties.TRACK_BOOLEAN_BRANCHES) {
-			int gradientBranchCount = ExecutionTraceImpl.gradientBranches.size() * 2;
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches,
-					gradientBranchCount);
-		}
-		if (Properties.TRACK_COVERED_GRADIENT_BRANCHES) {
-			int coveredGradientBranchCount = ExecutionTraceImpl.gradientBranchesCoveredTrue.size()
-					+ ExecutionTraceImpl.gradientBranchesCoveredFalse.size();
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Gradient_Branches_Covered,
-					coveredGradientBranchCount);
-		}
-		if (Properties.BRANCH_COMPARISON_TYPES) {
-			int cmp_intzero = 0, cmp_intint = 0, cmp_refref = 0, cmp_refnull = 0;
-			int bc_lcmp = 0, bc_fcmpl = 0, bc_fcmpg = 0, bc_dcmpl = 0, bc_dcmpg = 0;
-			for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
-					.getAllBranches()) {
-				int branchOpCode = b.getInstruction().getASMNode().getOpcode();
-				int previousOpcode = -2;
-				if (b.getInstruction().getASMNode().getPrevious() != null)
-					previousOpcode = b.getInstruction().getASMNode().getPrevious().getOpcode();
-				switch (previousOpcode) {
-				case Opcodes.LCMP:
-					bc_lcmp++;
-					break;
-				case Opcodes.FCMPL:
-					bc_fcmpl++;
-					break;
-				case Opcodes.FCMPG:
-					bc_fcmpg++;
-					break;
-				case Opcodes.DCMPL:
-					bc_dcmpl++;
-					break;
-				case Opcodes.DCMPG:
-					bc_dcmpg++;
-					break;
-				}
-				switch (branchOpCode) {
-				// copmpare int with zero
-				case Opcodes.IFEQ:
-				case Opcodes.IFNE:
-				case Opcodes.IFLT:
-				case Opcodes.IFGE:
-				case Opcodes.IFGT:
-				case Opcodes.IFLE:
-					cmp_intzero++;
-					break;
-				// copmpare int with int
-				case Opcodes.IF_ICMPEQ:
-				case Opcodes.IF_ICMPNE:
-				case Opcodes.IF_ICMPLT:
-				case Opcodes.IF_ICMPGE:
-				case Opcodes.IF_ICMPGT:
-				case Opcodes.IF_ICMPLE:
-					cmp_intint++;
-					break;
-				// copmpare reference with reference
-				case Opcodes.IF_ACMPEQ:
-				case Opcodes.IF_ACMPNE:
-					cmp_refref++;
-					break;
-				// compare reference with null
-				case Opcodes.IFNULL:
-				case Opcodes.IFNONNULL:
-					cmp_refnull++;
-					break;
-
-				}
-			}
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntZero, cmp_intzero);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_IntInt, cmp_intint);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefRef, cmp_refref);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Cmp_RefNull, cmp_refnull);
-
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_lcmp, bc_lcmp);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_fcmpl, bc_fcmpl);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_fcmpg, bc_fcmpg);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_dcmpl, bc_dcmpl);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.BC_dcmpg, bc_dcmpg);
-
-			RuntimeVariable[] bytecodeVarsCovered = new RuntimeVariable[] { RuntimeVariable.Covered_lcmp,
-					RuntimeVariable.Covered_fcmpl, RuntimeVariable.Covered_fcmpg, RuntimeVariable.Covered_dcmpl,
-					RuntimeVariable.Covered_dcmpg, RuntimeVariable.Covered_IntInt, RuntimeVariable.Covered_IntInt,
-					RuntimeVariable.Covered_IntZero, RuntimeVariable.Covered_RefRef, RuntimeVariable.Covered_RefNull };
-
-			for (RuntimeVariable bcvar : bytecodeVarsCovered) {
-				ClientServices.getInstance().getClientNode().trackOutputVariable(bcvar,
-						getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionCoveredFalse)
-								+ getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionCoveredTrue));
-			}
-
-			RuntimeVariable[] bytecodeVarsReached = new RuntimeVariable[] { RuntimeVariable.Reached_lcmp,
-					RuntimeVariable.Reached_fcmpl, RuntimeVariable.Reached_fcmpg, RuntimeVariable.Reached_dcmpl,
-					RuntimeVariable.Reached_dcmpg, RuntimeVariable.Reached_IntInt, RuntimeVariable.Reached_IntInt,
-					RuntimeVariable.Reached_IntZero, RuntimeVariable.Reached_RefRef, RuntimeVariable.Reached_RefNull };
-
-			for (RuntimeVariable bcvar : bytecodeVarsReached) {
-				ClientServices.getInstance().getClientNode().trackOutputVariable(bcvar,
-						getBytecodeCount(bcvar, ExecutionTraceImpl.bytecodeInstructionReached) * 2);
-			}
-
-		}
-
-	}
-
-	private void printTestCriterion() {
-		if (Properties.CRITERION.length > 1)
-			LoggingUtils.getEvoLogger().info("* Test criteria:");
-		else
-			LoggingUtils.getEvoLogger().info("* Test criterion:");
-		for (int i = 0; i < Properties.CRITERION.length; i++)
-			printTestCriterion(Properties.CRITERION[i]);
-	}
-
-	private void printTestCriterion(Criterion criterion) {
-		switch (criterion) {
-		case WEAKMUTATION:
-			LoggingUtils.getEvoLogger().info("  - Mutation testing (weak)");
-			break;
-		case ONLYMUTATION:
-			LoggingUtils.getEvoLogger().info("  - Only Mutation testing (weak)");
-			break;
-		case STRONGMUTATION:
-		case MUTATION:
-			LoggingUtils.getEvoLogger().info("  - Mutation testing (strong)");
-			break;
-		case DEFUSE:
-			LoggingUtils.getEvoLogger().info("  - All DU Pairs");
-			break;
-		case STATEMENT:
-			LoggingUtils.getEvoLogger().info("  - Statement Coverage");
-			break;
-		case RHO:
-			LoggingUtils.getEvoLogger().info("  - Rho Coverage");
-			break;
-		case AMBIGUITY:
-			LoggingUtils.getEvoLogger().info("  - Ambiguity Coverage");
-			break;
-		case ALLDEFS:
-			LoggingUtils.getEvoLogger().info("  - All Definitions");
-			break;
-		case EXCEPTION:
-			LoggingUtils.getEvoLogger().info("  - Exception");
-			break;
-		case ONLYBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Only-Branch Coverage");
-			break;
-		case METHODTRACE:
-			LoggingUtils.getEvoLogger().info("  - Method Coverage");
-			break;
-		case METHOD:
-			LoggingUtils.getEvoLogger().info("  - Top-Level Method Coverage");
-			break;
-		case METHODNOEXCEPTION:
-			LoggingUtils.getEvoLogger().info("  - No-Exception Top-Level Method Coverage");
-			break;
-		case LINE:
-			LoggingUtils.getEvoLogger().info("  - Line Coverage");
-			break;
-		case ONLYLINE:
-			LoggingUtils.getEvoLogger().info("  - Only-Line Coverage");
-			break;
-		case OUTPUT:
-			LoggingUtils.getEvoLogger().info("  - Method-Output Coverage");
-			break;
-		case INPUT:
-			LoggingUtils.getEvoLogger().info("  - Method-Input Coverage");
-			break;
-		case BRANCH:
-			LoggingUtils.getEvoLogger().info("  - Branch Coverage");
-			break;
-		case EPATRANSITION:
-			LoggingUtils.getEvoLogger().info("  - EPA Transition Coverage");
-			break;
-		case EPAERROR:
-			LoggingUtils.getEvoLogger().info("  - EPA Error Coverage");
-			break;
-		case EPAMINING:
-			LoggingUtils.getEvoLogger().info("  - EPA Mining Coverage");
-			break;
-		case EPAEXCEPTION:
-			LoggingUtils.getEvoLogger().info("  - EPA Exception Coverage");
-			break;
-		case EPAADJACENTEDGES:
-			LoggingUtils.getEvoLogger().info("  - EPA Adjacent Edges Coverage");
-			break;
-		case CBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Context Branch Coverage");
-			break;
-		case IBRANCH:
-			LoggingUtils.getEvoLogger().info("  - Interprocedural Context Branch Coverage");
-			break;
-		case TRYCATCH:
-			LoggingUtils.getEvoLogger().info("  - Try-Catch Branch Coverage");
-			break;
-		default:
-			throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
 		}
 	}
 
@@ -866,7 +867,8 @@ public class TestSuiteGenerator {
 	 * getFitnessFactories
 	 * </p>
 	 * 
-	 * @return a list of {@link org.evosuite.coverage.TestFitnessFactory} objects.
+	 * @return a list of {@link org.evosuite.coverage.TestFitnessFactory}
+	 *         objects.
 	 */
 	public static List<TestFitnessFactory<? extends TestFitnessFunction>> getFitnessFactories() {
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalsFactory = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,11 +21,17 @@ package org.evosuite.assertion;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.runtime.mock.MockList;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.utils.JdkPureMethodsList;
 import org.slf4j.Logger;
@@ -38,9 +44,9 @@ public class InspectorManager {
 	private static Logger logger = LoggerFactory
 			.getLogger(InspectorManager.class);
 
-	private Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
+	private final Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
 
-	private Map<String, List<String>> blackList = new HashMap<String, List<String>>();
+	private final Map<String, List<String>> blackList = new HashMap<String, List<String>>();
 
 	private InspectorManager() {
 		// TODO: Need to replace this with proper analysis
@@ -114,6 +120,8 @@ public class InspectorManager {
 				Arrays.asList(new String[] { "toString" }));
 		blackList.put("java.awt.event.InvocationEvent",
 				Arrays.asList(new String[] { "getWhen"}));
+		blackList.put("java.lang.StringBuffer",
+				Arrays.asList(new String[] { "capacity"}));
 	}
 
 	/**
@@ -129,6 +137,10 @@ public class InspectorManager {
 		}
 		return instance;
 	}
+	
+	public static void resetSingleton() {
+		instance=null;
+	}
 
 	private boolean isInspectorMethod(Method method) {
 		if (!Modifier.isPublic(method.getModifiers()))
@@ -136,7 +148,8 @@ public class InspectorManager {
 
 		if (!method.getReturnType().isPrimitive()
 				&& !method.getReturnType().equals(String.class)
-				&& !method.getReturnType().isEnum()) {
+				&& !method.getReturnType().isEnum()
+				&& !ClassUtils.isPrimitiveWrapper(method.getReturnType())) {
 			return false;
 		}
 
@@ -213,7 +226,7 @@ public class InspectorManager {
 
 	private void determineInspectors(Class<?> clazz) {
 		if (!TestUsageChecker.canUse(clazz)) {
-			inspectors.put(clazz, Collections.EMPTY_LIST);
+			inspectors.put(clazz, Collections.emptyList());
 		}
 		if (!TestUsageChecker.canUse(clazz))
 			return;
@@ -242,8 +255,9 @@ public class InspectorManager {
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Inspector> getInspectors(Class<?> clazz) {
-		if (!inspectors.containsKey(clazz))
+		if (!inspectors.containsKey(clazz)) {
 			determineInspectors(clazz);
+		}
 		return inspectors.get(clazz);
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -89,7 +89,7 @@ public abstract class TestGenerationStrategy {
 	    	// If this is compositional fitness, we need to make sure
 	    	// that all functions are consistently minimization or 
 	    	// maximization functions
-	    	if(Properties.ALGORITHM != Algorithm.NSGAII) {
+	    	if(Properties.ALGORITHM != Algorithm.NSGAII && Properties.ALGORITHM != Algorithm.SPEA2) {
 	    		for(TestSuiteFitnessFunction oldFunction : ffs) {			
 	    			if(oldFunction.isMaximizationFunction() != newFunction.isMaximizationFunction()) {
 	    				StringBuffer sb = new StringBuffer();

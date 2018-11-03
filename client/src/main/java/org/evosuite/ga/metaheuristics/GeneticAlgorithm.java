@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,6 +19,11 @@
  */
 package org.evosuite.ga.metaheuristics;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -30,16 +35,18 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
-import org.evosuite.ga.Archive;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.bloatcontrol.BloatControlFunction;
 import org.evosuite.ga.localsearch.DefaultLocalSearchObjective;
 import org.evosuite.ga.localsearch.LocalSearchBudget;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
+import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
+import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.RankSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
@@ -49,6 +56,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -100,8 +108,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected int currentIteration = 0;
 
 	protected double localSearchProbability = Properties.LOCAL_SEARCH_PROBABILITY;
-	
-	protected transient Archive<T> archive = null;
+
+	/** Selected ranking strategy **/
+	protected RankingFunction<T> rankingFunction = new RankBasedPreferenceSorting<T>();
 
 	/**
 	 * Constructor
@@ -143,8 +152,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected void disableFirstSecondaryCriterion() {
 		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 			TestSuiteChromosome.disableFirstSecondaryObjective();
-			if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
-					|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
+			if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
 				ExecutionTracer.disableContext();
 			}
 			logger.info("second secondary criterion enabled");
@@ -154,8 +162,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	protected void enableFirstSecondaryCriterion() {
 		if (TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 			TestSuiteChromosome.enableFirstSecondaryObjective();
-			if (Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("ibranch")
-					|| Properties.SECONDARY_OBJECTIVE.toLowerCase().startsWith("archiveibranch")) {
+			if (ArrayUtil.contains(Properties.SECONDARY_OBJECTIVE, Properties.SecondaryObjective.IBRANCH)) {
 				ExecutionTracer.enableContext();
 			}
 			logger.info("first secondary criterion enabled");
@@ -173,16 +180,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
 				&& TestSuiteChromosome.getSecondaryObjectivesSize() > 1) {
 
-			long totalbudget = 0;
-			long currentbudget = 0;
-
-			for (StoppingCondition sc : stoppingConditions) {
-				if (sc.getLimit() != 0) {
-					totalbudget += sc.getLimit();
-					currentbudget += sc.getCurrentValue();
-				}
-			}
-			double progress = currentbudget * 100.0 / totalbudget;
+			double progress = this.progress() * 100.0;
 
 			if (progress > Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER) {
 				if (Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
@@ -212,7 +210,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 	/**
 	 * Apply local search, starting from the best individual and continue
-	 * applying it to all individuals until the local search budget is used up
+	 * applying it to all individuals until the local search budget is used up.
+	 * 
+	 * The population list is re-ordered if needed.
 	 */
 	protected void applyLocalSearch() {
 		if (!shouldApplyLocalSearch())
@@ -232,24 +232,77 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 				break;
 			}
 
-			if (individual.localSearch(localObjective))
+			if (individual.localSearch(localObjective)) {
 				improvement = true;
+			}
 		}
 		
 		if (improvement) {
 			DSEStats.getInstance().reportNewIncrease();
-			updateProbability(-Properties.LOCAL_SEARCH_ADAPTATION_RATE);
+			updateProbability(true);
 			logger.debug("Increasing probability of applying LS to " + localSearchProbability);
 		} else {
 			DSEStats.getInstance().reportNewDecrease();
-			updateProbability(Properties.LOCAL_SEARCH_ADAPTATION_RATE);
+			updateProbability(false);
 			logger.debug("Decreasing probability of applying LS to " + localSearchProbability);
+		}
+
+		if (improvement) {
+			// If an improvement occurred to one of the individuals, it could
+			// be the case that the improvement was so good, that the individual
+			// has surpassed to the previous individual, which makes the population
+			// list not sorted any more. 
+			if (!populationIsSorted()) {
+				this.sortPopulation();
+			}
 		}
 	}
 
-	private void updateProbability(double delta){
-		localSearchProbability = Math.pow(
-				1.0 + ((1.0 - localSearchProbability) / localSearchProbability) * Math.exp(delta), -1.0);
+	/**
+	 * Returns true if the population is sorted according to the fitness 
+	 * values.
+	 * 
+	 * @return true if the population is sorted (or empty)
+	 */
+	private boolean populationIsSorted() {
+		Chromosome previousIndividual = null;
+		for (Chromosome currentIndividual : this.population) {
+			if (previousIndividual!=null) {
+				if (!isBetterOrEqual(previousIndividual, currentIndividual)) {
+					// at least two individuals are not sorted
+					return false;
+				}
+			}
+			previousIndividual = currentIndividual;
+		}
+		// the population is sorted (or empty)
+		return true;
+	}
+
+	/**
+	 * Returns true if the fitness functions are maximization functions
+	 * or false if all fitness functions are minimisation functions.
+	 * It expects that all fitnessFunctions are minimising or maximising,
+	 * it cannot happen that minimization and maximization functions are
+	 * together.
+	 * 
+	 * @return
+	 */
+	private boolean isMaximizationFunction() {
+		return fitnessFunctions.get(0).isMaximizationFunction();
+	}
+
+	protected void updateProbability(boolean improvement){
+		if (improvement) {
+			localSearchProbability *= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			localSearchProbability = Math.min(localSearchProbability, 1.0);
+		} else {
+			localSearchProbability /= Properties.LOCAL_SEARCH_ADAPTATION_RATE;
+			localSearchProbability = Math.max(localSearchProbability, Double.MIN_VALUE);
+		}
+		// localSearchProbability = Math.pow(
+		// 1.0 + ((1.0 - localSearchProbability) / localSearchProbability) *
+		// Math.exp(delta), -1.0);
 	}
 	
 	
@@ -445,10 +498,6 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	
-	public void setArchive(Archive<T> archive) {
-		this.archive = archive;
-	}
-	
 	/**
 	 * Set new fitness function (i.e., for new mutation)
 	 * 
@@ -469,6 +518,24 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	public SelectionFunction<T> getSelectionFunction() {
 		return selectionFunction;
+	}
+
+	/**
+	 * Set the new ranking function (only used by MOO algorithms)
+	 * 
+	 * @param function a {@link org.evosuite.ga.operators.ranking.RankingFunction} object
+	 */
+	public void setRankingFunction(RankingFunction<T> function) {
+		this.rankingFunction = function;
+	}
+
+	/**
+	 * Get currently used ranking function (only used by MOO algorithms)
+	 * 
+	 * @return a {@link org.evosuite.ga.operators.ranking.RankingFunction} object
+	 */
+	public RankingFunction<T> getRankingFunction() {
+		return this.rankingFunction;
 	}
 
 	/**
@@ -521,25 +588,40 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * Calculate fitness for all individuals
 	 */
-	protected void calculateFitnessAndSortPopulation() {
+	protected void calculateFitness() {
 		logger.debug("Calculating fitness for " + population.size() + " individuals");
 
-		Iterator<T> iterator = population.iterator();
+		Iterator<T> iterator = this.population.iterator();
 		while (iterator.hasNext()) {
 			T c = iterator.next();
 			if (isFinished()) {
 				if (c.isChanged())
 					iterator.remove();
 			} else {
-				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-					fitnessFunction.getFitness(c);
-					notifyEvaluation(c);
-				}
+				this.calculateFitness(c);
 			}
 		}
+	}
 
+	/**
+	 * Calculate fitness for an individual
+	 * 
+	 * @param c
+	 */
+	protected void calculateFitness(T c) {
+		for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+			fitnessFunction.getFitness(c);
+			notifyEvaluation(c);
+		}
+	}
+
+	/**
+	 * Calculate fitness for all individuals and sort them
+	 */
+	protected void calculateFitnessAndSortPopulation() {
+		this.calculateFitness();
 		// Sort population
-		sortPopulation();
+		this.sortPopulation();
 	}
 
 	/**
@@ -592,28 +674,24 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	/**
 	 * update archive fitness functions
 	 */
-	protected void updateFitnessFunctionsAndValues() {
+	public void updateFitnessFunctionsAndValues() {
 		for (FitnessFunction<T> f : fitnessFunctions) {
 			f.updateCoveredGoals();
 		}
-		
-		// If the archive has been updated, we need to re-calculate fitness values
-		// TODO: There must be a more efficient way to do this
-		boolean fitnessNeedsUpdating = false;
+
+		// Do we actually have to perform yet another fitness evaluation?
+		// Yes, if ARCHIVE has been updated, No otherwise.
+		if (!Archive.getArchiveInstance().hasBeenUpdated()) {
+			return;
+		}
+
 		for (T t : population) {
-			if (t.isToBeUpdated()) {
-				fitnessNeedsUpdating = true;
-				break;
+			for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+				fitnessFunction.getFitness(t);
 			}
 		}
-		if(fitnessNeedsUpdating) {
-			for (T t : population) {
-				for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
-					fitnessFunction.getFitness(t);
-				}
-				t.isToBeUpdated(false);
-			}
-		}
+
+		Archive.getArchiveInstance().setHasBeenUpdated(false);
 	}
 
 	/**
@@ -673,13 +751,81 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			return bestIndividuals;
 		}
 
-		if (Properties.ALGORITHM == Algorithm.NSGAII)
+		if (Properties.ALGORITHM == Algorithm.NSGAII ||
+		    Properties.ALGORITHM == Algorithm.SPEA2)
 			return population;
 
 		// Assume population is sorted
 		bestIndividuals.add(population.get(0));
 		return bestIndividuals;
 	}
+
+    /**
+     * Write to a file all fitness values of each individuals.
+     *
+     * @param individuals a list of {@link org.evosuite.ga.Chromosome} object(s).
+     */
+    public void writeIndividuals(List<T> individuals) {
+      if (!Properties.WRITE_INDIVIDUALS) {
+        return;
+      }
+
+      File dir = new File(Properties.REPORT_DIR);
+      if (!dir.exists()) {
+        if (!dir.mkdirs()) {
+          throw new RuntimeException("Cannot create report dir: " + Properties.REPORT_DIR);
+        }
+      }
+
+      try {
+        File populationFile = new File(
+            Properties.REPORT_DIR + File.separator + "pareto_" + this.currentIteration + ".csv");
+        populationFile.createNewFile();
+
+        FileWriter fw = new FileWriter(populationFile.getAbsoluteFile());
+        BufferedWriter bw = new BufferedWriter(fw);
+        PrintWriter out = new PrintWriter(bw);
+
+        // header
+        List<String> l_string = new ArrayList<String>();
+
+        if (Properties.ALGORITHM == Algorithm.NSGAII) {
+          l_string.add("rank");
+        } else if (Properties.ALGORITHM == Algorithm.SPEA2) {
+          l_string.add("strength");
+        }
+
+        for (int i = 0; i < this.fitnessFunctions.size(); i++) {
+          l_string.add(this.fitnessFunctions.get(i).getClass().getSimpleName());
+        }
+        out.println(String.join(",", l_string));
+
+        // content
+        for (int j = 0; j < individuals.size(); j++) {
+          l_string.clear();
+
+          T individual = individuals.get(j);
+          if (Properties.ALGORITHM == Algorithm.NSGAII) {
+            l_string.add(Integer.toString(individual.getRank()));
+          } else if (Properties.ALGORITHM == Algorithm.SPEA2) {
+            l_string.add(Double.toString(individual.getDistance()));
+          }
+
+          for (int i = 0; i < this.fitnessFunctions.size(); i++) {
+            l_string.add(Double.toString(individual.getFitness(this.fitnessFunctions.get(i))));
+          }
+
+          out.println(String.join(",", l_string));
+        }
+
+        out.close();
+        bw.close();
+        fw.close();
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
 
 	/**
 	 * Set a new factory method
@@ -786,7 +932,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		if (Properties.SHUFFLE_GOALS)
 			Randomness.shuffle(population);
 
-		if (fitnessFunctions.get(0).isMaximizationFunction()) {
+		if (isMaximizationFunction()) {
 			Collections.sort(population, Collections.reverseOrder());
 		} else {
 			Collections.sort(population);
@@ -926,10 +1072,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	protected void updateBestIndividualFromArchive() {
-		if(archive == null)
+		if (!Properties.TEST_ARCHIVE)
 			return;
 
-		T best = archive.createMergedSolution(getBestIndividual());
+		T best = Archive.getArchiveInstance().mergeArchiveAndSolution(getBestIndividual());
 
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)
@@ -943,9 +1089,8 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	}
 
 	/**
-	 * <p>
-	 * isBetterOrEqual
-	 * </p>
+	 * Returns true if the <code>chromosome1</code> is better or equal than 
+	 * <code>chromosome2</code> according to the compound fitness function.
 	 * 
 	 * @param chromosome1
 	 *            a {@link org.evosuite.ga.Chromosome} object.
@@ -1010,6 +1155,25 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 			r += sc.toString() + " ";
 
 		return r;
+	}
+
+	/**
+	 * Returns the progress of the search.
+	 * 
+	 * @return a value [0.0, 1.0]
+	 */
+	protected double progress() {
+		long totalbudget = 0;
+		long currentbudget = 0;
+
+		for (StoppingCondition sc : this.stoppingConditions) {
+			if (sc.getLimit() != 0) {
+				totalbudget += sc.getLimit();
+				currentbudget += sc.getCurrentValue();
+			}
+		}
+
+		return (double) currentbudget / (double) totalbudget;
 	}
 
 	/*

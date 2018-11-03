@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.evosuite</groupId>
         <artifactId>evosuite</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>evosuite-runtime</artifactId>
@@ -30,11 +30,19 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <!-- Only needed for listener used in Ant when running tests -->
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-junit</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
+            <optional>true</optional>
             <!-- shouldn't end up in final jar-->
         </dependency>
 
@@ -44,7 +52,7 @@
         <dependency>
             <!-- same comments as JUnit -->
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -87,7 +95,7 @@
 
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
+            <artifactId>hibernate-core</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -118,9 +126,29 @@
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-all</artifactId>
+            <artifactId>asm</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

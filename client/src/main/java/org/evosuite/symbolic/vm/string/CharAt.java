@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -22,8 +22,8 @@ package org.evosuite.symbolic.vm.string;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -41,7 +41,7 @@ public final class CharAt extends SymbolicFunction {
 	public Object executeFunction() {
 
 		String conc_str = (String) this.getConcReceiver();
-		NonNullReference symb_str = this.getSymbReceiver();
+		ReferenceConstant symb_str = this.getSymbReceiver();
 		StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
 				SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -59,7 +59,6 @@ public class CastClassAnalyzer {
 	 * If we want to have the calltree also for the superclasses, we need to
 	 * determine which methods are callable
 	 * 
-	 * @param callTree
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
@@ -143,7 +142,6 @@ public class CastClassAnalyzer {
 	/**
 	 * Add all possible calls for a given method
 	 * 
-	 * @param callGraph
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")

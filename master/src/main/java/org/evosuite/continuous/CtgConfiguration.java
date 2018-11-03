@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -77,27 +77,11 @@ public class CtgConfiguration {
 	 */
 	public final String extraArgs;
 
-	/**
-	 * Main constructor
-	 * 
-	 * @param totalMemoryInMB
-	 * @param numberOfCores
-	 * @param timeInMinutes
-	 * @param minMinutesPerJob
-	 * @param callHome
-	 * @param schedule
-	 */
+
 	public CtgConfiguration(int totalMemoryInMB, int numberOfCores,
 			int timeInMinutes, int minMinutesPerJob, boolean callHome,
 			AvailableSchedule schedule) {
-		super();
-		this.totalMemoryInMB = totalMemoryInMB;
-		this.numberOfCores = numberOfCores;
-		this.timeInMinutes = timeInMinutes;
-		this.minMinutesPerJob = minMinutesPerJob;
-		this.callHome = callHome;
-		this.schedule = schedule;
-		this.extraArgs = "";
+		this(totalMemoryInMB,numberOfCores,timeInMinutes,minMinutesPerJob,callHome,schedule,"");
 	}
 
 	public CtgConfiguration(int totalMemoryInMB, int numberOfCores,
@@ -111,6 +95,24 @@ public class CtgConfiguration {
 		this.callHome = callHome;
 		this.schedule = schedule;
 		this.extraArgs = extraArgs;
+
+		if(totalMemoryInMB < MINIMUM_MEMORY_PER_JOB_MB){
+			throw new IllegalArgumentException("Should use at least "+MINIMUM_MEMORY_PER_JOB_MB+"MB");
+		}
+		if(numberOfCores < 1){
+			throw new IllegalArgumentException("Need at least one core");
+		}
+
+
+		int requiredMemory = numberOfCores * MINIMUM_MEMORY_PER_JOB_MB;
+		if(totalMemoryInMB < requiredMemory){
+			throw new IllegalArgumentException(
+					"Not enough memory assigned. You need at least "+MINIMUM_MEMORY_PER_JOB_MB+"MB per core." +
+					" You are using "+numberOfCores+" cores for a total of "+totalMemoryInMB+"MB of memory." +
+							" Decrease the number of cores or increase the total memory. See documentation."
+			);
+		}
+
 	}
 
 	/**
@@ -139,8 +141,7 @@ public class CtgConfiguration {
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public  CtgConfiguration getWithChangedTime(int minutesPerClass, int numberOfCUTs)
-		throws IllegalArgumentException{
+	public  CtgConfiguration getWithChangedTime(int minutesPerClass, int numberOfCUTs) throws IllegalArgumentException{
 		
 		if(minutesPerClass < 0){
 			throw new IllegalArgumentException("Invalid value for minutesPerClass:" + minutesPerClass);
@@ -148,7 +149,7 @@ public class CtgConfiguration {
 		if(numberOfCUTs < 0){
 			throw new IllegalArgumentException("Invalid value for numberOfCUTs:"+numberOfCUTs);
 		}
-		
+
 		int time = (int) Math.ceil((minutesPerClass * numberOfCUTs) / (double) this.getNumberOfUsableCores());
 		
 		return new CtgConfiguration(
@@ -161,21 +162,18 @@ public class CtgConfiguration {
 				this.extraArgs
 				);
 	}
-	
-	
-	
-	/**
-	 * We cannot use cores if we do not have enough memory,
-	 * as each process has some minimum requirements
-	 * 
-	 * @return
-	 */
+
+
 	public int getNumberOfUsableCores() {
-		if(numberOfCores * MINIMUM_MEMORY_PER_JOB_MB <=  totalMemoryInMB) {
-			return numberOfCores;
-		} else {
-			return totalMemoryInMB / MINIMUM_MEMORY_PER_JOB_MB;
-		}
+
+		return numberOfCores;
+
+		//shouldn't silently reduce number of cores if not enough memory
+//		if(numberOfCores * MINIMUM_MEMORY_PER_JOB_MB <=  totalMemoryInMB) {
+//			return numberOfCores;
+//		} else {
+//			return totalMemoryInMB / MINIMUM_MEMORY_PER_JOB_MB;
+//		}
 	}
 
 	public int getConstantMemoryPerJob(){

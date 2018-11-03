@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,17 +24,13 @@ import com.examples.with.different.packagename.fm.IssueWithNumber;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.classpath.ClassPathHandler;
-import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.instrumentation.NonInstrumentingClassLoader;
-import org.evosuite.runtime.MockitoExtension;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.instrumentation.EvoClassLoader;
 import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
@@ -42,23 +38,21 @@ import org.evosuite.testcase.variable.ArrayIndex;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
+import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
-import sun.misc.ClassLoaderUtil;
 
 import java.io.File;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -162,8 +156,9 @@ public class FunctionalMockStatementTest {
 
 
 
+    @Ignore
     @Test
-    public void testAClassWithPLMethod(){
+    public void testAClassWithPLMethod() {
 
         //FIXME once we support it
         assertFalse(FunctionalMockStatement.canBeFunctionalMocked(AClassWithPLMethod.class));
@@ -348,7 +343,7 @@ public class FunctionalMockStatementTest {
         VariableReference ref = new VariableReferenceImpl(tc, PackageLevel.class);
 
         try {
-            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, PackageLevel.class);
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(PackageLevel.class));
             fail();
         } catch (java.lang.IllegalArgumentException e){
             //expected
@@ -368,7 +363,7 @@ public class FunctionalMockStatementTest {
         VariableReference ref = new VariableReferenceImpl(tc, example);
 
         try {
-            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(example));
             fail();
         } catch (java.lang.IllegalArgumentException e){
             //expected
@@ -389,7 +384,7 @@ public class FunctionalMockStatementTest {
         VariableReference ref = new VariableReferenceImpl(tc, example);
 
         try {
-            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(example));
             fail();
         } catch (java.lang.IllegalArgumentException e){
             //expected
@@ -410,7 +405,7 @@ public class FunctionalMockStatementTest {
         VariableReference ref = new VariableReferenceImpl(tc, example);
 
         try {
-            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+            FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(example));
             fail();
         } catch (java.lang.IllegalArgumentException e){
             //expected
@@ -420,20 +415,28 @@ public class FunctionalMockStatementTest {
         //execute(tc);
     }
 
+    /*
+     * This test fails when Mockito is instrumented (it would pass if org.mockito. is excluded from instrumentation.
+     * However, in the packaged version, Mockito is shaded and thus isn't actually instrumented. I don't have a good
+     * solution to fix this test, hence I've marked it as ignored. (Gordon, 9.2.2018)
+     */
     @Test
     public void testPackageLevel_differentPackage_instrumentation_public()  throws Exception{
         TestCase tc = new DefaultTestCase();
+
+        RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
 
         ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
         InstrumentingClassLoader loader = new InstrumentingClassLoader();
         Class<?> example = loader.loadClass("com.examples.with.different.packagename.fm.ExamplePublicLevel");
 
         VariableReference ref = new VariableReferenceImpl(tc, example);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, example);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(example));
 
         tc.addStatement(mockStmt);
         execute(tc);
     }
+
 
     @Test
     public void testLimit() throws Exception{
@@ -449,7 +452,7 @@ public class FunctionalMockStatementTest {
         VariableReference loop  = tc.addStatement(x);
         VariableReference boolRef = tc.addStatement(new BooleanPrimitiveStatement(tc,true));
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, Foo.class);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(Foo.class));
         VariableReference mock = tc.addStatement(mockStmt);
         tc.addStatement(new MethodStatement(tc,
                 new GenericMethod(this.getClass().getDeclaredMethod("limit", Foo.class, int.class), FunctionalMockStatementTest.class),
@@ -527,7 +530,7 @@ public class FunctionalMockStatementTest {
         TestCase tc = new DefaultTestCase();
 
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, Foo.class);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(Foo.class));
         VariableReference mock = tc.addStatement(mockStmt);
         VariableReference result = tc.addStatement(new MethodStatement(tc,
                 new GenericMethod(this.getClass().getDeclaredMethod("all_once", Foo.class), FunctionalMockStatementTest.class),
@@ -549,7 +552,7 @@ public class FunctionalMockStatementTest {
         TestCase tc = new DefaultTestCase();
 
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, Foo.class);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(Foo.class));
         VariableReference mock = tc.addStatement(mockStmt);
         VariableReference result = tc.addStatement(new MethodStatement(tc,
                 new GenericMethod(this.getClass().getDeclaredMethod("all_twice", Foo.class), FunctionalMockStatementTest.class),
@@ -586,7 +589,7 @@ public class FunctionalMockStatementTest {
         AssignmentStatement stmt = new AssignmentStatement(tc, arrayIndex, aString);
         tc.addStatement(stmt);
 
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, Foo.class, Foo.class);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, Foo.class, new GenericClass(Foo.class));
         VariableReference mock = tc.addStatement(mockStmt);
         VariableReference result = tc.addStatement(new MethodStatement(tc,
                 new GenericMethod(this.getClass().getDeclaredMethod("getFirstInArray", Foo.class), FunctionalMockStatementTest.class),
@@ -629,7 +632,7 @@ public class FunctionalMockStatementTest {
         final int MOCKED_VALUE = 42;
         VariableReference mockedInput  = tc.addStatement(new IntPrimitiveStatement(tc, MOCKED_VALUE));
         VariableReference ref = new VariableReferenceImpl(tc, Foo.class);
-        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, Foo.class);
+        FunctionalMockStatement mockStmt = new FunctionalMockStatement(tc, ref, new GenericClass(Foo.class));
         VariableReference mock = tc.addStatement(mockStmt);
         VariableReference result = tc.addStatement(new MethodStatement(tc,
                 new GenericMethod(this.getClass().getDeclaredMethod("base", Foo.class), FunctionalMockStatementTest.class),

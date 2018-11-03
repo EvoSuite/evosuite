@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -34,12 +34,12 @@ import static org.evosuite.coverage.io.IOCoverageConstants.REF_NULL;
 import static org.evosuite.coverage.io.IOCoverageConstants.STRING_EMPTY;
 import static org.evosuite.coverage.io.IOCoverageConstants.STRING_NONEMPTY;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.assertion.Inspector;
 import org.evosuite.assertion.InspectorManager;
-import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.setup.TestUsageChecker;
@@ -77,19 +77,27 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
         long start = System.currentTimeMillis();
         String targetClass = Properties.TARGET_CLASS;
 
-        final MethodNameMatcher matcher = new MethodNameMatcher();
         for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
             if (!(targetClass.equals("") || className.endsWith(targetClass)))
                 continue;
 
             for (Method method : TestClusterUtils.getClass(className).getDeclaredMethods()) {
                 String methodName = method.getName() + Type.getMethodDescriptor(method);
-                if (!TestUsageChecker.canUse(method) || !matcher.methodMatches(methodName) || methodName.equals("hashCode()I"))
+                if (!TestUsageChecker.canUse(method) || methodName.equals("hashCode()I"))
                     continue;
                 logger.info("Adding goals for method " + className + "." + methodName);
                 Type returnType = Type.getReturnType(method);
 
-                switch (returnType.getSort()) {
+                int typeSort = returnType.getSort();
+                if(typeSort == Type.OBJECT) {
+                    Class<?> typeClass = method.getReturnType();
+                    if(ClassUtils.isPrimitiveWrapper(typeClass)) {
+                        typeSort = Type.getType(ClassUtils.wrapperToPrimitive(typeClass)).getSort();
+                        goals.add(createGoal(className, methodName, returnType, REF_NULL));
+                    }
+                }
+
+                switch (typeSort) {
                     case Type.BOOLEAN:
                         goals.add(createGoal(className, methodName, returnType, BOOL_TRUE));
                         goals.add(createGoal(className, methodName, returnType, BOOL_FALSE));
@@ -126,7 +134,7 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
                         Class<?> returnClazz = method.getReturnType();
                         for(Inspector inspector : InspectorManager.getInstance().getInspectors(returnClazz)) {
                             String insp = inspector.getMethodCall() + Type.getMethodDescriptor(inspector.getMethod());
-                            Type t = Type.getReturnType(insp);
+                            Type t = Type.getReturnType(inspector.getMethod());
                             if (t.getSort() == Type.BOOLEAN) {
                                 goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_TRUE));
                                 goals.add(createGoal(className, methodName, returnType, REF_NONNULL + ":" + returnType.getClassName() + ":" + insp + ":" + BOOL_FALSE));
@@ -153,7 +161,9 @@ public class OutputCoverageFactory extends AbstractFitnessFactory<OutputCoverage
     }
 
     public static OutputCoverageTestFitness createGoal(String className, String methodName, Type returnType, String suffix) {
-        return new OutputCoverageTestFitness(new OutputCoverageGoal(className, methodName, returnType, suffix));
+        OutputCoverageGoal goal = new OutputCoverageGoal(className, methodName, returnType, suffix);
+        logger.info("Created output coverage goal: {}", goal);
+        return new OutputCoverageTestFitness(goal);
     }
 
     /**

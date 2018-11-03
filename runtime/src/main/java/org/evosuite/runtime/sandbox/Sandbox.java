@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -87,7 +87,7 @@ public class Sandbox {
 		initializeSecurityManagerForSUT(null);
 	}
 
-	public static void addPriviligedThread(Thread t) {
+	public static void addPrivilegedThread(Thread t) {
 		if (manager != null)
 			manager.addPrivilegedThread(t);
 	}

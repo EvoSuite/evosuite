@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -53,6 +53,7 @@ public class OverflowInstrumentation extends ErrorBranchInstrumenter {
 					"underflowDistance", "(III)I", false);
 
 			insertBranchWithoutException(Opcodes.IFGT);
+			// TODO: No break is intentional?
 
 		case Opcodes.IDIV:
 			mv.visitInsn(Opcodes.DUP2);

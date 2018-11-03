@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,7 +19,7 @@
  */
 package org.evosuite.setup;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +136,7 @@ public class PutStaticMethodCollector {
 	@SuppressWarnings("unchecked")
 	public Set<MethodIdentifier> collectMethods() {
 
-		Set<MethodIdentifier> methods = new HashSet<MethodIdentifier>();
+		Set<MethodIdentifier> methods = new LinkedHashSet<MethodIdentifier>();
 
 		for (String calledClassName : getStaticFields.keySet()) {
 			ClassNode classNode = DependencyAnalysis

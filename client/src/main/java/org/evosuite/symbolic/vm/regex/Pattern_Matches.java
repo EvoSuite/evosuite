@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -21,9 +21,9 @@ package org.evosuite.symbolic.vm.regex;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.ref.ReferenceConstant;
+import org.evosuite.symbolic.expr.ref.ReferenceExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -47,11 +47,11 @@ public final class Pattern_Matches extends SymbolicFunction {
 
 		// argument 0
 		String regex_str = (String) this.getConcArgument(0);
-		NonNullReference regex_ref = (NonNullReference) this.getSymbArgument(0);
+		ReferenceConstant regex_ref = (ReferenceConstant) this.getSymbArgument(0);
 
 		// argument 1
 		CharSequence input_char_seq = (CharSequence) this.getConcArgument(1);
-		Reference input_ref = this.getSymbArgument(1);
+		ReferenceExpression input_ref = this.getSymbArgument(1);
 
 		// return value
 		boolean res = this.getConcBooleanRetVal();
@@ -77,10 +77,10 @@ public final class Pattern_Matches extends SymbolicFunction {
 	}
 
 	private StringValue getSymbInput(CharSequence input_char_seq,
-			Reference input_ref) {
+			ReferenceExpression input_ref) {
 		StringValue symb_input;
-		if (input_ref instanceof NonNullReference) {
-			NonNullReference input_str_ref = (NonNullReference) input_ref;
+		if (input_ref instanceof ReferenceConstant) {
+			ReferenceConstant input_str_ref = (ReferenceConstant) input_ref;
 			assert input_char_seq != null;
 
 			if (input_char_seq instanceof String) {

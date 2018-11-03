@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -25,10 +25,12 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -157,6 +159,11 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 1.0;
+
+		// Deactivate coverage archive while measuring fitness, since branchcoverage fitness
+		// evaluating will attempt to claim coverage for it in the archive
+		boolean archive = Properties.TEST_ARCHIVE;
+		Properties.TEST_ARCHIVE = false;
 		if (result.getTrace().getCoveredLines().contains(this.line)) {
 			fitness = 0.0;
 		} else {
@@ -166,6 +173,9 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			for (BranchCoverageTestFitness branchFitness : branchFitnesses) {
 				double newFitness = branchFitness.getFitness(individual, result);
 				if (newFitness == 0.0) {
+					// Although the BranchCoverage goal has been covered, it is not part of the
+					// optimisation
+					individual.getTestCase().removeCoveredGoal(branchFitness);
 					// If the control dependency was covered, then likely
 					// an exception happened before the line was reached
 					newFitness = 1.0;
@@ -178,7 +188,17 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 			
 			fitness = r;
 		}
+		Properties.TEST_ARCHIVE = archive;
 		updateIndividual(this, individual, fitness);
+
+		if (fitness == 0.0) {
+			individual.getTestCase().addCoveredGoal(this);
+		}
+
+		if (Properties.TEST_ARCHIVE) {
+			Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+		}
+
 		return fitness;
 	}
 
@@ -205,7 +225,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 		if (getClass() != obj.getClass())
 			return false;
 		LineCoverageTestFitness other = (LineCoverageTestFitness) obj;
-		if (className != other.className) {
+		if (!className.equals(other.className)) {
 			return false;
 		} else if (! methodName.equals(other.methodName)) {
 			return false;
@@ -252,7 +272,11 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
 		branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
-		setupDependencies();
+		if(GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(className,
+				methodName) != null) {
+			// TODO: Figure out why the CFG may not exist
+			setupDependencies();
+		}
 	}
 	
 	private void writeObject(ObjectOutputStream oos) throws ClassNotFoundException, IOException {

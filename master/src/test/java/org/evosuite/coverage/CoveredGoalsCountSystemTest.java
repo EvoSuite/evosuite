@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -19,7 +19,7 @@
  */
 package org.evosuite.coverage;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 import com.examples.with.different.packagename.Calculator;
 import com.examples.with.different.packagename.PureEnum;
 import com.examples.with.different.packagename.mutation.MutationPropagation;
@@ -128,8 +128,8 @@ public class CoveredGoalsCountSystemTest extends SystemTestBase {
         assertEquals(targetClass, rows.get(1)[0]); // TARGET_CLASS
         assertEquals("BRANCH;LINE;ONLYMUTATION", rows.get(1)[1]); // criterion
         assertEquals("1.0", rows.get(1)[2]); // Coverage
-        assertEquals("57", rows.get(1)[3]); // Covered_Goals
-        assertEquals("57", rows.get(1)[4]); // Total_Goals
+        assertEquals("58", rows.get(1)[3]); // Covered_Goals
+        assertEquals("58", rows.get(1)[4]); // Total_Goals
     }
 
     @Test

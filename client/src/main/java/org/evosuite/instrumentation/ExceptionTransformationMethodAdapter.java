@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.instrumentation;
 
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
@@ -42,6 +61,7 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
 
         if(!ExceptionTransformationClassAdapter.methodExceptionMap.containsKey(owner) ||
            !ExceptionTransformationClassAdapter.methodExceptionMap.get(owner).containsKey(name+desc)) {
+            logger.debug("Method {} does not throw exceptions", name);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
@@ -68,30 +88,31 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         instrumentedTryCatchBlocks.add(block);
 
         mark(start);
+
         super.visitMethodInsn(opcode, owner, name, desc, itf);
 
         // Insert end of try block label
         mark(end);
 
-        // If there was no exception, skip ahead to rest of the code
-        loadLocal(exceptionInstanceVar);
-        Label noExceptionLabel = newLabel();
-        tagBranch();
-        ifNull(noExceptionLabel);
-        tagBranchExit();
-
         // Skip catch block if no exception was thrown
         Label afterCatch = newLabel();
         goTo(afterCatch);
+        //push((String)null);
 
         mark(catchLabel);
-        // Insert jump after catch block instruction
-        // catchException(start, end, null);
-        // super.visitTryCatchBlock(start, end, end, null);
-
 
         // assign exception to exceptionInstanceVar
         storeLocal(exceptionInstanceVar);
+
+        // TODO: Here the JVM is expecting the proper stack but it is cleared except for the throwable
+
+        // Insert end of catch block label
+        // mark(afterCatch);
+
+
+        // If there was no exception, skip ahead to rest of the code
+        loadLocal(exceptionInstanceVar);
+        Label noExceptionLabel = newLabel();
 
         // If there was an exception, rethrow it, with one if per declared exception type
         for(Type exceptionType : declaredExceptions) {
@@ -102,7 +123,6 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
             tagBranch();
 
 
-            tagBranch();
             visitJumpInsn(Opcodes.IFNE, jump);
             visitJumpInsn(Opcodes.GOTO, noJump);
             tagBranchExit();
@@ -121,9 +141,19 @@ public class ExceptionTransformationMethodAdapter extends GeneratorAdapter {
         throwException();
         tagBranchExit();
 
-        // Insert end of catch block label
         mark(afterCatch);
+        loadLocal(exceptionInstanceVar);
 
+        Label startTag = new AnnotatedLabel(false, true);
+        ((AnnotatedLabel) startTag).setIgnoreFalse(true);
+        super.visitLabel(startTag);
+
+        // Dummy branch signaling that no exception was thrown
+        ifNull(noExceptionLabel);
+
+        Label endTag = new AnnotatedLabel(false, false);
+        ((AnnotatedLabel) startTag).setIgnoreFalse(true);
+        super.visitLabel(endTag);
 
         mark(noExceptionLabel);
 
