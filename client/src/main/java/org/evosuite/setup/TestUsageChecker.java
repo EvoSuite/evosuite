@@ -27,6 +27,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.mock.MockList;
+import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -144,12 +145,21 @@ public class TestUsageChecker {
         if (Modifier.isPrivate(c.getModifiers()))
             return false;
 
-        if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
-    		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+        if (!Properties.USE_DEPRECATED) {
+	        try {
+                if(c.isAnnotationPresent(Deprecated.class)) {
+                    final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
 
-            if(Properties.hasTargetClassBeenLoaded() && !c.equals(targetClass)) {
-                logger.debug("Skipping deprecated class " + c.getName());
-                return false;
+                    if(Properties.hasTargetClassBeenLoaded() && !c.equals(targetClass)) {
+                        logger.debug("Skipping deprecated class " + c.getName());
+                        return false;
+                    }
+                }
+            } catch(java.lang.ArrayStoreException e) {
+	            // https://bugs.java.com/view_bug.do?bug_id=JDK-7183985
+	            AtMostOnceLogger.warn(LoggingUtils.getEvoLogger(), "ArrayStoreException caught while handling class "+c.getName());
+                AtMostOnceLogger.warn(LoggingUtils.getEvoLogger(), "This is likely due to a missing dependency used as annotation: https://bugs.java.com/view_bug.do?bug_id=JDK-7183985");
+	            return false;
             }
         }
 

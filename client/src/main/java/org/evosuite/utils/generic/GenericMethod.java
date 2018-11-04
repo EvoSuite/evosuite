@@ -176,8 +176,14 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		Inputs.checkNull(m,type);
 
 		Type returnType = m.getGenericReturnType();
-		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
-		                                                                 m.getDeclaringClass());
+		Type exactDeclaringType = null;
+		try {
+			exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
+					m.getDeclaringClass());
+		} catch(java.lang.TypeNotPresentException e) {
+			// May happen in completely intransparent circumstances when there are dependency issues with annotations:
+			// https://bugs.java.com/view_bug.do?bug_id=JDK-7183985
+		}
 
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
 			logger.info("The method " + m + " is not a member of type " + type
