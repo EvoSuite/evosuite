@@ -227,24 +227,7 @@ public class TestGenerationJob extends Job {
 				}
 			} else
 				System.out.println("Not checking markers.");
-		} else {
-			System.out.println("File " + suiteFileName + " does not exist");
-			// TODO: Dialog
-//			Display.getDefault().syncExec(new Runnable() {
-//				@Override
-//				public void run() {
-//					MessageDialog dialog = new MessageDialog(
-//							shell,
-//							"Error during test generation",
-//							null, // image
-//							"EvoSuite failed to generate tests for class"
-//							+ suiteClass,
-//							MessageDialog.OK, new String[] { "Ok" }, 0);
-//					dialog.open();
-//				}
-//			});
-//			return Status.CANCEL_STATUS;
-		}
+		} 
 		
 		setThread(new Thread());
 		running = true;
@@ -256,6 +239,24 @@ public class TestGenerationJob extends Job {
 		
 		ArrayList<TestGenerationResult> results = runEvoSuite(monitor);
 		writeMarkersTarget(results);
+		// should check here if any tests are generated/saved
+		IFile fileSuiteSaved = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(suiteFileName));
+		if ( fileSuiteSaved == null || !fileSuiteSaved.exists()){
+			Display.getDefault().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog dialog = new MessageDialog(
+							shell,
+							"Error during test generation",
+							null, // image
+							"EvoSuite failed to generate tests for class"
+									+ suiteClass,
+							MessageDialog.OK, new String[] { "Ok" }, 0);
+					dialog.open();
+				}
+			});
+			return Status.CANCEL_STATUS;
+		}
 		//uncomment after experiment
 		if (writeAllMarkers)
 			writeMarkersTestSuite();
