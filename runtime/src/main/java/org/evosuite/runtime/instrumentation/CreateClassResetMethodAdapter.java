@@ -51,6 +51,7 @@ public class CreateClassResetMethodAdapter extends MethodVisitor {
 					&& !staticField.name.startsWith("__cobertura")
 					&& !staticField.name.startsWith("$jacoco")
 					&& !staticField.name.startsWith("$VRc") // Old Emma
+					&& !staticField.name.startsWith("$gzoltar")
 					) {
 
 				if (staticField.value != null) {
