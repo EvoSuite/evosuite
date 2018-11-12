@@ -53,6 +53,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -90,6 +91,7 @@ import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.rmi.service.MasterNodeLocal;
+import org.evosuite.shaded.org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Gordon Fraser, Thomas White, Jose Miguel Rojas
@@ -392,83 +394,86 @@ public class TestGenerationJob extends Job {
 		
 		return tgrs;
 	}
+	
+	private void addToClassPath(List<String> pathEntries, IClasspathEntry classPathEntry) {
+		if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+			IPath path = classPathEntry.getPath();
+			if (path.toFile().getName().startsWith("evosuite")) {
+				System.out.println("Skipping evosuite.jar");
+				return;
+			}
+			if (path.toFile().exists()) {
+				pathEntries.add(path.toOSString());
+				System.out.println("Adding CPE_LIBRARY to classpath: "
+						+ path.toOSString());
+			} else {
+				pathEntries.add(target.getWorkspace().getRoot()
+						.getLocation().toOSString()
+						+ path.toOSString());
+				System.out.println("Adding CPE_LIBRARY to classpath: "
+						+ target.getWorkspace().getRoot().getLocation()
+								.toOSString() + path.toOSString());
+			}
+		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+				if (classPathEntry.toString().equals(
+						"org.eclipse.jdt.launching.JRE_CONTAINER")) {
+					System.out.println("Skipping JRE container");
+				} else if (classPathEntry.toString().startsWith(
+						"org.eclipse.jdt.junit.JUNIT_CONTAINER")) {
+					System.out.println("Skipping JUnit container");
+				} else {
+					System.out.println("Found unknown container: "
+							+ classPathEntry);
+					IJavaProject jProject = JavaCore.create(target.getProject());
+					//try {
+					try {
+						IClasspathContainer container = JavaCore.getClasspathContainer(classPathEntry.getPath(), jProject);
+						for(IClasspathEntry entry2 : container.getClasspathEntries()) {
+							addToClassPath(pathEntries, entry2);
+						}
+					} catch (JavaModelException e) {
+						System.out.println("Error while accessing container");
+						e.printStackTrace();
+					}
+					
+				}
+//			} else {
+//				System.out.println("Container not exported: " + curr);
+//				System.out.println(curr.getPath());
+//			}
+		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+			// Add binary dirs of this project to classpath
+			System.out.println("Don't handle CPE_PROJECT yet");
+		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
+			System.out.println("Path: " + classPathEntry.getPath());
+			System.out.println("Resolved Path: "
+					+ JavaCore.getResolvedVariablePath(classPathEntry.getPath()));
+			pathEntries.add(JavaCore.getResolvedVariablePath(classPathEntry.getPath()).toOSString());
+		} else if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+			System.out.println("Don't handle CPE_SOURCE yet");
+		} else {
+			System.out.println("CP type: " + classPathEntry.getEntryKind());
+		}
+	}
 
 	private String buildProjectCP() throws JavaModelException {
 		IJavaProject jProject = JavaCore.create(target.getProject());
 		IClasspathEntry[] oldEntries = jProject.getRawClasspath();
-		String classPath = "";
-		boolean first = true;
 
+		List<String> classPathEntries = new ArrayList<>();
+		
 		for (int i = 0; i < oldEntries.length; i++) {
 			IClasspathEntry curr = oldEntries[i];
 			System.out.println("Current entry: " + curr.getPath());
-
-			if (curr.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-				IPath path = curr.getPath();
-				if (path.toFile().getName().startsWith("evosuite")) {
-					System.out.println("Skipping evosuite.jar");
-					continue;
-				}
-				if (!first)
-					classPath += File.pathSeparator;
-				else
-					first = false;
-
-				if (path.toFile().exists()) {
-					classPath += path.toOSString();
-					System.out.println("Adding CPE_LIBRARY to classpath: "
-							+ path.toOSString());
-				} else {
-					classPath += target.getWorkspace().getRoot()
-							.getLocation().toOSString()
-							+ path.toOSString();
-					System.out.println("Adding CPE_LIBRARY to classpath: "
-							+ target.getWorkspace().getRoot().getLocation()
-									.toOSString() + path.toOSString());
-				}
-			} else if (curr.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
-				if (curr.isExported()) {
-					if (curr.toString().equals(
-							"org.eclipse.jdt.launching.JRE_CONTAINER")) {
-						System.out.println("Found JRE container");
-					} else if (curr.toString().startsWith(
-							"org.eclipse.jdt.junit.JUNIT_CONTAINER")) {
-						System.out.println("Found JUnit container");
-					} else {
-						System.out.println("Found unknown container: "
-								+ curr);
-					}
-				} else {
-					System.out.println("Container not exported: " + curr);
-				}
-			} else if (curr.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-				// Add binary dirs of this project to classpath
-				System.out.println("Don't handle CPE_PROJECT yet");
-			} else if (curr.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-				System.out.println("Path: " + curr.getPath());
-				System.out.println("Resolved Path: "
-						+ JavaCore.getResolvedVariablePath(curr.getPath()));
-				if (!first)
-					classPath += File.pathSeparator;
-				else
-					first = false;
-
-				classPath += JavaCore.getResolvedVariablePath(curr
-						.getPath());
-			} else if (curr.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-				System.out.println("Don't handle CPE_SOURCE yet");
-			} else {
-				System.out.println("CP type: " + curr.getEntryKind());
-			}
+			addToClassPath(classPathEntries, curr);
 		}
 		ResourceList.resetAllCaches();
-		if (!first)
-			classPath += File.pathSeparator;
 
-		classPath += target.getWorkspace().getRoot()
+		classPathEntries.add(target.getWorkspace().getRoot()
 				.findMember(jProject.getOutputLocation()).getLocation()
-				.toOSString();
-		return classPath;
+				.toOSString());
+		
+		return StringUtils.join(classPathEntries, File.pathSeparator);
 	}
 
 	@SuppressWarnings("unused")

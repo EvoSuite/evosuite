@@ -67,7 +67,7 @@ public abstract class TestSolver {
 		SolverResult solverResult;
 		try {
 			solverResult = solver.solve(constraints);
-			if (solverResult.isUNSAT()) {
+			if (solverResult.isUNSAT() || solverResult.isUnknown()) {
 				return null;
 			} else {
 				Map<String, Object> model = solverResult.getModel();

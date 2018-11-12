@@ -1320,6 +1320,16 @@ public class MSecurityManager extends SecurityManager {
 						return true;
 					}
 				}
+			} else if(fp.getName().contains("gzoltar")) {
+				/*
+				 * This is not 100% secure, but GZoltar support
+				 * is also important
+				 */
+				for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+					if(e.getClassName().startsWith("com.gzoltar.")) {
+						return true;
+					}
+				}
 			} else if(fp.getName().contains("clover")) {
 				/*
 				 * To make sure this is really clover trying to write a report

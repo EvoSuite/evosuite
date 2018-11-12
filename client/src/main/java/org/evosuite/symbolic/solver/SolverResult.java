@@ -95,4 +95,9 @@ public class SolverResult implements Serializable {
 		}
 		return buff.toString();
 	}
+
+    public boolean isUnknown() {
+        return resultType.equals(SolverResultType.UNKNOWN);
+    }
+
 }

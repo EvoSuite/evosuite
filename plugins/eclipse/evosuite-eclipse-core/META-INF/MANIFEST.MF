@@ -24,5 +24,4 @@ Export-Package: org.evosuite.eclipse,
  org.evosuite.eclipse.markers,
  org.evosuite.eclipse.popup.actions,
  org.evosuite.eclipse.properties,
- org.evosuite.eclipse.quickfixes,
- org.evosuite.eclipse.replace
+ org.evosuite.eclipse.quickfixes
