@@ -733,7 +733,7 @@ public class MSecurityManager extends SecurityManager {
 			return false;
 		}
 
-		/*boolean foundMasterNode = false;
+		boolean foundMasterNode = false;
 
 		traceLoop: for(StackTraceElement element : Thread.currentThread().getStackTrace()) {
 			for(String masterNodeMethod : masterNodeRemoteMethodNames) {
@@ -747,7 +747,7 @@ public class MSecurityManager extends SecurityManager {
 		if(!foundMasterNode) {
 			//found no reference to RMI
 			return false;
-		}*/
+		}
 
 		if(perm instanceof FilePermission && !perm.getActions().equals("read")) {
 			//we do this just as a safety mechanism...
