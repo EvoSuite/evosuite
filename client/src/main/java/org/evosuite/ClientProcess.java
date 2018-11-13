@@ -59,7 +59,7 @@ public class ClientProcess {
 
 	public final static String DEFAULT_CLIENT_NAME = CLIENT_PREFIX + "0";
 
-	public static String identifier;
+	private static String identifier;
 
 	public static TestGenerationResult result;
 
@@ -82,15 +82,15 @@ public class ClientProcess {
 
 		MSecurityManager.setupMasterNodeRemoteHandling(MasterNodeRemote.class);
 
-		LoggingUtils.getEvoLogger().info("* " + identifier + ": Connecting to master process on port "
+		LoggingUtils.getEvoLogger().info("* " + getPrettyPrintIdentifier() + "Connecting to master process on port "
 				+ Properties.PROCESS_COMMUNICATION_PORT);
 
-		boolean registered = ClientServices.getInstance().registerServices(identifier);
+		boolean registered = ClientServices.getInstance().registerServices(getIdentifier());
 
 		if (!registered) {
 			result = TestGenerationResultBuilder.buildErrorResult("Could not connect to master process on port "
 					+ Properties.PROCESS_COMMUNICATION_PORT);
-			throw new RuntimeException(identifier + ": Could not connect to master process on port "
+			throw new RuntimeException(getPrettyPrintIdentifier() + "Could not connect to master process on port "
 					+ Properties.PROCESS_COMMUNICATION_PORT);
 		}
 
@@ -186,6 +186,20 @@ public class ClientProcess {
 	}
 
 	/**
+	 * Returns the client's identifier.
+	 */
+	public static String getIdentifier() {
+		return identifier;
+	}
+
+	public static String getPrettyPrintIdentifier() {
+		if (Properties.NUM_PARALLEL_CLIENTS == 1) {
+			return "";
+		}
+		return identifier + ": ";
+	}
+
+	/**
 	 * <p>
 	 * main
 	 * </p>
@@ -209,7 +223,7 @@ public class ClientProcess {
         }
 
 		try {
-			LoggingUtils.getEvoLogger().info("* " + identifier + ": Starting client");
+			LoggingUtils.getEvoLogger().info("* Starting " + getIdentifier());
 			ClientProcess process = new ClientProcess();
 			TimeController.resetSingleton();
 			process.run();
@@ -221,7 +235,7 @@ public class ClientProcess {
 				System.exit(0);
 			}
 		} catch (Throwable t) {
-			logger.error(identifier + " Error when generating tests for: " + Properties.TARGET_CLASS
+			logger.error(getPrettyPrintIdentifier() + "Error when generating tests for: " + Properties.TARGET_CLASS
 					+ " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);
 			t.printStackTrace();
 

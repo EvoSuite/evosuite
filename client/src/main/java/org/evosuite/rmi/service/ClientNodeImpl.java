@@ -215,9 +215,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     public void emigrate(Set<? extends Chromosome> immigrants) {
         try {
             masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
-            LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": Sending " + immigrants.size() + " immigrants");
+            LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "Sending " + immigrants.size() + " immigrants");
         } catch (RemoteException e) {
-            logger.error(ClientProcess.identifier + ": Cannot send immigrating individuals to master", e);
+            logger.error(ClientProcess.getPrettyPrintIdentifier() + "Cannot send immigrating individuals to master", e);
         }
     }
 
@@ -225,9 +225,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     public void sendBestSolution(Set<? extends Chromosome> solutions) {
         try {
             masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
-            LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": sending best solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
+            LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "sending best solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
         } catch (RemoteException e) {
-            logger.error(ClientProcess.identifier + ": Cannot send best solution to master", e);
+            logger.error(ClientProcess.getPrettyPrintIdentifier() + "Cannot send best solution to master", e);
         }
     }
 
@@ -239,7 +239,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	@Override
 	public void changeState(ClientState state, ClientStateInformation information) {
 		if (this.state != state){
-			logger.info(ClientProcess.identifier + ": Client changing state from " + this.state + " to " + state);
+			logger.info(ClientProcess.getPrettyPrintIdentifier() + "Client changing state from " + this.state + " to " + state);
 		}
 
 		this.state = state;
@@ -537,14 +537,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     @Override
     public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException {
         fireEvent(migrants);
-        LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": receiving "
+        LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "receiving "
                 + (migrants != null ? migrants.size() : 0) + " immigrants");
     }
 
     @Override
     public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException {
         bestSolutions.add(solutions);
-        LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": added solution to set");
+        LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "added solution to set");
     }
 
     @Override

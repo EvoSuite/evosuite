@@ -237,9 +237,9 @@ public class TestSuiteGeneratorHelper {
 
   static void printTestCriterion() {
     if (Properties.CRITERION.length > 1) {
-      LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier + ": Test criteria:");
+      LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Test criteria:");
     } else {
-      LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier+ ": Test criterion:");
+      LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()+ "Test criterion:");
     }
     for (int i = 0; i < Properties.CRITERION.length; i++) {
       printTestCriterion(Properties.CRITERION[i]);
