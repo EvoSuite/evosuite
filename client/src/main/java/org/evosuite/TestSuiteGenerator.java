@@ -250,7 +250,7 @@ public class TestSuiteGenerator {
 		Properties.TEST_ARCHIVE = false;
 
 		TestGenerationResult result = null;
-		if ("ClientNode0".equals(ClientProcess.identifier)) {
+		if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.identifier)) {
 			postProcessTests(testCases);
 			ClientServices.getInstance().getClientNode().publishPermissionStatistics();
 			PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());

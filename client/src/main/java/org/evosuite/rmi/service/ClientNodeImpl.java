@@ -225,7 +225,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     public void sendBestSolution(Set<? extends Chromosome> solutions) {
         try {
             masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
-            LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": sending best solutions to ClientNode0");
+            LoggingUtils.getEvoLogger().info(ClientProcess.identifier + ": sending best solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
         } catch (RemoteException e) {
             logger.error(ClientProcess.identifier + ": Cannot send best solution to master", e);
         }

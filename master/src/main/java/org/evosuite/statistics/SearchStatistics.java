@@ -19,6 +19,7 @@
  */
 package org.evosuite.statistics;
 
+import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
@@ -152,7 +153,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public static SearchStatistics getInstance() {
-		return getInstance("ClientNode0");
+		return getInstance(ClientProcess.DEFAULT_CLIENT_NAME);
 	}
 
 	public static SearchStatistics getInstance(String rmiClientIdentifier) {
@@ -165,7 +166,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public static void clearInstance() {
-		clearInstance("ClientNode0");
+		clearInstance(ClientProcess.DEFAULT_CLIENT_NAME);
 	}
 
 	public static void clearInstance(String rmiClientIdentifier) {

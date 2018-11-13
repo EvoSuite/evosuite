@@ -194,22 +194,22 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
 			ClientServices.getInstance().getClientNode().deleteListener(listener);
 
-			if ("ClientNode0".equals(ClientProcess.identifier)) {
+			if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.identifier)) {
 				//collect all end result test cases
 				Set<Set<? extends Chromosome>> collectedSolutions = ClientServices.getInstance()
 					.getClientNode().getBestSolutions();
 
-				logger.debug("ClientNode0: Received " + collectedSolutions.size() + " solution sets");
+				logger.debug(ClientProcess.DEFAULT_CLIENT_NAME + ": Received " + collectedSolutions.size() + " solution sets");
 				for (Set<? extends Chromosome> solution : collectedSolutions) {
 					for (Chromosome t : solution) {
 						this.calculateFitness((T) t);
 					}
 				}
 			} else {
-				//send end result test cases to ClientNode0
+				//send end result test cases to Client-0
 				Set<T> solutionsSet = new HashSet<T>(getSolutions());
 				logger.debug(ClientProcess.identifier + ": Sending " + solutionsSet.size()
-											+ " solutions to ClientNode0.");
+											+ " solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
 				ClientServices.getInstance().getClientNode().sendBestSolution(solutionsSet);
 			}
 		}

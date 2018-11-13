@@ -389,7 +389,7 @@ public class TestGeneration {
             List<String> cmdLineClone = new ArrayList<>(cmdLine);
 
             if (i == 0 && Properties.DEBUG) {
-                // enabling debugging mode to for ClientNode0 e.g. connect the eclipse remote debugger to the given port
+                // enabling debugging mode to for Client-0 e.g. connect the eclipse remote debugger to the given port
                 cmdLineClone.add("-Ddebug=true");
                 cmdLineClone.add("-Xdebug");
                 cmdLineClone.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
@@ -401,9 +401,9 @@ public class TestGeneration {
             cmdLineClone.add(ClientProcess.class.getName());
             
             if (Properties.NUM_PARALLEL_CLIENTS == 1) {
-                cmdLineClone.add("ClientNode0"); //to keep functionality for non parallel runs
+                cmdLineClone.add(ClientProcess.DEFAULT_CLIENT_NAME); //to keep functionality for non parallel runs
             } else {
-                cmdLineClone.add("ClientNode" + i);
+                cmdLineClone.add(ClientProcess.CLIENT_PREFIX + i);
             }
 
             /*

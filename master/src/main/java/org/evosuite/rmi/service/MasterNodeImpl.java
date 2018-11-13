@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.ga.Chromosome;
@@ -213,7 +214,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
     @Override
     public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
         try {
-            ClientNodeRemote node = clients.get("ClientNode0");
+            ClientNodeRemote node = clients.get(ClientProcess.DEFAULT_CLIENT_NAME);
             node.collectBestSolutions(solutions);
         } catch (RemoteException e) {
             logger.error("Cannot send best solutions to client 0", e);

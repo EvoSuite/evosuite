@@ -55,6 +55,10 @@ public class ClientProcess {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
 
+	public final static String CLIENT_PREFIX = "Client-";
+
+	public final static String DEFAULT_CLIENT_NAME = CLIENT_PREFIX + "0";
+
 	public static String identifier;
 
 	public static TestGenerationResult result;
@@ -201,7 +205,7 @@ public class ClientProcess {
         if (args.length > 0) {
             identifier = args[0];
         } else {
-            identifier = "ClientNode0";
+            identifier = DEFAULT_CLIENT_NAME;
         }
 
 		try {
