@@ -39,7 +39,7 @@ import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JavaExecCmdUtil;
-import org.evosuite.utils.ExternalProcessHandler;
+import org.evosuite.utils.ExternalProcessGroupHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public class WriteDependencies {
 		String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 		classPath += File.pathSeparator + cp;
 
-		ExternalProcessHandler handler = new ExternalProcessHandler();
+		ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler();
 		int port = handler.openServer();
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);

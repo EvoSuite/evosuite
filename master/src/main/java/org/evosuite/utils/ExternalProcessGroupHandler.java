@@ -49,7 +49,7 @@ import sun.misc.SignalHandler;
 
 public class ExternalProcessGroupHandler {
 	/** Constant <code>logger</code> */
-	protected static final Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ExternalProcessGroupHandler.class);
 
 	protected Process[] processGroup;
 	protected String[][] last_commands;
@@ -74,9 +74,13 @@ public class ExternalProcessGroupHandler {
 
 	private String[] hsErrFiles;
 
+	public ExternalProcessGroupHandler() {
+		this(1);
+	}
+
 	/**
 	 * <p>
-	 * Constructor for ExternalProcessHandler.
+	 * Constructor for ExternalProcessGroupHandler.
 	 * </p>
 	 */
 	public ExternalProcessGroupHandler(final int nrOfProcesses) {
@@ -129,6 +133,21 @@ public class ExternalProcessGroupHandler {
 	 */
 	public void setBaseDir(String base_dir) {
 		this.base_dir = base_dir;
+	}
+
+	/**
+	 * <p>
+	 * startProcess
+	 * </p>
+	 * 
+	 * @param command
+	 *            an array of {@link java.lang.String} objects.
+	 * @return a boolean.
+	 */
+	public boolean startProcess(String[] commands) {
+		List<String[]> l_commands = new ArrayList<String[]>();
+		l_commands.add(commands);
+		return this.startProcessGroup(l_commands);
 	}
 
 	/**
@@ -309,6 +328,15 @@ public class ExternalProcessGroupHandler {
 		last_commands[processIndex] = command;
 
 		return true;
+	}
+
+	/**
+	 * <p>
+	 * killProcess
+	 * </p>
+	 */
+	public void killProcess() {
+		this.killProcess(0);
 	}
 
 	/**
