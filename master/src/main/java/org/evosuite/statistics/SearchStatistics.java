@@ -91,7 +91,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	private long startTime = System.currentTimeMillis();
 
 	private List<List<TestGenerationResult>> results = new ArrayList<List<TestGenerationResult>>();
-	
+
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
 		case CONSOLE:
@@ -152,24 +152,24 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	}
 
 	public static SearchStatistics getInstance() {
-	  return getInstance("ClientNode0");
+		return getInstance("ClientNode0");
 	}
 
 	public static SearchStatistics getInstance(String rmiClientIdentifier) {
-	    SearchStatistics instance = instances.get(rmiClientIdentifier);
-	    if (instance == null) {
-	      instance = new SearchStatistics();
-	      instances.put(rmiClientIdentifier, instance);
+		SearchStatistics instance = instances.get(rmiClientIdentifier);
+		if (instance == null) {
+			instance = new SearchStatistics();
+			instances.put(rmiClientIdentifier, instance);
 		}
 		return instance;
 	}
 
 	public static void clearInstance() {
-	    clearInstance("ClientNode0");
+		clearInstance("ClientNode0");
 	}
 
 	public static void clearInstance(String rmiClientIdentifier) {
-	    instances.remove(rmiClientIdentifier);
+		instances.remove(rmiClientIdentifier);
 	}
 
 	/**
@@ -179,22 +179,22 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 	 * @param individual best individual of current generation
 	 */
 	public void currentIndividual(Chromosome individual) {
-        if(backend == null)
-            return;
+		if(backend == null)
+			return;
 
-        if(!(individual instanceof TestSuiteChromosome)) {
-            AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
-            return;
-        }
+		if(!(individual instanceof TestSuiteChromosome)) {
+			AtMostOnceLogger.warn(logger, "searchStatistics expected a TestSuiteChromosome");
+			return;
+		}
 
-        logger.debug("Received individual");
-        bestIndividual = (TestSuiteChromosome) individual;
+		logger.debug("Received individual");
+		bestIndividual = (TestSuiteChromosome) individual;
         for(ChromosomeOutputVariableFactory<?> v : variableFactories.values()) {
             setOutputVariable(v.getVariable((TestSuiteChromosome) individual));
         }
-        for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
-            v.update((TestSuiteChromosome) individual);
-        }
+		for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
+			v.update((TestSuiteChromosome) individual);
+		}
 	}
 
 	/**
@@ -252,8 +252,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 				//TODO: why is this fixed?
 				//RuntimeVariable.BranchCoverage.toString(),
 				RuntimeVariable.Total_Goals.toString(),
-				RuntimeVariable.Covered_Goals.toString(),
-                "parallel_run", "frequency", "rate"
+				RuntimeVariable.Covered_Goals.toString()
 				};
 		variableNames.addAll(Arrays.asList(essentials));
 		

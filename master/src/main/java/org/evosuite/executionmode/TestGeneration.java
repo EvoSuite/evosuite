@@ -218,6 +218,7 @@ public class TestGeneration {
 		    return Arrays.asList(Arrays.asList(new TestGenerationResult[]{TestGenerationResultBuilder.buildErrorResult("Could not find target class") }));
 		}
 
+
 		if (!BytecodeInstrumentation.checkIfCanInstrument(target)) {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
@@ -230,9 +231,9 @@ public class TestGeneration {
         final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
         final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
 
-        List<String> cmdLine = new ArrayList<>();
+		List<String> cmdLine = new ArrayList<>();
+		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
         List<String[]> processArgs = new ArrayList<>();
-        cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
 
 		handleClassPath(cmdLine);
 
@@ -240,21 +241,21 @@ public class TestGeneration {
 			cmdLine.add("-Dspawn_process_manager_port="+Properties.SPAWN_PROCESS_MANAGER_PORT);
 		}
 
-        if (Properties.PARALLEL_RUN < 1) {
-            Properties.PARALLEL_RUN = 1;
+        if (Properties.NUM_PARALLEL_CLIENTS < 1) {
+            Properties.NUM_PARALLEL_CLIENTS = 1;
         }
 
-        LoggingUtils[] logServer = new LoggingUtils[Properties.PARALLEL_RUN];
-        ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler(Properties.PARALLEL_RUN);
-        int port = handler.openServer();
-        if (port <= 0) {
-            throw new RuntimeException("Not possible to start RMI service");
-        }
+        LoggingUtils[] logServer = new LoggingUtils[Properties.NUM_PARALLEL_CLIENTS];
+		ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler(Properties.NUM_PARALLEL_CLIENTS);
+		int port = handler.openServer();
+		if (port <= 0) {
+			throw new RuntimeException("Not possible to start RMI service");
+		}
         handler.setBaseDir(EvoSuite.base_dir_path);
 
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
-		if(Properties.HEADLESS_MODE) {
+		if(Properties.HEADLESS_MODE == true) {
 			cmdLine.add("-Djava.awt.headless=true");
 		}
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
@@ -362,11 +363,10 @@ public class TestGeneration {
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
 		}
-
-        cmdLine.add("-DTARGET_CLASS=" + target);
-        if (Properties.PROJECT_PREFIX != null) {
-            cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
-        }
+		cmdLine.add("-DTARGET_CLASS=" + target);
+		if (Properties.PROJECT_PREFIX != null) {
+			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
+		}
 
         for (String entry : ClassPathHandler.getInstance().getTargetProjectClasspath().split(File.pathSeparator)) {
             try {
@@ -377,15 +377,15 @@ public class TestGeneration {
             }
         }
 
-        /*
-         * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
-         * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
-         */
-        Properties.getInstance();// should force the load, just to be sure
-        Properties.TARGET_CLASS = target;
-        Properties.PROCESS_COMMUNICATION_PORT = port;
+		/*
+		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
+		 * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
+		 */
+		Properties.getInstance();// should force the load, just to be sure
+		Properties.TARGET_CLASS = target;
+		Properties.PROCESS_COMMUNICATION_PORT = port;
 
-        for (int i = 0; i < Properties.PARALLEL_RUN; i++) {
+        for (int i = 0; i < Properties.NUM_PARALLEL_CLIENTS; i++) {
             List<String> cmdLineClone = new ArrayList<>(cmdLine);
 
             if (i == 0 && Properties.DEBUG) {
@@ -400,7 +400,7 @@ public class TestGeneration {
 
             cmdLineClone.add(ClientProcess.class.getName());
             
-            if (Properties.PARALLEL_RUN == 1) {
+            if (Properties.NUM_PARALLEL_CLIENTS == 1) {
                 cmdLineClone.add("ClientNode0"); //to keep functionality for non parallel runs
             } else {
                 cmdLineClone.add("ClientNode" + i);
@@ -492,7 +492,7 @@ public class TestGeneration {
 				//FIXME: timeout here should be handled by TimeController
 				clients = new CopyOnWriteArraySet<ClientNodeRemote>(MasterServices.getInstance().getMasterNode()
                         .getClientsOnceAllConnected(60000).values());
-			} catch (InterruptedException ignored) {
+			} catch (InterruptedException e) {
 			}
 			if (clients == null) {
 				logger.error("Not possible to access to clients. Clients' state:\n" + handler.getProcessStates() + 
@@ -512,10 +512,10 @@ public class TestGeneration {
 				}
 
 				int time = TimeController.getInstance().calculateForHowLongClientWillRunInSeconds();
-				handler.waitForResult(time * 1000);
+				handler.waitForResult(time * 1000); 
 				try {
 					Thread.sleep(100);
-				} catch (InterruptedException ignored) {
+				} catch (InterruptedException e) {
 				}
 			}
 			
@@ -553,7 +553,7 @@ public class TestGeneration {
 		} else {
 			try {
 				Thread.sleep(100);
-			} catch (InterruptedException ignored) {
+			} catch (InterruptedException e) {
 			}
 
             for (LoggingUtils aLogServer : logServer) {

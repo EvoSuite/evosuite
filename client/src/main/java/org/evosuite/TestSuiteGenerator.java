@@ -249,26 +249,23 @@ public class TestSuiteGenerator {
 		// phases (as no CPU cycles would be wasted updating the Archive).
 		Properties.TEST_ARCHIVE = false;
 
-        TestGenerationResult result = null;
-        
-        if ("ClientNode0".equals(ClientProcess.identifier)) {
-            postProcessTests(testCases);
-            ClientServices.getInstance().getClientNode().publishPermissionStatistics();
-            PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
-            
-            // progressMonitor.setCurrentPhase("Writing JUnit test cases");
-            LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier + ": Writing tests to file");
-            result = writeJUnitTestsAndCreateResult(testCases);
-            writeJUnitFailingTests();
-        }
-        
-        TestCaseExecutor.pullDown();
-        
-        /*
-         * TODO: when we will have several processes running in parallel, we ll
-         * need to handle the gathering of the statistics.
-         */
-        ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
+		TestGenerationResult result = null;
+		if ("ClientNode0".equals(ClientProcess.identifier)) {
+			postProcessTests(testCases);
+			ClientServices.getInstance().getClientNode().publishPermissionStatistics();
+			PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
+
+			// progressMonitor.setCurrentPhase("Writing JUnit test cases");
+			LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier + ": Writing tests to file");
+			result = writeJUnitTestsAndCreateResult(testCases);
+			writeJUnitFailingTests();
+		}
+		TestCaseExecutor.pullDown();
+		/*
+		 * TODO: when we will have several processes running in parallel, we ll
+		 * need to handle the gathering of the statistics.
+		 */
+		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
 
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.identifier + ": Done!");
 		LoggingUtils.getEvoLogger().info("");

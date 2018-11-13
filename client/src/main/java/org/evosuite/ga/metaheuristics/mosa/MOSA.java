@@ -19,7 +19,12 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.evosuite.ClientProcess;
@@ -50,11 +55,11 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	private static final long serialVersionUID = 146182080947267628L;
 
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
-	
-    /** immigrant groups from neighbouring client */
-    protected ConcurrentLinkedQueue<List<T>> immigrants = new ConcurrentLinkedQueue<>();
-    
-    protected SelectionFunction<T> emigrantsSelection;
+
+	/** immigrant groups from neighbouring client */
+	private ConcurrentLinkedQueue<List<T>> immigrants = new ConcurrentLinkedQueue<>();
+
+	private SelectionFunction<T> emigrantsSelection;
 
 	/** Crowding distance measure to use */
 	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
@@ -65,17 +70,17 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 */
 	public MOSA(ChromosomeFactory<T> factory) {
 		super(factory);
-		
-		switch (Properties.SELECT_EMIGRANT_FUNCTION) {
-            case RANK:
-                this.emigrantsSelection = new RankSelection<>();
-                break;
-            case RANDOMK:
-                this.emigrantsSelection = new RandomKSelection<>();
-                break;
-            default:
-                this.emigrantsSelection = new BestKSelection<>();
-        }
+
+		switch (Properties.EMIGRANT_SELECTION_FUNCTION) {
+			case RANK:
+				this.emigrantsSelection = new RankSelection<>();
+				break;
+			case RANDOMK:
+				this.emigrantsSelection = new RandomKSelection<>();
+				break;
+			default:
+				this.emigrantsSelection = new BestKSelection<>();
+		}
 	}
 
 	/**
@@ -89,12 +94,11 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		List<T> union = new ArrayList<T>();
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
-		
+
 		// for parallel runs: integrate possible immigrants
-        if (Properties.PARALLEL_RUN > 1 && !immigrants.isEmpty()) {
-            
-            union.addAll(immigrants.poll());
-        }
+		if (Properties.NUM_PARALLEL_CLIENTS > 1 && !immigrants.isEmpty()) {
+			union.addAll(immigrants.poll());
+		}
 
 		Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
 
@@ -116,10 +120,10 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
 			// Add the individuals of this front
 			this.population.addAll(front);
-			
+
 			// Decrement remain
 			remain = remain - front.size();
-			
+
 			// Obtain the next front
 			index++;
 			if (remain > 0) {
@@ -138,14 +142,14 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			remain = 0;
 		}
 
-        // for parallel runs: collect best k individuals for migration
-		if (Properties.PARALLEL_RUN > 1 && Properties.FREQUENCY > 0) {
-          if ((currentIteration + 1) % Properties.FREQUENCY == 0 && !this.population.isEmpty()) {
-              HashSet<T> emigrants = new HashSet<>(emigrantsSelection.select(this.population, Properties.RATE));
-              ClientServices.getInstance().getClientNode().emigrate(emigrants);
-          }
+		// for parallel runs: collect best k individuals for migration
+		if (Properties.NUM_PARALLEL_CLIENTS > 1 && Properties.MIGRANTS_ITERATION_FREQUENCY > 0) {
+			if ((currentIteration + 1) % Properties.MIGRANTS_ITERATION_FREQUENCY == 0 && !this.population.isEmpty()) {
+				HashSet<T> emigrants = new HashSet<>(emigrantsSelection.select(this.population, Properties.MIGRANTS_COMMUNICATION_RATE));
+				ClientServices.getInstance().getClientNode().emigrate(emigrants);
+			}
 		}
-		
+
 		this.currentIteration++;
 	}
 
@@ -171,47 +175,45 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		}
 
 		Listener<Set<? extends Chromosome>> listener = null;
-		
-        if (Properties.PARALLEL_RUN > 1) {
-            listener = new Listener<Set<? extends Chromosome>>() {
-                @Override
-                public void receiveEvent(Set<? extends Chromosome> event) {
-                    immigrants.add(new LinkedList<T>((Set<? extends T>) event));
-                }
-            };
-            
-            ClientServices.getInstance().getClientNode().addListener(listener);
-        }
-        
-        // TODO add here dynamic stopping condition
+		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
+			listener = new Listener<Set<? extends Chromosome>>() {
+				@Override
+				public void receiveEvent(Set<? extends Chromosome> event) {
+					immigrants.add(new LinkedList<T>((Set<? extends T>) event));
+				}
+			};
+			ClientServices.getInstance().getClientNode().addListener(listener);
+		}
+
+		// TODO add here dynamic stopping condition
 		while (!this.isFinished() && this.getNumberOfUncoveredGoals() > 0) {
 			this.evolve();
-            this.notifyIteration();
-        }
+			this.notifyIteration();
+		}
 
-        if (Properties.PARALLEL_RUN > 1) {
-            ClientServices.getInstance().getClientNode().deleteListener(listener);
-            
-            if ("ClientNode0".equals(ClientProcess.identifier)) {
-                //collect all end result test cases
-                Set<Set<? extends Chromosome>> collectedSolutions = ClientServices.getInstance()
-                        .getClientNode().getBestSolutions();
+		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
+			ClientServices.getInstance().getClientNode().deleteListener(listener);
 
-                logger.debug("ClientNode0: Received " + collectedSolutions.size() + " solution sets");
-                for (Set<? extends Chromosome> solution : collectedSolutions) {
-                  for (Chromosome t : solution) {
-                    this.calculateFitness((T) t);
-                  }
-                }
-            } else {
-                //send end result test cases to ClientNode0
-                Set<T> solutionsSet = new HashSet<T>(getSolutions());
-                logger.debug(ClientProcess.identifier + ": Sending " + solutionsSet.size()
-                                + " solutions to ClientNode0.");
-                ClientServices.getInstance().getClientNode().sendBestSolution(solutionsSet);
-            }
-        }
-        
+			if ("ClientNode0".equals(ClientProcess.identifier)) {
+				//collect all end result test cases
+				Set<Set<? extends Chromosome>> collectedSolutions = ClientServices.getInstance()
+					.getClientNode().getBestSolutions();
+
+				logger.debug("ClientNode0: Received " + collectedSolutions.size() + " solution sets");
+				for (Set<? extends Chromosome> solution : collectedSolutions) {
+					for (Chromosome t : solution) {
+						this.calculateFitness((T) t);
+					}
+				}
+			} else {
+				//send end result test cases to ClientNode0
+				Set<T> solutionsSet = new HashSet<T>(getSolutions());
+				logger.debug(ClientProcess.identifier + ": Sending " + solutionsSet.size()
+											+ " solutions to ClientNode0.");
+				ClientServices.getInstance().getClientNode().sendBestSolution(solutionsSet);
+			}
+		}
+
 		// storing the time needed to reach the maximum coverage
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
                 this.budgetMonitor.getTime2MaxCoverage());

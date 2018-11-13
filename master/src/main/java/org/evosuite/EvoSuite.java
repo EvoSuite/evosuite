@@ -179,28 +179,28 @@ public class EvoSuite {
 
             if (line.hasOption("parallel")) {
                 String[] values = line.getOptionValues("parallel");
-                
+
                 if (values.length != 3) {
                     throw new Error("Invalid amount of arguments for parallel");
                 }
 
-                javaOpts.add("-Dparallel_run=" + values[0]);
-                javaOpts.add("-Dfrequency=" + values[1]);
-                javaOpts.add("-Drate=" + values[2]);
-                
+                javaOpts.add("-Dnum_parallel_clients=" + values[0]);
+                javaOpts.add("-Dmigrants_iteration_frequency=" + values[1]);
+                javaOpts.add("-Dmigrants_communication_rate=" + values[2]);
+
                 try {
-                    Properties.getInstance().setValue("parallel_run", values[0]);
-                    Properties.getInstance().setValue("frequency", values[1]);
-                    Properties.getInstance().setValue("rate", values[2]);
+                    Properties.getInstance().setValue("num_parallel_clients", values[0]);
+                    Properties.getInstance().setValue("migrants_iteration_frequency", values[1]);
+                    Properties.getInstance().setValue("migrants_communication_rate", values[2]);
                 } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
                     throw new Error("Invalid values for parallel: " + e.getMessage());
                 }
             } else {
                 // Just to be save
-                javaOpts.add("-Dparallel_run=" + 1);
-                
+                javaOpts.add("-Dnum_parallel_clients=" + 1);
+
                 try {
-                    Properties.getInstance().setValue("parallel_run", 1);
+                    Properties.getInstance().setValue("num_parallel_clients", 1);
                 } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
                     throw new Error("Could not set value: " + e.getMessage());
                 }

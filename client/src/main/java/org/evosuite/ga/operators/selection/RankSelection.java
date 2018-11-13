@@ -26,21 +26,20 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.utils.Randomness;
 
 
-/**
- * {@inheritDoc}
- *
- * Select individual by rank
- */
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Select individual by rank
+	 */
 public class RankSelection<T extends Chromosome> extends SelectionFunction<T> {
 
 	private static final long serialVersionUID = 7849303009915557682L;
-	
+	@Override
 	/**
 	 * Select index of next offspring
 	 * 
 	 * Population has to be sorted!
 	 */
-    @Override
 	public int getIndex(List<T> population) {
 		double r = Randomness.nextDouble();
 		double d = Properties.RANK_BIAS
@@ -54,7 +53,8 @@ public class RankSelection<T extends Chromosome> extends SelectionFunction<T> {
 		//if(maximize)
 		//	d = 1.0 - d; // to do that if we want to have Maximisation
 
-        return (int) (length * d);
+		int index = (int) (length * d);
+		return index;
 	}
 
 }

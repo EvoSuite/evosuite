@@ -19,10 +19,14 @@
  */
 package org.evosuite.rmi.service;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -131,7 +135,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 		long start = System.currentTimeMillis();
 
-		int numberOfExpectedClients = Properties.PARALLEL_RUN;
+		int numberOfExpectedClients = Properties.NUM_PARALLEL_CLIENTS;
 
 		synchronized (clients) {
 			while (clients.size() != numberOfExpectedClients) {
@@ -142,7 +146,6 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 				}
 				clients.wait(timeRemained);
 			}
-			
 			return Collections.unmodifiableMap(clients);
 		}
 	}
@@ -195,10 +198,10 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
             throws RemoteException {
         //implements ring topology
         int idSender = Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", ""));
-        int idNeighbour = (idSender + 1) % Properties.PARALLEL_RUN;
+        int idNeighbour = (idSender + 1) % Properties.NUM_PARALLEL_CLIENTS;
 
         while (!ClientState.SEARCH.equals(clientStates.get("ClientNode" + idNeighbour)) && idNeighbour != idSender) {
-            idNeighbour = (idNeighbour + 1) % Properties.PARALLEL_RUN;
+            idNeighbour = (idNeighbour + 1) % Properties.NUM_PARALLEL_CLIENTS;
         }
 
         if (idNeighbour != idSender) {

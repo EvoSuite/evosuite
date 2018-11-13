@@ -296,14 +296,14 @@ public class Properties {
 	@DoubleValue(min = 1)
 	public static int FUNCTIONAL_MOCKING_INPUT_LIMIT = 5;
 
-    @Parameter(key = "parallel_run", group = "Test Creation", description = "Run EvoSuite with more the one client in parallel")
-    public static int PARALLEL_RUN = 1;
-    
-    @Parameter(key = "frequency", group = "Test Creation", description = "Determines amount of iterations between sending migrants to other client (-1 to disable any iterations between clients)")
-    public static int FREQUENCY = 2;
-    
-    @Parameter(key = "rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
-    public static int RATE = 3;
+	@Parameter(key = "num_parallel_clients", group = "Test Creation", description = "Number of EvoSuite clients to run in parallel")
+	public static int NUM_PARALLEL_CLIENTS = 1;
+
+	@Parameter(key = "migrants_iteration_frequency", group = "Test Creation", description = "Determines amount of iterations between sending migrants to other client (-1 to disable any iterations between clients)")
+	public static int MIGRANTS_ITERATION_FREQUENCY = 2;
+
+	@Parameter(key = "migrants_communication_rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
+	public static int MIGRANTS_COMMUNICATION_RATE = 3;
 
 	// ---------------------------------------------------------------
 	// Search algorithm
@@ -631,11 +631,11 @@ public class Properties {
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
-	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK_CROWD_DISTANCE_TOURNAMENT;
-    
-    @Parameter(key = "select_emigrant_function", group = "Search Algorithm", description = "Selection function for emigrant selection during sarch")
-    public static SelectionFunction SELECT_EMIGRANT_FUNCTION = SelectionFunction.RANDOMK;
-	
+	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+
+	@Parameter(key = "emigrant_selection_function", group = "Search Algorithm", description = "Selection function for emigrant selection during search")
+	public static SelectionFunction EMIGRANT_SELECTION_FUNCTION = SelectionFunction.RANDOMK;
+
 	public enum MutationProbabilityDistribution {
 		UNIFORM, BINOMIAL
 	}

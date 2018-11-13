@@ -21,7 +21,14 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -30,9 +37,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections.list.SynchronizedList;
+
 import org.evosuite.*;
 import org.evosuite.Properties;
 import org.evosuite.Properties.NoSuchParameterException;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.TestSuiteGenerator;
+import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
@@ -105,10 +116,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		clientRmiIdentifier = identifier;
 		doneLatch = new CountDownLatch(1);
 		finishedLatch = new CountDownLatch(1);
-		this.bestSolutions = Collections.synchronizedList(new ArrayList<Set<? extends Chromosome>>(Properties.PARALLEL_RUN));
+		this.bestSolutions = Collections.synchronizedList(new ArrayList<Set<? extends Chromosome>>(Properties.NUM_PARALLEL_CLIENTS));
 	}
 
-    private static class OutputVariable {
+	private static class OutputVariable {
 		public RuntimeVariable variable;
 		public Object value;
 
@@ -196,9 +207,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public void waitUntilDone() {
 		try {
 			doneLatch.await();
-		} catch (InterruptedException ignored) {
+		} catch (InterruptedException e) {
 		}
 	}
+
     @Override
     public void emigrate(Set<? extends Chromosome> immigrants) {
         try {
@@ -565,7 +577,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
      */
     public Set<Set<? extends Chromosome>> getBestSolutions() {
         do {
-            if (bestSolutions.size() == (Properties.PARALLEL_RUN - 1)) {
+            if (bestSolutions.size() == (Properties.NUM_PARALLEL_CLIENTS - 1)) {
                 return new HashSet<Set<? extends Chromosome>>(bestSolutions);
             }
         } while (finishedLatch.getCount() != 0);
