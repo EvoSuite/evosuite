@@ -214,8 +214,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     @Override
     public void emigrate(Set<? extends Chromosome> immigrants) {
         try {
+            logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + immigrants.size() + " immigrants");
             masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
-            LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "Sending " + immigrants.size() + " immigrants");
         } catch (RemoteException e) {
             logger.error(ClientProcess.getPrettyPrintIdentifier() + "Cannot send immigrating individuals to master", e);
         }
@@ -224,8 +224,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
     @Override
     public void sendBestSolution(Set<? extends Chromosome> solutions) {
         try {
+            logger.debug(ClientProcess.getPrettyPrintIdentifier() + "sending best solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
             masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
-            LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "sending best solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
         } catch (RemoteException e) {
             logger.error(ClientProcess.getPrettyPrintIdentifier() + "Cannot send best solution to master", e);
         }
@@ -536,15 +536,15 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	
     @Override
     public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException {
-        fireEvent(migrants);
-        LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "receiving "
+        logger.debug(ClientProcess.getPrettyPrintIdentifier() + "receiving "
                 + (migrants != null ? migrants.size() : 0) + " immigrants");
+        fireEvent(migrants);
     }
 
     @Override
     public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException {
+        logger.debug(ClientProcess.getPrettyPrintIdentifier() + "added solution to set");
         bestSolutions.add(solutions);
-        LoggingUtils.getEvoLogger().info(ClientProcess.getPrettyPrintIdentifier() + "added solution to set");
     }
 
     @Override
