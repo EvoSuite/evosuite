@@ -46,6 +46,8 @@ public class ClassStateSupport {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClassStateSupport.class);
 
+	private static final String[] externalInitMethods = new String[] {"$jacocoInit", "$gzoltarInit"};
+
     /**
      * Load all the classes with given name with the provided input classloader.
      * Those classes are all supposed to be instrumented.
@@ -66,7 +68,7 @@ public class ClassStateSupport {
 			problem = true;
 		}
 
-		initialiseJacoco(classLoader, classes);
+		initialiseExternalTools(classLoader, classes);
 
 		if(RuntimeSettings.isUsingAnyMocking()) {
 
@@ -98,24 +100,27 @@ public class ClassStateSupport {
 	}
 
 	/*
-	 * If a class is instrumented by Jacoco, we need to make sure Jacoco is initialised
-	 * so that the shutdownhook is added before the first test is executed.
+	 * If a class is instrumented by Jacoco, GZoltar, or any other similar coverage-based
+	 * tool, we need to make sure it is initialised so that the shutdownhook is added before
+	 * the first test is executed.
 	 */
-	private static void initialiseJacoco(ClassLoader classLoader, List<Class<?>> classes) {
+	private static void initialiseExternalTools(ClassLoader classLoader, List<Class<?>> classes) {
 
-		for(Class<?> clazz : classes) {
-			try {
-				Method initMethod = clazz.getDeclaredMethod("$jacocoInit");
-				logger.error("Found $jacocoInit in class {}", clazz.getName());
-				initMethod.setAccessible(true);
-				initMethod.invoke(null);
-				// Once it has been invoked the agent should be loaded and we're done
-				return;
-			} catch (NoSuchMethodException e) {
-				// No instrumentation, no need to do anything
-			} catch (Throwable e) {
-				logger.info("Error while checking for $jacocoInit in class {}: {}", clazz.getName(), e.getMessage());
+		for (String externalInitMethod : externalInitMethods) {
+			for(Class<?> clazz : classes) {
+				try {
+					Method initMethod = clazz.getDeclaredMethod(externalInitMethod);
+					logger.error("Found {} in class {}", externalInitMethod, clazz.getName());
+					initMethod.setAccessible(true);
+					initMethod.invoke(null);
+					// Once it has been invoked the agent should be loaded and we're done
+					break;
+				} catch (NoSuchMethodException e) {
+					// No instrumentation, no need to do anything
+				} catch (Throwable e) {
+					logger.info("Error while checking for {} in class {}: {}", externalInitMethod, clazz.getName(), e.getMessage());
 
+				}
 			}
 		}
 	}

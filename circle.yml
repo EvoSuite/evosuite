@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:8u171-jdk
 
     working_directory: ~/repo
 
@@ -31,6 +31,10 @@ jobs:
             - ~/.m2
           key: v2-dependencies-{{ checksum "pom.xml" }}
 
+      # build eclipse plugin
+      - run: mvn install -DskipTests
+      - run: cd plugins/eclipse && mvn package
+
       - run:
           name: pull test reports and artifacts together
           when: always
@@ -41,6 +45,7 @@ jobs:
             find . -type f -regex ".*/runtime/target/.*jar" -exec cp {} build-artifacts/ \;
             find . -type f -regex ".*/standalone_runtime/target/.*jar" -exec cp {} build-artifacts/ \;
             find . -type f -regex ".*/master/target/.*jar" -exec cp {} build-artifacts/ \;
+            mv plugins/eclipse/evosuite-eclipse-site build-artifacts/
 
       - store_test_results:
           path: test-reports

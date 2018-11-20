@@ -24,4 +24,5 @@ Export-Package: org.evosuite,
  org.evosuite.testcase.execution,
  org.evosuite.testcase.factories,
  org.evosuite.testsuite,
- org.evosuite.utils
+ org.evosuite.utils,
+ org.evosuite.shaded.org.apache.commons.lang3
