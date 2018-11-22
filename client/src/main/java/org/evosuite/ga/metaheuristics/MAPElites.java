@@ -14,10 +14,9 @@ import org.slf4j.LoggerFactory;
 /**
  * MAP-Elites implementation
  * 
- * <p><b>Reference: </b>
- * Mouret, Jean-Baptiste, and Jeff Clune. 
- * "Illuminating search spaces by mapping elites." 
- * arXiv preprint arXiv:1504.04909 (2015).
+ * <p>
+ * <b>Reference: </b> Mouret, Jean-Baptiste, and Jeff Clune. "Illuminating search spaces by mapping
+ * elites." arXiv preprint arXiv:1504.04909 (2015).
  * </p>
  * 
  * @author Felix Prasse
@@ -32,9 +31,9 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
   private static final long serialVersionUID = 1L;
 
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
-  
+
   private Map<Object, T> populationMap;
-  
+
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
     this.populationMap = new HashMap<>();
@@ -43,21 +42,29 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
   @Override
   protected void evolve() {
     T chromosome = Randomness.choice(population);
-    
+
     // TODO Can also use crossover!
     notifyMutation(chromosome);
     chromosome.mutate();
-    
+
     // Determine fitness
     calculateFitness();
-    
-    // TODO Feature descriptor
-    
-    
-    // TODO Store
-    
+
+    storeIfBetter(chromosome);
+
     ++currentIteration;
   }
+
+  private void storeIfBetter(T chromosome) {
+    // TODO Feature descriptor
+    Object featureDesc = null;
+
+    T existing = this.populationMap.get(featureDesc);
+    if (null == existing || existing.getFitness() < chromosome.getFitness()) {
+      this.populationMap.put(featureDesc, chromosome);
+    }
+  }
+
 
   @Override
   public void initializePopulation() {
@@ -68,18 +75,18 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
     generateInitialPopulation(Properties.POPULATION);
     // Determine fitness
     calculateFitness();
-    
+
     // TODO Feature descriptor
-    
+
     // TODO Store
-    
+
     this.notifyIteration();
   }
-  
+
   @Override
   public void generateSolution() {
     // TODO Auto-generated method stub
-    
+
   }
 
 }
