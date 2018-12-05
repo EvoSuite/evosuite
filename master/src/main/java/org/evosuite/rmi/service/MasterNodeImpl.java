@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.ga.Chromosome;
@@ -48,7 +49,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	private static Logger logger = LoggerFactory.getLogger(MasterNodeImpl.class);
 
 	private final Registry registry;
-	private final Set<ClientNodeRemote> clients;
+	private final Map<String, ClientNodeRemote> clients;
 
 	protected final Collection<Listener<ClientStateInformation>> listeners = Collections.synchronizedList(new ArrayList<Listener<ClientStateInformation>>());
 
@@ -63,7 +64,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	private final Map<String, ClientStateInformation> clientStateInformation;
 
 	public MasterNodeImpl(Registry registry) {
-		clients = new CopyOnWriteArraySet<ClientNodeRemote>();
+		clients = new ConcurrentHashMap<String, ClientNodeRemote>();
 		clientStates = new ConcurrentHashMap<String, ClientState>();
 		clientStateInformation = new ConcurrentHashMap<String, ClientStateInformation>();
 		this.registry = registry;
@@ -86,7 +87,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 			return;
 		}
 		synchronized (clients) {
-			clients.add(node);
+			clients.put(clientRmiIdentifier, node);
 			clients.notifyAll();
 		}
 	}
@@ -106,7 +107,12 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		return clientStates.values();
 	}
 
-	@Override
+    @Override
+    public ClientState getCurrentState(String clientId) {
+        return clientStates.get(clientId);
+    }
+
+    @Override
 	public Collection<ClientStateInformation> getCurrentStateInformation() {
 		return clientStateInformation.values();
 	}
@@ -125,15 +131,12 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 
 	@Override
-	public Set<ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs)
+	public Map<String, ClientNodeRemote> getClientsOnceAllConnected(long timeoutInMs)
 	        throws InterruptedException {
 
 		long start = System.currentTimeMillis();
 
-		/*
-		 * TODO: this will be a parameter
-		 */
-		int numberOfExpectedClients = 1;
+		int numberOfExpectedClients = Properties.NUM_PARALLEL_CLIENTS;
 
 		synchronized (clients) {
 			while (clients.size() != numberOfExpectedClients) {
@@ -144,13 +147,13 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 				}
 				clients.wait(timeRemained);
 			}
-			return Collections.unmodifiableSet(clients);
+			return Collections.unmodifiableMap(clients);
 		}
 	}
 
 	@Override
 	public void cancelAllClients() {
-		for (ClientNodeRemote client : clients) {
+		for (ClientNodeRemote client : clients.values()) {
 			try {
 				LoggingUtils.getEvoLogger().info("Trying to kill client " + client);
 				client.cancelCurrentSearch();
@@ -163,27 +166,26 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 	@Override
 	public void evosuite_collectStatistics(String clientRmiIdentifier, Chromosome individual) {
-		SearchStatistics.getInstance().currentIndividual(clientRmiIdentifier, individual);
+		SearchStatistics.getInstance(clientRmiIdentifier).currentIndividual(individual);
 	}
 
 	@Override
 	public void evosuite_collectStatistics(String clientRmiIdentifier, RuntimeVariable variable, Object value)
 	        throws RemoteException {
-		SearchStatistics.getInstance().setOutputVariable(variable, value);
+		SearchStatistics.getInstance(clientRmiIdentifier).setOutputVariable(variable, value);
 	}
 
 	@Override
 	public void evosuite_collectTestGenerationResult(
 			String clientRmiIdentifier, List<TestGenerationResult> results)
 			throws RemoteException {
-		SearchStatistics.getInstance().addTestGenerationResult(results);
-		
+		SearchStatistics.getInstance(clientRmiIdentifier).addTestGenerationResult(results);
 	}
 
 	@Override
 	public void evosuite_flushStatisticsForClassChange(String clientRmiIdentifier)
 			throws RemoteException {
-		SearchStatistics.getInstance().writeStatisticsForAnalysis();
+		SearchStatistics.getInstance(clientRmiIdentifier).writeStatisticsForAnalysis();
 	}
 
 	@Override
@@ -192,7 +194,34 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		Properties.getInstance().setValue(propertyName, value);
 	}
 
-	@Override
+    @Override
+    public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants)
+            throws RemoteException {
+        //implements ring topology
+        int idSender = Integer.parseInt(clientRmiIdentifier.replaceAll("[^0-9]", ""));
+        int idNeighbour = (idSender + 1) % Properties.NUM_PARALLEL_CLIENTS;
+
+        while (!ClientState.SEARCH.equals(clientStates.get("ClientNode" + idNeighbour)) && idNeighbour != idSender) {
+            idNeighbour = (idNeighbour + 1) % Properties.NUM_PARALLEL_CLIENTS;
+        }
+
+        if (idNeighbour != idSender) {
+            ClientNodeRemote node = clients.get("ClientNode" + idNeighbour);
+            node.immigrate(migrants);
+        }
+    }
+
+    @Override
+    public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) {
+        try {
+            ClientNodeRemote node = clients.get(ClientProcess.DEFAULT_CLIENT_NAME);
+            node.collectBestSolutions(solutions);
+        } catch (RemoteException e) {
+            logger.error("Cannot send best solutions to client 0", e);
+        }
+    }
+
+    @Override
 	public void addListener(Listener<ClientStateInformation> listener) {
 		listeners.add(listener);
 	}

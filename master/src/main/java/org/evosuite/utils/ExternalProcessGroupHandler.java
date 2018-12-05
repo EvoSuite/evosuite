@@ -20,10 +20,10 @@
 package org.evosuite.utils;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 
 import org.evosuite.ClientProcess;
@@ -47,20 +47,17 @@ import sun.misc.SignalHandler;
  * FIXME: once RMI is stable tested, we ll need to remove all the TCP stuff, and refactor
  */
 
-public class ExternalProcessHandler {
+public class ExternalProcessGroupHandler {
 	/** Constant <code>logger</code> */
-	protected static final Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ExternalProcessGroupHandler.class);
 
-	protected ServerSocket server;
-	protected Process process;
-	protected String[] last_command;
+	protected Process[] processGroup;
+	protected String[][] last_commands;
 
-	protected Thread output_printer;
-	protected Thread error_printer;
-	protected Thread message_handler;
+	protected Thread[] output_printers;
+	protected Thread[] error_printers;
+	protected Thread[] message_handlers;
 
-	protected Socket connection;
-	protected ObjectOutputStream out;
 	protected ObjectInputStream in;
 
 	protected Object final_result;
@@ -68,22 +65,35 @@ public class ExternalProcessHandler {
 	protected static final Object WAITING_FOR_DATA = "waiting_for_data_"
 			+ System.currentTimeMillis();
 
-	protected Thread processKillHook;
+	protected Thread[] processKillHooks;
 	protected Thread clientRunningOnThread;
 
-	protected volatile CountDownLatch latch;
+	protected volatile CountDownLatch[] latches;
 
 	protected String base_dir = System.getProperty("user.dir");
 
-	private String hsErrFile;
+	private String[] hsErrFiles;
+
+	public ExternalProcessGroupHandler() {
+		this(1);
+	}
 
 	/**
 	 * <p>
-	 * Constructor for ExternalProcessHandler.
+	 * Constructor for ExternalProcessGroupHandler.
 	 * </p>
 	 */
-	public ExternalProcessHandler() {
+	public ExternalProcessGroupHandler(final int nrOfProcesses) {
+		this.processGroup = new Process[nrOfProcesses];
+		this.last_commands = new String[nrOfProcesses][];
 
+		this.output_printers = new Thread[nrOfProcesses];
+		this.error_printers = new Thread[nrOfProcesses];
+		this.message_handlers = new Thread[nrOfProcesses];
+
+		this.processKillHooks = new Thread[nrOfProcesses];
+		this.latches = new CountDownLatch[nrOfProcesses];
+		this.hsErrFiles = new String[nrOfProcesses];
 	}
 
 	/**
@@ -116,12 +126,10 @@ public class ExternalProcessHandler {
 
 
 	/**
-	 * <p>
-	 * setBaseDir
-	 * </p>
-	 * 
+	 * Sets the base directory.
+	 *
 	 * @param base_dir
-	 *            a {@link java.lang.String} object.
+	 *         the base directory
 	 */
 	public void setBaseDir(String base_dir) {
 		this.base_dir = base_dir;
@@ -136,47 +144,77 @@ public class ExternalProcessHandler {
 	 *            an array of {@link java.lang.String} objects.
 	 * @return a boolean.
 	 */
-	public boolean startProcess(String[] command) {
+	public boolean startProcess(String[] commands) {
+		List<String[]> l_commands = new ArrayList<String[]>();
+		l_commands.add(commands);
+		return this.startProcessGroup(l_commands);
+	}
 
-		if(! Properties.IS_RUNNING_A_SYSTEM_TEST) {
-			logger.debug("Going to start process with command: " + Arrays.toString(command).replace(",", " "));
-		}
+	/**
+	 * Starts a process for each command array of the given list. If one process fails to start, all already started
+	 * processes are killed.
+	 *
+	 * @param commands
+	 *         a list of arrays of commands to start
+	 * @return true iff all processes have started correctly, false otherwise
+	 */
+	public boolean startProcessGroup(List<String[]> commands) {
+		int rollbackToI = 0;
 
-		List<String> formatted = new LinkedList<>();
-		for(String s : command){
-			String token = s.trim();
-			if(!token.isEmpty()){
-				formatted.add(token);
+		for (int i = 0; i < commands.size(); i++) {
+			String[] command = commands.get(i);
+
+			if(! Properties.IS_RUNNING_A_SYSTEM_TEST) {
+				logger.debug("Going to start process with command: " + Arrays.toString(command).replace(",", " "));
+			}
+
+			List<String> formatted = new LinkedList<>();
+			for(String s : command){
+				String token = s.trim();
+				if(!token.isEmpty()){
+					formatted.add(token);
+				}
+			}
+
+			hsErrFiles[i] = "hs_err_EvoSuite_client_p" + getServerPort() + "_t" + System.currentTimeMillis();
+			String option = "-XX:ErrorFile=" + hsErrFiles[i];
+			formatted.add(1,option); // add it after the first "java" command
+
+			if (!startProcess(formatted.toArray(new String[0]), i, null)) {
+				rollbackToI = i;
+				break;
 			}
 		}
 
-		hsErrFile = "hs_err_EvoSuite_client_p"+getServerPort()+"_t"+System.currentTimeMillis();
-		String option = "-XX:ErrorFile="+hsErrFile;
-		formatted.add(1,option); // add it after the first "java" command
+		if (rollbackToI > 0) {
+			for (int i = 0; i < rollbackToI; i++) {
+				killProcess(i);
+			}
+		}
 
-		return startProcess(formatted.toArray(new String[0]), null);
+		return rollbackToI == 0;
 	}
 
-	protected boolean didClientJVMCrash(){
-		return new File(hsErrFile).exists();
+	protected boolean didClientJVMCrash(final int processIndex){
+		return new File(hsErrFiles[processIndex]).exists();
 	}
 
-	protected String getAndDeleteHsErrFile(){
-		if(!didClientJVMCrash()){
+	protected String getAndDeleteHsErrFile(final int processIndex){
+		if(!didClientJVMCrash(processIndex)){
 			return null;
 		}
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 
-		File file = new File(hsErrFile);
+		File file = new File(hsErrFiles[processIndex]);
 		file.deleteOnExit();
 
 		try(Scanner in = new Scanner(file);) {
-			while(in.hasNextLine()){
+			while (in.hasNextLine()) {
 				String row = in.nextLine();
 				//do not read the full file, just the header
 				if(row.startsWith("#")){
-					buffer.append(row+"\n");
+					builder.append(row).append("\n");
 				} else {
 					break; //end of the header
 				}
@@ -187,18 +225,33 @@ public class ExternalProcessHandler {
 			return null;
 		}
 
-		return buffer.toString();
+		return builder.toString();
 	}
 
-	public String getProcessState(){
-		if(process == null){
+	public String getProcessStates(){
+		if(processGroup == null){
 			return "null";
 		}
-		try{
-			return "Terminated with exit status "+process.exitValue();
-		} catch(IllegalThreadStateException e){
-			return "Still running"; 
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < processGroup.length; i++) {
+			builder.append("process nr. ");
+			builder.append(i);
+			builder.append(": ");
+
+			if(processGroup[i] == null){
+        		        builder.append("null\n");
+			} else {
+				try{
+					int exitValue = processGroup[i].exitValue();
+					builder.append("Terminated with exit status ");
+					builder.append(exitValue);
+					builder.append("\n");
+				} catch(IllegalThreadStateException e){
+					builder.append("Still running\n");
+				}
+			}
 		}
+		return builder.toString();
 	}
 	
 	/**
@@ -212,28 +265,28 @@ public class ExternalProcessHandler {
 	 *            a {@link java.lang.Object} object.
 	 * @return a boolean.
 	 */
-	protected boolean startProcess(String[] command, Object population_data) {
-		if (process != null) {
+	protected boolean startProcess(String[] command, int processIndex, Object population_data) {
+		if (processGroup[processIndex] != null) {
 			logger.warn("Already running an external process");
 			return false;
 		}
 
-		latch = new CountDownLatch(1);
+		latches[processIndex] = new CountDownLatch(1);
 		final_result = WAITING_FOR_DATA;
 
 
 		//the following thread is important to make sure that the external process is killed
 		//when current process ends
 
-		processKillHook = new Thread() {
+		processKillHooks[processIndex] = new Thread() {
 			@Override
 			public void run() {
-				killProcess();
+				killProcess(processIndex);
 				closeServer();
 			}
 		};
 
-		Runtime.getRuntime().addShutdownHook(processKillHook);
+		Runtime.getRuntime().addShutdownHook(processKillHooks[processIndex]);
 		// now start the process
 
 		if (!Properties.CLIENT_ON_THREAD) {
@@ -243,14 +296,13 @@ public class ExternalProcessHandler {
 			builder.redirectErrorStream(false);
 
 			try {
-				process = builder.start();
+				processGroup[processIndex] = builder.start();
 			} catch (IOException e) {
 				logger.error("Failed to start external process", e);
 				return false;
 			}
 
-			//FIXME: shouldn't it be deprecated???
-			startExternalProcessPrinter();
+			startExternalProcessPrinter(processIndex);
 		} else {
 			/*
 			 * Here we run client on a thread instead of process.
@@ -272,8 +324,8 @@ public class ExternalProcessHandler {
             Sandbox.addPrivilegedThread(clientRunningOnThread);
 		}
 
-		startSignalHandler();
-		last_command = command;
+		startSignalHandler(processIndex);
+		last_commands[processIndex] = command;
 
 		return true;
 	}
@@ -284,8 +336,22 @@ public class ExternalProcessHandler {
 	 * </p>
 	 */
 	public void killProcess() {
+		this.killProcess(0);
+	}
+
+	/**
+	 * Terminates the process with given index.
+	 *
+	 * @param processIndex
+	 *         index of process to kill
+	 */
+	public void killProcess(final int processIndex) {
+		if (processGroup[processIndex] == null) {
+			return;
+		}
+
 		try {
-			Runtime.getRuntime().removeShutdownHook(processKillHook);
+			Runtime.getRuntime().removeShutdownHook(processKillHooks[processIndex]);
 		} catch (Exception e) { /* do nothing. this can happen if shutdown is in progress */
 		}
 
@@ -294,36 +360,45 @@ public class ExternalProcessHandler {
 		 * TODO: use RMI to 'gracefully' stop the client
 		 */
 
-		if (process != null) {
+		if (processGroup[processIndex] != null) {
 			try {
 				//be sure streamers are closed, otherwise process might hang on Windows
-				process.getOutputStream().close();
-				process.getInputStream().close();
-				process.getErrorStream().close();
-			} catch (Exception t){
-				logger.error("Failed to close process stream: "+t.toString());
+				processGroup[processIndex].getOutputStream().close();
+				processGroup[processIndex].getInputStream().close();
+				processGroup[processIndex].getErrorStream().close();
+			} catch (Exception t) {
+				logger.error("Failed to close process stream: " + t.toString());
 			}
-			process.destroy();
+			processGroup[processIndex].destroy();
 		}
-		process = null;
+		processGroup[processIndex] = null;
 
 		if (clientRunningOnThread != null && clientRunningOnThread.isAlive()) {
 			clientRunningOnThread.interrupt();
 		}
 		clientRunningOnThread = null;
 
-		if (output_printer != null && output_printer.isAlive())
-			output_printer.interrupt();
-		output_printer = null;
+		if (output_printers[processIndex] != null && output_printers[processIndex].isAlive())
+			output_printers[processIndex].interrupt();
+		output_printers[processIndex] = null;
 
-		if (error_printer != null && error_printer.isAlive())
-			error_printer.interrupt();
-		error_printer = null;
+		if (error_printers[processIndex] != null && error_printers[processIndex].isAlive())
+			error_printers[processIndex].interrupt();
+		error_printers[processIndex] = null;
 
-		if (message_handler != null && message_handler.isAlive()) {
-			message_handler.interrupt();
+		if (message_handlers[processIndex] != null && message_handlers[processIndex].isAlive()) {
+			message_handlers[processIndex].interrupt();
 		}
-		message_handler = null;
+		message_handlers[processIndex] = null;
+	}
+
+	/**
+	 * Terminates all running processes.
+	 */
+	public void killAllProcesses() {
+		for (int i = 0; i < processGroup.length; i++) {
+			killProcess(i);
+		}
 	}
 
 	/**
@@ -388,16 +463,19 @@ public class ExternalProcessHandler {
 	 * <p>
 	 * startExternalProcessPrinter
 	 * </p>
+	 *
+	 * @param processIndex
+	 *         index of process
 	 */
-	protected void startExternalProcessPrinter() {
+	protected void startExternalProcessPrinter(final int processIndex) {
 
-		if (output_printer == null || !output_printer.isAlive()) {
-			output_printer = new Thread() {
+		if (output_printers[processIndex] == null || !output_printers[processIndex].isAlive()) {
+			output_printers[processIndex] = new Thread() {
 				@Override
 				public void run() {
 					try {
 						BufferedReader proc_in = new BufferedReader(
-								new InputStreamReader(process.getInputStream()));
+								new InputStreamReader(processGroup[processIndex].getInputStream()));
 
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
@@ -428,16 +506,16 @@ public class ExternalProcessHandler {
 				}
 			};
 
-			output_printer.start();
+			output_printers[processIndex].start();
 		}
 
-		if (error_printer == null || !error_printer.isAlive()) {
-			error_printer = new Thread() {
+		if (error_printers[processIndex] == null || !error_printers[processIndex].isAlive()) {
+			error_printers[processIndex] = new Thread() {
 				@Override
 				public void run() {
 					try {
 						BufferedReader proc_in = new BufferedReader(
-								new InputStreamReader(process.getErrorStream()));
+								new InputStreamReader(processGroup[processIndex].getErrorStream()));
 
 						int data = 0;
 						String errorLine ="";
@@ -475,7 +553,7 @@ public class ExternalProcessHandler {
 				}
 			};
 
-			error_printer.start();
+			error_printers[processIndex].start();
 		}
 
 		if (Properties.SHOW_PROGRESS  && 
@@ -494,12 +572,15 @@ public class ExternalProcessHandler {
 	 * <p>
 	 * startExternalProcessMessageHandler
 	 * </p>
+	 *
+	 * @param processIndex
+	 *         index of process
 	 */
-	protected void startExternalProcessMessageHandler() {
-		if (message_handler != null && message_handler.isAlive())
+	protected void startExternalProcessMessageHandler(final int processIndex) {
+		if (message_handlers[processIndex] != null && message_handlers[processIndex].isAlive())
 			return;
 
-		message_handler = new Thread() {
+		message_handlers[processIndex] = new Thread() {
 			@Override
 			public void run() {
 				boolean read = true;
@@ -532,20 +613,20 @@ public class ExternalProcessHandler {
 					if (message.equals(Messages.FINISHED_COMPUTATION)) {
 						LoggingUtils.getEvoLogger().info("* Computation finished");
 						read = false;
-						killProcess();
+						killProcess(processIndex);
 						final_result = data;
-						latch.countDown();
+						latches[processIndex].countDown();
 					} else if (message.equals(Messages.NEED_RESTART)) {
 						//now data represent the current generation
 						LoggingUtils.getEvoLogger().info("* Restarting client process");
-						killProcess();
+						killProcess(processIndex);
 						/*
 						 * TODO: this will need to be changed, to take into account
 						 * a possible reduced budget
 						 */
-						startProcess(last_command, data);
+						startProcess(last_commands[processIndex], processIndex, data);
 					} else {
-						killProcess();
+						killProcess(processIndex);
 						logger.error("Class " + Properties.TARGET_CLASS
 								+ ". Error, received invalid message: ", message);
 						return;
@@ -553,15 +634,16 @@ public class ExternalProcessHandler {
 				}
 			}
 		};
-		message_handler.start();
+		message_handlers[processIndex].start();
 	}
 
 	/**
-	 * <p>
-	 * startSignalHandler
-	 * </p>
+	 * Starts the signal handler for process with given index.
+	 *
+	 * @param processIndex
+	         index of process
 	 */
-	protected void startSignalHandler() {
+	protected void startSignalHandler(final int processIndex) {
 		Signal.handle(new Signal("INT"), new SignalHandler() {
 
 			private boolean interrupted = false;
@@ -572,8 +654,8 @@ public class ExternalProcessHandler {
 					System.exit(0);
 				try {
 					interrupted = true;
-					if (process != null)
-						process.waitFor();
+					if (processGroup[processIndex] != null)
+						processGroup[processIndex].waitFor();
 				} catch (InterruptedException e) {
 					logger.warn("",e);
 				}
@@ -595,21 +677,35 @@ public class ExternalProcessHandler {
 
 		try {
 			long start = System.currentTimeMillis();
-			Set<ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(timeout);
+			Map<String, ClientNodeRemote> clients = MasterServices.getInstance()
+                                    .getMasterNode().getClientsOnceAllConnected(timeout);
 			if(clients==null){
 				logger.error("Could not access client process");
 				return TestGenerationResultBuilder.buildErrorResult("Could not access client process");
 			}
 
-			for(ClientNodeRemote client : clients){
+			for (Entry<String, ClientNodeRemote> entry : clients.entrySet()) {
 				long passed = System.currentTimeMillis() - start;
 				long remaining = timeout - passed;
 				if(remaining <=0 ){ remaining = 1;}
-				boolean finished = client.waitUntilFinished(remaining);
+				boolean finished = false;
+				ClientState clientState = MasterServices.getInstance().getMasterNode().getCurrentState(entry.getKey());
+
+				if (!clientState.equals(ClientState.FINISHED)) {
+					try {
+						finished = entry.getValue().waitUntilFinished(remaining);
+					} catch (ConnectException e) {
+						logger.warn("Failed to connect to client. Client with id " + entry.getKey()
+								+ " is already finished.");
+						finished = true;
+					}
+				} else {
+					finished = true;
+				}
 
 				if(!finished){
 					/*
-					 * TODO what to do here? Try to stop the the client through RMI?
+					 * TODO what to do here? Try to stop the client through RMI?
 					 * Or check in which state it is, and based on that decide if giving more time?
 					 */
 					logger.error("Class "+ Properties.TARGET_CLASS+". Clients have not finished yet, although a timeout occurred.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses());
@@ -620,16 +716,24 @@ public class ExternalProcessHandler {
 
 			String msg = "Class "+ Properties.TARGET_CLASS+". Lost connection with clients.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses();
 
-			if(didClientJVMCrash()){
-				String err = getAndDeleteHsErrFile();
-				msg += "The JVM of the client process crashed:\n"+err;
-				logger.error(msg);
-			} else {
+			boolean crashOccurred = false;
+			for (int i = 0; i < processGroup.length; i++) {
+				if(didClientJVMCrash(i)){
+					String err = getAndDeleteHsErrFile(i);
+					String clientMsg = "The JVM of the client process crashed:\n"+err;
+					logger.error(clientMsg);
+					crashOccurred = true;
+				}
+			}
+
+			if (crashOccurred) {
 				logger.error(msg, e);
 			}
 		}
 
-		killProcess();
+		for (int i = 0; i < processGroup.length; i++) {
+			killProcess(i);
+		}
 		LoggingUtils.getEvoLogger().info("* Computation finished");
 
 		return null; //TODO refactoring

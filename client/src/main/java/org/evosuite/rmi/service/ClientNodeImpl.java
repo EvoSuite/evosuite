@@ -23,7 +23,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -31,6 +36,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.list.SynchronizedList;
+
+import org.evosuite.*;
 import org.evosuite.Properties;
 import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.TestGenerationContext;
@@ -48,6 +56,7 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.FileIOUtils;
@@ -86,25 +95,28 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	protected Registry registry;
 
+    protected final Collection<Listener<Set<? extends Chromosome>>> listeners = Collections.synchronizedList(
+                                                    new ArrayList<Listener<Set<? extends Chromosome>>>());
+	
 	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
 
 	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
 
+	private Collection<Set<? extends Chromosome>> bestSolutions;
+	
 	private Thread statisticsThread; 
 
 	//only for testing
 	protected ClientNodeImpl() {
 	}
 
-	public ClientNodeImpl(Registry registry) {
+	public ClientNodeImpl(Registry registry, String identifier) {
 		this.registry = registry;
 		state = ClientState.NOT_STARTED;
-		/*
-		 * TODO: for now it is a constant because we have only one client
-		 */
-		clientRmiIdentifier = "ClientNode";
+		clientRmiIdentifier = identifier;
 		doneLatch = new CountDownLatch(1);
 		finishedLatch = new CountDownLatch(1);
+		this.bestSolutions = Collections.synchronizedList(new ArrayList<Set<? extends Chromosome>>(Properties.NUM_PARALLEL_CLIENTS));
 	}
 
 	private static class OutputVariable {
@@ -199,15 +211,35 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		}
 	}
 
-	@Override
+    @Override
+    public void emigrate(Set<? extends Chromosome> immigrants) {
+        try {
+            logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + immigrants.size() + " immigrants");
+            masterNode.evosuite_migrate(clientRmiIdentifier, immigrants);
+        } catch (RemoteException e) {
+            logger.error(ClientProcess.getPrettyPrintIdentifier() + "Cannot send immigrating individuals to master", e);
+        }
+    }
+
+    @Override
+    public void sendBestSolution(Set<? extends Chromosome> solutions) {
+        try {
+            logger.debug(ClientProcess.getPrettyPrintIdentifier() + "sending best solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
+            masterNode.evosuite_collectBestSolutions(clientRmiIdentifier, solutions);
+        } catch (RemoteException e) {
+            logger.error(ClientProcess.getPrettyPrintIdentifier() + "Cannot send best solution to master", e);
+        }
+    }
+
+    @Override
 	public void changeState(ClientState state) {
 		changeState(state, new ClientStateInformation(state));
 	}
 
 	@Override
-	public synchronized void changeState(ClientState state, ClientStateInformation information) {
+	public void changeState(ClientState state, ClientStateInformation information) {
 		if (this.state != state){
-			logger.info("Client changing state from " + this.state + " to " + state);
+			logger.info(ClientProcess.getPrettyPrintIdentifier() + "Client changing state from " + this.state + " to " + state);
 		}
 
 		this.state = state;
@@ -501,5 +533,55 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			}
 		});
 	}
+	
+    @Override
+    public void immigrate(Set<? extends Chromosome> migrants) throws RemoteException {
+        logger.debug(ClientProcess.getPrettyPrintIdentifier() + "receiving "
+                + (migrants != null ? migrants.size() : 0) + " immigrants");
+        fireEvent(migrants);
+    }
 
+    @Override
+    public void collectBestSolutions(Set<? extends Chromosome> solutions) throws RemoteException {
+        logger.debug(ClientProcess.getPrettyPrintIdentifier() + "added solution to set");
+        bestSolutions.add(solutions);
+    }
+
+    @Override
+    public void addListener(Listener<Set<? extends Chromosome>> listener) {
+	    listeners.add(listener);
+    }
+
+    @Override
+    public void deleteListener(Listener<Set<? extends Chromosome>> listener) {
+	    listeners.remove(listener);
+    }
+
+    /**
+     * Fires event to all registered listeners.
+     *
+     * @param event
+     *            the event to fire
+     */
+    private void fireEvent(Set<? extends Chromosome> event) {
+        for (Listener<Set<? extends Chromosome>> listener : listeners) {
+            listener.receiveEvent(event);
+        }
+    }
+
+    /**
+     * Returns collected solutions of all clients other than client 0. This method blocks until all solutions are 
+     * collected.
+     * 
+     * @return the list of collected best solutions or null if there is a timeout
+     */
+    public Set<Set<? extends Chromosome>> getBestSolutions() {
+        do {
+            if (bestSolutions.size() == (Properties.NUM_PARALLEL_CLIENTS - 1)) {
+                return new HashSet<Set<? extends Chromosome>>(bestSolutions);
+            }
+        } while (finishedLatch.getCount() != 0);
+        
+        return null;
+    }
 }

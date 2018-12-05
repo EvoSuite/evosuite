@@ -46,9 +46,11 @@ import org.evosuite.ga.operators.crossover.UniformCrossOver;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
+import org.evosuite.ga.operators.selection.BestKSelection;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.RandomKSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.operators.selection.TournamentSelection;
 import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
@@ -241,6 +243,10 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		    return new BinaryTournamentSelectionCrowdedComparison<>();
 		case RANK_CROWD_DISTANCE_TOURNAMENT:
 		    return new TournamentSelectionRankAndCrowdingDistanceComparator<>();
+		case BESTK:
+			return new BestKSelection<>();
+		case RANDOMK:
+			return new RandomKSelection<>();
 		default:
 			return new RankSelection<>();
 		}
