@@ -1,12 +1,28 @@
 package org.evosuite.ga.metaheuristics;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.assertion.Inspector;
+import org.evosuite.assertion.InspectorManager;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.runtime.RuntimeSettings;
+import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionObserver;
+import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +41,51 @@ import org.slf4j.LoggerFactory;
  */
 public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
 
+  private class TestResultObserver extends ExecutionObserver {
+
+    @Override
+    public void output(int position, String output) {
+      // Do nothing
+    }
+
+    @Override
+    public void beforeStatement(Statement statement, Scope scope) {
+      // Do nothing
+      
+    }
+
+    @Override
+    public void afterStatement(Statement statement, Scope scope, Throwable exception) {
+      // Do nothing
+    }
+
+    @Override
+    public void testExecutionFinished(ExecutionResult result, Scope scope) {
+      // TODO Auto-generated method stub
+      for(Object instance : scope.getObjects(targetClass)) {
+        
+        /*
+         *  TODO Inspectors are stored in an ArrayList and therefore the order does not seem to change.
+         *  Using it this way might prove problematic since that is an implementation detail.
+         */
+        
+        Object[] featureVector = inspectors.stream().map(inspector -> {
+          try {
+            return inspector.getValue(instance);
+          } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+          }
+        }).toArray();
+      }
+    }
+
+    @Override
+    public void clear() {
+      // TODO Auto-generated method stub
+      
+    }
+  }
+  
   /**
    * Serial version UID
    */
@@ -32,18 +93,26 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
+  // TODO Replace this with a proper archive.
   private Map<Object, T> populationMap;
+  
+  private final Class<?> targetClass;
+  private final List<Inspector> inspectors;
 
   public MAPElites(ChromosomeFactory<T> factory) {
-    super(factory);
+    super(factory); 
     this.populationMap = new HashMap<>();
+    this.targetClass = getTargetClass();
+    
+    TestCaseExecutor.getInstance().addObserver(new TestResultObserver());
+    
+    this.inspectors = InspectorManager.getInstance().getInspectors(this.targetClass);
   }
 
   @Override
   protected void evolve() {
     T chromosome = Randomness.choice(population);
 
-    // TODO Can also use crossover!
     notifyMutation(chromosome);
     chromosome.mutate();
 
@@ -76,11 +145,28 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
     // Determine fitness
     calculateFitness();
 
+    for(T chromosome : this.population) {
+      TestCase testCase = ((TestChromosome)chromosome).getTestCase();
+      // TODO size vs sizeWithAssertions
+      List<VariableReference> refs = testCase.getObjects(this.targetClass, testCase.size());
+      
+      // TODO Obtain scope! (ExecutionObserver?)
+      testCase.getObject(refs.get(0), null);
+    }
     // TODO Feature descriptor
 
     // TODO Store
 
     this.notifyIteration();
+  }
+  
+  private Class<?> getTargetClass() {
+    try {
+      return TestGenerationContext.getInstance()
+          .getClassLoaderForSUT().loadClass(RuntimeSettings.className);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
