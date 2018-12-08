@@ -22,6 +22,7 @@ package org.evosuite.rmi.service;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.ga.Chromosome;
@@ -55,4 +56,8 @@ public interface MasterNodeRemote extends Remote {
 	public void evosuite_flushStatisticsForClassChange(String clientRmiIdentifier) throws RemoteException;
 
 	public void evosuite_updateProperty(String clientRmiIdentifier, String propertyName, Object value) throws RemoteException, IllegalArgumentException, IllegalAccessException, NoSuchParameterException;
+	
+	public void evosuite_migrate(String clientRmiIdentifier, Set<? extends Chromosome> migrants) throws RemoteException;
+
+    public void evosuite_collectBestSolutions(String clientRmiIdentifier, Set<? extends Chromosome> solutions) throws RemoteException;
 }

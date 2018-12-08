@@ -19,6 +19,7 @@
  */
 package org.evosuite.strategy;
 
+import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
@@ -85,7 +86,8 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// executed with -prefix!
 		
 //		List<TestFitnessFunction> goals = getGoals(true);
-		LoggingUtils.getEvoLogger().info("* Total number of test goals for {}: {}", Properties.ALGORITHM.name(), fitnessFunctions.size());
+		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Total number of test goals for {}: {}",
+				Properties.ALGORITHM.name(), fitnessFunctions.size());
 		
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
@@ -106,15 +108,15 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 		if (!(Properties.STOP_ZERO && fitnessFunctions.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)) {
 			// Perform search
-			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed());
-			LoggingUtils.getEvoLogger().info("* Starting evolution");
+			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Using seed {}", Randomness.getSeed());
+			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
 			algorithm.generateSolution();
 
 			testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
 			if (testSuite.getTestChromosomes().isEmpty()) {
-				LoggingUtils.getEvoLogger().warn("Could not generate any test case");
+				LoggingUtils.getEvoLogger().warn(ClientProcess.getPrettyPrintIdentifier() + "Could not generate any test case");
 			}
 		} else {
 			zeroFitness.setFinished();
@@ -134,7 +136,7 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 			LoggingUtils.getEvoLogger().info("");
 		
 		String text = " statements, best individual has fitness: ";
-		LoggingUtils.getEvoLogger().info("* Search finished after "
+		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Search finished after "
 				+ (endTime - startTime)
 				+ "s and "
 				+ algorithm.getAge()

@@ -33,6 +33,7 @@ import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
+import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.OnePlusLambdaLambdaGA;
@@ -45,9 +46,11 @@ import org.evosuite.ga.operators.crossover.UniformCrossOver;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
+import org.evosuite.ga.operators.selection.BestKSelection;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
 import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.RandomKSelection;
 import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.ga.operators.selection.TournamentSelection;
 import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
@@ -197,6 +200,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case MOSA:
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);
+        case DYNAMOSA:
+        	logger.info("Chosen search algorithm: DynaMOSA");
+            return new DynaMOSA<TestSuiteChromosome>(factory);
         case ONE_PLUS_LAMBDA_LAMBDA_GA:
             logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
             {
@@ -237,6 +243,10 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		    return new BinaryTournamentSelectionCrowdedComparison<>();
 		case RANK_CROWD_DISTANCE_TOURNAMENT:
 		    return new TournamentSelectionRankAndCrowdingDistanceComparator<>();
+		case BESTK:
+			return new BestKSelection<>();
+		case RANDOMK:
+			return new RandomKSelection<>();
 		default:
 			return new RankSelection<>();
 		}

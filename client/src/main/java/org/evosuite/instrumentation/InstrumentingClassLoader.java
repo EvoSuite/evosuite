@@ -126,48 +126,50 @@ public class InstrumentingClassLoader extends ClassLoader {
 	
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-
-		ClassLoader dbLoader = DBManager.getInstance().getSutClassLoader();
-		if(dbLoader != null && dbLoader != this && !isRegression) {
-			/*
-				Check if we should rather use the class version loaded when the DB was initialized.
-				This is tricky, as JPA with Hibernate uses the classes loaded when the DB was initialized.
-				If we load those classes again, when we get all kinds of exceptions in Hibernate... :(
-
-				However, re-using already loaded (and instrumented) classes is not a big deal, as
-				re-loading is (so far) done only in 2 cases: assertion generation with mutation
-				and junit checks.
-			 */
-			Class<?> originalLoaded = dbLoader.loadClass(name);
-			if (originalLoaded.getAnnotation(Entity.class) != null) {
-			/*
-				TODO: annotations Entity might not be the only way to specify an entity class...
-			 */
-				return originalLoaded;
-			}
-		}
-
-		if("<evosuite>".equals(name)) {
-			throw new ClassNotFoundException();
-		}
-
-		if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
-			Class<?> result = findLoadedClass(name);
-			if (result != null) {
-				return result;
-			}
-			result = classLoader.loadClass(name);
-			return result;
-		}
-
-		Class<?> result = classes.get(name);
-		if (result != null) {
-			return result;
-		} else {
-			logger.info("Seeing class for first time: " + name);
-			Class<?> instrumentedClass = instrumentClass(name);
-			return instrumentedClass;
-		}
+        synchronized(getClassLoadingLock(name)) {
+            ClassLoader dbLoader = DBManager.getInstance().getSutClassLoader();
+            if (dbLoader != null && dbLoader != this && !isRegression) {
+                /*
+                    Check if we should rather use the class version loaded when the DB was initialized.
+                    This is tricky, as JPA with Hibernate uses the classes loaded when the DB was initialized.
+                    If we load those classes again, when we get all kinds of exceptions in Hibernate... :(
+    
+                    However, re-using already loaded (and instrumented) classes is not a big deal, as
+                    re-loading is (so far) done only in 2 cases: assertion generation with mutation
+                    and junit checks.
+                 */
+                Class<?> originalLoaded = dbLoader.loadClass(name);
+                if (originalLoaded.getAnnotation(Entity.class) != null) {
+                /*
+                    TODO: annotations Entity might not be the only way to specify an entity class...
+                 */
+                    return originalLoaded;
+                }
+            }
+    
+            if ("<evosuite>".equals(name)) {
+                throw new ClassNotFoundException();
+            }
+    
+            if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
+                Class<?> result = findLoadedClass(name);
+                if (result != null) {
+                    return result;
+                }
+                result = classLoader.loadClass(name);
+                return result;
+            }
+    
+            Class<?> result = classes.get(name);
+            if (result != null) {
+                return result;
+            } else {
+                logger.info("Seeing class for first time: " + name);
+                Class<?> instrumentedClass = instrumentClass(name);
+                return instrumentedClass;
+            }
+            
+        }
 	}
 
 	//This is needed, as it is overridden in subclasses

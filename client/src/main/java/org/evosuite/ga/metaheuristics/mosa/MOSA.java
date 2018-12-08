@@ -21,15 +21,26 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.evosuite.ClientProcess;
+import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
+import org.evosuite.ga.operators.selection.BestKSelection;
+import org.evosuite.ga.operators.selection.RandomKSelection;
+import org.evosuite.ga.operators.selection.RankSelection;
+import org.evosuite.ga.operators.selection.SelectionFunction;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +56,11 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
 
+	/** immigrant groups from neighbouring client */
+	private ConcurrentLinkedQueue<List<T>> immigrants = new ConcurrentLinkedQueue<>();
+
+	private SelectionFunction<T> emigrantsSelection;
+
 	/** Crowding distance measure to use */
 	protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
 
@@ -54,6 +70,17 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 */
 	public MOSA(ChromosomeFactory<T> factory) {
 		super(factory);
+
+		switch (Properties.EMIGRANT_SELECTION_FUNCTION) {
+			case RANK:
+				this.emigrantsSelection = new RankSelection<>();
+				break;
+			case RANDOMK:
+				this.emigrantsSelection = new RandomKSelection<>();
+				break;
+			default:
+				this.emigrantsSelection = new BestKSelection<>();
+		}
 	}
 
 	/**
@@ -67,6 +94,11 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		List<T> union = new ArrayList<T>();
 		union.addAll(this.population);
 		union.addAll(offspringPopulation);
+
+		// for parallel runs: integrate possible immigrants
+		if (Properties.NUM_PARALLEL_CLIENTS > 1 && !immigrants.isEmpty()) {
+			union.addAll(immigrants.poll());
+		}
 
 		Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
 
@@ -109,6 +141,15 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 			remain = 0;
 		}
+
+		// for parallel runs: collect best k individuals for migration
+		if (Properties.NUM_PARALLEL_CLIENTS > 1 && Properties.MIGRANTS_ITERATION_FREQUENCY > 0) {
+			if ((currentIteration + 1) % Properties.MIGRANTS_ITERATION_FREQUENCY == 0 && !this.population.isEmpty()) {
+				HashSet<T> emigrants = new HashSet<>(emigrantsSelection.select(this.population, Properties.MIGRANTS_COMMUNICATION_RATE));
+				ClientServices.getInstance().getClientNode().emigrate(emigrants);
+			}
+		}
+
 		this.currentIteration++;
 	}
 
@@ -120,7 +161,7 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		logger.info("executing generateSolution function");
 
 		// keep track of covered goals
-		this.fitnessFunctions.forEach(goal -> this.addUncoveredGoal(goal));
+		this.fitnessFunctions.forEach(this::addUncoveredGoal);
 
 		// initialize population
 		if (this.population.isEmpty()) {
@@ -133,15 +174,49 @@ public class MOSA<T extends Chromosome> extends AbstractMOSA<T> {
 			this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
 		}
 
-		// TODO add here dynamic stopping condition
+		Listener<Set<? extends Chromosome>> listener = null;
+		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
+			listener = new Listener<Set<? extends Chromosome>>() {
+				@Override
+				public void receiveEvent(Set<? extends Chromosome> event) {
+					immigrants.add(new LinkedList<T>((Set<? extends T>) event));
+				}
+			};
+			ClientServices.getInstance().getClientNode().addListener(listener);
+		}
 
+		// TODO add here dynamic stopping condition
 		while (!this.isFinished() && this.getNumberOfUncoveredGoals() > 0) {
 			this.evolve();
 			this.notifyIteration();
 		}
 
+		if (Properties.NUM_PARALLEL_CLIENTS > 1) {
+			ClientServices.getInstance().getClientNode().deleteListener(listener);
+
+			if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.getIdentifier())) {
+				//collect all end result test cases
+				Set<Set<? extends Chromosome>> collectedSolutions = ClientServices.getInstance()
+					.getClientNode().getBestSolutions();
+
+				logger.debug(ClientProcess.DEFAULT_CLIENT_NAME + ": Received " + collectedSolutions.size() + " solution sets");
+				for (Set<? extends Chromosome> solution : collectedSolutions) {
+					for (Chromosome t : solution) {
+						this.calculateFitness((T) t);
+					}
+				}
+			} else {
+				//send end result test cases to Client-0
+				Set<T> solutionsSet = new HashSet<T>(getSolutions());
+				logger.debug(ClientProcess.getPrettyPrintIdentifier() + "Sending " + solutionsSet.size()
+											+ " solutions to " + ClientProcess.DEFAULT_CLIENT_NAME);
+				ClientServices.getInstance().getClientNode().sendBestSolution(solutionsSet);
+			}
+		}
+
 		// storing the time needed to reach the maximum coverage
-		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage, this.budgetMonitor.getTime2MaxCoverage());
+		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
+                this.budgetMonitor.getTime2MaxCoverage());
 		this.notifySearchFinished();
 	}
 }
