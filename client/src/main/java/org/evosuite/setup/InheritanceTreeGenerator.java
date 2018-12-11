@@ -30,6 +30,7 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.evosuite.ClientProcess;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -69,12 +70,13 @@ public class InheritanceTreeGenerator {
 		if (!Properties.INSTRUMENT_CONTEXT && !Properties.INHERITANCE_FILE.isEmpty()) {
 			try {
 				InheritanceTree tree = readInheritanceTree(Properties.INHERITANCE_FILE);
-				LoggingUtils.getEvoLogger().info("* Inheritance tree loaded from {}",
-				                                 Properties.INHERITANCE_FILE);
+				LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() +
+				                                 "Inheritance tree loaded from {}", Properties.INHERITANCE_FILE);
 				return tree;
 
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().warn("* Error loading inheritance tree: {}", e);
+				LoggingUtils.getEvoLogger().warn("* " + ClientProcess.getPrettyPrintIdentifier() +
+				                                 "Error loading inheritance tree: {}", e);
 			}
 		}
 		

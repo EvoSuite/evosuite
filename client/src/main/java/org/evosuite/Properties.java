@@ -296,6 +296,14 @@ public class Properties {
 	@DoubleValue(min = 1)
 	public static int FUNCTIONAL_MOCKING_INPUT_LIMIT = 5;
 
+	@Parameter(key = "num_parallel_clients", group = "Test Creation", description = "Number of EvoSuite clients to run in parallel")
+	public static int NUM_PARALLEL_CLIENTS = 1;
+
+	@Parameter(key = "migrants_iteration_frequency", group = "Test Creation", description = "Determines amount of iterations between sending migrants to other client (-1 to disable any iterations between clients)")
+	public static int MIGRANTS_ITERATION_FREQUENCY = 2;
+
+	@Parameter(key = "migrants_communication_rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
+	public static int MIGRANTS_COMMUNICATION_RATE = 3;
 
 	// ---------------------------------------------------------------
 	// Search algorithm
@@ -307,7 +315,7 @@ public class Properties {
 		// mu-lambda
 		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
 		// many-objective algorithms
-		MOSA, LIPS, MIO,
+		MOSA, DYNAMOSA, LIPS, MIO,
 		// multiple-objective optimisation algorithms
 		NSGAII, SPEA2
 	}
@@ -619,11 +627,14 @@ public class Properties {
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
 
 	public enum SelectionFunction {
-		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT
+		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT, BESTK, RANDOMK
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
 	public static SelectionFunction SELECTION_FUNCTION = SelectionFunction.RANK;
+
+	@Parameter(key = "emigrant_selection_function", group = "Search Algorithm", description = "Selection function for emigrant selection during search")
+	public static SelectionFunction EMIGRANT_SELECTION_FUNCTION = SelectionFunction.RANDOMK;
 
 	public enum MutationProbabilityDistribution {
 		UNIFORM, BINOMIAL

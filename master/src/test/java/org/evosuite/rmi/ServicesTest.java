@@ -52,7 +52,7 @@ public class ServicesTest {
 		Properties.PROCESS_COMMUNICATION_PORT = master.getRegistryPort();
 		
 		ClientServices clients = new ClientServices();
-		clients.registerServices();
+		clients.registerServices("ClientNode");
 		
 		ClientNodeLocal clientNode = clients.getClientNode();
 		clientNode.changeState(ClientState.STARTED);

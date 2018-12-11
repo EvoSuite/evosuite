@@ -43,7 +43,29 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	private final String methodName;
 	private final Integer instructionID;
 
-	protected final List<BranchCoverageTestFitness> branchFitnesses;
+	protected final List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+
+	protected transient BytecodeInstruction goalInstruction;
+
+	/**
+	 * <p>
+	 * Constructor for StatementCoverageTestFitness.
+	 * </p>
+	 * 
+	 * @param goalInstruction
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
+	public StatementCoverageTestFitness(BytecodeInstruction goalInstruction) {
+		if (goalInstruction == null) {
+			throw new IllegalArgumentException("null given");
+		}
+
+		this.className = goalInstruction.getClassName();
+		this.methodName = goalInstruction.getMethodName();
+		this.instructionID = goalInstruction.getInstructionId();
+
+		this.setupDependencies(goalInstruction);
+	}
 
 	/**
 	 * <p>
@@ -62,16 +84,15 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		this.methodName = methodName;
 		this.instructionID = instructionID;
 
-		this.branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
-		this.setupDependencies();
-	}
-
-	private void setupDependencies() {
 		BytecodeInstruction goalInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().
 		    getClassLoaderForSUT()).getInstruction(this.className, this.methodName, this.instructionID);
+		this.setupDependencies(goalInstruction);
+	}
+
+	private void setupDependencies(BytecodeInstruction goalInstruction) {
+		this.goalInstruction = goalInstruction;
 
 		Set<ControlDependency> cds = goalInstruction.getControlDependencies();
-
 		for (ControlDependency cd : cds) {
 			BranchCoverageTestFitness fitness = BranchCoverageFactory.createBranchCoverageTestFitness(cd);
 
@@ -187,6 +208,10 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		    this.getTargetMethod().hashCode() * iConst + this.instructionID * iConst;
 	}
 
+	public List<BranchCoverageTestFitness> getBranchFitnesses() {
+		return branchFitnesses;
+	}
+
 	@Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -220,5 +245,9 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public String getTargetMethod() {
 		return this.methodName;
+	}
+
+	public BytecodeInstruction getGoalInstruction() {
+		return this.goalInstruction;
 	}
 }
