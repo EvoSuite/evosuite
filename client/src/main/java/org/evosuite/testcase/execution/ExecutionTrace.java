@@ -348,6 +348,8 @@ public interface ExecutionTrace {
 	 */
 	public void definitionPassed(Object object, Object caller, int defID);
 
+	public void definitionFeature(int object, Object caller, int defID);
+
 	/**
 	 * Add a new method call to stack
 	 * 

@@ -115,6 +115,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		trace.definitionPassed(object, caller, defID);
 	}
 
+	@Override
+	public void definitionFeature(int object, Object caller, int defID) {
+		trace.definitionFeature(object, caller, defID);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

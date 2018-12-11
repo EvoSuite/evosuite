@@ -178,6 +178,8 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.BranchCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
+            case NOVELTY:
+                return RuntimeVariable.BranchCoverage;
             default:
                 throw new RuntimeException("Criterion not supported: " + criterion);
 

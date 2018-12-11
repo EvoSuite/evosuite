@@ -31,12 +31,9 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.instrumentation.coverage.*;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
 import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
-import org.evosuite.instrumentation.coverage.BranchInstrumentation;
-import org.evosuite.instrumentation.coverage.DefUseInstrumentation;
-import org.evosuite.instrumentation.coverage.MethodInstrumentation;
-import org.evosuite.instrumentation.coverage.MutationInstrumentation;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
@@ -176,7 +173,11 @@ public class CFGMethodAdapter extends MethodVisitor {
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new MutationInstrumentation());
-			} else {
+			}else if(ArrayUtil.contains(Properties.CRITERION, Criterion.NOVELTY)){
+				instrumentations.add(new BranchInstrumentation());
+				instrumentations.add(new FeatureInstrumentation());
+			}
+			else {
 				instrumentations.add(new BranchInstrumentation());
 			}
 		} else {

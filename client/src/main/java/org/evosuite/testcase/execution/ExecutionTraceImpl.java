@@ -19,33 +19,21 @@
  */
 package org.evosuite.testcase.execution;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.dataflow.DefUse;
-import org.evosuite.coverage.dataflow.DefUsePool;
-import org.evosuite.coverage.dataflow.Definition;
-import org.evosuite.coverage.dataflow.Use;
+import org.evosuite.coverage.dataflow.*;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Keep a trace of the program execution
@@ -676,6 +664,22 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		// logger.trace(duCounter+": set active definition for var
 		// "+def.getDUVariableName()+" on object "+objectID+" to Def "+defID);
 		duCounter++;
+	}
+
+	@Override
+	public void definitionFeature(int object, Object caller, int defID) {
+
+		/*if (!traceCalls) {
+			return;
+		}*/
+		FeatureFactory.updateFeature(object, defID);
+		/*Definition def = DefUsePool.getDefinitionByDefId(defID);
+		if (def == null) {
+			throw new IllegalStateException("expect DefUsePool to known defIDs that are passed by instrumented code");
+		}
+		logger.error("Def : "+def.toString());*/
+		logger.error("Value : "+object+ " caller object : "+caller+" def Id : "+defID);
+
 	}
 
 	/**
