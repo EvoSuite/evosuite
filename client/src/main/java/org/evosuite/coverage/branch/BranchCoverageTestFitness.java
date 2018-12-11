@@ -27,6 +27,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.MethodCall;
+import org.evosuite.utils.ArrayUtil;
 
 /**
  * Fitness function for a single test on a single branch
@@ -174,7 +175,11 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		}
 
 		if (Properties.TEST_ARCHIVE) {
-			Archive.getArchiveInstance().updateArchive(this, individual, fitness);
+			// the next if condition is needed for DynaMOSA when branch coverage is not
+			// set as coverage criterion to optimize. However, branches are
+			// the backbone for all other criteria and thus they are always used in DynaMOSA
+			if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.BRANCH))
+				Archive.getArchiveInstance().updateArchive(this, individual, fitness);
 		}
 
 		return fitness;

@@ -59,7 +59,7 @@ public abstract class StructuralGoalManager<T extends Chromosome> {
 
 	/**
 	 * Update the set of covered goals and the set of current goals (actual objectives)
-	 * @param population list of TestChromosome
+	 * @param c a TestChromosome
 	 * @return covered goals along with the corresponding test case
 	 */
 	public abstract void calculateFitness(T c);
@@ -128,6 +128,14 @@ public abstract class StructuralGoalManager<T extends Chromosome> {
 
 	public Set<T> getArchive(){
 		return this.archive.keySet();
+	}
+
+	public int getNumberOfCoveredTargets(Class<?> targetClass) {
+		return (int) this.coveredGoals.keySet().stream().filter(target -> target.getClass() == targetClass).count();
+	}
+
+	public int getNumberOfUncoveredTargets(Class<?> targetClass) {
+		return (int) this.uncoveredGoals.stream().filter(target -> target.getClass() == targetClass).count();
 	}
 
 }

@@ -25,6 +25,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -38,7 +39,7 @@ import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.runtime.util.JavaExecCmdUtil;
 import org.evosuite.statistics.SearchStatistics;
-import org.evosuite.utils.ExternalProcessHandler;
+import org.evosuite.utils.ExternalProcessGroupHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +99,7 @@ public class MeasureCoverage {
 
 		classPath += !classPath.isEmpty() ? File.pathSeparator + projectCP : projectCP;
 
-		ExternalProcessHandler handler = new ExternalProcessHandler();
+		ExternalProcessGroupHandler handler = new ExternalProcessGroupHandler();
 		int port = handler.openServer();
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(JavaExecCmdUtil.getJavaBinExecutablePath(true)/*EvoSuite.JAVA_CMD*/);
@@ -165,7 +166,8 @@ public class MeasureCoverage {
 		if (handler.startProcess(newArgs)) {
 			Set<ClientNodeRemote> clients = null;
 			try {
-				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
+				clients = new CopyOnWriteArraySet<ClientNodeRemote>(MasterServices.getInstance().getMasterNode()
+                                .getClientsOnceAllConnected(10000).values());
 			} catch (InterruptedException e) {
 			}
 			if (clients == null) {

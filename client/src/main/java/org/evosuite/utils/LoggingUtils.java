@@ -167,7 +167,7 @@ public class LoggingUtils {
 									/*
 									 * FIXME: this can happen if client dies or is stopped by master with "destroy" in Windows. It is not a big problem,
 									 * but anyway how we stop clients will need to be refactored.
-									 * It can also happen if client just crash. As we already report such info in ExternalProcessHandler, we do not need to
+									 * It can also happen if client just crash. As we already report such info in ExternalProcessGroupHandler, we do not need to
 									 * log it here
 									 */
 								} catch (java.io.UTFDataFormatException utfe) {
