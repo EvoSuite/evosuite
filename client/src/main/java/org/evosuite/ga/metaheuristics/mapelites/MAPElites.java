@@ -1,4 +1,4 @@
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.ga.metaheuristics.mapelites;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -12,6 +12,7 @@ import org.evosuite.assertion.Inspector;
 import org.evosuite.assertion.InspectorManager;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
@@ -41,6 +42,8 @@ import org.slf4j.LoggerFactory;
  */
 public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
 
+  //private Map<TestCase, >
+  
   private class TestResultObserver extends ExecutionObserver {
 
     @Override
@@ -58,15 +61,21 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
     public void afterStatement(Statement statement, Scope scope, Throwable exception) {
       // Do nothing
     }
-
+    
     @Override
     public void testExecutionFinished(ExecutionResult result, Scope scope) {
-      // TODO Auto-generated method stub
       for(Object instance : scope.getObjects(targetClass)) {
         
+    
         /*
          *  TODO Inspectors are stored in an ArrayList and therefore the order does not seem to change.
          *  Using it this way might prove problematic since that is an implementation detail.
+         *  
+         *  Sort by alphabet
+         */
+        //result.test
+        /*
+         * Store vector in execution result
          */
         
         Object[] featureVector = inspectors.stream().map(inspector -> {
@@ -127,6 +136,10 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
   private void storeIfBetter(T chromosome) {
     // TODO Feature descriptor
     Object featureDesc = null;
+    
+    /*
+     * Branchcoveragefactory (MOSA)
+     */
 
     T existing = this.populationMap.get(featureDesc);
     if (null == existing || existing.getFitness() < chromosome.getFitness()) {
