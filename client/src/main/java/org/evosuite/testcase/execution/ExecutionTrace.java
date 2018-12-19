@@ -576,7 +576,15 @@ public interface ExecutionTrace {
      */
     void classInitialized(String classNameWithDots);
 
-    /**
+	/**
+	 * Return a map that contains the total number of execution for each conditional node;
+	 * The id of the branch is the key; the number of times a conditional node is seen it the value
+	 *
+	 * @return numberOfExecutionsPerBranch
+	 */
+	Map<Integer, Integer> getNoExecutionForConditionalNode();
+
+	/**
      * Returns the list (with no repetitions) following the order in which the
      * <clinit> method was finished during this test execution
      *

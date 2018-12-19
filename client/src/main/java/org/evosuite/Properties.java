@@ -329,8 +329,53 @@ public class Properties {
         FAST_NON_DOMINATED_SORTING
     }
 
-    @Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
-    public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
+	/** Code for performance indicators **/
+	public enum PerformanceIndicators {
+		TEST_LENGTH,
+		METHOD_CALL,
+		COVERED_METHOD_CALL,
+		OBJECTS_INSTANTIATIONS,
+		STATEMENTS_COUNTER,
+		STATEMENTS_COVERED,
+		LOOP_COUNTER
+	}
+
+	public enum DominanceSortingAlgorithm {
+		DOMINANCE,				// the standard dominance algorithm; it uses the fast non-dominate sorting algorithm
+		EPSILON_DOMINANCE,		// a variation of the classing dominance that consider the magnitude of the difference
+		FAST_DOMINANCE			// a faster dominance sorting, that does not use the fast non-dom. sorting algorithm
+	}
+
+	public enum PerformanceCombinationStrategy {
+		MIN_MAX,
+		SUM,
+		DOMINANCE
+	}
+
+	public enum PerformanceMOSAStrategy {
+		PREFERENCE_CRITERION,		// use the indicator instead of the test length
+		CROWDING_DISTANCE			// replace the crowding distance with the indicator comparison
+	}
+
+	@Parameter(key = "dominance_sorting", group = "Search Algorithm",
+			description = "The type of sorting algorithm to use when the combination criteria for performance " +
+					"indicators is the dominance")
+	public static DominanceSortingAlgorithm P_DOMINANCE_SORTING = DominanceSortingAlgorithm.DOMINANCE;
+
+	@Parameter(key = "performance_strategy", group = "Search Algorithm",
+			description = "Describe how the performance indicators should be included into the PerformanceMOSA algorithm")
+	public static PerformanceMOSAStrategy P_STRATEGY = PerformanceMOSAStrategy.PREFERENCE_CRITERION;
+
+	@Parameter(key = "performance_indicators", group = "Search Algorithm", description = "Secondary Objective to use in MOSA")
+	public static PerformanceIndicators[] MOSA_SECONDARY_OBJECTIVE = new PerformanceIndicators[] {
+			PerformanceIndicators.METHOD_CALL, PerformanceIndicators.COVERED_METHOD_CALL, PerformanceIndicators.OBJECTS_INSTANTIATIONS, PerformanceIndicators.STATEMENTS_COUNTER, PerformanceIndicators.STATEMENTS_COVERED, PerformanceIndicators.LOOP_COUNTER};
+
+	@Parameter(key = "performance_combination_strategy", group = "Search Algorithm",
+			description = "Strategy used to combine together the computer performance indicators")
+	public static PerformanceCombinationStrategy P_COMBINATION_STRATEGY = PerformanceCombinationStrategy.DOMINANCE;
+
+	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
+	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
     public enum MapElitesChoice {
         ALL,
@@ -2152,12 +2197,19 @@ public class Properties {
                             stringValue.toUpperCase());
                 }
 
-                f.set(this, criteria);
-            }
-        } else {
-            f.set(null, value);
-        }
-    }
+				f.set(this, criteria);
+			} else if (f.getType().getComponentType().equals(PerformanceIndicators.class)) {
+				String[] values = value.split(":");
+				PerformanceIndicators[] indicators = new PerformanceIndicators[values.length];
+				int pos = 0;
+				for (String stringValue : values)
+					indicators[pos++] = Enum.valueOf(PerformanceIndicators.class, stringValue.toUpperCase());
+				f.set(this, indicators);
+			}
+		} else {
+			f.set(null, value);
+		}
+	}
 
     /**
      * we need this strict function because Boolean.parseBoolean silently

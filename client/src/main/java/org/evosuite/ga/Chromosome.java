@@ -65,6 +65,11 @@ public abstract class Chromosome<T extends Chromosome<T>>
      */
     private final LinkedHashMap<FitnessFunction<T>, Double> fitnessValues = new LinkedHashMap<>();
 
+	/** List of perfomance indicator values **/
+	private LinkedHashMap<String, Double> indicatorValues = new LinkedHashMap<>();
+
+	/** Has this chromosome changed since its fitness was last evaluated? */
+	private boolean changed = true;
     /**
      * Previous fitness, to see if there was an improvement
      */
@@ -676,4 +681,98 @@ public abstract class Chromosome<T extends Chromosome<T>>
     public void increaseNumCollisionsByOne() {
         this.numCollisions++;
     }
+
+	/**
+	 * Returns the map for the performance indicators
+	 * @return the {@code indicatorValues} map
+	 */
+	public LinkedHashMap<String, Double> getIndicatorValues() {
+		return indicatorValues;
+	}
+	private double minMaxSum = 0;
+
+	/**
+	 * Sets the value for an indicator
+	 * @param indicator_id
+	 *          the id for the indicator
+	 * @param value
+	 *          the value for the indicator
+	 */
+	public void setIndicatorValues(String indicator_id, Double value) {
+		this.indicatorValues.put(indicator_id,value);
+	}
+
+	/**
+	 * Returns the value of a specific indicator
+	 * @param indicator_id
+	 * 			the if of the indicator
+	 * @return	the value for that indicator
+	 */
+	public double getIndicatorValue(String indicator_id) {
+		return this.indicatorValues.get(indicator_id);
+	}
+
+	/**
+	 * Only for testing purposes
+	 * @param map
+	 */
+	public void setIndicatorValues(LinkedHashMap<String, Double> map) { this.indicatorValues = map; }
+
+	/**
+	 * Returns the sum of the indicators normalized with min max
+	 */
+	public double getMinMaxSum() {
+		return minMaxSum;
+	}
+
+	/**
+	 * Sets the min max normalized sum for the indicators
+	 * @param minMaxSum	the normalized sum
+	 */
+	public void setMinMaxSum(double minMaxSum) {
+		this.minMaxSum = minMaxSum;
+	}
+
+	protected int performance_rank = 0;
+
+	/**
+	 * Return the performance rank (used to sort each rank regarding performance indicator)
+	 * @return
+	 * 		the performance rank
+	 */
+	public int getPerformance_rank() {
+		return performance_rank;
+	}
+
+	/**
+	 * Sets the performance rank for the non-dominance
+	 * @param performance_rank
+	 */
+	public void setPerformance_rank(int performance_rank) {
+		this.performance_rank = performance_rank;
+	}
+
+	/**
+	 * The score used by the preference criterion, combining all the the performance indicators,
+	 * according to a specific combination strategy, into a single scalar value
+	 */
+	private double performanceScore = 0;
+
+	/**
+	 * Returns the performance score
+	 * @return
+	 * 		the performance score
+	 */
+	public double getPerformanceScore() {
+		return performanceScore;
+	}
+
+	/**
+	 * Sets the performance score for this solution
+	 * @param performanceScore
+	 * 			the score to set
+	 */
+	public void setPerformanceScore(double performanceScore) {
+		this.performanceScore = performanceScore;
+	}
 }

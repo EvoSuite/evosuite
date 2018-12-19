@@ -194,6 +194,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
     public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections
             .synchronizedMap(new HashMap<>());
 
+	// Needed for performance indicator;
+	public Map<Integer, Integer> numberOfExecutionsPerBranch = Collections.synchronizedMap(new HashMap<>());
+
     public Map<Integer, Integer> coveredFalse = Collections.synchronizedMap(new HashMap<>());
 
     public Map<String, Integer> coveredMethods = Collections.synchronizedMap(new HashMap<>());
@@ -319,6 +322,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
             if ((true_distance != 0 && true_distance != 1) || (false_distance != 0 && false_distance != 1))
                 gradientBranches.add(branch);
         }
+
+		// Computation for performances
+		if (numberOfExecutionsPerBranch.containsKey(branch))
+			numberOfExecutionsPerBranch.put(branch, numberOfExecutionsPerBranch.get(branch) + 1);
+		else
+			numberOfExecutionsPerBranch.put(branch, 1);
 
         if (traceCoverage) {
             if (!coveredPredicates.containsKey(branch))
@@ -538,8 +547,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
         stack.add(new MethodCall("", "", 0, 0, 0)); // Main method
         coverage = new HashMap<>();
         returnData = new HashMap<>();
+		numberOfExecutionsPerBranch = new HashMap<>();
 
-        methodId = 0;
+		methodId = 0;
         duCounter = 0;
         objectCounter = 0;
         knownCallerObjects = new HashMap<>();
@@ -606,8 +616,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
         copy.passedDefinitionObject.putAll(passedDefinitionObject);
         copy.passedUseObject.putAll(passedUseObject);
         copy.branchesTrace.addAll(branchesTrace);
+		copy.numberOfExecutionsPerBranch.putAll(numberOfExecutionsPerBranch);
 
-        copy.coveredTrueContext.putAll(coveredTrueContext);
+		copy.coveredTrueContext.putAll(coveredTrueContext);
         copy.coveredFalseContext.putAll(coveredFalseContext);
         copy.coveredPredicateContext.putAll(coveredPredicateContext);
 
@@ -1902,6 +1913,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
         return classesWithStaticReads;
     }
 
+	@Override
+	public Map<Integer, Integer> getNoExecutionForConditionalNode() {
+		return numberOfExecutionsPerBranch;
+	}
     @Override
     public List<String> getInitializedClasses() {
         return this.initializedClasses;
