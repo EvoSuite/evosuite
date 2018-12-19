@@ -2,7 +2,7 @@ package org.evosuite.performance.strategies;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.mosa.comparators.OnlyCrowdingComparator;
+import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

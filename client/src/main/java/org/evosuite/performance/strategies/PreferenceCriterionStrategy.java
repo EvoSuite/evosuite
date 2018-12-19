@@ -2,8 +2,8 @@ package org.evosuite.performance.strategies;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.mosa.CrowdingDistance;
-import org.evosuite.ga.metaheuristics.mosa.comparators.OnlyCrowdingComparator;
+import org.evosuite.ga.comparators.OnlyCrowdingComparator;
+import org.evosuite.ga.operators.ranking.CrowdingDistance;
 
 import java.util.Collections;
 import java.util.List;
