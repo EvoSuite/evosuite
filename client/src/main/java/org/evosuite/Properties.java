@@ -307,20 +307,22 @@ public class Properties {
     @Parameter(key = "migrants_communication_rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
     public static int MIGRANTS_COMMUNICATION_RATE = 3;
 
-    // ---------------------------------------------------------------
-    // Search algorithm
-    public enum Algorithm {
-        // random
-        RANDOM_SEARCH,
-        // GAs
-        STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION, MAP_ELITES,
-        // mu-lambda
-        ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
-        // many-objective algorithms
-        MOSA, DYNAMOSA, LIPS, MIO,
-        // multiple-objective optimisation algorithms
-        NSGAII, SPEA2
-    }
+	// ---------------------------------------------------------------
+	// Search algorithm
+	public enum Algorithm {
+		// random
+		RANDOM_SEARCH,
+		// GAs
+		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION, MAP_ELITES,
+		// mu-lambda
+		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
+		// many-objective algorithms
+		MOSA, DYNAMOSA, LIPS, MIO,
+		// multiple-objective optimisation algorithms
+		NSGAII, SPEA2,
+		// performance-based algorithm
+		PMOSA
+	}
 
     // MOSA PROPERTIES
     public enum RankingType {
