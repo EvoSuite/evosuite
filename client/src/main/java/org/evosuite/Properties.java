@@ -376,6 +376,10 @@ public class Properties {
 			description = "Strategy used to combine together the computer performance indicators")
 	public static PerformanceCombinationStrategy P_COMBINATION_STRATEGY = PerformanceCombinationStrategy.DOMINANCE;
 
+	@Parameter(key = "n_test_runs", group = "Search Algorithm",
+			description = "Number of times the test suites are re-executed at the end of the search")
+	public static int NUM_TEST_RUNS = 5;
+
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 

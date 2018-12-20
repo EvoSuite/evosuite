@@ -25,6 +25,7 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.performance.indicator.*;
 import org.evosuite.rmi.ClientServices;
@@ -94,6 +95,7 @@ public class StatisticsSender {
 		sendIndividualToMaster(testSuite);
 		/* ----------------------------call to performance indicators---------------------------------------------- */
 		// todo: are they always computed?
+		sendRepeatedExecutionTime(testSuite);
 		sendPerformanceIndicator(testSuite);
 
 	}
@@ -132,6 +134,40 @@ public class StatisticsSender {
          */
     }
 
+	/**
+	 * Utility method that re-execute the tests n times to have more realistic estimation of the execution time
+	 * @param testSuite the test suite
+	 */
+	private static void sendRepeatedExecutionTime(TestSuiteChromosome testSuite) {
+		// let's add the computation time for the suite
+		// the test suite is re-executed multiple times to have a more reliable measure
+		List<TestChromosome> chromosomes = testSuite.getTestChromosomes();
+		long executionTime = 0;
+		for (ExecutionResult res : testSuite.getLastExecutionResults())
+			executionTime += res.getExecutionTime();
+
+		Set<FitnessFunction<?>> ffs = testSuite.getFitnessValues().keySet();
+		for (int i = 0; i<Properties.NUM_TEST_RUNS -1; i++){
+			testSuite.setChanged(true);
+			for (TestChromosome test : chromosomes)
+				test.setChanged(true);
+			for (FitnessFunction f : ffs)
+				f.getFitness(testSuite);
+
+			for (ExecutionResult res : testSuite.getLastExecutionResults())
+				executionTime += res.getExecutionTime();
+		}
+
+		executionTime = executionTime / (long) Properties.NUM_TEST_RUNS;
+
+		ClientServices.getInstance().getClientNode().trackOutputVariable(
+				RuntimeVariable.TestExecutionTime, executionTime);
+	}
+
+	/**
+	 * Collects the final results about the performance indicators for the generated test suite
+	 * @param testSuite the final test suite
+	 */
 	private static void sendPerformanceIndicator(TestSuiteChromosome testSuite) {
 		// Compute the performance metric at test suite level
 		List<AbstractIndicator> indicators = IndicatorsFactory.getPerformanceIndicator();
