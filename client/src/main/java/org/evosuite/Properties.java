@@ -321,7 +321,7 @@ public class Properties {
 		// multiple-objective optimisation algorithms
 		NSGAII, SPEA2,
 		// performance-based algorithm
-		PMOSA
+		PMOSA, PDMOSA
 	}
 
     // MOSA PROPERTIES

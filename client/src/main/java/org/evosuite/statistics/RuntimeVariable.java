@@ -594,7 +594,18 @@ public enum RuntimeVariable {
      */
     QueryCacheSize,
     QueryCacheCalls,
-    QueryCacheHitRate;
+    QueryCacheHitRate,
+
+	/**
+	 * Performance Indicatior Variables
+	 */
+	MethodCall,
+	CoveredMethodCall,
+	ObjectsInstantiations,
+	StatementCounter,
+	StatementCovered,
+	LoopCounter,
+	TestExecutionTime;
 
     /* -------------------------------------------------- */
 
