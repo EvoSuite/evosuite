@@ -2,7 +2,10 @@ package org.evosuite.performance;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.metaheuristics.mosa.PerformanceDynaMOSA;
 import org.evosuite.performance.comparator.MinMaxCalculator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -12,6 +15,9 @@ import java.util.List;
  * @author Giovanni Grano
  */
 public class PerformanceScore<T extends Chromosome> {
+
+    private static final Logger logger = LoggerFactory.getLogger(PerformanceScore.class);
+
 
     @SuppressWarnings("Duplicates")
     public void assignPerformanceScore(List<T> population) {
@@ -30,7 +36,10 @@ public class PerformanceScore<T extends Chromosome> {
                 // computes the min-max scores stored in an ad-hoc variable in the chromosome
                 indicator.computeIndicatorMinMaxSum(population);
                 // move the computed min-max scores in the performance score variable
-                population.stream().forEach(ch -> ch.setPerformanceScore(ch.getMinMaxSum()));
+                for (T individual : population) {
+                    individual.setPerformanceScore(individual.getMinMaxSum());
+                    logger.debug("Individual score = {}", individual.getPerformanceScore());
+                }
                 break;
             case DOMINANCE:
                 // It needs to run the PerformanceDominanceSorted before (to compute the performance_rank)

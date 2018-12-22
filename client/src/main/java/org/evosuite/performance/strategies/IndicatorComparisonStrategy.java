@@ -30,6 +30,7 @@ public class IndicatorComparisonStrategy<T extends Chromosome> implements Perfor
      */
     @Override
     public void setDistances(List<T> front, Set<FitnessFunction<T>> fitnessFunctions) {
+        logger.debug("Assigning performance score as distance");
         front.forEach(individual -> individual.setDistance(-individual.getPerformanceScore()));
     }
 

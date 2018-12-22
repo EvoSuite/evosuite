@@ -29,6 +29,7 @@ public class MinMaxCalculator<T extends Chromosome> {
         }
 
         for(String ind : solutions.get(0).getIndicatorValues().keySet()){
+            logger.debug("Indicator = {}", ind);
             comparator.setIndicator(ind);
             Double min = Collections.min(solutions, comparator).getIndicatorValue(ind);
             Double max = Collections.max(solutions, comparator).getIndicatorValue(ind);
@@ -36,14 +37,10 @@ public class MinMaxCalculator<T extends Chromosome> {
                 for (T individual : solutions) {
                     double oldValue = individual.getIndicatorValue(ind);
                     double value = (oldValue - min) / (max - min);
-                    //logger.error("{}, {}, {}, {} >> {}", ind, min, max, oldValue, value);
+//                    logger.debug("{}, {}, {}, {} >> {}", ind, min, max, oldValue, value);
                     individual.setMinMaxSum(individual.getMinMaxSum() + value);
                 }
             }
         }
-
-        //for (T individual : solutions) {
-        //    logger.error("{}, {}", individual.getIndicatorValues(), individual.getPerformanceScore());
-        //}
     }
 }

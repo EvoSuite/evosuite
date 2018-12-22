@@ -5,8 +5,7 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriatManager;
-import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
+import org.evosuite.ga.metaheuristics.mosa.structural.adaptive.AdaptiveBranchesManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.performance.PerformanceScore;
 import org.evosuite.performance.strategies.DominanceSortingAlgoFactory;
@@ -30,10 +29,10 @@ import java.util.stream.Collectors;
 @SuppressWarnings("Duplicates")
 public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DynaMOSA.class);
+    private static final Logger logger = LoggerFactory.getLogger(PerformanceDynaMOSA.class);
 
     /** Manager to determine the test goals to consider at each generation */
-    protected StructuralGoalManager<T> goalsManager = null;
+    protected AdaptiveBranchesManager<T> goalsManager = null;
 
     protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
 
@@ -41,17 +40,13 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     private PerformanceStrategy<T> strategy;
 
     // flag for the combination strategy set as dominance
-    private boolean isDominance = false;
+    private boolean isDominance;
 
     // flag fro the crowding distance strategy
-    private boolean isCrowding = false;
+    private boolean isCrowding;
 
     // sorter for the combination strategy based on the indicator dominance
     private IDominanceSorter<T> dominanceSorting;
-
-    private Map<FitnessFunction<T>, Double> bestValues;
-
-    private boolean hasBetterObjectives = false;
 
     private PerformanceScore<T> score = new PerformanceScore();
 
@@ -89,8 +84,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
             LoggingUtils.getEvoLogger().info("* Sorting algorithm for dominance = {}",
                     dominanceSorting.nameAlgo());
         }
-
-        bestValues = new HashMap<>();
         /* --------------------------------- instantiate performance variables --------------------------------- */
     }
 
@@ -101,16 +94,17 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         List<T> offspringPopulation = this.breedNextGeneration();
 
         /* --------------------------------- select heuristic --------------------------------- */
+        logger.debug("Last Heuristic = {}", last_heuristic);
         if (Properties.P_STRATEGY == Properties.PerformanceMOSAStrategy.CROWDING_DISTANCE) {
             last_heuristic = checkStagnation();
         } else {
             last_heuristic = Heurisitcs.CROWDING;
         }
-        logger.debug("{}",last_heuristic);
+        logger.debug("Current Heuristic = {}", last_heuristic);
         /* --------------------------------- select heuristic --------------------------------- */
 
         // Create the union of parents and offSpring
-        List<T> union = new ArrayList<T>(this.population.size() + offspringPopulation.size());
+        List<T> union = new ArrayList<>(this.population.size() + offspringPopulation.size());
         union.addAll(this.population);
         union.addAll(offspringPopulation);
 
@@ -132,9 +126,9 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         // let's form the next population using "preference sorting and non-dominated sorting" on the
         // updated set of goals
-        int remain = Math.max(Properties.POPULATION, this.rankingFunction.getSubfront(0).size());
+        int remain = Math.max(Properties.POPULATION, this.ranking.getSubfront(0).size());
         int index = 0;
-        List<T> front = null;
+        List<T> front;
         this.population.clear();
 
         // Obtain the next front
@@ -211,9 +205,10 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     public void generateSolution() {
         logger.debug("executing generateSolution function");
 
-        this.goalsManager = new MultiCriteriatManager<T>(this.fitnessFunctions);
+        this.goalsManager = new AdaptiveBranchesManager<>(this.fitnessFunctions);
+        this.goalsManager.setIndicators(this.indicators);
 
-        LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynMOSA = " +
+        LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynaMOSA = " +
                 this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
 
         logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
@@ -227,11 +222,20 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         this.calculateFitness();
 
         // Calculate dominance ranks and crowding distance
-        this.rankingFunction.computeRankingAssignment(this.population, this.goalsManager.getCurrentGoals());
+        this.ranking.computeRankingAssignment(this.population, this.goalsManager.getCurrentGoals());
 
-        for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++){
-            this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.goalsManager.getCurrentGoals());
+        for (int i = 0; i < this.ranking.getNumberOfSubfronts(); i++){
+            distance.fastEpsilonDominanceAssignment(ranking.getSubfront(i), goalsManager.getCurrentGoals());
         }
+
+        for (int i = 0; i<ranking.getNumberOfSubfronts(); i++)
+            strategy.setDistances(ranking.getSubfront(i), goalsManager.getCurrentGoals());
+
+        // update best values
+        for (T t : population)
+            for (FitnessFunction<T> f : goalsManager.getUncoveredGoals())
+                goalsManager.updateBestValue(f, t.getFitness(f));
+        last_heuristic = Heurisitcs.PERFORMANCE;
 
         // next generations
         while (!isFinished() && this.goalsManager.getUncoveredGoals().size() > 0) {
@@ -286,7 +290,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
      */
     @Override
     protected List<T> getSolutions() {
-        List<T> suite = new ArrayList<T>(this.goalsManager.getArchive());
+        List<T> suite = new ArrayList<>(this.goalsManager.getArchive());
         return suite;
     }
 
@@ -310,7 +314,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     protected void calculateFitness(T c) {
         this.goalsManager.calculateFitness(c);
         /* --------------------------------- calculate performance indicators --------------------------------- */
-        computePerformanceMetrics(new HashSet<>(Arrays.asList((TestChromosome)c)));
+        computePerformanceMetrics(new HashSet<>(Arrays.asList((T)c)));
         /* --------------------------------- calculate performance indicators --------------------------------- */
         this.notifyEvaluation(c);
     }
@@ -363,7 +367,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     }
 
     /**
-     * // todo: this is called at the end of the generation! We have to put something in the calculate fitness
      * {@inheritDoc}
      */
     @Override
@@ -388,9 +391,14 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         }
     }
 
+    /**
+     * Checks for the stagnation and eventually changes the heuristic
+     * @return
+     */
     private Heurisitcs checkStagnation() {
-        if (!hasBetterObjectives){
-            hasBetterObjectives = false;
+
+        if (!goalsManager.hasBetterObjectives()){
+            goalsManager.setHasBetterObjectives(false);
             if (last_heuristic == Heurisitcs.CROWDING)
                 crowdingStagnation++;
             else
@@ -401,7 +409,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
             else
                 return Heurisitcs.PERFORMANCE;
         } else {
-            hasBetterObjectives = false;
+            goalsManager.setHasBetterObjectives(false);
 
             if (last_heuristic == Heurisitcs.CROWDING)
                 crowdingStagnation=0;

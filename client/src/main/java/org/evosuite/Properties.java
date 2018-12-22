@@ -373,7 +373,7 @@ public class Properties {
 			PerformanceIndicators.METHOD_CALL, PerformanceIndicators.COVERED_METHOD_CALL, PerformanceIndicators.OBJECTS_INSTANTIATIONS, PerformanceIndicators.STATEMENTS_COUNTER, PerformanceIndicators.STATEMENTS_COVERED, PerformanceIndicators.LOOP_COUNTER};
 
 	@Parameter(key = "performance_combination_strategy", group = "Search Algorithm",
-			description = "Strategy used to combine together the computer performance indicators")
+			description = "Strategy used to combine together the computed performance indicators")
 	public static PerformanceCombinationStrategy P_COMBINATION_STRATEGY = PerformanceCombinationStrategy.DOMINANCE;
 
 	@Parameter(key = "n_test_runs", group = "Search Algorithm",
