@@ -6,6 +6,7 @@ target/
 evosuite-files
 evosuite-report
 evosuite-tests
+client/src/main/resources/logback-evosuite.xml
 plugins/jenkins/work
 build
 transitionLog.txt
