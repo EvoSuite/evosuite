@@ -37,7 +37,7 @@ public class MinMaxCalculator<T extends Chromosome> {
                 for (T individual : solutions) {
                     double oldValue = individual.getIndicatorValue(ind);
                     double value = (oldValue - min) / (max - min);
-//                    logger.debug("{}, {}, {}, {} >> {}", ind, min, max, oldValue, value);
+                    logger.debug("{}, {}, {}, {} >> {}", ind, min, max, oldValue, value);
                     individual.setMinMaxSum(individual.getMinMaxSum() + value);
                 }
             }

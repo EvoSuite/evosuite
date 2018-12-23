@@ -108,20 +108,17 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         union.addAll(this.population);
         union.addAll(offspringPopulation);
 
-        /* ---------------------------- assign performance score to the population ------------------------------ */
         score.assignPerformanceScore(union);
-        /* ---------------------------- assign performance score to the population ------------------------------ */
 
         // Ranking the union
         logger.debug("Union Size = {}", union.size());
 
-        /* ---------------------------- eventually sorting according dominance  ------------------------------ */
         if (isDominance && !isCrowding) {
+            logger.debug("Sorting with Indicator Dominance");
             union = dominanceSorting.getSortedWithIndicatorsDominance(union);
         }
-        /* ---------------------------- assign performance score to the population ------------------------------ */
 
-        // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm
+        // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
         ranking.computeRankingAssignment(union, this.goalsManager.getCurrentGoals());
 
         // let's form the next population using "preference sorting and non-dominated sorting" on the
@@ -135,16 +132,17 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         front = ranking.getSubfront(index);
 
         while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
-            /* -------------------------- distance and ranking according to heuristic ---------------------------- */
+
             if (last_heuristic == Heurisitcs.CROWDING) {
                 distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
             } else {
-                if (isDominance && isCrowding)
+                if (isDominance && isCrowding) {
+                    logger.debug("Ranking With Performance Dominance");
                     front = rankByPerformanceDominance(front);
+                }
                 strategy.setDistances(front, goalsManager.getUncoveredGoals());
             }
-            logger.debug("Distance = {}, Score ={} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
-            /* -------------------------- distance and ranking according to heuristic ---------------------------- */
+            logger.debug("Distance = {}, Score = {} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
 
             // Add the individuals of this front
             this.population.addAll(front);
@@ -159,9 +157,9 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
             }
         }
 
-        // Remain is less than front(index).size, insert only the best one
+
         if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
-            /* -------------------------- distance and ranking according to heuristic ---------------------------- */
+
             if (last_heuristic == Heurisitcs.CROWDING) {
                 distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
             } else {
@@ -170,13 +168,12 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
                 strategy.setDistances(front, goalsManager.getUncoveredGoals());
             }
             logger.debug("Distance = {}, Score ={} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
-            /* -------------------------- distance and ranking according to heuristic ---------------------------- */
+
             strategy.sort(front);
 
             for (int k = 0; k < remain; k++) {
                 this.population.add(front.get(k));
             }
-
             remain = 0;
         }
 
@@ -208,7 +205,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         this.goalsManager = new AdaptiveBranchesManager<>(this.fitnessFunctions);
         this.goalsManager.setIndicators(this.indicators);
 
-        LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynaMOSA = " +
+        LoggingUtils.getEvoLogger().info("* Initial Number of Goals in PerformanceDynaMOSA = " +
                 this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
 
         logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
@@ -228,9 +225,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
             distance.fastEpsilonDominanceAssignment(ranking.getSubfront(i), goalsManager.getCurrentGoals());
         }
 
-        for (int i = 0; i<ranking.getNumberOfSubfronts(); i++)
-            strategy.setDistances(ranking.getSubfront(i), goalsManager.getCurrentGoals());
-
         // update best values
         for (T t : population)
             for (FitnessFunction<T> f : goalsManager.getUncoveredGoals())
@@ -242,6 +236,11 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
             this.evolve();
             this.notifyIteration();
         }
+
+        /* -------------------------- calculate the performance indicators to save them ---------------------------*/
+        Set<T> archive = goalsManager.getArchive();
+        computePerformanceMetrics(archive);
+        printPerformanceMetrics(archive);
 
         this.notifySearchFinished();
     }

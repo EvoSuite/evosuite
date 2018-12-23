@@ -23,7 +23,8 @@ import java.util.*;
 public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManager<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AdaptiveBranchesManager.class);
-    private MinMaxArchiveUpdater<T> updater;
+//    private MinMaxArchiveUpdater<T> updater;
+    private ArchiveUpdate updater;
 
     // stores the best values for check heuristic stagnation
     private Map<FitnessFunction<T>, Double> bestValues;
@@ -33,7 +34,7 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
     public AdaptiveBranchesManager(List<FitnessFunction<T>> fitnessFunctions) {
         super(fitnessFunctions);
         this.bestValues = new HashMap<>();
-        updater = new MinMaxArchiveUpdater<>();
+        updater = new PerformanceUpdate();
     }
 
     @Override
@@ -44,6 +45,7 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
         ExecutionResult result = TestCaseExecutor.runTest(test);
         ((TestChromosome) c).setLastExecutionResult(result);
         c.setChanged(false);
+
         computePerformanceMetrics(c);
 
         /* check exceptions */
@@ -81,16 +83,14 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
         /* ------------------------------------- update of best values ----------------------------------- */
         for (FitnessFunction<T> fitnessFunction: this.uncoveredGoals) {
             /* execute the test case and compute the fitness*/
-            double value = fitnessFunction.getFitness(c); // can get rid of this?
-            /* if we can get rid, we should get the value somewhere else*/
+            double value = fitnessFunction.getFitness(c);
             // check whether the coverage improved
             Double b = bestValues.get(fitnessFunction);
             if (b==null || b > value) {
                 bestValues.put(fitnessFunction, value);
                 hasBetterObjectives = true;
-                logger.debug("Old value = {}, New value = {}", b, value);
+//                logger.debug("Old value = {}, New value = {}", b, value);
             }
-            // todo: is this redundant from what comes later?
             if (value == 0.0) {
                 this.bestValues.remove(fitnessFunction);
                 updateCoveredGoals(fitnessFunction, c);
@@ -140,6 +140,8 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
             currentGoals.remove(f);
         } else {
             boolean toUpdate = updater.isBetterSolution(best, tc);
+//            int size = tc.size();
+//            int bestSize = best.size();
             if (toUpdate) {
                 toArchive = true;
                 coveredGoals.put(f, tc);
@@ -187,7 +189,7 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
     private void computePerformanceMetrics(T test) {
         for (AbstractIndicator indicator : this.indicators) {
             double value = indicator.getIndicatorValue(test);
-            logger.debug("Indicator = {} => value = {}", indicator, value);
+//            logger.debug("Indicator = {} => value = {}", indicator, value);
         }
     }
 }
