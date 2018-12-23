@@ -20,13 +20,13 @@ public class LauncherPerformanceAnalysis {
 //                "-Ddominance_sorting=DOMINANCE",
                 "-Djunit_check=false",
                 "-Dminimize=FALSE",
-                "-Dpopulation=10",
+                "-Dpopulation=50",
                 "-Dalgorithm=PDMOSA",
 //                "-Dalgorithm=DYNAMOSA",
                 "-Dcoverage=TRUE",
                 "-Dsandbox=TRUE",
                 "-Dassertions=FALSE",
-                "-Dsearch_budget=30",
+                "-Dsearch_budget=60",
                 // if true, allows you to debug the client part (executed on the same JVM)
                 "-Dclient_on_thread=false",
                 "-Doutput_variables=TARGET_CLASS,criterion,configuration_id,algorithm,Total_Goals,Covered_Goals," +
