@@ -23,7 +23,6 @@ import java.util.*;
 public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManager<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AdaptiveBranchesManager.class);
-//    private MinMaxArchiveUpdater<T> updater;
     private ArchiveUpdate updater;
 
     // stores the best values for check heuristic stagnation
@@ -86,10 +85,11 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
             double value = fitnessFunction.getFitness(c);
             // check whether the coverage improved
             Double b = bestValues.get(fitnessFunction);
+            logger.debug("Best Values size = {}", bestValues.size());
             if (b==null || b > value) {
                 bestValues.put(fitnessFunction, value);
                 hasBetterObjectives = true;
-//                logger.debug("Old value = {}, New value = {}", b, value);
+                logger.debug("Old value = {}, New value = {}", b, value);
             }
             if (value == 0.0) {
                 this.bestValues.remove(fitnessFunction);
@@ -140,8 +140,6 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
             currentGoals.remove(f);
         } else {
             boolean toUpdate = updater.isBetterSolution(best, tc);
-//            int size = tc.size();
-//            int bestSize = best.size();
             if (toUpdate) {
                 toArchive = true;
                 coveredGoals.put(f, tc);
@@ -153,7 +151,7 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
         if (toArchive){
             List<FitnessFunction<T>> coveredTargets = archive.get(tc);
             if (coveredTargets == null){
-                List<FitnessFunction<T>> list = new ArrayList<FitnessFunction<T>>();
+                List<FitnessFunction<T>> list = new ArrayList<>();
                 list.add(f);
                 archive.put(tc, list);
             } else {
@@ -187,9 +185,7 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
     }
 
     private void computePerformanceMetrics(T test) {
-        for (AbstractIndicator indicator : this.indicators) {
-            double value = indicator.getIndicatorValue(test);
-//            logger.debug("Indicator = {} => value = {}", indicator, value);
-        }
+        for (AbstractIndicator indicator : this.indicators)
+            indicator.getIndicatorValue(test);
     }
 }

@@ -27,11 +27,6 @@ public class PreferenceCriterionStrategyTest {
     }
 
     @Test
-    // todo: we need to mock the fitness function
-    public void setDistances() {
-    }
-
-    @Test
     public void sort() {
         PreferenceCriterionStrategy strategy = new PreferenceCriterionStrategy();
         Collections.shuffle(front);

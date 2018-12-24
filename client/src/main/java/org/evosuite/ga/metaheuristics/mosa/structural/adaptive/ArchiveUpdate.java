@@ -10,6 +10,6 @@ public abstract class ArchiveUpdate<T extends Chromosome> {
     abstract boolean isBetterSolution(T currentSolution, T candidateSolution);
 
     double normalize(double value) {
-        return value/value+1;
+        return (value)/(value+1);
     }
 }

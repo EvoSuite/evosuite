@@ -24,36 +24,6 @@ public class IndicatorComparisonStrategyTest {
         front = SumComparatorTest.getChromosomes(ch1, ch2, ch3, ch4);
     }
 
-//    @Test
-//    public void sortSumComparator() {
-//        Properties.P_COMBINATION_STRATEGY = Properties.PerformanceCombinationStrategy.SUM;
-//        IndicatorComparisonStrategy<Chromosome> strategy = new IndicatorComparisonStrategy<>();
-//        Collections.shuffle(front);
-//        System.setProperty("performance_combination_strategy", "SUM");
-//        strategy.setDistances(front, null);
-//        strategy.sort(front);
-//        for (int i = 0; i < front.size()-1; i++) {
-//            assertEquals(true, front.get(i).getDistance() >= front.get(i+1).getDistance());
-//        }
-//    }
-//
-//    @Test
-//    // todo: still to decide how to sort a front according to this
-//    public void sortDominanceComparator() {
-//        Properties.P_COMBINATION_STRATEGY = Properties.PerformanceCombinationStrategy.DOMINANCE;
-//        IndicatorComparisonStrategy<Chromosome> strategy = new IndicatorComparisonStrategy<>();
-//        System.setProperty("performance_combination_strategy", "DOMINANCE");
-//        Collections.shuffle(front);
-//        List<Chromosome> auxFront = front;
-//        PerformanceDominanceSorter<Chromosome> dominanceSorting = new PerformanceDominanceSorter<>();
-//        auxFront = dominanceSorting.getSortedWithIndicatorsDominance(auxFront);
-//        strategy.setDistances(auxFront, null);
-//        strategy.sort(auxFront);
-//        for (int i = 0; i < auxFront.size()-1; i++) {
-//            assertEquals(true, auxFront.get(i).getDistance() >= auxFront.get(i+1).getDistance());
-//        }
-//    }
-//
     @Test
     public void sortMinMaxComparator() {
         Properties.P_COMBINATION_STRATEGY = Properties.PerformanceCombinationStrategy.MIN_MAX;

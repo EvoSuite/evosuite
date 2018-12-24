@@ -26,7 +26,7 @@ public class MinMaxCalculator<T extends Chromosome> {
      */
     public void computeIndicatorMinMaxSum(List<T> solutions) {
         for (T individual : solutions) {
-            individual.setMinMaxSum(1.0);
+            individual.setMinMaxSum(0.0);
         }
 
         for(String ind : solutions.get(0).getIndicatorValues().keySet()){

@@ -1,5 +1,6 @@
 package org.evosuite.performance.comparator;
 
+import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.testcase.TestChromosome;
 import org.junit.Test;
 
@@ -39,14 +40,15 @@ public class MinMaxCalculatorTest {
         MinMaxCalculator<TestChromosome> adder = new MinMaxCalculator<>();
         adder.computeIndicatorMinMaxSum(front);
 
-        // the first should be worst
-        assertEquals(false, front.get(0).getMinMaxSum() <= front.get(1).getMinMaxSum());
+        for (TestChromosome solution : front)
+            solution.setDistance(solution.getMinMaxSum());
+        front.sort(new OnlyCrowdingComparator());
 
-        double sum = front.get(0).getMinMaxSum();
-        assertEquals(2.066, sum, 0.001);
+        assertEquals(true, front.get(0).getDistance() >= front.get(1).getDistance());
+        assertEquals(true, front.get(1).getDistance() >= front.get(2).getDistance());
 
-        front.sort(new MinMaxComparator());
-        assertEquals(true, front.get(0).getMinMaxSum() <= front.get(1).getMinMaxSum());
-        assertEquals(true, front.get(1).getMinMaxSum() <= front.get(2).getMinMaxSum());
+        assertEquals(3.75, front.get(0).getDistance(), 0.01);
+        assertEquals(2.93, front.get(1).getDistance(), 0.01);
+        assertEquals(0.0, front.get(2).getDistance(), 0.01);
     }
 }
