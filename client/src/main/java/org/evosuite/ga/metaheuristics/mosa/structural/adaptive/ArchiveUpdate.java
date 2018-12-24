@@ -5,7 +5,11 @@ import org.evosuite.ga.Chromosome;
 /**
  * @author Giovanni Grano
  */
-public interface ArchiveUpdate<T extends Chromosome> {
+public abstract class ArchiveUpdate<T extends Chromosome> {
 
-    boolean isBetterSolution(T currentSolution, T candidateSolution);
+    abstract boolean isBetterSolution(T currentSolution, T candidateSolution);
+
+    double normalize(double value) {
+        return value/value+1;
+    }
 }

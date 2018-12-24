@@ -19,7 +19,8 @@ public class MinMaxCalculator<T extends Chromosome> {
 
     private IndicatorComparator comparator = new IndicatorComparator();
     /**
-     * Computes for every chromosome the min max normalized summed
+     * Computes for every chromosome the performance score as the sum of the indicators normalized via min-max
+     * normalization. This value is stored in the minMaxSum variable for each chromosome.
      * @param solutions
      *      solutions to calculate
      */
@@ -33,12 +34,18 @@ public class MinMaxCalculator<T extends Chromosome> {
             comparator.setIndicator(ind);
             Double min = Collections.min(solutions, comparator).getIndicatorValue(ind);
             Double max = Collections.max(solutions, comparator).getIndicatorValue(ind);
-            if (Double.compare(min, max) != 0) {
-                for (T individual : solutions) {
-                    double oldValue = individual.getIndicatorValue(ind);
-                    double value = (oldValue - min) / (max - min);
-                    logger.debug("{}, {}, {}, {} >> {}", ind, min, max, oldValue, value);
-                    individual.setMinMaxSum(individual.getMinMaxSum() + value);
+
+            for (T individual : solutions) {
+                if (Double.compare(min, max) != 0) {
+                    double currentValue = individual.getIndicatorValue(ind);
+                    double normalizedValue = (max - currentValue) / (max - min);
+                    logger.debug("{}, {}, {}, {} >> {}", ind, min, max, currentValue, normalizedValue);
+                    individual.setMinMaxSum(individual.getMinMaxSum() + normalizedValue);
+                } else {
+                    /* min and max are the same! We cannot compute the indicator here!!!
+                    We add 0.5 in those cases */
+                    logger.error("Same min and max while computing the value for {}" + ind);
+                    individual.setMinMaxSum(individual.getMinMaxSum() + 0.5);
                 }
             }
         }
