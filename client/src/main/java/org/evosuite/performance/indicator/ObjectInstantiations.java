@@ -127,7 +127,7 @@ public class ObjectInstantiations extends AbstractIndicator {
         //        counter++;
         //}
 
-        test.setIndicatorValues(this.getIndicatorId(), normalize(counter));
+        test.setIndicatorValues(this.getIndicatorId(), counter);
         logger.info("No. definitions = " + counter);
         return counter;
     }
