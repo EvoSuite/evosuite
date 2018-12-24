@@ -39,15 +39,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     /* -------------------------------------- performance instance variables -------------------------------------- */
     private PerformanceStrategy<T> strategy;
 
-    // flag for the combination strategy set as dominance
-    private boolean isDominance;
-
-    // flag fro the crowding distance strategy
-    private boolean isCrowding;
-
-    // sorter for the combination strategy based on the indicator dominance
-    private IDominanceSorter<T> dominanceSorting;
-
     private PerformanceScore<T> score = new PerformanceScore();
 
     private enum Heurisitcs {CROWDING, PERFORMANCE}
@@ -55,8 +46,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     private Heurisitcs last_heuristic;
 
     private int crowdingStagnation=0, performanceStagnation=0;
-
-    private Map<Integer, BranchCoverageTestFitness> branches;
 
     /* -------------------------------------- performance instance variables -------------------------------------- */
 
@@ -71,19 +60,11 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         /* --------------------------------- instantiate performance variables --------------------------------- */
         strategy = PerformanceStrategyFactory.getPerformanceStrategy();
-        isDominance = Properties.P_COMBINATION_STRATEGY == Properties.PerformanceCombinationStrategy.DOMINANCE;
-        isCrowding = Properties.P_STRATEGY == Properties.PerformanceMOSAStrategy.CROWDING_DISTANCE;
 
         LoggingUtils.getEvoLogger().info("* Running Performance DynaMOSA with indicator {}",
                 indicators.stream().map(i -> i.toString()).collect(Collectors.joining(",")));
         LoggingUtils.getEvoLogger().info("* Combination Strategy for indicators = {}", Properties.P_COMBINATION_STRATEGY.toString());
 
-        // get create a concrete class of IDominanceSorter only if we are using the crowding distance and the dominance
-        if (isCrowding && isDominance) {
-            dominanceSorting = DominanceSortingAlgoFactory.getDominanceSortingAlgorithm();
-            LoggingUtils.getEvoLogger().info("* Sorting algorithm for dominance = {}",
-                    dominanceSorting.nameAlgo());
-        }
         /* --------------------------------- instantiate performance variables --------------------------------- */
     }
 
@@ -113,11 +94,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         // Ranking the union
         logger.debug("Union Size = {}", union.size());
 
-        if (isDominance && !isCrowding) {
-            logger.debug("Sorting with Indicator Dominance");
-            union = dominanceSorting.getSortedWithIndicatorsDominance(union);
-        }
-
         // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
         ranking.computeRankingAssignment(union, this.goalsManager.getCurrentGoals());
 
@@ -133,15 +109,11 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 
-            if (last_heuristic == Heurisitcs.CROWDING) {
+            if (last_heuristic == Heurisitcs.CROWDING)
                 distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-            } else {
-                if (isDominance && isCrowding) {
-                    logger.debug("Ranking With Performance Dominance");
-                    front = rankByPerformanceDominance(front);
-                }
+            else
                 strategy.setDistances(front, goalsManager.getUncoveredGoals());
-            }
+
             logger.debug("Distance = {}, Score = {} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
 
             // Add the individuals of this front
@@ -152,29 +124,25 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
             // Obtain the next front
             index++;
-            if (remain > 0) {
+            if (remain > 0)
                 front = ranking.getSubfront(index);
-            }
+
         }
 
-
-        if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
+        if (remain > 0 && !front.isEmpty()) {
 
             if (last_heuristic == Heurisitcs.CROWDING) {
                 distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-            } else {
-                if (isDominance && isCrowding)
-                    front = rankByPerformanceDominance(front);
+            } else
                 strategy.setDistances(front, goalsManager.getUncoveredGoals());
-            }
+
             logger.debug("Distance = {}, Score ={} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
 
             strategy.sort(front);
 
-            for (int k = 0; k < remain; k++) {
+            for (int k = 0; k < remain; k++)
                 this.population.add(front.get(k));
-            }
-            remain = 0;
+
         }
 
         this.currentIteration++;
@@ -183,16 +151,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
         logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
         logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
-    }
-
-    /**
-     * This method returns a new population which is the copy of the old one with the addition of the performance
-     * dominance rank; to be used only if the combination strategy is DOMINANCE
-     *
-     * @return	a new population with the information on the performance dominance score computed
-     */
-    private List<T> rankByPerformanceDominance(List<T> solutions) {
-        return dominanceSorting.getSortedWithIndicatorsDominance(solutions);
     }
 
     /**
