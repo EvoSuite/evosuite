@@ -94,6 +94,17 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	// a molecule has taken. (field used by Chemical Reaction Optimization algorithms)
 	protected int numCollisions = 0;
 
+	/** to store novelty score or distance from other individuals*/
+	protected double noveltyScore = 0.0;
+
+	public double getNoveltyScore() {
+		return noveltyScore;
+	}
+
+	public void setNoveltyScore(double noveltyScore) {
+		this.noveltyScore = noveltyScore;
+	}
+
 	/**
 	 * Return current fitness value
 	 * 

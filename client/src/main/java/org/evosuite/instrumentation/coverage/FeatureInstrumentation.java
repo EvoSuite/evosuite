@@ -117,7 +117,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             addCallingObjectInstrumentation(staticContext, instrumentation);
             instrumentation.add(new LdcInsnNode(FeatureFactory.getDefCounter()));
             instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-                    PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class), "passedFeature",
+                    PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class), "featureVisited",
                     "(ILjava/lang/Object;I)V"));
         }
 

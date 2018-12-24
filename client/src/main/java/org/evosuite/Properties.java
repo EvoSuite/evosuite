@@ -317,7 +317,9 @@ public class Properties {
 		// many-objective algorithms
 		MOSA, DYNAMOSA, LIPS, MIO,
 		// multiple-objective optimisation algorithms
-		NSGAII, SPEA2
+		NSGAII, SPEA2,
+		//
+		NOVELTY
 	}
 
 	// MOSA PROPERTIES

@@ -1,8 +1,21 @@
 package org.evosuite.coverage.dataflow;
 
-public class Feature {
+import java.io.Serializable;
+
+public class Feature implements Serializable {
+
+
     String variableName;
     Object value;
+
+    public Feature(){
+
+    }
+
+    public Feature(Feature feature) {
+        this.variableName = feature.variableName;
+        this.value = feature.value;
+    }
 
     public String getVariableName() {
         return variableName;

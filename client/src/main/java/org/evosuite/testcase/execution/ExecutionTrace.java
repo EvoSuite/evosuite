@@ -25,6 +25,7 @@ package org.evosuite.testcase.execution;
 import java.util.*;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
@@ -348,7 +349,7 @@ public interface ExecutionTrace {
 	 */
 	public void definitionPassed(Object object, Object caller, int defID);
 
-	public void definitionFeature(int object, Object caller, int defID);
+	public void featureVisited(int object, Object caller, int defID);
 
 	/**
 	 * Add a new method call to stack
@@ -623,4 +624,8 @@ public interface ExecutionTrace {
 	 * @return
 	 */
 	public List<String> getInitializedClasses();
+
+	public Map<Integer, Feature> getVisitedFeaturesMap();
+
+	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap);
 }

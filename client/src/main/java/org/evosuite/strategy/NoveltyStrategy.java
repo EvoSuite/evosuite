@@ -2,8 +2,11 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.metaheuristics.FeatureNovelty;
+import org.evosuite.ga.metaheuristics.NoveltyMetric;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.BranchNoveltyFunction;
@@ -47,11 +50,27 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         long startTime = System.currentTimeMillis() / 1000;
 
         // What's the search target
-        List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
+        List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
+        List<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();
+        for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+            fitnessFunctions.addAll(goalFactory.getCoverageGoals());
+        }
 
-        NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
-        algorithm.addListener(listener);
-        algorithm.setNoveltyFunction(new BranchNoveltyFunction());
+        // adding all branches as different goals to be optimized
+        algorithm.addFitnessFunctions((List)fitnessFunctions);
+
+        /*NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
+        algorithm.addListener(listener);*/
+
+        NoveltyMetric featureNoveltyMetric = new FeatureNovelty();
+
+        //TODO: Should be FeatureNoveltyFunction instead
+        NoveltyFunction<TestChromosome> noveltyFunction = new BranchNoveltyFunction<TestChromosome>();
+        // set the novelty metric for the novelty function
+        ((BranchNoveltyFunction) noveltyFunction).setNoveltyMetric(featureNoveltyMetric);
+
+        // adding a novelty function
+        algorithm.setNoveltyFunction(noveltyFunction);
 
         // if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
         //algorithm.addListener(progressMonitor); // FIXME progressMonitor expects testsuitechromosomes

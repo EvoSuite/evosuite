@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
@@ -41,6 +42,11 @@ import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	private ExecutionTraceImpl trace;
+
+	@Override
+	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
+		trace.updateFeatureObjectLink(id, featureMap);
+	}
 
 	/**
 	 * <p>
@@ -116,8 +122,8 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	}
 
 	@Override
-	public void definitionFeature(int object, Object caller, int defID) {
-		trace.definitionFeature(object, caller, defID);
+	public void featureVisited(int object, Object caller, int defID) {
+		trace.featureVisited(object, caller, defID);
 	}
 
 	/*
@@ -738,6 +744,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	@Override
 	public List<String> getInitializedClasses() {
 		return trace.getInitializedClasses();
+	}
+
+	@Override
+	public Map<Integer, Feature> getVisitedFeaturesMap() {
+		return trace.getVisitedFeaturesMap();
 	}
 
 }

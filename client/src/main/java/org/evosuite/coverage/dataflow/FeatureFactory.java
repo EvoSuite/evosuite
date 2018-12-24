@@ -13,7 +13,7 @@ public class FeatureFactory {
 
     public static boolean registerAsFeature(BytecodeInstruction d) {
         if(null != knownInstructions.get(d)){
-            return true;
+            return false;
         }else{
             knownInstructions.put(d,defCounter);
             String var = d.getVariableName();
@@ -45,6 +45,10 @@ public class FeatureFactory {
     }
     public static Map<Integer, Feature> getFeatures(){
         return features;
+    }
+
+    public static Feature getFeatureById(Integer id){
+        return features.get(id);
     }
 
 }

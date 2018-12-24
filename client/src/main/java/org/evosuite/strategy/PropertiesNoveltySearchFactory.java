@@ -37,6 +37,7 @@ import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ResourceController;
 import org.slf4j.Logger;
@@ -48,23 +49,31 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
     private static final Logger logger = LoggerFactory.getLogger(PropertiesNoveltySearchFactory.class);
 
     private ChromosomeFactory<TestChromosome> getChromosomeFactory() {
-        switch (Properties.TEST_FACTORY) {
-            case ALLMETHODS:
-                logger.info("Using all methods chromosome factory");
-                return new AllMethodsTestChromosomeFactory();
-            case RANDOM:
-                logger.info("Using random chromosome factory");
-                return new RandomLengthTestFactory();
-            case ARCHIVE:
-                logger.info("Using archive chromosome factory");
-                return new ArchiveTestChromosomeFactory();
-            case JUNIT:
-                logger.info("Using seeding chromosome factory");
-                JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
-                        new RandomLengthTestFactory());
-                return factory;
-            case SERIALIZATION:
-                logger.info("Using serialization seeding chromosome factory");
+        switch (Properties.STRATEGY) {
+            case EVOSUITE:
+                switch (Properties.TEST_FACTORY) {
+                    case ALLMETHODS:
+                        logger.info("Using all methods chromosome factory");
+                        return new AllMethodsTestChromosomeFactory();
+                    case RANDOM:
+                        logger.info("Using random chromosome factory");
+                        return new RandomLengthTestFactory();
+                    case ARCHIVE:
+                        logger.info("Using archive chromosome factory");
+                        return new ArchiveTestChromosomeFactory();
+                    case JUNIT:
+                        logger.info("Using seeding chromosome factory");
+                        JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+                                new RandomLengthTestFactory());
+                        return factory;
+                    case SERIALIZATION:
+                        logger.info("Using serialization seeding chromosome factory");
+                        return new RandomLengthTestFactory();
+                    default:
+                        throw new RuntimeException("Unsupported test factory: "
+                                + Properties.TEST_FACTORY);
+                }
+            case NOVELTY:
                 return new RandomLengthTestFactory();
             default:
                 throw new RuntimeException("Unsupported test factory: "

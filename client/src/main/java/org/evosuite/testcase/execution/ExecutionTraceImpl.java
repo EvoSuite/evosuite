@@ -19,12 +19,15 @@
  */
 package org.evosuite.testcase.execution;
 
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.collections.map.LinkedMap;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.*;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
@@ -238,6 +241,14 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>());
 	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> passedUseObject = Collections
 			.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>());
+
+    public Map<Integer, Feature> vistedFeaturesMap = Collections
+            .synchronizedMap(new HashMap<Integer, Feature>());
+    public Map<Integer, Object> featureObjectLinkMap = Collections
+			.synchronizedMap(new HashMap<Integer, Object>());
+    public Map<Integer, Map<Integer, Feature>> visitedFeatureObjectMap = Collections
+			.synchronizedMap(new HashMap<Integer, Map<Integer, Feature>>());
+
 
 	private int proxyCount = 1;
 	// Data information
@@ -550,9 +561,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		coveredFalse = new HashMap<Integer, Integer>();
 		coveredDefs = new HashMap<Integer, Integer>();
 		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
+		visitedFeatureObjectMap = new HashMap<Integer, Map<Integer, Feature>>();
 		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		passedDefinitionObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
 		passedUseObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
+		vistedFeaturesMap = new HashMap<Integer, Feature>();
 		branchesTrace = new ArrayList<BranchEval>();
 		coveredTrueContext = new HashMap<Integer, Map<CallContext, Double>>();
 		coveredFalseContext = new HashMap<Integer, Map<CallContext, Double>>();
@@ -594,10 +607,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.touchedMutants.addAll(touchedMutants);
 		copy.mutantDistances.putAll(mutantDistances);
 		copy.passedDefinitions.putAll(passedDefinitions);
+		copy.visitedFeatureObjectMap.putAll(visitedFeatureObjectMap);
 		copy.passedUses.putAll(passedUses);
 		copy.passedDefinitionObject.putAll(passedDefinitionObject);
 		copy.passedUseObject.putAll(passedUseObject);
 		copy.branchesTrace.addAll(branchesTrace);
+		copy.vistedFeaturesMap.putAll(vistedFeaturesMap);
 
 		copy.coveredTrueContext.putAll(coveredTrueContext);
 		copy.coveredFalseContext.putAll(coveredFalseContext);
@@ -666,19 +681,56 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		duCounter++;
 	}
 
-	@Override
-	public void definitionFeature(int object, Object caller, int defID) {
 
-		/*if (!traceCalls) {
-			return;
-		}*/
-		FeatureFactory.updateFeature(object, defID);
-		/*Definition def = DefUsePool.getDefinitionByDefId(defID);
-		if (def == null) {
-			throw new IllegalStateException("expect DefUsePool to known defIDs that are passed by instrumented code");
-		}
-		logger.error("Def : "+def.toString());*/
-		logger.error("Value : "+object+ " caller object : "+caller+" def Id : "+defID);
+	public Map<Integer, Map<Integer, Feature>> getVisitedFeatureObjectMap(){
+		return this.visitedFeatureObjectMap;
+	}
+
+	@Override
+	public void featureVisited(int object, Object caller, int featID) {
+
+
+
+		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		if(null == feature){
+		    // something went wrogn
+            System.out.println("Something went wrong");
+        }else{
+			feature.setValue(object);
+			vistedFeaturesMap.put(featID, feature);
+			// take care of object reference
+			// put the 'caller' in the MAP but first check if you have the same 'caller' object in the MAP
+			/*Integer id = null;
+			for (Integer objectId : featureObjectLinkMap.keySet()) {
+				if (featureObjectLinkMap.get(objectId) == caller) {
+					id = objectId;
+					break;
+				}
+			}
+
+			if(id != null){
+				// feature's belong to the same object
+				// update the featureVisited Map
+				feature.setValue(object);
+				vistedFeaturesMap.put(featID, feature);
+				visitedFeatureObjectMap.put(id, vistedFeaturesMap);
+			}else{
+				// put the 'caller' in the MAP
+				objectCounter++;
+				featureObjectLinkMap.put(objectCounter, caller);
+				HashMap<Integer, Feature> vistedFeaturesMap = new HashMap<Integer, Feature>();
+				feature.setValue(object);
+				vistedFeaturesMap.put(featID, feature);
+				visitedFeatureObjectMap.put(objectCounter, vistedFeaturesMap);
+			}*/
+			// MAP<Caller, visitedFeaturesMAP>
+			// 1. Create a new featureMap
+			// 2. put featID, feature
+			// 3. put Caller, featureMap
+        }
+
+
+		//logger.error("Value : "+object+ " caller object : "+caller+" def Id : "+defID);
 
 	}
 
@@ -1061,7 +1113,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Map<Integer, HashMap<Integer, Integer>> getPassedDefinitions(String variableName) {
+	public Map<Integer, HashMap<Integer, Integer>>
+	getPassedDefinitions(String variableName) {
 		return passedDefinitions.get(variableName);
 	}
 
@@ -1815,6 +1868,16 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public List<String> getInitializedClasses() {
 		return this.initializedClasses;
+	}
+
+	@Override
+	public Map<Integer, Feature> getVisitedFeaturesMap() {
+		return this.vistedFeaturesMap;
+	}
+
+	@Override
+	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
+		visitedFeatureObjectMap.put(id, featureMap);
 	}
 
 }

@@ -14,16 +14,41 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
 
     private NoveltyFunction<T> noveltyFunction;
 
+    private NoveltyMetric noveltyMetric;
+
     public NoveltySearch(ChromosomeFactory<T> factory) {
         super(factory);
-
-        noveltyFunction = null; //(NoveltyFunction<T>) new BranchNoveltyFunction();
-        // setReplacementFunction(new FitnessReplacementFunction());
     }
 
     public void setNoveltyFunction(NoveltyFunction<T> function) {
         this.noveltyFunction = function;
     }
+
+    public void setNoveltyMetric(NoveltyMetric noveltyMetric){
+        this.noveltyMetric = noveltyMetric;
+    }
+
+    public void calculateNovelty(){
+        logger.debug("Calculating novelty for " + population.size() + " individuals");
+
+        Iterator<T> iterator = population.iterator();
+        Map<T, Double> noveltyMap = new LinkedHashMap<>();
+
+        while (iterator.hasNext()) {
+            T c = iterator.next();
+            if (isFinished()) {
+                if (c.isChanged())
+                    iterator.remove();
+            } else {
+                // TODO: This needs to take the archive into account
+                double novelty = noveltyFunction.getNovelty(c, population);
+                // update Individual
+                c.setNoveltyScore(novelty);
+            }
+        }
+    }
+
+
 
     /**
      * Sort the population by novelty
@@ -38,6 +63,8 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
             }
         }));
     }
+
+
 
     /**
      * Calculate fitness for all individuals
@@ -66,13 +93,14 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
 
     @Override
     public void initializePopulation() {
-        notifySearchStarted();
+        //notifySearchStarted();
         currentIteration = 0;
 
         // Set up initial population
         generateInitialPopulation(Properties.POPULATION);
 
         // Determine novelty
+        calculateNovelty();
         calculateNoveltyAndSortPopulation();
         this.notifyIteration();
     }

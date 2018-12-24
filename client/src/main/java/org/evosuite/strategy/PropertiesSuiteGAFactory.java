@@ -115,6 +115,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			}
 		case REGRESSION:
 			return new RegressionTestSuiteChromosomeFactory();
+		case NOVELTY:
 		case MOSUITE:
 			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
 		default:
@@ -200,6 +201,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         case MOSA:
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);
+		case NOVELTY:
+			return new NoveltySearch<TestSuiteChromosome>(factory);
         case DYNAMOSA:
         	logger.info("Chosen search algorithm: DynaMOSA");
             return new DynaMOSA<TestSuiteChromosome>(factory);

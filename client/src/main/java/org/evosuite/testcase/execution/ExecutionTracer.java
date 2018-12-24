@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
+import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.coverage.dataflow.Use;
 import org.evosuite.instrumentation.testability.BooleanHelper;
 import org.evosuite.seeding.ConstantPoolManager;
@@ -256,7 +257,7 @@ public class ExecutionTracer {
      *            a {@link java.lang.String} object.
      * @param caller
      *            a {@link java.lang.Object} object.
-     * @throws org.evosuite.testcase.execution.TestCaseExecutor$TimeoutExceeded
+     *
      *             if any.
      */
     public static void enteredMethod(String classname, String methodname, Object caller)
@@ -786,13 +787,22 @@ public class ExecutionTracer {
             tracer.trace.definitionPassed(object, caller, defID);
     }
 
-    public static void passedFeature(int object, Object caller, int defID) {
+    public static void featureVisited(int object, Object caller, int defID) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.definitionFeature(object, caller, defID);
+            tracer.trace.featureVisited(object, caller, defID);
+    }
+
+    public static void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
+        if (isThreadNeqCurrentThread())
+            return;
+
+        ExecutionTracer tracer = getExecutionTracer();
+        if (!tracer.disabled)
+            tracer.trace.updateFeatureObjectLink(id, featureMap);
     }
 
     /**
@@ -867,6 +877,8 @@ public class ExecutionTracer {
 
         tracer.trace.mutationPassed(mutationId, distance);
     }
+
+
 
     /**
      * <p>

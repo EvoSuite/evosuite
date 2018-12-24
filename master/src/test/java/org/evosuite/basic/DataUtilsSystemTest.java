@@ -25,6 +25,11 @@ public class DataUtilsSystemTest extends SystemTestBase {
         String targetClass = DataUtils.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
+        //Properties.STRATEGY = Properties.Strategy.MOSUITE;
+        Properties.STRATEGY = Properties.Strategy.NOVELTY;
+        //Properties.TEST_ARCHIVE = false;
+        //Properties.ALGORITHM = Properties.Algorithm.MOSA;
+        Properties.ALGORITHM = Properties.Algorithm.NOVELTY;
         String[] command = new String[]{"-generateSuite", "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
