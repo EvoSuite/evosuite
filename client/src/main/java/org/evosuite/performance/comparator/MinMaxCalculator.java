@@ -44,7 +44,7 @@ public class MinMaxCalculator<T extends Chromosome> {
                 } else {
                     /* min and max are the same! We cannot compute the indicator here!!!
                     We add 0.5 in those cases */
-                    logger.error("Same min and max while computing the value for {}" + ind);
+                    logger.debug("Same min and max while computing the value for {}" + ind);
                     individual.setMinMaxSum(individual.getMinMaxSum() + 0.5);
                 }
             }

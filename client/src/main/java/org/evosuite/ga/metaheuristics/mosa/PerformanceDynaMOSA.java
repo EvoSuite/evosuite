@@ -1,15 +1,12 @@
 package org.evosuite.ga.metaheuristics.mosa;
 
 import org.evosuite.Properties;
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.mosa.structural.adaptive.AdaptiveBranchesManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.performance.PerformanceScore;
-import org.evosuite.performance.strategies.DominanceSortingAlgoFactory;
-import org.evosuite.performance.strategies.IDominanceSorter;
 import org.evosuite.performance.strategies.PerformanceStrategy;
 import org.evosuite.performance.strategies.PerformanceStrategyFactory;
 import org.evosuite.testcase.TestChromosome;
