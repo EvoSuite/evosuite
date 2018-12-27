@@ -148,6 +148,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         this.currentIteration++;
         //logger.debug("N. fronts = {}", ranking.getNumberOfSubfronts());
         //logger.debug("1* front size = {}", ranking.getSubfront(0).size());
+//        logger.debug("Best Values Map size = {}", goalsManager.getBestValues().size());
         logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
         logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
         logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());

@@ -54,6 +54,20 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
             return;
         }
 
+        /* ------------------------------------- update of best values ----------------------------------- */
+        for (FitnessFunction<T> fitnessFunction: this.uncoveredGoals) { // covered goals still not updated
+
+            double value = fitnessFunction.getFitness(c);
+            Double b = bestValues.get(fitnessFunction);
+            if (b==null || b > value) {
+                bestValues.put(fitnessFunction, value);
+                hasBetterObjectives = true;
+                logger.debug("Map Update! {} => {}", b, value);
+            }
+            // the map is removed if value == 0 below
+        }
+        /* ------------------------------------- update of best values ----------------------------------- */
+
         /* update the targets */
         Set<FitnessFunction<T>> visitedStatements = new HashSet<>(uncoveredGoals.size()*2);
         LinkedList<FitnessFunction<T>> targets = new LinkedList<>();
@@ -69,34 +83,16 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
 
             double value = fitnessFunction.getFitness(c);
             if (value == 0.0) {
+                this.bestValues.remove(fitnessFunction);
                 updateCoveredGoals(fitnessFunction, c);
-                for (FitnessFunction<T> child : graph.getStructuralChildren(fitnessFunction)){
+                for (FitnessFunction<T> child : graph.getStructuralChildren(fitnessFunction))
                     targets.addLast(child);
-                }
-            } else {
+            } else
                 currentGoals.add(fitnessFunction);
-            }
+
         }
         currentGoals.removeAll(coveredGoals.keySet());
 
-        /* ------------------------------------- update of best values ----------------------------------- */
-        for (FitnessFunction<T> fitnessFunction: this.uncoveredGoals) {
-            /* execute the test case and compute the fitness*/
-            double value = fitnessFunction.getFitness(c);
-            // check whether the coverage improved
-            Double b = bestValues.get(fitnessFunction);
-            logger.debug("Best Values size = {}", bestValues.size());
-            if (b==null || b > value) {
-                bestValues.put(fitnessFunction, value);
-                hasBetterObjectives = true;
-                logger.debug("Old value = {}, New value = {}", b, value);
-            }
-            if (value == 0.0) {
-                this.bestValues.remove(fitnessFunction);
-                updateCoveredGoals(fitnessFunction, c);
-            }
-        }
-        /* ------------------------------------- update of best values ----------------------------------- */
 
         /* update of the archives */
         for (Integer branchid : result.getTrace().getCoveredFalseBranches()){
@@ -144,6 +140,8 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
                 toArchive = true;
                 coveredGoals.put(f, tc);
                 archive.get(best).remove(f);
+                if (archive.get(best).size() == 0)
+                    archive.remove(best);
             }
         }
 
@@ -167,6 +165,10 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
      */
     public void updateBestValue(FitnessFunction<T> function, Double fitness) {
         this.bestValues.put(function, fitness);
+    }
+
+    public Map<FitnessFunction<T>, Double> getBestValues() {
+        return bestValues;
     }
 
     /**
