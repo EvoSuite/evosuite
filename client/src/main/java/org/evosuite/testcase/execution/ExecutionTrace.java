@@ -349,7 +349,15 @@ public interface ExecutionTrace {
 	 */
 	public void definitionPassed(Object object, Object caller, int defID);
 
-	public void featureVisited(int object, Object caller, int defID);
+	public void featureVisitedInt(int object, Object caller, int defID);
+
+    public void featureVisitedLon(long object, Object caller, int defID);
+
+    public void featureVisitedFlo(float object, Object caller, int defID);
+
+    public void featureVisitedDou(double object, Object caller, int defID);
+
+    public void featureVisitedObj(Object object, Object caller, int defID);
 
 	/**
 	 * Add a new method call to stack

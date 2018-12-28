@@ -116,12 +116,46 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             addObjectInstrumentation(v, instrumentation, mn);
             addCallingObjectInstrumentation(staticContext, instrumentation);
             instrumentation.add(new LdcInsnNode(FeatureFactory.getDefCounter()));
-            instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-                    PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class), "featureVisited",
-                    "(ILjava/lang/Object;I)V"));
+            addExecutionTracerMethod(v, instrumentation);
+
         }
 
         return instrumentation;
+    }
+
+    private void addExecutionTracerMethod(BytecodeInstruction v, InsnList instrumentation){
+
+        // TODO: take care of iinc and arraystore instructions
+        int instOpcode = v.getASMNode().getOpcode();
+        String methodName = "";
+        String methodDesc = "";
+        switch(instOpcode){
+            case Opcodes.ASTORE:
+                methodName = "featureVisitedObj";
+                methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;I)V";
+                break;
+            case Opcodes.ISTORE:
+                methodName = "featureVisitedInt";
+                methodDesc = "(ILjava/lang/Object;I)V";
+                break;
+            case Opcodes.LSTORE:
+                methodName = "featureVisitedLon";
+                methodDesc = "(JLjava/lang/Object;I)V";
+                break;
+            case Opcodes.FSTORE:
+                methodName = "featureVisitedFlo";
+                methodDesc = "(FLjava/lang/Object;I)V";
+                break;
+            case Opcodes.DSTORE:
+                methodName = "featureVisitedDou";
+                methodDesc = "(DLjava/lang/Object;I)V";
+                break;
+            default:
+                break;
+        }
+        instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+                PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class), methodName,
+                methodDesc));
     }
 
     private void addCallingObjectInstrumentation(boolean staticContext,
@@ -141,7 +175,17 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             if (instruction.getASMNode().getOpcode() == Opcodes.ALOAD) {
                 instrumentation.add(new InsnNode(Opcodes.DUP));
             } else {
-                instrumentation.add(new InsnNode(Opcodes.DUP));//ACONST_NULL
+                if(instruction.getASMNode().getOpcode() == Opcodes.LSTORE || instruction.getASMNode().getOpcode() == Opcodes.DSTORE){
+                    // these instructions take 2 slots each
+                    instrumentation.add(new InsnNode(Opcodes.DUP2));
+                }else{
+                    instrumentation.add(new InsnNode(Opcodes.DUP));
+                }
+
+                //ACONST_NULL We can't do a ACONST_NULL because we are concerned with the actual value rather than just knowing if the variable has been defined or not.
+                // This means we need to manually check which type the VariableDefinition is
+                // and accordingly call a method from ExecutionTracer.
+                // TODO : do it.
             }
         } else if (instruction.isLocalVariableUse()) {
             if (instruction.getASMNode().getOpcode() == Opcodes.ASTORE) {

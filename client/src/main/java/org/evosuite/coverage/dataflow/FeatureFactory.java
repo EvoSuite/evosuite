@@ -15,12 +15,12 @@ public class FeatureFactory {
         if(null != knownInstructions.get(d)){
             return false;
         }else{
+            defCounter++;
             knownInstructions.put(d,defCounter);
             String var = d.getVariableName();
             Feature feature = new Feature();
             feature.setVariableName(var);
             features.put(defCounter, feature);
-            defCounter++;
         }
         return true;
     }

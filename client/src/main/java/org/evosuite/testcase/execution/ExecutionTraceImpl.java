@@ -19,6 +19,9 @@
  */
 package org.evosuite.testcase.execution;
 
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections.map.LinkedMap;
 import org.evosuite.Properties;
@@ -185,6 +188,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 
 	private List<BranchEval> branchesTrace = new ArrayList<BranchEval>();
+
+
 
 	// Coverage information
 	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections
@@ -686,10 +691,29 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		return this.visitedFeatureObjectMap;
 	}
 
+
 	@Override
-	public void featureVisited(int object, Object caller, int featID) {
+	public void featureVisitedObj(Object object, Object caller, int featID) {
 
+		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		if(null == feature){
+			// something went wrogn
+			System.out.println("Something went wrong");
+		}else{
+			String typeClass = object.getClass().getName();
+			XStream xstream = new XStream();
+			String dataXml = xstream.toXML(object);
+			feature.setValue(dataXml);
+			feature.setTypeClass(typeClass); // this should make it easier while reconstructing the object back
+			// We cannot save the 'Object' as it is because it would be difficult to reconstruct it later.
+			// More over the same object may change as it is just a object reference.
+			// Hence serializing it to a xml string and storing it.
+			vistedFeaturesMap.put(featID, feature);
+		}
+	}
 
+	@Override
+	public void featureVisitedInt(int object, Object caller, int featID) {
 
 		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
 		if(null == feature){
@@ -698,40 +722,46 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
         }else{
 			feature.setValue(object);
 			vistedFeaturesMap.put(featID, feature);
-			// take care of object reference
-			// put the 'caller' in the MAP but first check if you have the same 'caller' object in the MAP
-			/*Integer id = null;
-			for (Integer objectId : featureObjectLinkMap.keySet()) {
-				if (featureObjectLinkMap.get(objectId) == caller) {
-					id = objectId;
-					break;
-				}
-			}
-
-			if(id != null){
-				// feature's belong to the same object
-				// update the featureVisited Map
-				feature.setValue(object);
-				vistedFeaturesMap.put(featID, feature);
-				visitedFeatureObjectMap.put(id, vistedFeaturesMap);
-			}else{
-				// put the 'caller' in the MAP
-				objectCounter++;
-				featureObjectLinkMap.put(objectCounter, caller);
-				HashMap<Integer, Feature> vistedFeaturesMap = new HashMap<Integer, Feature>();
-				feature.setValue(object);
-				vistedFeaturesMap.put(featID, feature);
-				visitedFeatureObjectMap.put(objectCounter, vistedFeaturesMap);
-			}*/
-			// MAP<Caller, visitedFeaturesMAP>
-			// 1. Create a new featureMap
-			// 2. put featID, feature
-			// 3. put Caller, featureMap
         }
+	}
 
+	@Override
+	public void featureVisitedLon(long object, Object caller, int featID) {
 
-		//logger.error("Value : "+object+ " caller object : "+caller+" def Id : "+defID);
+		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		if(null == feature){
+			// something went wrogn
+			System.out.println("Something went wrong");
+		}else{
+			feature.setValue(object);
+			vistedFeaturesMap.put(featID, feature);
+		}
+	}
 
+	@Override
+	public void featureVisitedFlo(float object, Object caller, int featID) {
+
+		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		if(null == feature){
+			// something went wrogn
+			System.out.println("Something went wrong");
+		}else{
+			feature.setValue(object);
+			vistedFeaturesMap.put(featID, feature);
+		}
+	}
+
+	@Override
+	public void featureVisitedDou(double object, Object caller, int featID) {
+
+		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		if(null == feature){
+			// something went wrogn
+			System.out.println("Something went wrong");
+		}else{
+			feature.setValue(object);
+			vistedFeaturesMap.put(featID, feature);
+		}
 	}
 
 	/**
