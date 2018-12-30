@@ -164,7 +164,7 @@ public class TestUsageChecker {
             return false;
         }
 
-        if(isClassIncludedInPackage(c.getName(), Java9InvisiblePackage.getClassesToBeIgnored())){
+        if(isClassIncludedInPackage(c.getName(), Java9InvisiblePackage.instance.getClassesToBeIgnored())){
             return false;
         }
 
