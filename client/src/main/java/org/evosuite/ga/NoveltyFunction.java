@@ -8,13 +8,14 @@ public abstract class NoveltyFunction<T extends Chromosome> {
 
     public double getNovelty(T individual, Collection<T> population) {
         double distance = 0.0;
-
+        boolean loopStart = false;
         for(T other : population) {
             if(other == individual)
                 continue;
 
             double d = getDistance(individual, other);
             distance += d;
+            loopStart = true;
         }
 
         distance /= (population.size() - 1);

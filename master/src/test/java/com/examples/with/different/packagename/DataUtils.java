@@ -13,46 +13,18 @@ import java.util.*;
 public class DataUtils {
 
 
-    public void verify2DArray() {
-
-      /*  int c= 3;
-        int d= 4;
-
-        if(c !=d){
-            System.out.println("not null");
-        }else{
-            System.out.println("not null");
-        }*/
-
-        /*SomeClass s  = s1;
-        if(s != null){
-            System.out.println("not null");
-        }else{
-            System.out.println("null");
-        }*/
-        /*String s = new String("asjadkjasj"); // astore
-
-        if(s.equals("")){
+    public void listOperation(List<Integer> list) {
+        List<Integer> list1 = list;
+        if (list1.isEmpty()) {
             System.out.println("do something");
-        }*/
-
-        List<Integer> list = new ArrayList<>(); // astore_1
-        list.add(2); // pop
-
-        if(list.isEmpty()){
-            System.out.println("do something");
+        } else if (list1.size() == 1) {
+            System.out.println("one element");
+        } else {
+            System.out.println("more element");
         }
 
-
-
-        /*float f = 0.1f;
-        long l = 1l;*/
-        /*double d = 2d;
-        if(d == 2d){
-            System.out.println("do something");
-        }*/
     }
-    public static void main(String args[]) throws XmlPullParserException, IOException {
+    /*public static void main(String args[]) throws XmlPullParserException, IOException {
         DataUtils dataUtils = new DataUtils();
 
 
@@ -109,7 +81,7 @@ public class DataUtils {
         int loopCounter = 0;
         int indexTemp = 0;
         int eventType = xpp.getEventType();
-        /*while (eventType != XmlPullParser.END_DOCUMENT) {
+        *//*while (eventType != XmlPullParser.END_DOCUMENT) {
             if(eventType == XmlPullParser.START_DOCUMENT) {
                 System.out.println("Start document : "+xpp.getName());
             } else if(eventType == XmlPullParser.END_DOCUMENT) {
@@ -137,16 +109,17 @@ public class DataUtils {
 
             loopCounter++;
             eventType = xpp.next();
-        }*/
+        }*//*
 
 
-    }
+    }*/
 
 }
 
 class SomeClass{
     int j;
     private static int special = 12;
+    long someL = 12l;
     int[] someArr = new int[2];
     public SomeClass(int num, int[] arr){
         j = num;

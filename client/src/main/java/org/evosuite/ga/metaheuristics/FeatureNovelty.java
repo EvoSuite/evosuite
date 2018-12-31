@@ -55,11 +55,11 @@ public class FeatureNovelty implements NoveltyMetric {
 
     @Override
     public double calculateDistance(TestChromosome a, TestChromosome b) {
-        ExecutionResult result1 = getExecutionResult((TestChromosome)a);
+
+        ExecutionResult result1 =  getExecutionResult((TestChromosome)a);
         ExecutionTrace trace1 = result1.getTrace();
         Map<Integer, Feature> featureMap1  = trace1.getVisitedFeaturesMap();
         trace1.updateFeatureObjectLink(a.getTestCase().getID(), featureMap1);
-
 
         ExecutionResult result2 = getExecutionResult((TestChromosome)b);
         ExecutionTrace trace2 = result2.getTrace();
@@ -68,14 +68,46 @@ public class FeatureNovelty implements NoveltyMetric {
         double difference = 0.0;
 
 
+        /**
+         * This should create a MAP of featureName, DistanceValue. I.e. Each individual will have a vector of distances
+         * for each of the feature.
+         * Distance should be calculated for TestChromosome 'a' w.r.t the other individuals.
+         */
+        Map<Integer, Double> distanceVector = null;
 
-
+        if(a.getDistanceVector().isEmpty()){
+            distanceVector = new HashMap<>();
+        }else{
+            // do nothing as of now
+            distanceVector = a.getDistanceVector();
+        }
+        double distanceSum = 0; // sum of all the feature wise distance. TODO; find a way to normalize it. Or do we even need to do it?
         for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
             System.out.println(entry.getKey() + ":" + entry.getValue());
-            difference  = getDistance(featureMap1.get(entry.getKey()), featureMap2.get(entry.getKey()));
+            System.out.println("Feature2 is : "+ featureMap2);
+            if(featureMap2.isEmpty()){
+                // rare case. But happens when the test case contains statements which throw exception while execution.
+                // recently seen, linkedList0.add(int0, integer1); where 'integer1' is the index whose value was greater
+                // than the size of the linkedList.
+                continue;
+            }
+            double value = getDistance(featureMap1.get(entry.getKey()), featureMap2.get(entry.getKey()));
+            if (distanceVector.get(entry.getKey()) == null) {
+                // adding distance for the first time
+                distanceVector.put(entry.getKey(), value);
+            } else {
+                // fetch the value first
+                double valueTemp = distanceVector.get(entry.getKey());
+                value += valueTemp;
+                distanceVector.put(entry.getKey(), value);
+            }
+            distanceSum +=value;
+            // update the original vector map in the testChromosome 'a'
+            a.setDistanceVector(distanceVector);
         }
 
-        return difference;
+        // find a way to iterate through the feature distanceVector and get a normalized distance between 0-1
+        return distanceSum;
     }
 
     @Override
@@ -93,6 +125,9 @@ public class FeatureNovelty implements NoveltyMetric {
 
         // value can be of type INT, Lon, Float, Double,String Object are converted to string xml format
         Object val = feature1.getValue();
+        if(feature2 == null)
+            System.out.println("Achtung!!!!!");
+        Object val1 = feature2.getValue();
         if(val instanceof Integer){
             return Math.abs((Integer)feature1.getValue() - (Integer)feature2.getValue());
         }else if(val instanceof Float){
@@ -105,6 +140,26 @@ public class FeatureNovelty implements NoveltyMetric {
             // handle String value type
             // All Objects of type other than above ones are handled here.
             // TODO: act according to xml string or simple String
+            try {
+               Map<String, Double> diffMap = FeatureDiffCalculator.getDifferenceMap((String)val, (String)val1);
+               if(diffMap.isEmpty()){
+                   // something went wrong. Diff cannot be calculated for this feature
+                   System.out.println("something went wrong. Diff cannot be calculated for this feature");
+                   // fail safe. At the mst we wouldn't consider this feature for difference
+                   return 0;
+               }else{
+                   // iterate the MAP and fetch the individual components
+                   double valDiff = diffMap.get(FeatureDiffCalculator.VALUE_DIFF);
+                   double structDiff = diffMap.get(FeatureDiffCalculator.STRUCT_DIFF);
+                   double totalTags = diffMap.get(FeatureDiffCalculator.TOTAL_TAGS);
+
+                   // As of now returning the sum of both the component
+                   // TODO: handle it in a better way. Maybe the product of them.
+                   return valDiff+FeatureDiffCalculator.getNormalizedStructDiff(structDiff, totalTags);
+               }
+            } catch (XmlPullParserException | IOException e) {
+                e.printStackTrace();
+            }
 
         }
         return 0;

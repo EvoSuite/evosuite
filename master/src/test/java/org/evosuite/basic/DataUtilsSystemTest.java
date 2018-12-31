@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -38,9 +39,7 @@ public class DataUtilsSystemTest extends SystemTestBase {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.print(best.toString());
         System.out.println("Feature values : "+ FeatureFactory.getFeatures());
-//        Assert.assertEquals(1,best.getNumOfCoveredGoals());
+        Assert.assertEquals(1,best.getNumOfCoveredGoals());
+
     }
-
-
-
 }

@@ -700,14 +700,16 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			// something went wrogn
 			System.out.println("Something went wrong");
 		}else{
-			String typeClass = object.getClass().getName();
+
 			XStream xstream = new XStream();
 			String dataXml = xstream.toXML(object);
 			feature.setValue(dataXml);
-			feature.setTypeClass(typeClass); // this should make it easier while reconstructing the object back
+
 			// We cannot save the 'Object' as it is because it would be difficult to reconstruct it later.
 			// More over the same object may change as it is just a object reference.
 			// Hence serializing it to a xml string and storing it.
+			System.out.println("Updating visitedFeaturesMap in ExeTracerImpl");
+			logger.error("Updating visitedFeaturesMap in ExeTracerImpl");
 			vistedFeaturesMap.put(featID, feature);
 		}
 	}
