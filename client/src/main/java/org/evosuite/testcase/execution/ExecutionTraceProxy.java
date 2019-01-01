@@ -146,6 +146,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		trace.featureVisitedObj(object, caller, defID);
 	}
 
+	@Override
+	public void featureVisitedIntIncr(int object, Object caller, Object varName) {
+		trace.featureVisitedIntIncr(object, caller, varName);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -766,6 +766,40 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 	}
 
+	@Override
+	public void featureVisitedIntIncr(int value, Object caller, Object varName) {
+
+		Feature feature = new Feature(getFeatureFromVisitedFeatureMapByName(vistedFeaturesMap, (String)varName));
+		if(null == feature){
+			// something went wrogn
+			System.out.println("Something went wrong");
+		}else{
+			// which means the variable is already stored before
+			// get the value
+			// update the value according to the new value
+			Integer val = (Integer)feature.getValue();
+			val = val + value;
+			feature.setValue(val);
+			// need to get id from the map
+			vistedFeaturesMap.put(FeatureFactory.getFeatureIdByVarName((String)varName), feature);
+		}
+	}
+
+	/**
+	 * helper method.
+	 * TODO: Move to a different location
+	 * @param varName
+	 * @return
+	 */
+	public static Feature getFeatureFromVisitedFeatureMapByName(Map<Integer, Feature> map, String varName){
+		for(Map.Entry<Integer, Feature> entry: map.entrySet()){
+			Feature feature = entry.getValue();
+			if(feature.getVariableName().equals(varName))
+				return feature;
+		}
+		return null;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 

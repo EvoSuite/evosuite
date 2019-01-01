@@ -83,8 +83,8 @@ public class FeatureNovelty implements NoveltyMetric {
         }
         double distanceSum = 0; // sum of all the feature wise distance. TODO; find a way to normalize it. Or do we even need to do it?
         for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
-            System.out.println(entry.getKey() + ":" + entry.getValue());
-            System.out.println("Feature2 is : "+ featureMap2);
+            /*System.out.println(entry.getKey() + ":" + entry.getValue());*/
+            System.out.println("FeatureNovelty.java : Feature2 is : "+ featureMap2);
             if(featureMap2.isEmpty()){
                 // rare case. But happens when the test case contains statements which throw exception while execution.
                 // recently seen, linkedList0.add(int0, integer1); where 'integer1' is the index whose value was greater

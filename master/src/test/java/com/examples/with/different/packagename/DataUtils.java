@@ -13,16 +13,16 @@ import java.util.*;
 public class DataUtils {
 
 
-    public void listOperation(List<Integer> list) {
-        List<Integer> list1 = list;
-        if (list1.isEmpty()) {
-            System.out.println("do something");
-        } else if (list1.size() == 1) {
-            System.out.println("one element");
-        } else {
-            System.out.println("more element");
-        }
 
+    public void listOperation(int j) {
+
+        int i = j;
+        i--;
+        if(i < 0){
+            System.out.println("Negative");
+        }else{
+            System.out.println("Positive");
+        }
     }
     /*public static void main(String args[]) throws XmlPullParserException, IOException {
         DataUtils dataUtils = new DataUtils();

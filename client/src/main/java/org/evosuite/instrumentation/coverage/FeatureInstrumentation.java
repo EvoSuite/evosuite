@@ -38,7 +38,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                         isValidDef = DefUsePool.addAsFieldMethodCall(vertex);
                     } else {
                         // keep track of definitions
-                        if (vertex.isDefinition())
+                        if (vertex.isDefinition() || vertex.isUse())
                             isValidDef = FeatureFactory.registerAsFeature(vertex);
                     }
                     if (isValidDef) {
@@ -57,7 +57,11 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                         else if (vertex.isArrayStoreInstruction())
                             mn.instructions.insertBefore(vertex.getSourceOfArrayReference().getASMNode(), instrumentation);
 
-                        mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
+                        if(vertex.isUse()){
+                            mn.instructions.insert(vertex.getASMNode(), instrumentation);
+                        }else{
+                            mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
+                        }
                     }
                 }
             }
@@ -102,8 +106,8 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                                         String className, String methodName, MethodNode mn) {
         InsnList instrumentation = new InsnList();
 
-        if (!v.isDefinition()) {
-            logger.warn("unexpected FeatureInstrumentation call for a non-definition-instruction");
+        if (!v.isDefinition() && !v.isUse()) {
+            logger.warn("unexpected FeatureInstrumentation call for a non-store-instruction");
             return instrumentation;
         }
 
@@ -118,6 +122,11 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             instrumentation.add(new LdcInsnNode(FeatureFactory.getDefCounter()));
             addExecutionTracerMethod(v, instrumentation);
 
+        }else if(v.getASMNode().getOpcode() == Opcodes.IINC){
+            addObjectInstrumentation(v, instrumentation, mn);
+            addCallingObjectInstrumentation(staticContext, instrumentation);
+            instrumentation.add(new LdcInsnNode(v.getVariableName()));
+            addExecutionTracerMethod(v, instrumentation);
         }
 
         return instrumentation;
@@ -150,6 +159,40 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 methodName = "featureVisitedDou";
                 methodDesc = "(DLjava/lang/Object;I)V";
                 break;
+            case Opcodes.IINC:
+                int value = ((IincInsnNode) v.getASMNode()).incr;
+                methodName = "featureVisitedIntIncr";
+                methodDesc = "(ILjava/lang/Object;Ljava/lang/Object;)V";
+                break;
+            case Opcodes.PUTFIELD:
+                String type = v.getFieldType();
+
+                //TODO: take care of "C", "B", "S", "[I" and "[[L"
+                switch(type){
+                    // boolean is treated as integer in bytecode representation
+                    case "Z":
+                    case "I":
+                        methodName = "featureVisitedInt";
+                        methodDesc = "(ILjava/lang/Object;I)V";
+                        break;
+                    case "J":
+                        methodName = "featureVisitedLon";
+                        methodDesc = "(JLjava/lang/Object;I)V";
+                        break;
+                    case "F":
+                        methodName = "featureVisitedFlo";
+                        methodDesc = "(FLjava/lang/Object;I)V";
+                        break;
+                    case "D":
+                        methodName = "featureVisitedDou";
+                        methodDesc = "(DLjava/lang/Object;I)V";
+                        break;
+                    default:
+                        // this should be the object type
+                        methodName = "featureVisitedObj";
+                        methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;I)V";
+                        break;
+                }
             default:
                 break;
         }
@@ -171,22 +214,47 @@ public class FeatureInstrumentation implements MethodInstrumentation {
     }
 
     private void addObjectInstrumentation(BytecodeInstruction instruction, InsnList instrumentation, MethodNode mn) {
-        if (instruction.isLocalVariableDefinition()) {
-            if (instruction.getASMNode().getOpcode() == Opcodes.ALOAD) {
-                instrumentation.add(new InsnNode(Opcodes.DUP));
-            } else {
-                if(instruction.getASMNode().getOpcode() == Opcodes.LSTORE || instruction.getASMNode().getOpcode() == Opcodes.DSTORE){
+        /**
+         * Check if instruction is VariableDefinition and if yes,
+         *  1) if it is local variable definition then,
+         *      we have implemented what is need to be done
+         *  2) else if it is filed definition
+         *      we need to check the type just as we do for local variable to
+         *      see if the variable is of the type Long, or Double
+         */
+
+        if (instruction.isDefinition()) {
+            if (instruction.isLocalVariableDefinition()) {
+                if (instruction.getASMNode().getOpcode() == Opcodes.LSTORE || instruction.getASMNode().getOpcode() == Opcodes.DSTORE) {
                     // these instructions take 2 slots each
                     instrumentation.add(new InsnNode(Opcodes.DUP2));
-                }else{
-                    instrumentation.add(new InsnNode(Opcodes.DUP));
+                } else if(instruction.getASMNode().getOpcode() == Opcodes.IINC){
+                    int value = ((IincInsnNode) instruction.getASMNode()).incr;
+                    instrumentation.add(new LdcInsnNode(value));
                 }
 
+                else {
+                    instrumentation.add(new InsnNode(Opcodes.DUP));
+                }
                 //ACONST_NULL We can't do a ACONST_NULL because we are concerned with the actual value rather than just knowing if the variable has been defined or not.
                 // This means we need to manually check which type the VariableDefinition is
                 // and accordingly call a method from ExecutionTracer.
                 // TODO : do it.
+            }else{
+                // it should be field definition
+                // fetch the field type and act accordingly
+                String type = instruction.getFieldType();
+                switch(type){
+                    case "J":
+                    case "D":
+                        instrumentation.add(new InsnNode(Opcodes.DUP2));
+                        break;
+                    default:
+                        instrumentation.add(new InsnNode(Opcodes.DUP));
+                        break;
+                }
             }
+
         } else if (instruction.isLocalVariableUse()) {
             if (instruction.getASMNode().getOpcode() == Opcodes.ASTORE) {
                 instrumentation.add(new InsnNode(Opcodes.DUP));
@@ -199,13 +267,10 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         } else if (instruction.isArrayLoadInstruction()) {
             instrumentation.add(new InsnNode(Opcodes.DUP));
         } else if (instruction.isFieldNodeDU()) {
-            // TODO: FieldNodeDU takes care of ArrayStore - why?
-            Type type = Type.getType(instruction.getFieldType());
-            if (type.getSort() == Type.OBJECT) {
-                instrumentation.add(new InsnNode(Opcodes.DUP));
-            } else {
-                instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
-            }
+
+
+            instrumentation.add(new InsnNode(Opcodes.DUP));
+
         } else if (instruction.isMethodCall()) {
             Type type = Type.getReturnType(instruction.getMethodCallDescriptor());
             if (type.getSort() == Type.OBJECT) {
