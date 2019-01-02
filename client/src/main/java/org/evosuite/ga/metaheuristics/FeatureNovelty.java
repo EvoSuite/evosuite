@@ -102,9 +102,9 @@ public class FeatureNovelty implements NoveltyMetric {
                 distanceVector.put(entry.getKey(), value);
             }
             distanceSum +=value;
-            // update the original vector map in the testChromosome 'a'
-            a.setDistanceVector(distanceVector);
         }
+        // update the original vector map in the testChromosome 'a'
+        a.setDistanceVector(distanceVector);
 
         // find a way to iterate through the feature distanceVector and get a normalized distance between 0-1
         return distanceSum;

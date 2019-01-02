@@ -842,6 +842,15 @@ public class ExecutionTracer {
             tracer.trace.featureVisitedIntIncr(value, caller, varName);
     }
 
+    public static void featureVisitedObjUpdate(Object object, Object caller, Object varName) {
+        if (isThreadNeqCurrentThread())
+            return;
+
+        ExecutionTracer tracer = getExecutionTracer();
+        if (!tracer.disabled)
+            tracer.trace.featureVisitedObjUpdate(object, caller, varName);
+    }
+
     public static void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
         if (isThreadNeqCurrentThread())
             return;

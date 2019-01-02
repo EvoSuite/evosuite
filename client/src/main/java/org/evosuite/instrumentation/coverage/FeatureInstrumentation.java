@@ -32,14 +32,14 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             AbstractInsnNode in = j.next();
             Set<BytecodeInstruction> vertexSet = graph.vertexSet();
             for(BytecodeInstruction vertex: vertexSet){
-                if (in.equals(vertex.getASMNode()) && (vertex.isDefinition() || vertex.getASMNode().getOpcode() == Opcodes.POP)) {
+                if (in.equals(vertex.getASMNode()) && vertex.isDataUpding() ) {
                     boolean isValidDef = false;
                     if (vertex.isMethodCallOfField()) {
                         //TODO: what is this. Remove this.
                         isValidDef = DefUsePool.addAsFieldMethodCall(vertex);
                     } else {
-                        // keep track of definitions
-                        if (vertex.isDefinition() || vertex.getASMNode().getOpcode() == Opcodes.POP)
+                        // keep track of data storing or updating operations
+                        if (vertex.isDataUpding())
                             isValidDef = FeatureFactory.registerAsFeature(vertex);
                     }
                     if (isValidDef ) {
@@ -58,7 +58,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                         else if (vertex.isArrayStoreInstruction())
                             mn.instructions.insertBefore(vertex.getSourceOfArrayReference().getASMNode(), instrumentation);
 
-                        if(vertex.isUse()){
+                        if(vertex.isUse() || vertex.getASMNode().getOpcode() == Opcodes.POP){
                             mn.instructions.insert(vertex.getASMNode(), instrumentation);
                         }else{
                             mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
@@ -85,15 +85,28 @@ public class FeatureInstrumentation implements MethodInstrumentation {
     }
 
     /**
-     * helper function
-     * TODO: move in a appropriate place
+     * Helper function. Assume we have following bytecode instruction list:
+     *        ...
+     *        4: aload_2
+     *        5: iconst_2
+     *        6: invokestatic  #2                  // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+     *        9: invokeinterface #3,  2            // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+     *        14: pop
+     *        ...
+     * POP is used for all the data manipulation operations on the interface defined in java.util.Collection.
+     * So the rationale is that whenever a POP instruction is encountered - it suggests us that a corresponding variable
+     * must be updated. And to be sure that variable is related to a class of java.util.Collections interface
+     * 'isValidCollectionMethod' is used.
+     * The goal of this method is to find such the name and index of such a variable.
+     *
      * @param instruction
      */
-    private String findCorrespondingVariableForPop(BytecodeInstruction instruction, Set<BytecodeInstruction> instructionSet){
+    private Map<String, Integer> findCorrespondingVariableForPop(BytecodeInstruction instruction, Set<BytecodeInstruction> instructionSet){
 
         /**
          * check if the immediate previous asmNode is a MethodInsNode i.e. we need to be sure that
          * the previous instruction is actually a call to one of the permitted methods of the interface(Collection interface)
+         *
          * TODO: handle all the cases for all the Collection implementation
          *
          */
@@ -103,12 +116,15 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         String desc = ((MethodInsnNode) instruction.getASMNode().getPrevious()).desc;
 
         int index = 0;
+        int varIndex = 0;
+        Map<String, Integer> varNameIndexMap = new HashMap<>(); // in case below condition is false we still send a empty but non null Map.
         if (isValidCollectionMethod(owner, name, desc)) {
             boolean search = true;
             index = instruction.getInstructionId();
             AbstractInsnNode insnNode = instruction.getASMNode();
             while (search) {
                 if (insnNode.getOpcode() == Opcodes.ALOAD) {
+                    varIndex = ((VarInsnNode) insnNode).var;
                     search = false;
                 } else {
                     insnNode = insnNode.getPrevious();
@@ -119,10 +135,11 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             BytecodeInstruction instr = instructionSet.stream().filter(e -> e.getInstructionId() == indexCopy).findAny().get();
             String varName = instr.getVariableName(); // we did all the above things, just to get this. I.e to find out which variable does
             // the pop instruction corresponds to.
-            return varName;
+            varNameIndexMap.put(varName, varIndex);
+            return varNameIndexMap;
         }
 
-        return null;
+        return varNameIndexMap;
 
 
     }
@@ -136,21 +153,16 @@ public class FeatureInstrumentation implements MethodInstrumentation {
 
 
     /**
-     * Creates the instrumentation needed to track defs
+     * Creates the instrumentation needed to instrument all the data updating operations.
      */
     private InsnList getInstrumentation(BytecodeInstruction v, Set<BytecodeInstruction> bytecodeInstructionSet, boolean staticContext,
                                         String className, String methodName, MethodNode mn) {
         InsnList instrumentation = new InsnList();
 
-        if (!v.isDefinition() && !v.isUse()) {
+        if (!v.isDataUpding()) {
             logger.warn("unexpected FeatureInstrumentation call for a non-store-instruction");
             return instrumentation;
         }
-
-        /*if (DefUsePool.isKnownAsFieldMethodCall(v)) {
-            return getMethodInstrumentation(v, staticContext, instrumentation, mn);
-        }*/
-
         if (FeatureFactory.isKnownAsDefinition(v)) {
             // The actual object that is defined is on the stack _before_ the store instruction
             addObjectInstrumentation(v, instrumentation, mn);
@@ -164,14 +176,19 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             instrumentation.add(new LdcInsnNode(v.getVariableName()));
             addExecutionTracerMethod(v, instrumentation);
         }else if(v.getASMNode().getOpcode() == Opcodes.POP){
-            addObjectInstrumentation(v, instrumentation, mn);
+            Map<String, Integer> varNameIndex = findCorrespondingVariableForPop(v, bytecodeInstructionSet);
+            /*instrumentation.add(new VarInsnNode(Opcodes.ALOAD, ));*/
+            String varName = null;
+            int varIndex = 0;
+            for (String key : varNameIndex.keySet()) {
+                varName = key;
+                varIndex = varNameIndex.get(varName);
+            }
+            instrumentation.add(new VarInsnNode(Opcodes.ALOAD, varIndex));
             addCallingObjectInstrumentation(staticContext, instrumentation);
-            String varName = findCorrespondingVariableForPop(v, bytecodeInstructionSet);
             instrumentation.add(new LdcInsnNode(varName));
             addExecutionTracerMethod(v, instrumentation);
         }
-
-
 
         return instrumentation;
     }
@@ -290,6 +307,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             }else{
                 // it should be field definition
                 // fetch the field type and act accordingly
+                //TODO: Handle for iinc as above
                 String type = instruction.getFieldType();
                 switch(type){
                     case "J":

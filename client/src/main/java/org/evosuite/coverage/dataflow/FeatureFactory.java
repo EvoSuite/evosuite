@@ -14,6 +14,17 @@ public class FeatureFactory {
     private static Map<BytecodeInstruction, Integer> knownInstructions = new HashMap<BytecodeInstruction, Integer>();
     private static int defCounter = 0;
 
+    /**
+     *
+     * defCounter is incremented only if the instruction is a pure data definition
+     * for e.g. XSTORE or PUTFIELD instructions. For IINC and POP defCounter is not incremented
+     * as it is not required by FeatureInstrumentation.java
+     * Returns true if the instruction is not a duplicate one. The case in which it returns false
+     * would be rare.
+     * PUTFIELD instructions
+     * @param d
+     * @return a boolean
+     */
     public static boolean registerAsFeature(BytecodeInstruction d) {
         if(null != knownInstructions.get(d)){
             return false;
@@ -32,6 +43,8 @@ public class FeatureFactory {
                 }
 
             }
+            if(d.getASMNode().getOpcode() == Opcodes.POP)
+                return true;
 
 
             defCounter++;

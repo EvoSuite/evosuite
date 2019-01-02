@@ -361,6 +361,8 @@ public interface ExecutionTrace {
 
 	public void featureVisitedIntIncr(int object, Object caller, Object varName);
 
+    public void featureVisitedObjUpdate(Object object, Object caller, Object varName);
+
 
 	/**
 	 * Add a new method call to stack

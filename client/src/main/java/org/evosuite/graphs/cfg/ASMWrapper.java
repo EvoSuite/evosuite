@@ -522,6 +522,19 @@ public abstract class ASMWrapper {
 	}
 
 	/**
+	 * isDataUpdating method represents all the instructions which cause the
+	 * local variable's or field variables's values to be updated. POP instruction
+	 * as such does not directly indicate a value updating operation but POP instruction
+	 * is used whenever a Collection is updated(For e.g. add method of java.util.List.
+	 * The exact operation depends on which interface method of the Collection being used.
+	 *
+	 * @return a boolean
+	 */
+	public boolean isDataUpding() {
+		return isDefinition() || asmNode.getOpcode() == Opcodes.POP;
+	}
+
+	/**
 	 * <p>
 	 * isUse
 	 * </p>

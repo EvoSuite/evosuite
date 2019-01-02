@@ -785,6 +785,25 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 	}
 
+    @Override
+    public void featureVisitedObjUpdate(Object object, Object caller, Object varName){
+        Feature feature = new Feature(getFeatureFromVisitedFeatureMapByName(vistedFeaturesMap, (String)varName));
+        if(null == feature){
+            // something went wrogn
+            System.out.println("Something went wrong");
+        }else{
+            // which means the variable is already stored before
+            // get the value
+            // update the value according to the new value
+            XStream xstream = new XStream();
+            String dataXml = xstream.toXML(object);
+            feature.setValue(dataXml);
+
+            // need to get id from the map
+            vistedFeaturesMap.put(FeatureFactory.getFeatureIdByVarName((String)varName), feature);
+        }
+    }
+
 	/**
 	 * helper method.
 	 * TODO: Move to a different location
