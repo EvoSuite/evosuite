@@ -14,11 +14,12 @@ public class DataUtils {
 
 
 
-    public void listOperation(int j) {
-
-        int i = j;
-        i--;
-        if(i < 0){
+    public void listOperation(List<Integer> list) {
+        List<Integer> list1 = list;
+        List<Integer> list2 = list;
+        list1.add(2);
+        list2.add(0);
+        if(list2.size() < 2){
             System.out.println("Negative");
         }else{
             System.out.println("Positive");

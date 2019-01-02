@@ -32,20 +32,21 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             AbstractInsnNode in = j.next();
             Set<BytecodeInstruction> vertexSet = graph.vertexSet();
             for(BytecodeInstruction vertex: vertexSet){
-                if (in.equals(vertex.getASMNode()) && vertex.isDefinition()) {
+                if (in.equals(vertex.getASMNode()) && (vertex.isDefinition() || vertex.getASMNode().getOpcode() == Opcodes.POP)) {
                     boolean isValidDef = false;
                     if (vertex.isMethodCallOfField()) {
+                        //TODO: what is this. Remove this.
                         isValidDef = DefUsePool.addAsFieldMethodCall(vertex);
                     } else {
                         // keep track of definitions
-                        if (vertex.isDefinition() || vertex.isUse())
+                        if (vertex.isDefinition() || vertex.getASMNode().getOpcode() == Opcodes.POP)
                             isValidDef = FeatureFactory.registerAsFeature(vertex);
                     }
-                    if (isValidDef) {
+                    if (isValidDef ) {
                         boolean staticContext = vertex.isStaticDefUse()
                                 || ((access & Opcodes.ACC_STATIC) > 0);
                         // adding instrumentation for defuse-coverage
-                        InsnList instrumentation = getInstrumentation(vertex, staticContext,
+                        InsnList instrumentation = getInstrumentation(vertex, vertexSet, staticContext,
                                 className,
                                 methodName,
                                 mn);
@@ -63,46 +64,81 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                             mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
                         }
                     }
+                    // else block
+                    // stumbling upon a "POP" instruction, do following
+                    // iterate backwards till you reach opcode 25 - which is aload
+                    // get the index of the asmNode.
+                    // using that index as key fetch the ByteCodeInstruction from "vertexSet"
+                    // because we need the corresponding variable Name - i.e the feature ot be updated
+                    // So effectively we must be able to send a new updated object, variableName to the instrumented method
+                    // That's the goal.
+                    // We need to do all the above because we do not rely on any 'XLOAD' instructions which are used as 'vertex.isUse'
+                    // in DefUseInstrumentation
+                    // TODO: do it.
+                    else if(vertex.getASMNode().getOpcode() == Opcodes.POP){
+
+                    }
                 }
             }
-            /*vertexSet.forEach(vertex -> {
-                if (in.equals(vertex.getASMNode()) && vertex.isDefinition()) {
-                    boolean isValidDef = false;
-                    if (vertex.isMethodCallOfField()) {
-                        isValidDef = DefUsePool.addAsFieldMethodCall(vertex);
-                    } else {
-                        // keep track of definitions
-                        if (vertex.isDefinition())
-                            isValidDef = FeatureFactory.registerAsFeature(vertex);
-                    }
-                    if (isValidDef) {
-                        boolean staticContext = vertex.isStaticDefUse()
-                                || ((access & Opcodes.ACC_STATIC) > 0);
-                        // adding instrumentation for defuse-coverage
-                        InsnList instrumentation = getInstrumentation(vertex, staticContext,
-                                className,
-                                methodName,
-                                mn);
-                        if (instrumentation == null)
-                            throw new IllegalStateException("error instrumenting node "
-                                    + vertex.toString());
-                        if (vertex.isMethodCallOfField())
-                            mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
-                        else if (vertex.isArrayStoreInstruction())
-                            mn.instructions.insertBefore(vertex.getSourceOfArrayReference().getASMNode(), instrumentation);
-
-                        mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
-                    }
-                }
-            });*/
         }
 
     }
 
     /**
+     * helper function
+     * TODO: move in a appropriate place
+     * @param instruction
+     */
+    private String findCorrespondingVariableForPop(BytecodeInstruction instruction, Set<BytecodeInstruction> instructionSet){
+
+        /**
+         * check if the immediate previous asmNode is a MethodInsNode i.e. we need to be sure that
+         * the previous instruction is actually a call to one of the permitted methods of the interface(Collection interface)
+         * TODO: handle all the cases for all the Collection implementation
+         *
+         */
+
+        String owner = ((MethodInsnNode) instruction.getASMNode().getPrevious()).owner;
+        String name = ((MethodInsnNode) instruction.getASMNode().getPrevious()).name;
+        String desc = ((MethodInsnNode) instruction.getASMNode().getPrevious()).desc;
+
+        int index = 0;
+        if (isValidCollectionMethod(owner, name, desc)) {
+            boolean search = true;
+            index = instruction.getInstructionId();
+            AbstractInsnNode insnNode = instruction.getASMNode();
+            while (search) {
+                if (insnNode.getOpcode() == Opcodes.ALOAD) {
+                    search = false;
+                } else {
+                    insnNode = insnNode.getPrevious();
+                    index--; // we need ot do this because 'prev' instance of AbstractInsnNode is private-package visible and thus cannot be used
+                }
+            }
+            final int indexCopy = index; // price we need to pay for using lambdas
+            BytecodeInstruction instr = instructionSet.stream().filter(e -> e.getInstructionId() == indexCopy).findAny().get();
+            String varName = instr.getVariableName(); // we did all the above things, just to get this. I.e to find out which variable does
+            // the pop instruction corresponds to.
+            return varName;
+        }
+
+        return null;
+
+
+    }
+
+    private boolean isValidCollectionMethod(String owner, String name, String desc){
+        if("java/util/List".equals(owner) && "add".equals(name) && "(Ljava/lang/Object;)Z".equals(desc)){
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * Creates the instrumentation needed to track defs
      */
-    private InsnList getInstrumentation(BytecodeInstruction v, boolean staticContext,
+    private InsnList getInstrumentation(BytecodeInstruction v, Set<BytecodeInstruction> bytecodeInstructionSet, boolean staticContext,
                                         String className, String methodName, MethodNode mn) {
         InsnList instrumentation = new InsnList();
 
@@ -127,7 +163,15 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             addCallingObjectInstrumentation(staticContext, instrumentation);
             instrumentation.add(new LdcInsnNode(v.getVariableName()));
             addExecutionTracerMethod(v, instrumentation);
+        }else if(v.getASMNode().getOpcode() == Opcodes.POP){
+            addObjectInstrumentation(v, instrumentation, mn);
+            addCallingObjectInstrumentation(staticContext, instrumentation);
+            String varName = findCorrespondingVariableForPop(v, bytecodeInstructionSet);
+            instrumentation.add(new LdcInsnNode(varName));
+            addExecutionTracerMethod(v, instrumentation);
         }
+
+
 
         return instrumentation;
     }
@@ -160,9 +204,12 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 methodDesc = "(DLjava/lang/Object;I)V";
                 break;
             case Opcodes.IINC:
-                int value = ((IincInsnNode) v.getASMNode()).incr;
                 methodName = "featureVisitedIntIncr";
                 methodDesc = "(ILjava/lang/Object;Ljava/lang/Object;)V";
+                break;
+            case Opcodes.POP:
+                methodName = "featureVisitedObjUpdate";
+                methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V";
                 break;
             case Opcodes.PUTFIELD:
                 String type = v.getFieldType();
@@ -255,7 +302,12 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 }
             }
 
-        } else if (instruction.isLocalVariableUse()) {
+        }else if(instruction.getASMNode().getOpcode() == Opcodes.POP){
+            //TODO: Also take care of POP2
+            instrumentation.add(new InsnNode(Opcodes.DUP));
+        }
+
+        else if (instruction.isLocalVariableUse()) {
             if (instruction.getASMNode().getOpcode() == Opcodes.ASTORE) {
                 instrumentation.add(new InsnNode(Opcodes.DUP));
             } else {
