@@ -19,11 +19,11 @@ public class PerformanceUpdate<T extends Chromosome> extends ArchiveUpdate<T> {
     private static final Logger logger = LoggerFactory.getLogger(PerformanceUpdate.class);
 
     @Override
-    public boolean isBetterSolution(T currentSolution, T candidateSolution) {
+    public boolean isBetterSolution(T archivedSolution, T candidateSolution) {
         double sumArchive = 0;
         double sumNewIndividual = 0;
 
-        LinkedHashMap<String, Double> archiveIndicators = currentSolution.getIndicatorValues();
+        LinkedHashMap<String, Double> archiveIndicators = archivedSolution.getIndicatorValues();
         LinkedHashMap<String, Double> currentIndicators = candidateSolution.getIndicatorValues();
 
         for (String indicator : archiveIndicators.keySet()) {
@@ -36,6 +36,7 @@ public class PerformanceUpdate<T extends Chromosome> extends ArchiveUpdate<T> {
             sumNewIndividual += normalize(currentInd);
         }
         logger.debug("Sum Old = {}, Sum New {}", sumArchive, sumNewIndividual);
+        logger.debug("sumNewIndividual < sumArchive = {}", sumNewIndividual < sumArchive);
         if (sumNewIndividual < sumArchive)
             return true;
         else
