@@ -86,14 +86,14 @@ public class CoveredStatementsCounter extends AbstractIndicator {
             BasicBlock block = branch.getInstruction().getBasicBlock();
             double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
             if (value > 1)
-               counter += value * (block.getLastLine()-block.getLastLine());
+               counter += value * (block.getLastLine()-block.getFirstLine());
         }
         for (Integer branch_id : result.getTrace().getCoveredTrueBranches()){
             Branch branch = this.branches.get(branch_id);
             BasicBlock block = branch.getInstruction().getBasicBlock();
             double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
             if (value > 1)
-                counter += value * (block.getLastLine()-block.getLastLine());
+                counter += value * (block.getLastLine()-block.getFirstLine());
         }
 
         for (String branchlessMethod : result.getTrace().getCoveredBranchlessMethods()){

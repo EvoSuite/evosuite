@@ -87,10 +87,10 @@ public class ObjectInstantiations extends AbstractIndicator {
         double counter = 0;
         for (Integer branch_id : result.getTrace().getCoveredFalseBranches()){
             Branch branch = this.branches.get(branch_id);
+            double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
             BasicBlock block = branch.getInstruction().getBasicBlock();
             for (BytecodeInstruction instr : block) {
                 if (instr.isConstructorInvocation() || instr.isLocalArrayDefinition()) {
-                    double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
                     if (value > 1)
                         counter += value;
                 }
@@ -98,10 +98,10 @@ public class ObjectInstantiations extends AbstractIndicator {
         }
         for (Integer branch_id : result.getTrace().getCoveredTrueBranches()){
             Branch branch = this.branches.get(branch_id);
+            double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
             BasicBlock block = branch.getInstruction().getBasicBlock();
             for (BytecodeInstruction instr : block) {
                 if (instr.isConstructorInvocation() || instr.isLocalArrayDefinition()) {
-                    double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
                     if (value > 1)
                         counter += value;
                 }
