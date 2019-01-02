@@ -7,7 +7,7 @@ import org.evosuite.ga.Chromosome;
  */
 public abstract class ArchiveUpdate<T extends Chromosome> {
 
-    abstract boolean isBetterSolution(T currentSolution, T candidateSolution);
+    abstract boolean isBetterSolution(T archivedSolution, T candidateSolution);
 
     double normalize(double value) {
         return (value)/(value+1);
