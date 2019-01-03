@@ -694,9 +694,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 
 	@Override
-	public void featureVisitedObj(Object object, Object caller, int featID) {
+	public void featureVisitedObj(Object object, Object caller, Object varName) {
 
-		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+        Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
 			System.out.println("Something went wrong");
@@ -711,19 +711,21 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			// Hence serializing it to a xml string and storing it.
 			System.out.println("Updating visitedFeaturesMap in ExeTracerImpl");
 			logger.error("Updating visitedFeaturesMap in ExeTracerImpl");
+            int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
 		}
 	}
 
 	@Override
-	public void featureVisitedInt(int object, Object caller, int featID) {
+	public void featureVisitedInt(int object, Object caller, Object varName) {
 
-		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 		    // something went wrogn
             System.out.println("Something went wrong");
         }else{
 			feature.setValue(object);
+			int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
         }
 	}

@@ -349,7 +349,7 @@ public interface ExecutionTrace {
 	 */
 	public void definitionPassed(Object object, Object caller, int defID);
 
-	public void featureVisitedInt(int object, Object caller, int defID);
+	public void featureVisitedInt(int object, Object caller, Object varName);
 
     public void featureVisitedLon(long object, Object caller, int defID);
 
@@ -357,7 +357,7 @@ public interface ExecutionTrace {
 
     public void featureVisitedDou(double object, Object caller, int defID);
 
-    public void featureVisitedObj(Object object, Object caller, int defID);
+    public void featureVisitedObj(Object object, Object caller, Object varName) ;
 
 	public void featureVisitedIntIncr(int object, Object caller, Object varName);
 

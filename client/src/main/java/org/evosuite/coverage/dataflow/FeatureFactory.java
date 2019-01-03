@@ -16,7 +16,8 @@ public class FeatureFactory {
 
     /**
      *
-     * defCounter is incremented only if the instruction is a pure data definition
+     * defCounter is incremented only if the instruction is a pure data definition and one feature is made per
+     * variable name.
      * for e.g. XSTORE or PUTFIELD instructions. For IINC and POP defCounter is not incremented
      * as it is not required by FeatureInstrumentation.java
      * Returns true if the instruction is not a duplicate one. The case in which it returns false
@@ -36,14 +37,19 @@ public class FeatureFactory {
                 // check if the variable already exists - Just for safety
                 String var = d.getVariableName();
 
-                Collection<Feature> featureList = features.values();
+                /*Collection<Feature> featureList = features.values();
                 for (Feature feature:featureList) {
                     if(feature.getVariableName().equals(var))
                         return true;
-                }
+                }*/
+                if(null != getFeatureByVarName(var))
+                    return true;
 
             }
             if(d.getASMNode().getOpcode() == Opcodes.POP)
+                return true;
+
+            if(null != getFeatureByVarName(d.getVariableName()))
                 return true;
 
 

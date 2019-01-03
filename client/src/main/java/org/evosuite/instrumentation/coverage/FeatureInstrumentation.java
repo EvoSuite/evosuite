@@ -111,6 +111,11 @@ public class FeatureInstrumentation implements MethodInstrumentation {
          *
          */
 
+        if(!(instruction.getASMNode() instanceof MethodInsnNode)){
+            return null;
+            // do not instrument it.
+        }
+
         String owner = ((MethodInsnNode) instruction.getASMNode().getPrevious()).owner;
         String name = ((MethodInsnNode) instruction.getASMNode().getPrevious()).name;
         String desc = ((MethodInsnNode) instruction.getASMNode().getPrevious()).desc;
@@ -167,7 +172,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             // The actual object that is defined is on the stack _before_ the store instruction
             addObjectInstrumentation(v, instrumentation, mn);
             addCallingObjectInstrumentation(staticContext, instrumentation);
-            instrumentation.add(new LdcInsnNode(FeatureFactory.getDefCounter()));
+            instrumentation.add(new LdcInsnNode(v.getVariableName()));
             addExecutionTracerMethod(v, instrumentation);
 
         }else if(v.getASMNode().getOpcode() == Opcodes.IINC){
@@ -178,18 +183,19 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         }else if(v.getASMNode().getOpcode() == Opcodes.POP){
             Map<String, Integer> varNameIndex = findCorrespondingVariableForPop(v, bytecodeInstructionSet);
             /*instrumentation.add(new VarInsnNode(Opcodes.ALOAD, ));*/
-            String varName = null;
-            int varIndex = 0;
-            for (String key : varNameIndex.keySet()) {
-                varName = key;
-                varIndex = varNameIndex.get(varName);
+            if(null !=varNameIndex){
+                String varName = null;
+                int varIndex = 0;
+                for (String key : varNameIndex.keySet()) {
+                    varName = key;
+                    varIndex = varNameIndex.get(varName);
+                }
+                instrumentation.add(new VarInsnNode(Opcodes.ALOAD, varIndex));
+                addCallingObjectInstrumentation(staticContext, instrumentation);
+                instrumentation.add(new LdcInsnNode(varName));
+                addExecutionTracerMethod(v, instrumentation);
             }
-            instrumentation.add(new VarInsnNode(Opcodes.ALOAD, varIndex));
-            addCallingObjectInstrumentation(staticContext, instrumentation);
-            instrumentation.add(new LdcInsnNode(varName));
-            addExecutionTracerMethod(v, instrumentation);
         }
-
         return instrumentation;
     }
 
@@ -202,11 +208,11 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         switch(instOpcode){
             case Opcodes.ASTORE:
                 methodName = "featureVisitedObj";
-                methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;I)V";
+                methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V";
                 break;
             case Opcodes.ISTORE:
                 methodName = "featureVisitedInt";
-                methodDesc = "(ILjava/lang/Object;I)V";
+                methodDesc = "(ILjava/lang/Object;Ljava/lang/Object;)V";
                 break;
             case Opcodes.LSTORE:
                 methodName = "featureVisitedLon";
