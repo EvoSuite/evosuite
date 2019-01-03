@@ -30,6 +30,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.*;
+import org.evosuite.feature.converters.StaticFieldConverter;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
@@ -701,7 +702,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			System.out.println("Something went wrong");
 		}else{
 
-			XStream xstream = new XStream();
+			XStream xstream = new XStream(new StaticFieldConverter());
 			String dataXml = xstream.toXML(object);
 			feature.setValue(dataXml);
 
@@ -795,7 +796,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
             // which means the variable is already stored before
             // get the value
             // update the value according to the new value
-            XStream xstream = new XStream();
+            XStream xstream = new XStream(new StaticFieldConverter());
             String dataXml = xstream.toXML(object);
             feature.setValue(dataXml);
 

@@ -300,14 +300,20 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 else {
                     instrumentation.add(new InsnNode(Opcodes.DUP));
                 }
-                //ACONST_NULL We can't do a ACONST_NULL because we are concerned with the actual value rather than just knowing if the variable has been defined or not.
-                // This means we need to manually check which type the VariableDefinition is
-                // and accordingly call a method from ExecutionTracer.
-                // TODO : do it.
             }else{
                 // it should be field definition
                 // fetch the field type and act accordingly
-                //TODO: Handle for iinc as above
+                /**
+                 * the post/pre increment/decrement operator on a field variable is essentially converted to normal addition operation.
+                 * For e.g. assuming field variable 'i' of type Integer, when it is incremented using the above operator
+                 * the following bytecode is generated:
+                 *        2: getfield      #2                  // Field index:I
+                 *        5: iconst_1
+                 *        6: iadd
+                 *        7: putfield      #2                  // Field index:I
+                 *
+                 * So no need to handle it in a special way as how it is done for local variables.
+                 */
                 String type = instruction.getFieldType();
                 switch(type){
                     case "J":
