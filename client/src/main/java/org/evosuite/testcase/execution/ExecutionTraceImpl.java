@@ -21,9 +21,6 @@ package org.evosuite.testcase.execution;
 
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.collections.map.LinkedMap;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -31,7 +28,6 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.*;
 import org.evosuite.feature.converters.StaticFieldConverter;
-import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
@@ -717,7 +713,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 
 	@Override
-	public void featureVisitedInt(int object, Object caller, Object varName) {
+	public void featureVisitedInt(int object, Object varName) {
 
 		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){

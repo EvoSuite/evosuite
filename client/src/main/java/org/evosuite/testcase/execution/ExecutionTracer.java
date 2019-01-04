@@ -787,13 +787,13 @@ public class ExecutionTracer {
             tracer.trace.definitionPassed(object, caller, defID);
     }
 
-    public static void featureVisitedInt(int object, Object caller, Object varName) {
+    public static void featureVisitedInt(int object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedInt(object, caller, varName);
+            tracer.trace.featureVisitedInt(object, varName);
     }
 
     public static void featureVisitedFlo(float object, Object caller, int defID) {
@@ -859,6 +859,8 @@ public class ExecutionTracer {
         if (!tracer.disabled)
             tracer.trace.updateFeatureObjectLink(id, featureMap);
     }
+
+
 
     /**
      * Called by instrumented code each time a variable is read from (a Use)

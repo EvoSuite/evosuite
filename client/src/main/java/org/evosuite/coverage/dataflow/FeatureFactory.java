@@ -115,4 +115,13 @@ public class FeatureFactory {
         return null;
     }
 
+    public static BytecodeInstruction getInstructionById(int id){
+        for(Map.Entry<BytecodeInstruction, Integer> entry:knownInstructions.entrySet()){
+            int val = entry.getValue();
+            if(val == id)
+                return entry.getKey();
+        }
+        return null;
+    }
+
 }
