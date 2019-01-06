@@ -65,23 +65,25 @@ public class FeatureNovelty implements NoveltyMetric {
         ExecutionTrace trace2 = result2.getTrace();
         Map<Integer, Feature> featureMap2  = trace2.getVisitedFeaturesMap();
         trace2.updateFeatureObjectLink(b.getTestCase().getID(), featureMap2);
-        double difference = 0.0;
+        double euclideanDistance = 0.0;
 
 
         /**
-         * This should create a MAP of featureName, DistanceValue. I.e. Each individual will have a vector of distances
-         * for each of the feature.
-         * Distance should be calculated for TestChromosome 'a' w.r.t the other individuals.
+         * This creates a vector map of key, value where
+         * 'key' : is the feature number
+         * 'value' : is the sum of squared differences between the value of feature i of individual a and
+         *  value of feature i of individual b
+         * This vector map will be saved in individual b
          */
         Map<Integer, Double> distanceVector = null;
 
-        if(a.getDistanceVector().isEmpty()){
+        if(b.getDistanceVector().isEmpty()){
             distanceVector = new HashMap<>();
         }else{
             // do nothing as of now
-            distanceVector = a.getDistanceVector();
+            distanceVector = b.getDistanceVector();
         }
-        double distanceSum = 0; // sum of all the feature wise distance. TODO; find a way to normalize it. Or do we even need to do it?
+        double squaredDiffSum = 0; // sum of squared difference of all the feature. TODO; find a way to normalize it. Or do we even need to do it?
         for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
             /*System.out.println(entry.getKey() + ":" + entry.getValue());*/
             System.out.println("FeatureNovelty.java : Feature2 is : "+ featureMap2);
@@ -89,6 +91,12 @@ public class FeatureNovelty implements NoveltyMetric {
                 // rare case. But happens when the test case contains statements which throw exception while execution.
                 // recently seen, linkedList0.add(int0, integer1); where 'integer1' is the index whose value was greater
                 // than the size of the linkedList.
+
+                // Anyways do the following
+                // update the original vector map in the testChromosome 'b' with empty vector map
+                double value = getDistance(featureMap1.get(entry.getKey()), null);
+                distanceVector.put(entry.getKey(), value);
+                squaredDiffSum +=value;
                 continue;
             }
             double value = getDistance(featureMap1.get(entry.getKey()), featureMap2.get(entry.getKey()));
@@ -97,17 +105,18 @@ public class FeatureNovelty implements NoveltyMetric {
                 distanceVector.put(entry.getKey(), value);
             } else {
                 // fetch the value first
-                double valueTemp = distanceVector.get(entry.getKey());
-                value += valueTemp;
+                /*double valueTemp = distanceVector.get(entry.getKey());
+                value += valueTemp;*/
                 distanceVector.put(entry.getKey(), value);
             }
-            distanceSum +=value;
+            squaredDiffSum +=value;
         }
-        // update the original vector map in the testChromosome 'a'
-        a.setDistanceVector(distanceVector);
-
-        // find a way to iterate through the feature distanceVector and get a normalized distance between 0-1
-        return distanceSum;
+        // update the original vector map in the testChromosome 'b'
+        b.setDistanceVector(distanceVector);
+        euclideanDistance = Math.sqrt(squaredDiffSum);
+        // setting the distance of a individual w.r.t 'a'
+        b.setDistance(euclideanDistance);
+        return euclideanDistance;
     }
 
     @Override
@@ -116,36 +125,52 @@ public class FeatureNovelty implements NoveltyMetric {
     }
 
     /**
-     * Assuming that both the feature has values of same type
+     * Assuming that both the feature have values of same type
      * @param feature1
      * @param feature2
-     * @return
+     * @return squared difference between feature1 and feature2 value
      */
-    private double getDistance(Feature feature1, Feature feature2){
+    public static double getDistance(Feature feature1, Feature feature2){
 
-        // value can be of type INT, Lon, Float, Double,String Object are converted to string xml format
+        // value can be of type Integer, Long, Float, Double. String Object are converted to string xml format
         Object val = feature1.getValue();
-        if(feature2 == null)
+        Object val1 = null;
+        boolean useDefault = false;
+        if(feature2 == null){
             System.out.println("Achtung!!!!!");
-        Object val1 = feature2.getValue();
+            // Use default values and proceed with the calculation
+            useDefault = true;
+        }else{
+            val1 = feature2.getValue();
+        }
+
+
         if(val instanceof Integer){
-            return Math.abs((Integer)feature1.getValue() - (Integer)feature2.getValue());
+            int tempVal = !useDefault?(Integer)val1:0;
+            return ((Integer)feature1.getValue() - tempVal) * ((Integer)feature1.getValue() - tempVal);
         }else if(val instanceof Float){
-            return Math.abs((Float)feature1.getValue() - (Float) feature2.getValue());
+            float tempVal = !useDefault?(Float)val1:0;
+            return ((Float)feature1.getValue() - tempVal) * ((Float)feature1.getValue() - tempVal);
         }else if(val instanceof Long){
-            return Math.abs((Long) feature1.getValue() - (Long)feature2.getValue());
+            Long tempVal = !useDefault?(Long)val1:0;
+            return ((Long) feature1.getValue() - tempVal) * ((Long) feature1.getValue() - tempVal);
         }else if(val instanceof Double){
-            return Math.abs((Double) feature1.getValue() - (Double)feature2.getValue());
+            Double tempVal = !useDefault?(Double)val1:0;
+            return ((Double) feature1.getValue() - tempVal) * ((Double) feature1.getValue() - tempVal);
         }else if(val instanceof String){
+
+
             // handle String value type
             // All Objects of type other than above ones are handled here.
             // TODO: act according to xml string or simple String
+            // TODO: for all the above value types the difference is squared. What should be done for string representation?
+            val1 = !useDefault?val1:"";
             try {
                Map<String, Double> diffMap = FeatureDiffCalculator.getDifferenceMap((String)val, (String)val1);
                if(diffMap.isEmpty()){
                    // something went wrong. Diff cannot be calculated for this feature
                    System.out.println("something went wrong. Diff cannot be calculated for this feature");
-                   // fail safe. At the mst we wouldn't consider this feature for difference
+                   // fail safe. At the most we wouldn't consider this feature for difference
                    return 0;
                }else{
                    // iterate the MAP and fetch the individual components

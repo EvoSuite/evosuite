@@ -172,6 +172,7 @@ public class FeatureDiffCalculator {
                         // as a default fallback - we always consider
                         // As of now returning 1 for All String differences.
                         // TODO: handle in a better way to get an accurate difference
+                        // TODO: Maybe we can use length of the string or good old way of char by char comparision?
                         return 1;
                     }
 
@@ -179,6 +180,42 @@ public class FeatureDiffCalculator {
 
             }
         }
+    }
+
+    public static double readDoubleValue(Object val) {
+        if (val instanceof Integer) {
+            return ((Integer) val);
+        } else if (val instanceof Float) {
+            return ((Float) val);
+        } else if (val instanceof Long) {
+            return ((Long) val);
+        } else if (val instanceof Double) {
+            return ((Double) val);
+        } else if (val instanceof String) {
+                /*try {
+                    Map<String, Double> diffMap = FeatureDiffCalculator.getDifferenceMap((String)val, (String)val1);
+                    if(diffMap.isEmpty()){
+                        // something went wrong. Diff cannot be calculated for this feature
+                        System.out.println("something went wrong. Diff cannot be calculated for this feature");
+                        // fail safe. At the most we wouldn't consider this feature for difference
+                        return 0;
+                    }else{
+                        // iterate the MAP and fetch the individual components
+                        double valDiff = diffMap.get(FeatureDiffCalculator.VALUE_DIFF);
+                        double structDiff = diffMap.get(FeatureDiffCalculator.STRUCT_DIFF);
+                        double totalTags = diffMap.get(FeatureDiffCalculator.TOTAL_TAGS);
+
+                        // As of now returning the sum of both the component
+                        // TODO: handle it in a better way. Maybe the product of them.
+                        return valDiff+FeatureDiffCalculator.getNormalizedStructDiff(structDiff, totalTags);
+                    }
+                } catch (XmlPullParserException | IOException e) {
+                    e.printStackTrace();
+                }*/
+            return ((String) val).length();
+        }
+        // default case
+        return 0.1;
     }
 
     /**

@@ -796,40 +796,40 @@ public class ExecutionTracer {
             tracer.trace.featureVisitedInt(object, varName);
     }
 
-    public static void featureVisitedFlo(float object, Object caller, int defID) {
+    public static void featureVisitedFlo(float object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedFlo(object, caller, defID);
+            tracer.trace.featureVisitedFlo(object, varName);
     }
 
-    public static void featureVisitedLon(long object, Object caller, int defID) {
+    public static void featureVisitedLon(long object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedLon(object, caller, defID);
+            tracer.trace.featureVisitedLon(object, varName);
     }
 
-    public static void featureVisitedDou(double object, Object caller, int defID) {
+    public static void featureVisitedDou(double object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedDou(object, caller, defID);
+            tracer.trace.featureVisitedDou(object, varName);
     }
 
-    public static void featureVisitedObj(Object object, Object caller, Object varName)  {
+    public static void featureVisitedObj(Object object, Object varName)  {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedObj(object, caller, varName);
+            tracer.trace.featureVisitedObj(object, varName);
     }
 
 

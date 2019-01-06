@@ -690,7 +690,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 
 	@Override
-	public void featureVisitedObj(Object object, Object caller, Object varName) {
+	public void featureVisitedObj(Object object, Object varName) {
 
         Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
@@ -727,40 +727,43 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 
 	@Override
-	public void featureVisitedLon(long object, Object caller, int featID) {
+	public void featureVisitedLon(long object, Object varName) {
 
-		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
 			System.out.println("Something went wrong");
 		}else{
 			feature.setValue(object);
+            int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
 		}
 	}
 
 	@Override
-	public void featureVisitedFlo(float object, Object caller, int featID) {
+	public void featureVisitedFlo(float object, Object varName) {
 
-		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
 			System.out.println("Something went wrong");
 		}else{
 			feature.setValue(object);
+            int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
 		}
 	}
 
 	@Override
-	public void featureVisitedDou(double object, Object caller, int featID) {
+	public void featureVisitedDou(double object, Object varName) {
 
-		Feature feature = new Feature(FeatureFactory.getFeatureById(featID));
+		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
 			System.out.println("Something went wrong");
 		}else{
 			feature.setValue(object);
+            int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
 		}
 	}

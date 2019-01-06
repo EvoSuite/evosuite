@@ -3,6 +3,7 @@ package org.evosuite.ga.metaheuristics;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.TestChromosome;
 
+import java.util.Collection;
 import java.util.List;
 
 /**

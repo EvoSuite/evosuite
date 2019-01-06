@@ -34,6 +34,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             Set<BytecodeInstruction> vertexSet = graph.vertexSet();
             for(BytecodeInstruction vertex: vertexSet){
 
+                //Identify and store the features in FeatureFactory
                 if (in.equals(vertex.getASMNode()) && vertex.isDefinition() ) {
                     boolean isValidDef = false;
                     if (vertex.isMethodCallOfField()) {
@@ -45,12 +46,13 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                             isValidDef = FeatureFactory.registerAsFeature(vertex);
                     }
                 }
-                    /**
-                     * It makes more sense to load all the identified feature variables once before the 'return' instruction
-                     * and then store them using a method of ExecutionTraceImpl.
-                     * This makes the resulting bytecode less complex and much efficient instead of reading
-                     * all the modification operations
-                     */
+                // Add the instrumentation
+                /**
+                 * It makes more sense to load all the identified feature variables once before the 'return' instruction
+                 * and then store them using a method of ExecutionTraceImpl.
+                 * This makes the resulting bytecode less complex and much efficient instead of reading the variables
+                 * for every modification operation.
+                 */
                 if (in.equals(vertex.getASMNode()) && vertex.isReturn() && !FeatureFactory.getFeatures().isEmpty()) {
                         /*boolean staticContext = vertex.isStaticDefUse()
                                 || ((access & Opcodes.ACC_STATIC) > 0);*/
@@ -67,26 +69,8 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                     else if (vertex.isArrayStoreInstruction())
                         mn.instructions.insertBefore(vertex.getSourceOfArrayReference().getASMNode(), instrumentation);
 
-                        /*if(vertex.isUse() || vertex.getASMNode().getOpcode() == Opcodes.POP){
-                            mn.instructions.insert(vertex.getASMNode(), instrumentation);
-                        }else{*/
                     mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
-                    /*}*/
                 }
-                    // else block
-                    // stumbling upon a "POP" instruction, do following
-                    // iterate backwards till you reach opcode 25 - which is aload
-                    // get the index of the asmNode.
-                    // using that index as key fetch the ByteCodeInstruction from "vertexSet"
-                    // because we need the corresponding variable Name - i.e the feature ot be updated
-                    // So effectively we must be able to send a new updated object, variableName to the instrumented method
-                    // That's the goal.
-                    // We need to do all the above because we do not rely on any 'XLOAD' instructions which are used as 'vertex.isUse'
-                    // in DefUseInstrumentation
-                    // TODO: do it.
-                    /*else if(vertex.getASMNode().getOpcode() == Opcodes.POP){
-
-                    }*/
 
             }
         }
@@ -178,19 +162,16 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             return instrumentation;
         }
 
-        /**
+        /*
          * For each of the feature, do following:
          * load the variable on the stack,
          * load the variable name on the stack
-         * call the method of ExecutionTraceImpl
+         * call the method of ExecutionTracer
          */
-        // changes start
         Map<Integer, Feature> featureMap = FeatureFactory.getFeatures();
         for(Map.Entry<Integer, Feature> entry:featureMap.entrySet()){
             Feature feature = entry.getValue();
             BytecodeInstruction bytecodeInstruction = FeatureFactory.getInstructionById(entry.getKey());
-            /*addObjectInstrumentation(bytecodeInstruction, instrumentation, mn);*/
-            //Map<String, Integer> varNameIndex = findCorrespondingVariableForPop(bytecodeInstruction, bytecodeInstructionSet);
             if(bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTSTATIC){
                 instrumentation.add(new FieldInsnNode(Opcodes.GETSTATIC, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
@@ -201,41 +182,10 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             else
                 instrumentation.add(new VarInsnNode(getOpcodeForLoadingVariable(bytecodeInstruction), ((VarInsnNode) bytecodeInstruction.getASMNode()).var));
 
-            instrumentation.add(new LdcInsnNode(bytecodeInstruction.getVariableName()));
+            instrumentation.add(new LdcInsnNode(bytecodeInstruction.getVariableName()));// or we can also use the name from feature.getVariableName()
             addExecutionTracerMethod(bytecodeInstruction, instrumentation);
         }
         // changes end
-
-
-
-        /*if (FeatureFactory.isKnownAsDefinition(v)) {
-            // The actual object that is defined is on the stack _before_ the store instruction
-            addObjectInstrumentation(v, instrumentation, mn);
-            addCallingObjectInstrumentation(staticContext, instrumentation);
-            instrumentation.add(new LdcInsnNode(v.getVariableName()));
-            addExecutionTracerMethod(v, instrumentation);
-
-        }else if(v.getASMNode().getOpcode() == Opcodes.IINC){
-            addObjectInstrumentation(v, instrumentation, mn);
-            addCallingObjectInstrumentation(staticContext, instrumentation);
-            instrumentation.add(new LdcInsnNode(v.getVariableName()));
-            addExecutionTracerMethod(v, instrumentation);
-        }else if(v.getASMNode().getOpcode() == Opcodes.POP){
-            Map<String, Integer> varNameIndex = findCorrespondingVariableForPop(v, bytecodeInstructionSet);
-            *//*instrumentation.add(new VarInsnNode(Opcodes.ALOAD, ));*//*
-            if(null !=varNameIndex){
-                String varName = null;
-                int varIndex = 0;
-                for (String key : varNameIndex.keySet()) {
-                    varName = key;
-                    varIndex = varNameIndex.get(varName);
-                }
-                instrumentation.add(new VarInsnNode(Opcodes.ALOAD, varIndex));
-                addCallingObjectInstrumentation(staticContext, instrumentation);
-                instrumentation.add(new LdcInsnNode(varName));
-                addExecutionTracerMethod(v, instrumentation);
-            }
-        }*/
         return instrumentation;
     }
 
@@ -294,7 +244,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         switch(instOpcode){
             case Opcodes.ASTORE:
                 methodName = "featureVisitedObj";
-                methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V";
+                methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;)V";
                 break;
             case Opcodes.ISTORE:
                 methodName = "featureVisitedInt";
@@ -302,16 +252,17 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 break;
             case Opcodes.LSTORE:
                 methodName = "featureVisitedLon";
-                methodDesc = "(JLjava/lang/Object;I)V";
+                methodDesc = "(JLjava/lang/Object;)V";
                 break;
             case Opcodes.FSTORE:
                 methodName = "featureVisitedFlo";
-                methodDesc = "(FLjava/lang/Object;I)V";
+                methodDesc = "(FLjava/lang/Object;)V";
                 break;
             case Opcodes.DSTORE:
                 methodName = "featureVisitedDou";
-                methodDesc = "(DLjava/lang/Object;I)V";
+                methodDesc = "(DLjava/lang/Object;)V";
                 break;
+            //TODO: take care of this
             case Opcodes.IINC:
                 methodName = "featureVisitedIntIncr";
                 methodDesc = "(ILjava/lang/Object;Ljava/lang/Object;)V";
@@ -334,20 +285,20 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                         break;
                     case "J":
                         methodName = "featureVisitedLon";
-                        methodDesc = "(JLjava/lang/Object;I)V";
+                        methodDesc = "(JLjava/lang/Object;)V";
                         break;
                     case "F":
                         methodName = "featureVisitedFlo";
-                        methodDesc = "(FLjava/lang/Object;I)V";
+                        methodDesc = "(FLjava/lang/Object;)V";
                         break;
                     case "D":
                         methodName = "featureVisitedDou";
-                        methodDesc = "(DLjava/lang/Object;I)V";
+                        methodDesc = "(DLjava/lang/Object;)V";
                         break;
                     default:
                         // this should be the object type
                         methodName = "featureVisitedObj";
-                        methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;I)V";
+                        methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;)V";
                         break;
                 }
             default:

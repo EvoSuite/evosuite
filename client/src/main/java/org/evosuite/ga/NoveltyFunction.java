@@ -8,18 +8,20 @@ public abstract class NoveltyFunction<T extends Chromosome> {
 
     public double getNovelty(T individual, Collection<T> population) {
         double distance = 0.0;
-        boolean loopStart = false;
         for(T other : population) {
             if(other == individual)
                 continue;
 
+            // this causes the distance vector to be stored in he 'other' individual
+            // returns the euclidean distance from the distance vector
             double d = getDistance(individual, other);
             distance += d;
-            loopStart = true;
         }
 
         distance /= (population.size() - 1);
 
         return distance;
     }
+
+    public abstract void calculateNovelty(Collection<T> population);
 }

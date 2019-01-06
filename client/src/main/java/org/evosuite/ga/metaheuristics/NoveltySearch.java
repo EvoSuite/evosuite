@@ -1,11 +1,15 @@
 package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.*;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.*;
 
 public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
@@ -28,27 +32,16 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
         this.noveltyMetric = noveltyMetric;
     }
 
+    /**
+     * Use Novelty Function to do the calculation
+     *
+     */
     public void calculateNovelty(){
         logger.debug("Calculating novelty for " + population.size() + " individuals");
 
-        Iterator<T> iterator = population.iterator();
-        Map<T, Double> noveltyMap = new LinkedHashMap<>();
+        noveltyFunction.calculateNovelty(population);
 
-        while (iterator.hasNext()) {
-            T c = iterator.next();
-            if (isFinished()) {
-                if (c.isChanged())
-                    iterator.remove();
-            } else {
-                // TODO: This needs to take the archive into account
-                double novelty = noveltyFunction.getNovelty(c, population);
-                // update Individual
-                c.setNoveltyScore(novelty);
-            }
-        }
     }
-
-
 
     /**
      * Sort the population by novelty
