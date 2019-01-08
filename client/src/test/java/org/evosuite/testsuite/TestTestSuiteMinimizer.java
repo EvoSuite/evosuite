@@ -19,38 +19,34 @@
  */
 package org.evosuite.testsuite;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.examples.with.different.packagename.FlagExample1;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
-import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.testcase.*;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.Randomness;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
-import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.FlagExample1;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("unused")
 public class TestTestSuiteMinimizer
@@ -61,17 +57,11 @@ public class TestTestSuiteMinimizer
     public void setUp()
     {
         ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
-
         Properties.getInstance().resetToDefaults();
-
         Randomness.setSeed(42);
-        Properties.TARGET_CLASS = "";
-
         TestGenerationContext.getInstance().resetContext();
-		ClassReInitializer.resetSingleton();
-
+        ClassReInitializer.resetSingleton();
         Randomness.setSeed(42);
-
         currentProperties = (java.util.Properties) System.getProperties().clone();
     }
 
@@ -86,6 +76,7 @@ public class TestTestSuiteMinimizer
     @Test
     public void minimizeEmptySuite() throws ClassNotFoundException
     {
+
         DefaultTestCase test = new DefaultTestCase();
 
         TestSuiteChromosome tsc = new TestSuiteChromosome();
@@ -93,7 +84,7 @@ public class TestTestSuiteMinimizer
         TestSuiteFitnessFunction ff = new BranchCoverageSuiteFitness();
         double previous_fitness = ff.getFitness(tsc);
         tsc.setFitness(ff, previous_fitness);
-        assertEquals(previous_fitness, 0.0, 0.0);
+        assertEquals(0.0, previous_fitness, 0.0);
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
         minimizer.minimize(tsc, false);
@@ -119,7 +110,7 @@ public class TestTestSuiteMinimizer
         TestSuiteFitnessFunction ff = new BranchCoverageSuiteFitness();
         double previous_fitness = ff.getFitness(tsc);
         tsc.setFitness(ff, previous_fitness);
-        assertEquals(previous_fitness, 0.0, 0.0);
+        assertEquals(0.0, previous_fitness, 0.0);
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
         minimizer.minimize(tsc, false);
@@ -161,7 +152,7 @@ public class TestTestSuiteMinimizer
         TestSuiteFitnessFunction ff = new BranchCoverageSuiteFitness();
         double previous_fitness = ff.getFitness(tsc);
         tsc.setFitness(ff, previous_fitness);
-        assertEquals(previous_fitness, 2.0, 0.0);
+        assertEquals(2.0, previous_fitness, 0.0);
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
         minimizer.minimize(tsc, false);
@@ -206,16 +197,11 @@ public class TestTestSuiteMinimizer
         TestSuiteFitnessFunction branch = new BranchCoverageSuiteFitness();
         double previous_branch_fitness = branch.getFitness(tsc);
         tsc.setFitness(branch, previous_branch_fitness);
-        assertEquals(previous_branch_fitness, 2.0, 0.0);
+        assertEquals(2.0, previous_branch_fitness, 0.0);
 
-        TestSuiteFitnessFunction defuse = new DefUseCoverageSuiteFitness();
-        double previous_defuse_fitness = defuse.getFitness(tsc);
-        tsc.setFitness(defuse, previous_defuse_fitness);
-        assertEquals(previous_defuse_fitness, 0.0, 0.0);
 
         List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
         factories.add(new BranchCoverageFactory());
-        factories.add(new DefUseCoverageFactory());
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);
         minimizer.minimize(tsc, false);
@@ -226,8 +212,6 @@ public class TestTestSuiteMinimizer
         double branch_fitness = branch.getFitness(tsc);
         assertEquals(previous_branch_fitness, branch_fitness, 0.0);
 
-        double defuse_fitness = defuse.getFitness(tsc);
-        assertEquals(previous_defuse_fitness, defuse_fitness, 0.0);
     }
 
     @Test
@@ -270,7 +254,7 @@ public class TestTestSuiteMinimizer
         TestSuiteFitnessFunction ff = new BranchCoverageSuiteFitness();
         double previous_fitness = ff.getFitness(tsc);
         tsc.setFitness(ff, previous_fitness);
-        assertEquals(previous_fitness, 0.0, 0.0);
+        assertEquals(0.0, previous_fitness, 0.0);
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(new BranchCoverageFactory());
         minimizer.minimize(tsc, false);
@@ -323,16 +307,10 @@ public class TestTestSuiteMinimizer
         TestSuiteFitnessFunction branch = new BranchCoverageSuiteFitness();
         double previous_branch_fitness = branch.getFitness(tsc);
         tsc.setFitness(branch, previous_branch_fitness);
-        assertEquals(previous_branch_fitness, 0.0, 0.0);
-
-        TestSuiteFitnessFunction defuse = new DefUseCoverageSuiteFitness();
-        double previous_defuse_fitness = defuse.getFitness(tsc);
-        tsc.setFitness(defuse, previous_defuse_fitness);
-        assertEquals(previous_defuse_fitness, 0.0, 0.0);
+        assertEquals(0.0, previous_branch_fitness, 0.0);
 
         List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
         factories.add(new BranchCoverageFactory());
-        factories.add(new DefUseCoverageFactory());
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);
         minimizer.minimize(tsc, false);
@@ -343,8 +321,6 @@ public class TestTestSuiteMinimizer
         double branch_fitness = branch.getFitness(tsc);
         assertEquals(previous_branch_fitness, branch_fitness, 0.0);
 
-        double defuse_fitness = defuse.getFitness(tsc);
-        assertEquals(previous_defuse_fitness, defuse_fitness, 0.0);
     }
 
     @Test
@@ -388,16 +364,10 @@ public class TestTestSuiteMinimizer
         TestSuiteFitnessFunction branch = new BranchCoverageSuiteFitness();
         double previous_branch_fitness = branch.getFitness(tsc);
         tsc.setFitness(branch, previous_branch_fitness);
-        assertEquals(previous_branch_fitness, 0.0, 0.0);
-
-        TestSuiteFitnessFunction defuse = new DefUseCoverageSuiteFitness();
-        double previous_defuse_fitness = defuse.getFitness(tsc);
-        tsc.setFitness(defuse, previous_defuse_fitness);
-        assertEquals(previous_defuse_fitness, 0.0, 0.0);
+        assertEquals(0.0, previous_branch_fitness, 0.0);
 
         List<TestFitnessFactory<? extends TestFitnessFunction>> factories = new ArrayList<TestFitnessFactory<? extends TestFitnessFunction>>();
         factories.add(new BranchCoverageFactory());
-        factories.add(new DefUseCoverageFactory());
 
         TestSuiteMinimizer minimizer = new TestSuiteMinimizer(factories);
         minimizer.minimize(tsc, true);
@@ -409,8 +379,5 @@ public class TestTestSuiteMinimizer
 
         double branch_fitness = branch.getFitness(tsc);
         assertEquals(previous_branch_fitness, branch_fitness, 0.0);
-
-        double defuse_fitness = defuse.getFitness(tsc);
-        assertEquals(previous_defuse_fitness, defuse_fitness, 0.0);
     }
 }
