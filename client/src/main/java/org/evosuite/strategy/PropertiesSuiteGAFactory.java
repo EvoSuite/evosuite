@@ -224,7 +224,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
             }
         case MAP_ELITES:
           logger.info("Chosen search algorithm: MAP-Elites");
-          return new MAPElites<TestSuiteChromosome>(factory);
+          throw new RuntimeException("MAPElites only works on TestChromosome, not on TestSuiteChromosome");
         case LIPS:
         	logger.info("Chosen search algorithm: LIPS");
             return new LIPS<TestSuiteChromosome>(factory);

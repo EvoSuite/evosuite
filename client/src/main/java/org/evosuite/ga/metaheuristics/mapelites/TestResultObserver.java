@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.Inspector;
 import org.evosuite.assertion.InspectorManager;
@@ -20,18 +21,18 @@ import org.evosuite.testcase.statements.Statement;
  * @author Felix Prasse
  *
  */
-class TestResultObserver extends ExecutionObserver implements TestFeatureMap, Serializable {
+class TestResultObserver extends ExecutionObserver implements Serializable {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
   
   private final Inspector[] inspectors;
-  private final Map<TestCase, FeatureVector> caseToFeature;
+  
+  // TODO WrapperClass
   private final Class<?> targetClass;
 
   public TestResultObserver() {
-    this.caseToFeature = new HashMap<>();
     this.targetClass = this.getTargetClass();
     
     this.inspectors =
@@ -42,12 +43,7 @@ class TestResultObserver extends ExecutionObserver implements TestFeatureMap, Se
   }
   
   private Class<?> getTargetClass() {
-    try {
-      return TestGenerationContext.getInstance().getClassLoaderForSUT()
-          .loadClass(RuntimeSettings.className);
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    return Properties.getInitializedTargetClass();
   }
   
   @Override
@@ -68,18 +64,15 @@ class TestResultObserver extends ExecutionObserver implements TestFeatureMap, Se
   
   @Override
   public void testExecutionFinished(ExecutionResult result, Scope scope) {
+    
     for(Object instance : scope.getObjects(this.targetClass)) {
-      this.caseToFeature.put(result.test, new FeatureVector(this.inspectors, instance));
+      FeatureVector vector = new FeatureVector(this.inspectors, instance);
+      result.getTrace().addFeatureVector(vector);
     }
   }
 
   @Override
   public void clear() {
     //  Do nothing
-  }
-
-  @Override
-  public FeatureVector get(TestCase test) {
-    return this.caseToFeature.get(test);
   }
 }

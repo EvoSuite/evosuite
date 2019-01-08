@@ -1,15 +1,18 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.IterUtil;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,18 +38,15 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
   // TODO Replace this with a proper archive.
-  private Map<Object, T> populationMap;
-  
-  private final TestFeatureMap testFeatureMap; 
+  private final Map<Object, T> populationMap;
   
 
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
     this.populationMap = new HashMap<>();
     
-    TestResultObserver observer = new TestResultObserver();
+    final TestResultObserver observer = new TestResultObserver();
     TestCaseExecutor.getInstance().addObserver(observer);
-    this.testFeatureMap = observer;
   }
 
   @Override
@@ -61,6 +61,9 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     storeIfBetter(chromosome);
 
+    // branch -> feature (stop when coverage for branch reached)
+    // TODO Own strategy based upon NoveltyStrategy?
+    
     ++currentIteration;
   }
 
@@ -78,11 +81,19 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
     }
   }
   
-  private FeatureVector getFeatureVector(T chromosome) {
-    // TODO What about TestSuiteChromosome?!
-    // TODO Properties.STRATEGY currently runs WholeTestSuiteStrategy resulting in TestSuiteChromosome instead of TestChromosome
-    TestCase testCase = ((TestChromosome) chromosome).getTestCase();
-    return this.testFeatureMap.get(testCase);
+  private List<FeatureVector> getFeatureVectors(T chromosome) {
+    if(chromosome instanceof TestChromosome) {
+      ExecutionTrace trace = ((TestChromosome) chromosome).getLastExecutionResult().getTrace();
+      return trace.getFeatureVectors();
+    } else if(chromosome instanceof TestSuiteChromosome) {
+   /*
+    *  TODO Could either work with  
+    *  TestSuiteChromosome#getLastExecutionResults or TestSuiteChromosome#getTestChromosomes
+    *  This situation occurs when Properties.STRATEGY = WholeTestSuiteStrategy
+    */
+    }
+   
+    throw new UnsupportedOperationException("Chromosome of type " + chromosome.getClass().getName() + " is not supported");
   }
 
 
@@ -97,8 +108,8 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
     calculateFitness();
 
     for (T chromosome : this.population) {
-      FeatureVector test = this.getFeatureVector(chromosome);
-      logger.warn("TEST----------", test);
+      List<FeatureVector> test = this.getFeatureVectors(chromosome);
+      logger.warn("TEST----------", IterUtil.join(test));
     }
 
     // TODO Store

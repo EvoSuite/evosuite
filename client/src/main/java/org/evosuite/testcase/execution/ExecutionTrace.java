@@ -25,6 +25,7 @@ package org.evosuite.testcase.execution;
 import java.util.*;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.ga.metaheuristics.mapelites.FeatureVector;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
@@ -621,4 +622,16 @@ public interface ExecutionTrace {
 	 * @return
 	 */
 	public List<String> getInitializedClasses();
+	
+	/**
+	 * Add a feature vector for MAPElites
+	 * @param vector The feature vector.
+	 */
+	public void addFeatureVector(FeatureVector vector);
+	
+	/**
+	 * Get the feature vectors for MAPElites
+	 * @return The feature vector if set or {@code null}
+	 */
+	public List<FeatureVector> getFeatureVectors();
 }
