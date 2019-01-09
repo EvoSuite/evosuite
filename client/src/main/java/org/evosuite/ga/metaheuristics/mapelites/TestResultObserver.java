@@ -64,7 +64,6 @@ class TestResultObserver extends ExecutionObserver implements Serializable {
   
   @Override
   public void testExecutionFinished(ExecutionResult result, Scope scope) {
-    
     for(Object instance : scope.getObjects(this.targetClass)) {
       FeatureVector vector = new FeatureVector(this.inspectors, instance);
       result.getTrace().addFeatureVector(vector);
