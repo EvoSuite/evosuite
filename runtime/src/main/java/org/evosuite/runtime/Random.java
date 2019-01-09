@@ -91,7 +91,7 @@ public class Random {
 	/**
 	 * Replacement function for nextDouble
 	 * 
-	 * @return a float.
+	 * @return a double.
 	 */
 	public static double nextDouble() {
 		wasAccessed = true;
