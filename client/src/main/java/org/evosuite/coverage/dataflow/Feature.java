@@ -8,6 +8,7 @@ public class Feature implements Serializable {
     String variableName;
     String typeClass;
     Object value;
+    double normalizedValue;
 
     public Feature(){
 
@@ -43,12 +44,21 @@ public class Feature implements Serializable {
         this.typeClass = typeClass;
     }
 
+    public double getNormalizedValue() {
+        return normalizedValue;
+    }
+
+    public void setNormalizedValue(double normalizedValue) {
+        this.normalizedValue = normalizedValue;
+    }
+
     @Override
     public String toString() {
         return "Feature{" +
                 "variableName='" + variableName + '\'' +
                 ", typeClass='" + typeClass + '\'' +
-                ", value=" + value +
+                ", value=" + value + '\'' +
+                ", normalizedValue=" + normalizedValue +
                 '}';
     }
 

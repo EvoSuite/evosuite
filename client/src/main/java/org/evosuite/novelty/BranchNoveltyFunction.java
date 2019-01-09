@@ -1,5 +1,6 @@
 package org.evosuite.novelty;
 
+import org.apache.commons.collections.map.LinkedMap;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.NoveltyFunction;
@@ -12,7 +13,9 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.*;
 
 public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction<TestChromosome> {
@@ -56,11 +59,44 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
         return this.noveltyMetric.calculateDistance(individual1, individual2);
     }
 
+    public void executeAndAnalyseFeature(TestChromosome individual) {
+        getExecutionResult(individual);
+        Map<String, Double> map= null;
+        Map<Integer, Feature> featureMap = individual.getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+        Map<Integer, Feature> newFeatures = new LinkedHashMap<>();
+        int featuresSize = featureMap.size();
+
+        for(Map.Entry<Integer, Feature> entry: featureMap.entrySet()){
+
+            boolean isCreated = false;
+            if(entry.getValue().getValue() instanceof  String){
+                map = FeatureDiffCalculator.getDifferenceMapOfStringRepresentation((String)entry.getValue().getValue());
+                isCreated = true;
+            }
+            if(isCreated){
+                Feature structureFeature = new Feature();
+                structureFeature.setVariableName(entry.getValue().getVariableName()+"_Struct");
+                structureFeature.setValue(map.get(FeatureDiffCalculator.STRUCT_DIFF));
+                Feature valueFeature = new Feature();
+                valueFeature.setVariableName(entry.getValue().getVariableName()+"_Value");
+                valueFeature.setValue(map.get(FeatureDiffCalculator.VALUE_DIFF));
+                // replace the existing entry of String representation
+                newFeatures.put(entry.getKey(), structureFeature);
+                featuresSize++;
+                newFeatures.put(featuresSize, valueFeature);
+            }
+        }
+        if(!newFeatures.isEmpty()){
+            featureMap.putAll(newFeatures);
+        }
+
+    }
+
     @Override
     public void calculateNovelty(Collection<TestChromosome> population) {
         // Step 1. Run all the tests
         for(TestChromosome t : population){
-            getExecutionResult(t);
+            executeAndAnalyseFeature(t);
         }
         // Step 2. Normalize each of the feature values. For this we need to
         // find the min, max range for each Feature
@@ -80,13 +116,18 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
 
         // better to normalize all the feature values to (0-1) according to their value ranges
         // calculated above. Otherwise the calculation and the values may go in 'long' range
-        //TODO
+        // calculating the normalized novelty
+        for(TestChromosome t : population){
+            FeatureDiffCalculator.updateNormalizedFeatureValues(t, featureValueRangeList);
+        }
 
         // calculating the normalized novelty
         for(TestChromosome t : population){
-            getEuclideanDistance(t, population, featureValueRangeList);
+            updateEuclideanDistance(t, population, featureValueRangeList);
         }
     }
+
+
 
     /**
      * list(0) -> min , list(1) -> max
@@ -123,12 +164,14 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
 
     /**
      * This calculates normalized novelty for 't' w.r.t the other population
+     * The closer the score to 1 more is the novelty or the distance and vice versa.
      * @param t
      * @param population
      * @param featureValueRangeList
      */
-    public void getEuclideanDistance(TestChromosome t, Collection<TestChromosome> population, Map<Integer, List<Double>> featureValueRangeList){
+    public void updateEuclideanDistance(TestChromosome t, Collection<TestChromosome> population, Map<Integer, List<Double>> featureValueRangeList){
         double noveltyScore = 0;
+        double sumDiff = 0;
         for(TestChromosome other: population){
             if(t == other)
                 continue;
@@ -136,22 +179,21 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
                 // fetch the features
                 Map<Integer, Feature> featureMap1= ((TestChromosome)t).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
                 Map<Integer, Feature> featureMap2= ((TestChromosome)other).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
-                double sumDiff = 0;
+
                 long maxSumDiff = 0;
                 for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
-                    double squaredDiff =FeatureNovelty.getDistance(entry.getValue(), featureMap2.get(entry.getKey()));
+                    double squaredDiff =FeatureNovelty.getDistance1(entry.getValue(), featureMap2.get(entry.getKey()));
                     sumDiff +=squaredDiff;
 
-                    maxSumDiff += (featureValueRangeList.get(entry.getKey()).get(0) - featureValueRangeList.get(entry.getKey()).get(1)) *
-                            (featureValueRangeList.get(entry.getKey()).get(0) - featureValueRangeList.get(entry.getKey()).get(1));
+                    /*maxSumDiff += (featureValueRangeList.get(entry.getKey()).get(0) - featureValueRangeList.get(entry.getKey()).get(1)) *
+                            (featureValueRangeList.get(entry.getKey()).get(0) - featureValueRangeList.get(entry.getKey()).get(1));*/
 
                 }
-                double score = Math.sqrt(maxSumDiff) - Math.sqrt(sumDiff);
-                score = score / Math.sqrt(maxSumDiff);
-                noveltyScore += score;
-                System.out.println("Novelty w.r.t individual  : "+score);
             }
         }
+        double distance = Math.sqrt(sumDiff);
+        noveltyScore = distance / (Math.sqrt(population.size()-1));
+        t.setNoveltyScore(noveltyScore);
         System.out.println("Novelty  : "+noveltyScore);
     }
 

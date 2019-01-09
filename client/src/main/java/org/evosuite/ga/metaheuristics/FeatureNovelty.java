@@ -94,25 +94,25 @@ public class FeatureNovelty implements NoveltyMetric {
 
                 // Anyways do the following
                 // update the original vector map in the testChromosome 'b' with empty vector map
-                double value = getDistance(featureMap1.get(entry.getKey()), null);
+                double value = getDistance1(featureMap1.get(entry.getKey()), null);
                 distanceVector.put(entry.getKey(), value);
                 squaredDiffSum +=value;
                 continue;
             }
-            double value = getDistance(featureMap1.get(entry.getKey()), featureMap2.get(entry.getKey()));
-            if (distanceVector.get(entry.getKey()) == null) {
+            double value = getDistance1(featureMap1.get(entry.getKey()), featureMap2.get(entry.getKey()));
+            /*if (distanceVector.get(entry.getKey()) == null) {
                 // adding distance for the first time
                 distanceVector.put(entry.getKey(), value);
             } else {
                 // fetch the value first
-                /*double valueTemp = distanceVector.get(entry.getKey());
-                value += valueTemp;*/
+                *//*double valueTemp = distanceVector.get(entry.getKey());
+                value += valueTemp;*//*
                 distanceVector.put(entry.getKey(), value);
-            }
+            }*/
             squaredDiffSum +=value;
         }
         // update the original vector map in the testChromosome 'b'
-        b.setDistanceVector(distanceVector);
+        // b.setDistanceVector(distanceVector);
         euclideanDistance = Math.sqrt(squaredDiffSum);
         // setting the distance of a individual w.r.t 'a'
         b.setDistance(euclideanDistance);
@@ -123,6 +123,20 @@ public class FeatureNovelty implements NoveltyMetric {
     public void sortPopulation(List<TestChromosome> population) {
 
     }
+
+
+    public static double getDistance1(Feature feature1, Feature feature2){
+        if((feature1 != null) && (feature2 != null)){
+            return (feature1.getNormalizedValue() - feature2.getNormalizedValue()) * (feature1.getNormalizedValue() - feature2.getNormalizedValue());
+        }else{
+            //TODO: decide what to do
+            // returning min distance as of now
+            return 0;
+        }
+    }
+
+
+
 
     /**
      * Assuming that both the feature have values of same type

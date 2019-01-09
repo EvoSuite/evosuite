@@ -85,7 +85,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#clear()
 	 */
 	/** {@inheritDoc} */
@@ -109,7 +109,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.IExecutionTrace#definitionPassed(java.lang.Object,
 	 * int)
@@ -158,7 +158,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.IExecutionTrace#enteredMethod(java.lang.String,
 	 * java.lang.String, java.lang.Object)
@@ -172,7 +172,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#exitMethod(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -185,7 +185,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#finishCalls()
 	 */
 	/** {@inheritDoc} */
@@ -197,7 +197,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoverageData()
 	 */
 	/** {@inheritDoc} */
@@ -208,7 +208,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredFalseBranches()
 	 */
 	/** {@inheritDoc} */
@@ -219,7 +219,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.ExecutionTrace#getCoveredLines(java.lang.String)
 	 */
@@ -241,7 +241,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredMethods()
 	 */
 	/** {@inheritDoc} */
@@ -257,7 +257,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredPredicates()
 	 */
 	/** {@inheritDoc} */
@@ -268,7 +268,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredTrueBranches()
 	 */
 	/** {@inheritDoc} */
@@ -279,7 +279,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredDefinitions()
 	 */
 	@Override
@@ -289,7 +289,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getDefinitionExecutionCount()
 	 */
 	@Override
@@ -299,7 +299,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getDefinitionData()
 	 */
 	/** {@inheritDoc} */
@@ -315,7 +315,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTraceInterface#getExplicitException()
 	 */
 	/** {@inheritDoc} */
@@ -326,7 +326,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getFalseDistance(int)
 	 */
 	/** {@inheritDoc} */
@@ -337,7 +337,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getFalseDistances()
 	 */
 	/** {@inheritDoc} */
@@ -348,7 +348,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getMethodCalls()
 	 */
 	/** {@inheritDoc} */
@@ -359,7 +359,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getMethodExecutionCount()
 	 */
 	/** {@inheritDoc} */
@@ -370,7 +370,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getMutationDistance(int)
 	 */
 	/** {@inheritDoc} */
@@ -381,7 +381,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getMutationDistances()
 	 */
 	/** {@inheritDoc} */
@@ -392,7 +392,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getPassedDefinitions(java.lang.
 	 * String)
 	 */
@@ -404,7 +404,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getPassedUses(java.lang.String)
 	 */
 	/** {@inheritDoc} */
@@ -415,7 +415,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getPredicateExecutionCount()
 	 */
 	/** {@inheritDoc} */
@@ -426,7 +426,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getReturnData()
 	 */
 	/** {@inheritDoc} */
@@ -437,7 +437,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getTouchedMutants()
 	 */
 	/** {@inheritDoc} */
@@ -453,7 +453,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#getTraceForObject(int)
 	 */
 	/** {@inheritDoc} */
@@ -464,7 +464,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#getTraceInDUCounterRange(org.
 	 * evosuite.coverage.dataflow.DefUse, boolean, int, int)
 	 */
@@ -477,7 +477,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getTrueDistance(int)
 	 */
 	/** {@inheritDoc} */
@@ -488,7 +488,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getTrueDistances()
 	 */
 	/** {@inheritDoc} */
@@ -499,7 +499,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getUseData()
 	 */
 	/** {@inheritDoc} */
@@ -515,7 +515,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#hasFalseDistance(int)
 	 */
 	/** {@inheritDoc} */
@@ -526,7 +526,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#hasTrueDistance(int)
 	 */
 	/** {@inheritDoc} */
@@ -537,7 +537,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#lazyClone()
 	 */
 	/** {@inheritDoc} */
@@ -550,7 +550,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#linePassed(java.lang.String,
 	 * java.lang.String, int)
 	 */
@@ -563,7 +563,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#mutationPassed(int, double)
 	 */
 	/** {@inheritDoc} */
@@ -575,7 +575,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#returnValue(java.lang.String,
 	 * java.lang.String, int)
 	 */
@@ -588,7 +588,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.ExecutionTraceInterface#setExplicitException(java.
 	 * lang.Throwable)
@@ -602,7 +602,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#toDefUseTraceInformation()
 	 */
 	/** {@inheritDoc} */
@@ -613,7 +613,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.IExecutionTrace#toDefUseTraceInformation(java.lang.
 	 * String)
@@ -626,7 +626,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.IExecutionTrace#toDefUseTraceInformation(java.lang.
 	 * String, int)
@@ -639,7 +639,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.IExecutionTrace#usePassed(java.lang.Object,
 	 * int)
 	 */
@@ -652,7 +652,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#wasMutationTouched(int)
 	 */
 	/** {@inheritDoc} */
@@ -687,7 +687,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getPassedDefIDs()
 	 */
 	@Override
@@ -697,7 +697,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getPassedUseIDs()
 	 */
 	@Override
@@ -707,7 +707,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getTrueDistancesContext()
 	 */
 	@Override
@@ -717,7 +717,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getFalseDistancesContext()
 	 */
 	@Override
@@ -727,7 +727,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.testcase.ExecutionTrace#getPredicateContextExecutionCount()
 	 */
@@ -738,7 +738,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.ExecutionTrace#getMethodContextCount()
 	 */
 	@Override

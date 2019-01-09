@@ -1,6 +1,8 @@
 package org.evosuite.ga.metaheuristics;
 
 import com.thoughtworks.xstream.XStream;
+import org.evosuite.coverage.dataflow.Feature;
+import org.evosuite.testcase.TestChromosome;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -128,6 +130,42 @@ public class FeatureDiffCalculator {
         return result;
     }
 
+    public static Map<String, Double> getDifferenceMapOfStringRepresentation(String xm11){
+        try{
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser xpp1 = factory.newPullParser();
+            double diff = 0; // Stores structural difference
+            double val = 0;
+            double totalTags = 0; // stores the max. no of tags a particular xml representation has
+            Map<String, Double> result = new HashMap<>();
+            xpp1.setInput(new StringReader(xm11));
+
+            int eventType1 = xpp1.getEventType();
+
+            while (eventType1 != XmlPullParser.END_DOCUMENT) {
+                totalTags++;
+                if (eventType1 == XmlPullParser.TEXT) {
+                    val += readDoubleValue(xpp1.getText());
+                }
+                eventType1 = xpp1.next();
+            }
+
+            result.put(VALUE_DIFF, val);
+            result.put(STRUCT_DIFF, totalTags);
+            result.put(TOTAL_TAGS, totalTags);
+            System.out.println("Value Diff is : " + val);
+            System.out.println("Structural Diff is : " + diff);
+            System.out.println("Total Tags : " + totalTags);
+            return result;
+        }catch(Exception e){
+            //TODO: log the exception
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
     /**
      * Tries to convert the String representation of values to Int, Float, Long, Double
      * and then calculates the difference between them.
@@ -181,6 +219,27 @@ public class FeatureDiffCalculator {
             }
         }
     }
+    static int count = 0;
+    public static void updateNormalizedFeatureValues(TestChromosome t, Map<Integer, List<Double>> featureValueRangeList){
+        Map<Integer, Feature> featureMap  = t.getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+        for(Map.Entry<Integer, Feature>entry : featureMap.entrySet()){
+            List<Double> valueRange = featureValueRangeList.get(entry.getKey());
+            Feature feature = entry.getValue();
+            double normalizedVal = getNormalizedValue(readDoubleValue(feature.getValue()), valueRange);
+            feature.setNormalizedValue(normalizedVal);
+            System.out.println("Normalized Score : "+normalizedVal);
+        }
+        count++;
+        System.out.println("Individual : "+count);
+    }
+
+    public static double getNormalizedValue(double value, List<Double> valueRange){
+        double minVal = valueRange.get(0);
+        double maxVal = valueRange.get(1);
+        double range = maxVal-minVal;
+        // the value should be in the range of 0-1
+        return (maxVal-value)/range;
+    }
 
     public static double readDoubleValue(Object val) {
         if (val instanceof Integer) {
@@ -192,30 +251,25 @@ public class FeatureDiffCalculator {
         } else if (val instanceof Double) {
             return ((Double) val);
         } else if (val instanceof String) {
-                /*try {
-                    Map<String, Double> diffMap = FeatureDiffCalculator.getDifferenceMap((String)val, (String)val1);
-                    if(diffMap.isEmpty()){
-                        // something went wrong. Diff cannot be calculated for this feature
-                        System.out.println("something went wrong. Diff cannot be calculated for this feature");
-                        // fail safe. At the most we wouldn't consider this feature for difference
-                        return 0;
-                    }else{
-                        // iterate the MAP and fetch the individual components
-                        double valDiff = diffMap.get(FeatureDiffCalculator.VALUE_DIFF);
-                        double structDiff = diffMap.get(FeatureDiffCalculator.STRUCT_DIFF);
-                        double totalTags = diffMap.get(FeatureDiffCalculator.TOTAL_TAGS);
 
-                        // As of now returning the sum of both the component
-                        // TODO: handle it in a better way. Maybe the product of them.
-                        return valDiff+FeatureDiffCalculator.getNormalizedStructDiff(structDiff, totalTags);
-                    }
-                } catch (XmlPullParserException | IOException e) {
-                    e.printStackTrace();
-                }*/
-            return ((String) val).length();
+            return getCharValueAsIntFromString((String)val);
         }
         // default case
         return 0.1;
+    }
+
+    /**
+     * This method returns the sum of all the int value of the Unicode characters
+     * of the input String.
+     * @param input
+     * @return
+     */
+    private static int getCharValueAsIntFromString(String input){
+        char[] arr = input.toCharArray();
+        int sum=0;
+        for(char c:arr)
+            sum +=  Character.getNumericValue(c);
+        return sum;
     }
 
     /**
