@@ -271,6 +271,9 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
         chromosome.clearCachedResults();
         chromosome.clearMutationHistory();
         chromosome.getFitnessValues().clear();
+
+		chromosome.getIndicatorValues().clear();
+		chromosome.setPerformanceScore(Double.MAX_VALUE);
     }
 
     /**
