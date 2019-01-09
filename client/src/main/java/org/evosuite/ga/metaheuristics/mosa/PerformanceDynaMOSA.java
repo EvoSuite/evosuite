@@ -38,9 +38,9 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
     private PerformanceScore<T> score = new PerformanceScore();
 
-    private enum Heurisitcs {CROWDING, PERFORMANCE}
+    private enum Heuristics {CROWDING, PERFORMANCE}
 
-    private Heurisitcs last_heuristic;
+    private Heuristics last_heuristic;
 
     private int crowdingStagnation=0, performanceStagnation=0;
 
@@ -76,7 +76,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         if (Properties.P_STRATEGY == Properties.PerformanceMOSAStrategy.CROWDING_DISTANCE) {
             last_heuristic = checkStagnation();
         } else {
-            last_heuristic = Heurisitcs.CROWDING;
+            last_heuristic = Heuristics.CROWDING;
         }
         logger.debug("Current Heuristic = {}", last_heuristic);
         /* --------------------------------- select heuristic --------------------------------- */
@@ -106,10 +106,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 
-            if (last_heuristic == Heurisitcs.CROWDING)
-                distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-            else
-                strategy.setDistances(front, goalsManager.getUncoveredGoals());
+            applySecondaryCriterion(front);
 
             logger.debug("Distance = {}, Score = {} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
 
@@ -128,10 +125,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         if (remain > 0 && !front.isEmpty()) {
 
-            if (last_heuristic == Heurisitcs.CROWDING) {
-                distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-            } else
-                strategy.setDistances(front, goalsManager.getUncoveredGoals());
+            applySecondaryCriterion(front);
 
             logger.debug("Distance = {}, Score ={} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
 
@@ -185,7 +179,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         for (T t : population)
             for (FitnessFunction<T> f : goalsManager.getUncoveredGoals())
                 goalsManager.updateBestValue(f, t.getFitness(f));
-        last_heuristic = Heurisitcs.PERFORMANCE;
+        last_heuristic = Heuristics.PERFORMANCE;
 
         // next generations
         while (!isFinished() && this.goalsManager.getUncoveredGoals().size() > 0) {
@@ -350,28 +344,40 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
      * Checks for the stagnation and eventually changes the heuristic
      * @return
      */
-    private Heurisitcs checkStagnation() {
+    private Heuristics checkStagnation() {
 
         if (!goalsManager.hasBetterObjectives()){
             goalsManager.setHasBetterObjectives(false);
-            if (last_heuristic == Heurisitcs.CROWDING)
+            if (last_heuristic == Heuristics.CROWDING)
                 crowdingStagnation++;
             else
                 performanceStagnation++;
 
             if (performanceStagnation > crowdingStagnation)
-                return Heurisitcs.CROWDING;
+                return Heuristics.CROWDING;
             else
-                return Heurisitcs.PERFORMANCE;
+                return Heuristics.PERFORMANCE;
         } else {
             goalsManager.setHasBetterObjectives(false);
 
-            if (last_heuristic == Heurisitcs.CROWDING)
+            if (last_heuristic == Heuristics.CROWDING)
                 crowdingStagnation=0;
             else
                 performanceStagnation=0;
 
             return last_heuristic;
+        }
+    }
+
+    protected void applySecondaryCriterion(List<T> front){
+        if (last_heuristic == Heuristics.CROWDING)
+            distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
+        else if (last_heuristic == Heuristics.PERFORMANCE) {
+            score.assignPerformanceScore(front);
+            strategy.setDistances(front, goalsManager.getUncoveredGoals());
+        } else {
+            for (T t : front)
+                t.setDistance(0);
         }
     }
 }
