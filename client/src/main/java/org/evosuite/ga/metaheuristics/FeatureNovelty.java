@@ -13,12 +13,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FeatureNovelty implements NoveltyMetric {
+public class FeatureNovelty implements NoveltyMetric, Serializable {
 
     private XmlPullParser xpp1 = getInstance();
     private XmlPullParser xpp2 = getInstance();

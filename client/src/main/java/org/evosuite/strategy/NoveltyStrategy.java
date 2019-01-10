@@ -110,6 +110,8 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 
             algorithm.generateSolution();
             testSuite = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
+            //TODO:fix this
+            //testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();

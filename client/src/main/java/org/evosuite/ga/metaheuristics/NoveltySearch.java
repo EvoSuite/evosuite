@@ -36,13 +36,21 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
      * Use Novelty Function to do the calculation
      *
      */
-    public void calculateNovelty(){
+    public void calculateNoveltyAndSortPopulation1(){
         logger.debug("Calculating novelty for " + population.size() + " individuals");
 
         noveltyFunction.calculateNovelty(population);
-
+        sortPopulation();
     }
 
+    protected void sortPopulation(){
+        Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
+            @Override
+            public int compare(Chromosome c1, Chromosome c2) {
+                return Double.compare(c1.getNoveltyScore(), c2.getNoveltyScore());
+            }
+        }));
+    }
     /**
      * Sort the population by novelty
      */
@@ -93,8 +101,8 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
         generateInitialPopulation(Properties.POPULATION);
 
         // Determine novelty
-        calculateNovelty();
-        calculateNoveltyAndSortPopulation();
+        //calculateNovelty();
+        calculateNoveltyAndSortPopulation1();
         this.notifyIteration();
     }
 
@@ -164,7 +172,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
             evolve();
 
             // TODO: Sort by novelty
-            calculateNoveltyAndSortPopulation();
+            calculateNoveltyAndSortPopulation1();
 
             this.notifyIteration();
         }

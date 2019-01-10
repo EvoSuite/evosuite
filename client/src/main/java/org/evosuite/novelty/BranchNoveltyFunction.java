@@ -16,9 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
-public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction<TestChromosome> {
+public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction<TestChromosome> implements Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(BranchNoveltyFunction.class);
 
@@ -172,6 +173,10 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
     public void updateEuclideanDistance(TestChromosome t, Collection<TestChromosome> population, Map<Integer, List<Double>> featureValueRangeList){
         double noveltyScore = 0;
         double sumDiff = 0;
+        // debug
+        /*if(t.getTestCase().getID() == 82){
+           System.out.println("got");
+        }*/
         for(TestChromosome other: population){
             if(t == other)
                 continue;
@@ -191,8 +196,10 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
                 }
             }
         }
+        int numOfFeatures = featureValueRangeList.size()==0?1:featureValueRangeList.size();
+
         double distance = Math.sqrt(sumDiff);
-        noveltyScore = distance / (Math.sqrt(population.size()-1));
+        noveltyScore = distance / (Math.sqrt((population.size()-1) * numOfFeatures)); // dividing by max. possible distance
         t.setNoveltyScore(noveltyScore);
         System.out.println("Novelty  : "+noveltyScore);
     }
