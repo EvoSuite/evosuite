@@ -3,7 +3,13 @@ package org.evosuite.ga.metaheuristics;
 import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.*;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
+import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +18,16 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
+public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
+    /** Crowding distance measure to use */
+    //protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
+
     private NoveltyFunction<T> noveltyFunction;
 
-    private NoveltyMetric noveltyMetric;
+    /*private NoveltyMetric noveltyMetric;*/
 
     public NoveltySearch(ChromosomeFactory<T> factory) {
         super(factory);
@@ -28,9 +37,9 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
         this.noveltyFunction = function;
     }
 
-    public void setNoveltyMetric(NoveltyMetric noveltyMetric){
+    /*public void setNoveltyMetric(NoveltyMetric noveltyMetric){
         this.noveltyMetric = noveltyMetric;
-    }
+    }*/
 
     /**
      * Use Novelty Function to do the calculation
@@ -40,17 +49,17 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
         logger.debug("Calculating novelty for " + population.size() + " individuals");
 
         noveltyFunction.calculateNovelty(population);
-        sortPopulation();
+        noveltyFunction.sortPopulation(population);
     }
 
-    protected void sortPopulation(){
+    /*protected void sortPopulation(){
         Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
             @Override
             public int compare(Chromosome c1, Chromosome c2) {
                 return Double.compare(c1.getNoveltyScore(), c2.getNoveltyScore());
             }
         }));
-    }
+    }*/
     /**
      * Sort the population by novelty
      */
@@ -70,7 +79,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
     /**
      * Calculate fitness for all individuals
      */
-    protected void calculateNoveltyAndSortPopulation() {
+    /*protected void calculateNoveltyAndSortPopulation() {
         logger.debug("Calculating novelty for " + population.size() + " individuals");
 
         Iterator<T> iterator = population.iterator();
@@ -90,7 +99,31 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
 
         // Sort population
         sortPopulation(population, noveltyMap);
+    }*/
+
+    protected TestSuiteChromosome generateSuite() {
+        TestSuiteChromosome suite = new TestSuiteChromosome();
+        Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
+        return suite;
     }
+
+    public TestSuiteChromosome getBestIndividual1() {
+        TestSuiteChromosome best = this.generateSuite();
+        /*if (best.getTestChromosomes().isEmpty()) {
+
+            for (FitnessFunction suiteFitness : this.fitnessFunctions) {
+                best.setCoverage(suiteFitness, 0.0);
+                best.setFitness(suiteFitness,  1.0);
+            }
+            return (TestSuiteChromosome) best;
+        }*/
+
+        // compute overall fitness and coverage
+        //this.computeCoverageAndFitness(best);
+
+        return (TestSuiteChromosome) best;
+    }
+
 
     @Override
     public void initializePopulation() {
@@ -103,6 +136,10 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
         // Determine novelty
         //calculateNovelty();
         calculateNoveltyAndSortPopulation1();
+
+        // Determine fitness
+        this.calculateFitness();
+
         this.notifyIteration();
     }
 
@@ -157,11 +194,25 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
         currentIteration++;
     }
 
+    protected void addUncoveredGoal(FitnessFunction<T> goal) {
+        Archive.getArchiveInstance().addTarget((TestFitnessFunction) goal);
+    }
+
     @Override
     public void generateSolution() {
+        logger.info("executing generateSolution function");
+
+        // keep track of covered goals
+        this.fitnessFunctions.forEach(this::addUncoveredGoal);
 
         if (population.isEmpty())
             initializePopulation();
+
+        // Calculate dominance ranks and crowding distance
+        /*this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+        for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
+            this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
+        }*/
 
         logger.warn("Starting evolution of novelty search algorithm");
 

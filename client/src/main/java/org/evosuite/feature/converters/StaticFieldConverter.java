@@ -2,6 +2,7 @@ package org.evosuite.feature.converters;
 
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -10,7 +11,7 @@ import java.lang.reflect.Modifier;
  * of not serializing a static field.
  *
  */
-public class StaticFieldConverter extends PureJavaReflectionProvider {
+public class StaticFieldConverter extends PureJavaReflectionProvider implements Serializable {
 
     @Override
     protected boolean fieldModifiersSupported(final Field field) {

@@ -1,69 +1,33 @@
 package org.evosuite.novelty;
 
-import org.apache.commons.collections.map.LinkedMap;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.NoveltyFunction;
-import org.evosuite.ga.metaheuristics.FeatureDiffCalculator;
-import org.evosuite.ga.metaheuristics.FeatureNovelty;
-import org.evosuite.ga.metaheuristics.NoveltyMetric;
-import org.evosuite.testcase.TestCase;
+import org.evosuite.ga.metaheuristics.FeatureValueAnalyser;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction<TestChromosome> implements Serializable {
+public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunction<T> implements Serializable {
 
-    private static final Logger logger = LoggerFactory.getLogger(BranchNoveltyFunction.class);
+    private static final Logger logger = LoggerFactory.getLogger(FeatureNoveltyFunction.class);
 
-    private NoveltyMetric noveltyMetric;
-
-    public NoveltyMetric getNoveltyMetric() {
+    /*public NoveltyMetric getNoveltyMetric() {
         return noveltyMetric;
     }
 
     public void setNoveltyMetric(NoveltyMetric noveltyMetric) {
         this.noveltyMetric = noveltyMetric;
-    }
+    }*/
 
-    private ExecutionResult runTest(TestCase test) {
-        return TestCaseExecutor.runTest(test);
-    }
 
-    private ExecutionResult getExecutionResult(TestChromosome individual) {
-       ExecutionResult origResult = individual.getLastExecutionResult();
-       if(origResult == null||individual.isChanged()) {
-            origResult = runTest(individual.getTestCase());
-            individual.setLastExecutionResult(origResult);
-            individual.setChanged(false);
-       }
-       return individual.getLastExecutionResult();
-    }
-
-    /**
-     *
-     * This method calculates Euclidean distance between the features
-     *
-     * @param individual1
-     * @param individual2
-     * @return the feature-wise distance for all the features
-     */
-    @Override
-    public double getDistance(TestChromosome individual1, TestChromosome individual2) {
-        return this.noveltyMetric.calculateDistance(individual1, individual2);
-    }
-
-    public void executeAndAnalyseFeature(TestChromosome individual) {
-        getExecutionResult(individual);
+    public void executeAndAnalyseFeature(T individual) {
+        getExecutionResult((TestChromosome) individual);
         Map<String, Double> map= null;
-        Map<Integer, Feature> featureMap = individual.getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+        Map<Integer, Feature> featureMap = ((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
         Map<Integer, Feature> newFeatures = new LinkedHashMap<>();
         int featuresSize = featureMap.size();
 
@@ -71,16 +35,16 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
 
             boolean isCreated = false;
             if(entry.getValue().getValue() instanceof  String){
-                map = FeatureDiffCalculator.getDifferenceMapOfStringRepresentation((String)entry.getValue().getValue());
+                map = FeatureValueAnalyser.getAnalysisFromStringRepresentation((String)entry.getValue().getValue());
                 isCreated = true;
             }
             if(isCreated){
                 Feature structureFeature = new Feature();
                 structureFeature.setVariableName(entry.getValue().getVariableName()+"_Struct");
-                structureFeature.setValue(map.get(FeatureDiffCalculator.STRUCT_DIFF));
+                structureFeature.setValue(map.get(FeatureValueAnalyser.STRUCT_DIFF));
                 Feature valueFeature = new Feature();
                 valueFeature.setVariableName(entry.getValue().getVariableName()+"_Value");
-                valueFeature.setValue(map.get(FeatureDiffCalculator.VALUE_DIFF));
+                valueFeature.setValue(map.get(FeatureValueAnalyser.VALUE_DIFF));
                 // replace the existing entry of String representation
                 newFeatures.put(entry.getKey(), structureFeature);
                 featuresSize++;
@@ -94,9 +58,9 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
     }
 
     @Override
-    public void calculateNovelty(Collection<TestChromosome> population) {
+    public void calculateNovelty(Collection<T> population) {
         // Step 1. Run all the tests
-        for(TestChromosome t : population){
+        for(T t : population){
             executeAndAnalyseFeature(t);
         }
         // Step 2. Normalize each of the feature values. For this we need to
@@ -118,13 +82,13 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
         // better to normalize all the feature values to (0-1) according to their value ranges
         // calculated above. Otherwise the calculation and the values may go in 'long' range
         // calculating the normalized novelty
-        for(TestChromosome t : population){
-            FeatureDiffCalculator.updateNormalizedFeatureValues(t, featureValueRangeList);
+        for(T t : population){
+            FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
         }
 
         // calculating the normalized novelty
-        for(TestChromosome t : population){
-            updateEuclideanDistance(t, population, featureValueRangeList);
+        for(T t : population){
+            updateEuclideanDistance((TestChromosome)t, population, featureValueRangeList);
         }
     }
 
@@ -138,8 +102,8 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
     private void updateFeatureValueRange(Map<Integer, List<Double>> featureValueRangeList, Map.Entry<Integer, Feature> entry) {
         if (null == featureValueRangeList.get(entry.getKey())) {
             List<Double> rangeList = new ArrayList<>();
-            double featureMin = FeatureDiffCalculator.readDoubleValue(entry.getValue().getValue());
-            double featureMax = FeatureDiffCalculator.readDoubleValue(entry.getValue().getValue());
+            double featureMin = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
+            double featureMax = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
             rangeList.add(0, featureMin);
             rangeList.add(1, featureMax);
             featureValueRangeList.put(entry.getKey(), rangeList);
@@ -149,14 +113,14 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
             double min = featureValueRangeList.get(entry.getKey()).get(0);
             double max = featureValueRangeList.get(entry.getKey()).get(1);
 
-            if (FeatureDiffCalculator.readDoubleValue(entry.getValue().getValue()) < min) {
-                double featureMin = FeatureDiffCalculator.readDoubleValue(entry.getValue().getValue());
+            if (FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue()) < min) {
+                double featureMin = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
                 featureValueRangeList.get(entry.getKey()).remove(0);
                 featureValueRangeList.get(entry.getKey()).add(0, featureMin);
             }
 
-            if (FeatureDiffCalculator.readDoubleValue(entry.getValue().getValue()) > max) {
-                double featureMax = FeatureDiffCalculator.readDoubleValue(entry.getValue().getValue());
+            if (FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue()) > max) {
+                double featureMax = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
                 featureValueRangeList.get(entry.getKey()).remove(1);
                 featureValueRangeList.get(entry.getKey()).add(1, featureMax);
             }
@@ -170,14 +134,14 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
      * @param population
      * @param featureValueRangeList
      */
-    public void updateEuclideanDistance(TestChromosome t, Collection<TestChromosome> population, Map<Integer, List<Double>> featureValueRangeList){
+    public void updateEuclideanDistance(TestChromosome t, Collection<T> population, Map<Integer, List<Double>> featureValueRangeList){
         double noveltyScore = 0;
         double sumDiff = 0;
         // debug
         /*if(t.getTestCase().getID() == 82){
            System.out.println("got");
         }*/
-        for(TestChromosome other: population){
+        for(T other: population){
             if(t == other)
                 continue;
             else{
@@ -187,7 +151,7 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
 
                 long maxSumDiff = 0;
                 for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
-                    double squaredDiff =FeatureNovelty.getDistance1(entry.getValue(), featureMap2.get(entry.getKey()));
+                    double squaredDiff =FeatureValueAnalyser.getFeatureDistance(entry.getValue(), featureMap2.get(entry.getKey()));
                     sumDiff +=squaredDiff;
 
                     /*maxSumDiff += (featureValueRangeList.get(entry.getKey()).get(0) - featureValueRangeList.get(entry.getKey()).get(1)) *
@@ -208,4 +172,19 @@ public class BranchNoveltyFunction<T extends Chromosome> extends NoveltyFunction
         return Math.abs((Integer)feature1.getValue() - (Integer)feature2.getValue());
     }
 
+    /*@Override
+    public double getDistance(T individual1, T individual2) {
+        return 0;
+    }*/
+
+
+    @Override
+    public void sortPopulation(List<T> population) {
+        Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
+            @Override
+            public int compare(Chromosome c1, Chromosome c2) {
+                return Double.compare(c1.getNoveltyScore(), c2.getNoveltyScore());
+            }
+        }));
+    }
 }

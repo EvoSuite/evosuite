@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FeatureDiffCalculator {
+public class FeatureValueAnalyser {
 
     public static final String VALUE_DIFF = "VALUE_DIFF";
     public static final String STRUCT_DIFF = "STRUCT_DIFF";
@@ -130,7 +130,7 @@ public class FeatureDiffCalculator {
         return result;
     }
 
-    public static Map<String, Double> getDifferenceMapOfStringRepresentation(String xm11){
+    public static Map<String, Double> getAnalysisFromStringRepresentation(String xm11){
         try{
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -286,6 +286,16 @@ public class FeatureDiffCalculator {
         // log the result value
         System.out.println("Struct Diff val : "+ result);
         return result;
+    }
+
+    public static double getFeatureDistance(Feature feature1, Feature feature2){
+        if((feature1 != null) && (feature2 != null)){
+            return (feature1.getNormalizedValue() - feature2.getNormalizedValue()) * (feature1.getNormalizedValue() - feature2.getNormalizedValue());
+        }else{
+            //TODO: decide what to do
+            // returning min distance as of now
+            return 0;
+        }
     }
 
 

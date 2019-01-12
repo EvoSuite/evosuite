@@ -1,23 +1,22 @@
 package org.evosuite.instrumentation.coverage;
 
 import org.evosuite.PackageInfo;
-import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
-import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * The FeatureInstrumentation class helps in identifying & Tracking features.
+ * The FeatureInstrumentation class helps in identifying & Tracking the features.
  *
  * @author Prathmesh Halgekar
  */
@@ -32,18 +31,16 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         while (j.hasNext()) {
             AbstractInsnNode in = j.next();
             Set<BytecodeInstruction> vertexSet = graph.vertexSet();
-            for(BytecodeInstruction vertex: vertexSet){
+            for (BytecodeInstruction vertex : vertexSet) {
 
                 //Identify and store the features in FeatureFactory
-                if (in.equals(vertex.getASMNode()) && vertex.isDefinition() ) {
-                    boolean isValidDef = false;
+                if (in.equals(vertex.getASMNode()) && vertex.isDefinition()) {
                     if (vertex.isMethodCallOfField()) {
-                        //TODO: what is this. Remove this.
-                        isValidDef = DefUsePool.addAsFieldMethodCall(vertex);
+                        //TODO: what is this. Remove this. Or we need more Analysis?
                     } else {
                         // keep track of data storing or updating operations
                         if (vertex.isDefinition())
-                            isValidDef = FeatureFactory.registerAsFeature(vertex);
+                            FeatureFactory.registerAsFeature(vertex);
                     }
                 }
                 // Add the instrumentation
@@ -77,78 +74,6 @@ public class FeatureInstrumentation implements MethodInstrumentation {
 
     }
 
-    /**
-     * Helper function. Assume we have following bytecode instruction list:
-     *        ...
-     *        4: aload_2
-     *        5: iconst_2
-     *        6: invokestatic  #2                  // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-     *        9: invokeinterface #3,  2            // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
-     *        14: pop
-     *        ...
-     * POP is used for all the data manipulation operations on the interface defined in java.util.Collection.
-     * So the rationale is that whenever a POP instruction is encountered - it suggests us that a corresponding variable
-     * must be updated. And to be sure that variable is related to a class of java.util.Collections interface
-     * 'isValidCollectionMethod' is used.
-     * The goal of this method is to find such the name and index of such a variable.
-     *
-     * @param instruction
-     */
-    private Map<String, Integer> findCorrespondingVariableForPop(BytecodeInstruction instruction, Set<BytecodeInstruction> instructionSet){
-
-        /**
-         * check if the immediate previous asmNode is a MethodInsNode i.e. we need to be sure that
-         * the previous instruction is actually a call to one of the permitted methods of the interface(Collection interface)
-         *
-         * TODO: handle all the cases for all the Collection implementation
-         *
-         */
-
-        if(!(instruction.getASMNode() instanceof MethodInsnNode)){
-            return null;
-            // do not instrument it.
-        }
-
-        String owner = ((MethodInsnNode) instruction.getASMNode().getPrevious()).owner;
-        String name = ((MethodInsnNode) instruction.getASMNode().getPrevious()).name;
-        String desc = ((MethodInsnNode) instruction.getASMNode().getPrevious()).desc;
-
-        int index = 0;
-        int varIndex = 0;
-        Map<String, Integer> varNameIndexMap = new HashMap<>(); // in case below condition is false we still send a empty but non null Map.
-        if (isValidCollectionMethod(owner, name, desc)) {
-            boolean search = true;
-            index = instruction.getInstructionId();
-            AbstractInsnNode insnNode = instruction.getASMNode();
-            while (search) {
-                if (insnNode.getOpcode() == Opcodes.ALOAD) {
-                    varIndex = ((VarInsnNode) insnNode).var;
-                    search = false;
-                } else {
-                    insnNode = insnNode.getPrevious();
-                    index--; // we need ot do this because 'prev' instance of AbstractInsnNode is private-package visible and thus cannot be used
-                }
-            }
-            final int indexCopy = index; // price we need to pay for using lambdas
-            BytecodeInstruction instr = instructionSet.stream().filter(e -> e.getInstructionId() == indexCopy).findAny().get();
-            String varName = instr.getVariableName(); // we did all the above things, just to get this. I.e to find out which variable does
-            // the pop instruction corresponds to.
-            varNameIndexMap.put(varName, varIndex);
-            return varNameIndexMap;
-        }
-
-        return null;
-
-
-    }
-
-    private boolean isValidCollectionMethod(String owner, String name, String desc){
-        if("java/util/List".equals(owner) && "add".equals(name) && "(Ljava/lang/Object;)Z".equals(desc)){
-            return true;
-        }
-        return false;
-    }
-
 
     /**
      * Creates the instrumentation needed to instrument all the data updating operations.
@@ -169,17 +94,16 @@ public class FeatureInstrumentation implements MethodInstrumentation {
          * call the method of ExecutionTracer
          */
         Map<Integer, Feature> featureMap = FeatureFactory.getFeatures();
-        for(Map.Entry<Integer, Feature> entry:featureMap.entrySet()){
+        for (Map.Entry<Integer, Feature> entry : featureMap.entrySet()) {
             Feature feature = entry.getValue();
             BytecodeInstruction bytecodeInstruction = FeatureFactory.getInstructionById(entry.getKey());
-            if(bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTSTATIC){
+            if (bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTSTATIC) {
                 instrumentation.add(new FieldInsnNode(Opcodes.GETSTATIC, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
-            }else if(bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTFIELD){
+            } else if (bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTFIELD) {
                 instrumentation.add(new FieldInsnNode(Opcodes.GETFIELD, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
-            }
-            else
+            } else
                 instrumentation.add(new VarInsnNode(getOpcodeForLoadingVariable(bytecodeInstruction), ((VarInsnNode) bytecodeInstruction.getASMNode()).var));
 
             instrumentation.add(new LdcInsnNode(bytecodeInstruction.getVariableName()));// or we can also use the name from feature.getVariableName()
@@ -189,9 +113,9 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         return instrumentation;
     }
 
-    private int getOpcodeForLoadingVariable(BytecodeInstruction v){
+    private int getOpcodeForLoadingVariable(BytecodeInstruction v) {
         int instOpcode = v.getASMNode().getOpcode();
-        switch(instOpcode){
+        switch (instOpcode) {
             case Opcodes.ASTORE:
                 return Opcodes.ALOAD;
             case Opcodes.ISTORE:
@@ -214,7 +138,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 String type = v.getFieldType();
 
                 //TODO: take care of "C", "B", "S", "[I" and "[[L"
-                switch(type){
+                switch (type) {
                     // boolean is treated as integer in bytecode representation
                     case "Z":
                     case "I":
@@ -232,16 +156,16 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             default:
                 break;
         }
-        return 999;
+        return Opcodes.ACONST_NULL;
     }
 
-    private void addExecutionTracerMethod(BytecodeInstruction v, InsnList instrumentation){
+    private void addExecutionTracerMethod(BytecodeInstruction v, InsnList instrumentation) {
 
         // TODO: take care of iinc and arraystore instructions
         int instOpcode = v.getASMNode().getOpcode();
         String methodName = "";
         String methodDesc = "";
-        switch(instOpcode){
+        switch (instOpcode) {
             case Opcodes.ASTORE:
                 methodName = "featureVisitedObj";
                 methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;)V";
@@ -276,7 +200,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 String type = v.getFieldType();
 
                 //TODO: take care of "C", "B", "S", "[I" and "[[L"
-                switch(type){
+                switch (type) {
                     // boolean is treated as integer in bytecode representation
                     case "Z":
                     case "I":
@@ -307,151 +231,6 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
                 PackageInfo.getNameWithSlash(org.evosuite.testcase.execution.ExecutionTracer.class), methodName,
                 methodDesc));
-    }
-
-    private void addCallingObjectInstrumentation(boolean staticContext,
-                                                 InsnList instrumentation) {
-        // the object on which the DU is covered is passed by the
-        // instrumentation.
-        // If we are in a static context, null is passed instead
-        if (staticContext) {
-            instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
-        } else {
-            instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0)); // "this"
-        }
-    }
-
-    private void addObjectInstrumentation(BytecodeInstruction instruction, InsnList instrumentation, MethodNode mn) {
-        /**
-         * Check if instruction is VariableDefinition and if yes,
-         *  1) if it is local variable definition then,
-         *      we have implemented what is need to be done
-         *  2) else if it is filed definition
-         *      we need to check the type just as we do for local variable to
-         *      see if the variable is of the type Long, or Double
-         */
-
-        if (instruction.isDefinition()) {
-            if (instruction.isLocalVariableDefinition()) {
-                if (instruction.getASMNode().getOpcode() == Opcodes.LSTORE || instruction.getASMNode().getOpcode() == Opcodes.DSTORE) {
-                    // these instructions take 2 slots each
-                    instrumentation.add(new InsnNode(Opcodes.DUP2));
-                } else if(instruction.getASMNode().getOpcode() == Opcodes.IINC){
-                    int value = ((IincInsnNode) instruction.getASMNode()).incr;
-                    instrumentation.add(new LdcInsnNode(value));
-                }
-
-                else {
-                    instrumentation.add(new InsnNode(Opcodes.DUP));
-                }
-            }else{
-                // it should be field definition
-                // fetch the field type and act accordingly
-                /**
-                 * the post/pre increment/decrement operator on a field variable is essentially converted to normal addition operation.
-                 * For e.g. assuming field variable 'i' of type Integer, when it is incremented using the above operator
-                 * the following bytecode is generated:
-                 *        2: getfield      #2                  // Field index:I
-                 *        5: iconst_1
-                 *        6: iadd
-                 *        7: putfield      #2                  // Field index:I
-                 *
-                 * So no need to handle it in a special way as how it is done for local variables.
-                 */
-                String type = instruction.getFieldType();
-                switch(type){
-                    case "J":
-                    case "D":
-                        instrumentation.add(new InsnNode(Opcodes.DUP2));
-                        break;
-                    default:
-                        instrumentation.add(new InsnNode(Opcodes.DUP));
-                        break;
-                }
-            }
-
-        }else if(instruction.getASMNode().getOpcode() == Opcodes.POP){
-            //TODO: Also take care of POP2
-            instrumentation.add(new InsnNode(Opcodes.DUP));
-        }
-
-        else if (instruction.isLocalVariableUse()) {
-            if (instruction.getASMNode().getOpcode() == Opcodes.ASTORE) {
-                instrumentation.add(new InsnNode(Opcodes.DUP));
-            } else {
-                instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
-            }
-        } else if (instruction.isArrayStoreInstruction()) {
-            // Object, index, value
-            instrumentation.add(new InsnNode(Opcodes.DUP));
-        } else if (instruction.isArrayLoadInstruction()) {
-            instrumentation.add(new InsnNode(Opcodes.DUP));
-        } else if (instruction.isFieldNodeDU()) {
-
-
-            instrumentation.add(new InsnNode(Opcodes.DUP));
-
-        } else if (instruction.isMethodCall()) {
-            Type type = Type.getReturnType(instruction.getMethodCallDescriptor());
-            if (type.getSort() == Type.OBJECT) {
-                instrumentation.add(new InsnNode(Opcodes.DUP));
-            } else {
-                instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
-            }
-        }
-//		else if( instruction.getASMNode().getOpcode()== Opcodes.ARRAYLENGTH){
-//			instrumentation.add(new InsnNode(Opcodes.DUP));
-//		}
-        else {
-            assert false;
-        }
-    }
-
-    private int getNextLocalNum(MethodNode mn) {
-        List<LocalVariableNode> variables = mn.localVariables;
-        int max = 0;
-        for (LocalVariableNode node : variables) {
-            if (node.index > max)
-                max = node.index;
-        }
-        return max + 1;
-    }
-
-    private InsnList getMethodInstrumentation(BytecodeInstruction call, boolean staticContext, InsnList instrumentation, MethodNode mn) {
-
-
-        String descriptor = call.getMethodCallDescriptor();
-        Type[] args = Type.getArgumentTypes(descriptor);
-        int loc = getNextLocalNum(mn);
-        Map<Integer, Integer> to = new HashMap<Integer, Integer>();
-        for (int i = args.length - 1; i >= 0; i--) {
-            Type type = args[i];
-            instrumentation.add(new VarInsnNode(type.getOpcode(Opcodes.ISTORE), loc));
-            to.put(i, loc);
-            loc++;
-        }
-
-        // instrumentation.add(new InsnNode(Opcodes.DUP));//callee
-        addObjectInstrumentation(call, instrumentation, mn);
-        addCallingObjectInstrumentation(staticContext, instrumentation);
-        // field method calls get special treatment:
-        // during instrumentation it is not clear whether a field method
-        // call constitutes a definition or a use. So the instrumentation
-        // will call a special function of the ExecutionTracer which will
-        // redirect the call to either passedUse() or passedDefinition()
-        // using the information available during runtime (the CCFGs)
-        instrumentation.add(new LdcInsnNode(DefUsePool.getDefUseCounter()));
-        instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-                PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedFieldMethodCall",
-                "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
-
-
-        for (int i = 0; i < args.length; i++) {
-            Type type = args[i];
-            instrumentation.add(new VarInsnNode(type.getOpcode(Opcodes.ILOAD), to.get(i)));
-        }
-
-        return instrumentation;
     }
 
     @Override
