@@ -2,15 +2,11 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.ga.NoveltyFunction;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.FeatureNovelty;
-import org.evosuite.ga.metaheuristics.NoveltyMetric;
+import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.novelty.BranchNoveltyFunction;
-import org.evosuite.novelty.NoveltyFitnessEvaluationListener;
+import org.evosuite.novelty.FeatureNoveltyFunction;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -19,7 +15,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
@@ -62,12 +57,12 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         /*NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
         algorithm.addListener(listener);*/
 
-        NoveltyMetric featureNoveltyMetric = new FeatureNovelty();
+        /*NoveltyMetric featureNoveltyMetric = new FeatureNovelty();*/
 
         //TODO: Should be FeatureNoveltyFunction instead
-        NoveltyFunction<TestChromosome> noveltyFunction = new BranchNoveltyFunction<TestChromosome>();
+        NoveltyFunction<TestChromosome> noveltyFunction = new FeatureNoveltyFunction<TestChromosome>();
         // set the novelty metric for the novelty function
-        ((BranchNoveltyFunction) noveltyFunction).setNoveltyMetric(featureNoveltyMetric);
+        /*((BranchNoveltyFunction) noveltyFunction).setNoveltyMetric(featureNoveltyMetric);*/
 
         // adding a novelty function
         algorithm.setNoveltyFunction(noveltyFunction);
@@ -109,9 +104,9 @@ public class NoveltyStrategy extends TestGenerationStrategy {
             ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
             algorithm.generateSolution();
-            testSuite = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
+            //testSuite = Archive.getArchiveInstance().mergeArchiveAndSolution((TestSuiteChromosome) algorithm.getBestIndividual());
             //TODO:fix this
-            //testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
+            testSuite = (TestSuiteChromosome) algorithm.getBestIndividual1();
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();

@@ -1,14 +1,15 @@
 package org.evosuite.coverage.dataflow;
 
-import jdk.internal.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FeatureFactory {
+public class FeatureFactory implements Serializable {
 
     private static Map<Integer, Feature> features = new HashMap<Integer, Feature>();
     private static Map<BytecodeInstruction, Integer> knownInstructions = new HashMap<BytecodeInstruction, Integer>();

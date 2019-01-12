@@ -246,10 +246,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
     public Map<Integer, Feature> vistedFeaturesMap = Collections
             .synchronizedMap(new HashMap<Integer, Feature>());
-    public Map<Integer, Object> featureObjectLinkMap = Collections
-			.synchronizedMap(new HashMap<Integer, Object>());
-    public Map<Integer, Map<Integer, Feature>> visitedFeatureObjectMap = Collections
-			.synchronizedMap(new HashMap<Integer, Map<Integer, Feature>>());
+
+    /*public Map<Integer, Map<Integer, Feature>> visitedFeatureObjectMap = Collections
+			.synchronizedMap(new HashMap<Integer, Map<Integer, Feature>>());*/
 
 
 	private int proxyCount = 1;
@@ -563,7 +562,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		coveredFalse = new HashMap<Integer, Integer>();
 		coveredDefs = new HashMap<Integer, Integer>();
 		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
-		visitedFeatureObjectMap = new HashMap<Integer, Map<Integer, Feature>>();
+		//visitedFeatureObjectMap = new HashMap<Integer, Map<Integer, Feature>>();
 		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		passedDefinitionObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
 		passedUseObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
@@ -609,7 +608,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.touchedMutants.addAll(touchedMutants);
 		copy.mutantDistances.putAll(mutantDistances);
 		copy.passedDefinitions.putAll(passedDefinitions);
-		copy.visitedFeatureObjectMap.putAll(visitedFeatureObjectMap);
+		//copy.visitedFeatureObjectMap.putAll(visitedFeatureObjectMap);
 		copy.passedUses.putAll(passedUses);
 		copy.passedDefinitionObject.putAll(passedDefinitionObject);
 		copy.passedUseObject.putAll(passedUseObject);
@@ -684,9 +683,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	}
 
 
-	public Map<Integer, Map<Integer, Feature>> getVisitedFeatureObjectMap(){
+	/*public Map<Integer, Map<Integer, Feature>> getVisitedFeatureObjectMap(){
 		return this.visitedFeatureObjectMap;
-	}
+	}*/
 
 
 	@Override
@@ -1964,7 +1963,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	@Override
 	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
-		visitedFeatureObjectMap.put(id, featureMap);
+		//visitedFeatureObjectMap.put(id, featureMap);
 	}
 
 }

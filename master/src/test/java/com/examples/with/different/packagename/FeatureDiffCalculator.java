@@ -199,7 +199,7 @@ public class FeatureDiffCalculator {
     }
 
 
-    public static void main(String args[]) throws XmlPullParserException, IOException {
+    /*public static void main(String args[]) throws XmlPullParserException, IOException {
 
         List<Integer> list1 = new ArrayList<>();
         list1.add(1);
@@ -227,7 +227,7 @@ public class FeatureDiffCalculator {
         double totalTags = diffMap.get(FeatureDiffCalculator.TOTAL_TAGS);
 System.out.println("Normalized Diff : "+getNormalizedStructDiff(structDiff, totalTags));
 
-        /*int[] arr1 = new int[2];
+        *//*int[] arr1 = new int[2];
 
         SomeClass someClass1 = new SomeClass(100, arr1);
         String dataXml3 = xstream.toXML(someClass);
@@ -256,8 +256,8 @@ System.out.println("Normalized Diff : "+getNormalizedStructDiff(structDiff, tota
         int[] arr = new int[2];
         SomeClass someClass = new SomeClass(2, arr);
         String dataXml1 = xstream.toXML(someClass);
-        System.out.println(dataXml1);*/
+        System.out.println(dataXml1);*//*
 
-    }
+    }*/
 }
 
