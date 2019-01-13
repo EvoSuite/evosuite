@@ -218,7 +218,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			// Object, index, value
 			instrumentation.add(new InsnNode(Opcodes.DUP));
 		} else if(instruction.isArrayLoadInstruction()) {
-			instrumentation.add(new InsnNode(Opcodes.DUP));
+			instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 		} else if(instruction.isFieldNodeDU()) {
 			// TODO: FieldNodeDU takes care of ArrayStore - why?
 			Type type = Type.getType(instruction.getFieldType());
@@ -235,11 +235,8 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
 			}
 		}
-//		else if( instruction.getASMNode().getOpcode()== Opcodes.ARRAYLENGTH){
-//			instrumentation.add(new InsnNode(Opcodes.DUP));
-//		}
 		else {
-			assert false;
+			assert false : "Unknown instruction";
 		}
 	}
 

@@ -1,24 +1,32 @@
 package org.evosuite.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.ResourceBundle;
 
-public class Java9InvisiblePackage {
+public enum Java9InvisiblePackage {
+
+    instance;
     private static boolean classesLoaded = false;
-    public static List<String> excludedClasses = new ArrayList<>();
+    private static List<String> excludedClasses = new ArrayList<>();
+    private static final String FILENAME = "/java9_invisible_packages.txt";
 
-    private static void loadExcludedClassNames() {
+    private void loadExcludedClassNames() {
         if (classesLoaded)
             return;
-        ResourceBundle rb = ResourceBundle.getBundle("java9_invisible_packages");
         classesLoaded = true;
-        Enumeration<String> keys = rb.getKeys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            String value = rb.getString(key);
-            excludedClasses.add(value);
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(
+                FILENAME)))) {
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                excludedClasses.add(strLine);
+            }
+        } catch (IOException e) {
+            System.err.println("Wrong filename/path/file is missing");
+            e.printStackTrace();
         }
     }
 
@@ -29,7 +37,7 @@ public class Java9InvisiblePackage {
      *
      * @return the names of packages invisible in Java9
      */
-    public static List<String> getClassesToBeIgnored() {
+    public List<String> getClassesToBeIgnored() {
         loadExcludedClassNames();
         return excludedClasses;
     }
