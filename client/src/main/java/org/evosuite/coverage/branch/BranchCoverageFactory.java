@@ -174,22 +174,6 @@ public class BranchCoverageFactory extends
 		return createRootBranchTestFitness(instruction.getClassName(),
 				instruction.getMethodName());
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if(this.hashCode() != obj.hashCode())
-			return true;
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return (int) (Math.random() * 100);
-	}
-
-
-
-
 }
 
 ////----------
