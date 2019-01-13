@@ -45,10 +45,10 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
      * Use Novelty Function to do the calculation
      *
      */
-    public void calculateNoveltyAndSortPopulation1(){
+    public void calculateNoveltyAndSortPopulation(){
         logger.debug("Calculating novelty for " + population.size() + " individuals");
 
-        noveltyFunction.calculateNovelty(population);
+        noveltyFunction.calculateNovelty(population, noveltyArchive);
         noveltyFunction.sortPopulation(population);
     }
 
@@ -106,7 +106,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
         return suite;
     }
-
+public static TestSuiteChromosome result;
     public TestSuiteChromosome getBestIndividual1() {
         TestSuiteChromosome best = this.generateSuite();
         /*if (best.getTestChromosomes().isEmpty()) {
@@ -120,8 +120,12 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
         // compute overall fitness and coverage
         //this.computeCoverageAndFitness(best);
+        result = (TestSuiteChromosome) best;
+        return result;
+    }
 
-        return (TestSuiteChromosome) best;
+    public TestSuiteChromosome getBestIndividual2(){
+        return result;
     }
 
 
@@ -134,8 +138,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         generateInitialPopulation(Properties.POPULATION);
 
         // Determine novelty
-        //calculateNovelty();
-        calculateNoveltyAndSortPopulation1();
+        calculateNoveltyAndSortPopulation();
 
         // Determine fitness
         this.calculateFitness();
@@ -223,7 +226,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             evolve();
 
             // TODO: Sort by novelty
-            calculateNoveltyAndSortPopulation1();
+            calculateNoveltyAndSortPopulation();
 
             this.notifyIteration();
         }

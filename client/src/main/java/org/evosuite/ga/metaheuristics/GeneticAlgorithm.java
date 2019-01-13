@@ -26,12 +26,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Algorithm;
@@ -85,6 +80,9 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 
 	/** Current population */
 	protected List<T> population = new ArrayList<T>();
+
+	/** Novelty Archive TODO: move to a better place*/
+	protected Deque<T> noveltyArchive = new ArrayDeque<T>();
 
 	/** Generator for initial population */
 	protected ChromosomeFactory<T> chromosomeFactory;

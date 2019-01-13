@@ -22,8 +22,7 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class NoveltyStrategy extends TestGenerationStrategy {
 
@@ -46,9 +45,11 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 
         // What's the search target
         List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-        List<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();
+        List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
         for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
             fitnessFunctions.addAll(goalFactory.getCoverageGoals());
+            // TODO; remove this break. Added just to avoid duplicate entries as we have 2 goalFactories of type 'BranchCoverageFactory'.
+            break;
         }
 
         // adding all branches as different goals to be optimized
@@ -57,12 +58,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         /*NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
         algorithm.addListener(listener);*/
 
-        /*NoveltyMetric featureNoveltyMetric = new FeatureNovelty();*/
-
-        //TODO: Should be FeatureNoveltyFunction instead
         NoveltyFunction<TestChromosome> noveltyFunction = new FeatureNoveltyFunction<TestChromosome>();
-        // set the novelty metric for the novelty function
-        /*((BranchNoveltyFunction) noveltyFunction).setNoveltyMetric(featureNoveltyMetric);*/
 
         // adding a novelty function
         algorithm.setNoveltyFunction(noveltyFunction);

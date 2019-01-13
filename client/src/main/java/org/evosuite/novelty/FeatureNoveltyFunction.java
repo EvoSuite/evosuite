@@ -1,5 +1,6 @@
 package org.evosuite.novelty;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.NoveltyFunction;
@@ -15,13 +16,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
     private static final Logger logger = LoggerFactory.getLogger(FeatureNoveltyFunction.class);
 
-    /*public NoveltyMetric getNoveltyMetric() {
-        return noveltyMetric;
-    }
-
-    public void setNoveltyMetric(NoveltyMetric noveltyMetric) {
-        this.noveltyMetric = noveltyMetric;
-    }*/
+    private static int evaluations = 0; // to store how many individuals in the current generation have novelty score greater than the novelty threshold
 
 
     public void executeAndAnalyseFeature(T individual) {
@@ -58,7 +53,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     }
 
     @Override
-    public void calculateNovelty(Collection<T> population) {
+    public void calculateNovelty(Collection<T> population, Collection<T> noveltyArchive) {
         // Step 1. Run all the tests
         for(T t : population){
             executeAndAnalyseFeature(t);
@@ -86,9 +81,24 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
         }
 
+        evaluations = 0;
         // calculating the normalized novelty
         for(T t : population){
-            updateEuclideanDistance((TestChromosome)t, population, featureValueRangeList);
+            updateEuclideanDistance(t, population, noveltyArchive, featureValueRangeList);
+        }
+
+        // update the NOVELTY_THRESHOLD
+        if(evaluations >= 25){
+            Properties.NOVELTY_THRESHOLD += (0.20 * Properties.NOVELTY_THRESHOLD);
+            if(Double.compare(Properties.NOVELTY_THRESHOLD,1.0) > 0){
+                Properties.NOVELTY_THRESHOLD = 1.0;
+            }
+        }
+        if(evaluations < 15){
+            Properties.NOVELTY_THRESHOLD -= (0.05 * Properties.NOVELTY_THRESHOLD);
+            if(Double.compare(Properties.NOVELTY_THRESHOLD,0.0) < 0){
+                Properties.NOVELTY_THRESHOLD = 0.0;
+            }
         }
     }
 
@@ -128,54 +138,83 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     }
 
     /**
-     * This calculates normalized novelty for 't' w.r.t the other population
+     * This calculates normalized novelty for 't' w.r.t the other population and the noveltyArchive
      * The closer the score to 1 more is the novelty or the distance and vice versa.
      * @param t
      * @param population
+     * @param noveltyArchive
      * @param featureValueRangeList
      */
-    public void updateEuclideanDistance(TestChromosome t, Collection<T> population, Map<Integer, List<Double>> featureValueRangeList){
+    public void updateEuclideanDistance(T t, Collection<T> population, Collection<T> noveltyArchive, Map<Integer, List<Double>> featureValueRangeList){
         double noveltyScore = 0;
         double sumDiff = 0;
-        // debug
-        /*if(t.getTestCase().getID() == 82){
-           System.out.println("got");
-        }*/
+
+        // fetch the features
+        Map<Integer, Feature> featureMap1= ((TestChromosome)t).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+
         for(T other: population){
             if(t == other)
                 continue;
             else{
                 // fetch the features
-                Map<Integer, Feature> featureMap1= ((TestChromosome)t).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
                 Map<Integer, Feature> featureMap2= ((TestChromosome)other).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
 
-                long maxSumDiff = 0;
                 for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
                     double squaredDiff =FeatureValueAnalyser.getFeatureDistance(entry.getValue(), featureMap2.get(entry.getKey()));
                     sumDiff +=squaredDiff;
-
-                    /*maxSumDiff += (featureValueRangeList.get(entry.getKey()).get(0) - featureValueRangeList.get(entry.getKey()).get(1)) *
-                            (featureValueRangeList.get(entry.getKey()).get(0) - featureValueRangeList.get(entry.getKey()).get(1));*/
-
                 }
             }
         }
+        // calculate the distance also w.r.t noveltyArchive
+        for(T otherFromArchive: noveltyArchive){
+            if(t == otherFromArchive){
+                continue;
+            }
+            else{
+                // fetch the features
+                Map<Integer, Feature> featureMap2= ((TestChromosome)otherFromArchive).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+
+                for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
+                    double squaredDiff =FeatureValueAnalyser.getFeatureDistance(entry.getValue(), featureMap2.get(entry.getKey()));
+                    sumDiff +=squaredDiff;
+                }
+            }
+        }
+
+
+
+        // Number of features will remain constant throughout the iterations
         int numOfFeatures = featureValueRangeList.size()==0?1:featureValueRangeList.size();
 
         double distance = Math.sqrt(sumDiff);
-        noveltyScore = distance / (Math.sqrt((population.size()-1) * numOfFeatures)); // dividing by max. possible distance
+        noveltyScore = distance / (Math.sqrt(((population.size()-1) + noveltyArchive.size()) * numOfFeatures)); // dividing by max. possible distance
         t.setNoveltyScore(noveltyScore);
         System.out.println("Novelty  : "+noveltyScore);
+        updateNoveltyArchive(t, noveltyArchive);
+    }
+
+    public void updateNoveltyArchive(T t, Collection<T> archive){
+        //1. read threshold from the Properties file
+        double noveltyThreshold = Properties.NOVELTY_THRESHOLD;
+        //2. read novelty score
+        double currentNovelty = t.getNoveltyScore();
+        //3. decide if it should be added to the archive or not
+        if(currentNovelty > noveltyThreshold){
+            evaluations++;
+            //if the size of the archive grows bigger than certain threshold then
+            if( archive.size() >= Properties.MAX_NOVELTY_ARCHIVE_SIZE){
+                // Evict individual from the archive - Which one? maybe the oldest one
+                ((Deque)archive).removeFirst();
+            }
+            archive.add(t);
+        }
     }
 
     private double getDistance(Feature feature1, Feature feature2){
         return Math.abs((Integer)feature1.getValue() - (Integer)feature2.getValue());
     }
 
-    /*@Override
-    public double getDistance(T individual1, T individual2) {
-        return 0;
-    }*/
+
 
 
     @Override

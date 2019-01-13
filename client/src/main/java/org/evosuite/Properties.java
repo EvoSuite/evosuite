@@ -1530,6 +1530,12 @@ public class Properties {
 	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
 	}
 
+	@Parameter(key = "novelty_threshold", group = "Runtime", description = "If novelty of an individual is greater than this threshold then it is added to the novelty archive")
+	public static double NOVELTY_THRESHOLD = 0.2;
+
+	@Parameter(key = "max_novelty_archive_size", group = "Runtime", description = "Maximum size of the novelty archive")
+	public static double MAX_NOVELTY_ARCHIVE_SIZE = 25;
+
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
 	public static Strategy STRATEGY = Strategy.EVOSUITE;
 
