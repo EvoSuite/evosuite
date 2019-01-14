@@ -288,6 +288,12 @@ public class FeatureValueAnalyser {
         return result;
     }
 
+    /**
+     * This method returns the squared difference between feature1 and feature2
+     * @param feature1
+     * @param feature2
+     * @return
+     */
     public static double getFeatureDistance(Feature feature1, Feature feature2){
         if((feature1 != null) && (feature2 != null)){
             return (feature1.getNormalizedValue() - feature2.getNormalizedValue()) * (feature1.getNormalizedValue() - feature2.getNormalizedValue());
@@ -299,58 +305,5 @@ public class FeatureValueAnalyser {
     }
 
 
-    /*public static void main(String args[]) throws XmlPullParserException, IOException {
-
-        List<Integer> list1 = new ArrayList<>();
-        list1.add(1);
-        List<Integer> list2 = new ArrayList<>();
-        list2.add(30);
-        list2.add(1);
-
-
-        XStream xstream = new XStream();
-        int[] arr = new int[2];
-        //SomeClass someClass = new SomeClass(2, arr);
-        String dataXml1 = xstream.toXML(null);
-        System.out.println(dataXml1);
-        //String dataXml2 = xstream.toXML(list2);
-
-
-        *//*FeatureDiff featureDiff = new FeatureDiff();
-        featureDiff.testDiff(dataXml2, dataXml1);
-
-
-        int[] arr1 = new int[2];
-
-        SomeClass someClass1 = new SomeClass(100, arr1);
-        String dataXml3 = xstream.toXML(someClass);
-        String dataXml4 = xstream.toXML(someClass1);
-
-        Object c = xstream.fromXML(dataXml3);
-
-        featureDiff.testDiff(dataXml3, dataXml4);
-
-        Map<Integer, String> integerStringMap = new HashMap<>(); // astore_1
-        integerStringMap.put(1, "One");
-        Map<Integer, String> integerStringMap2 = new HashMap<>(); // astore_1
-        integerStringMap2.put(2, "Twone");
-        integerStringMap2.put(3, "Twone");
-        String dataXml5 = xstream.toXML(integerStringMap);
-        String dataXml6 = xstream.toXML(integerStringMap2);
-
-        featureDiff.testDiff(dataXml5, dataXml6);
-
-        System.out.println(dataXml4);
-     FeatureDiff featureDiff = new FeatureDiff();
-        Long l1 = 2l;
-        Long l2 = 5l;
-        System.out.println(featureDiff.getDifference(l1.toString(),l2.toString()));
-     XStream xstream = new XStream();
-        int[] arr = new int[2];
-        SomeClass someClass = new SomeClass(2, arr);
-        String dataXml1 = xstream.toXML(someClass);
-        System.out.println(dataXml1);*//*
-
-    }*/
 }
 

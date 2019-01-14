@@ -1534,7 +1534,11 @@ public class Properties {
 	public static double NOVELTY_THRESHOLD = 0.2;
 
 	@Parameter(key = "max_novelty_archive_size", group = "Runtime", description = "Maximum size of the novelty archive")
-	public static double MAX_NOVELTY_ARCHIVE_SIZE = 25;
+	public static int MAX_NOVELTY_ARCHIVE_SIZE = 25;
+
+	//TODO: Ensure that this is always a multiple of 5
+	@Parameter(key = "local_competition_group_size", group = "Runtime", description = "Group size for local competition")
+	public static int LOCAL_COMPETITION_GROUP_SIZE = 10;
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
 	public static Strategy STRATEGY = Strategy.EVOSUITE;

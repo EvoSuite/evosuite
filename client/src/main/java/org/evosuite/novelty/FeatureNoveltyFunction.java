@@ -103,7 +103,6 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     }
 
 
-
     /**
      * list(0) -> min , list(1) -> max
      * @param featureValueRangeList

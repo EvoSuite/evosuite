@@ -22,12 +22,9 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
-    /** Crowding distance measure to use */
-    //protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
-
     private NoveltyFunction<T> noveltyFunction;
 
-    /*private NoveltyMetric noveltyMetric;*/
+    private LocalCompetition<T> lc = new LocalCompetition<>();
 
     public NoveltySearch(ChromosomeFactory<T> factory) {
         super(factory);
@@ -36,10 +33,6 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
     public void setNoveltyFunction(NoveltyFunction<T> function) {
         this.noveltyFunction = function;
     }
-
-    /*public void setNoveltyMetric(NoveltyMetric noveltyMetric){
-        this.noveltyMetric = noveltyMetric;
-    }*/
 
     /**
      * Use Novelty Function to do the calculation
@@ -52,14 +45,6 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         noveltyFunction.sortPopulation(population);
     }
 
-    /*protected void sortPopulation(){
-        Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
-            @Override
-            public int compare(Chromosome c1, Chromosome c2) {
-                return Double.compare(c1.getNoveltyScore(), c2.getNoveltyScore());
-            }
-        }));
-    }*/
     /**
      * Sort the population by novelty
      */
@@ -75,38 +60,14 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
     }
 
 
-
-    /**
-     * Calculate fitness for all individuals
-     */
-    /*protected void calculateNoveltyAndSortPopulation() {
-        logger.debug("Calculating novelty for " + population.size() + " individuals");
-
-        Iterator<T> iterator = population.iterator();
-        Map<T, Double> noveltyMap = new LinkedHashMap<>();
-
-        while (iterator.hasNext()) {
-            T c = iterator.next();
-            if (isFinished()) {
-                if (c.isChanged())
-                    iterator.remove();
-            } else {
-                // TODO: This needs to take the archive into account
-                double novelty = noveltyFunction.getNovelty(c, population);
-                noveltyMap.put(c, novelty);
-            }
-        }
-
-        // Sort population
-        sortPopulation(population, noveltyMap);
-    }*/
-
     protected TestSuiteChromosome generateSuite() {
         TestSuiteChromosome suite = new TestSuiteChromosome();
         Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
         return suite;
     }
-public static TestSuiteChromosome result;
+
+    public static TestSuiteChromosome result;
+
     public TestSuiteChromosome getBestIndividual1() {
         TestSuiteChromosome best = this.generateSuite();
         /*if (best.getTestChromosomes().isEmpty()) {
@@ -143,7 +104,16 @@ public static TestSuiteChromosome result;
         // Determine fitness
         this.calculateFitness();
 
+        // form sub regions
+        // calculate distance w.r.t a fixed point
+        // TODO: do only if LC switch is on
+        formSubRegions();
+
         this.notifyIteration();
+    }
+
+    public void formSubRegions(){
+        lc.formSubRegions(this.population);
     }
 
     @Override
