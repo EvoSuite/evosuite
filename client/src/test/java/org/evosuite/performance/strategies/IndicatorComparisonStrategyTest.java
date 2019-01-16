@@ -56,6 +56,7 @@ public class IndicatorComparisonStrategyTest {
         Assert.assertEquals(total, totalPerformanceScore, 0.0);
     }
 
+    @SuppressWarnings("Duplicates")
     public List<Chromosome> createChromosomesForTest(double[]... ch1) {
         List<Chromosome> chromosomes = new ArrayList<>();
         for (double[] arr : ch1) {
