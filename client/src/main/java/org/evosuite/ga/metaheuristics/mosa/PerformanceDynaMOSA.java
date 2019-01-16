@@ -106,9 +106,12 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 
-            applySecondaryCriterion(front);
+            if (last_heuristic == Heuristics.CROWDING)
+                distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
+            else
+                strategy.setDistances(front, goalsManager.getUncoveredGoals());
 
-            logger.debug("Distance = {}, Score = {} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
+//            logger.debug("Distance = {}, Score = {} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
 
             // Add the individuals of this front
             this.population.addAll(front);
@@ -125,10 +128,12 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         if (remain > 0 && !front.isEmpty()) {
 
-            applySecondaryCriterion(front);
+            if (last_heuristic == Heuristics.CROWDING)
+                distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
+            else
+                strategy.setDistances(front, goalsManager.getUncoveredGoals());
 
-            logger.debug("Distance = {}, Score ={} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
-
+//            logger.debug("Distance = {}, Score ={} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
             strategy.sort(front);
 
             for (int k = 0; k < remain; k++)
@@ -366,18 +371,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
                 performanceStagnation=0;
 
             return last_heuristic;
-        }
-    }
-
-    protected void applySecondaryCriterion(List<T> front){
-        if (last_heuristic == Heuristics.CROWDING)
-            distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-        else if (last_heuristic == Heuristics.PERFORMANCE) {
-            score.assignPerformanceScore(front);
-            strategy.setDistances(front, goalsManager.getUncoveredGoals());
-        } else {
-            for (T t : front)
-                t.setDistance(0);
         }
     }
 }
