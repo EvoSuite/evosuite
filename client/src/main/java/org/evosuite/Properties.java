@@ -342,12 +342,6 @@ public class Properties {
 		LOOP_COUNTER
 	}
 
-	public enum DominanceSortingAlgorithm {
-		DOMINANCE,				// the standard dominance algorithm; it uses the fast non-dominate sorting algorithm
-		EPSILON_DOMINANCE,		// a variation of the classing dominance that consider the magnitude of the difference
-		FAST_DOMINANCE			// a faster dominance sorting, that does not use the fast non-dom. sorting algorithm
-	}
-
 	public enum PerformanceCombinationStrategy {
 		MIN_MAX,
 		SUM,
@@ -359,11 +353,6 @@ public class Properties {
 		CROWDING_DISTANCE			// replace the crowding distance with the indicator comparison
 	}
 
-	@Parameter(key = "dominance_sorting", group = "Search Algorithm",
-			description = "The type of sorting algorithm to use when the combination criteria for performance " +
-					"indicators is the dominance")
-	public static DominanceSortingAlgorithm P_DOMINANCE_SORTING = DominanceSortingAlgorithm.DOMINANCE;
-
 	@Parameter(key = "performance_strategy", group = "Search Algorithm",
 			description = "Describe how the performance indicators should be included into the PerformanceMOSA algorithm")
 	public static PerformanceMOSAStrategy P_STRATEGY = PerformanceMOSAStrategy.PREFERENCE_CRITERION;
@@ -374,7 +363,7 @@ public class Properties {
 
 	@Parameter(key = "performance_combination_strategy", group = "Search Algorithm",
 			description = "Strategy used to combine together the computed performance indicators")
-	public static PerformanceCombinationStrategy P_COMBINATION_STRATEGY = PerformanceCombinationStrategy.DOMINANCE;
+	public static PerformanceCombinationStrategy P_COMBINATION_STRATEGY = PerformanceCombinationStrategy.MIN_MAX;
 
 	@Parameter(key = "n_test_runs", group = "Search Algorithm",
 			description = "Number of times the test suites are re-executed at the end of the search")

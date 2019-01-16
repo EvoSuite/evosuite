@@ -22,16 +22,8 @@ public class PerformanceScore<T extends Chromosome> {
     public void assignPerformanceScore(List<T> population) {
         switch (Properties.P_COMBINATION_STRATEGY) {
             case SUM:
-                LoggingUtils.getEvoLogger().error("DynaMOSA does not currently support SUM as a combination strategy");
-                System.exit(0);
-                for (T test : population){
-                    double sum = 0.0;
-                    for (Double indicator : test.getIndicatorValues().values()){
-                        sum += indicator / (indicator+1);
-                    }
-                    test.setPerformanceScore(sum);
-                }
-                break;
+                LoggingUtils.getEvoLogger().info("DynaMOSA does not currently support SUM as a combination strategy");
+                throw new RuntimeException("Not supported in this version of DYNAMOSA");
             case MIN_MAX:
                 MinMaxCalculator<T> indicator = new MinMaxCalculator<>();
                 // computes the min-max scores stored in an ad-hoc variable in the chromosome
@@ -45,12 +37,9 @@ public class PerformanceScore<T extends Chromosome> {
                 }
                 break;
             case DOMINANCE:
-                LoggingUtils.getEvoLogger().error("DynaMOSA does not currently support DOMINANCE as a combination " +
+                LoggingUtils.getEvoLogger().info("DynaMOSA does not currently support DOMINANCE as a combination " +
                         "strategy");
-                System.exit(0);
-                // It needs to run the PerformanceDominanceSorted before (to compute the performance_rank)
-                population.stream().forEach(ch -> ch.setPerformanceScore(ch.getPerformance_rank()));
-                break;
+                throw new RuntimeException("Not supported in this version of DYNAMOSA");
         }
     }
 }

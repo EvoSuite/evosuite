@@ -733,25 +733,6 @@ public abstract class Chromosome<T extends Chromosome<T>>
 		this.minMaxSum = minMaxSum;
 	}
 
-	protected int performance_rank = 0;
-
-	/**
-	 * Return the performance rank (used to sort each rank regarding performance indicator)
-	 * @return
-	 * 		the performance rank
-	 */
-	public int getPerformance_rank() {
-		return performance_rank;
-	}
-
-	/**
-	 * Sets the performance rank for the non-dominance
-	 * @param performance_rank
-	 */
-	public void setPerformance_rank(int performance_rank) {
-		this.performance_rank = performance_rank;
-	}
-
 	/**
 	 * The score used by the preference criterion, combining all the the performance indicators,
 	 * according to a specific combination strategy, into a single scalar value
