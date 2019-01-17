@@ -1,31 +1,19 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.BinaryOperator;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.Criterion;
-import org.evosuite.coverage.FitnessFunctions;
-import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
-import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.runtime.Random;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.localsearch.BranchCoverageMap;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.IterUtil;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> Solution type
  */
-public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   /**
    * Serial version UID
    */
@@ -50,11 +38,7 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
-
-
-  // TODO Replace this with a proper archive.
-  // branch -> feature (stop when coverage for branch reached)
-  private final Map<BranchCoverageTestFitness, Map<FeatureVector, Chromosome>> populationMap;
+  private final Map<BranchCoverageTestFitness, Map<FeatureVector, T>> populationMap;
 
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
@@ -64,25 +48,22 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     List<BranchCoverageTestFitness> branchCoverage = new BranchCoverageFactory().getCoverageGoals();
 
-    this.populationMap = new HashMap<>(branchCoverage.size());
-    branchCoverage.forEach(branch -> this.populationMap.put(branch, new HashMap<>()));
+    this.populationMap = new LinkedHashMap<>(branchCoverage.size());
+    branchCoverage.forEach(branch -> this.populationMap.put(branch, new LinkedHashMap<>()));
   }
 
   @Override
   protected void evolve() {
-    for (Entry<BranchCoverageTestFitness, Map<FeatureVector, Chromosome>> entry : populationMap
+    final double chance = 1.0 / populationMap.size();
+    
+    for (Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry : populationMap
         .entrySet()) {
-      // TODO How to determine whether a branch is covered already?
-
-      final double chance = 1.0 / populationMap.size();
-      if (Random.nextDouble() >= chance) {
-        Chromosome chromosome = Randomness.choice(entry.getValue().values());
+     
+      if (Randomness.nextDouble() <= chance) {
+        T chromosome = Randomness.choice(entry.getValue().values());
 
         notifyMutation(chromosome);
         chromosome.mutate();
-
-        // Determine fitness
-        calculateFitness();
 
         analyzeChromosome(chromosome);
       }
@@ -93,46 +74,32 @@ public class MAPElites<T extends Chromosome> extends GeneticAlgorithm<T> {
     ++currentIteration;
   }
 
-  private void storeIfBetter(final Chromosome chromosome, final double fitness,
-      final BranchCoverageTestFitness branchFitness, final FeatureVector feature) {
-
-    final Map<FeatureVector, Chromosome> featureMap = this.populationMap.get(branchFitness);
-
-    Chromosome old = featureMap.get(feature);
-
-    if (old == null || old.getFitness(branchFitness) > fitness) {
-      featureMap.put(feature, chromosome);
-    }
-  }
-
-  private void analyzeTestChromosome(final TestChromosome chromosome) {
+  private void analyzeChromosome(final T chromosome) {
     final ExecutionResult executionResult = chromosome.getLastExecutionResult();
     final List<FeatureVector> features = executionResult.getTrace().getFeatureVectors();
 
-    for (BranchCoverageTestFitness branchFitness : this.populationMap.keySet()) {
+    final Iterator<Entry<BranchCoverageTestFitness, Map<FeatureVector, T>>> it =
+        this.populationMap.entrySet().iterator();
 
-      final double fitness = branchFitness.getFitness(chromosome, executionResult);
-      for (FeatureVector feature : features) {
-        storeIfBetter(chromosome, fitness, branchFitness, feature);
+    while (it.hasNext()) {
+      final Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry = it.next();
+      final BranchCoverageTestFitness branchFitness = entry.getKey();
+      final Map<FeatureVector, T> featureMap = entry.getValue();
+
+      if(branchFitness.isCovered(chromosome)) {
+        // Remove from map. Covering chromosomes are stored in Archive.getArchiveInstance().
+        it.remove();
       }
-    }
-  }
+      
+      final double fitness = branchFitness.getFitness(chromosome, executionResult);
+      
+      for (FeatureVector feature : features) {
+        T old = featureMap.get(feature);
 
-
-  private void analyzeChromosome(Chromosome chromosome) {
-    if (chromosome instanceof TestChromosome) {
-      analyzeTestChromosome((TestChromosome) chromosome);
-    } else {
-      /*
-       * TODO Could either work with TestSuiteChromosome#getLastExecutionResults or
-       * TestSuiteChromosome#getTestChromosomes This situation occurs when Properties.STRATEGY =
-       * WholeTestSuiteStrategy Should this be implemented or should we simply restrict this
-       * algorithm to TestChromosome? If we restrict it update the generics!
-       */
-
-
-      throw new UnsupportedOperationException(
-          "Chromosome of type " + chromosome.getClass().getName() + " is not supported");
+        if (old == null || old.getFitness(branchFitness) >= fitness) {
+          featureMap.put(feature, chromosome);
+        }
+      }
     }
   }
 
