@@ -622,16 +622,4 @@ public interface ExecutionTrace {
 	 * @return
 	 */
 	public List<String> getInitializedClasses();
-	
-	/**
-	 * Add a feature vector for MAPElites
-	 * @param vector The feature vector.
-	 */
-	public void addFeatureVector(FeatureVector vector);
-	
-	/**
-	 * Get the feature vectors for MAPElites
-	 * @return The feature vector if set or {@code null}
-	 */
-	public List<FeatureVector> getFeatureVectors();
 }

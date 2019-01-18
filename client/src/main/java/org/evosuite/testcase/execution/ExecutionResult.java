@@ -23,10 +23,13 @@ import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.io.input.InputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.mutation.Mutation;
+import org.evosuite.ga.metaheuristics.mapelites.FeatureVector;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.tools.javac.code.Attribute.Array;
 
 import java.util.*;
 
@@ -74,6 +77,8 @@ public class ExecutionResult implements Cloneable {
 	 * Regression Object Distance
 	 */
 	public double regressionObjectDistance = 0;
+	
+	private List<FeatureVector> featureVectors = new ArrayList<FeatureVector>(1);
 	
 	/**
 	 * @return the executedStatements
@@ -442,6 +447,7 @@ public class ExecutionResult implements Cloneable {
 			copy.readProperties.addAll(readProperties);
 		}
 		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
+		copy.featureVectors = new ArrayList<>(this.featureVectors);
 
 		return copy;
 	}
@@ -491,4 +497,19 @@ public class ExecutionResult implements Cloneable {
 		return outputGoals;
 	}
 
+	/**
+     * Add a feature vector for MAPElites
+     * @param vector The feature vector.
+     */
+    public void addFeatureVector(FeatureVector vector) {
+      this.featureVectors.add(vector);
+    }
+    
+    /**
+     * Get the feature vectors for MAPElites
+     * @return The feature vector if set or {@code null}
+     */
+    public List<FeatureVector> getFeatureVectors() {
+      return Collections.unmodifiableList(this.featureVectors);
+    }
 }

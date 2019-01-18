@@ -280,8 +280,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	public static Map<RuntimeVariable, Set<Integer>> bytecodeInstructionCoveredFalse = Collections
 			.synchronizedMap(new HashMap<RuntimeVariable, Set<Integer>>());
-	
-	private List<FeatureVector> featureVectors = new ArrayList<FeatureVector>(1);
 
 	/**
 	 * <p>
@@ -1815,15 +1813,4 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public List<String> getInitializedClasses() {
 		return this.initializedClasses;
 	}
-
-  @Override
-  public void addFeatureVector(FeatureVector vector) {
-    this.featureVectors.add(vector);
-  }
-
-  @Override
-  public List<FeatureVector> getFeatureVectors() {
-    return Collections.unmodifiableList(this.featureVectors);
-  }
-
 }

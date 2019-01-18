@@ -735,17 +735,4 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public List<String> getInitializedClasses() {
 		return trace.getInitializedClasses();
 	}
-
-  @Override
-  public void addFeatureVector(FeatureVector vector) {
-    trace.addFeatureVector(vector);
-  }
-
-  @Override
-  public List<FeatureVector> getFeatureVectors() {
-    return trace.getFeatureVectors();
-  }
-	
-	
-
 }

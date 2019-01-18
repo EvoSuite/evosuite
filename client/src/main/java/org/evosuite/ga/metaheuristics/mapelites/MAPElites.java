@@ -95,7 +95,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       
       final double fitness = branchFitness.getFitness(chromosome);
       
-      final List<FeatureVector> features = chromosome.getLastExecutionResult().getTrace().getFeatureVectors();
+      final List<FeatureVector> features = chromosome.getLastExecutionResult().getFeatureVectors();
 
       for (FeatureVector feature : features) {
         T old = featureMap.get(feature);
