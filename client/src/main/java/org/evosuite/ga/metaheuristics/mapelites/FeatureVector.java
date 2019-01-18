@@ -49,7 +49,7 @@ public class FeatureVector implements Serializable {
       } else if (value instanceof String) {
         return ((String) value).isEmpty() ? 0 : 1;
       } else if (value instanceof Character) {
-        return 0;
+        return Character.isLetterOrDigit((Character) value) ? 1 : 0;
       } else if (value instanceof Boolean) {
         return (Boolean) value ? 1 : 0;
       } else if (value instanceof Enum) {
@@ -92,7 +92,7 @@ public class FeatureVector implements Serializable {
   
   @Override
   public int hashCode() {
-    return this.features.hashCode();
+    return Arrays.deepHashCode(this.features);
   }
   
   public boolean equals(FeatureVector other) {

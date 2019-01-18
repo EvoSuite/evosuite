@@ -10,6 +10,7 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -39,7 +40,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
   private final Map<BranchCoverageTestFitness, Map<FeatureVector, T>> populationMap;
-
+  
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
 
@@ -49,9 +50,13 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     List<BranchCoverageTestFitness> branchCoverage = new BranchCoverageFactory().getCoverageGoals();
 
     this.populationMap = new LinkedHashMap<>(branchCoverage.size());
-    branchCoverage.forEach(branch -> this.populationMap.put(branch, new LinkedHashMap<>()));
+    branchCoverage.forEach(branch -> {
+      this.populationMap.put(branch, new LinkedHashMap<>());
+      // Ahh.. Generics..
+      super.addFitnessFunction((FitnessFunction<T>) branch);
+    });
   }
-
+  
   @Override
   protected void evolve() {
     final double chance = 1.0 / populationMap.size();
@@ -75,9 +80,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   }
 
   private void analyzeChromosome(final T chromosome) {
-    final ExecutionResult executionResult = chromosome.getLastExecutionResult();
-    final List<FeatureVector> features = executionResult.getTrace().getFeatureVectors();
-
     final Iterator<Entry<BranchCoverageTestFitness, Map<FeatureVector, T>>> it =
         this.populationMap.entrySet().iterator();
 
@@ -91,8 +93,10 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
         it.remove();
       }
       
-      final double fitness = branchFitness.getFitness(chromosome, executionResult);
+      final double fitness = branchFitness.getFitness(chromosome);
       
+      final List<FeatureVector> features = chromosome.getLastExecutionResult().getTrace().getFeatureVectors();
+
       for (FeatureVector feature : features) {
         T old = featureMap.get(feature);
 
@@ -111,10 +115,8 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
     // Set up initial population
     generateInitialPopulation(Properties.POPULATION);
-    // Determine fitness
-    calculateFitness();
 
-    for (T chromosome : this.population) {
+    for (T chromosome : this.population) {    
       this.analyzeChromosome(chromosome);
     }
   }
