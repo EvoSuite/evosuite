@@ -236,7 +236,7 @@ public class FeatureValueAnalyser {
     public static double getNormalizedValue(double value, List<Double> valueRange){
         double minVal = valueRange.get(0);
         double maxVal = valueRange.get(1);
-        double range = maxVal-minVal;
+        double range = (maxVal-minVal) == 0 ? 0.01 : (maxVal-minVal);
         // the value should be in the range of 0-1
         return (maxVal-value)/range;
     }
@@ -289,7 +289,9 @@ public class FeatureValueAnalyser {
     }
 
     /**
-     * This method returns the squared difference between feature1 and feature2
+     * This method returns the squared difference between feature1 and feature2.
+     * If any one of the feature is null then max difference 1 is returned.
+     *
      * @param feature1
      * @param feature2
      * @return
@@ -299,8 +301,8 @@ public class FeatureValueAnalyser {
             return (feature1.getNormalizedValue() - feature2.getNormalizedValue()) * (feature1.getNormalizedValue() - feature2.getNormalizedValue());
         }else{
             //TODO: decide what to do
-            // returning min distance as of now
-            return 0;
+            // returning max distance as of now
+            return 1;
         }
     }
 

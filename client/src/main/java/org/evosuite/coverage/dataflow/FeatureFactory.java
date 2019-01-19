@@ -10,6 +10,7 @@ import java.util.Map;
 public class FeatureFactory implements Serializable {
 
     private static Map<Integer, Feature> features = new HashMap<Integer, Feature>();
+    private static Map<Integer, Feature> tempMap = new HashMap<>();
     private static Map<BytecodeInstruction, Integer> knownInstructions = new HashMap<BytecodeInstruction, Integer>();
     private static int defCounter = 0;
 
@@ -44,8 +45,24 @@ public class FeatureFactory implements Serializable {
         return true;
     }
 
+    /**
+     * Just to keep track of total number of features. As a part of evaluation features are added to the
+     * featureList (One such place is FeatureNoveltyFunction.executeAndAnalyseFeature()). The newly added
+     * feature will not contain any specific value or normalizedValue.
+     * This is just to keep a track to total number of features.
+     *
+     * @param feature
+     */
+    public static void updateFeatureMap(Integer key, Feature feature){
+        tempMap.put(key, feature);
+    }
+
     public static Map<Integer, Feature> getFeatures() {
-        return features;
+        Map<Integer, Feature> tempMap1 = new HashMap<>(tempMap);
+        tempMap.clear();
+        tempMap.putAll(features);
+        tempMap.putAll(tempMap1);
+        return tempMap;
     }
 
     public static Feature getFeatureByVarName(String name) {

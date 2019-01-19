@@ -107,7 +107,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         // form sub regions
         // calculate distance w.r.t a fixed point
         // TODO: do only if LC switch is on
-        formSubRegions();
+        //formSubRegions();
 
         this.notifyIteration();
     }

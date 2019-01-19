@@ -7,6 +7,7 @@ import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.FeatureNoveltyFunction;
+import org.evosuite.novelty.NoveltyFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -80,11 +81,11 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         // if (analyzing)
         algorithm.resetStoppingConditions();
 
-        List<TestFitnessFunction> goals = getGoals(true);
+        /*List<TestFitnessFunction> goals = getGoals(true);*/
         if(!canGenerateTestsForSUT()) {
             LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
                     + Properties.TARGET_CLASS);
-            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+            ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, fitnessFunctions.size());
 
             return new TestSuiteChromosome();
         }
@@ -93,7 +94,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 		 * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
 		 */
         TestSuiteChromosome testSuite = null;
-        if (!(Properties.STOP_ZERO && goals.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EXCEPTION)) {
+        if (!(Properties.STOP_ZERO && fitnessFunctions.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EXCEPTION)) {
             // Perform search
             LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
             LoggingUtils.getEvoLogger().info("* Starting evolution");
@@ -113,8 +114,8 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 
         long endTime = System.currentTimeMillis() / 1000;
 
-        goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+        //goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
+        //ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
         // Newline after progress bar
         if (Properties.SHOW_PROGRESS)
@@ -133,6 +134,8 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 
         // Search is finished, send statistics
         sendExecutionStatistics();
+
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, algorithm.getFitnessFunctions().size());
 
         return testSuite;
     }

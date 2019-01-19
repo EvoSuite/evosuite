@@ -2,6 +2,7 @@ package org.evosuite.novelty;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.Feature;
+import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.ga.metaheuristics.FeatureValueAnalyser;
@@ -19,6 +20,13 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     private static int evaluations = 0; // to store how many individuals in the current generation have novelty score greater than the novelty threshold
 
 
+    /**
+     * This method analyses features which are basically the serialized form of some complex objects.
+     * If the input is such a feature then this method analyses it and creates two features 'XXX_Struct'
+     * and 'XXX_Value' which replaces the original feature in the featureMap.
+     *
+     * @param individual
+     */
     public void executeAndAnalyseFeature(T individual) {
         getExecutionResult((TestChromosome) individual);
         Map<String, Double> map= null;
@@ -42,8 +50,10 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 valueFeature.setValue(map.get(FeatureValueAnalyser.VALUE_DIFF));
                 // replace the existing entry of String representation
                 newFeatures.put(entry.getKey(), structureFeature);
+                FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
                 featuresSize++;
                 newFeatures.put(featuresSize, valueFeature);
+                FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
             }
         }
         if(!newFeatures.isEmpty()){
@@ -64,7 +74,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
         // stores the min and max value for each of the Feature
         Map<Integer, List<Double>> featureValueRangeList = new HashMap<>();
-
+        // Making it static
         while (iterator.hasNext()) {
             T c = iterator.next();
             // expect all the feature vectors to be populated
@@ -159,6 +169,8 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 Map<Integer, Feature> featureMap2= ((TestChromosome)other).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
 
                 for (Map.Entry<Integer, Feature> entry : featureMap1.entrySet()) {
+                    //TODO: Do the comparision only if the features belong to the same method. Can be done using the variable name
+                    // because we want to avoid a possible comparision between two individuals testing a 'foo()' and a 'boo()' respectively
                     double squaredDiff =FeatureValueAnalyser.getFeatureDistance(entry.getValue(), featureMap2.get(entry.getKey()));
                     sumDiff +=squaredDiff;
                 }

@@ -1,5 +1,7 @@
 package org.evosuite.ga.metaheuristics;
 
+import org.apache.commons.math3.ml.clustering.CentroidCluster;
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.Chromosome;
@@ -14,26 +16,33 @@ import java.util.Map;
 public class LocalCompetition<T extends Chromosome> implements Serializable {
 
     /**
-     * This method forms the sub regions needed for local competition
+     * This method forms the sub regions needed for local competition.
+     * Uses KMeansPlusPlus clustering algorithm.
      *
      * @param population
      */
     void formSubRegions(Collection<T> population) {
-        // 1. store distance w.r.t a fixed point
-        updateDistance(population);
 
-        List<T> sortedPopulation = new ArrayList<>(population);
-        sortedPopulation.sort((o1, o2) -> Double.compare(o1.getDistance(), o2.getDistance()));
+        //1. Using KMeansPlusPlus clustering algorithm
+        List<ChromosomeWrapper> clusterInput = new ArrayList<ChromosomeWrapper>(population.size());
+        for (T individual : population)
+            clusterInput.add(new ChromosomeWrapper(individual));
+
+        KMeansPlusPlusClusterer<ChromosomeWrapper> clusterer = new KMeansPlusPlusClusterer<ChromosomeWrapper>(Properties.LOCAL_COMPETITION_GROUP_SIZE, 1000);
+        List<CentroidCluster<ChromosomeWrapper>> clusterResults = clusterer.cluster(clusterInput);
 
         List<List<T>> groups = new ArrayList<>();
-        int index = 0;
-        for (int i = 0; i < sortedPopulation.size() / Properties.LOCAL_COMPETITION_GROUP_SIZE; i++) {
-
+        for (int i=0; i<clusterResults.size(); i++) {
+            System.out.println("Cluster " + i);
             List<T> subGroup = new ArrayList<>();
-            subGroup.addAll(sortedPopulation.subList(index, index + Properties.LOCAL_COMPETITION_GROUP_SIZE));
+            for (ChromosomeWrapper chromosomeWrapper : clusterResults.get(i).getPoints()){
+                subGroup.add((T)chromosomeWrapper.getIndividual());
+                //System.out.println(chromosomeWrapper.getIndividual());
+            }
             groups.add(subGroup);
-            index = index + Properties.LOCAL_COMPETITION_GROUP_SIZE;
+            System.out.println();
         }
+
     }
 
     /**
