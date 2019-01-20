@@ -1,41 +1,70 @@
 package com.examples.with.different.packagename;
 
 import java.io.Serializable;
+import java.util.List;
 
-public class DataUtils implements Serializable {
+public class DataUtils {
 
-    public static void listOperation(int a, int b) {
+    public static void listOperation(Foo foo) {
+        Foo foo1 = foo;
 
-        int var1 = a;
-        int var2 = b;
-
-
-        if(a == b)
+        if(foo1.getSomething()){
             System.out.println("Equal");
-        if(a > b)
-            System.out.println("One greater");
-        else
-            System.out.println("Two greater");
+        }else{
+            System.out.println("Not Equal");
+        }
+
+
+
+
 
     }
 
 }
 
-/*class SomeClass{
+class Foo{
     int j;
     private static int special = 12;
     long someL = 12l;
-    int[] someArr = new int[2];
-    public SomeClass(int num, int[] arr){
+    private Boo boo;
+    int[] someArr ;
+    private boolean someFlag;
+    public Foo(int num, int[] arr, Boo boo){
         j = num;
         this.someArr = arr;
+        this.boo = boo;
     }
-    public SomeClass(){
+
+    public Foo(){
 
     }
-    void doSomething(){
-        System.out.println();
+    boolean getSomething(){
+
+        if(boo.checkEquals()){
+            System.out.println("Equals");
+            return true;
+        }else{
+            System.out.println("Not Equals");
+            return false;
+        }
     }
-}*/
+}
 
+class Boo{
+    private boolean result;
+    private int input;
+    private int input2;
 
+    Boo(boolean res, int i, int j){
+        this.result = res;
+        input = i;
+        input2 = j;
+    }
+
+    public boolean checkEquals(){
+        if(input==2 && result && input*input2 == 12){
+            return true;
+        }else
+            return false;
+    }
+}

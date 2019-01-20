@@ -5,14 +5,16 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.coverage.dataflow.FeatureFactory;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
+import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class NoveltySearchSystemTest extends SystemTestBase {
     @Test
-    public void test2DArrayInstrumentation() {
+    public void testNoveltySearch() {
         EvoSuite evosuite = new EvoSuite();
 
         String targetClass = DataUtils.class.getCanonicalName();
@@ -31,7 +33,30 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual2();
         System.out.print(best.toString());
         System.out.println("Feature values : "+ FeatureFactory.getFeatures());
-        Assert.assertEquals(1,best.getNumOfCoveredGoals());
+        //Assert.assertEquals(1,Archive.getArchiveInstance().getNumberOfCoveredTargets());
 
+    }
+    @Test
+    public void testMOSA() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = DataUtils.class.getCanonicalName();
+        Properties.TARGET_CLASS = targetClass;
+
+        Properties.STRATEGY = Properties.Strategy.MOSUITE;
+
+        //Properties.TEST_ARCHIVE = false;
+        Properties.ALGORITHM = Properties.Algorithm.MOSA;
+
+        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        MOSA<?> ga = (MOSA)getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+        System.out.print(best.toString());
+        /*System.out.println("Feature values : "+ FeatureFactory.getFeatures());
+        */
+        Assert.assertEquals(1,Archive.getArchiveInstance().getNumberOfCoveredTargets());
     }
 }

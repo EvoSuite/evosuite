@@ -2,6 +2,7 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
@@ -15,6 +16,7 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
+import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
@@ -38,6 +40,9 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         PropertiesNoveltySearchFactory algorithmFactory = new PropertiesNoveltySearchFactory();
         NoveltySearch<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
         //NoveltySearch<TestChromosome, TestSuiteChromosome> algorithm = new NoveltySearch<TestChromosome, TestSuiteChromosome>(chromosomeFactory);
+
+        ChromosomeFactory factory = new RandomLengthTestFactory();
+        algorithm.setChromosomeFactory(factory);
 
         if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
             TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);

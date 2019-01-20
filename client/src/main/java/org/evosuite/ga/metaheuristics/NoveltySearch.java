@@ -6,8 +6,11 @@ import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
+import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -39,10 +42,10 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
      *
      */
     public void calculateNoveltyAndSortPopulation(){
-        logger.debug("Calculating novelty for " + population.size() + " individuals");
+        logger.debug("Calculating novelty for " + this.population.size() + " individuals");
 
-        noveltyFunction.calculateNovelty(population, noveltyArchive);
-        noveltyFunction.sortPopulation(population);
+        noveltyFunction.calculateNovelty(this.population, noveltyArchive);
+        noveltyFunction.sortPopulation(this.population);
     }
 
     /**
@@ -64,6 +67,18 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         TestSuiteChromosome suite = new TestSuiteChromosome();
         Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
         return suite;
+    }
+
+    /**
+     * Return the test cases in the archive as a list.
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected List<T> getSolutions() {
+        List<T> solutions = new ArrayList<T>();
+        Archive.getArchiveInstance().getSolutions().forEach(test -> solutions.add((T) test));
+        return solutions;
     }
 
     public static TestSuiteChromosome result;
@@ -116,14 +131,109 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         lc.formSubRegions(this.population);
     }
 
+    /**
+     * When a test case is changed via crossover and/or mutation, it can contains some
+     * primitive variables that are not used as input (or to store the output) of method calls.
+     * Thus, this method removes all these "trash" statements.
+     *
+     * @param chromosome
+     * @return true or false depending on whether "unused variables" are removed
+     */
+    private boolean removeUnusedVariables(T chromosome) {
+        int sizeBefore = chromosome.size();
+        TestCase t = ((TestChromosome) chromosome).getTestCase();
+        List<Integer> to_delete = new ArrayList<Integer>(chromosome.size());
+        boolean has_deleted = false;
+
+        int num = 0;
+        for (Statement s : t) {
+            VariableReference var = s.getReturnValue();
+            boolean delete = false;
+            delete = delete || s instanceof PrimitiveStatement;
+            delete = delete || s instanceof ArrayStatement;
+            delete = delete || s instanceof StringPrimitiveStatement;
+            if (!t.hasReferences(var) && delete) {
+                to_delete.add(num);
+                has_deleted = true;
+            }
+            num++;
+        }
+        Collections.sort(to_delete, Collections.reverseOrder());
+        for (Integer position : to_delete) {
+            t.remove(position);
+        }
+        int sizeAfter = chromosome.size();
+        if (has_deleted) {
+            logger.debug("Removed {} unused statements", (sizeBefore - sizeAfter));
+        }
+        return has_deleted;
+    }
+
+    /**
+     * Method used to mutate an offspring.
+     *
+     * @param offspring
+     * @param parent
+     */
+    private void mutate(T offspring, T parent) {
+        offspring.mutate();
+        TestChromosome tch = (TestChromosome) offspring;
+        if (!offspring.isChanged()) {
+            // if offspring is not changed, we try to mutate it once again
+            offspring.mutate();
+        }
+        if (!this.hasMethodCall(offspring)) {
+            tch.setTestCase(((TestChromosome) parent).getTestCase().clone());
+            boolean changed = tch.mutationInsert();
+            if (changed) {
+                for (Statement s : tch.getTestCase()) {
+                    s.isValid();
+                }
+            }
+            offspring.setChanged(changed);
+        }
+        this.notifyMutation(offspring);
+    }
+
+    /**
+     * This method checks whether the test has only primitive type statements. Indeed,
+     * crossover and mutation can lead to tests with no method calls (methods or constructors
+     * call), thus, when executed they will never cover something in the class under test.
+     *
+     * @param test to check
+     * @return true if the test has at least one method or constructor call (i.e., the test may
+     * cover something when executed; false otherwise
+     */
+    private boolean hasMethodCall(T test) {
+        boolean flag = false;
+        TestCase tc = ((TestChromosome) test).getTestCase();
+        for (Statement s : tc) {
+            if (s instanceof MethodStatement) {
+                MethodStatement ms = (MethodStatement) s;
+                boolean isTargetMethod = ms.getDeclaringClassName().equals(Properties.TARGET_CLASS);
+                if (isTargetMethod) {
+                    return true;
+                }
+            }
+            if (s instanceof ConstructorStatement) {
+                ConstructorStatement ms = (ConstructorStatement) s;
+                boolean isTargetMethod = ms.getDeclaringClassName().equals(Properties.TARGET_CLASS);
+                if (isTargetMethod) {
+                    return true;
+                }
+            }
+        }
+        return flag;
+    }
+
     @Override
     protected void evolve() {
 
         List<T> newGeneration = new ArrayList<T>();
 
-        while (!isNextPopulationFull(newGeneration)) {
-            T parent1 = selectionFunction.select(population);
-            T parent2 = selectionFunction.select(population);
+        /*while (!isNextPopulationFull(newGeneration)) {
+            T parent1 = selectionFunction.select(this.population);
+            T parent2 = selectionFunction.select(this.population);
 
             T offspring1 = (T)parent1.clone();
             T offspring2 = (T)parent2.clone();
@@ -158,17 +268,106 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
                 newGeneration.add(offspring2);
             else
                 newGeneration.add(parent2);
-        }
+        }*/
 
-        population = newGeneration;
+        // changes start
+        for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
+            // select best individuals
+            T parent1 = this.selectionFunction.select(this.population);
+            T parent2 = this.selectionFunction.select(this.population);
+            T offspring1 = (T) parent1.clone();
+            T offspring2 = (T) parent2.clone();
+            // apply crossover
+            try {
+                if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+                    this.crossoverFunction.crossOver(offspring1, offspring2);
+                }
+            } catch (ConstructionFailedException e) {
+                logger.debug("CrossOver failed.");
+                continue;
+            }
+
+            this.removeUnusedVariables(offspring1);
+            this.removeUnusedVariables(offspring2);
+
+            // apply mutation on offspring1
+            this.mutate(offspring1, parent1);
+            if (offspring1.isChanged()) {
+                this.clearCachedResults(offspring1);
+                offspring1.updateAge(this.currentIteration);
+                //this.calculateFitness(offspring1);
+                newGeneration.add(offspring1);
+            }
+            // apply mutation on offspring2
+            this.mutate(offspring2, parent2);
+            if (offspring2.isChanged()) {
+                this.clearCachedResults(offspring2);
+                offspring2.updateAge(this.currentIteration);
+                //this.calculateFitness(offspring2);
+                newGeneration.add(offspring2);
+            }
+
+        }
+        // Add new randomly generate tests
+        for (int i = 0; i < Properties.POPULATION * Properties.P_TEST_INSERTION; i++) {
+            T tch = null;
+            if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()) {
+                tch = this.chromosomeFactory.getChromosome();
+                tch.setChanged(true);
+            } else {
+                tch = (T) Randomness.choice(this.getSolutions()).clone();
+                tch.mutate(); tch.mutate(); // TODO why is it mutated twice?
+            }
+            if (tch.isChanged()) {
+                tch.updateAge(this.currentIteration);
+                //this.calculateFitness(tch);
+                newGeneration.add(tch);
+            }
+        }
+        logger.info("Number of offsprings = {}", newGeneration.size());
+        // changes end
+
+
+        this.population = newGeneration;
         //archive
-        updateFitnessFunctionsAndValues();
+        //updateFitnessFunctionsAndValues();
         //
         currentIteration++;
     }
 
+    /**
+     * Returns the goals that have been covered by the test cases stored in the archive.
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected Set<FitnessFunction<T>> getCoveredGoals() {
+        Set<FitnessFunction<T>> coveredGoals = new LinkedHashSet<FitnessFunction<T>>();
+        Archive.getArchiveInstance().getCoveredTargets()
+                .forEach(ff -> coveredGoals.add((FitnessFunction<T>) ff));
+        return coveredGoals;
+    }
+
+    /**
+     * This method clears the cached results for a specific chromosome (e.g., fitness function
+     * values computed in previous generations). Since a test case is changed via crossover
+     * and/or mutation, previous data must be recomputed.
+     *
+     * @param chromosome TestChromosome to clean
+     */
+    private void clearCachedResults(T chromosome) {
+        ((TestChromosome) chromosome).clearCachedMutationResults();
+        ((TestChromosome) chromosome).clearCachedResults();
+        ((TestChromosome) chromosome).clearMutationHistory();
+        ((TestChromosome) chromosome).getFitnessValues().clear();
+    }
+
     protected void addUncoveredGoal(FitnessFunction<T> goal) {
         Archive.getArchiveInstance().addTarget((TestFitnessFunction) goal);
+    }
+
+    protected int getNumberOfUncoveredGoals() {
+        return Archive.getArchiveInstance().getNumberOfUncoveredTargets();
     }
 
     @Override
@@ -189,7 +388,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
         logger.warn("Starting evolution of novelty search algorithm");
 
-        while (!isFinished()) {
+        while (!isFinished() && this.getNumberOfUncoveredGoals() > 0) {
             logger.warn("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
             //logger.info("Best fitness: " + getBestIndividual().getFitness());
 

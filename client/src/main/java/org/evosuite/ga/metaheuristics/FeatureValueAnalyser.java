@@ -1,12 +1,21 @@
 package org.evosuite.ga.metaheuristics;
 
+import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
 import com.thoughtworks.xstream.XStream;
 import org.evosuite.coverage.dataflow.Feature;
+import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.testcase.TestChromosome;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -20,115 +29,7 @@ public class FeatureValueAnalyser {
     public static final String STRUCT_DIFF = "STRUCT_DIFF";
     public static final String TOTAL_TAGS = "TOTAL_TAGS";
 
-    /**
-     * Finds out Structural and Value difference between elements of the two input xml representation.
-     * Structural difference is the difference in the nodes of the xml structure.
-     * For e.g if we have two instances l1 and l2 of java.util.list with 2 and 3 elements respectively
-     * then the difference in the number of tags for one element will be returned. This is more like
-     * size() or length() operation performed followed by difference operation.
-     * Value difference is the purely the difference of the element values. Note that this difference
-     * is calculated only on corresponding elements i.e. if two Integer list of size 2 and 4 then the
-     * value difference will be calculated between the first two elements of list 1 and list 2 respectively.
-     * Uses getDifference. See getDifference.
-     *
-     * @param xm11
-     * @param xml2
-     * @return a java.util.Map containing Key, value pair of DifferenceType and DifferenceValue.
-     * @throws XmlPullParserException
-     * @throws IOException
-     */
-    public static Map<String, Double> getDifferenceMap(String xm11, String xml2) throws XmlPullParserException, IOException {
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-        XmlPullParser xpp1 = factory.newPullParser();
-        XmlPullParser xpp2 = factory.newPullParser();
-        double diff = 0; // Stores structural difference
-        double valDiff = 0; // Stores behavioral difference
-        double totalTags = 0; // stores the max. no of tags a particular xml representation has
-        Map<String, Double> result = new HashMap<>();
-        xpp1.setInput(new StringReader(xm11));
-        xpp2.setInput(new StringReader(xml2));
-        int eventType1 = xpp1.getEventType();
-        int eventType2 = xpp2.getEventType();
-        while (eventType1 != XmlPullParser.END_DOCUMENT && eventType2 != XmlPullParser.END_DOCUMENT) {
-            totalTags++;
-            if (eventType1 == eventType2) {
-                if (eventType1 == XmlPullParser.START_DOCUMENT) {
-                    // start document tags do not have a name.
-                    eventType1 = xpp1.next();
-                    eventType2 = xpp2.next();
-                    continue;
-                }
-                if (eventType1 == XmlPullParser.START_TAG) {
-                    // which means both the evenType are same and both of them are of type START_TAG.
-                    if (xpp1.getName().equals(xpp2.getName())) {
-                        // checking the type of object
-                        eventType1 = xpp1.next();
-                        eventType2 = xpp2.next();
-                        continue;
-                    }
-
-                }
-                if (eventType1 == XmlPullParser.TEXT) {
-                    // which means both the evenType are same and both of them are of type TEXT.
-                    // 1. Get both the values
-                    // 2. Check for types from valid allowable types
-                    // 3. If valid types for e.g int, float, String then check for difference
-                    // 4. store the difference in another variable - valueDiff;
-
-                    // check for string equality first. It will save a lot of complexity of conversion
-                    // the 'else' part should check for value difference
-                    if (xpp1.getText().equals(xpp2.getText())) {
-                        // checking the type of object
-                        eventType1 = xpp1.next();
-                        eventType2 = xpp2.next();
-                        continue;
-                    } else {
-                        // check for value difference
-                        // after calculating valueDiff move on
-                        valDiff += getDifference(xpp1.getText(), xpp2.getText());
-                        diff++;   // this is also a structural difference
-                        eventType1 = xpp1.next();
-                        eventType2 = xpp2.next();
-                        continue;
-                    }
-
-                }
-                if (eventType1 == XmlPullParser.END_TAG) {
-                    eventType1 = xpp1.next();
-                    eventType2 = xpp2.next();
-                    continue;
-                }
-            }
-            diff++;
-            eventType1 = xpp1.next();
-            eventType2 = xpp2.next();
-        }
-
-        // if xm11 has less tags than xml2
-        if (eventType1 == XmlPullParser.END_DOCUMENT && eventType2 != XmlPullParser.END_DOCUMENT) {
-            // continue iterating xml2 to get the total tags count
-            while (eventType2 != XmlPullParser.END_DOCUMENT) {
-                totalTags++;
-                diff++;
-                eventType2 = xpp2.next();
-            }
-        } else if (eventType1 != XmlPullParser.END_DOCUMENT && eventType2 == XmlPullParser.END_DOCUMENT) {
-            // continue iterating xml1 to get the total tags count
-            while (eventType1 != XmlPullParser.END_DOCUMENT) {
-                totalTags++;
-                diff++;
-                eventType1 = xpp1.next();
-            }
-        }
-        result.put(VALUE_DIFF, valDiff);
-        result.put(STRUCT_DIFF, diff);
-        result.put(TOTAL_TAGS, totalTags);
-        System.out.println("Value Diff is : " + valDiff);
-        System.out.println("Structural Diff is : " + diff);
-        System.out.println("Total Tags : " + totalTags);
-        return result;
-    }
+    private static Map<String, List<Double>>  nodeAnalysisMap = new HashMap<String, List<Double>>();
 
     public static Map<String, Double> getAnalysisFromStringRepresentation(String xm11){
         try{
@@ -166,52 +67,151 @@ public class FeatureValueAnalyser {
 
     }
 
+    private static void updateMap(String nodeName, String val){
+        // if the nodeName is already not present in the map then make an entry
+        if(!nodeAnalysisMap.containsKey(nodeName)){
+            List<Double> listOfCountAndVal = new ArrayList<Double>();
+            listOfCountAndVal.add(1.0);
+            listOfCountAndVal.add(readDoubleValue(val));
+            nodeAnalysisMap.put(nodeName, listOfCountAndVal);
+        }else{
+            // update the count and value
+            List<Double> listOfCountAndVal = nodeAnalysisMap.get(nodeName);
+            double count = listOfCountAndVal.get(0);
+            count++;
+            double newVal = listOfCountAndVal.get(1) + readDoubleValue(val);
+            listOfCountAndVal.clear();
+            listOfCountAndVal.add(0,count);
+            listOfCountAndVal.add(1, newVal);
+            nodeAnalysisMap.put(nodeName, listOfCountAndVal);
+            // the same map entry
+        }
+    }
+
+    private static void iterateNodes(NodeList nodeList) {
+
+        for (int count = 0; count < nodeList.getLength(); count++) {
+            Node tempNode = nodeList.item(count);
+            // make sure it's element node.
+            if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
+                if (tempNode.hasChildNodes()) {
+                    // loop again if has child nodes
+                    iterateNodes(tempNode.getChildNodes());
+                }
+            }
+            else{
+                if(tempNode.getPreviousSibling()!=null){
+                    updateMap((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName(), tempNode.getPreviousSibling().getTextContent());
+                }
+                    //if("someArr_int".equals((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName()))
+
+            }
+        }
+    }
+
     /**
-     * Tries to convert the String representation of values to Int, Float, Long, Double
-     * and then calculates the difference between them.
-     * For different Strings currently the difference returned is 1
+     * This method traverses the nodes of the xml representation recursively and returns a MAP with
+     * all the distinct members/children of the parent node. Each distinct entry contains 'ParentName_ChildName'
+     * as the key and the value is a List containing at index (0) -> Occurrence of the same member in the xml
+     * representation and at index (1) -> total value of such member elements
      *
-     * @param objValue1
-     * @param objValue2
+     * For e.g. if we have the String representation of the following MAP
+     * Map<String, Integer> map = new HashMap<String, Integer>();
+     *         map.put("First", 1);
+     *         map.put("Second", 2);
+     *         map.put("Third", 3);
+     *         map.put("Fourth", 4);
+     *  as
+     *  <map>
+     *   <entry>
+     *     <string>Second</string>
+     *     <int>2</int>
+     *   </entry>
+     *   <entry>
+     *     <string>Third</string>
+     *     <int>3</int>
+     *   </entry>
+     *   <entry>
+     *     <string>First</string>
+     *     <int>1</int>
+     *   </entry>
+     *   <entry>
+     *     <string>Fourth</string>
+     *     <int>4</int>
+     *   </entry>
+     * </map>
+     *  then this method will return :
+     *  {entry_int=[4.0, 10.0], entry_string=[4.0, 0.0], map_entry=[4.0, 0.0]}
+     *
+     * @param xm11
      * @return
      */
-    private static double getDifference(String objValue1, String objValue2) {
+    public static Map<String, List<Double>> getAnalysisFromStringRepresentationUsingDomParser(String xm11){
+        nodeAnalysisMap.clear();
         try {
-            Integer val1 = Integer.valueOf(objValue1);
-            Integer val2 = Integer.valueOf(objValue2);
-            return Math.abs(val1 - val2);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+            Document doc = dBuilder.parse(new InputSource(new StringReader(xm11)));
+            doc.getDocumentElement().normalize();
+
+            if (doc.hasChildNodes()) {
+                iterateNodes(doc.getChildNodes());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return nodeAnalysisMap;
+    }
+
+    /**
+     * Tries to convert the String representation of values to Int, Float, Long, Double, Boolean
+     * to a double value.
+     * <p>
+     * For String values of type other than the above types, -9999999 is returned.
+     *
+     * @param objValue1
+     * @return
+     */
+    private static double getNumericValue(String objValue1) {
+        try {
+            return Integer.valueOf(objValue1);
+
         } catch (NumberFormatException e) {
             // log the exception
             // try for float
             try {
-                Float val1 = Float.valueOf(objValue1);
-                Float val2 = Float.valueOf(objValue2);
-                return Math.abs(val1 - val2);
+                return Float.valueOf(objValue1);
+
             } catch (NumberFormatException e1) {
                 // log the exception
                 // try for double
                 try {
-                    Double val1 = Double.valueOf(objValue1);
-                    Double val2 = Double.valueOf(objValue2);
-                    return Math.abs(val1 - val2);
+                    return Double.valueOf(objValue1);
+
                 } catch (NumberFormatException e2) {
                     // log the exception
                     // try for long
                     try {
-                        Long val1 = Long.valueOf(objValue1);
-                        Long val2 = Long.valueOf(objValue2);
-                        return Math.abs(val1 - val2);
+                        return Long.valueOf(objValue1);
+
                     } catch (NumberFormatException e3) {
-                        // log the exception
-                        // invalid format or possibly non parsable String
-                        // This might be the case when
-                        // 1) the values are truely two different String or
-                        // 2) the values are String but of the form '/n' and ' /n' which happens as a result of Structural difference in the xml TEXT tags.
-                        // as a default fallback - we always consider
-                        // As of now returning 1 for All String differences.
-                        // TODO: handle in a better way to get an accurate difference
-                        // TODO: Maybe we can use length of the string or good old way of char by char comparision?
-                        return 1;
+                        //try for Boolean
+                        try {
+                            return Boolean.valueOf(objValue1) ? 1 : 0;
+                        } catch (Exception e4) {
+                            // log the exception
+                            // invalid format or possibly non parsable String
+                            // This might be the case when
+                            // 1) the values are truely two different String or
+                            // 2) the values are String but of the form '/n' and ' /n' which happens as a result of Structural difference in the xml TEXT tags.
+                            // as a default fallback - we always consider
+                            // As of now returning 1 for All String differences.
+                            // TODO: handle in a better way to get an accurate difference
+                            // TODO: Maybe we can use length of the string or good old way of char by char comparision?
+                            return -9999999;
+                        }
+
                     }
 
                 }
@@ -219,9 +219,35 @@ public class FeatureValueAnalyser {
             }
         }
     }
+
+
+
     static int count = 0;
     public static void updateNormalizedFeatureValues(TestChromosome t, Map<Integer, List<Double>> featureValueRangeList){
         Map<Integer, Feature> featureMap  = t.getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+
+        if(featureMap == null || featureMap.isEmpty()){
+            // no need to process
+            count++;
+            System.out.println("No. of Individuals having no feature map : "+count);
+            return;
+        }
+        /*else if(featureMap.size() != FeatureFactory.getFeatures().size()){
+            // update missing features with some Default value. I think this
+            // default value shouldn't affect the novelty as long as the default
+            // remains consistent
+
+            Map<Integer, Feature> newFeatureMap = new HashMap<>(FeatureFactory.getFeatures());
+            for(Map.Entry<Integer, Feature> entry : newFeatureMap.entrySet()){
+                if(!featureMap.containsKey(entry.getKey())){
+                    Feature dummyFeature = entry.getValue();
+                    dummyFeature.setValue(null);
+                    featureMap.put(entry.getKey(), dummyFeature);
+                }
+            }
+
+        }*/
+
         for(Map.Entry<Integer, Feature>entry : featureMap.entrySet()){
             List<Double> valueRange = featureValueRangeList.get(entry.getKey());
             Feature feature = entry.getValue();
@@ -229,14 +255,13 @@ public class FeatureValueAnalyser {
             feature.setNormalizedValue(normalizedVal);
             System.out.println("Normalized Score : "+normalizedVal);
         }
-        count++;
-        System.out.println("Individual : "+count);
+
     }
 
     public static double getNormalizedValue(double value, List<Double> valueRange){
         double minVal = valueRange.get(0);
         double maxVal = valueRange.get(1);
-        double range = (maxVal-minVal) == 0 ? 0.01 : (maxVal-minVal);
+        double range = (maxVal-minVal) == 0 ? 1 : (maxVal-minVal);
         // the value should be in the range of 0-1
         return (maxVal-value)/range;
     }
@@ -264,7 +289,13 @@ public class FeatureValueAnalyser {
      * @param input
      * @return
      */
-    private static int getCharValueAsIntFromString(String input){
+    private static double getCharValueAsIntFromString(String input){
+
+        double val = getNumericValue(input);
+        if(Double.compare(val, -9999999) != 0){
+            return val;
+        }
+        // this is definitely a String
         char[] arr = input.toCharArray();
         int sum=0;
         for(char c:arr)

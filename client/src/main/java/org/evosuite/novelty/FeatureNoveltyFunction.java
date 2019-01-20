@@ -29,7 +29,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
      */
     public void executeAndAnalyseFeature(T individual) {
         getExecutionResult((TestChromosome) individual);
-        Map<String, Double> map= null;
+        Map<String, List<Double>> map= null;
         Map<Integer, Feature> featureMap = ((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
         Map<Integer, Feature> newFeatures = new LinkedHashMap<>();
         int featuresSize = featureMap.size();
@@ -38,11 +38,37 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
             boolean isCreated = false;
             if(entry.getValue().getValue() instanceof  String){
-                map = FeatureValueAnalyser.getAnalysisFromStringRepresentation((String)entry.getValue().getValue());
+                map = FeatureValueAnalyser.getAnalysisFromStringRepresentationUsingDomParser((String)entry.getValue().getValue());
                 isCreated = true;
             }
             if(isCreated){
-                Feature structureFeature = new Feature();
+                boolean isFirst = true;
+                // add new features which we derived from the Complex Object
+                for(Map.Entry<String, List<Double>> newFeaturesMapEntry: map.entrySet()){
+                    Feature structureFeature = new Feature();
+                    structureFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Struct");
+                    structureFeature.setValue(newFeaturesMapEntry.getValue().get(0));
+                    if(isFirst){
+                        newFeatures.put(entry.getKey(), structureFeature);
+                        FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
+                    }else{
+                        featuresSize++;
+                        newFeatures.put(featuresSize, structureFeature);
+                        FeatureFactory.updateFeatureMap(featuresSize, structureFeature);
+                    }
+
+
+                    Feature valueFeature = new Feature();
+                    valueFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Value");
+                    valueFeature.setValue(newFeaturesMapEntry.getValue().get(1));
+                    featuresSize++;
+                    newFeatures.put(featuresSize, valueFeature);
+                    FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
+                    isFirst = false;
+                }
+
+
+                /*Feature structureFeature = new Feature();
                 structureFeature.setVariableName(entry.getValue().getVariableName()+"_Struct");
                 structureFeature.setValue(map.get(FeatureValueAnalyser.STRUCT_DIFF));
                 Feature valueFeature = new Feature();
@@ -53,7 +79,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
                 featuresSize++;
                 newFeatures.put(featuresSize, valueFeature);
-                FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
+                FeatureFactory.updateFeatureMap(featuresSize, valueFeature);*/
             }
         }
         if(!newFeatures.isEmpty()){
@@ -92,7 +118,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         }
 
         evaluations = 0;
-        // calculating the normalized novelty
+        // calculating the normalized noveltyl
         for(T t : population){
             updateEuclideanDistance(t, population, noveltyArchive, featureValueRangeList);
         }
@@ -145,7 +171,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             }
         }
     }
-
+    static int count = 0;
     /**
      * This calculates normalized novelty for 't' w.r.t the other population and the noveltyArchive
      * The closer the score to 1 more is the novelty or the distance and vice versa.
@@ -161,6 +187,15 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         // fetch the features
         Map<Integer, Feature> featureMap1= ((TestChromosome)t).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
 
+        //Setting to lowest novelty if there is no featureMap
+        if(featureMap1==null || featureMap1.isEmpty()){
+            t.setNoveltyScore(noveltyScore);
+            // no need to update the novelty archive
+            count++;
+            System.out.println("No. of Individuals setting score to min novelty : "+count);
+            return;
+        }
+        System.out.println("In updateEuclideanDistance : Feature Size : "+featureMap1.size());
         for(T other: population){
             if(t == other)
                 continue;
