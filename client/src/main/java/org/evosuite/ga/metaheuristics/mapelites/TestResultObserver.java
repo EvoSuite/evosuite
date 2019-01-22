@@ -2,15 +2,10 @@ package org.evosuite.ga.metaheuristics.mapelites;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.assertion.Inspector;
 import org.evosuite.assertion.InspectorManager;
-import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionObserver;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.Scope;
@@ -28,12 +23,11 @@ class TestResultObserver extends ExecutionObserver implements Serializable {
   private static final long serialVersionUID = 1L;
   
   private final Inspector[] inspectors;
-  
-  // TODO WrapperClass
+
   private final Class<?> targetClass;
 
   public TestResultObserver() {
-    this.targetClass = this.getTargetClass();
+    this.targetClass = Properties.getInitializedTargetClass();
     
     this.inspectors =
         InspectorManager.getInstance().getInspectors(this.targetClass).toArray(new Inspector[0]);
@@ -42,10 +36,10 @@ class TestResultObserver extends ExecutionObserver implements Serializable {
     Arrays.sort(this.inspectors, (a, b) -> a.getMethodCall().compareTo(b.getMethodCall()));
   }
   
-  private Class<?> getTargetClass() {
-    return Properties.getInitializedTargetClass();
+  public int getPossibilityCount() {
+    return FeatureVector.getPossibilityCount(this.inspectors);
   }
-  
+
   @Override
   public void output(int position, String output) {
     // Do nothing

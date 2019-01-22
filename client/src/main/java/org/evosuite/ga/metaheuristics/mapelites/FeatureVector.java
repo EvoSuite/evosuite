@@ -3,6 +3,7 @@ package org.evosuite.ga.metaheuristics.mapelites;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.assertion.Inspector;
 
 /**
@@ -10,15 +11,16 @@ import org.evosuite.assertion.Inspector;
  * @author Felix Prasse
  *
  */
-public class FeatureVector implements Serializable {
+public final class FeatureVector implements Serializable {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
  
-  private class Entry {
+  private final class Entry {
     private final String name;
     private final Object value;
+    private final int group;
     
     public Entry(Inspector inspector, Object instance) {
       try {
@@ -27,9 +29,14 @@ public class FeatureVector implements Serializable {
         throw new RuntimeException(e);
       }
       this.name = inspector.getMethodCall();
+      this.group = this.calculateGroup();
     }
 
     public int getGroup() {
+      return this.group;
+    }
+    
+    private int calculateGroup() {
       if(value == null) {
         return 0;
       }
@@ -71,7 +78,7 @@ public class FeatureVector implements Serializable {
     }
 
     public boolean equals(Entry other) {
-      return getGroup() == other.getGroup();
+      return getGroup() == other.getGroup() && name == other.name;
     }
     
     @Override
@@ -117,6 +124,37 @@ public class FeatureVector implements Serializable {
   @Override
   public String toString() {
     return "FeatureVector [features=" + Arrays.toString(features) + "]";
+  }
+  
+  private static int getPossibilityCountForType(Class<?> type) {
+    final Class<?> wrappedType = ClassUtils.primitiveToWrapper(type);
+    
+    int amount = 0;
+    
+    if(Character.class.isAssignableFrom(wrappedType)) {
+      amount = 1;
+    } else if(Boolean.class.isAssignableFrom(wrappedType)) {
+      amount = 2;
+    } else if(String.class.isAssignableFrom(wrappedType)) {
+      amount = 2;
+    } else if(wrappedType.isEnum()) {
+      amount = wrappedType.getEnumConstants().length;
+    } else if(Number.class.isAssignableFrom(wrappedType)) {
+      amount = 3;
+    }
+    
+    if(!type.isPrimitive()) {
+      amount += 1;
+    }
+    
+    return amount;
+  }
+  
+  public static int getPossibilityCount(final Inspector[] inspectors) {
+    return Arrays
+    .stream(inspectors)
+    .mapToInt(i -> getPossibilityCountForType(i.getReturnType()))
+    .reduce(1, Math::multiplyExact);
   }
 
 }

@@ -41,18 +41,21 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
   private final Map<BranchCoverageTestFitness, Map<FeatureVector, T>> populationMap;
   
+  private final int featureVectorPossibilityCount;
+  
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
 
-
-    TestCaseExecutor.getInstance().addObserver(new TestResultObserver());
+    TestResultObserver observer = new TestResultObserver();
+    this.featureVectorPossibilityCount = observer.getPossibilityCount();
+    TestCaseExecutor.getInstance().addObserver(observer);
 
     List<BranchCoverageTestFitness> branchCoverage = new BranchCoverageFactory().getCoverageGoals();
 
     this.populationMap = new LinkedHashMap<>(branchCoverage.size());
     branchCoverage.forEach(branch -> {
       this.populationMap.put(branch, new LinkedHashMap<>());
-      // Ahh.. Generics..
+      // TODO This might not work with a subclass of TestChromosome...
       super.addFitnessFunction((FitnessFunction<T>) branch);
     });
   }
@@ -73,12 +76,17 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
         analyzeChromosome(chromosome);
       }
     }
-
-    // TODO Own strategy based upon NoveltyStrategy?
-
+    
     ++currentIteration;
   }
 
+  private double getDensity() {
+    int n = this.populationMap.size()*this.featureVectorPossibilityCount;
+    int z = this.populationMap.values().stream().map(m -> m.size()).reduce(0, Math::addExact);
+    
+    return z/(double)n;
+  }
+  
   private void analyzeChromosome(final T chromosome) {
     final Iterator<Entry<BranchCoverageTestFitness, Map<FeatureVector, T>>> it =
         this.populationMap.entrySet().iterator();
