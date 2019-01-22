@@ -146,10 +146,15 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), new DiversitySequenceOutputVariableFactory());
-
+		addDirectSequenceFactory(RuntimeVariable.DensityTimeline);
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
 			MasterServices.getInstance().getMasterNode().addListener(this);
+	}
+	
+	private <T extends Number> void addDirectSequenceFactory(RuntimeVariable variable) {
+	  sequenceOutputVariableFactories.put(variable.name(), 
+	      new DirectSequenceOutputVariableFactory<T>(variable));
 	}
 
 	public static SearchStatistics getInstance() {

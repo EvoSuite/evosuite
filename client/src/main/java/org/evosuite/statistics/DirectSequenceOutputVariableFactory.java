@@ -27,7 +27,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author Jose Miguel Rojas
  */
-public abstract class DirectSequenceOutputVariableFactory<T extends Number> extends SequenceOutputVariableFactory<T> {
+public class DirectSequenceOutputVariableFactory<T extends Number> extends SequenceOutputVariableFactory<T> {
 
     protected T value;
 

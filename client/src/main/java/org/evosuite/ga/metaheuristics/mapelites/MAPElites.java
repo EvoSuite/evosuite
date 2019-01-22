@@ -12,6 +12,8 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -76,7 +78,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
         analyzeChromosome(chromosome);
       }
     }
-    
+
     ++currentIteration;
   }
 
@@ -140,8 +142,15 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
     currentIteration = 0;
 
+    ClientServices.getInstance().getClientNode()
+    .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
+    
     while (!isFinished()) {
       evolve();
+      
+      ClientServices.getInstance().getClientNode()
+      .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
+      
       this.notifyIteration();
     }
 
