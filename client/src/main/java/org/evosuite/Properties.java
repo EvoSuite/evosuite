@@ -359,7 +359,7 @@ public class Properties {
 
 	@Parameter(key = "performance_indicators", group = "Search Algorithm", description = "Secondary Objective to use in MOSA")
 	public static PerformanceIndicators[] MOSA_SECONDARY_OBJECTIVE = new PerformanceIndicators[] {
-			PerformanceIndicators.METHOD_CALL, PerformanceIndicators.COVERED_METHOD_CALL, PerformanceIndicators.OBJECTS_INSTANTIATIONS, PerformanceIndicators.STATEMENTS_COUNTER, PerformanceIndicators.STATEMENTS_COVERED, PerformanceIndicators.LOOP_COUNTER};
+			PerformanceIndicators.METHOD_CALL, PerformanceIndicators.COVERED_METHOD_CALL, PerformanceIndicators.OBJECTS_INSTANTIATIONS, PerformanceIndicators.STATEMENTS_COUNTER, PerformanceIndicators.STATEMENTS_COVERED, PerformanceIndicators.LOOP_COUNTER, PerformanceIndicators.TEST_LENGTH};
 
 	@Parameter(key = "performance_combination_strategy", group = "Search Algorithm",
 			description = "Strategy used to combine together the computed performance indicators")

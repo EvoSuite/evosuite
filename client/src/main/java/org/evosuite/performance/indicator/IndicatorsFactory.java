@@ -39,6 +39,8 @@ public class IndicatorsFactory {
                 return new CoveredStatementsCounter();
             case LOOP_COUNTER:
                 return new LoopCounter();
+            case TEST_LENGTH:
+                return new TestLength();
         }
         throw new RuntimeException("{} is not a supported performance indicator".format(id.toString()));
     }
