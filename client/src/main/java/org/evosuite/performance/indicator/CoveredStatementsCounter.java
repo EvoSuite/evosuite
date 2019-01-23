@@ -3,8 +3,6 @@ package org.evosuite.performance.indicator;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.coverage.line.LineCoverageFactory;
-import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.graphs.cfg.BasicBlock;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -16,13 +14,10 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
- * @author grano
+ * @author G. Grano, A. Panichella, S. Panichella
  *
  * Implements a dynamic performance indicator; it measure the number of statements covered by a test case.
  * Take also in account the collateral coverage.
@@ -32,10 +27,11 @@ public class CoveredStatementsCounter extends AbstractIndicator {
     private static final Logger logger = LoggerFactory.getLogger(CoveredMethodCallCounter.class);
     private static String INDICATOR = CoveredStatementsCounter.class.getName();
 
-    /** To keep track of the branches in the CUT (class under test) */
-    private static HashMap<Integer,Branch> branches;
+    /** To keep track of the size of each basic block, which is identified by its characterizing branch */
+    private static HashMap<Integer,Integer> branches;
 
-    private static HashMap<String, Set<BytecodeInstruction>> methods;
+    /** To keep track of the size of each method */
+    private static HashMap<String, Integer> methods;
 
     public CoveredStatementsCounter(){
         super();
@@ -44,19 +40,17 @@ public class CoveredStatementsCounter extends AbstractIndicator {
             for (Branch b : BranchPool
                     .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
                     .getAllBranches()) {
-                branches.put(b.getActualBranchId(), b);
+                BasicBlock block = b.getInstruction().getBasicBlock();
+                branches.put(b.getActualBranchId(), (block.getLastLine()-block.getFirstLine()));
             }
             methods = new HashMap();
-            for (LineCoverageTestFitness line : new LineCoverageFactory().getCoverageGoals()){
-                BytecodeInstruction instr = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getFirstInstructionAtLineNumber(line.getClassName(), line.getMethod(), line.getLine());
-                String methodName = instr.getClassName()+"."+instr.getMethodName();
-                Set<BytecodeInstruction> set = methods.get(methodName);
+            List<BytecodeInstruction> list = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
+            for (BytecodeInstruction instr : list){
+                Integer set = methods.get(instr.getMethodName());
                 if (set == null){
-                    set = new HashSet<>();
-                    set.add(instr);
-                    methods.put(methodName, set);
+                    methods.put(instr.getMethodName(), 1);
                 } else {
-                    set.add(instr);
+                    methods.put(instr.getMethodName(), set+1);
                 }
             }
         }
@@ -82,23 +76,19 @@ public class CoveredStatementsCounter extends AbstractIndicator {
         //    Then, we count the number of calls to constructors in such blocks
         double counter = 1.0;
         for (Integer branch_id : result.getTrace().getCoveredFalseBranches()){
-            Branch branch = this.branches.get(branch_id);
-            BasicBlock block = branch.getInstruction().getBasicBlock();
-            double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
+            double value = noExecutionForConditionalNode.get(branch_id);
             if (value > 1)
-               counter += value * (block.getLastLine()-block.getFirstLine());
+               counter += value * branches.get(branch_id);
         }
         for (Integer branch_id : result.getTrace().getCoveredTrueBranches()){
-            Branch branch = this.branches.get(branch_id);
-            BasicBlock block = branch.getInstruction().getBasicBlock();
-            double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
+            double value = noExecutionForConditionalNode.get(branch_id);
             if (value > 1)
-                counter += value * (block.getLastLine()-block.getFirstLine());
+                counter += value * branches.get(branch_id);
         }
 
         for (String branchlessMethod : result.getTrace().getCoveredBranchlessMethods()){
             if (methods.keySet().contains(branchlessMethod)) {
-                int size = methods.get(branchlessMethod).size();
+                int size = methods.get(branchlessMethod);
                 int nExecutions = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
                 if (nExecutions > 1)
                     counter += size * nExecutions;
