@@ -6,7 +6,6 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.mosa.structural.adaptive.AdaptiveBranchesManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
-import org.evosuite.performance.PerformanceScore;
 import org.evosuite.performance.strategies.PerformanceStrategy;
 import org.evosuite.performance.strategies.PerformanceStrategyFactory;
 import org.evosuite.testcase.TestChromosome;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * Performance version of DynaMOSA, according to the same implementation we already implemented for PerformanceMOSA
+ *
  * @author Giovanni Grano
  */
 @SuppressWarnings("Duplicates")
@@ -28,7 +28,9 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(PerformanceDynaMOSA.class);
 
-    /** Manager to determine the test goals to consider at each generation */
+    /**
+     * Manager to determine the test goals to consider at each generation
+     */
     protected AdaptiveBranchesManager<T> goalsManager = null;
 
     protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
@@ -36,13 +38,11 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     /* -------------------------------------- performance instance variables -------------------------------------- */
     private PerformanceStrategy<T> strategy;
 
-    private PerformanceScore<T> score = new PerformanceScore();
-
     private enum Heuristics {CROWDING, PERFORMANCE}
 
     private Heuristics last_heuristic;
 
-    private int crowdingStagnation=0, performanceStagnation=0;
+    private int crowdingStagnation = 0, performanceStagnation = 0;
 
     /* -------------------------------------- performance instance variables -------------------------------------- */
 
@@ -65,28 +65,24 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         /* --------------------------------- instantiate performance variables --------------------------------- */
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("Duplicates")
     protected void evolve() {
         List<T> offspringPopulation = this.breedNextGeneration();
 
         /* --------------------------------- select heuristic --------------------------------- */
-        logger.debug("Last Heuristic = {}", last_heuristic);
-        if (Properties.P_STRATEGY == Properties.PerformanceMOSAStrategy.CROWDING_DISTANCE) {
-            last_heuristic = checkStagnation();
-        } else {
-            last_heuristic = Heuristics.CROWDING;
-        }
-        logger.debug("Current Heuristic = {}", last_heuristic);
+        //logger.error("Last Heuristic = {}", last_heuristic);
+        last_heuristic = checkStagnation();
+        //logger.error("Current Heuristic = {}", last_heuristic);
         /* --------------------------------- select heuristic --------------------------------- */
 
         // Create the union of parents and offSpring
         List<T> union = new ArrayList<>(this.population.size() + offspringPopulation.size());
         union.addAll(this.population);
         union.addAll(offspringPopulation);
-
-        score.assignPerformanceScore(union);
 
         // Ranking the union
         logger.debug("Union Size = {}", union.size());
@@ -106,10 +102,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
 
-            if (last_heuristic == Heuristics.CROWDING)
-                distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-            else
-                strategy.setDistances(front, goalsManager.getUncoveredGoals());
+            applySecondaryCriterion(front);
 
 //            logger.debug("Distance = {}, Score = {} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
 
@@ -128,10 +121,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
         if (remain > 0 && !front.isEmpty()) {
 
-            if (last_heuristic == Heuristics.CROWDING)
-                distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-            else
-                strategy.setDistances(front, goalsManager.getUncoveredGoals());
+            applySecondaryCriterion(front);
 
 //            logger.debug("Distance = {}, Score ={} ", front.get(0).getDistance(), front.get(0).getPerformanceScore());
             strategy.sort(front);
@@ -161,7 +151,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         this.goalsManager.setIndicators(this.indicators);
 
         LoggingUtils.getEvoLogger().info("* Initial Number of Goals in PerformanceDynaMOSA = " +
-                this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
+                this.goalsManager.getCurrentGoals().size() + " / " + this.getUncoveredGoals().size());
 
         logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
 
@@ -176,7 +166,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         // Calculate dominance ranks and crowding distance
         this.ranking.computeRankingAssignment(this.population, this.goalsManager.getCurrentGoals());
 
-        for (int i = 0; i < this.ranking.getNumberOfSubfronts(); i++){
+        for (int i = 0; i < this.ranking.getNumberOfSubfronts(); i++) {
             distance.fastEpsilonDominanceAssignment(ranking.getSubfront(i), goalsManager.getCurrentGoals());
         }
 
@@ -267,9 +257,6 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     @Override
     protected void calculateFitness(T c) {
         this.goalsManager.calculateFitness(c);
-        /* --------------------------------- calculate performance indicators --------------------------------- */
-        computePerformanceMetrics(new HashSet<>(Arrays.asList((T)c)));
-        /* --------------------------------- calculate performance indicators --------------------------------- */
         this.notifyEvaluation(c);
     }
 
@@ -310,7 +297,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
             }
             for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions.keySet()) {
                 best.setCoverage(suiteFitness, 0.0);
-                best.setFitness(suiteFitness,  1.0);
+                best.setFitness(suiteFitness, 1.0);
             }
             return (T) best;
         }
@@ -347,11 +334,13 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
 
     /**
      * Checks for the stagnation and eventually changes the heuristic
+     *
      * @return
      */
     private Heuristics checkStagnation() {
+        Heuristics choice = null;
 
-        if (!goalsManager.hasBetterObjectives()){
+        if (!goalsManager.hasBetterObjectives()) {
             goalsManager.setHasBetterObjectives(false);
             if (last_heuristic == Heuristics.CROWDING)
                 crowdingStagnation++;
@@ -359,18 +348,32 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
                 performanceStagnation++;
 
             if (performanceStagnation > crowdingStagnation)
-                return Heuristics.CROWDING;
+                choice = Heuristics.CROWDING;
             else
-                return Heuristics.PERFORMANCE;
+                choice = Heuristics.PERFORMANCE;
         } else {
             goalsManager.setHasBetterObjectives(false);
 
             if (last_heuristic == Heuristics.CROWDING)
-                crowdingStagnation=0;
+                crowdingStagnation = 0;
             else
-                performanceStagnation=0;
+                performanceStagnation = 0;
 
-            return last_heuristic;
+            choice = last_heuristic;
+        }
+        //logger.error("crowdingStagnation = {}", crowdingStagnation);
+        //logger.error("performanceStagnation = {}", performanceStagnation);
+        return choice;
+    }
+
+    protected void applySecondaryCriterion(List<T> front) {
+        if (last_heuristic == Heuristics.CROWDING)
+            distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
+        else if (last_heuristic == Heuristics.PERFORMANCE) {
+            strategy.setDistances(front, goalsManager.getUncoveredGoals());
+        } else {
+            for (T t : front)
+                t.setDistance(0);
         }
     }
 }

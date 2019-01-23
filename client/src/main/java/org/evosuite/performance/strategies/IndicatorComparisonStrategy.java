@@ -3,9 +3,11 @@ package org.evosuite.performance.strategies;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
+import org.evosuite.performance.comparator.IndicatorComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +24,8 @@ public class IndicatorComparisonStrategy<T extends Chromosome> implements Perfor
 
     private static final Logger logger = LoggerFactory.getLogger(IndicatorComparisonStrategy.class);
 
-    private OnlyCrowdingComparator comparator = new OnlyCrowdingComparator();
+    private IndicatorComparator comparator = new IndicatorComparator();
+
     /**
      * Computes the performance scores for the front and set the distance to - the score itself
      * @param front
@@ -30,12 +33,38 @@ public class IndicatorComparisonStrategy<T extends Chromosome> implements Perfor
      */
     @Override
     public void setDistances(List<T> front, Set<FitnessFunction<T>> fitnessFunctions) {
-        front.forEach(individual -> individual.setDistance(individual.getPerformanceScore()));
+        for (T individual : front) {
+            individual.setDistance(0.0);
+        }
+
+        for(String ind : front.get(0).getIndicatorValues().keySet()){
+            logger.debug("Indicator = {}", ind);
+            comparator.setIndicator(ind);
+            Double min = Collections.min(front, comparator).getIndicatorValue(ind);
+            Double max = Collections.max(front, comparator).getIndicatorValue(ind);
+
+            for (T individual : front) {
+                if (Double.compare(min, max) != 0) {
+                    double currentValue = individual.getIndicatorValue(ind);
+                    double normalizedValue = (max - currentValue) / (max - min);
+                    logger.debug("{}, {}, {}, {} >> {}", ind, min, max, currentValue, normalizedValue);
+                    individual.setDistance(individual.getDistance() + normalizedValue);
+                } else {
+                    /* min and max are the same! We cannot compute the indicator here!!!
+                    We add 0.5 in those cases */
+                    logger.debug("Same min and max while computing the value for {}" + ind);
+                    individual.setDistance(individual.getDistance() + 0.5);
+                }
+            }
+        }
     }
 
     @Override
+    /**
+     * Sorts the front like using the crowding distance
+     */
     public void sort(List<T> front) {
-        Collections.sort(front, comparator);
+        Collections.sort(front, new OnlyCrowdingComparator());
     }
 
     @Override

@@ -90,8 +90,10 @@ public class ObjectInstantiations extends AbstractIndicator {
             double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
             BasicBlock block = branch.getInstruction().getBasicBlock();
             for (BytecodeInstruction instr : block) {
-                if (instr.isConstructorInvocation() || instr.isLocalArrayDefinition()) {
-                    if (value > 1)
+                if (instr.isConstructorInvocation() ||
+                        instr.isLocalArrayDefinition() ||
+                            instr.isWithinConstructor()) {
+                    if (value > 2)
                         counter += value;
                 }
             }
@@ -101,8 +103,10 @@ public class ObjectInstantiations extends AbstractIndicator {
             double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
             BasicBlock block = branch.getInstruction().getBasicBlock();
             for (BytecodeInstruction instr : block) {
-                if (instr.isConstructorInvocation() || instr.isLocalArrayDefinition()) {
-                    if (value > 1)
+                if (instr.isConstructorInvocation() ||
+                        instr.isLocalArrayDefinition() ||
+                        instr.isWithinConstructor()) {
+                    if (value > 2)
                         counter += value;
                 }
             }
@@ -111,10 +115,10 @@ public class ObjectInstantiations extends AbstractIndicator {
         for (String branchlessMethod : result.getTrace().getCoveredBranchlessMethods()){
             if (methods.keySet().contains(branchlessMethod)) {
                 for (BytecodeInstruction instr : methods.get(branchlessMethod)) {
-                    if (instr.isConstructorInvocation() || instr.isLocalArrayDefinition()) {
+                    if (instr.isConstructorInvocation() || instr.isLocalArrayDefinition() || instr.isWithinConstructor()) {
                         double value = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
-                        if (value > 1)
-                            counter += value;
+                            if (value > 2)
+                                counter += value;
                     }
                 }
             }

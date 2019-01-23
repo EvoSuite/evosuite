@@ -38,12 +38,10 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
 
     @Override
     @SuppressWarnings("Duplicates")
-    public void calculateFitness(T c) {
-        /* run the test */
-        TestCase test = ((TestChromosome) c).getTestCase();
-        ExecutionResult result = TestCaseExecutor.runTest(test);
-        ((TestChromosome) c).setLastExecutionResult(result);
-        c.setChanged(false);
+    public void calculateFitness(T c){
+        this.runTest(c);
+
+        ExecutionResult result = ((TestChromosome) c).getLastExecutionResult();
 
         computePerformanceMetrics(c);
 
@@ -55,34 +53,30 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
         }
 
         /* ------------------------------------- update of best values ----------------------------------- */
-        for (FitnessFunction<T> fitnessFunction: this.uncoveredGoals) { // covered goals still not updated
 
-            double value = fitnessFunction.getFitness(c);
-            Double b = bestValues.get(fitnessFunction);
-            if (b==null || b > value) {
-                bestValues.put(fitnessFunction, value);
-                hasBetterObjectives = true;
-                logger.debug("Map Update! {} => {}", b, value);
-            }
-            // the map is removed if value == 0 below
-        }
-        /* ------------------------------------- update of best values ----------------------------------- */
-
-        /* update the targets */
-        Set<FitnessFunction<T>> visitedStatements = new HashSet<>(uncoveredGoals.size()*2);
-        LinkedList<FitnessFunction<T>> targets = new LinkedList<>();
+        Set<FitnessFunction<T>> visitedStatements = new HashSet<FitnessFunction<T>>(uncoveredGoals.size()*2);
+        LinkedList<FitnessFunction<T>> targets = new LinkedList<FitnessFunction<T>>();
         targets.addAll(this.currentGoals);
+
+        boolean updateArchive = false;
 
         while (targets.size() > 0){
             FitnessFunction<T> fitnessFunction = targets.poll();
 
             int past_size = visitedStatements.size();
             visitedStatements.add(fitnessFunction);
-            if (past_size == visitedStatements.size())
+            if (past_size == visitedStatements.size() || this.coveredGoals.containsKey(fitnessFunction))
                 continue;
 
             double value = fitnessFunction.getFitness(c);
+            if (bestValues.get(fitnessFunction) == null || value < bestValues.get(fitnessFunction)){
+                bestValues.put(fitnessFunction, value);
+                this.hasBetterObjectives = true;
+            }
+
+
             if (value == 0.0) {
+                updateArchive = true;
                 this.bestValues.remove(fitnessFunction);
                 updateCoveredGoals(fitnessFunction, c);
                 for (FitnessFunction<T> child : graph.getStructuralChildren(fitnessFunction))
@@ -95,23 +89,25 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
 
 
         /* update of the archives */
-        for (Integer branchid : result.getTrace().getCoveredFalseBranches()){
-            FitnessFunction<T> branch = this.branchCoverageFalseMap.get(branchid);
-            if (branch == null)
-                continue;
-            updateCoveredGoals(branch, c);
-        }
-        for (Integer branchid : result.getTrace().getCoveredTrueBranches()){
-            FitnessFunction<T> branch = this.branchCoverageTrueMap.get(branchid);
-            if (branch == null)
-                continue;
-            updateCoveredGoals(branch, c);
-        }
-        for (String method : result.getTrace().getCoveredBranchlessMethods()){
-            FitnessFunction<T> branch = this.branchlessMethodCoverageMap.get(method);
-            if (branch == null)
-                continue;
-            updateCoveredGoals(branch, c);
+        if (updateArchive) {
+            for (Integer branchid : result.getTrace().getCoveredFalseBranches()) {
+                FitnessFunction<T> branch = this.branchCoverageFalseMap.get(branchid);
+                if (branch == null)
+                    continue;
+                updateCoveredGoals(branch, c);
+            }
+            for (Integer branchid : result.getTrace().getCoveredTrueBranches()) {
+                FitnessFunction<T> branch = this.branchCoverageTrueMap.get(branchid);
+                if (branch == null)
+                    continue;
+                updateCoveredGoals(branch, c);
+            }
+            for (String method : result.getTrace().getCoveredBranchlessMethods()) {
+                FitnessFunction<T> branch = this.branchlessMethodCoverageMap.get(method);
+                if (branch == null)
+                    continue;
+                updateCoveredGoals(branch, c);
+            }
         }
     }
 
@@ -186,8 +182,14 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
         this.indicators = indicators;
     }
 
-    private void computePerformanceMetrics(T test) {
-        for (AbstractIndicator indicator : this.indicators)
-            indicator.getIndicatorValue(test);
+    public void computePerformanceMetrics(T test) {
+        double sum = 0.0;
+        for (AbstractIndicator indicator : this.indicators) {
+            double value = indicator.getIndicatorValue(test);
+            double x = Math.log(value+1);
+            sum += x/(x+1);
+        }
+        test.setPerformanceScore(sum);
+        logger.debug("performance score for {} = {}", test.hashCode(), test.getPerformanceScore());
     }
 }
