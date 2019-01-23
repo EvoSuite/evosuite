@@ -86,6 +86,12 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     int n = this.populationMap.size()*this.featureVectorPossibilityCount;
     int z = this.populationMap.values().stream().map(m -> m.size()).reduce(0, Math::addExact);
     
+    if(n == 0) {
+      // Map is empty, coverage goal achieved.
+      // TODO Is that 1.0 or 0.0 density then?
+      return 1.0;
+    }
+    
     return z/(double)n;
   }
   
