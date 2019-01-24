@@ -1,10 +1,14 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -41,12 +45,14 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
   private final Map<BranchCoverageTestFitness, Map<FeatureVector, T>> populationMap;
+  private final Set<FeatureVector> droppedFeatureVectors;
   
   private final int featureVectorPossibilityCount;
   
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
 
+    this.droppedFeatureVectors = new HashSet<>();
     TestResultObserver observer = new TestResultObserver();
     this.featureVectorPossibilityCount = observer.getPossibilityCount();
     TestCaseExecutor.getInstance().addObserver(observer);
@@ -83,11 +89,17 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
   private double getDensity() {
     int n = this.featureVectorPossibilityCount;
-    long z = this.populationMap.values().stream().flatMap(m -> m.keySet().stream()).distinct().count();
+    Set<FeatureVector>  vectors = this.populationMap
+        .values()
+        .stream()
+        .flatMap(m -> m.keySet().stream())
+        .collect(Collectors.toSet());
+        
+    vectors.addAll(this.droppedFeatureVectors);
     
-    // TODO Keep set of seen featurevectors and add those to z.
+    int z = vectors.size();
     
-    // TODO MOSA Sparcity + Add feature vector extraction
+    // TODO MOSA Sparcity + Add feature vector extraction there for timing
     
     return z/(double)n;
   }
@@ -99,12 +111,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     while (it.hasNext()) {
       final Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry = it.next();
       final BranchCoverageTestFitness branchFitness = entry.getKey();
-      final Map<FeatureVector, T> featureMap = entry.getValue();
-
-      if(branchFitness.isCovered(chromosome)) {
-        // Remove from map. Covering chromosomes are stored in Archive.getArchiveInstance().
-        it.remove();
-      }
+      final Map<FeatureVector, T> featureMap = entry.getValue(); 
       
       final double fitness = branchFitness.getFitness(chromosome);
       
@@ -116,6 +123,13 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
         if (old == null || old.getFitness(branchFitness) >= fitness) {
           featureMap.put(feature, chromosome);
         }
+      }
+      
+      if(branchFitness.isCovered(chromosome)) {
+        // Remove from map. Covering chromosomes are stored in Archive.getArchiveInstance().
+        it.remove();
+        
+        this.droppedFeatureVectors.addAll(featureMap.keySet());
       }
     }
   }
