@@ -45,15 +45,16 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
 
         computePerformanceMetrics(c);
 
-        /* check exceptions */
-        if (result.hasTimeout() || result.hasTestException()){
-            for (FitnessFunction<T> f : currentGoals)
+        /* check exceptions and if the test does not cover anything */
+        if (result.hasTimeout() || result.hasTestException() || result.getTrace().getCoveredLines().size() == 0){
+            for (FitnessFunction<T> f : uncoveredGoals)
                 c.setFitness(f, Double.MAX_VALUE);
+
+            c.setPerformanceScore(Double.MAX_VALUE);
             return;
         }
 
         /* ------------------------------------- update of best values ----------------------------------- */
-
         Set<FitnessFunction<T>> visitedStatements = new HashSet<FitnessFunction<T>>(uncoveredGoals.size()*2);
         LinkedList<FitnessFunction<T>> targets = new LinkedList<FitnessFunction<T>>();
         targets.addAll(this.currentGoals);
