@@ -41,7 +41,7 @@ public class CoveredStatementsCounter extends AbstractIndicator {
                     .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
                     .getAllBranches()) {
                 BasicBlock block = b.getInstruction().getBasicBlock();
-                branches.put(b.getActualBranchId(), (block.getLastLine()-block.getFirstLine()));
+                branches.put(b.getActualBranchId(), (block.getLastLine()-block.getFirstLine())+1);
             }
             methods = new HashMap();
             List<BytecodeInstruction> list = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
@@ -74,15 +74,15 @@ public class CoveredStatementsCounter extends AbstractIndicator {
         // 1. We look at the objects instantiated in the covered production code
         //    First, we select the basic blocks associated with covered branches
         //    Then, we count the number of calls to constructors in such blocks
-        double counter = 1.0;
+        double counter = 0.0;
         for (Integer branch_id : result.getTrace().getCoveredFalseBranches()){
             double value = noExecutionForConditionalNode.get(branch_id);
-            if (value > 1)
+            //if (value > 2)
                counter += value * branches.get(branch_id);
         }
         for (Integer branch_id : result.getTrace().getCoveredTrueBranches()){
             double value = noExecutionForConditionalNode.get(branch_id);
-            if (value > 1)
+            //if (value > 2)
                 counter += value * branches.get(branch_id);
         }
 
@@ -90,13 +90,14 @@ public class CoveredStatementsCounter extends AbstractIndicator {
             if (methods.keySet().contains(branchlessMethod)) {
                 int size = methods.get(branchlessMethod);
                 int nExecutions = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
-                if (nExecutions > 1)
+                //if (nExecutions > 2)
                     counter += size * nExecutions;
             }
         }
-
+        
         test.setIndicatorValues(this.getIndicatorId(), counter);
-        logger.info("No. definitions = " + counter);
+
+        logger.debug("No. statements = " + counter);
         return counter;
     }
 
