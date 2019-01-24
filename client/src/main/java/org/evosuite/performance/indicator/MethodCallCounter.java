@@ -4,10 +4,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.FunctionalMockStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
@@ -39,10 +36,7 @@ public class MethodCallCounter extends AbstractIndicator {
             if (isMethodCall(stmt))
                 nMethodCalls++;
         }
-        if (nMethodCalls<5)
-            nMethodCalls = 0;
 
-        // save the values inside the test
         test.setIndicatorValues(this.getIndicatorId(), nMethodCalls);
         return nMethodCalls;
     }
@@ -55,6 +49,7 @@ public class MethodCallCounter extends AbstractIndicator {
         return (stmt instanceof ConstructorStatement
                 || stmt instanceof MethodStatement
                 || stmt instanceof PrivateMethodStatement
-                || stmt instanceof FunctionalMockStatement);
+                || stmt instanceof FunctionalMockStatement
+                || stmt instanceof FunctionalMockForAbstractClassStatement);
     }
 }
