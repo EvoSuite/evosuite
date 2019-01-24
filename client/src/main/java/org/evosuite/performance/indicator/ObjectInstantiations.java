@@ -16,10 +16,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author giograno
@@ -37,9 +34,9 @@ public class ObjectInstantiations extends AbstractIndicator {
     private static String INDICATOR = ObjectInstantiations.class.getName();
 
     /** To keep track of the branches in the CUT (class under test) */
-    private static HashMap<Integer,Branch> branches;
+    private static HashMap<Integer,Integer> branches;
 
-    private static HashMap<String, Set<BytecodeInstruction>> methods;
+    private static HashMap<String, Integer> methods;
 
     public ObjectInstantiations(){
         super();
@@ -48,19 +45,31 @@ public class ObjectInstantiations extends AbstractIndicator {
             for (Branch b : BranchPool
                     .getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
                     .getAllBranches()) {
-                branches.put(b.getActualBranchId(), b);
+                int nObjects = 0;
+                BasicBlock block = b.getInstruction().getBasicBlock();
+                for (BytecodeInstruction instr : block) {
+                    if (instr.isConstructorInvocation() ||
+                            instr.isLocalArrayDefinition() ||
+                            instr.isWithinConstructor()) {
+                        nObjects++;
+                    }
+                }
+                if (nObjects > 0)
+                    branches.put(b.getActualBranchId(), nObjects);
             }
             methods = new HashMap();
-            for (LineCoverageTestFitness line : new LineCoverageFactory().getCoverageGoals()){
-                BytecodeInstruction instr = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getFirstInstructionAtLineNumber(line.getClassName(), line.getMethod(), line.getLine());
-                String methodName = instr.getClassName()+"."+instr.getMethodName();
-                Set<BytecodeInstruction> set = methods.get(methodName);
-                if (set == null){
-                    set = new HashSet<>();
-                    set.add(instr);
-                    methods.put(methodName, set);
-                } else {
-                    set.add(instr);
+            List<BytecodeInstruction> list = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllInstructions();
+            for (BytecodeInstruction instr : list){
+                Integer set = methods.get(instr.getMethodName());
+                if (instr.isConstructorInvocation() ||
+                        instr.isLocalArrayDefinition() ||
+                        instr.isWithinConstructor()) {
+                    if (set == null){
+                        methods.put(instr.getMethodName(), 1);
+                    } else {
+                        methods.put(instr.getMethodName(), set+1);
+                    }
+
                 }
             }
         }
@@ -86,41 +95,24 @@ public class ObjectInstantiations extends AbstractIndicator {
         //    Then, we count the number of calls to constructors in such blocks
         double counter = 0;
         for (Integer branch_id : result.getTrace().getCoveredFalseBranches()){
-            Branch branch = this.branches.get(branch_id);
-            double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
-            BasicBlock block = branch.getInstruction().getBasicBlock();
-            for (BytecodeInstruction instr : block) {
-                if (instr.isConstructorInvocation() ||
-                        instr.isLocalArrayDefinition() ||
-                            instr.isWithinConstructor()) {
-                    if (value > 2)
-                        counter += value;
-                }
-            }
+            double value = noExecutionForConditionalNode.get(branch_id);
+            Integer number = branches.get(branch_id);
+            if (number!=null && value > 1)
+                counter += value * branches.get(branch_id);
         }
         for (Integer branch_id : result.getTrace().getCoveredTrueBranches()){
-            Branch branch = this.branches.get(branch_id);
-            double value = noExecutionForConditionalNode.get(branch.getActualBranchId());
-            BasicBlock block = branch.getInstruction().getBasicBlock();
-            for (BytecodeInstruction instr : block) {
-                if (instr.isConstructorInvocation() ||
-                        instr.isLocalArrayDefinition() ||
-                        instr.isWithinConstructor()) {
-                    if (value > 2)
-                        counter += value;
-                }
-            }
+            double value = noExecutionForConditionalNode.get(branch_id);
+            Integer number = branches.get(branch_id);
+            if (number!=null && value > 1)
+                counter += value * branches.get(branch_id);
         }
 
         for (String branchlessMethod : result.getTrace().getCoveredBranchlessMethods()){
             if (methods.keySet().contains(branchlessMethod)) {
-                for (BytecodeInstruction instr : methods.get(branchlessMethod)) {
-                    if (instr.isConstructorInvocation() || instr.isLocalArrayDefinition() || instr.isWithinConstructor()) {
-                        double value = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
-                            if (value > 2)
-                                counter += value;
-                    }
-                }
+                int nObjs = methods.get(branchlessMethod);
+                int nExecutions = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
+                //if (nExecutions > 2)
+                counter += nObjs * nExecutions;
             }
         }
 
