@@ -1,5 +1,6 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -71,17 +72,23 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   protected void evolve() {
     final double chance = 1.0 / populationMap.size();
     
+    // Required to prevent concurrent modification
+    List<T> toMutate = new ArrayList<>(1);
+    
     for (Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry : populationMap
         .entrySet()) {
      
       if (Randomness.nextDouble() <= chance) {
         T chromosome = Randomness.choice(entry.getValue().values());
-
-        notifyMutation(chromosome);
-        chromosome.mutate();
-
-        analyzeChromosome(chromosome);
+        toMutate.add(chromosome);
       }
+    }
+    
+    for(T chromosome : toMutate) {
+      notifyMutation(chromosome);
+      chromosome.mutate();
+
+      analyzeChromosome(chromosome);
     }
 
     ++currentIteration;
