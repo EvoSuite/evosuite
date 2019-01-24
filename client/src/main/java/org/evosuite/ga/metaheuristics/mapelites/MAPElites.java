@@ -15,7 +15,6 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     this.populationMap = new LinkedHashMap<>(branchCoverage.size());
     branchCoverage.forEach(branch -> {
       this.populationMap.put(branch, new LinkedHashMap<>());
-      // TODO This might not work with a subclass of TestChromosome...
+      // TODO This will not work with a subclass of TestChromosome...
       super.addFitnessFunction((FitnessFunction<T>) branch);
     });
   }
@@ -83,14 +82,12 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   }
 
   private double getDensity() {
-    int n = this.populationMap.size()*this.featureVectorPossibilityCount;
-    int z = this.populationMap.values().stream().map(m -> m.size()).reduce(0, Math::addExact);
+    int n = this.featureVectorPossibilityCount;
+    long z = this.populationMap.values().stream().flatMap(m -> m.keySet().stream()).distinct().count();
     
-    if(n == 0) {
-      // Map is empty, coverage goal achieved.
-      // TODO Is that 1.0 or 0.0 density then?
-      return 1.0;
-    }
+    // TODO Keep set of seen featurevectors and add those to z.
+    
+    // TODO MOSA Sparcity + Add feature vector extraction
     
     return z/(double)n;
   }
@@ -156,6 +153,8 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       
       ClientServices.getInstance().getClientNode()
       .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
+      
+      // TODO Generate TestSuite and call BranchCoverageSuiteFitness
       
       this.notifyIteration();
     }
