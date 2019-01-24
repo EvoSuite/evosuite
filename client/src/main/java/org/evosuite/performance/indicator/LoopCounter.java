@@ -29,7 +29,7 @@ public class LoopCounter extends AbstractIndicator {
     private static Set<Branch> loopBranches = null;
 
     /** To keep track of the starting and ending basic blocks of loops */
-    private static HashMap<BasicBlock,BasicBlock> loops = null;
+    private static HashMap<Branch,BasicBlock> loops = null;
 
     public LoopCounter(){
         super();
@@ -44,7 +44,7 @@ public class LoopCounter extends AbstractIndicator {
                 BasicBlock endLoop = findLoop(b.getInstruction().getBasicBlock(), b.getInstruction().getActualCFG());
                 if (endLoop != null && b != null) {
                     loopBranches.add(b);
-                    loops.put(b.getInstruction().getBasicBlock(), endLoop);
+                    loops.put(b, endLoop);
                 }
             }
         }
@@ -71,8 +71,12 @@ public class LoopCounter extends AbstractIndicator {
 
         /**/
         for (Branch branch : loopBranches){
+            Integer freq = noExecutionForConditionalNode.get(branch.getActualBranchId());
+            if (freq!=null && freq > 1)
+                counter += freq;
+            /*
             BasicBlock start = branch.getInstruction().getBasicBlock(); // start point of the loop
-            BasicBlock end = loops.get(start); // end point of the loop
+            BasicBlock end = loops.get(branch); // end point of the loop
             if (result.getTrace().getCoveredLines().contains(end.getLastLine())) {
                 int id = branch.getActualBranchId();
                 if (noExecutionForConditionalNode.containsKey(id)){
@@ -80,7 +84,7 @@ public class LoopCounter extends AbstractIndicator {
                     if (val >2)
                         counter += noExecutionForConditionalNode.get(id);
                 }
-            }
+            }*/
             //logger.error("{}, {}, {}", branch, loops.size(), result.getTrace().getCoveredLines().size());
         }
         //logger.error("HERE");
