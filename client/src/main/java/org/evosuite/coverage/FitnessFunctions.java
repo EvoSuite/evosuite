@@ -244,6 +244,7 @@ public class FitnessFunctions {
 				return OnlyMutationTestFitness.class;
 		case DEFUSE:
 				return DefUseCoverageTestFitness.class;
+		case NOVELTY:
 		case BRANCH:
 				return BranchCoverageTestFitness.class;
 		case CBRANCH:

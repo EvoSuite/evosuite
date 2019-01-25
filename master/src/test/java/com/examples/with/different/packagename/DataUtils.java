@@ -5,19 +5,15 @@ import java.util.List;
 
 public class DataUtils {
 
-    public static void listOperation(Foo foo) {
-        Foo foo1 = foo;
+    public static void listOperation(Foo foo, List<Integer> list) {
+        /*Foo foo1 = foo;*/
+        List<Integer> list1 = list;
 
-        if(foo1.getSomething()){
+        if(list.size() > 5){
             System.out.println("Equal");
         }else{
             System.out.println("Not Equal");
         }
-
-
-
-
-
     }
 
 }
@@ -62,7 +58,7 @@ class Boo{
     }
 
     public boolean checkEquals(){
-        if(input==2 && result && input*input2 == 12){
+        if(input==2 && result && input2 == 12){
             return true;
         }else
             return false;

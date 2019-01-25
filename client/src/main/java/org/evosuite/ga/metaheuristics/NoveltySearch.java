@@ -1,18 +1,23 @@
 package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.BudgetConsumptionMonitor;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +32,27 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
     private NoveltyFunction<T> noveltyFunction;
 
+    /** Object used to keep track of the execution time needed to reach the maximum coverage */
+    protected final BudgetConsumptionMonitor budgetMonitor;
+
+    /** Keep track of overall suite fitness functions and correspondent test fitness functions */
+    protected final Map<TestSuiteFitnessFunction, Class<?>> suiteFitnessFunctions;
+
     private LocalCompetition<T> lc = new LocalCompetition<>();
 
     public NoveltySearch(ChromosomeFactory<T> factory) {
+
         super(factory);
+        budgetMonitor = new BudgetConsumptionMonitor();
+        this.suiteFitnessFunctions = new LinkedHashMap<TestSuiteFitnessFunction, Class<?>>();
+        for (Properties.Criterion criterion : Properties.CRITERION) {
+            TestSuiteFitnessFunction suiteFit = FitnessFunctions.getFitnessFunction(criterion);
+            Class<?> testFit = FitnessFunctions.getTestFitnessFunctionClass(criterion);
+            this.suiteFitnessFunctions.put(suiteFit, testFit);
+        }
+        // set the secondary objectives of test cases (useful when MOSA compares two test
+        // cases to, for example, update the archive)
+        TestCaseSecondaryObjective.setSecondaryObjectives();
     }
 
     public void setNoveltyFunction(NoveltyFunction<T> function) {
@@ -95,9 +117,30 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         }*/
 
         // compute overall fitness and coverage
-        //this.computeCoverageAndFitness(best);
+        this.computeCoverageAndFitness(best);
         result = (TestSuiteChromosome) best;
         return result;
+    }
+    protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
+        for (Map.Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
+                .entrySet()) {
+            TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
+            Class<?> testFitnessFunction = entry.getValue();
+
+            int numberCoveredTargets =
+                    Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
+            int numberUncoveredTargets =
+                    Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
+            int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
+
+            double coverage = totalNumberTargets == 0 ? 1.0
+                    : ((double) numberCoveredTargets) / ((double) totalNumberTargets);
+
+            suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
+            suite.setCoverage(suiteFitnessFunction, coverage);
+            suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
+            suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
+        }
     }
 
     public TestSuiteChromosome getBestIndividual2(){
@@ -230,46 +273,6 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
     protected void evolve() {
 
         List<T> newGeneration = new ArrayList<T>();
-
-        /*while (!isNextPopulationFull(newGeneration)) {
-            T parent1 = selectionFunction.select(this.population);
-            T parent2 = selectionFunction.select(this.population);
-
-            T offspring1 = (T)parent1.clone();
-            T offspring2 = (T)parent2.clone();
-
-            try {
-                if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-                    crossoverFunction.crossOver(offspring1, offspring2);
-                }
-
-                notifyMutation(offspring1);
-                offspring1.mutate();
-                notifyMutation(offspring2);
-                offspring2.mutate();
-
-                if(offspring1.isChanged()) {
-                    offspring1.updateAge(currentIteration);
-                }
-                if(offspring2.isChanged()) {
-                    offspring2.updateAge(currentIteration);
-                }
-            } catch (ConstructionFailedException e) {
-                logger.info("CrossOver/Mutation failed.");
-                continue;
-            }
-
-            if (!isTooLong(offspring1))
-                newGeneration.add(offspring1);
-            else
-                newGeneration.add(parent1);
-
-            if (!isTooLong(offspring2))
-                newGeneration.add(offspring2);
-            else
-                newGeneration.add(parent2);
-        }*/
-
         // changes start
         for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
             // select best individuals
@@ -295,7 +298,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             if (offspring1.isChanged()) {
                 this.clearCachedResults(offspring1);
                 offspring1.updateAge(this.currentIteration);
-                //this.calculateFitness(offspring1);
+                this.calculateFitness(offspring1);
                 newGeneration.add(offspring1);
             }
             // apply mutation on offspring2
@@ -303,7 +306,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             if (offspring2.isChanged()) {
                 this.clearCachedResults(offspring2);
                 offspring2.updateAge(this.currentIteration);
-                //this.calculateFitness(offspring2);
+                this.calculateFitness(offspring2);
                 newGeneration.add(offspring2);
             }
 
@@ -320,7 +323,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             }
             if (tch.isChanged()) {
                 tch.updateAge(this.currentIteration);
-                //this.calculateFitness(tch);
+                this.calculateFitness(tch);
                 newGeneration.add(tch);
             }
         }
@@ -330,7 +333,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
         this.population = newGeneration;
         //archive
-        //updateFitnessFunctionsAndValues();
+        updateFitnessFunctionsAndValues();
         //
         currentIteration++;
     }
@@ -387,7 +390,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         }*/
 
         logger.warn("Starting evolution of novelty search algorithm");
-
+        /*!isFinished() &&*/
         while (!isFinished() && this.getNumberOfUncoveredGoals() > 0) {
             logger.warn("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
             //logger.info("Best fitness: " + getBestIndividual().getFitness());
@@ -397,10 +400,16 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             // TODO: Sort by novelty
             calculateNoveltyAndSortPopulation();
 
+            //this.calculateFitness();
+
             this.notifyIteration();
         }
 
-        updateBestIndividualFromArchive();
+        System.out.println("Archive size after all the generations : "+this.noveltyArchive.size());
+        //updateBestIndividualFromArchive();
+        // storing the time needed to reach the maximum coverage
+        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
+                this.budgetMonitor.getTime2MaxCoverage());
         notifySearchFinished();
 
     }

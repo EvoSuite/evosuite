@@ -81,6 +81,12 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 newFeatures.put(featuresSize, valueFeature);
                 FeatureFactory.updateFeatureMap(featuresSize, valueFeature);*/
             }
+            /*if(entry.getValue().getVariableName().equals("listOperation(ZII)V_LV_3")){
+                Feature feature = entry.getValue();
+                System.out.println("Boolean Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+            }*/
+
+
         }
         if(!newFeatures.isEmpty()){
             featureMap.putAll(newFeatures);
@@ -109,6 +115,13 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 updateFeatureValueRange(featureValueRangeList, entry);
             }
         }
+        // Also do this for the Archive
+        for(T individual :noveltyArchive){
+            Map<Integer, Feature> featureMap =((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+            for(Map.Entry<Integer, Feature> entry: featureMap.entrySet()){
+                updateFeatureValueRange(featureValueRangeList, entry);
+            }
+        }
 
         // better to normalize all the feature values to (0-1) according to their value ranges
         // calculated above. Otherwise the calculation and the values may go in 'long' range
@@ -116,10 +129,16 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         for(T t : population){
             FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
         }
+        for(T t : noveltyArchive){
+            FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
+        }
 
         evaluations = 0;
         // calculating the normalized noveltyl
         for(T t : population){
+            if(null == ((TestChromosome) t).getLastExecutionResult().getFirstPositionOfThrownException()){
+                continue;
+            }
             updateEuclideanDistance(t, population, noveltyArchive, featureValueRangeList);
         }
 
@@ -170,6 +189,31 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 featureValueRangeList.get(entry.getKey()).add(1, featureMax);
             }
         }
+        /*if(entry.getValue().getVariableName().equals("someArr_int_Struct") ){
+            Feature feature = entry.getValue();
+            System.out.println("someArr_int Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+        }
+        if(entry.getValue().getVariableName().equals("someArr_int_Value") ){
+            Feature feature = entry.getValue();
+            System.out.println("someArr_int_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+        }
+        if(entry.getValue().getVariableName().equals("boo_input_Value") ){
+            Feature feature = entry.getValue();
+            System.out.println("boo_input_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+        }
+        if(entry.getValue().getVariableName().equals("boo_input2_Value") ){
+            Feature feature = entry.getValue();
+            System.out.println("boo_input2_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+        }
+        if(entry.getValue().getVariableName().equals("boo_result_Struct") ){
+            Feature feature = entry.getValue();
+            System.out.println("boo_result_Struct Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+        }*/
+        if(entry.getValue().getVariableName().equals("linked-list_int_Struct") ){
+            Feature feature = entry.getValue();
+            System.out.println("linked-list_int_Struct Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+        }
+        System.out.println("------------------------------------------------------------------------");
     }
     static int count = 0;
     /**
@@ -248,10 +292,10 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         if(currentNovelty > noveltyThreshold){
             evaluations++;
             //if the size of the archive grows bigger than certain threshold then
-            if( archive.size() >= Properties.MAX_NOVELTY_ARCHIVE_SIZE){
+            /*if( archive.size() >= Properties.MAX_NOVELTY_ARCHIVE_SIZE){
                 // Evict individual from the archive - Which one? maybe the oldest one
                 ((Deque)archive).removeFirst();
-            }
+            }*/
             archive.add(t);
         }
     }

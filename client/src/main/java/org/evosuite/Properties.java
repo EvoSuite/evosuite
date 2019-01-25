@@ -1534,7 +1534,7 @@ public class Properties {
 	public static double NOVELTY_THRESHOLD = 0.2;
 
 	@Parameter(key = "max_novelty_archive_size", group = "Runtime", description = "Maximum size of the novelty archive")
-	public static int MAX_NOVELTY_ARCHIVE_SIZE = 25;
+	public static int MAX_NOVELTY_ARCHIVE_SIZE = 156;
 
 	//TODO: Ensure that this is always a multiple of 5
 	@Parameter(key = "local_competition_group_size", group = "Runtime", description = "Group size for local competition")

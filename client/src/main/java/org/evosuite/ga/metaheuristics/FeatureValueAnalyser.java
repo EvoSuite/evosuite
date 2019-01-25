@@ -100,7 +100,7 @@ public class FeatureValueAnalyser {
                 }
             }
             else{
-                if(tempNode.getPreviousSibling()!=null){
+                if(tempNode.getPreviousSibling()!=null && !tempNode.getPreviousSibling().getNodeName().equals("null")){
                     updateMap((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName(), tempNode.getPreviousSibling().getTextContent());
                 }
                     //if("someArr_int".equals((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName()))
