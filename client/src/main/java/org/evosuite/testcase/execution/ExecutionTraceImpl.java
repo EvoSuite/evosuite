@@ -246,6 +246,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
     public Map<Integer, Feature> vistedFeaturesMap = Collections
             .synchronizedMap(new HashMap<Integer, Feature>());
+    public List<Map<Integer, Feature>> listOfFeatureMap = Collections
+			.synchronizedList(new ArrayList<Map<Integer, Feature>>());
+
 
     /*public Map<Integer, Map<Integer, Feature>> visitedFeatureObjectMap = Collections
 			.synchronizedMap(new HashMap<Integer, Map<Integer, Feature>>());*/
@@ -567,6 +570,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		passedDefinitionObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
 		passedUseObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
 		vistedFeaturesMap = new HashMap<Integer, Feature>();
+		listOfFeatureMap = new ArrayList<Map<Integer, Feature>>();
 		branchesTrace = new ArrayList<BranchEval>();
 		coveredTrueContext = new HashMap<Integer, Map<CallContext, Double>>();
 		coveredFalseContext = new HashMap<Integer, Map<CallContext, Double>>();
@@ -614,6 +618,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.passedUseObject.putAll(passedUseObject);
 		copy.branchesTrace.addAll(branchesTrace);
 		copy.vistedFeaturesMap.putAll(vistedFeaturesMap);
+		copy.listOfFeatureMap.addAll(listOfFeatureMap);
 
 		copy.coveredTrueContext.putAll(coveredTrueContext);
 		copy.coveredFalseContext.putAll(coveredFalseContext);
@@ -707,8 +712,55 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			System.out.println("Updating visitedFeaturesMap in ExeTracerImpl");
 			logger.error("Updating visitedFeaturesMap in ExeTracerImpl");
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
+
 			vistedFeaturesMap.put(featID, feature);
+			updateListFeatureMap(featID, feature);
 		}
+	}
+
+	/**
+	 * handles the case when a feature is executed multiple times during the test execution.
+	 * @param featId
+	 */
+	private void updateListFeatureMap(Integer featId, Feature feature){
+		// case 1. when the list is empty
+		if(listOfFeatureMap.isEmpty()){
+			Map<Integer, Feature> newFeatureMap = Collections.synchronizedMap(new HashMap<Integer, Feature>());
+			newFeatureMap.put(featId, feature);
+			listOfFeatureMap.add(newFeatureMap);
+		}
+		/*// case 2. when the list size is 1
+		else if(listOfFeatureMap.size() == 1){
+			Map<Integer, Feature> featureMap = listOfFeatureMap.get(1);
+			if(featureMap.containsKey(featId)){
+				Map<Integer, Feature> newFeatureMap = Collections.synchronizedMap(new HashMap<Integer, Feature>());
+				newFeatureMap.put(featId, feature);
+				listOfFeatureMap.add(newFeatureMap);
+			}else{
+				// update the same map
+				featureMap.put(featId, feature);
+			}
+		}*/
+		// case 3. when the list size is > 1
+		else if(listOfFeatureMap.size() > 0){
+			Map<Integer, Feature> featureMap = listOfFeatureMap.get(listOfFeatureMap.size()-1);
+			if(featureMap.containsKey(featId)){
+				Map<Integer, Feature> newFeatureMap = Collections.synchronizedMap(new HashMap<Integer, Feature>());
+				newFeatureMap.put(featId, feature);
+				listOfFeatureMap.add(newFeatureMap);
+			}else{
+				// update the same map
+				featureMap.put(featId, feature);
+			}
+		}
+	}
+
+	private Map<Integer, Feature> getMapIfPresent(Integer featId){
+		for(Map<Integer, Feature> entry: listOfFeatureMap){
+			if(entry.containsKey(featId))
+				return entry;
+		}
+		return null;
 	}
 
 	@Override
@@ -722,6 +774,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			feature.setValue(object);
 			int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
+			updateListFeatureMap(featID, feature);
         }
 	}
 
@@ -736,6 +789,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			feature.setValue(object);
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
+			updateListFeatureMap(featID, feature);
 		}
 	}
 
@@ -750,6 +804,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			feature.setValue(object);
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
+			updateListFeatureMap(featID, feature);
 		}
 	}
 
@@ -764,6 +819,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			feature.setValue(object);
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
+			updateListFeatureMap(featID, feature);
 		}
 	}
 
@@ -783,6 +839,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			feature.setValue(val);
 			// need to get id from the map
 			vistedFeaturesMap.put(FeatureFactory.getFeatureIdByVarName((String)varName), feature);
+			updateListFeatureMap(FeatureFactory.getFeatureIdByVarName((String)varName), feature);
 		}
 	}
 
@@ -802,6 +859,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
             // need to get id from the map
             vistedFeaturesMap.put(FeatureFactory.getFeatureIdByVarName((String)varName), feature);
+			updateListFeatureMap(FeatureFactory.getFeatureIdByVarName((String)varName), feature);
         }
     }
 
@@ -1959,6 +2017,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Map<Integer, Feature> getVisitedFeaturesMap() {
 		return this.vistedFeaturesMap;
+	}
+
+	@Override
+	public List<Map<Integer, Feature>> getListOfFeatureMap() {
+		return this.listOfFeatureMap;
 	}
 
 	@Override

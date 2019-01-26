@@ -640,5 +640,7 @@ public interface ExecutionTrace {
 
 	public Map<Integer, Feature> getVisitedFeaturesMap();
 
+	public List<Map<Integer, Feature>> getListOfFeatureMap();
+
 	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap);
 }

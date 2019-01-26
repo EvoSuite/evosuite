@@ -781,4 +781,9 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		return trace.getVisitedFeaturesMap();
 	}
 
+	@Override
+	public List<Map<Integer, Feature>> getListOfFeatureMap() {
+		return trace.getListOfFeatureMap();
+	}
+
 }
