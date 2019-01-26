@@ -100,7 +100,7 @@ public class FeatureValueAnalyser {
                 }
             }
             else{
-                if(tempNode.getPreviousSibling()!=null && !tempNode.getPreviousSibling().getNodeName().equals("null")){
+                if(tempNode.getPreviousSibling()!=null && !tempNode.getPreviousSibling().getNodeName().equals("null")){//&& !tempNode.getPreviousSibling().getNodeName().equals("null")
                     updateMap((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName(), tempNode.getPreviousSibling().getTextContent());
                 }
                     //if("someArr_int".equals((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName()))
@@ -224,14 +224,26 @@ public class FeatureValueAnalyser {
 
     static int count = 0;
     public static void updateNormalizedFeatureValues(TestChromosome t, Map<Integer, List<Double>> featureValueRangeList){
-        Map<Integer, Feature> featureMap  = t.getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+        List<Map<Integer, Feature>> featureMapList = t.getLastExecutionResult().getTrace().getListOfFeatureMap();
 
-        if(featureMap == null || featureMap.isEmpty()){
+        if(featureMapList == null || featureMapList.isEmpty()){
             // no need to process
             count++;
             System.out.println("No. of Individuals having no feature map : "+count);
             return;
         }
+
+        for(Map<Integer, Feature> map: featureMapList){
+            for(Map.Entry<Integer, Feature> entry : map.entrySet()){
+                List<Double> valueRange = featureValueRangeList.get(entry.getKey());
+                Feature feature = entry.getValue();
+                double normalizedVal = getNormalizedValue(readDoubleValue(feature.getValue()), valueRange);
+                feature.setNormalizedValue(normalizedVal);
+                System.out.println("Normalized Score : "+normalizedVal);
+            }
+        }
+
+
         /*else if(featureMap.size() != FeatureFactory.getFeatures().size()){
             // update missing features with some Default value. I think this
             // default value shouldn't affect the novelty as long as the default
@@ -248,13 +260,13 @@ public class FeatureValueAnalyser {
 
         }*/
 
-        for(Map.Entry<Integer, Feature>entry : featureMap.entrySet()){
+        /*for(Map.Entry<Integer, Feature>entry : featureMap.entrySet()){
             List<Double> valueRange = featureValueRangeList.get(entry.getKey());
             Feature feature = entry.getValue();
             double normalizedVal = getNormalizedValue(readDoubleValue(feature.getValue()), valueRange);
             feature.setNormalizedValue(normalizedVal);
             System.out.println("Normalized Score : "+normalizedVal);
-        }
+        }*/
 
     }
 
