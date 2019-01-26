@@ -31,67 +31,50 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         getExecutionResult((TestChromosome) individual);
         Map<String, List<Double>> map= null;
         Map<Integer, Feature> featureMap = ((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
-        Map<Integer, Feature> newFeatures = new LinkedHashMap<>();
-        int featuresSize = featureMap.size();
+        List<Map<Integer, Feature>> featureMapList = ((TestChromosome)individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
 
-        for(Map.Entry<Integer, Feature> entry: featureMap.entrySet()){
 
-            boolean isCreated = false;
-            if(entry.getValue().getValue() instanceof  String){
-                map = FeatureValueAnalyser.getAnalysisFromStringRepresentationUsingDomParser((String)entry.getValue().getValue());
-                isCreated = true;
-            }
-            if(isCreated){
-                boolean isFirst = true;
-                // add new features which we derived from the Complex Object
-                for(Map.Entry<String, List<Double>> newFeaturesMapEntry: map.entrySet()){
-                    Feature structureFeature = new Feature();
-                    structureFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Struct");
-                    structureFeature.setValue(newFeaturesMapEntry.getValue().get(0));
-                    if(isFirst){
-                        newFeatures.put(entry.getKey(), structureFeature);
-                        FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
-                    }else{
+        for(Map<Integer, Feature> map1 : featureMapList){
+            Map<Integer, Feature> newFeatures = new LinkedHashMap<>();
+            int featuresSize = map1.size();
+            for(Map.Entry<Integer, Feature> entry: map1.entrySet()){
+
+                boolean isCreated = false;
+                if(entry.getValue().getValue() instanceof  String){
+                    map = FeatureValueAnalyser.getAnalysisFromStringRepresentationUsingDomParser((String)entry.getValue().getValue());
+                    isCreated = true;
+                }
+                if(isCreated){
+                    boolean isFirst = true;
+                    // add new features which we derived from the Complex Object
+                    for(Map.Entry<String, List<Double>> newFeaturesMapEntry: map.entrySet()){
+                        Feature structureFeature = new Feature();
+                        structureFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Struct");
+                        structureFeature.setValue(newFeaturesMapEntry.getValue().get(0));
+                        if(isFirst){
+                            newFeatures.put(entry.getKey(), structureFeature);
+                            FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
+                        }else{
+                            featuresSize++;
+                            newFeatures.put(featuresSize, structureFeature);
+                            FeatureFactory.updateFeatureMap(featuresSize, structureFeature);
+                        }
+                        
+                        Feature valueFeature = new Feature();
+                        valueFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Value");
+                        valueFeature.setValue(newFeaturesMapEntry.getValue().get(1));
                         featuresSize++;
-                        newFeatures.put(featuresSize, structureFeature);
-                        FeatureFactory.updateFeatureMap(featuresSize, structureFeature);
+                        newFeatures.put(featuresSize, valueFeature);
+                        FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
+                        isFirst = false;
                     }
 
-
-                    Feature valueFeature = new Feature();
-                    valueFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Value");
-                    valueFeature.setValue(newFeaturesMapEntry.getValue().get(1));
-                    featuresSize++;
-                    newFeatures.put(featuresSize, valueFeature);
-                    FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
-                    isFirst = false;
                 }
-
-
-                /*Feature structureFeature = new Feature();
-                structureFeature.setVariableName(entry.getValue().getVariableName()+"_Struct");
-                structureFeature.setValue(map.get(FeatureValueAnalyser.STRUCT_DIFF));
-                Feature valueFeature = new Feature();
-                valueFeature.setVariableName(entry.getValue().getVariableName()+"_Value");
-                valueFeature.setValue(map.get(FeatureValueAnalyser.VALUE_DIFF));
-                // replace the existing entry of String representation
-                newFeatures.put(entry.getKey(), structureFeature);
-                FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
-                featuresSize++;
-                newFeatures.put(featuresSize, valueFeature);
-                FeatureFactory.updateFeatureMap(featuresSize, valueFeature);*/
             }
-            /*if(entry.getValue().getVariableName().equals("listOperation(ZII)V_LV_3")){
-                Feature feature = entry.getValue();
-                System.out.println("Boolean Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
-            }*/
-
-
+            if(!newFeatures.isEmpty()){
+                map1.putAll(newFeatures);
+            }
         }
-        if(!newFeatures.isEmpty()){
-            featureMap.putAll(newFeatures);
-        }
-
     }
 
     @Override
