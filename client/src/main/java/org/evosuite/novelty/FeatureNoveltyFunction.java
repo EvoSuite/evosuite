@@ -30,7 +30,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     public void executeAndAnalyseFeature(T individual) {
         getExecutionResult((TestChromosome) individual);
         Map<String, List<Double>> map= null;
-        Map<Integer, Feature> featureMap = ((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+       /* Map<Integer, Feature> featureMap = ((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();*/
         List<Map<Integer, Feature>> featureMapList = ((TestChromosome)individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
 
 
@@ -191,9 +191,13 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             Feature feature = entry.getValue();
             System.out.println("boo_result_Struct Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
         }*/
-        if(entry.getValue().getVariableName().equals("linked-list_int_Struct") ){
+        if(entry.getValue().getVariableName().equals("boo_input_Value") ){
             Feature feature = entry.getValue();
-            System.out.println("linked-list_int_Struct Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+            System.out.println("boo_input_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+        }
+        if(entry.getValue().getVariableName().equals("boo_input2_Value") ){
+            Feature feature = entry.getValue();
+            System.out.println("boo_input2_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
         }
         System.out.println("------------------------------------------------------------------------");
     }
@@ -211,7 +215,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         double sumDiff = 0;
 
         // fetch the features
-        Map<Integer, Feature> featureMap1= ((TestChromosome)t).getLastExecutionResult().getTrace().getVisitedFeaturesMap();
+        /*Map<Integer, Feature> featureMap1= ((TestChromosome)t).getLastExecutionResult().getTrace().getVisitedFeaturesMap();*/
         List<Map<Integer, Feature>> featureMapList1= ((TestChromosome)t).getLastExecutionResult().getTrace().getListOfFeatureMap();
 
         //Setting to lowest novelty if there is no featureMap
@@ -222,7 +226,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             System.out.println("No. of Individuals setting score to min novelty : "+count);
             return;
         }
-        System.out.println("In updateEuclideanDistance : Feature Size : "+featureMap1.size());
+        /*System.out.println("In updateEuclideanDistance : Feature Size : "+featureMap1.size());*/
         for(T other: population){
             if(t == other)
                 continue;
@@ -270,28 +274,17 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
     private double getMaxFeatureDistance(Map.Entry<Integer, Feature> entry, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
 
-        double distance = 0;// default distance
-        for(Map<Integer, Feature> map1 : featureMapList1){
-            for(Map.Entry<Integer, Feature> entry1: map1.entrySet()){
-                if(entry.getKey() == entry1.getKey()){
-                    Feature feature1 = entry1.getValue();
-
-                    for(Map<Integer, Feature> map2 : featureMapList2){
-                        for(Map.Entry<Integer, Feature> entry2: map2.entrySet()){
-                            if(entry.getKey() == entry2.getKey()){
-                                Feature feature2 = entry2.getValue();
-                                double squaredDiff =FeatureValueAnalyser.getFeatureDistance(feature1, feature2);
-                                if(Double.compare(distance, squaredDiff) < 0){
-                                    distance=squaredDiff;
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    break;
+        double distance =0;// default distance
+        if(featureMapList2.isEmpty())
+            return 1; // return max distance
+        for (Map<Integer, Feature> map1 : featureMapList1) {
+            Feature feature1 = map1.get(entry.getKey());
+            for (Map<Integer, Feature> map2 : featureMapList2) {
+                Feature feature2 = map2.get(entry.getKey());
+                double squaredDiff = FeatureValueAnalyser.getFeatureDistance(feature1, feature2);
+                if (Double.compare(distance, squaredDiff) < 0) {
+                    distance = squaredDiff;
                 }
-
             }
         }
         return distance;

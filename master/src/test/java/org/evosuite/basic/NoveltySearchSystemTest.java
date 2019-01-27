@@ -31,8 +31,10 @@ public class NoveltySearchSystemTest extends SystemTestBase {
 
         NoveltySearch<?> ga = (NoveltySearch)getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual2();
+        System.out.println("Generations : "+ga.getAge());
         System.out.print(best.toString());
         System.out.println("Feature values : "+ FeatureFactory.getFeatures());
+
         //Assert.assertEquals(1,Archive.getArchiveInstance().getNumberOfCoveredTargets());
 
     }
