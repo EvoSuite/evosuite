@@ -36,7 +36,7 @@ class Foo{
     }
     boolean getSomething(){
 
-        if(boo.checkEquals() && this.someArr[4]==4){
+        if(boo.checkEquals() ){
             System.out.println("Equals");
             return true;
         }else{
