@@ -263,12 +263,17 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
 
         // Number of features will remain constant throughout the iterations
-        int numOfFeatures = featureValueRangeList.size()==0?1:featureValueRangeList.size();
+        /*int numOfFeatures = featureValueRangeList.size()==0?1:featureValueRangeList.size();*/
+
+        int numOfFeatures = FeatureFactory.getFeatures().size()==0?1:FeatureFactory.getFeatures().size();
 
         double distance = Math.sqrt(sumDiff);
         noveltyScore = distance / (Math.sqrt(((population.size()-1) + noveltyArchive.size()) * numOfFeatures)); // dividing by max. possible distance
         t.setNoveltyScore(noveltyScore);
         System.out.println("Novelty  : "+noveltyScore);
+        if(Double.compare(noveltyScore, 1) >0){
+            System.out.println();
+        }
         updateNoveltyArchive(t, noveltyArchive);
     }
 
