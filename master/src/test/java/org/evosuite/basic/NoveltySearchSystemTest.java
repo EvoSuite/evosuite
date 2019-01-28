@@ -12,6 +12,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.evosuite.Properties.SelectionFunction.NOVELTY_RANK_TOURNAMENT;
+
 public class NoveltySearchSystemTest extends SystemTestBase {
     @Test
     public void testNoveltySearch() {
@@ -22,6 +24,7 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
         //Properties.STRATEGY = Properties.Strategy.MOSUITE;
         Properties.STRATEGY = Properties.Strategy.NOVELTY;
+        Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
         //Properties.TEST_ARCHIVE = false;
         //Properties.ALGORITHM = Properties.Algorithm.MOSA;
         Properties.ALGORITHM = Properties.Algorithm.NOVELTY;

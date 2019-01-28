@@ -67,7 +67,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         logger.debug("Calculating novelty for " + this.population.size() + " individuals");
 
         noveltyFunction.calculateNovelty(this.population, noveltyArchive);
-        noveltyFunction.sortPopulation(this.population);
+        //noveltyFunction.sortPopulation(this.population);
     }
 
     /**
@@ -373,6 +373,12 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         return Archive.getArchiveInstance().getNumberOfUncoveredTargets();
     }
 
+    protected Set<FitnessFunction<T>> getUncoveredGoals() {
+        Set<FitnessFunction<T>> uncoveredGoals = new LinkedHashSet<FitnessFunction<T>>();
+        Archive.getArchiveInstance().getUncoveredTargets()
+                .forEach(ff -> uncoveredGoals.add((FitnessFunction<T>) ff));
+        return uncoveredGoals;
+    }
     @Override
     public void generateSolution() {
         logger.info("executing generateSolution function");
@@ -384,10 +390,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             initializePopulation();
 
         // Calculate dominance ranks and crowding distance
-        /*this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
-        for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
-            this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
-        }*/
+        this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
 
         logger.warn("Starting evolution of novelty search algorithm");
         /*!isFinished() &&*/
@@ -399,6 +402,9 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
             // TODO: Sort by novelty
             calculateNoveltyAndSortPopulation();
+
+            // Calculate dominance ranks and crowding distance
+            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
 
             //this.calculateFitness();
 

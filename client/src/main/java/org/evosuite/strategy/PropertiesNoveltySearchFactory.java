@@ -16,12 +16,7 @@ import org.evosuite.ga.operators.crossover.SinglePointRelativeCrossOver;
 import org.evosuite.ga.operators.ranking.FastNonDominatedSorting;
 import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
-import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
-import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
-import org.evosuite.ga.operators.selection.RankSelection;
-import org.evosuite.ga.operators.selection.SelectionFunction;
-import org.evosuite.ga.operators.selection.TournamentSelection;
-import org.evosuite.ga.operators.selection.TournamentSelectionRankAndCrowdingDistanceComparator;
+import org.evosuite.ga.operators.selection.*;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
@@ -92,6 +87,8 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
                 return new BinaryTournamentSelectionCrowdedComparison<>();
             case RANK_CROWD_DISTANCE_TOURNAMENT:
                 return new TournamentSelectionRankAndCrowdingDistanceComparator<>();
+            case NOVELTY_RANK_TOURNAMENT:
+                return new TournamentSelectionNoveltyAndRankComparator<>();
             default:
                 return new RankSelection<>();
         }

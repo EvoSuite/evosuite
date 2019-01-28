@@ -629,7 +629,7 @@ public class Properties {
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
 
 	public enum SelectionFunction {
-		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT, BESTK, RANDOMK
+		RANK, ROULETTEWHEEL, TOURNAMENT, BINARY_TOURNAMENT, RANK_CROWD_DISTANCE_TOURNAMENT, NOVELTY_RANK_TOURNAMENT, BESTK, RANDOMK
 	}
 
 	@Parameter(key = "selection_function", group = "Search Algorithm", description = "Selection function during search")
