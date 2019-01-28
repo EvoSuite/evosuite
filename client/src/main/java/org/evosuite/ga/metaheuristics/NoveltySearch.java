@@ -52,7 +52,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         }
         // set the secondary objectives of test cases (useful when MOSA compares two test
         // cases to, for example, update the archive)
-        TestCaseSecondaryObjective.setSecondaryObjectives();
+        //TestCaseSecondaryObjective.setSecondaryObjectives();
     }
 
     public void setNoveltyFunction(NoveltyFunction<T> function) {
@@ -276,7 +276,9 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         // changes start
         for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
             // select best individuals
+            Properties.RANK_COMPETITION = false;
             T parent1 = this.selectionFunction.select(this.population);
+            Properties.RANK_COMPETITION = true;
             T parent2 = this.selectionFunction.select(this.population);
             T offspring1 = (T) parent1.clone();
             T offspring2 = (T) parent2.clone();

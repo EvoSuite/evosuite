@@ -22,6 +22,7 @@ package org.evosuite.ga.comparators;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 
 /**
@@ -74,13 +75,23 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
                 return (c1.getRank() > c2.getRank()) ? -1 : 1;
             }
         } else {*/
-            if (c2.getNoveltyScore() < c1.getNoveltyScore()) {
+        if (Properties.RANK_COMPETITION) {
+            if (c1.getRank() < c2.getRank()) {
                 return -1;
-            } else if (c2.getNoveltyScore() > c1.getNoveltyScore()) {
+            } else if (c1.getRank() > c2.getRank()) {
                 return 1;
-            } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
-                return (c1.getRank() < c2.getRank()) ? -1 : 1;
+            } else if (c1.getRank() == c2.getRank()) {
+                return 0;
             }
+        }
+
+        if (c2.getNoveltyScore() < c1.getNoveltyScore()) {
+            return -1;
+        } else if (c2.getNoveltyScore() > c1.getNoveltyScore()) {
+            return 1;
+        } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
+            return (c1.getRank() < c2.getRank()) ? -1 : 1;
+        }
        /* }*/
 
         return 0;

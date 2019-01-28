@@ -1533,6 +1533,9 @@ public class Properties {
 	@Parameter(key = "novelty_threshold", group = "Runtime", description = "If novelty of an individual is greater than this threshold then it is added to the novelty archive")
 	public static double NOVELTY_THRESHOLD = 0.2;
 
+	@Parameter(key = "rank_competition", group = "Runtime", description = "If true, it enables competition based on fitness")
+	public static boolean RANK_COMPETITION = false;
+
 	@Parameter(key = "max_novelty_archive_size", group = "Runtime", description = "Maximum size of the novelty archive")
 	public static int MAX_NOVELTY_ARCHIVE_SIZE = 156;
 

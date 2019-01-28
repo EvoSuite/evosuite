@@ -191,13 +191,13 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             Feature feature = entry.getValue();
             System.out.println("boo_result_Struct Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
         }*/
-        if(entry.getValue().getVariableName().equals("boo_input_Value") ){
+        if(entry.getValue().getVariableName().equals("someArr_int_Struct") ){
             Feature feature = entry.getValue();
-            System.out.println("boo_input_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+            System.out.println("someArr_int_Struct Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
         }
-        if(entry.getValue().getVariableName().equals("boo_input2_Value") ){
+        if(entry.getValue().getVariableName().equals("someArr_int_Value") ){
             Feature feature = entry.getValue();
-            System.out.println("boo_input2_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
+            System.out.println("someArr_int_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
         }
         System.out.println("------------------------------------------------------------------------");
     }
@@ -299,10 +299,10 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         if(currentNovelty > noveltyThreshold){
             evaluations++;
             //if the size of the archive grows bigger than certain threshold then
-            /*if( archive.size() >= Properties.MAX_NOVELTY_ARCHIVE_SIZE){
+            if( archive.size() >= Properties.MAX_NOVELTY_ARCHIVE_SIZE){
                 // Evict individual from the archive - Which one? maybe the oldest one
                 ((Deque)archive).removeFirst();
-            }*/
+            }
             archive.add(t);
         }
     }
