@@ -97,13 +97,13 @@ public class ObjectInstantiations extends AbstractIndicator {
         for (Integer branch_id : result.getTrace().getCoveredFalseBranches()){
             double value = noExecutionForConditionalNode.get(branch_id);
             Integer number = branches.get(branch_id);
-            if (number!=null && value > 1)
+            if (number!=null && value > 2)
                 counter += value * branches.get(branch_id);
         }
         for (Integer branch_id : result.getTrace().getCoveredTrueBranches()){
             double value = noExecutionForConditionalNode.get(branch_id);
             Integer number = branches.get(branch_id);
-            if (number!=null && value > 1)
+            if (number!=null && value > 2)
                 counter += value * branches.get(branch_id);
         }
 
@@ -111,8 +111,8 @@ public class ObjectInstantiations extends AbstractIndicator {
             if (methods.keySet().contains(branchlessMethod)) {
                 int nObjs = methods.get(branchlessMethod);
                 int nExecutions = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
-                //if (nExecutions > 2)
-                counter += nObjs * nExecutions;
+                if (nExecutions > 2)
+                    counter += nObjs * nExecutions;
             }
         }
 

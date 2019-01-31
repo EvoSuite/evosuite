@@ -72,7 +72,8 @@ public class LoopCounter extends AbstractIndicator {
         /**/
         for (Branch branch : loopBranches){
             Integer freq = noExecutionForConditionalNode.get(branch.getActualBranchId());
-            if (freq!=null && freq > 1)
+            BasicBlock end = loops.get(branch);
+            if (freq!=null && freq > 2)
                 counter += freq;
             /*
             BasicBlock start = branch.getInstruction().getBasicBlock(); // start point of the loop

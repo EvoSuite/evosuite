@@ -40,9 +40,9 @@ public class CoveredMethodCallCounter extends AbstractIndicator {
         Map<String, Integer> executedMethods = results.getTrace().getMethodExecutionCount();
 
         // determine the covered lines
-        double nMethodCalls = 1.0;
+        double nMethodCalls = 0.0;
         for (Integer frequency : executedMethods.values()){
-            if (frequency>1)
+            if (frequency > 2)
                 nMethodCalls += frequency;
         }
 

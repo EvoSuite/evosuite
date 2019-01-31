@@ -2,6 +2,8 @@ package org.evosuite.ga.metaheuristics.mosa.structural.adaptive;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.comparators.PerformanceScoreComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.BranchesManager;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.testcase.TestCase;
@@ -23,7 +25,8 @@ import java.util.*;
 public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManager<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AdaptiveBranchesManager.class);
-    private ArchiveUpdate updater;
+
+    private PerformanceScoreComparator comparator = new PerformanceScoreComparator();
 
     // stores the best values for check heuristic stagnation
     private Map<FitnessFunction<T>, Double> bestValues;
@@ -33,7 +36,6 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
     public AdaptiveBranchesManager(List<FitnessFunction<T>> fitnessFunctions) {
         super(fitnessFunctions);
         this.bestValues = new HashMap<>();
-        updater = new PerformanceUpdate();
     }
 
     @Override
@@ -131,8 +133,9 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
             coveredGoals.put(f, tc);
             uncoveredGoals.remove(f);
             currentGoals.remove(f);
+            Archive.getArchiveInstance().updateArchive((TestFitnessFunction) f, tch, tc.getFitness(f));
         } else {
-            boolean toUpdate = updater.isBetterSolution(best, tc);
+            boolean toUpdate = comparator.compare(tc, best) == -1;
             if (toUpdate) {
                 toArchive = true;
                 coveredGoals.put(f, tc);
@@ -140,6 +143,7 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
                 if (archive.get(best).size() == 0)
                     archive.remove(best);
             }
+            Archive.getArchiveInstance().updateArchive((TestFitnessFunction) f, tch, tc.getFitness(f));
         }
 
         // update archive
@@ -187,8 +191,7 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
         double sum = 0.0;
         for (AbstractIndicator indicator : this.indicators) {
             double value = indicator.getIndicatorValue(test);
-            double x = Math.log(value+1);
-            sum += x/(x+1);
+            sum += value/(value+1);
         }
         test.setPerformanceScore(sum);
         logger.debug("performance score for {} = {}", test.hashCode(), test.getPerformanceScore());

@@ -77,12 +77,12 @@ public class CoveredStatementsCounter extends AbstractIndicator {
         double counter = 0.0;
         for (Integer branch_id : result.getTrace().getCoveredFalseBranches()){
             double value = noExecutionForConditionalNode.get(branch_id);
-            //if (value > 2)
+            if (value > 2)
                counter += value * branches.get(branch_id);
         }
         for (Integer branch_id : result.getTrace().getCoveredTrueBranches()){
             double value = noExecutionForConditionalNode.get(branch_id);
-            //if (value > 2)
+            if (value > 2)
                 counter += value * branches.get(branch_id);
         }
 
@@ -90,11 +90,11 @@ public class CoveredStatementsCounter extends AbstractIndicator {
             if (methods.keySet().contains(branchlessMethod)) {
                 int size = methods.get(branchlessMethod);
                 int nExecutions = result.getTrace().getMethodExecutionCount().get(branchlessMethod);
-                //if (nExecutions > 2)
+                if (nExecutions > 2)
                     counter += size * nExecutions;
             }
         }
-        
+
         test.setIndicatorValues(this.getIndicatorId(), counter);
 
         logger.debug("No. statements = " + counter);
