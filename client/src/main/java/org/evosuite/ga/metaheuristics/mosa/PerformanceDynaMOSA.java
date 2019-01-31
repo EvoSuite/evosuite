@@ -73,6 +73,13 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     protected void evolve() {
         List<T> offspringPopulation = this.breedNextGeneration();
 
+        for (int i=offspringPopulation.size()-1; i>=0; i--){
+            T off = offspringPopulation.get(i);
+            if (off.getPerformanceScore() == Double.MAX_VALUE){
+                offspringPopulation.remove(i);
+            }
+        }
+
         /* --------------------------------- select heuristic --------------------------------- */
         //logger.error("Last Heuristic = {}", last_heuristic);
         last_heuristic = checkStagnation();
@@ -367,10 +374,10 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     }
 
     protected void applySecondaryCriterion(List<T> front) {
-        if (last_heuristic == Heuristics.CROWDING)
-            distance.fastEpsilonDominanceAssignment(front, goalsManager.getUncoveredGoals());
-        else if (last_heuristic == Heuristics.PERFORMANCE) {
-            strategy.setDistances(front, goalsManager.getUncoveredGoals());
+        if (last_heuristic == Heuristics.CROWDING) {
+            distance.fastEpsilonDominanceAssignment(front, goalsManager.getCurrentGoals());
+        } else if (last_heuristic == Heuristics.PERFORMANCE) {
+            strategy.setDistances(front);
         } else {
             for (T t : front)
                 t.setDistance(0);
