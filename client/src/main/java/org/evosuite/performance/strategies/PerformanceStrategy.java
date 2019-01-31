@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public interface PerformanceStrategy<T extends Chromosome> {
 
-    void setDistances(List<T> front, Set<FitnessFunction<T>> fitnessFunctions);
+    void setDistances(List<T> front);
 
     void sort(List<T> front);
 

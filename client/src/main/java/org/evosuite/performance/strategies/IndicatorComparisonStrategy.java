@@ -32,7 +32,7 @@ public class IndicatorComparisonStrategy<T extends Chromosome> implements Perfor
      *          the front for which we have to set the distances to
      */
     @Override
-    public void setDistances(List<T> front, Set<FitnessFunction<T>> fitnessFunctions) {
+    public void setDistances(List<T> front) {
         for (T individual : front) {
             individual.setDistance(0.0);
         }

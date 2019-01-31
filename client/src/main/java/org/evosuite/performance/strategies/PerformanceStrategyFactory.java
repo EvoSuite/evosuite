@@ -21,9 +21,6 @@ public class PerformanceStrategyFactory<T extends Chromosome> {
             case CROWDING_DISTANCE:
                 LoggingUtils.getEvoLogger().info("* Running Adaptive DYNAMOSA with CROWDING DISTANCE strategy");
                 return new IndicatorComparisonStrategy();
-            case PREFERENCE_CRITERION:
-                LoggingUtils.getEvoLogger().info("* Running Adaptive DYNAMOSA with PREFERENCE CRITERION strategy");
-                return new PreferenceCriterionStrategy();
         }
         throw new RuntimeException("Such a strategy for the PerformanceMOSA algorithm is not supported");
     }
