@@ -123,7 +123,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 					addDependencies4CBranch();
 					break;
 				default:
-					LoggingUtils.getEvoLogger().error("The criterion {} is not currently supported in DynaMOSA", criterion.getClass());
+					LoggingUtils.getEvoLogger().error("The criterion {} is not currently supported in DynaMOSA", criterion.name());
 			}
 		}
 
