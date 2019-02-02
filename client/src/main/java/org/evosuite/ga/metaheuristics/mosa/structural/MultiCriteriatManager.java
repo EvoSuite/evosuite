@@ -88,6 +88,10 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		// let's derive the dependency graph between branches and other coverage targets (e.g., statements)
 		for (Criterion criterion : Properties.CRITERION){
 			switch (criterion){
+				case BRANCH:
+					break; // branches have been handled by getControlDepencies4Branches
+				case EXCEPTION:
+					break; // exception coverage is handled by calculateFitness
 				case LINE:
 					addDependencies4Line();
 					break;
