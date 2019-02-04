@@ -177,6 +177,35 @@ public class EvoSuite {
                 javaOpts.add("-Dcriterion=regression");
             }
 
+            if (line.hasOption("parallel")) {
+                String[] values = line.getOptionValues("parallel");
+
+                if (values.length != 3) {
+                    throw new Error("Invalid amount of arguments for parallel");
+                }
+
+                javaOpts.add("-Dnum_parallel_clients=" + values[0]);
+                javaOpts.add("-Dmigrants_iteration_frequency=" + values[1]);
+                javaOpts.add("-Dmigrants_communication_rate=" + values[2]);
+
+                try {
+                    Properties.getInstance().setValue("num_parallel_clients", values[0]);
+                    Properties.getInstance().setValue("migrants_iteration_frequency", values[1]);
+                    Properties.getInstance().setValue("migrants_communication_rate", values[2]);
+                } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
+                    throw new Error("Invalid values for parallel: " + e.getMessage());
+                }
+            } else {
+                // Just to be save
+                javaOpts.add("-Dnum_parallel_clients=" + 1);
+
+                try {
+                    Properties.getInstance().setValue("num_parallel_clients", 1);
+                } catch (Properties.NoSuchParameterException | IllegalAccessException e) {
+                    throw new Error("Could not set value: " + e.getMessage());
+                }
+            }
+
 			/*
 			 * FIXME: every time in the Master we set a parameter with -D,
 			 * we should check if it actually exists (ie detect typos)
@@ -186,9 +215,9 @@ public class EvoSuite {
 
             CommandLineParameters.addJavaDOptions(javaOpts, line);
 
-            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
-                ClassPathHacker.initializeToolJar();
-            }
+//            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+//                ClassPathHacker.initializeToolJar();
+//            }
 
             CommandLineParameters.handleClassPath(line);
 

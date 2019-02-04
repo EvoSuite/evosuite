@@ -55,14 +55,14 @@ public class ClientServices {
 		return instance;
 	}
 
-	public boolean registerServices() {
+	public boolean registerServices(String identifier) {
 
 		UtilsRMI.ensureRegistryOnLoopbackAddress();
 		
 		try{
 			int port = Properties.PROCESS_COMMUNICATION_PORT;
 			Registry registry = LocateRegistry.getRegistry(port);
-			clientNode = new ClientNodeImpl(registry);
+			clientNode = new ClientNodeImpl(registry, identifier);
 			ClientNodeRemote stub = (ClientNodeRemote) UtilsRMI.exportObject(clientNode);
 			registry.rebind(clientNode.getClientRmiIdentifier(), stub);
 			return clientNode.init();

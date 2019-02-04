@@ -71,7 +71,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	private static final long serialVersionUID = 146182080947267628L;
 
-	private static final Logger logger = LoggerFactory.getLogger(MOSA.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMOSA.class);
 
 	/** Keep track of overall suite fitness functions and correspondent test fitness functions */
 	protected final Map<TestSuiteFitnessFunction, Class<?>> suiteFitnessFunctions;
@@ -289,7 +289,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * This method extracts non-dominated solutions (tests) according to all covered goal
 	 * (e.g., branches).
 	 * 
-	 * @param a list of test cases to analyze with the "dominance" relationship
+	 * @param solutions list of test cases to analyze with the "dominance" relationship
 	 * @return the non-dominated set of test cases
 	 */
 	private List<T> getNonDominatedSolutions(List<T> solutions) {
