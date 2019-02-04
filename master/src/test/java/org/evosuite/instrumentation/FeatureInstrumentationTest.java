@@ -41,6 +41,6 @@ public class FeatureInstrumentationTest {
         Properties.TARGET_CLASS = DataUtils.class.getCanonicalName();
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
         Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        assertEquals(2, FeatureFactory.getFeatures().size());
+        assertEquals(3, FeatureFactory.getFeatures().size());
     }
 }

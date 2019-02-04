@@ -1,5 +1,6 @@
 package org.evosuite.ga.metaheuristics;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.dataflow.Feature;
@@ -400,6 +401,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             logger.warn("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
             //logger.info("Best fitness: " + getBestIndividual().getFitness());
 
+            long startTime = System.currentTimeMillis();
             evolve();
 
             // TODO: Sort by novelty
@@ -409,8 +411,10 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
 
             //this.calculateFitness();
+            long endTime = System.currentTimeMillis();
 
             this.notifyIteration();
+            System.out.println("Execution Time for Generation : "+this.currentIteration+" is (ms):"+(endTime-startTime));
         }
 
         System.out.println("Archive size after all the generations : "+this.noveltyArchive.size());

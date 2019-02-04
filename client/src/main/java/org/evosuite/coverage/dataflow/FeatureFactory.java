@@ -30,10 +30,10 @@ public class FeatureFactory implements Serializable {
         } else {
 
             if (null != getFeatureByVarName(d.getVariableName()))
-                return true;
+                return false;
 
             if (d.getASMNode().getOpcode() == Opcodes.POP)
-                return true;
+                return false;
 
             defCounter++;
             knownInstructions.put(d, defCounter);

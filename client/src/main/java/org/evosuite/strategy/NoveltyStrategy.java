@@ -136,7 +136,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
                     + " statements, best individual has fitness: "
                     + testSuite.getFitness());
         }
-
+System.out.println("Total Time ********* : "+(endTime - startTime));
         // Search is finished, send statistics
         sendExecutionStatistics();
 

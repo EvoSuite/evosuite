@@ -100,10 +100,18 @@ public class FeatureValueAnalyser {
                 }
             }
             else{
-                if(tempNode.getPreviousSibling()!=null && !tempNode.getPreviousSibling().getNodeName().equals("null")){//&& !tempNode.getPreviousSibling().getNodeName().equals("null")
+                if(tempNode.getPreviousSibling()!=null && !tempNode.getPreviousSibling().getNodeName().equals("null") && !tempNode.getPreviousSibling().getNodeName().equals("serialVersionUID")
+                        /*&& !tempNode.getPreviousSibling().getNodeName().equals("j")
+                        && !tempNode.getPreviousSibling().getNodeName().equals("someFlag")
+                        && !tempNode.getPreviousSibling().getNodeName().equals("special")
+                        && !tempNode.getPreviousSibling().getNodeName().equals("someArr")
+                        && !tempNode.getPreviousSibling().getNodeName().equals("someL")
+                        && !tempNode.getPreviousSibling().getNodeName().equals("boo")
+                        && !tempNode.getPreviousSibling().getNodeName().equals("int")
+                        && !tempNode.getPreviousSibling().getNodeName().equals("result")*/
+                        ){//&& !tempNode.getPreviousSibling().getNodeName().equals("null")
                     updateMap((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName(), tempNode.getPreviousSibling().getTextContent());
                 }
-                    //if("someArr_int".equals((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName()))
 
             }
         }

@@ -34,12 +34,12 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             for (BytecodeInstruction vertex : vertexSet) {
 
                 //Identify and store the features in FeatureFactory
-                if (in.equals(vertex.getASMNode()) && vertex.isDefinition()) {
+                if (in.equals(vertex.getASMNode()) && (vertex.isDefinition() || vertex.isUse())) {
                     if (vertex.isMethodCallOfField()) {
                         //TODO: what is this. Remove this. Or we need more Analysis?
                     } else {
                         // keep track of data storing or updating operations
-                        if (vertex.isDefinition())
+                        if (vertex.isDefinition() || vertex.isUse())
                             FeatureFactory.registerAsFeature(vertex);
                     }
                 }
@@ -95,8 +95,12 @@ public class FeatureInstrumentation implements MethodInstrumentation {
          */
         Map<Integer, Feature> featureMap = FeatureFactory.getFeatures();
         for (Map.Entry<Integer, Feature> entry : featureMap.entrySet()) {
-            Feature feature = entry.getValue();
             BytecodeInstruction bytecodeInstruction = FeatureFactory.getInstructionById(entry.getKey());
+
+            // for each method add to the Tracer the local variables of that method plus the class variables
+            if(!bytecodeInstruction.getMethodName().equals(v.getMethodName()) && !"<init>()V".equals(bytecodeInstruction.getMethodName()))
+                continue;
+
             if (bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTSTATIC) {
                 instrumentation.add(new FieldInsnNode(Opcodes.GETSTATIC, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
@@ -116,14 +120,22 @@ public class FeatureInstrumentation implements MethodInstrumentation {
     private int getOpcodeForLoadingVariable(BytecodeInstruction v) {
         int instOpcode = v.getASMNode().getOpcode();
         switch (instOpcode) {
+            case Opcodes.ALOAD:
             case Opcodes.ASTORE:
                 return Opcodes.ALOAD;
+            case Opcodes.ILOAD:
             case Opcodes.ISTORE:
                 return Opcodes.ILOAD;
+
+            case Opcodes.LLOAD:
             case Opcodes.LSTORE:
                 return Opcodes.LLOAD;
+
+            case Opcodes.FLOAD:
             case Opcodes.FSTORE:
                 return Opcodes.FLOAD;
+
+            case Opcodes.DLOAD:
             case Opcodes.DSTORE:
                 return Opcodes.DLOAD;
             /*case Opcodes.IINC:
@@ -166,22 +178,31 @@ public class FeatureInstrumentation implements MethodInstrumentation {
         String methodName = "";
         String methodDesc = "";
         switch (instOpcode) {
+
+            case Opcodes.ALOAD:
             case Opcodes.ASTORE:
                 methodName = "featureVisitedObj";
                 methodDesc = "(Ljava/lang/Object;Ljava/lang/Object;)V";
                 break;
+            case Opcodes.ILOAD:
             case Opcodes.ISTORE:
                 methodName = "featureVisitedInt";
                 methodDesc = "(ILjava/lang/Object;)V";
                 break;
+
+            case Opcodes.LLOAD:
             case Opcodes.LSTORE:
                 methodName = "featureVisitedLon";
                 methodDesc = "(JLjava/lang/Object;)V";
                 break;
+
+            case Opcodes.FLOAD:
             case Opcodes.FSTORE:
                 methodName = "featureVisitedFlo";
                 methodDesc = "(FLjava/lang/Object;)V";
                 break;
+
+            case Opcodes.DLOAD:
             case Opcodes.DSTORE:
                 methodName = "featureVisitedDou";
                 methodDesc = "(DLjava/lang/Object;)V";
