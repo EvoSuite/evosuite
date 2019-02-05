@@ -621,8 +621,10 @@ public class CoverageAnalysis {
 			// restore
 			Properties.CRITERION = criterion;
 
+
 			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Total number of covered goals: "
                     + totalCoveredGoals + " / " + "" + totalGoals);
+
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals,
 					totalCoveredGoals);

@@ -444,9 +444,9 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
-
 				LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Skipping minimization because not enough time is left");
+
 				ClientServices.track(RuntimeVariable.Result_Size, testSuite.size());
 				ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
 				ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
