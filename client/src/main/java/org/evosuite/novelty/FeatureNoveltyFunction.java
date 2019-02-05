@@ -205,6 +205,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     /**
      * This calculates normalized novelty for 't' w.r.t the other population and the noveltyArchive
      * The closer the score to 1 more is the novelty or the distance and vice versa.
+     * TODO: Calculate novelty only between matching features
      * @param t
      * @param population
      * @param noveltyArchive
@@ -226,7 +227,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             System.out.println("No. of Individuals setting score to min novelty : "+count);
             return;
         }
-        /*System.out.println("In updateEuclideanDistance : Feature Size : "+featureMap1.size());*/
+
         for(T other: population){
             if(t == other)
                 continue;
@@ -280,17 +281,42 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     private double getMaxFeatureDistance(Map.Entry<Integer, Feature> entry, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
 
         double distance =0;// default distance
+        boolean flag = false;
+        boolean flag2 = false;
         if(featureMapList2.isEmpty())
             return 1; // return max distance
         for (Map<Integer, Feature> map1 : featureMapList1) {
             Feature feature1 = map1.get(entry.getKey());
+            if(feature1 == null)
+                continue;
+            flag = true;
             for (Map<Integer, Feature> map2 : featureMapList2) {
                 Feature feature2 = map2.get(entry.getKey());
+                if(feature2 == null)
+                    continue;
+                flag2 = true;
                 double squaredDiff = FeatureValueAnalyser.getFeatureDistance(feature1, feature2);
+
                 if (Double.compare(distance, squaredDiff) < 0) {
                     distance = squaredDiff;
                 }
             }
+        }
+        if (!flag) {
+            // this means the feature we are looking for in the featureMapList1 is not present in featureMapList1
+            for (Map<Integer, Feature> map2 : featureMapList2) {
+                Feature feature2 = map2.get(entry.getKey());
+                if (feature2 != null){
+                    // this means in featureMapList2 there exists a feature which we were looking for, and since its not there in featureMapList1 we set the distance to max
+                    return 1;
+                }
+
+            }
+        }
+        if(!flag2){
+            // this means the feature we are looking for in the featureMapList2 is not present in featureMapList2 but it was present in featureMapList1
+            // so we set the distance to max
+            return 1;
         }
         return distance;
     }

@@ -5,9 +5,10 @@ import java.io.Serializable;
 public class Feature implements Serializable {
 
 
-    String variableName;
-    String typeClass;
-    Object value;
+    private String variableName;
+    private String methodName;
+    private String typeClass;
+    private Object value;
     double normalizedValue;
 
     public Feature(){
@@ -15,9 +16,10 @@ public class Feature implements Serializable {
     }
 
     public Feature(Feature feature) {
-        this.variableName = feature.variableName;
-        this.value = feature.value;
-        this.typeClass = feature.typeClass;
+        this.variableName = feature.getVariableName();
+        this.value = feature.getValue();
+        this.typeClass = feature.getTypeClass();
+        this.methodName = feature.getMethodName();
     }
 
     public String getVariableName() {
@@ -52,10 +54,19 @@ public class Feature implements Serializable {
         this.normalizedValue = normalizedValue;
     }
 
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
     @Override
     public String toString() {
         return "Feature{" +
                 "variableName='" + variableName + '\'' +
+                ", methodName='" + methodName + '\'' +
                 ", typeClass='" + typeClass + '\'' +
                 ", value=" + value + '\'' +
                 ", normalizedValue=" + normalizedValue +

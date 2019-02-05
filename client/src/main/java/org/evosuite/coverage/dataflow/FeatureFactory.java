@@ -40,6 +40,7 @@ public class FeatureFactory implements Serializable {
             String var = d.getVariableName();
             Feature feature = new Feature();
             feature.setVariableName(var);
+            feature.setMethodName(d.getMethodName());
             features.put(defCounter, feature);
         }
         return true;

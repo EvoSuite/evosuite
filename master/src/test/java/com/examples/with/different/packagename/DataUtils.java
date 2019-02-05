@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class DataUtils {
-    int count = 0;
+    /*int count = 0;*/
 
     /*public static void listOperation(Foo foo) {
         Foo foo1 = foo;
@@ -17,14 +17,17 @@ public class DataUtils {
         }
     }*/
     public void listOperation1(int x, int z) {
-        int a = x;
+        int count = x;
+        listOperation2(2);
         if(x<z) {
-
+            System.out.println("");
         }
     }
 
     public static void listOperation2(int x) {
         int y = x;
+        if(y == 2)
+            System.out.println("");
     }
 
 }

@@ -34,12 +34,12 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             for (BytecodeInstruction vertex : vertexSet) {
 
                 //Identify and store the features in FeatureFactory
-                if (in.equals(vertex.getASMNode()) && (vertex.isDefinition() || vertex.isUse())) {
+                if (in.equals(vertex.getASMNode()) && (vertex.isDefinition() )) { //|| vertex.isUse()
                     if (vertex.isMethodCallOfField()) {
                         //TODO: what is this. Remove this. Or we need more Analysis?
                     } else {
                         // keep track of data storing or updating operations
-                        if (vertex.isDefinition() || vertex.isUse())
+                        if (vertex.isDefinition())// || vertex.isUse()
                             FeatureFactory.registerAsFeature(vertex);
                     }
                 }
