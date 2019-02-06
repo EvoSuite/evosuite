@@ -34,12 +34,12 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             for (BytecodeInstruction vertex : vertexSet) {
 
                 //Identify and store the features in FeatureFactory
-                if (in.equals(vertex.getASMNode()) && (vertex.isDefinition() )) { //|| vertex.isUse()
+                if (in.equals(vertex.getASMNode()) && (vertex.isDefinition() )) {//|| vertex.isUse()
                     if (vertex.isMethodCallOfField()) {
                         //TODO: what is this. Remove this. Or we need more Analysis?
                     } else {
                         // keep track of data storing or updating operations
-                        if (vertex.isDefinition())// || vertex.isUse()
+                        if (vertex.isDefinition() )//|| vertex.isUse()
                             FeatureFactory.registerAsFeature(vertex);
                     }
                 }
@@ -51,9 +51,6 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                  * for every modification operation.
                  */
                 if (in.equals(vertex.getASMNode()) && vertex.isReturn() && !FeatureFactory.getFeatures().isEmpty()) {
-                        /*boolean staticContext = vertex.isStaticDefUse()
-                                || ((access & Opcodes.ACC_STATIC) > 0);*/
-                    // adding instrumentation for defuse-coverage
                     InsnList instrumentation = getInstrumentation(vertex, vertexSet,
                             className,
                             methodName,
@@ -105,6 +102,8 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 instrumentation.add(new FieldInsnNode(Opcodes.GETSTATIC, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
             } else if (bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTFIELD) {
+                // add 'this' on to the stack first
+                instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
                 instrumentation.add(new FieldInsnNode(Opcodes.GETFIELD, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
             } else

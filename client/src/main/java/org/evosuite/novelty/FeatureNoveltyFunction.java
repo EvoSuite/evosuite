@@ -238,7 +238,14 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 //TODO: Do the comparision only if the features belong to the same method. Can be done using the variable name
                 // because we want to avoid a possible comparision between two individuals testing a 'foo()' and a 'boo()' respectively
                 for(Map.Entry<Integer, Feature> entry : FeatureFactory.getFeatures().entrySet()){
-                    // for each feature find the max normalized distance
+                    // for each matching feature find the max normalized distance.
+                    // To handle cases when individuals tests different methods
+                    // check if a particular feature in present in both the featureMapList1 and featureMapList2
+                    // because it doesn't make sense to calculate feature difference if two individuals affect two different features.
+                    // We cannot derive any conclusive information about how far they are from each other. We can do that only on same features
+                    // from two different invocations.
+                    if(!isFeaturePresentInBothLists(entry, featureMapList1, featureMapList2))
+                        continue;
                     double squaredDiff = getMaxFeatureDistance(entry, featureMapList1, featureMapList2);
                     sumDiff +=squaredDiff;
                 }
@@ -254,7 +261,11 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 // fetch the features
                 List<Map<Integer, Feature>> featureMapList2 = ((TestChromosome)otherFromArchive).getLastExecutionResult().getTrace().getListOfFeatureMap();
                 for(Map.Entry<Integer, Feature> entry : FeatureFactory.getFeatures().entrySet()){
-                    // for each feature find the max normalized distance
+                    // for each matching feature find the max normalized distance.
+                    // We cannot derive any conclusive information about how far they are from each other. We can do that only on same features
+                    // from two different invocations.
+                    if(!isFeaturePresentInBothLists(entry, featureMapList1, featureMapList2))
+                        continue;
                     double squaredDiff = getMaxFeatureDistance(entry, featureMapList1, featureMapList2);
                     sumDiff +=squaredDiff;
                 }
@@ -276,6 +287,27 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             System.out.println();
         }
         updateNoveltyArchive(t, noveltyArchive);
+    }
+
+    private boolean isFeaturePresentInBothLists(Map.Entry<Integer, Feature> entry, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
+        boolean isPresentInList1 = false;
+        boolean isPresentInList2 = false;
+        for (Map<Integer, Feature> map1 : featureMapList1) {
+            if (map1.containsKey(entry.getKey())) {
+                isPresentInList1 = true;
+                break;
+            }
+        }
+        for (Map<Integer, Feature> map2 : featureMapList2) {
+            if (map2.containsKey(entry.getKey())) {
+                isPresentInList2 = true;
+                break;
+            }
+        }
+        if(isPresentInList1 && isPresentInList2)
+            return true;
+        else
+            return false;
     }
 
     private double getMaxFeatureDistance(Map.Entry<Integer, Feature> entry, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){

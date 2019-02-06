@@ -1,5 +1,7 @@
 package org.evosuite.coverage.dataflow;
 
+import jdk.internal.org.objectweb.asm.tree.AbstractInsnNode;
+import jdk.internal.org.objectweb.asm.tree.FieldInsnNode;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Opcodes;
 
@@ -35,6 +37,12 @@ public class FeatureFactory implements Serializable {
             if (d.getASMNode().getOpcode() == Opcodes.POP)
                 return false;
 
+            if(isStandardJavaVariable(d.getVariableName()))
+                return false;
+
+            if(isRecursiveElement(d))
+                return false;
+
             defCounter++;
             knownInstructions.put(d, defCounter);
             String var = d.getVariableName();
@@ -44,6 +52,39 @@ public class FeatureFactory implements Serializable {
             features.put(defCounter, feature);
         }
         return true;
+    }
+
+    /**
+     * This method identifies if the accessed field belongs to the original class or to some sub class.
+     * For e.g
+     * Class A{
+     *     B b = new B();
+     *     void foo(){
+     *         b.j=4;
+     *     }
+     * }
+     * In the above CUT the variable 'j' belongs to class B and not A and thus this method will identify such variables.
+     * In novelty search approach we do not need to care about such variables as we already serialize any complex object
+     * once after all the modification to such a object has been done. And hence we would still be able to capture any difference
+     * to such recursive variables.
+     *
+     * @param bytecodeInstruction
+     * @return
+     */
+    public static boolean isRecursiveElement(BytecodeInstruction bytecodeInstruction){
+        if(bytecodeInstruction.getASMNode().getType() == AbstractInsnNode.FIELD_INSN){
+            if(!bytecodeInstruction.getClassName().equals(((org.objectweb.asm.tree.FieldInsnNode) bytecodeInstruction.getASMNode()).owner.replace('/','.'))){
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    public static boolean isStandardJavaVariable(String variableName){
+        //TODO: read such string prefix from a .txt of .properties file or at least make a constant.
+        return variableName.startsWith("java/lang/System");
     }
 
     /**

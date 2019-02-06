@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class DataUtils {
-    /*int count = 0;*/
+    private int count=0;
+    private Foo foo = new Foo();
 
     /*public static void listOperation(Foo foo) {
         Foo foo1 = foo;
@@ -16,18 +17,24 @@ public class DataUtils {
             System.out.println("Not Equal");
         }
     }*/
-    public void listOperation1(int x, int z) {
+    /*public void listOperation1(int x, int z) {
         int count = x;
         listOperation2(2);
         if(x<z) {
             System.out.println("");
         }
-    }
+        *//*System.out.println(this.count);*//*
+    }*/
 
-    public static void listOperation2(int x) {
-        int y = x;
-        if(y == 2)
-            System.out.println("");
+    public void listOperation2() {
+        /*int y = this.count;
+        this.count = 4;*/
+        /*this.count = 4;
+        foo.j = 4;*/
+        Foo foo1 = new Foo();
+        foo1.j = 4;
+        /*if(y == 2)
+            System.out.println("");*/
     }
 
 }
