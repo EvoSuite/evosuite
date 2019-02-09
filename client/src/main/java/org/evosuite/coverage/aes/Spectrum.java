@@ -787,7 +787,49 @@
 	        double vambig = getAmbiguity();
 	        double metric = vrho*vsimp*vambig;
 
-			    int counter = 0;
+			    
+	        
+	        
+	        int point_buffer = pointer_buffer%10;
+	        double stand_devi =0 ;
+	        double mean_v = 0;
+	        buffer[point_buffer] = metric;
+	        if(pointer_buffer >=9){
+		        double sum=0;
+		        for(int i=0;i<=9;i++)
+		        {
+		        	sum = sum + buffer[i];
+		        	
+		        }
+		        mean_v = sum/10;
+		        int mean_circular_buffer;
+		        mean_circular_buffer = pointer_mean%10;
+		        mean_buffer[mean_circular_buffer] = mean_v;
+		        
+		        if(pointer_mean >= 9){
+		        	double sum1 =0;
+		        	for(int i=0;i<=9;i++)
+		        	{
+		        		sum1 = sum1 +mean_buffer[i];
+		        	}
+		        	double mean_std = sum1/10;
+		        	stand_devi = 0;
+		        	for(int i=0;i<=9;i++)
+		        	{
+		        		stand_devi = stand_devi + (double)(Math.pow((double)(mean_buffer[i] - mean_std),2));
+		        	}
+		        	stand_devi = Math.sqrt(stand_devi / (float)(9));
+
+		        	if(stand_devi < 0.005)
+		        	{
+		        		flag=1;
+		        	}
+		        }
+		        pointer_mean = pointer_mean + 1;
+		    }
+		        pointer_buffer = pointer_buffer + 1;
+		        
+		        int counter = 0;
 			    while(file_status==0){
 
 				File file = new File("/tmp/Values"+counter+".csv");
@@ -810,7 +852,7 @@
 		        try{
 		            fr = new FileWriter(file,true);
 		            br = new BufferedWriter(fr);
-					br.write(rho_transaction+","+rho_component+","+ vrho+"," + vsimp+","+vambig + "," +metric +"\n");
+					br.write(rho_transaction+","+rho_component+","+ vrho+"," + vsimp+","+vambig + "," +metric + ","+ mean_v+"," + stand_devi +"\n");
 
 	        } catch (IOException e) {
 	            e.printStackTrace();
@@ -822,43 +864,6 @@
 	                e.printStackTrace();
 	            }
 	        }
-	        
-	        
-	        int point_buffer = pointer_buffer%10;
-	        buffer[point_buffer] = metric;
-	        if(pointer_buffer >=9){
-		        double sum=0;
-		        for(int i=0;i<=9;i++)
-		        {
-		        	sum = sum + buffer[i];
-		        	
-		        }
-		        double mean_v = sum/10;
-		        int mean_circular_buffer;
-		        mean_circular_buffer = pointer_mean%10;
-		        mean_buffer[mean_circular_buffer] = mean_v;
-		        
-		        if(pointer_mean >= 9){
-		        	double sum1 =0;
-		        	for(int i=0;i<=9;i++)
-		        	{
-		        		sum1 = sum1 +mean_buffer[i];
-		        	}
-		        	double mean_std = sum1/10;
-		        	double stand_devi = 0;
-		        	for(int i=0;i<=9;i++)
-		        	{
-		        		stand_devi = stand_devi + (double)(Math.pow((double)(mean_buffer[i] - mean_std),2));
-		        	}
-		        	stand_devi = Math.sqrt(stand_devi / (float)(9));
-		        	if(stand_devi < 0.005)
-		        	{
-		        		flag=1;
-		        	}
-		        }
-		    }
-		        pointer_buffer = pointer_buffer + 1;
-		        pointer_mean = pointer_mean + 1;
 
 		        return metric;
 
