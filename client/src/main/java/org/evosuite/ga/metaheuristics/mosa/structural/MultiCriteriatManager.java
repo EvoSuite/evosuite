@@ -88,10 +88,6 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		// let's derive the dependency graph between branches and other coverage targets (e.g., statements)
 		for (Criterion criterion : Properties.CRITERION){
 			switch (criterion){
-				case BRANCH:
-					break; // branches have been handled by getControlDepencies4Branches
-				case EXCEPTION:
-					break; // exception coverage is handled by calculateFitness
 				case LINE:
 					addDependencies4Line();
 					break;
@@ -123,7 +119,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 					addDependencies4CBranch();
 					break;
 				default:
-					LoggingUtils.getEvoLogger().error("The criterion {} is not currently supported in DynaMOSA", criterion.name());
+					LoggingUtils.getEvoLogger().error("The criterion {} is not currently supported in DynaMOSA", criterion.getClass());
 			}
 		}
 

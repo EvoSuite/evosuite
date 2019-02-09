@@ -118,6 +118,8 @@ public enum RuntimeVariable {
 	RhoScore,
 	RhoScore_T0,
 	RhoScoreTimeline,
+	/** AES**/
+	DDUCoverage,              //modification harsh
 	/** The obtained ambiguity coverage */
 	AmbiguityScore,
 	AmbiguityScore_T0,
@@ -381,7 +383,15 @@ public enum RuntimeVariable {
 	/* -------------------------------------------------------------------- */
 	/** Search budget needed to reach the maximum coverage */ 
 	/** Used in the comparison between LISP and MOSA */
-	Time2MaxCoverage
+	Time2MaxCoverage,
+	//modification harsh start
+	BasicBranchCoverage,
+	BasicMethodCoverage,
+	BasicPublicMethodCoverage,
+	DDUBranchCoverage, DDUBranchCoverageDTR, 
+	DDUMethodCoverage, DDUMethodCoverageDTR,
+	DDUPublicMethodCoverage, DDUPublicMethodCoverageDTR
+	//modification harsh end
 	
 	;
 	/* -------------------------------------------------- */

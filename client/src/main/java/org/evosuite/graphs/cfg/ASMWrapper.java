@@ -69,6 +69,8 @@ public abstract class ASMWrapper {
 	// from ASM library
 	protected AbstractInsnNode asmNode;
 	protected CFGFrame frame;
+	protected boolean forcedBranch = false;               //modified Harsh
+
 
 	/**
 	 * <p>
@@ -176,6 +178,12 @@ public abstract class ASMWrapper {
 	public boolean isSwitch() {
 		return isLookupSwitch() || isTableSwitch();
 	}
+
+	//modified harsh start 
+	public void forceBranch() {
+		forcedBranch = true;
+	}
+	//modified harsh end
 
 	/**
 	 * <p>
@@ -316,6 +324,12 @@ public abstract class ASMWrapper {
 	// // return ((Integer)((LabelNode)node).getLabel().info).intValue();
 	// return line_no;
 	// }
+
+	//modified harsh start
+	public boolean isForcedBranch() {
+		return forcedBranch;
+	}
+	//modified harsh end
 
 	/**
 	 * <p>

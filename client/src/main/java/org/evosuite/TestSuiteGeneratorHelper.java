@@ -29,6 +29,7 @@ import org.evosuite.assertion.SimpleMutationAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.aes.AESUtils;             //modificatio harsh
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
@@ -113,6 +114,45 @@ public class TestSuiteGeneratorHelper {
       case REGRESSION:
         LoggingUtils.getEvoLogger().info("  - Regression");
         break;
+        //modification start harsh
+      case VDDU:
+        LoggingUtils.getEvoLogger().info("  - VDDU Method Coverage");
+        break;
+      case VMDDU:
+        LoggingUtils.getEvoLogger().info("  - VMDDU Method Coverage");
+        break;
+
+      case VCDDU:
+        LoggingUtils.getEvoLogger().info("  - VCDDU Method Coverage");
+        break;
+      case VCMDDU1:
+        LoggingUtils.getEvoLogger().info("  - VCMDDU1 Method Coverage");
+        break;
+      case VCMDDU2:
+        LoggingUtils.getEvoLogger().info("  - VCMDDU2 Method Coverage");
+        break;
+      case VRDDU:
+        LoggingUtils.getEvoLogger().info("  - VRDDU Method Coverage");
+        break;
+      case DDU_METHOD:
+        LoggingUtils.getEvoLogger().info("  - DDU Method Coverage");
+        break;
+      case DDU_METHOD_DTR:
+        LoggingUtils.getEvoLogger().info("  - DDU Method (DTR) Coverage");
+        break;
+      case DDU_PUBLIC_METHOD:
+        LoggingUtils.getEvoLogger().info("  - DDU Public Method Coverage");
+        break;
+      case DDU_PUBLIC_METHOD_DTR:
+        LoggingUtils.getEvoLogger().info("  - DDU Public Method (DTR) Coverage");
+        break;
+      case DDU_BRANCH:
+        LoggingUtils.getEvoLogger().info("  - DDU Branch Coverage");
+        break;
+      case DDU_BRANCH_DTR:
+        LoggingUtils.getEvoLogger().info("  - DDU Branch Coverage");
+        break;
+        //modification end harsh
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
     }

@@ -21,6 +21,12 @@ package org.evosuite.coverage;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.aes.AbstractAESCoverageSuiteFitness.Metric;   //modification harsh start
+import org.evosuite.coverage.aes.branch.AESBranchCoverageFactory;
+import org.evosuite.coverage.aes.branch.AESBranchCoverageSuiteFitness;
+import org.evosuite.coverage.aes.method.AESMethodCoverageFactory;
+import org.evosuite.coverage.aes.method.AESMethodCoverageSuiteFitness;
+import org.evosuite.coverage.aes.method.AESPublicMethodCoverageSuiteFitness;      //modification harsh end
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -88,6 +94,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.io.*;
 
 /**
  * factory class for fitness functions
@@ -155,6 +162,38 @@ public class FitnessFunctions {
 			return new OutputCoverageSuiteFitness();
 		case INPUT:
 			return new InputCoverageSuiteFitness();
+		//modification harsh start
+		case VDDU:
+			return new AESMethodCoverageSuiteFitness(Metric.VDDU);           // new case vddu
+
+		case VMDDU:
+			return new AESMethodCoverageSuiteFitness(Metric.VMDDU);           // new case vmddu
+
+		case VCDDU:
+			return new AESMethodCoverageSuiteFitness(Metric.VCDDU);           // new case vcddu
+
+		case VCMDDU1:
+			return new AESMethodCoverageSuiteFitness(Metric.VCMDDU1);           // new case vcmddu1
+
+		case VCMDDU2:
+			return new AESMethodCoverageSuiteFitness(Metric.VCMDDU2);           // new case vcmddu2
+
+		case VRDDU:
+			return new AESMethodCoverageSuiteFitness(Metric.VRDDU);           // new case vrddu
+		case DDU_METHOD:
+			return new AESMethodCoverageSuiteFitness();
+		case DDU_METHOD_DTR:
+			return new AESMethodCoverageSuiteFitness(Metric.DTR);
+		case DDU_PUBLIC_METHOD:
+			return new AESPublicMethodCoverageSuiteFitness();
+		case DDU_PUBLIC_METHOD_DTR:
+			return new AESPublicMethodCoverageSuiteFitness(Metric.DTR);
+		case DDU_BRANCH:
+			return new AESBranchCoverageSuiteFitness();
+		case DDU_BRANCH_DTR:
+			return new AESBranchCoverageSuiteFitness(Metric.DTR);
+
+		//modification harsh end
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
 		default:
@@ -216,6 +255,24 @@ public class FitnessFunctions {
 			return new OutputCoverageFactory();
 		case INPUT:
 			return new InputCoverageFactory();
+		//modified start harsh
+		case VDDU:
+		case VMDDU:
+		case VCDDU:
+		case VCMDDU1:
+		case VCMDDU2:
+
+		case VRDDU:
+		case DDU_METHOD:
+		case DDU_METHOD_DTR:
+			return new AESMethodCoverageFactory();
+		case DDU_PUBLIC_METHOD:
+		case DDU_PUBLIC_METHOD_DTR:
+			return new AESMethodCoverageFactory(true);
+		case DDU_BRANCH:
+		case DDU_BRANCH_DTR:
+			return new AESBranchCoverageFactory();
+		//modified end harsh
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
 		default:
@@ -233,6 +290,7 @@ public class FitnessFunctions {
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getTestFitnessFunctionClass(Criterion criterion) {
+
 		switch (criterion) {
 		case STRONGMUTATION:
 				return StrongMutationTestFitness.class;
@@ -282,6 +340,19 @@ public class FitnessFunctions {
 				return InputCoverageTestFitness.class;
 		case TRYCATCH:
 				return TryCatchCoverageTestFitness.class;
+		case VDDU: 
+		case VMDDU:                                                //modified harsh
+		case VCDDU:
+		case VCMDDU1:
+		case VCMDDU2:
+		case VRDDU:
+		case DDU_METHOD:
+		case DDU_METHOD_DTR:
+		case DDU_PUBLIC_METHOD:
+		case DDU_PUBLIC_METHOD_DTR:
+		case DDU_BRANCH:
+		case DDU_BRANCH_DTR:
+				return LineCoverageTestFitness.class;               //modified harsh  
 		default:
 				throw new RuntimeException("No criterion defined for " + criterion.name());
 		}

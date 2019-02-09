@@ -22,12 +22,9 @@
  */
 package org.evosuite;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.assertion.InspectorManager;
-import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.branch.BranchPool;
@@ -221,12 +218,8 @@ public class TestGenerationContext {
 			// || ArrayUtil.contains(Properties.CRITERION,
 			// Properties.Criterion.CBRANCH)) {
 			try {
-				// 1. Initialize the callGraph before using
-				String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
-				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
 				testClusterGenerator = new TestClusterGenerator(
 						DependencyAnalysis.getInheritanceTree());
-				// 2. Use the callGraph
 				testClusterGenerator.generateCluster(DependencyAnalysis.getCallGraph());
 			} catch (RuntimeException e) {
 				logger.error(e.getMessage(), e);

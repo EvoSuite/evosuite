@@ -1408,11 +1408,12 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Runtime parameters
 
-	public enum Criterion {
+	public enum Criterion {                                //modification harsh
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
-        REGRESSION,	REGRESSIONTESTS, TRYCATCH
+        REGRESSION,	REGRESSIONTESTS, TRYCATCH, VDDU, VMDDU, VCDDU, VCMDDU1, VCMDDU2, VRDDU, DDU_METHOD, DDU_METHOD_DTR, DDU_PUBLIC_METHOD, DDU_PUBLIC_METHOD_DTR,
+        DDU_BRANCH, DDU_BRANCH_DTR
 	}
 
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")

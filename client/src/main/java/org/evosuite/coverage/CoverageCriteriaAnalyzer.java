@@ -178,6 +178,21 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.BranchCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
+            //modification start harsh
+            case VDDU:
+            case VMDDU:
+            case VCDDU:
+            case VCMDDU1:
+            case VCMDDU2:
+            case VRDDU:
+            case DDU_METHOD:
+            case DDU_METHOD_DTR:
+            case DDU_PUBLIC_METHOD:
+            case DDU_PUBLIC_METHOD_DTR:
+            case DDU_BRANCH:
+            case DDU_BRANCH_DTR:
+                return RuntimeVariable.DDUCoverage;
+            //modification end harsh
             default:
                 throw new RuntimeException("Criterion not supported: " + criterion);
 
