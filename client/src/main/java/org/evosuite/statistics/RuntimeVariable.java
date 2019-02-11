@@ -120,6 +120,11 @@ public enum RuntimeVariable {
 	RhoScoreTimeline,
 	/** AES**/
 	DDUCoverage,              //modification harsh
+	DDUScore,
+	DDUFitnessTimeline,
+	VDDUCoverage,
+	VDDUScore,
+	VDDUFitnessTimeline,
 	/** The obtained ambiguity coverage */
 	AmbiguityScore,
 	AmbiguityScore_T0,

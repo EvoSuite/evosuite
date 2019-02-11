@@ -21,6 +21,7 @@ package org.evosuite.statistics;
 
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
+import org.evosuite.coverage.aes.method.AESMethodCoverageSuiteFitness;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
@@ -146,6 +147,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), new DiversitySequenceOutputVariableFactory());
+
+		sequenceOutputVariableFactories.put(RuntimeVariable.DDUFitnessTimeline.name(), new DDUFitnessSequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.VDDUFitnessTimeline.name(), new VDDUFitnessSequenceOutputVariableFactory());
 
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
@@ -918,6 +922,30 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         @Override
         public Double getValue(TestSuiteChromosome individual) {
             return individual.getCoverageInstanceOf(OnlyMutationSuiteFitness.class);
+        }
+    }
+
+    private static class DDUFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public DDUFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.DDUFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(AESMethodCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class VDDUFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public VDDUFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.VDDUFitnessTimeline);
+        }
+  
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(AESMethodCoverageSuiteFitness.class);
         }
     }
 }
