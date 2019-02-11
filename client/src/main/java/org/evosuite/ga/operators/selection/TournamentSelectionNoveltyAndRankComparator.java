@@ -44,6 +44,11 @@ public class TournamentSelectionNoveltyAndRankComparator<T extends Chromosome> e
         this.comparator = new NoveltyAndRankComparator<T>(isToMaximize);
     }
 
+
+    public void setRankBasedCompetition(boolean rankBasedCompetition) {
+        this.comparator.setRankBasedCompetition(rankBasedCompetition);
+    }
+
     /**
      * {@inheritDoc}
      *

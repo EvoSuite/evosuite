@@ -1533,8 +1533,20 @@ public class Properties {
 	@Parameter(key = "novelty_threshold", group = "Runtime", description = "If novelty of an individual is greater than this threshold then it is added to the novelty archive")
 	public static double NOVELTY_THRESHOLD = 0.2;
 
-	@Parameter(key = "rank_competition", group = "Runtime", description = "If true, it enables competition based on fitness")
-	public static boolean RANK_COMPETITION = false;
+	// parameters used for experiment purpose
+	@Parameter(key = "max_feature_distance", group = "Runtime", description = "If true, then maximum distance between the same feature of multiple maps will be considered.")
+	public static boolean MAX_FEATURE_DISTANCE = true;
+
+	@Parameter(key = "instrument_only_field", group = "Runtime", description = "Whether only field variables to be considered as features.")
+	public static boolean INSTRUMENT_ONLY_FIELD = false;
+
+	// used in selection
+	@Parameter(key = "rank_and_novelty_selection", group = "Runtime", description = "If true, it enables selection based on novelty and fitness")
+	public static boolean RANK_AND_NOVELTY_SELECTION = true;
+
+	// used in selection
+	@Parameter(key = "novelty_selection", group = "Runtime", description = "If true, it enables selection based only on novelty")
+	public static boolean NOVELTY_SELECTION = false;
 
 	@Parameter(key = "max_novelty_archive_size", group = "Runtime", description = "Maximum size of the novelty archive")
 	public static int MAX_NOVELTY_ARCHIVE_SIZE = 156;

@@ -2,6 +2,7 @@ package org.evosuite.coverage.dataflow;
 
 import jdk.internal.org.objectweb.asm.tree.AbstractInsnNode;
 import jdk.internal.org.objectweb.asm.tree.FieldInsnNode;
+import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Opcodes;
 
@@ -42,6 +43,12 @@ public class FeatureFactory implements Serializable {
 
             if(isRecursiveElement(d))
                 return false;
+
+            // only for experiment purpose
+            if(Properties.INSTRUMENT_ONLY_FIELD){
+                if(d.isLocalVariableDefinition() || d.isLocalVariableUse())
+                    return false;
+            }
 
             defCounter++;
             knownInstructions.put(d, defCounter);

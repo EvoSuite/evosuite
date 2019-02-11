@@ -313,6 +313,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     private double getMaxFeatureDistance(Map.Entry<Integer, Feature> entry, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
 
         double distance =0;// default distance
+        double maxDistance =1;// maximum distance
         boolean flag = false;
         boolean flag2 = false;
         if(featureMapList2.isEmpty())
@@ -329,9 +330,17 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 flag2 = true;
                 double squaredDiff = FeatureValueAnalyser.getFeatureDistance(feature1, feature2);
 
-                if (Double.compare(distance, squaredDiff) < 0) {
-                    distance = squaredDiff;
+                if(Properties.MAX_FEATURE_DISTANCE){
+                    if (Double.compare(distance, squaredDiff) < 0) {
+                        distance = squaredDiff;
+                    }
+                }else{
+                    // finding the min distance between the feature vectors
+                    if (Double.compare(maxDistance, squaredDiff) > 0) {
+                        maxDistance = squaredDiff;
+                    }
                 }
+
             }
         }
         if (!flag) {
@@ -350,7 +359,10 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             // so we set the distance to max
             return 1;
         }
-        return distance;
+        if(Properties.MAX_FEATURE_DISTANCE)
+            return distance;
+        else
+            return maxDistance;// the variable name is maxDistance but is actually the min value. See line 339
     }
 
     public void updateNoveltyArchive(T t, Collection<T> archive){

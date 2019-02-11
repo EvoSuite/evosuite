@@ -37,12 +37,22 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
 
     private boolean isToMaximize;
 
+    private boolean isRankBasedCompetition = false;
+
     public NoveltyAndRankComparator() {
         this.isToMaximize = false;
     }
 
     public NoveltyAndRankComparator(boolean maximize) {
         this.isToMaximize = maximize;
+    }
+
+    public boolean isRankBasedCompetition() {
+        return this.isRankBasedCompetition;
+    }
+
+    public void setRankBasedCompetition(boolean rankBasedCompetition) {
+        this.isRankBasedCompetition = rankBasedCompetition;
     }
 
     /**
@@ -66,16 +76,7 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
             return 0;
         }
 
-        /*if (this.isToMaximize) {
-            if (c1.getNoveltyScore() < c2.getNoveltyScore()) {
-                return 1;
-            } else if (c1.getNoveltyScore() > c2.getNoveltyScore()) {
-                return -1;
-            } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
-                return (c1.getRank() > c2.getRank()) ? -1 : 1;
-            }
-        } else {*/
-        if (Properties.RANK_COMPETITION) {
+        if (this.isRankBasedCompetition) {
             if (c1.getRank() < c2.getRank()) {
                 return -1;
             } else if (c1.getRank() > c2.getRank()) {
@@ -92,7 +93,6 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
         } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
             return (c1.getRank() < c2.getRank()) ? -1 : 1;
         }
-       /* }*/
 
         return 0;
     }

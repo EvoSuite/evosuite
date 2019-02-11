@@ -8,6 +8,7 @@ import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
+import org.evosuite.ga.operators.selection.TournamentSelectionNoveltyAndRankComparator;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
@@ -277,10 +278,21 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         // changes start
         for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
             // select best individuals
-            Properties.RANK_COMPETITION = false;
-            T parent1 = this.selectionFunction.select(this.population);
-            Properties.RANK_COMPETITION = true;
-            T parent2 = this.selectionFunction.select(this.population);
+            T parent1 = null;
+            T parent2 = null;
+            if(Properties.RANK_AND_NOVELTY_SELECTION){ // by default true
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                parent1 = this.selectionFunction.select(this.population);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
+                parent2 = this.selectionFunction.select(this.population);
+            }
+            else if(Properties.NOVELTY_SELECTION){
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                parent1 = this.selectionFunction.select(this.population);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                parent2 = this.selectionFunction.select(this.population);
+            }
+
             T offspring1 = (T) parent1.clone();
             T offspring2 = (T) parent2.clone();
             // apply crossover
@@ -382,6 +394,10 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
                 .forEach(ff -> uncoveredGoals.add((FitnessFunction<T>) ff));
         return uncoveredGoals;
     }
+    /*private List<String> getUncoveredMethodNames(){
+        getUncoveredGoals().stream().map((entry) -> entry.)
+    }*/
+
     @Override
     public void generateSolution() {
         logger.info("executing generateSolution function");
