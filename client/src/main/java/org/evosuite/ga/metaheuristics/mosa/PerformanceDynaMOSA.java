@@ -4,7 +4,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.metaheuristics.mosa.structural.adaptive.AdaptiveBranchesManager;
+import org.evosuite.ga.metaheuristics.mosa.structural.adaptive.AdaptiveGoalManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.performance.strategies.PerformanceStrategy;
 import org.evosuite.performance.strategies.PerformanceStrategyFactory;
@@ -31,7 +31,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     /**
      * Manager to determine the test goals to consider at each generation
      */
-    protected AdaptiveBranchesManager<T> goalsManager = null;
+    protected AdaptiveGoalManager<T> goalsManager = null;
 
     protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
 
@@ -154,7 +154,7 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
     public void generateSolution() {
         logger.debug("executing generateSolution function");
 
-        this.goalsManager = new AdaptiveBranchesManager<>(this.fitnessFunctions);
+        this.goalsManager = new AdaptiveGoalManager<>(this.fitnessFunctions);
         this.goalsManager.setIndicators(this.indicators);
 
         LoggingUtils.getEvoLogger().info("* Initial Number of Goals in PerformanceDynaMOSA = " +

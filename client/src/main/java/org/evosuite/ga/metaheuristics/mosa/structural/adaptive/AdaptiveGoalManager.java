@@ -5,6 +5,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.PerformanceScoreComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.BranchesManager;
+import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriatManager;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -22,9 +23,9 @@ import java.util.*;
  *
  * @author Giovanni Grano
  */
-public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManager<T> {
+public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatManager<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdaptiveBranchesManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdaptiveGoalManager.class);
 
     private PerformanceScoreComparator comparator = new PerformanceScoreComparator();
 
@@ -33,9 +34,20 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
     private boolean hasBetterObjectives = false;
     protected List<AbstractIndicator> indicators;
 
-    public AdaptiveBranchesManager(List<FitnessFunction<T>> fitnessFunctions) {
+    public AdaptiveGoalManager(List<FitnessFunction<T>> fitnessFunctions) {
         super(fitnessFunctions);
         this.bestValues = new HashMap<>();
+    }
+
+    public void runTest(T c){
+        TestChromosome tch = (TestChromosome) c;
+        if (tch.getLastExecutionResult() == null) {
+            // run the test
+            TestCase test = ((TestChromosome) c).getTestCase();
+            ExecutionResult result = TestCaseExecutor.runTest(test);
+            ((TestChromosome) c).setLastExecutionResult(result);
+            c.setChanged(false);
+        }
     }
 
     @Override
@@ -77,7 +89,6 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
                 this.hasBetterObjectives = true;
             }
 
-
             if (value == 0.0) {
                 updateArchive = true;
                 this.bestValues.remove(fitnessFunction);
@@ -90,28 +101,8 @@ public class AdaptiveBranchesManager<T extends Chromosome> extends BranchesManag
         }
         currentGoals.removeAll(coveredGoals.keySet());
 
-
         /* update of the archives */
-        if (updateArchive) {
-            for (Integer branchid : result.getTrace().getCoveredFalseBranches()) {
-                FitnessFunction<T> branch = this.branchCoverageFalseMap.get(branchid);
-                if (branch == null)
-                    continue;
-                updateCoveredGoals(branch, c);
-            }
-            for (Integer branchid : result.getTrace().getCoveredTrueBranches()) {
-                FitnessFunction<T> branch = this.branchCoverageTrueMap.get(branchid);
-                if (branch == null)
-                    continue;
-                updateCoveredGoals(branch, c);
-            }
-            for (String method : result.getTrace().getCoveredBranchlessMethods()) {
-                FitnessFunction<T> branch = this.branchlessMethodCoverageMap.get(method);
-                if (branch == null)
-                    continue;
-                updateCoveredGoals(branch, c);
-            }
-        }
+        updateArchive(c, result);
     }
 
     /**

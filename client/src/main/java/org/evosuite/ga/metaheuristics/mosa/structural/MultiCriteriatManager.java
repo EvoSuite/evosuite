@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3.0 of the License, or
+ * (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
 import java.util.HashMap;
@@ -53,7 +72,7 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 		// initialize uncovered goals
 		uncoveredGoals.addAll(fitnessFunctions);
 
-		// initialize the dependency graph among branches 
+		// initialize the dependency graph among branches
 		// initialize the dependency graph between branches and other coverage targets (e.g., statements)
 		Set<FitnessFunction<T>> setOfBranches = new HashSet<FitnessFunction<T>>();
 		this.dependencies = new HashMap<BranchCoverageTestFitness, Set<FitnessFunction<T>>>();
@@ -334,11 +353,11 @@ public class MultiCriteriatManager<T extends Chromosome> extends StructuralGoalM
 			// for generated exceptions
 			Set<ExceptionCoverageTestFitness> set = deriveCoveredExceptions(c);
 			for (ExceptionCoverageTestFitness exp : set){
-				// let's update the list of fitness functions 
+				// let's update the list of fitness functions
 				updateCoveredGoals((FitnessFunction<T>) exp, c);
 				// new covered exceptions (goals) have to be added to the archive
 				if (!ExceptionCoverageFactory.getGoals().containsKey(exp.getKey())){
-					// let's update the newly discovered exceptions to ExceptionCoverageFactory 
+					// let's update the newly discovered exceptions to ExceptionCoverageFactory
 					ExceptionCoverageFactory.getGoals().put(exp.getKey(), exp);
 				}
 			}
