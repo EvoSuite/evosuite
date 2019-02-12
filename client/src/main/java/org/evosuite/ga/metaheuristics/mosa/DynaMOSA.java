@@ -22,19 +22,15 @@ package org.evosuite.ga.metaheuristics.mosa;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
-import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriatManager;
+import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
-import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +122,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
 		logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
 		logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
+		logger.error("Best Cov = {}" + this.getBestIndividual().getCoverage());
 	}
 
 	/**
@@ -135,7 +132,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	public void generateSolution() {
 		logger.debug("executing generateSolution function");
 
-		this.goalsManager = new MultiCriteriatManager<T>(this.fitnessFunctions);
+		this.goalsManager = new MultiCriteriaManager<>(this.fitnessFunctions);
 
 		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynMOSA = " +
 				this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
@@ -170,142 +167,8 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected Set<FitnessFunction<T>> getCoveredGoals() {
-		return this.goalsManager.getCoveredGoals().keySet();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getNumberOfCoveredGoals() {
-		return this.getCoveredGoals().size();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	protected Set<FitnessFunction<T>> getUncoveredGoals() {
-		return this.goalsManager.getUncoveredGoals();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getNumberOfUncoveredGoals() {
-		return this.getUncoveredGoals().size();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected int getTotalNumberOfGoals() {
-		return this.getNumberOfCoveredGoals() + this.getNumberOfUncoveredGoals();
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected List<T> getSolutions() {
-		List<T> suite = new ArrayList<T>(this.goalsManager.getArchive());
-		return suite;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected TestSuiteChromosome generateSuite() {
-		TestSuiteChromosome suite = new TestSuiteChromosome();
-		for (T t : this.getSolutions()) {
-			TestChromosome test = (TestChromosome) t;
-			suite.addTest(test);
-		}
-		return suite;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected void calculateFitness(T c) {
 		this.goalsManager.calculateFitness(c);
 		this.notifyEvaluation(c);
 	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<T> getBestIndividuals() {
-		TestSuiteChromosome bestTestCases = this.generateSuite();
-
-		if (bestTestCases.getTestChromosomes().isEmpty()) {
-			// trivial case where there are no branches to cover or the archive is empty
-			for (T test : this.population) {
-				bestTestCases.addTest((TestChromosome) test);
-			}
-		}
-
-		// compute overall fitness and coverage
-		this.computeCoverageAndFitness(bestTestCases);
-
-		List<T> bests = new ArrayList<T>(1);
-		bests.add((T) bestTestCases);
-
-		return bests;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public T getBestIndividual() {
-		TestSuiteChromosome best = this.generateSuite();
-		if (best.getTestChromosomes().isEmpty()) {
-			for (T test : this.population) {
-				best.addTest((TestChromosome) test);
-			}
-			for (TestSuiteFitnessFunction suiteFitness : this.suiteFitnessFunctions.keySet()) {
-				best.setCoverage(suiteFitness, 0.0);
-				best.setFitness(suiteFitness,  1.0);
-			}
-			return (T) best;
-		}
-
-		// compute overall fitness and coverage
-		this.computeCoverageAndFitness(best);
-
-		return (T) best;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
-		for (Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions.entrySet()) {
-			TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
-			Class<?> testFitnessFunction = entry.getValue();
-
-			int numberCoveredTargets = this.goalsManager.getNumberOfCoveredTargets(testFitnessFunction);
-			int numberUncoveredTargets = this.goalsManager.getNumberOfUncoveredTargets(testFitnessFunction);
-			int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
-
-			double coverage = totalNumberTargets == 0 ? 0.0
-			    : ((double) numberCoveredTargets)
-			    / ((double) (numberCoveredTargets + numberUncoveredTargets));
-
-			suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-			suite.setCoverage(suiteFitnessFunction, coverage);
-			suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
-			suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
-		}
-	}
-
 }

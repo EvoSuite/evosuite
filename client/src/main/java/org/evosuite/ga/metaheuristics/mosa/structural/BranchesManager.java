@@ -59,8 +59,7 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 	 */
 	public BranchesManager(List<FitnessFunction<T>> fitnessFunctions){
 		super(fitnessFunctions);
-		// initialize uncovered goals
-		uncoveredGoals.addAll(fitnessFunctions);
+
 		Set<FitnessFunction<T>> set = new HashSet<FitnessFunction<T>>();
 		set.addAll(fitnessFunctions);
 		graph = new BranchFitnessGraph<T, FitnessFunction<T>>(set);
@@ -103,7 +102,7 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 		}
 
 		// 1) we update the set of currents goals
-		Set<FitnessFunction<T>> visitedStatements = new HashSet<FitnessFunction<T>>(uncoveredGoals.size()*2);
+		Set<FitnessFunction<T>> visitedStatements = new HashSet<FitnessFunction<T>>(this.getUncoveredGoals().size()*2);
 		LinkedList<FitnessFunction<T>> targets = new LinkedList<FitnessFunction<T>>();
 		targets.addAll(this.currentGoals);
 
@@ -125,7 +124,7 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 				currentGoals.add(fitnessFunction);
 			}	
 		}
-		currentGoals.removeAll(coveredGoals.keySet());
+		currentGoals.removeAll(this.getCoveredGoals());
 		// 2) we update the archive
 		for (Integer branchid : result.getTrace().getCoveredFalseBranches()){
 			FitnessFunction<T> branch = this.branchCoverageFalseMap.get(branchid);
@@ -149,9 +148,9 @@ public class BranchesManager<T extends Chromosome> extends StructuralGoalManager
 	}
 
 	protected void debugStructuralDependencies(T c){
-		for (FitnessFunction<T> fitnessFunction : this.uncoveredGoals) {
+		for (FitnessFunction<T> fitnessFunction : this.getUncoveredGoals()) {
 			double value = fitnessFunction.getFitness(c);
-			if (value <1 && !currentGoals.contains(fitnessFunction) && !this.coveredGoals.keySet().contains(fitnessFunction)) {
+			if (value <1 && !currentGoals.contains(fitnessFunction) && !this.getCoveredGoals().contains(fitnessFunction)) {
 				logger.error("Branch {} has fitness {} but is not in the current goals", fitnessFunction.toString(), value);
 			}
 		}
