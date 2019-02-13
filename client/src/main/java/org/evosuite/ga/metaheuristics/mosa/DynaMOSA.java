@@ -122,7 +122,6 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
 		logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
 		logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
-		logger.error("Best Cov = {}" + this.getBestIndividual().getCoverage());
 	}
 
 	/**
