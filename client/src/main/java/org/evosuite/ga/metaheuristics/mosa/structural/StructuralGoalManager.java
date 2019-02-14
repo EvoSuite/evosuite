@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import java.util.Set;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
@@ -36,25 +38,22 @@ import org.evosuite.testcase.TestFitnessFunction;
  * 
  * @author Annibale Panichella
  */
-public abstract class StructuralGoalManager<T extends Chromosome> {
+public abstract class StructuralGoalManager<T extends Chromosome> implements Serializable {
 
-	/** Set of yet to cover goals **/
-	protected Set<FitnessFunction<T>> uncoveredGoals;
+	private static final long serialVersionUID = -2577487057354286024L;
 
 	/** Set of goals currently used as objectives **/
 	protected Set<FitnessFunction<T>> currentGoals;
 
-	/** Map of covered goals **/
-	protected Map<FitnessFunction<T>, T> coveredGoals;
-
-	/** Map of test to archive and corresponding covered targets*/
-	protected Map<T, List<FitnessFunction<T>>> archive;
+	/** Archive of tests and corresponding covered targets*/
+	protected Archive archive;
 
 	protected StructuralGoalManager(List<FitnessFunction<T>> fitnessFunctions){
-		uncoveredGoals = new HashSet<FitnessFunction<T>>(fitnessFunctions.size());
 		currentGoals = new HashSet<FitnessFunction<T>>(fitnessFunctions.size());
-		coveredGoals = new HashMap<FitnessFunction<T>, T>(fitnessFunctions.size());
-		archive = new HashMap<T, List<FitnessFunction<T>>>();
+		archive = Archive.getArchiveInstance();
+
+		// initialize uncovered goals
+		this.archive.addTargets(fitnessFunctions);
 	}
 
 	/**
@@ -65,26 +64,19 @@ public abstract class StructuralGoalManager<T extends Chromosome> {
 	public abstract void calculateFitness(T c);
 
 	public Set<FitnessFunction<T>> getUncoveredGoals() {
-		return uncoveredGoals;
+		return this.archive.getUncoveredTargets();
 	}
 
 	public Set<FitnessFunction<T>> getCurrentGoals() {
 		return currentGoals;
 	}
 
-	public Map<FitnessFunction<T>, T> getCoveredGoals() {
-		return coveredGoals;
+	public Set<FitnessFunction<T>> getCoveredGoals() {
+		return this.archive.getCoveredTargets();
 	}
 
 	protected boolean isAlreadyCovered(FitnessFunction<T> target){
-		if (uncoveredGoals.size() < coveredGoals.keySet().size()){
-			if (!uncoveredGoals.contains(target))
-				return true;
-		} else {
-			if (coveredGoals.keySet().contains(target))
-				return true;
-		}
-		return false;
+		return this.archive.getCoveredTargets().contains(target);
 	}
 
 	protected void updateCoveredGoals(FitnessFunction<T> f, T tc) {
@@ -94,48 +86,6 @@ public abstract class StructuralGoalManager<T extends Chromosome> {
 		tch.getTestCase().getCoveredGoals().add((TestFitnessFunction) f);
 
 		// update covered targets
-		boolean toArchive = false;
-		T best = coveredGoals.get(f);
-		if (best == null){
-			toArchive = true;
-			coveredGoals.put(f, tc);
-			uncoveredGoals.remove(f);
-			currentGoals.remove(f);
-		} else {
-			double bestSize = best.size();
-			double size = tc.size();
-			if (size < bestSize && size > 1){
-				toArchive = true;
-				coveredGoals.put(f, tc);
-				archive.get(best).remove(f);
-				if (archive.get(best).size() == 0)
-					archive.remove(best);
-			}
-		}
-
-		// update archive
-		if (toArchive){
-			List<FitnessFunction<T>> coveredTargets = archive.get(tc);
-			if (coveredTargets == null){
-				List<FitnessFunction<T>> list = new ArrayList<FitnessFunction<T>>();
-				list.add(f);
-				archive.put(tc, list);
-			} else {
-				coveredTargets.add(f);
-			}
-		}
+		this.archive.updateArchive((TestFitnessFunction) f, (TestChromosome) tc, tc.getFitness(f));
 	}
-
-	public Set<T> getArchive(){
-		return this.archive.keySet();
-	}
-
-	public int getNumberOfCoveredTargets(Class<?> targetClass) {
-		return (int) this.coveredGoals.keySet().stream().filter(target -> target.getClass() == targetClass).count();
-	}
-
-	public int getNumberOfUncoveredTargets(Class<?> targetClass) {
-		return (int) this.uncoveredGoals.stream().filter(target -> target.getClass() == targetClass).count();
-	}
-
 }
