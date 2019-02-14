@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +40,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Annibale Panichella
  */
-public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<T>>{
+public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<T>> implements Serializable {
+
+	private static final long serialVersionUID = -8020578778906420503L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
