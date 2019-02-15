@@ -27,6 +27,7 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
         //Properties.TEST_ARCHIVE = false;
         //Properties.ALGORITHM = Properties.Algorithm.MOSA;
+        //Properties.MAX_FEATURE_DISTANCE = false;
         Properties.ALGORITHM = Properties.Algorithm.NOVELTY;
         String[] command = new String[]{"-generateSuite", "-class", targetClass};
 

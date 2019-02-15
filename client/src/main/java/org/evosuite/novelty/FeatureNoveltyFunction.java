@@ -3,6 +3,7 @@ package org.evosuite.novelty;
 import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.coverage.dataflow.FeatureFactory;
+import org.evosuite.coverage.dataflow.FeatureKey;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.ga.metaheuristics.FeatureValueAnalyser;
@@ -51,6 +52,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                         Feature structureFeature = new Feature();
                         structureFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Struct");
                         structureFeature.setValue(newFeaturesMapEntry.getValue().get(0));
+                        structureFeature.setMethodName(entry.getValue().getMethodName());
                         if(isFirst){
                             newFeatures.put(entry.getKey(), structureFeature);
                             FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
@@ -63,6 +65,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                         Feature valueFeature = new Feature();
                         valueFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Value");
                         valueFeature.setValue(newFeaturesMapEntry.getValue().get(1));
+                        valueFeature.setMethodName(entry.getValue().getMethodName());
                         featuresSize++;
                         newFeatures.put(featuresSize, valueFeature);
                         FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
@@ -78,7 +81,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     }
 
     @Override
-    public void calculateNovelty(Collection<T> population, Collection<T> noveltyArchive) {
+    public void calculateNovelty(Collection<T> population, Collection<T> noveltyArchive, List<String> uncoveredMethodList) {
         // Step 1. Run all the tests
         for(T t : population){
             executeAndAnalyseFeature(t);
@@ -88,7 +91,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         Iterator<T> iterator = (Iterator<T>) population.iterator();
 
         // stores the min and max value for each of the Feature
-        Map<Integer, List<Double>> featureValueRangeList = new HashMap<>();
+        Map<FeatureKey, List<Double>> featureValueRangeList = new HashMap<>();
         // Making it static
         while (iterator.hasNext()) {
             T individual = iterator.next();
@@ -121,7 +124,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         evaluations = 0;
         // calculating the normalized novelty
         for(T t : population){
-            updateEuclideanDistance(t, population, noveltyArchive, featureValueRangeList);
+            updateEuclideanDistance(t, population, noveltyArchive, featureValueRangeList, uncoveredMethodList);
         }
 
         // update the NOVELTY_THRESHOLD
@@ -145,30 +148,31 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
      * @param featureValueRangeList
      * @param entry
      */
-    private void updateFeatureValueRange(Map<Integer, List<Double>> featureValueRangeList, Map.Entry<Integer, Feature> entry) {
-        if (null == featureValueRangeList.get(entry.getKey())) {
+    private void updateFeatureValueRange(Map<FeatureKey, List<Double>> featureValueRangeList, Map.Entry<Integer, Feature> entry) {
+        FeatureKey featureKey = new FeatureKey(entry.getValue().getVariableName(), entry.getValue().getMethodName());
+        if (null == featureValueRangeList.get(featureKey)) {
             List<Double> rangeList = new ArrayList<>();
             double featureMin = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
             double featureMax = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
             rangeList.add(0, featureMin);
             rangeList.add(1, featureMax);
-            featureValueRangeList.put(entry.getKey(), rangeList);
+            featureValueRangeList.put(featureKey, rangeList);
             return;
         } else {
             // do the comparision
-            double min = featureValueRangeList.get(entry.getKey()).get(0);
-            double max = featureValueRangeList.get(entry.getKey()).get(1);
+            double min = featureValueRangeList.get(featureKey).get(0);
+            double max = featureValueRangeList.get(featureKey).get(1);
 
             if (FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue()) < min) {
                 double featureMin = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
-                featureValueRangeList.get(entry.getKey()).remove(0);
-                featureValueRangeList.get(entry.getKey()).add(0, featureMin);
+                featureValueRangeList.get(featureKey).remove(0);
+                featureValueRangeList.get(featureKey).add(0, featureMin);
             }
 
             if (FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue()) > max) {
                 double featureMax = FeatureValueAnalyser.readDoubleValue(entry.getValue().getValue());
-                featureValueRangeList.get(entry.getKey()).remove(1);
-                featureValueRangeList.get(entry.getKey()).add(1, featureMax);
+                featureValueRangeList.get(featureKey).remove(1);
+                featureValueRangeList.get(featureKey).add(1, featureMax);
             }
         }
         /*if(entry.getValue().getVariableName().equals("someArr_int_Struct") ){
@@ -209,9 +213,9 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
      * @param t
      * @param population
      * @param noveltyArchive
-     * @param featureValueRangeList
+     * @param uncoveredMethodList
      */
-    public void updateEuclideanDistance(T t, Collection<T> population, Collection<T> noveltyArchive, Map<Integer, List<Double>> featureValueRangeList){
+    public void updateEuclideanDistance(T t, Collection<T> population, Collection<T> noveltyArchive, Map<FeatureKey, List<Double>> featureValueRangeList, List<String> uncoveredMethodList){
         double noveltyScore = 0;
         double sumDiff = 0;
 
@@ -237,16 +241,18 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
                 //TODO: Do the comparision only if the features belong to the same method. Can be done using the variable name
                 // because we want to avoid a possible comparision between two individuals testing a 'foo()' and a 'boo()' respectively
-                for(Map.Entry<Integer, Feature> entry : FeatureFactory.getFeatures().entrySet()){
+                for(Map.Entry<FeatureKey, List<Double>> entry : featureValueRangeList.entrySet()){
                     // for each matching feature find the max normalized distance.
                     // To handle cases when individuals tests different methods
                     // check if a particular feature in present in both the featureMapList1 and featureMapList2
                     // because it doesn't make sense to calculate feature difference if two individuals affect two different features.
                     // We cannot derive any conclusive information about how far they are from each other. We can do that only on same features
                     // from two different invocations.
-                    if(!isFeaturePresentInBothLists(entry, featureMapList1, featureMapList2))
+                    if(!uncoveredMethodList.contains(entry.getKey().getMethodName()))
                         continue;
-                    double squaredDiff = getMaxFeatureDistance(entry, featureMapList1, featureMapList2);
+                    if(!isFeaturePresentInBothLists(entry.getKey(), featureMapList1, featureMapList2))
+                        continue;
+                    double squaredDiff = getMaxFeatureDistance(entry.getKey(), featureMapList1, featureMapList2);
                     sumDiff +=squaredDiff;
                 }
 
@@ -260,13 +266,15 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             else{
                 // fetch the features
                 List<Map<Integer, Feature>> featureMapList2 = ((TestChromosome)otherFromArchive).getLastExecutionResult().getTrace().getListOfFeatureMap();
-                for(Map.Entry<Integer, Feature> entry : FeatureFactory.getFeatures().entrySet()){
+                for(Map.Entry<FeatureKey, List<Double>> entry : featureValueRangeList.entrySet()){
                     // for each matching feature find the max normalized distance.
                     // We cannot derive any conclusive information about how far they are from each other. We can do that only on same features
                     // from two different invocations.
-                    if(!isFeaturePresentInBothLists(entry, featureMapList1, featureMapList2))
+                    if(!uncoveredMethodList.contains(entry.getKey().getMethodName()))
                         continue;
-                    double squaredDiff = getMaxFeatureDistance(entry, featureMapList1, featureMapList2);
+                    if(!isFeaturePresentInBothLists(entry.getKey(), featureMapList1, featureMapList2))
+                        continue;
+                    double squaredDiff = getMaxFeatureDistance(entry.getKey(), featureMapList1, featureMapList2);
                     sumDiff +=squaredDiff;
                 }
             }
@@ -276,7 +284,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
         // Number of features will remain constant throughout the iterations
         /*int numOfFeatures = featureValueRangeList.size()==0?1:featureValueRangeList.size();*/
-
+        // FeatureFactory.getFeatures().size() and featureValueRangeList.size() should always be equal.
         int numOfFeatures = FeatureFactory.getFeatures().size()==0?1:FeatureFactory.getFeatures().size();
 
         double distance = Math.sqrt(sumDiff);
@@ -289,17 +297,29 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         updateNoveltyArchive(t, noveltyArchive);
     }
 
-    private boolean isFeaturePresentInBothLists(Map.Entry<Integer, Feature> entry, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
+    public Feature matchFeatureWithKey(Map<Integer, Feature> featureMap, FeatureKey featureKey) {
+        if (featureMap != null && !featureMap.isEmpty()) {
+            Optional<Feature> featureOptional = featureMap.values().stream().filter((feature) -> feature.getVariableName().equals(featureKey.getVariableName()) && feature.getMethodName().equals(featureKey.getMethodName()))
+                    .findFirst();
+            if (featureOptional.isPresent())
+                return featureOptional.get();
+            else
+                return null;
+        } else
+            return null;
+    }
+
+    private boolean isFeaturePresentInBothLists(FeatureKey featureKey, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
         boolean isPresentInList1 = false;
         boolean isPresentInList2 = false;
         for (Map<Integer, Feature> map1 : featureMapList1) {
-            if (map1.containsKey(entry.getKey())) {
+            if (null != matchFeatureWithKey(map1, featureKey)) {
                 isPresentInList1 = true;
                 break;
             }
         }
         for (Map<Integer, Feature> map2 : featureMapList2) {
-            if (map2.containsKey(entry.getKey())) {
+            if (null != matchFeatureWithKey(map2, featureKey)) {
                 isPresentInList2 = true;
                 break;
             }
@@ -310,7 +330,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             return false;
     }
 
-    private double getMaxFeatureDistance(Map.Entry<Integer, Feature> entry, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
+    private double getMaxFeatureDistance(FeatureKey featureKey, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
 
         double distance =0;// default distance
         double maxDistance =1;// maximum distance
@@ -319,12 +339,12 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         if(featureMapList2.isEmpty())
             return 1; // return max distance
         for (Map<Integer, Feature> map1 : featureMapList1) {
-            Feature feature1 = map1.get(entry.getKey());
+            Feature feature1 = matchFeatureWithKey(map1, featureKey);
             if(feature1 == null)
                 continue;
             flag = true;
             for (Map<Integer, Feature> map2 : featureMapList2) {
-                Feature feature2 = map2.get(entry.getKey());
+                Feature feature2 = matchFeatureWithKey(map2, featureKey);
                 if(feature2 == null)
                     continue;
                 flag2 = true;
@@ -346,7 +366,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         if (!flag) {
             // this means the feature we are looking for in the featureMapList1 is not present in featureMapList1
             for (Map<Integer, Feature> map2 : featureMapList2) {
-                Feature feature2 = map2.get(entry.getKey());
+                Feature feature2 = matchFeatureWithKey(map2, featureKey);
                 if (feature2 != null){
                     // this means in featureMapList2 there exists a feature which we were looking for, and since its not there in featureMapList1 we set the distance to max
                     return 1;

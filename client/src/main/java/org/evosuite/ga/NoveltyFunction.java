@@ -11,7 +11,7 @@ import java.util.List;
 public abstract class NoveltyFunction<T extends Chromosome> {
 
 
-    public abstract void calculateNovelty(Collection<T> population, Collection<T> noveltyArchive);
+    public abstract void calculateNovelty(Collection<T> population, Collection<T> noveltyArchive, List<String> uncoveredMethodList);
 
     public abstract void sortPopulation(List<T> population);
 

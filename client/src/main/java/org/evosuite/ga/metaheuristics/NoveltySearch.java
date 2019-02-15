@@ -3,6 +3,7 @@ package org.evosuite.ga.metaheuristics;
 import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
@@ -65,10 +66,10 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
      * Use Novelty Function to do the calculation
      *
      */
-    public void calculateNoveltyAndSortPopulation(){
+    public void calculateNoveltyAndSortPopulation(List<String> uncoveredMethodList){
         logger.debug("Calculating novelty for " + this.population.size() + " individuals");
 
-        noveltyFunction.calculateNovelty(this.population, noveltyArchive);
+        noveltyFunction.calculateNovelty(this.population, noveltyArchive, uncoveredMethodList);
         //noveltyFunction.sortPopulation(this.population);
     }
 
@@ -149,6 +150,9 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         return result;
     }
 
+    /*private List<String> getUncoveredMethodNames(){
+            getUncoveredGoals().stream().map((entry) -> entry.)
+    }*/
 
     @Override
     public void initializePopulation() {
@@ -159,7 +163,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         generateInitialPopulation(Properties.POPULATION);
 
         // Determine novelty
-        calculateNoveltyAndSortPopulation();
+        calculateNoveltyAndSortPopulation(getUncoveredMethodNames());
 
         // Determine fitness
         this.calculateFitness();
@@ -394,9 +398,16 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
                 .forEach(ff -> uncoveredGoals.add((FitnessFunction<T>) ff));
         return uncoveredGoals;
     }
-    /*private List<String> getUncoveredMethodNames(){
-        getUncoveredGoals().stream().map((entry) -> entry.)
-    }*/
+
+    private List<String> getUncoveredMethodNames(){
+        Set<String> uncoveredMethodNames = new HashSet<>();
+        Set<FitnessFunction<T>> uncoveredGoals = getUncoveredGoals();
+        Iterator i = uncoveredGoals.iterator();
+        while (i.hasNext()){
+            uncoveredMethodNames.add(((BranchCoverageTestFitness)i.next()).getBranchGoal().getMethodName());
+        }
+        return new ArrayList<>(uncoveredMethodNames);
+    }
 
     @Override
     public void generateSolution() {
@@ -421,7 +432,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             evolve();
 
             // TODO: Sort by novelty
-            calculateNoveltyAndSortPopulation();
+            calculateNoveltyAndSortPopulation(getUncoveredMethodNames());
 
             // Calculate dominance ranks and crowding distance
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());

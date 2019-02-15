@@ -23,18 +23,19 @@ public class DataUtils {
         if(x<z) {
             System.out.println("");
         }
-        *//*System.out.println(this.count);*//*
+        System.out.println(this.count);
     }*/
 
-    public void listOperation2() {
-        /*int y = this.count;
-        this.count = 4;*/
-        /*this.count = 4;
-        foo.j = 4;*/
+    public void listOperation2(int num) {
+        int y = this.count;
+        this.count = 4;
+        this.count = 4;
+        foo.j = 4;
+
         Foo foo1 = new Foo();
         foo1.j = 4;
-        /*if(y == 2)
-            System.out.println("");*/
+        if(num*5 == 2)
+            System.out.println("");
     }
 
 }
