@@ -51,8 +51,11 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 		case VDDU:
 			return spectrum.getVrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+			//Changed VMDDU flag to return VDDU * branch_coverage
+		//case VMDDU:
+			//return spectrum.getVMrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VMDDU:
-			return spectrum.getVMrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+			return spectrum.getVrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity() * spectrum.basicCoverage();
 		case VCDDU:
 			return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU1:
