@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StatisticsBackend;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageFactory;
+import org.evosuite.coverage.epa.EPAMiningCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.ga.archive.Archive;
@@ -97,6 +99,8 @@ public class SystemTestBase {
 		System.setProperties(currentProperties);
 		Properties.getInstance().resetToDefaults();
 		ExceptionCoverageFactory.getGoals().clear();
+		EPAMiningCoverageFactory.getGoals().clear();
+		EPAAdjacentEdgesCoverageFactory.getGoals().clear();
 		Archive.getArchiveInstance().reset();
 	}
 

@@ -753,6 +753,16 @@ public class Properties {
 	public static int SYNTHESIS_THRESHOLD = 10;
 
 	//----------------------------------------------------------------
+	// EPA Coverage
+	
+	@Parameter(key = "epa_xml_path", group = "EPA", description = "Indicates the path to the EPA XML File")
+	public static String EPA_XML_PATH = null;
+
+	@Parameter(key = "inferred_epa_xml_path", group = "EPA", description = "This option can be enabled only and only if the EPAMINING criterion is enabled")
+	public static String INFERRED_EPA_XML_PATH = null;
+
+	
+	//----------------------------------------------------------------
 	// Continuous Test Generation
 
 	@Parameter(key = "ctg_memory", group = "Continuous Test Generation", description = "Total Memory (in MB) that CTG will use")
@@ -900,6 +910,9 @@ public class Properties {
 
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite (if any was created)")
 	public static boolean JUNIT_CHECK = true;
+
+	@Parameter(key = "junit_allow_restricted_libraries", group = "Output", description = "Allow restricted libraries (rt.jar) when compiling JUnit test suite")
+	public static boolean JUNIT_ALLOW_RESTRICTED_LIBRARIES = false;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
@@ -1412,13 +1425,13 @@ public class Properties {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
-        REGRESSION,	REGRESSIONTESTS, TRYCATCH
+        REGRESSION,	REGRESSIONTESTS, TRYCATCH, EPATRANSITION, EPAERROR, EPAEXCEPTION, EPAMINING, EPAADJACENTEDGES
 	}
 
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
     public static Criterion[] CRITERION = new Criterion[] {
             //these are basic criteria that should be always on by default
-            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
+            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH };
 
 
     /** Cache target class */

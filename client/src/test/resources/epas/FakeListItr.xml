@@ -1,0 +1,148 @@
+<?xml version="1.0" ?>
+<abstraction initial_state="Sinit" input_format="contract" name="com.examples.with.different.packagename.epa.ListItr">
+  <label name="add()"/>
+  <label name="hasNext()"/>
+  <label name="hasPrevious()"/>
+  <label name="next()"/>
+  <label name="nextIndex()"/>
+  <label name="previous()"/>
+  <label name="previousIndex()"/>
+  <label name="remove()"/>
+  <label name="set()"/>
+  <label name="ListItr()"/>
+  <state name="Sinit">
+    <enabled_label name="ListItr()"/>
+    <transition destination="S127" label="ListItr()"/>
+    <transition destination="S95" label="ListItr()"/>
+    <transition destination="S119" label="ListItr()"/>
+    <transition destination="S87" label="ListItr()"/>
+  </state>
+  <state name="S127">
+    <enabled_label name="add()"/>
+    <enabled_label name="hasNext()"/>
+    <enabled_label name="hasPrevious()"/>
+    <enabled_label name="next()"/>
+    <enabled_label name="nextIndex()"/>
+    <enabled_label name="previous()"/>
+    <enabled_label name="previousIndex()"/>
+    <transition destination="S127" label="add()"/>
+    <transition destination="S127" label="hasNext()"/>
+    <transition destination="S127" label="hasPrevious()"/>
+    <transition destination="S511" label="next()"/>
+    <transition destination="S503" label="next()"/>
+    <transition destination="S127" label="nextIndex()"/>
+    <transition destination="S511" label="previous()"/>
+    <transition destination="S479" label="previous()"/>
+    <transition destination="S127" label="previousIndex()"/>
+  </state>
+  <state name="S95">
+    <enabled_label name="add()"/>
+    <enabled_label name="hasNext()"/>
+    <enabled_label name="hasPrevious()"/>
+    <enabled_label name="next()"/>
+    <enabled_label name="nextIndex()"/>
+    <enabled_label name="previousIndex()"/>
+    <transition destination="S127" label="add()"/>
+    <transition destination="S95" label="hasNext()"/>
+    <transition destination="S95" label="hasPrevious()"/>
+    <transition destination="S511" label="next()"/>
+    <transition destination="S503" label="next()"/>
+    <transition destination="S95" label="nextIndex()"/>
+    <transition destination="S95" label="previousIndex()"/>
+  </state>
+  <state name="S119">
+    <enabled_label name="add()"/>
+    <enabled_label name="hasNext()"/>
+    <enabled_label name="hasPrevious()"/>
+    <enabled_label name="nextIndex()"/>
+    <enabled_label name="previous()"/>
+    <enabled_label name="previousIndex()"/>
+    <transition destination="S119" label="add()"/>
+    <transition destination="S119" label="hasNext()"/>
+    <transition destination="S119" label="hasPrevious()"/>
+    <transition destination="S119" label="nextIndex()"/>
+    <transition destination="S511" label="previous()"/>
+    <transition destination="S479" label="previous()"/>
+    <transition destination="S119" label="previousIndex()"/>
+  </state>
+  <state name="S87">
+    <!-- <enabled_label name="add()"/> -->
+    <enabled_label name="hasNext()"/>
+    <enabled_label name="hasPrevious()"/>
+    <enabled_label name="nextIndex()"/>
+    <enabled_label name="previousIndex()"/>
+    <!-- <transition destination="S119" label="add()"/> -->
+    <transition destination="S87" label="hasNext()"/>
+    <transition destination="S87" label="hasPrevious()"/>
+    <transition destination="S87" label="nextIndex()"/>
+    <transition destination="S87" label="previousIndex()"/>
+  </state>
+  <state name="S511">
+    <enabled_label name="add()"/>
+    <enabled_label name="hasNext()"/>
+    <enabled_label name="hasPrevious()"/>
+    <enabled_label name="next()"/>
+    <enabled_label name="nextIndex()"/>
+    <enabled_label name="previous()"/>
+    <enabled_label name="previousIndex()"/>
+    <enabled_label name="remove()"/>
+    <enabled_label name="set()"/>
+    <transition destination="S127" label="add()"/>
+    <transition destination="S511" label="hasNext()"/>
+    <transition destination="S511" label="hasPrevious()"/>
+    <transition destination="S511" label="next()"/>
+    <transition destination="S503" label="next()"/>
+    <transition destination="S511" label="nextIndex()"/>
+    <transition destination="S511" label="previous()"/>
+    <transition destination="S479" label="previous()"/>
+    <transition destination="S511" label="previousIndex()"/>
+    <transition destination="S127" label="remove()"/>
+    <transition destination="S95" label="remove()"/>
+    <transition destination="S119" label="remove()"/>
+    <transition destination="S511" label="set()"/>
+  </state>
+  <state name="S503">
+    <enabled_label name="add()"/>
+    <enabled_label name="hasNext()"/>
+    <enabled_label name="hasPrevious()"/>
+    <enabled_label name="nextIndex()"/>
+    <enabled_label name="previous()"/>
+    <enabled_label name="previousIndex()"/>
+    <enabled_label name="remove()"/>
+    <enabled_label name="set()"/>
+    <transition destination="S119" label="add()"/>
+    <transition destination="S503" label="hasNext()"/>
+    <transition destination="S503" label="hasPrevious()"/>
+    <transition destination="S503" label="nextIndex()"/>
+    <transition destination="S511" label="previous()"/>
+    <transition destination="S479" label="previous()"/>
+    <transition destination="S503" label="previousIndex()"/>
+    <transition destination="S127" label="remove()"/>
+    <transition destination="S95" label="remove()"/>
+    <transition destination="S119" label="remove()"/>
+    <transition destination="S87" label="remove()"/>
+    <transition destination="S503" label="set()"/>
+  </state>
+  <state name="S479">
+    <enabled_label name="add()"/>
+    <enabled_label name="hasNext()"/>
+    <enabled_label name="hasPrevious()"/>
+    <enabled_label name="next()"/>
+    <enabled_label name="nextIndex()"/>
+    <enabled_label name="previousIndex()"/>
+    <enabled_label name="remove()"/>
+    <enabled_label name="set()"/>
+    <transition destination="S127" label="add()"/>
+    <transition destination="S479" label="hasNext()"/>
+    <transition destination="S479" label="hasPrevious()"/>
+    <transition destination="S511" label="next()"/>
+    <transition destination="S503" label="next()"/>
+    <transition destination="S479" label="nextIndex()"/>
+    <transition destination="S479" label="previousIndex()"/>
+    <transition destination="S127" label="remove()"/>
+    <transition destination="S95" label="remove()"/>
+    <transition destination="S119" label="remove()"/>
+    <transition destination="S87" label="remove()"/>
+    <transition destination="S479" label="set()"/>
+  </state>
+</abstraction>

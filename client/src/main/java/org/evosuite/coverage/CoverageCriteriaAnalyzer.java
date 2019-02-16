@@ -176,6 +176,16 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.IBranchCoverage;
             case REGRESSION:
                 return RuntimeVariable.BranchCoverage;
+            case EPATRANSITION:
+            	return RuntimeVariable.EpaTransitionCoverage;
+            case EPAADJACENTEDGES:
+            	return RuntimeVariable.EpaAdjacentEdgesCoverage;
+            case EPAERROR:
+                return RuntimeVariable.EpaErrorCoverage;
+            case EPAEXCEPTION:
+            	return RuntimeVariable.EpaExceptionCoverage;
+            case EPAMINING:
+            	return RuntimeVariable.EpaMiningCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
             default:
@@ -244,8 +254,9 @@ public class CoverageCriteriaAnalyzer {
             } else {
                 logger.debug("Goal {} is not covered", goal);
                 buffer.append("0");
-                if (Properties.PRINT_MISSED_GOALS)
+                if (Properties.PRINT_MISSED_GOALS) {
                     LoggingUtils.getEvoLogger().info(" - Missed goal {}", goal.toString());
+                }
             }
         }
 
@@ -341,6 +352,16 @@ public class CoverageCriteriaAnalyzer {
             case REGRESSIONTESTS:
             case TRYCATCH:
                 return null;
+            case EPATRANSITION:
+            	return RuntimeVariable.EpaTransitionCoverage;
+            case EPAADJACENTEDGES:
+            	return RuntimeVariable.EpaAdjacentEdgesCoverage;
+            case EPAERROR:
+                return RuntimeVariable.EpaErrorCoverage;
+            case EPAEXCEPTION:
+            	return RuntimeVariable.EpaExceptionCoverage;
+            case EPAMINING:
+            	return RuntimeVariable.EpaMiningCoverage;
             default:
                 logger.debug("Criterion not supported: " + criterion);
                 return null;

@@ -34,6 +34,8 @@ import org.evosuite.classpath.ResourceList;
 import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageFactory;
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageSuiteFitness;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -81,9 +83,7 @@ public class CoverageAnalysis {
 	/**
 	 * FIXME
 	 * 
-	 * OUTPUT
-	 * METHOD
-	 * METHODNOEXCEPTION
+	 * OUTPUT METHOD METHODNOEXCEPTION
 	 * 
 	 * relies on Observers. to have coverage of these criteria, JUnit test cases
 	 * must have to be converted to some format that EvoSuite can understand
@@ -96,26 +96,23 @@ public class CoverageAnalysis {
 	private static Set<String> targetClasses = new LinkedHashSet<String>();
 
 	/**
-	 * Identify all JUnit tests starting with the given name prefix, instrument
-	 * and run tests
+	 * Identify all JUnit tests starting with the given name prefix, instrument and
+	 * run tests
 	 */
 	public static void analyzeCoverage() {
 		Sandbox.goingToExecuteSUTCode();
-        TestGenerationContext.getInstance().goingToExecuteSUTCode();
+		TestGenerationContext.getInstance().goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		ExecutionTracer.setCheckCallerThread(false);
 		try {
 			String cp = ClassPathHandler.getInstance().getTargetProjectClasspath();
 
-			if (Properties.TARGET_CLASS.endsWith(".jar")
-					|| Properties.TARGET_CLASS.contains(File.separator)) {
+			if (Properties.TARGET_CLASS.endsWith(".jar") || Properties.TARGET_CLASS.contains(File.separator)) {
 				targetClasses = DependencyAnalysis.analyzeTarget(Properties.TARGET_CLASS,
-                        Arrays.asList(cp.split(File.pathSeparator)));
-			}
-			else {
+						Arrays.asList(cp.split(File.pathSeparator)));
+			} else {
 				targetClasses.add(Properties.TARGET_CLASS);
-				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS,
-                        Arrays.asList(cp.split(File.pathSeparator)));
+				DependencyAnalysis.analyzeClass(Properties.TARGET_CLASS, Arrays.asList(cp.split(File.pathSeparator)));
 			}
 
 			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Finished analyzing classpath");
@@ -128,7 +125,7 @@ public class CoverageAnalysis {
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
-            TestGenerationContext.getInstance().doneWithExecutingSUTCode();
+			TestGenerationContext.getInstance().doneWithExecutingSUTCode();
 		}
 		// TestCluster.getInstance();
 
@@ -139,9 +136,8 @@ public class CoverageAnalysis {
 			return;
 
 		/*
-         * sort them in a deterministic way, in case there are 
-         * static state dependencies
-         */
+		 * sort them in a deterministic way, in case there are static state dependencies
+		 */
 		sortTestClasses(testClasses);
 
 		Class<?>[] tests = testClasses.toArray(new Class<?>[testClasses.size()]);
@@ -150,8 +146,9 @@ public class CoverageAnalysis {
 			boolean origUseAgent = EvoRunner.useAgent;
 			boolean origUseClassLoader = EvoRunner.useClassLoader;
 			try {
-				EvoRunner.useAgent = false; //avoid double instrumentation
-				EvoRunner.useClassLoader = false; //avoid double instrumentation
+				EvoRunner.useAgent = false; // avoid double instrumentation
+				EvoRunner.useClassLoader = false; // avoid double
+													// instrumentation
 
 				List<JUnitResult> results = executeTests(tests);
 				printReport(results);
@@ -170,6 +167,7 @@ public class CoverageAnalysis {
                         + "Coverage analysis for criterion " + pc);
 
 				TestFitnessFactory ffactory = FitnessFunctions.getFitnessFactory(pc);
+
 				goals += ffactory.getCoverageGoals().size();
 
 				FitnessFunction ffunction = FitnessFunctions.getFitnessFunction(pc);
@@ -184,7 +182,8 @@ public class CoverageAnalysis {
 			StatisticsSender.executedAndThenSendIndividualToMaster(testSuite);
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals);
 			if (Properties.COVERAGE_MATRIX)
-				throw new IllegalArgumentException("Coverage matrix not yet available when measuring coverage of a carved test suite");
+				throw new IllegalArgumentException(
+						"Coverage matrix not yet available when measuring coverage of a carved test suite");
 		}
 	}
 
@@ -197,26 +196,26 @@ public class CoverageAnalysis {
 	 */
 	public static Set<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
 
-	    // A dummy Chromosome
-	    TestChromosome dummy = new TestChromosome();
-        dummy.setChanged(false);
+		// A dummy Chromosome
+		TestChromosome dummy = new TestChromosome();
+		dummy.setChanged(false);
 
-        // Execution result of a dummy Test Case
-        ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+		// Execution result of a dummy Test Case
+		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 
 		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 		List<JUnitResult> results = executeTests(testClass);
 		for (JUnitResult testResult : results) {
-		    executionResult.setTrace(testResult.getExecutionTrace());
-            dummy.setLastExecutionResult(executionResult);
+			executionResult.setTrace(testResult.getExecutionTrace());
+			dummy.setLastExecutionResult(executionResult);
 
-            for(TestFitnessFunction goal : allGoals) {
-            	if(coveredGoals.contains(goal))
-            		continue;
-            	else if (goal.isCovered(dummy))
-                    coveredGoals.add(goal);
-            }
+			for (TestFitnessFunction goal : allGoals) {
+				if (coveredGoals.contains(goal))
+					continue;
+				else if (goal.isCovered(dummy))
+					coveredGoals.add(goal);
+			}
 		}
 
 		return coveredGoals;
@@ -234,20 +233,20 @@ public class CoverageAnalysis {
 			if (!suts.isEmpty()) {
 				for (String sut : suts) {
 					if (targetClasses.contains(sut)) {
-						continue ;
+						continue;
 					}
 
 					try {
-						Class<?> clazz = Class.forName(
-								sut,true,TestGenerationContext.getInstance().getClassLoaderForSUT());
-						
+						Class<?> clazz = Class.forName(sut, true,
+								TestGenerationContext.getInstance().getClassLoaderForSUT());
+
 						if (isTest(clazz)) {
 							classes.add(clazz);
 						}
 					} catch (ClassNotFoundException e2) {
-						logger.info("Could not find class "+sut);
-					} catch(Throwable t) {
-						logger.info("Error while initialising class "+sut);
+						logger.info("Could not find class " + sut);
+					} catch (Throwable t) {
+						logger.info("Error while initialising class " + sut);
 					}
 				}
 
@@ -275,8 +274,7 @@ public class CoverageAnalysis {
 			} else {
 
 				try {
-					Class<?> clazz = Class.forName(prefix,
-							true,
+					Class<?> clazz = Class.forName(prefix, true,
 							TestGenerationContext.getInstance().getClassLoaderForSUT());
 					testClasses.add(clazz);
 				} catch (ClassNotFoundException e) {
@@ -301,7 +299,7 @@ public class CoverageAnalysis {
 
 		List<Class<?>> testClasses = new ArrayList<Class<?>>();
 
-		if (directory.getName().endsWith(".class")) {			
+		if (directory.getName().endsWith(".class")) {
 			LoggingUtils.muteCurrentOutAndErrStream();
 
 			try {
@@ -323,10 +321,10 @@ public class CoverageAnalysis {
 
 				// Use default classLoader
 				Class<?> clazz = Class.forName(className.replace('/', '.'), true,
-				                               TestGenerationContext.getInstance().getClassLoaderForSUT());
+						TestGenerationContext.getInstance().getClassLoaderForSUT());
 				LoggingUtils.restorePreviousOutAndErrStream();
 
-				//clazz = Class.forName(clazz.getName());
+				// clazz = Class.forName(clazz.getName());
 				if (isTest(clazz))
 					testClasses.add(clazz);
 
@@ -334,37 +332,29 @@ public class CoverageAnalysis {
 				LoggingUtils.restorePreviousOutAndErrStream();
 
 				System.out.println("  Cannot access class "
-				        + directory.getName().substring(0,
-				                                        directory.getName().length() - 6)
-				        + ": " + e);
+						+ directory.getName().substring(0, directory.getName().length() - 6) + ": " + e);
 			} catch (NoClassDefFoundError e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 
-				System.out.println("  Error while loading "
-				        + directory.getName().substring(0,
-				                                        directory.getName().length() - 6)
-				        + ": Cannot find " + e.getMessage());
-				//e.printStackTrace();
+				System.out.println(
+						"  Error while loading " + directory.getName().substring(0, directory.getName().length() - 6)
+								+ ": Cannot find " + e.getMessage());
+				// e.printStackTrace();
 			} catch (ExceptionInInitializerError e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 
 				System.out.println("  Exception in initializer of "
-				        + directory.getName().substring(0,
-				                                        directory.getName().length() - 6));
+						+ directory.getName().substring(0, directory.getName().length() - 6));
 			} catch (ClassNotFoundException e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 
 				System.out.println("  Class not found in classpath: "
-				        + directory.getName().substring(0,
-				                                        directory.getName().length() - 6)
-				        + ": " + e);
+						+ directory.getName().substring(0, directory.getName().length() - 6) + ": " + e);
 			} catch (Throwable e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 
 				System.out.println("  Unexpected error: "
-				        + directory.getName().substring(0,
-				                                        directory.getName().length() - 6)
-				        + ": " + e);
+						+ directory.getName().substring(0, directory.getName().length() - 6) + ": " + e);
 			}
 		} else if (directory.isDirectory()) {
 			for (File file : directory.listFiles()) {
@@ -403,27 +393,25 @@ public class CoverageAnalysis {
 			final String fileName = ze.getName();
 			if (!fileName.endsWith(".class"))
 				continue;
-			/*if (fileName.contains("$"))
-                continue;*/
+			/*
+			 * if (fileName.contains("$")) continue;
+			 */
 
 			PrintStream old_out = System.out;
 			PrintStream old_err = System.err;
-			//System.setOut(outStream);
-			//System.setErr(outStream);
+			// System.setOut(outStream);
+			// System.setErr(outStream);
 
 			try {
-				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
-				                                                                      "."),
-				                               true,
-				                               TestGenerationContext.getInstance().getClassLoaderForSUT());
+				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/", "."), true,
+						TestGenerationContext.getInstance().getClassLoaderForSUT());
 
 				if (isTest(clazz))
 					testClasses.add(clazz);
 			} catch (IllegalAccessError ex) {
 				System.setOut(old_out);
 				System.setErr(old_err);
-				System.out.println("Cannot access class "
-				        + file.getName().substring(0, file.getName().length() - 6));
+				System.out.println("Cannot access class " + file.getName().substring(0, file.getName().length() - 6));
 			} catch (NoClassDefFoundError ex) {
 				System.setOut(old_out);
 				System.setErr(old_err);
@@ -431,21 +419,19 @@ public class CoverageAnalysis {
 			} catch (ExceptionInInitializerError ex) {
 				System.setOut(old_out);
 				System.setErr(old_err);
-				System.out.println("Exception in initializer of "
-				        + file.getName().substring(0, file.getName().length() - 6));
+				System.out.println(
+						"Exception in initializer of " + file.getName().substring(0, file.getName().length() - 6));
 			} catch (ClassNotFoundException ex) {
 				System.setOut(old_out);
 				System.setErr(old_err);
-				System.out.println("Cannot find class "
-				        + file.getName().substring(0, file.getName().length() - 6) + ": "
-				        + ex);
+				System.out.println(
+						"Cannot find class " + file.getName().substring(0, file.getName().length() - 6) + ": " + ex);
 			} catch (Throwable t) {
 				System.setOut(old_out);
 				System.setErr(old_err);
 
-				System.out.println("  Unexpected error: "
-				        + file.getName().substring(0, file.getName().length() - 6) + ": "
-				        + t);
+				System.out.println(
+						"  Unexpected error: " + file.getName().substring(0, file.getName().length() - 6) + ": " + t);
 			} finally {
 				System.setOut(old_out);
 				System.setErr(old_err);
@@ -470,13 +456,11 @@ public class CoverageAnalysis {
 		// Goals
 		List<?> goals = null;
 
-		if (criterion == Criterion.MUTATION
-				|| criterion == Criterion.STRONGMUTATION) {
+		if (criterion == Criterion.MUTATION || criterion == Criterion.STRONGMUTATION) {
 			goals = MutationPool.getMutants();
 		} else {
 			goals = factory.getCoverageGoals();
 		}
-		totalGoals += goals.size();
 
 		// A dummy Chromosome
         TestChromosome dummy = new TestChromosome();
@@ -484,6 +468,22 @@ public class CoverageAnalysis {
 
         // Execution result of a dummy Test Case
         ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+
+			// I need to populate the covered goals for EPAADJACENTEDGES because they are generated on demand
+			if(criterion == Criterion.EPAADJACENTEDGES) {
+				for (int index_test = 0; index_test < results.size(); index_test++) {
+					JUnitResult tR = results.get(index_test);
+
+					ExecutionTrace trace = tR.getExecutionTrace();
+					executionResult.setTrace(trace);
+					EPAAdjacentEdgesCoverageSuiteFitness.constructGoals(executionResult, null);
+				}
+
+				goals = factory.getCoverageGoals();
+				totalGoals += EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
+			} else {
+				totalGoals += goals.size();
+			}
 
         // coverage matrix (each row represents the coverage of each test case
         // and each column represents the coverage of each component (e.g., line)
@@ -552,27 +552,46 @@ public class CoverageAnalysis {
         }
         logger.info("* CoverageBitString " + str.toString());
 
+        long goalsSize = goals.size();
+        if(criterion == Criterion.EPAADJACENTEDGES) {
+        	goalsSize = EPAAdjacentEdgesCoverageFactory.UPPER_BOUND_OF_GOALS;
+        }
+
         RuntimeVariable bitStringVariable = CoverageCriteriaAnalyzer.getBitStringVariable(criterion);
         if (goals.isEmpty()) {
-			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Coverage of criterion "
-                    + criterion + ": 100% (no goals)");
-			ClientServices.getInstance().getClientNode().trackOutputVariable(CoverageCriteriaAnalyzer.getCoverageVariable(criterion), 1.0);
+			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Coverage of criterion ");
+			ClientServices.getInstance().getClientNode()
+					.trackOutputVariable(CoverageCriteriaAnalyzer.getCoverageVariable(criterion), 1.0);
 			if (bitStringVariable != null) {
 				ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, "1");
 			}
-		} 
-        else {
-        	double coverage = ((double) covered.cardinality()) / ((double) goals.size());
-        	LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Coverage of criterion " + criterion
-                    + ": " + NumberFormat.getPercentInstance().format(coverage));
-			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Number of covered goals: "
-                    + covered.cardinality() + " / " + goals.size());
+		} else {
+			double coverage = ((double) covered.cardinality()) / ((double) goalsSize);
+			LoggingUtils.getEvoLogger().info(
+					"* " + ClientProcess.getPrettyPrintIdentifier() + "Coverage of criterion " + criterion + ": " + NumberFormat.getPercentInstance().format(coverage));
+			LoggingUtils.getEvoLogger()
+					.info("* Number of covered goals: " + covered.cardinality() + " / " + goalsSize);
 
-			ClientServices.getInstance().getClientNode().trackOutputVariable(CoverageCriteriaAnalyzer.getCoverageVariable(criterion), coverage);
+			SortedSet<String> missed_goals = new TreeSet<String>();
+			for (int index_component = 0; index_component < goals.size(); index_component++) {
+				if (!covered.get(index_component)) {
+					Object missed_goal = goals.get(index_component);
+					missed_goals.add(missed_goal.toString());
+				}
+			}
+
+			if (Properties.PRINT_MISSED_GOALS) {
+				for (String missed_goal_str : missed_goals) {
+					LoggingUtils.getEvoLogger().info(" - Missed goal {}", missed_goal_str);
+				}
+			}
+
+			ClientServices.getInstance().getClientNode()
+					.trackOutputVariable(CoverageCriteriaAnalyzer.getCoverageVariable(criterion), coverage);
 			if (bitStringVariable != null) {
 				ClientServices.getInstance().getClientNode().trackOutputVariable(bitStringVariable, str.toString());
 			}
-        }
+		}
 	}
 
 	private static void printReport(List<JUnitResult> results) {
@@ -602,10 +621,13 @@ public class CoverageAnalysis {
 			// restore
 			Properties.CRITERION = criterion;
 
+
 			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Total number of covered goals: "
                     + totalCoveredGoals + " / " + "" + totalGoals);
+
 			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, totalGoals);
-			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals, totalCoveredGoals);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Covered_Goals,
+					totalCoveredGoals);
 
 			double coverage = totalGoals == 0 ? 1.0 : ((double) totalCoveredGoals) / ((double) totalGoals);
 			LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Total coverage: "
@@ -633,14 +655,14 @@ public class CoverageAnalysis {
 		ExecutionTracer.getExecutionTracer().clear();
 
 		List<JUnitResult> results = new ArrayList<JUnitResult>();
-        for (Class<?> testClass : testClasses) {
-        	LoggingUtils.getEvoLogger().info("  Executing " + testClass.getSimpleName());
-        	// Set the context classloader in case the SUT requests it
-    		Thread.currentThread().setContextClassLoader(testClass.getClassLoader());
-            JUnitRunner jR = new JUnitRunner(testClass);
-            jR.run();
-            results.addAll(jR.getTestResults());
-        }
+		for (Class<?> testClass : testClasses) {
+			LoggingUtils.getEvoLogger().info("  Executing " + testClass.getSimpleName());
+			// Set the context classloader in case the SUT requests it
+			Thread.currentThread().setContextClassLoader(testClass.getClassLoader());
+			JUnitRunner jR = new JUnitRunner(testClass);
+			jR.run();
+			results.addAll(jR.getTestResults());
+		}
 
 		ExecutionTracer.disable();
 
@@ -648,7 +670,7 @@ public class CoverageAnalysis {
                 + "test(s)");
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Tests_Executed, results.size());
 
-        return results;
+		return results;
 	}
 
 	/**
@@ -668,9 +690,10 @@ public class CoverageAnalysis {
 			tc = new TestClass(cls);
 		} catch (IllegalArgumentException e) {
 			return false;
-		} catch (RuntimeException e){
-			//this can happen if class has Annotations that are not available on classpath
-			throw new RuntimeException("Failed to analyze class "+cls.getName()+ " due to: " + e.toString());
+		} catch (RuntimeException e) {
+			// this can happen if class has Annotations that are not available
+			// on classpath
+			throw new RuntimeException("Failed to analyze class " + cls.getName() + " due to: " + e.toString());
 		}
 
 		// JUnit 4
@@ -690,12 +713,11 @@ public class CoverageAnalysis {
 		}
 
 		// JUnit 3
-		Class<?> superClass = cls; 
+		Class<?> superClass = cls;
 		while ((superClass = superClass.getSuperclass()) != null) {
 			if (superClass.getCanonicalName().equals(Object.class.getCanonicalName())) {
-				break ;
-			}
-			else if (superClass.getCanonicalName().equals(TestCase.class.getCanonicalName())) {
+				break;
+			} else if (superClass.getCanonicalName().equals(TestCase.class.getCanonicalName())) {
 				return true;
 			}
 		}
@@ -706,18 +728,18 @@ public class CoverageAnalysis {
 	}
 
 	/**
-     * re-order test classes
-     * 
-     * @param tests
-     */
-    private static void sortTestClasses(List<Class<?>> tests) {
-        Collections.sort(tests, new Comparator<Class<?>>() {
-            @Override
-            public int compare(Class<?> t0, Class<?> t1) {
-                return Integer.compare(t1.getName().length(), t0.getName().length());
-            }
-        });
-    }
+	 * re-order test classes
+	 * 
+	 * @param tests
+	 */
+	private static void sortTestClasses(List<Class<?>> tests) {
+		Collections.sort(tests, new Comparator<Class<?>>() {
+			@Override
+			public int compare(Class<?> t0, Class<?> t1) {
+				return Integer.compare(t1.getName().length(), t0.getName().length());
+			}
+		});
+	}
 
 	/**
 	 * <p>
@@ -726,19 +748,19 @@ public class CoverageAnalysis {
 	 */
 	public void run() {
 
-		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
-		                                         + Properties.PROCESS_COMMUNICATION_PORT);
+		LoggingUtils.getEvoLogger()
+				.info("* Connecting to master process on port " + Properties.PROCESS_COMMUNICATION_PORT);
 
 		ExternalProcessUtilities util = new ExternalProcessUtilities();
 		if (!util.connectToMainProcess()) {
-			throw new RuntimeException("Could not connect to master process on port "
-			        + Properties.PROCESS_COMMUNICATION_PORT);
+			throw new RuntimeException(
+					"Could not connect to master process on port " + Properties.PROCESS_COMMUNICATION_PORT);
 		}
 
 		analyzeCoverage();
 		/*
-		 * for now, we ignore the instruction (originally was meant to support several client in parallel and
-		 * restarts, but that will be done in RMI)
+		 * for now, we ignore the instruction (originally was meant to support several
+		 * client in parallel and restarts, but that will be done in RMI)
 		 */
 
 		util.informSearchIsFinished(null);

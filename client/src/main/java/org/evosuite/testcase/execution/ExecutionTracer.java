@@ -30,7 +30,6 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class collects information about chosen branches/paths at runtime
  * 
@@ -54,7 +53,6 @@ public class ExecutionTracer {
 	private int num_statements = 0;
 
 	private ExecutionTrace trace;
-
 
 	private static boolean checkCallerThread = true;
 
@@ -138,21 +136,21 @@ public class ExecutionTracer {
 	 * enable context instrumentation
 	 * </p>
 	 */
-	public static void enableContext(){
+	public static void enableContext() {
 		logger.info("enable context and trace instrumentation");
 		ExecutionTraceImpl.enableContext();
 	}
-	
+
 	/**
 	 * <p>
 	 * disable context instrumentation
 	 * </p>
 	 */
-	public static void disableContext(){
+	public static void disableContext() {
 		logger.info("disable context and trace instrumentation");
 		ExecutionTraceImpl.disableContext();
 	}
-	
+
 	/**
 	 * <p>
 	 * disableTraceCalls
@@ -213,7 +211,7 @@ public class ExecutionTracer {
 			logger.error("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
 			for (Thread t : map.keySet()) {
-				String msg = "Thread: " + t+"\n";
+				String msg = "Thread: " + t + "\n";
 				for (StackTraceElement e : map.get(t)) {
 					msg += " -> " + e + "\n";
 				}
@@ -239,6 +237,15 @@ public class ExecutionTracer {
 	}
 
 	/**
+	 * Returns the current trace of execution but without finishing the all
+	 * method calls.
+	 * @return
+	 */
+	public ExecutionTrace getTraceNoFinishCalls() {
+		return trace;
+	}
+
+	/**
 	 * Return the last explicitly thrown exception
 	 * 
 	 * @return a {@link java.lang.Throwable} object.
@@ -260,7 +267,7 @@ public class ExecutionTracer {
 	 *             if any.
 	 */
 	public static void enteredMethod(String classname, String methodname, Object caller)
-	        throws TestCaseExecutor.TimeoutExceeded {
+			throws TestCaseExecutor.TimeoutExceeded {
 		ExecutionTracer tracer = getExecutionTracer();
 
 		if (tracer.disabled)
@@ -271,7 +278,7 @@ public class ExecutionTracer {
 
 		checkTimeout();
 
-		//logger.trace("Entering method " + classname + "." + methodname);
+		// logger.trace("Entering method " + classname + "." + methodname);
 		tracer.trace.enteredMethod(classname, methodname, caller);
 	}
 
@@ -293,7 +300,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		//logger.trace("Return value: " + value);
+		// logger.trace("Return value: " + value);
 		tracer.trace.returnValue(className, methodName, value);
 	}
 
@@ -338,8 +345,7 @@ public class ExecutionTracer {
 		while ((position = tmp.indexOf("@", index)) > 0) {
 			for (index = position + 1; index < position + 17 && index < tmp.length(); index++) {
 				c = tmp.charAt(index);
-				if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')
-				        || (c >= 'A' && c <= 'F')) {
+				if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
 					found = true;
 				} else {
 					break;
@@ -382,15 +388,16 @@ public class ExecutionTracer {
 			return;
 
 		if (tracer.killSwitch) {
-			// logger.info("Raising TimeoutException as kill switch is active - passedLine");
-			if(!isInStaticInit())
+			// logger.info("Raising TimeoutException as kill switch is active -
+			// passedLine");
+			if (!isInStaticInit())
 				throw new TestCaseExecutor.TimeoutExceeded();
 		}
 	}
-	
+
 	private static boolean isInStaticInit() {
-		for(StackTraceElement elem : Thread.currentThread().getStackTrace()) {
-			if(elem.getMethodName().equals("<clinit>"))
+		for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+			if (elem.getMethodName().equals("<clinit>"))
 				return true;
 		}
 		return false;
@@ -458,7 +465,8 @@ public class ExecutionTracer {
 	public static void passedBranch(int val, int opcode, int branch, int bytecode_id) {
 
 		ExecutionTracer tracer = getExecutionTracer();
-		// logger.info("passedBranch val="+val+", opcode="+opcode+", branch="+branch+", bytecode_id="+bytecode_id);
+		// logger.info("passedBranch val="+val+", opcode="+opcode+",
+		// branch="+branch+", bytecode_id="+bytecode_id);
 		if (tracer.disabled)
 			return;
 
@@ -469,7 +477,9 @@ public class ExecutionTracer {
 
 		ConstantPoolManager.getInstance().addDynamicConstant(val);
 
-		// logger.trace("Called passedBranch1 with opcode "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch "+branch);
+		// logger.trace("Called passedBranch1 with opcode
+		// "+AbstractVisitor.OPCODES[opcode]+" and val "+val+" in branch
+		// "+branch);
 		double distance_true = 0.0;
 		double distance_false = 0.0;
 		switch (opcode) {
@@ -527,7 +537,7 @@ public class ExecutionTracer {
 			return;
 
 		checkTimeout();
-		
+
 		tracer.trace.putStaticPassed(classNameWithDots, fieldName);
 	}
 
@@ -572,7 +582,6 @@ public class ExecutionTracer {
 		tracer.trace.getStaticPassed(classNameWithDots, fieldName);
 	}
 
-
 	/**
 	 * Called by the instrumented code each time a new branch is taken
 	 * 
@@ -587,8 +596,7 @@ public class ExecutionTracer {
 	 * @param bytecode_id
 	 *            a int.
 	 */
-	public static void passedBranch(int val1, int val2, int opcode, int branch,
-	        int bytecode_id) {
+	public static void passedBranch(int val1, int val2, int opcode, int branch, int bytecode_id) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;
@@ -597,13 +605,15 @@ public class ExecutionTracer {
 			return;
 
 		checkTimeout();
-		
+
 		ConstantPoolManager.getInstance().addDynamicConstant(val1);
 		ConstantPoolManager.getInstance().addDynamicConstant(val2);
 
-		/* logger.trace("Called passedBranch2 with opcode "
-		        + AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
-		        + " in branch " + branch); */
+		/*
+		 * logger.trace("Called passedBranch2 with opcode " +
+		 * AbstractVisitor.OPCODES[opcode] + ", val1=" + val1 + ", val2=" + val2
+		 * + " in branch " + branch);
+		 */
 		double distance_true = 0;
 		double distance_false = 0;
 		switch (opcode) {
@@ -668,8 +678,7 @@ public class ExecutionTracer {
 	 * @param bytecode_id
 	 *            a int.
 	 */
-	public static void passedBranch(Object val1, Object val2, int opcode, int branch,
-	        int bytecode_id) {
+	public static void passedBranch(Object val1, Object val2, int opcode, int branch, int bytecode_id) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;
@@ -680,7 +689,8 @@ public class ExecutionTracer {
 		checkTimeout();
 
 		// logger.trace("Called passedBranch3 with opcode "
-		//        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
+		// + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+",
+		// val2="+val2+" in branch "+branch);
 		double distance_true = 0;
 		double distance_false = 0;
 		// logger.warn("Disabling tracer: passedBranch with 2 Objects");
@@ -831,9 +841,8 @@ public class ExecutionTracer {
 			Use passedUse = DefUsePool.getUseByDefUseId(defuseId);
 			passedUse(callee, caller, passedUse.getUseId());
 		} else
-			throw new EvosuiteError(
-			        "instrumentation called passedFieldMethodCall with invalid defuseId: "
-			                + defuseId + ", known IDs: " + DefUsePool.getDefUseCounter());
+			throw new EvosuiteError("instrumentation called passedFieldMethodCall with invalid defuseId: " + defuseId
+					+ ", known IDs: " + DefUsePool.getDefUseCounter());
 	}
 
 	/**
@@ -871,8 +880,7 @@ public class ExecutionTracer {
 	 * @param methodName
 	 *            a {@link java.lang.String} object.
 	 */
-	public static void exceptionThrown(Object exception, String className,
-	        String methodName) {
+	public static void exceptionThrown(Object exception, String className, String methodName) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;

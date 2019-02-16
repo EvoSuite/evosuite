@@ -33,7 +33,7 @@ import java.util.*;
 public class ExecutionResult implements Cloneable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
-	
+
 	/** Test case that produced this execution result */
 	public TestCase test;
 
@@ -43,11 +43,12 @@ public class ExecutionResult implements Cloneable {
 	/** Map statement number to raised exception */
 	protected Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
-	/** Record for each exception if it was explicitly thrown 
+	/**
+	 * Record for each exception if it was explicitly thrown
 	 * 
 	 * <p>
 	 * FIXME: internal data structures should never be null...
-	 * */
+	 */
 	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
 
 	/** Trace recorded during execution */
@@ -64,17 +65,17 @@ public class ExecutionResult implements Cloneable {
 
 	/** Set of System properties that were read during test execution */
 	protected Set<String> readProperties;
-	
+
 	/**
 	 * Keep track of whether any System property was written
 	 */
 	protected boolean wasAnyPropertyWritten;
-	
+
 	/*
 	 * Regression Object Distance
 	 */
 	public double regressionObjectDistance = 0;
-	
+
 	/**
 	 * @return the executedStatements
 	 */
@@ -87,18 +88,23 @@ public class ExecutionResult implements Cloneable {
 	 *            the executedStatements to set
 	 */
 	public void setExecutedStatements(int executedStatements) {
+		if (executedStatements > this.test.size()) {
+			throw new IllegalArgumentException(
+					"Number of executed statements cannot be greater than the total number of statements in test case!");
+		}
 		this.executedStatements = executedStatements;
 	}
 
 	/** Output traces produced by observers */
 	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
-    private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
+	private Map<Integer, Set<InputCoverageGoal>> inputGoals = new LinkedHashMap<>();
 
-    private Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
+	private Map<Integer, Set<OutputCoverageGoal>> outputGoals = new LinkedHashMap<>();
 
-	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
-	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
+	// experiment .. tried to remember intermediately calculated
+	// ControlFlowDistances .. no real speed up
+	// public Map<Branch, ControlFlowDistance> intermediateDistances;
 
 	/**
 	 * Default constructor when executing without mutation
@@ -128,7 +134,6 @@ public class ExecutionResult implements Cloneable {
 		}
 	}
 
-	
 	/**
 	 * <p>
 	 * getFirstPositionOfThrownException
@@ -277,10 +282,11 @@ public class ExecutionResult implements Cloneable {
 	 * Set execution trace to different value
 	 * 
 	 * @param trace
-	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace} object.
+	 *            a {@link org.evosuite.testcase.execution.ExecutionTrace}
+	 *            object.
 	 */
-	public void setTrace(ExecutionTrace trace) throws IllegalArgumentException{
-		if(trace==null){
+	public void setTrace(ExecutionTrace trace) throws IllegalArgumentException {
+		if (trace == null) {
 			throw new IllegalArgumentException("Trace cannot be null");
 		}
 		this.trace = trace;
@@ -366,10 +372,11 @@ public class ExecutionResult implements Cloneable {
 		for (Integer i : exceptions.keySet()) {
 			Throwable t = exceptions.get(i);
 			// Exceptions can be placed at test.size(), e.g. for timeouts
-			assert i>=0 && i<=test.size() : "Exception "+t+" at position "+i+" in test of length "+test.size()+": "+test.toCode(exceptions);
-			if(i >= test.size())
+			assert i >= 0 && i <= test.size() : "Exception " + t + " at position " + i + " in test of length "
+					+ test.size() + ": " + test.toCode(exceptions);
+			if (i >= test.size())
 				continue;
-			
+
 			if (!test.getStatement(i).getDeclaredExceptions().contains(t.getClass()))
 				return true;
 		}
@@ -381,18 +388,22 @@ public class ExecutionResult implements Cloneable {
 	 * Returns true if any of the executed statements was a reflection statement
 	 *
 	 * @return
-     */
+	 */
 	public boolean calledReflection() {
+		// I found that it is not always the case that the 
+		// number of executed statements is less or equal to the total
+		// number of statements when calling this method.
+		// Due to this, I added this code to use the minimum 
+		// to iterate the statement list
 		int executedStatements = getExecutedStatements();
-		for(int numStatement = 0; numStatement < executedStatements; numStatement++) {
+		int numberOfStatements = test.size();
+		for (int numStatement = 0; numStatement < Math.min(numberOfStatements, executedStatements); numStatement++) {
 			Statement s = test.getStatement(numStatement);
-			if(s.isReflectionStatement())
+			if (s.isReflectionStatement())
 				return true;
 		}
 		return false;
 	}
-
-
 
 	/**
 	 * check if the test case threw any security exception
@@ -404,7 +415,7 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	public void setSecurityException(boolean value) {
-		logger.debug("Changing hasSecurityException from "+hasSecurityException +" to "+value);
+		logger.debug("Changing hasSecurityException from " + hasSecurityException + " to " + value);
 		hasSecurityException = value;
 	}
 
@@ -437,12 +448,11 @@ public class ExecutionResult implements Cloneable {
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
-		if(readProperties!=null){
+		if (readProperties != null) {
 			copy.readProperties = new LinkedHashSet<String>();
 			copy.readProperties.addAll(readProperties);
 		}
 		copy.wasAnyPropertyWritten = wasAnyPropertyWritten;
-
 		return copy;
 	}
 
@@ -480,11 +490,11 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	public void setOutputGoals(Map<Integer, Set<OutputCoverageGoal>> coveredGoals) {
-        outputGoals.putAll(coveredGoals);
+		outputGoals.putAll(coveredGoals);
 	}
 
 	public Map<Integer, Set<InputCoverageGoal>> getInputGoals() {
-        return inputGoals;
+		return inputGoals;
 	}
 
 	public Map<Integer, Set<OutputCoverageGoal>> getOutputGoals() {

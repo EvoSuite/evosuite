@@ -37,6 +37,18 @@ import org.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageFactory;
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPAErrorCoverageFactory;
+import org.evosuite.coverage.epa.EPAErrorCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPAExceptionCoverageFactory;
+import org.evosuite.coverage.epa.EPAExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPAFactory;
+import org.evosuite.coverage.epa.EPAMiningCoverageFactory;
+import org.evosuite.coverage.epa.EPAMiningCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPATransitionCoverageFactory;
+import org.evosuite.coverage.epa.EPATransitionCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
@@ -83,9 +95,14 @@ import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.EvosuiteError;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 
 import java.util.Arrays;
 
@@ -155,6 +172,17 @@ public class FitnessFunctions {
 			return new OutputCoverageSuiteFitness();
 		case INPUT:
 			return new InputCoverageSuiteFitness();
+		case EPATRANSITION:
+			return new EPATransitionCoverageSuiteFitness(Properties.EPA_XML_PATH);
+		case EPAERROR:
+			return new EPAErrorCoverageSuiteFitness(Properties.EPA_XML_PATH);
+		case EPAEXCEPTION:
+			return new EPAExceptionCoverageSuiteFitness(Properties.EPA_XML_PATH);
+		case EPAMINING:
+			return new EPAMiningCoverageSuiteFitness();
+		case EPAADJACENTEDGES:
+			return new EPAAdjacentEdgesCoverageSuiteFitness(Properties.EPA_XML_PATH);
+			
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
 		default:
@@ -216,6 +244,16 @@ public class FitnessFunctions {
 			return new OutputCoverageFactory();
 		case INPUT:
 			return new InputCoverageFactory();
+		case EPATRANSITION:
+			return new EPATransitionCoverageFactory(Properties.TARGET_CLASS, EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
+		case EPAERROR:
+			return new EPAErrorCoverageFactory(Properties.TARGET_CLASS, EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
+		case EPAEXCEPTION:
+			return new EPAExceptionCoverageFactory(Properties.TARGET_CLASS, EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
+		case EPAMINING:
+			return new EPAMiningCoverageFactory();
+		case EPAADJACENTEDGES:
+			return new EPAAdjacentEdgesCoverageFactory(EPAFactory.buildEPAOrError(Properties.EPA_XML_PATH));
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
 		default:

@@ -21,16 +21,13 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -84,7 +81,12 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.RHO)
-				|| ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY))
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPATRANSITION)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAADJACENTEDGES))
 			ExecutionTracer.enableTraceCalls();
 
 		// TODO: why it was only if "analyzing"???
@@ -104,7 +106,10 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		 * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
 		 */
 		TestSuiteChromosome testSuite = null;
-		if (!(Properties.STOP_ZERO && goals.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)) {
+		if (!(Properties.STOP_ZERO && goals.isEmpty()) 
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION) 
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAADJACENTEDGES)) {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
 			LoggingUtils.getEvoLogger().info("* Starting evolution");

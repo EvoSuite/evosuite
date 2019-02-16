@@ -25,6 +25,10 @@ import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.coverage.epa.EPAAdjacentEdgesCoverageTestFitness;
+import org.evosuite.coverage.epa.EPAExceptionCoverageTestFitness;
+import org.evosuite.coverage.epa.EPAMiningCoverageTestFitness;
+import org.evosuite.coverage.epa.EPATransitionCoverageTestFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.exception.TryCatchCoverageTestFitness;
 import org.evosuite.coverage.ibranch.IBranchTestFitness;
@@ -172,6 +176,31 @@ public final class ArchiveUtils {
           break;
         case TRYCATCH:
           if (goal instanceof TryCatchCoverageTestFitness) {
+            return true;
+          }
+          break;
+        case EPATRANSITION:
+          if (goal instanceof EPATransitionCoverageTestFitness) {
+            return true;
+          }
+          break;
+        case EPAEXCEPTION:
+          if (goal instanceof EPAExceptionCoverageTestFitness) {
+            return true;
+          }
+          break;
+        case EPAMINING:
+          if (goal instanceof EPAMiningCoverageTestFitness) {
+            return true;
+          }
+          break;
+        case EPAADJACENTEDGES:
+          if (goal instanceof EPAAdjacentEdgesCoverageTestFitness) {
+            return true;
+          }
+          break;
+        case EPAERROR:
+          if (goal instanceof EPATransitionCoverageTestFitness) {
             return true;
           }
           break;

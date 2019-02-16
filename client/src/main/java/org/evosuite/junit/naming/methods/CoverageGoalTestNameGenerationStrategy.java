@@ -19,16 +19,20 @@
  */
 package org.evosuite.junit.naming.methods;
 
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputCoverageTestFitness;
 import org.evosuite.coverage.io.input.InputObserver;
-import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.io.output.OutputObserver;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -40,15 +44,12 @@ import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Modifier;
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * @author Gordon Fraser
  * @author Ermira Daka
  */
 public class CoverageGoalTestNameGenerationStrategy implements TestNameGenerationStrategy {
+
 
     private Map<TestCase, String> testToName = new LinkedHashMap<>();
 
@@ -933,4 +934,3 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         return testToName.get(test);
     }
 }
-

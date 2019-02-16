@@ -30,6 +30,11 @@ import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.epa.EPA;
+import org.evosuite.coverage.epa.EPAFactory;
+import org.evosuite.coverage.epa.EPATrace;
+import org.evosuite.coverage.epa.EPAXMLPrinter;
+import org.evosuite.coverage.epa.MalformedEPATraceException;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
@@ -69,15 +74,20 @@ import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.*;
 import org.evosuite.utils.ArrayUtil;
+import org.evosuite.utils.FileIOUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.*;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Main entry point. Does all the static analysis, invokes a test generation
@@ -128,6 +138,7 @@ public class TestSuiteGenerator {
 		ExceptionMapGenerator.initializeExceptionMap(Properties.TARGET_CLASS);
 
 		TestCaseExecutor.initExecutor();
+
 		try {
 			initializeTargetClass();
 		} catch (Throwable e) {
@@ -262,8 +273,8 @@ public class TestSuiteGenerator {
 		}
 		TestCaseExecutor.pullDown();
 		/*
-		 * TODO: when we will have several processes running in parallel, we ll
-		 * need to handle the gathering of the statistics.
+		 * TODO: when we will have several processes running in parallel, we ll need to
+		 * handle the gathering of the statistics.
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
 
@@ -379,7 +390,7 @@ public class TestSuiteGenerator {
 	/**
 	 * Apply any readability optimizations and other techniques that should use
 	 * or modify the generated tests
-	 * 
+	 *
 	 * @param testSuite
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
@@ -435,6 +446,7 @@ public class TestSuiteGenerator {
 			if (!TimeController.getInstance().hasTimeToExecuteATestCase()) {
 				LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Skipping minimization because not enough time is left");
+
 				ClientServices.track(RuntimeVariable.Result_Size, testSuite.size());
 				ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
 				ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
@@ -462,6 +474,7 @@ public class TestSuiteGenerator {
                         + "Skipping minimization because not enough time is left");
 			}
 
+
 			ClientServices.track(RuntimeVariable.Result_Size, testSuite.size());
 			ClientServices.track(RuntimeVariable.Minimized_Size, testSuite.size());
 			ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
@@ -488,6 +501,7 @@ public class TestSuiteGenerator {
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			// SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
 			// coverage);
+
 			CoverageCriteriaAnalyzer.analyzeCriteria(testSuite, Properties.ANALYSIS_CRITERIA);
 			// FIXME: can we send all bestSuites?
 		}
@@ -538,6 +552,7 @@ public class TestSuiteGenerator {
 				LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Skipping assertion generation because not enough time is left");
 			} else {
+
 				TestSuiteGeneratorHelper.addAssertions(testSuite);
 			}
 			StatisticsSender.sendIndividualToMaster(testSuite); // FIXME: can we
@@ -562,6 +577,32 @@ public class TestSuiteGenerator {
 
 		if(Properties.isRegression() && Properties.KEEP_REGRESSION_ARCHIVE){
 			RegressionSuiteSerializer.storeRegressionArchive();
+		}
+
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)) {
+
+			if (Properties.INFERRED_EPA_XML_PATH != null) {
+				Set<EPATrace> traces = new HashSet<EPATrace>();
+				for (TestChromosome test : testSuite.getTestChromosomes()) {
+					// delete all statements leading to security exceptions
+					ExecutionResult result = test.getLastExecutionResult();
+					if (result == null) {
+						result = TestCaseExecutor.runTest(test.getTestCase());
+					}
+					Set<EPATrace> resultTraces = result.getTrace().getEPATraces();
+					traces.addAll(resultTraces);
+				}
+				try {
+					EPA inferredAutomata = EPAFactory.buildEPA(traces);
+					EPAXMLPrinter xmlPrinter = new EPAXMLPrinter();
+					String xmlFilename = Properties.INFERRED_EPA_XML_PATH;
+					String epa_xml_str = xmlPrinter.toXML(inferredAutomata);
+					FileIOUtils.writeFile(epa_xml_str, xmlFilename);
+
+				} catch (MalformedEPATraceException e) {
+					throw new EvosuiteError(e);
+				}
+			}
 		}
 	}
 
@@ -662,6 +703,11 @@ public class TestSuiteGenerator {
 		return 0;
 	}
 
+	private int getBytecodeCount(RuntimeVariable v, Map<RuntimeVariable, Set<Integer>> m) {
+		Set<Integer> branchSet = m.get(v);
+		return (branchSet == null) ? 0 : branchSet.size();
+	}
+
 	private TestSuiteChromosome generateTests() {
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
@@ -687,22 +733,42 @@ public class TestSuiteGenerator {
 		writeObjectPool(testSuite);
 
 		/*
-		 * PUTGeneralizer generalizer = new PUTGeneralizer(); for (TestCase test
-		 * : tests) { generalizer.generalize(test); // ParameterizedTestCase put
-		 * = new ParameterizedTestCase(test); }
+		 * PUTGeneralizer generalizer = new PUTGeneralizer(); for (TestCase test :
+		 * tests) { generalizer.generalize(test); // ParameterizedTestCase put = new
+		 * ParameterizedTestCase(test); }
 		 */
 
 		return testSuite;
 	}
 
+	private TestGenerationStrategy getTestGenerationStrategy() {
+		switch (Properties.STRATEGY) {
+		case EVOSUITE:
+			return new WholeTestSuiteStrategy();
+		case RANDOM:
+			return new RandomTestStrategy();
+		case RANDOM_FIXED:
+			return new FixedNumRandomTestStrategy();
+		case ONEBRANCH:
+			return new IndividualTestStrategy();
+		case REGRESSION:
+			return new RegressionSuiteStrategy();
+		case ENTBUG:
+			return new EntBugTestStrategy();
+		case MOSUITE:
+			return new MOSuiteStrategy();
+		default:
+			throw new RuntimeException("Unsupported strategy: " + Properties.STRATEGY);
+		}
+	}
+
 	/**
 	 * <p>
-	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases
-	 * to the default directory Properties.TEST_DIR.
+	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases to
+	 * the default directory Properties.TEST_DIR.
 	 * 
 	 * <p>
-	 * The name of the test will be equal to the SUT followed by the given
-	 * suffix
+	 * The name of the test will be equal to the SUT followed by the given suffix
 	 * 
 	 * @param testSuite
 	 *            a test suite.

@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.coverage.epa.EPATrace;
+import org.evosuite.coverage.epa.EPATransition;
+import org.evosuite.coverage.epa.MalformedEPATraceException;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
@@ -733,6 +736,16 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	@Override
 	public List<String> getInitializedClasses() {
 		return trace.getInitializedClasses();
+	}
+
+	@Override
+	public void appendNewEpaTransition(Object object, EPATransition transition) {
+		trace.appendNewEpaTransition(object, transition);
+	}
+
+	@Override
+	public Set<EPATrace> getEPATraces() {
+		return trace.getEPATraces();
 	}
 
 }

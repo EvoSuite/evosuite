@@ -1,5 +1,8 @@
 /**
+<<<<<<< HEAD
+=======
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+>>>>>>> upstream/master
  * contributors
  *
  * This file is part of EvoSuite.
@@ -24,11 +27,13 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -40,6 +45,8 @@ import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
+import org.evosuite.coverage.epa.EPATrace;
+import org.evosuite.coverage.epa.EPATransition;
 import org.evosuite.setup.CallContext;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
@@ -812,7 +819,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 						stack.pop();
 					}
 				} else {
-					finishedCalls.add(stack.pop());
+					try {
+						MethodCall activeCall = stack.pop();
+						finishedCalls.add(activeCall);
+					} catch (NoSuchElementException ex) {
+						throw ex;
+					}
 				}
 			//}
 		}
@@ -1782,6 +1794,31 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Set<String> getClassesWithStaticWrites() {
 		return classesWithStaticWrites;
+	}
+
+	/**
+	 * The observed epaTransitions for each distinct object of the target class so
+	 * far (at the test case level). We use identityHashCode to identify those
+	 * epaTransitions.
+	 */
+	private final IdentityHashMap<Object, LinkedList<EPATransition>> epaTransitions = new IdentityHashMap<>();
+
+	@Override
+	public void appendNewEpaTransition(Object object, EPATransition transition) {
+		if (!this.epaTransitions.containsKey(object)) {
+			this.epaTransitions.put(object, new LinkedList<>());
+		}
+		this.epaTransitions.get(object).add(transition);		
+	}
+
+	@Override
+	public Set<EPATrace> getEPATraces() {
+		final HashSet<EPATrace> traces = new HashSet<EPATrace>();
+		for (LinkedList<EPATransition> epaTransitionList : this.epaTransitions.values()) {
+			EPATrace trace = new EPATrace(new LinkedList<>(epaTransitionList));
+			traces.add(trace);
+		}
+		return traces;
 	}
 
 	/**

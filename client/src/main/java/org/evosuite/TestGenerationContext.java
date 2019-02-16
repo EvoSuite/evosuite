@@ -22,6 +22,7 @@
  */
 package org.evosuite;
 
+import org.evosuite.Properties.Criterion;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
+import org.evosuite.coverage.epa.EPAMonitor;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.archive.Archive;
@@ -248,6 +250,14 @@ public class TestGenerationContext {
 		Injector.reset();
 
 		DSEStats.clear();
+
+		if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EPATRANSITION)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAERROR)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAEXCEPTION)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAMINING)
+				|| ArrayUtil.contains(Properties.CRITERION, Criterion.EPAADJACENTEDGES)) {
+			EPAMonitor.reset();
+		}
 
 		// keep the list of initialized classes (clear them when needed in
 		// the system test cases)
