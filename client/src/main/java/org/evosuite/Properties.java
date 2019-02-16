@@ -330,6 +330,15 @@ public class Properties {
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
+	public enum MapElitesChoice {
+	  ALL,
+	  SINGLE,
+	  SINGLE_AVG
+	}
+	
+	@Parameter(key = "map_elites_choice", group = "Runtime", description = "Selection of chromosome branches to mutate")
+    public static MapElitesChoice MAP_ELITES_CHOICE = MapElitesChoice.SINGLE_AVG;
+	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
 

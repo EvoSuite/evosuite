@@ -74,11 +74,11 @@ public final class FeatureVector implements Serializable {
     
     @Override
     public int hashCode() {
-      return getGroup();
+      return getGroup()*name.hashCode();
     }
 
     public boolean equals(Entry other) {
-      return getGroup() == other.getGroup() && name == other.name;
+      return getGroup() == other.getGroup() && name.equals(other.name);
     }
     
     @Override
@@ -99,21 +99,11 @@ public final class FeatureVector implements Serializable {
   
   @Override
   public int hashCode() {
-    return Arrays.deepHashCode(this.features);
+    return Arrays.hashCode(this.features);
   }
   
   public boolean equals(FeatureVector other) {
-    if(other.features.length != this.features.length) {
-      return false;
-    }
-    
-    for(int i = 0; i < features.length; ++i) {
-      if(!this.features[i].equals(other.features[i])) {
-        return false;
-      }
-    }
-    
-    return true;
+    return Arrays.equals(this.features, other.features);
   }
   
   @Override

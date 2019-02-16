@@ -13,14 +13,17 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +55,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
-
     this.droppedFeatureVectors = new HashSet<>();
     TestResultObserver observer = new TestResultObserver();
     this.featureVectorPossibilityCount = observer.getPossibilityCount();
@@ -68,26 +70,78 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     });
   }
   
-  @Override
-  protected void evolve() {
+  /**
+   * Mutate one branch on average
+   * @return The chromosomes to be mutated
+   */
+  private List<T> getToMutateWithChance() {
     final double chance = 1.0 / populationMap.size();
-    
+
     // Required to prevent concurrent modification
     List<T> toMutate = new ArrayList<>(1);
-    
-    for (Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry : populationMap
-        .entrySet()) {
-     
+
+    for (Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry : populationMap.entrySet()) {
+
       if (Randomness.nextDouble() <= chance) {
         T chromosome = Randomness.choice(entry.getValue().values());
         toMutate.add(chromosome);
       }
     }
     
+    return toMutate;
+  }
+  
+  
+  /**
+   * Mutate every branch
+   * @return The chromosomes to be mutated
+   */
+  private List<T> getToMutateAll() {
+    List<T> toMutate = new ArrayList<>(populationMap.values().size());
+    
+    for(Map<FeatureVector, T> entry : populationMap.values()) {
+      T chromosome = Randomness.choice(entry.values());
+      toMutate.add(chromosome);
+    }
+    
+    return toMutate;
+  }
+  
+  /**
+   * Mutate exactly one branch and one chromosome
+   * @return The chromosomes to be mutated
+   */
+  private List<T> getToMutateRandom() {
+    List<T> toMutate = new ArrayList<>(1);
+    Map<FeatureVector, T> entry = Randomness.choice(populationMap.values());
+    T chromosome = Randomness.choice(entry.values());
+    toMutate.add(chromosome);
+    return toMutate;
+  }
+  
+  @Override
+  protected void evolve() {
+    List<T> toMutate;
+    
+    switch(Properties.MAP_ELITES_CHOICE) {
+      case ALL:
+        toMutate = this.getToMutateAll();
+        break;
+      case SINGLE:
+        toMutate = this.getToMutateRandom();
+        break;
+      default:
+      case SINGLE_AVG:
+        toMutate = this.getToMutateWithChance();
+        break;
+    }
+    
     for(T chromosome : toMutate) {
-      notifyMutation(chromosome);
-      chromosome.mutate();
-
+      T mutation = (T)chromosome.clone();
+      notifyMutation(mutation);
+      mutation.mutate();
+      this.population.add(mutation);
+      
       analyzeChromosome(chromosome);
     }
 
@@ -96,11 +150,10 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
   private double getDensity() {
     int n = this.featureVectorPossibilityCount;
-    Set<FeatureVector>  vectors = this.populationMap
-        .values()
-        .stream()
-        .flatMap(m -> m.keySet().stream())
-        .collect(Collectors.toSet());
+    
+    Set<FeatureVector>  vectors = new HashSet<>();
+    
+    this.populationMap.values().forEach(entry -> vectors.addAll(entry.keySet()));
         
     vectors.addAll(this.droppedFeatureVectors);
     
@@ -133,7 +186,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       }
       
       if(branchFitness.isCovered(chromosome)) {
-        // Remove from map. Covering chromosomes are stored in Archive.getArchiveInstance().
+        // Remove from map. Covering chromosomes are stored in Archive.getArchiveInstance() and this.population.
         it.remove();
         
         this.droppedFeatureVectors.addAll(featureMap.keySet());
@@ -174,8 +227,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       
       ClientServices.getInstance().getClientNode()
       .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
-      
-      // TODO Generate TestSuite and call BranchCoverageSuiteFitness
       
       this.notifyIteration();
     }

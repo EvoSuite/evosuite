@@ -2,12 +2,16 @@ package org.evosuite.strategy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.novelty.SuiteFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -16,6 +20,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.similarity.DiversityObserver;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
@@ -29,7 +34,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
   @Override
   public TestSuiteChromosome generateTests() {
     // Set up search algorithm
-    LoggingUtils.getEvoLogger().info("* Setting up search algorithm for MAP-Elites search");
+    LoggingUtils.getEvoLogger().info("* Setting up search algorithm for MAP-Elites search with choice {}", Properties.MAP_ELITES_CHOICE.name());
 
     PropertiesMapElitesSearchFactory algorithmFactory = new PropertiesMapElitesSearchFactory();
     MAPElites<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
@@ -39,6 +44,11 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
 
     long startTime = System.currentTimeMillis() / 1000;
 
+    // What's the search target
+    List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
+    SuiteFitnessEvaluationListener listener = new SuiteFitnessEvaluationListener(fitnessFunctions);
+    algorithm.addListener(listener);
+    
     if (Properties.TRACK_DIVERSITY)
       algorithm.addListener(new DiversityObserver());
 
@@ -66,7 +76,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
     algorithm.generateSolution();
-    TestSuiteChromosome testSuite = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
+    TestSuiteChromosome testSuite = listener.getSuiteWithFitness(algorithm);
     
     long endTime = System.currentTimeMillis() / 1000;
     

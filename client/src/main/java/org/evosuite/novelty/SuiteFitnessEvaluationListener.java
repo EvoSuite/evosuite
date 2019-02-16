@@ -12,26 +12,34 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class NoveltyFitnessEvaluationListener implements SearchListener {
+public class SuiteFitnessEvaluationListener implements SearchListener {
 
     private List<TestSuiteFitnessFunction> fitnessFunctions;
 
-    public NoveltyFitnessEvaluationListener(List<TestSuiteFitnessFunction> fitnessFunctions) {
+    public SuiteFitnessEvaluationListener(List<TestSuiteFitnessFunction> fitnessFunctions) {
         this.fitnessFunctions = new ArrayList<>(fitnessFunctions);
     }
 
-    public TestSuiteChromosome createMergedSolution(Collection<TestChromosome> population) {
+    private TestSuiteChromosome createMergedSolution(Collection<TestChromosome> population) {
         TestSuiteChromosome suite = new TestSuiteChromosome();
         suite.addTests(population);
         return suite;
     }
+    
+  public TestSuiteChromosome getSuiteWithFitness(GeneticAlgorithm<?> algorithm) {
+    List<TestChromosome> population =
+        ((GeneticAlgorithm<TestChromosome>) algorithm).getPopulation();
+    TestSuiteChromosome suite = createMergedSolution(population);
+    for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
+      fitnessFunction.getFitness(suite);
+    }
+
+    return suite;
+  }
+
     @Override
     public void iteration(GeneticAlgorithm<?> algorithm) {
-        List<TestChromosome> population = ((GeneticAlgorithm<TestChromosome>)algorithm).getPopulation();
-        TestSuiteChromosome suite = createMergedSolution(population);
-        for (FitnessFunction fitnessFunction : fitnessFunctions) {
-            fitnessFunction.getFitness(suite);
-        }
+        getSuiteWithFitness(algorithm);
 
         // Update fitness functions based on goals just added to archive
         algorithm.updateFitnessFunctionsAndValues();
