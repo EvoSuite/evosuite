@@ -69,7 +69,7 @@ public final class FeatureVector implements Serializable {
     
     @Override
     public String toString() {
-      return "Entry [name=" + name + ", value=" + value + "]";
+      return name + "=" + value;
     }
     
     @Override
@@ -113,7 +113,7 @@ public final class FeatureVector implements Serializable {
 
   @Override
   public String toString() {
-    return "FeatureVector [features=" + Arrays.toString(features) + "]";
+    return Arrays.toString(features);
   }
   
   private static int getPossibilityCountForType(Class<?> type) {

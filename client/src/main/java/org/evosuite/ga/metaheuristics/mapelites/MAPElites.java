@@ -161,7 +161,9 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     
     // TODO MOSA Sparcity + Add feature vector extraction there for timing
     
-    return z/(double)n;
+    double density = z/(double)n;
+    logger.debug("Density: {}, Vectors: {}", density, vectors);
+    return density;
   }
   
   private void analyzeChromosome(final T chromosome) {
