@@ -7,23 +7,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,6 +221,8 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     
     while (!isFinished()) {
       evolve();
+      
+      this.sortPopulation();
       
       ClientServices.getInstance().getClientNode()
       .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
