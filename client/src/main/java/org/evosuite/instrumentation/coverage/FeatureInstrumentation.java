@@ -5,6 +5,7 @@ import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -37,6 +38,21 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                 if (in.equals(vertex.getASMNode()) && (vertex.isFeature())) {
                     // keep track of data storing or updating operations
                     FeatureFactory.registerAsFeature(vertex);
+
+                    /*InsnList instrumentation = getInstrumentation(vertex, vertexSet,
+                            className,
+                            methodName,
+                            mn);
+                    if (instrumentation == null)
+                        throw new IllegalStateException("error instrumenting node "
+                                + vertex.toString());
+                    *//*if (vertex.isMethodCallOfField())
+                        mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
+                    else if (vertex.isArrayStoreInstruction())
+                        mn.instructions.insertBefore(vertex.getSourceOfArrayReference().getASMNode(), instrumentation);*//*
+
+                    mn.instructions.insert(vertex.getASMNode(), instrumentation);*/
+
                 }
                 // Add the instrumentation
                 /**
@@ -49,15 +65,14 @@ public class FeatureInstrumentation implements MethodInstrumentation {
                     InsnList instrumentation = getInstrumentation(vertex, vertexSet,
                             className,
                             methodName,
-                            mn);
+                            mn, graph);
                     if (instrumentation == null)
                         throw new IllegalStateException("error instrumenting node "
                                 + vertex.toString());
-                    if (vertex.isMethodCallOfField())
-                        mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
-                    else if (vertex.isArrayStoreInstruction())
-                        mn.instructions.insertBefore(vertex.getSourceOfArrayReference().getASMNode(), instrumentation);
-
+                    // that is all the instructions added are 'Use' and not 'Definition'
+                    /*if(vertex.getASMNode().getOpcode() == Opcodes.IRETURN){
+                        instrumentation.add(new InsnNode(vertex.getASMNode().getPrevious().getOpcode()));
+                    }*/
                     mn.instructions.insertBefore(vertex.getASMNode(), instrumentation);
                 }
 
@@ -71,7 +86,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
      * Creates the instrumentation needed to instrument all the data updating operations.
      */
     private InsnList getInstrumentation(BytecodeInstruction v, Set<BytecodeInstruction> bytecodeInstructionSet,
-                                        String className, String methodName, MethodNode mn) {
+                                        String className, String methodName, MethodNode mn, RawControlFlowGraph graph) {
         InsnList instrumentation = new InsnList();
 
         if (!v.isReturn()) {
@@ -87,6 +102,7 @@ public class FeatureInstrumentation implements MethodInstrumentation {
          */
         Map<Integer, Feature> featureMap = FeatureFactory.getFeatures();
         for (Map.Entry<Integer, Feature> entry : featureMap.entrySet()) {
+            boolean isVariableLoaded = false;
             BytecodeInstruction bytecodeInstruction = FeatureFactory.getInstructionById(entry.getKey());
 
             // for each method add to the Tracer the local variables of that method plus the class variables
@@ -96,19 +112,67 @@ public class FeatureInstrumentation implements MethodInstrumentation {
             if (bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTSTATIC) {
                 instrumentation.add(new FieldInsnNode(Opcodes.GETSTATIC, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
+                isVariableLoaded = true;
             } else if (bytecodeInstruction.getASMNode().getOpcode() == Opcodes.PUTFIELD) {
                 // add 'this' on to the stack first
                 instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0));
                 instrumentation.add(new FieldInsnNode(Opcodes.GETFIELD, ((FieldInsnNode) bytecodeInstruction.getASMNode()).owner,
                         ((FieldInsnNode) bytecodeInstruction.getASMNode()).name, ((FieldInsnNode) bytecodeInstruction.getASMNode()).desc));
-            } else
-                instrumentation.add(new VarInsnNode(getOpcodeForLoadingVariable(bytecodeInstruction), ((VarInsnNode) bytecodeInstruction.getASMNode()).var));
-
-            instrumentation.add(new LdcInsnNode(bytecodeInstruction.getVariableName()));// or we can also use the name from feature.getVariableName()
-            addExecutionTracerMethod(bytecodeInstruction, instrumentation);
+                isVariableLoaded = true;
+            } else {
+                // check if the variable can be loaded or not
+                if(canLoadVariable(bytecodeInstruction, v, graph)){
+                    instrumentation.add(new VarInsnNode(getOpcodeForLoadingVariable(bytecodeInstruction), ((VarInsnNode) bytecodeInstruction.getASMNode()).var));
+                    isVariableLoaded = true;
+                }
+            }
+            if(isVariableLoaded){
+                instrumentation.add(new LdcInsnNode(bytecodeInstruction.getVariableName()));// or we can also use the name from feature.getVariableName()
+                addExecutionTracerMethod(bytecodeInstruction, instrumentation);
+            }
         }
         // changes end
+
+
+
         return instrumentation;
+    }
+
+    /**
+     *
+     * This method checks if the variable can be loaded or not before the particular RETURN
+     * instruction.
+     * As a pat of the instrumentation we load all the local variables before every RETURN
+     * instruction. But sometimes due to local scope of variables some variables cannot be
+     * loaded on the Stack. This method takes care of such scenarios.
+     * @param var
+     * @param retNode
+     * @param graph
+     * @return
+     */
+    private boolean canLoadVariable(BytecodeInstruction var, BytecodeInstruction retNode, RawControlFlowGraph graph){
+
+        Set<ControlFlowEdge> edgeSet = graph.edgeSet();
+        Iterator<ControlFlowEdge> itr = edgeSet.iterator();
+        while (itr.hasNext()){
+            ControlFlowEdge cfg = itr.next();
+            BytecodeInstruction sourceInstruction = (BytecodeInstruction)cfg.getSource();
+            if(sourceInstruction.getASMNode().equals(var.getASMNode())){
+                // start traversing
+                BytecodeInstruction targetInstruction = (BytecodeInstruction)cfg.getTarget();
+                while (itr.hasNext()){
+                    ControlFlowEdge cfg1 = itr.next();
+                    BytecodeInstruction sourceInstruction1 = (BytecodeInstruction)cfg1.getSource();
+                    if(sourceInstruction1.getASMNode().equals(targetInstruction.getASMNode())){
+                        targetInstruction = (BytecodeInstruction)cfg1.getTarget();
+                        if(targetInstruction.isReturn() && targetInstruction.getASMNode().equals(retNode.getASMNode())){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private int getOpcodeForLoadingVariable(BytecodeInstruction v) {

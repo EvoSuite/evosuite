@@ -529,12 +529,12 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isFeature() {
 		// unsupported instructions
-		if(isFieldMethodCallDefinition() || isFieldArrayDefinition() || isLocalArrayDefinition())
+		if(isFieldMethodCallDefinition() || isFieldArrayDefinition() || isLocalArrayDefinition() || asmNode.getOpcode() == Opcodes.IINC)
 			return false;
 		if(isFieldMethodCallUse() || isArrayLoadInstruction())
 			return false;
 
-		return isDefinition() || isUse();
+		return isDefinition();
 	}
 
 	/**

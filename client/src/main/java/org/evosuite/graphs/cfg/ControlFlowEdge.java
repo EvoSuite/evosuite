@@ -98,6 +98,14 @@ public class ControlFlowEdge extends DefaultEdge {
 		
 		return cd.getBranch();
 	}
+
+	public Object getSource(){
+		return super.getSource();
+	}
+
+	public Object getTarget(){
+		return super.getTarget();
+	}
 	
 	/**
 	 * <p>isExceptionEdge</p>

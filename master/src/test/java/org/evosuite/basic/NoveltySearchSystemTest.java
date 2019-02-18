@@ -23,6 +23,7 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         Properties.TARGET_CLASS = targetClass;
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
         //Properties.STRATEGY = Properties.Strategy.MOSUITE;
+        //Properties.INSTRUMENT_ONLY_FIELD = false;
         Properties.STRATEGY = Properties.Strategy.NOVELTY;
         Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
         //Properties.TEST_ARCHIVE = false;
@@ -42,6 +43,65 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         //Assert.assertEquals(1,Archive.getArchiveInstance().getNumberOfCoveredTargets());
 
     }
+
+    @Test
+    public void testNoveltySearchUtf8() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = "com.google.common.base.Utf8";
+        Properties.TARGET_CLASS = targetClass;
+        //Properties.INSTRUMENT_ONLY_FIELD = true;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
+        //Properties.STRATEGY = Properties.Strategy.MOSUITE;
+        Properties.STRATEGY = Properties.Strategy.NOVELTY;
+        Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
+        //Properties.TEST_ARCHIVE = false;
+        //Properties.ALGORITHM = Properties.Algorithm.MOSA;
+        //Properties.MAX_FEATURE_DISTANCE = false;
+        Properties.ALGORITHM = Properties.Algorithm.NOVELTY;
+        String[] command = new String[]{"-generateSuite", "-projectCP", "C:\\Users\\Prathmesh\\Downloads\\subjects-icst15\\subjects\\guava-18.0",  "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        NoveltySearch<?> ga = (NoveltySearch)getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual2();
+        System.out.println("Generations : "+ga.getAge());
+        System.out.print(best.toString());
+        System.out.println("Feature values : "+ FeatureFactory.getFeatures());
+
+        //Assert.assertEquals(1,Archive.getArchiveInstance().getNumberOfCoveredTargets());
+
+    }
+
+    @Test
+    public void testNoveltySearchUtf82() {
+        EvoSuite evosuite = new EvoSuite();
+
+        String targetClass = "com.google.common.base.Utf8";
+        Properties.TARGET_CLASS = targetClass;
+        Properties.INSTRUMENT_ONLY_FIELD = true;
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
+        //Properties.STRATEGY = Properties.Strategy.MOSUITE;
+        Properties.STRATEGY = Properties.Strategy.NOVELTY;
+        Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
+        //Properties.TEST_ARCHIVE = false;
+        //Properties.ALGORITHM = Properties.Algorithm.MOSA;
+        //Properties.MAX_FEATURE_DISTANCE = false;
+        Properties.ALGORITHM = Properties.Algorithm.NOVELTY;
+        String[] command = new String[]{"-generateSuite", "-projectCP", "C:\\Users\\Prathmesh\\Downloads\\subjects-icst15\\subjects\\guava-18.0",  "-class", targetClass};
+
+        Object result = evosuite.parseCommandLine(command);
+
+        NoveltySearch<?> ga = (NoveltySearch)getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual2();
+        System.out.println("Generations : "+ga.getAge());
+        System.out.print(best.toString());
+        System.out.println("Feature values : "+ FeatureFactory.getFeatures());
+
+        //Assert.assertEquals(1,Archive.getArchiveInstance().getNumberOfCoveredTargets());
+
+    }
+
     @Test
     public void testMOSA() {
         EvoSuite evosuite = new EvoSuite();

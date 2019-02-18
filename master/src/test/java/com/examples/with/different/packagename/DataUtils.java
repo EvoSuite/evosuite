@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class DataUtils {
-    private int count=0;
-    private Foo foo = new Foo();
+   /* private int count=0;
+    private Foo foo = new Foo();*/
 
     /*public static void listOperation(Foo foo) {
         Foo foo1 = foo;
@@ -26,17 +26,61 @@ public class DataUtils {
         System.out.println(this.count);
     }*/
 
-    public void listOperation2(int num) {
-        int y = this.count;
+    /*public void listOperation2(int num, CharSequence sequence, char c, byte b, byte[] bArr) {
+        *//*int y = this.count;
         this.count = 4;
         this.count = 4;
         foo.j = 4;
 
+
         Foo foo1 = new Foo();
-        foo1.j = 4;
+        foo1.j = 4;*//*
+        byte[] bArr2 = bArr;
+        byte b1 = b;
+        char f = c;
+        CharSequence sequence1 = sequence;
         if(num*5 == 2)
             System.out.println("");
+    }*/
+    public boolean doSomething(int a){
+        int c;
+        int s = a;
+        if(a == 5){
+            c = 7;
+            return true;
+        }
+        return true;
+
     }
+
+    /*public static boolean isWellFormedSlowPath(byte[] bytes, int off, int end) {
+        *//*int index = off;*//*
+        Byte byte1 = bytes[4];
+         if(true) {
+                byte byte2;
+                if (byte1 < -16) {// that's it
+                    *//*if (index + 1 >= end) {
+                        return false;
+                    }*//*
+
+                    byte2 = bytes[5];
+                    *//*j = end;*//*
+                    *//*if (byte2 > -65 || byte1 == -32 && byte2 < -96 || byte1 == -19 && -96 <= byte2 || bytes[index++] > -65) {
+                        return false;
+                    }*//*
+                } *//*else {
+                    if (index + 2 >= end) {
+                        return false;
+                    }
+
+                    byte2 = bytes[index++];
+                    if (byte2 > -65 || (byte1 << 28) + (byte2 - -112) >> 30 != 0 || bytes[index++] > -65 || bytes[index++] > -65) {
+                        return false;
+                    }
+                }*//*
+            }
+            return true;
+    }*/
 
 }
 
