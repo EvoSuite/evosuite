@@ -177,9 +177,10 @@ public class StatisticsSender {
 		for (AbstractIndicator indicator : indicators) {
 			double value = 0;
 			for (TestChromosome tch : chromosomes) {
-//				we already have the value calculated! We do not need to compute it again! (stored in the Chromosome)
-//				value += indicator.getIndicatorValue(tch);
-				value += tch.getIndicatorValue(indicator.getIndicatorId());
+				if (tch.getIndicatorValues().containsKey(indicator.getIndicatorId()))
+					value += tch.getIndicatorValue(indicator.getIndicatorId());
+				else
+					value += indicator.getIndicatorValue(tch);
 			}
 
 			// Save the final scores into RuntimeVariable
