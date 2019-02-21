@@ -25,7 +25,7 @@ package org.evosuite.coverage;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.aes.AbstractAESCoverageSuiteFitness.Metric;
-import org.evosuite.coverage.aes.method.AESMethodCoverageSuiteFitness;
+import org.evosuite.coverage.aes.branch.AESBranchCoverageSuiteFitness;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
 import org.evosuite.TestGenerationContext;
@@ -316,10 +316,10 @@ public class CoverageCriteriaAnalyzer {
                     RuntimeVariable.AmbiguityScore, ag.getFitness(testSuite));
         }
 
-        AESMethodCoverageSuiteFitness ddu = new AESMethodCoverageSuiteFitness(Metric.AES);
+        AESBranchCoverageSuiteFitness ddu = new AESBranchCoverageSuiteFitness(Metric.AES);
         ClientServices.getInstance().getClientNode().trackOutputVariable(
             RuntimeVariable.DDUScore, Math.abs(0.5 - ddu.getFitness(testSuite)));
-        AESMethodCoverageSuiteFitness vddu = new AESMethodCoverageSuiteFitness(Metric.VDDU);
+        AESBranchCoverageSuiteFitness vddu = new AESBranchCoverageSuiteFitness(Metric.VDDU);
         ClientServices.getInstance().getClientNode().trackOutputVariable(
             RuntimeVariable.VDDUScore, Math.abs(0.5 - vddu.getFitness(testSuite)));
     }
