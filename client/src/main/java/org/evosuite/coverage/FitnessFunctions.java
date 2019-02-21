@@ -164,7 +164,7 @@ public class FitnessFunctions {
 			return new InputCoverageSuiteFitness();
 		//modification harsh start
 		case VDDU:
-			return new AESMethodCoverageSuiteFitness(Metric.VDDU);           // new case vddu
+			return new AESBranchCoverageSuiteFitness(Metric.VDDU);           // new case vddu
 
 		case VMDDU:
 			return new AESMethodCoverageSuiteFitness(Metric.VMDDU);           // new case vmddu
