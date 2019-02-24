@@ -796,60 +796,42 @@ public class ExecutionTracer {
             tracer.trace.featureVisitedInt(caller, object, varName);
     }
 
-    public static void featureVisitedFlo(float object, Object varName) {
+    public static void featureVisitedFlo(Object caller, float object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedFlo(object, varName);
+            tracer.trace.featureVisitedFlo(caller, object, varName);
     }
 
-    public static void featureVisitedLon(long object, Object varName) {
+    public static void featureVisitedLon(Object caller, long object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedLon(object, varName);
+            tracer.trace.featureVisitedLon(caller, object, varName);
     }
 
-    public static void featureVisitedDou(double object, Object varName) {
+    public static void featureVisitedDou(Object caller, double object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedDou(object, varName);
+            tracer.trace.featureVisitedDou(caller, object, varName);
     }
 
-    public static void featureVisitedObj(Object object, Object varName)  {
+    public static void featureVisitedObj(Object caller, Object object, Object varName)  {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedObj(object, varName);
+            tracer.trace.featureVisitedObj(caller, object, varName);
     }
 
-
-    public static void featureVisitedIntIncr(int value, Object caller, Object varName) {
-        if (isThreadNeqCurrentThread())
-            return;
-
-        ExecutionTracer tracer = getExecutionTracer();
-        if (!tracer.disabled)
-            tracer.trace.featureVisitedIntIncr(value, caller, varName);
-    }
-
-    public static void featureVisitedObjUpdate(Object object, Object caller, Object varName) {
-        if (isThreadNeqCurrentThread())
-            return;
-
-        ExecutionTracer tracer = getExecutionTracer();
-        if (!tracer.disabled)
-            tracer.trace.featureVisitedObjUpdate(object, caller, varName);
-    }
 
     public static void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
         if (isThreadNeqCurrentThread())

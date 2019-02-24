@@ -66,7 +66,7 @@ public class FeatureFactory implements Serializable {
         defCounter++;
         String var = varName;
         Feature feature = new Feature();
-        feature.setVariableName(var);
+        feature.setVariableName(methodName+'_'+var);
         feature.setMethodName(methodName);
         features.put(defCounter, feature);
 

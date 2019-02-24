@@ -127,33 +127,23 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	}
 
     @Override
-    public void featureVisitedLon(long object, Object varName) {
-        trace.featureVisitedLon(object, varName);
+    public void featureVisitedLon(Object caller, long object, Object varName) {
+        trace.featureVisitedLon(caller, object, varName);
     }
 
     @Override
-    public void featureVisitedFlo(float object, Object varName) {
-        trace.featureVisitedFlo(object, varName);
+    public void featureVisitedFlo(Object caller, float object, Object varName) {
+        trace.featureVisitedFlo(caller, object, varName);
     }
 
     @Override
-    public void featureVisitedDou(double object, Object varName) {
-        trace.featureVisitedDou(object, varName);
+    public void featureVisitedDou(Object caller, double object, Object varName) {
+        trace.featureVisitedDou(caller, object, varName);
     }
 
 	@Override
-	public void featureVisitedObj(Object object, Object varName)  {
-		trace.featureVisitedObj(object, varName);
-	}
-
-	@Override
-	public void featureVisitedIntIncr(int object, Object caller, Object varName) {
-		trace.featureVisitedIntIncr(object, caller, varName);
-	}
-
-	@Override
-	public void featureVisitedObjUpdate(Object object, Object caller, Object varName) {
-		trace.featureVisitedObjUpdate(object, caller, varName);
+	public void featureVisitedObj(Object caller, Object object, Object varName)  {
+		trace.featureVisitedObj(caller, object, varName);
 	}
 
 	/*

@@ -351,17 +351,13 @@ public interface ExecutionTrace {
 
 	public void featureVisitedInt(Object caller, int object, Object varName);
 
-    public void featureVisitedLon(long object, Object varName);
+    public void featureVisitedLon(Object caller, long object, Object varName);
 
-    public void featureVisitedFlo(float object, Object varName);
+    public void featureVisitedFlo(Object caller, float object, Object varName);
 
-    public void featureVisitedDou(double object, Object varName);
+    public void featureVisitedDou(Object caller, double object, Object varName);
 
-    public void featureVisitedObj(Object object, Object varName) ;
-
-	public void featureVisitedIntIncr(int object, Object caller, Object varName);
-
-    public void featureVisitedObjUpdate(Object object, Object caller, Object varName);
+    public void featureVisitedObj(Object caller, Object object, Object varName) ;
 
 
 	/**
