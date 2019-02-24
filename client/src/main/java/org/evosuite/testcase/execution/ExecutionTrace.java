@@ -349,7 +349,7 @@ public interface ExecutionTrace {
 	 */
 	public void definitionPassed(Object object, Object caller, int defID);
 
-	public void featureVisitedInt(int object, Object varName);
+	public void featureVisitedInt(Object caller, int object, Object varName);
 
     public void featureVisitedLon(long object, Object varName);
 
@@ -641,6 +641,8 @@ public interface ExecutionTrace {
 	public Map<Integer, Feature> getVisitedFeaturesMap();
 
 	public List<Map<Integer, Feature>> getListOfFeatureMap();
+
+	public Map<Integer, List<Feature>> getMapFeatureList();
 
 	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap);
 }

@@ -33,7 +33,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         Map<String, List<Double>> map= null;
        /* Map<Integer, Feature> featureMap = ((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();*/
         List<Map<Integer, Feature>> featureMapList = ((TestChromosome)individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
-
+        Map<Integer, List<Feature>> mapFeatureList = ((TestChromosome)individual).getLastExecutionResult().getTrace().getMapFeatureList();
 
         for(Map<Integer, Feature> map1 : featureMapList){
             Map<Integer, Feature> newFeatures = new LinkedHashMap<>();

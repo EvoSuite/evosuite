@@ -787,13 +787,13 @@ public class ExecutionTracer {
             tracer.trace.definitionPassed(object, caller, defID);
     }
 
-    public static void featureVisitedInt(int object, Object varName) {
+    public static void featureVisitedInt(Object caller, int object, Object varName) {
         if (isThreadNeqCurrentThread())
             return;
 
         ExecutionTracer tracer = getExecutionTracer();
         if (!tracer.disabled)
-            tracer.trace.featureVisitedInt(object, varName);
+            tracer.trace.featureVisitedInt(caller, object, varName);
     }
 
     public static void featureVisitedFlo(float object, Object varName) {

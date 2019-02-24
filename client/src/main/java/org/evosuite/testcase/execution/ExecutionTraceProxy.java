@@ -122,8 +122,8 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	}
 
 	@Override
-	public void featureVisitedInt(int object, Object varName) {
-		trace.featureVisitedInt(object, varName);
+	public void featureVisitedInt(Object caller, int object, Object varName) {
+		trace.featureVisitedInt(caller, object, varName);
 	}
 
     @Override
@@ -784,6 +784,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	@Override
 	public List<Map<Integer, Feature>> getListOfFeatureMap() {
 		return trace.getListOfFeatureMap();
+	}
+
+	@Override
+	public Map<Integer, List<Feature>> getMapFeatureList() {
+		return trace.getMapFeatureList();
 	}
 
 }

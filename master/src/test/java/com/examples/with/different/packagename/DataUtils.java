@@ -1,10 +1,14 @@
 package com.examples.with.different.packagename;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class DataUtils {
-   /* private int count=0;
+
+    /*private static int global;
+    private int count=0;
     private Foo foo = new Foo();*/
 
     /*public static void listOperation(Foo foo) {
@@ -27,14 +31,14 @@ public class DataUtils {
     }*/
 
     /*public void listOperation2(int num, CharSequence sequence, char c, byte b, byte[] bArr) {
-        *//*int y = this.count;
+        int y = this.count;
         this.count = 4;
         this.count = 4;
         foo.j = 4;
 
 
         Foo foo1 = new Foo();
-        foo1.j = 4;*//*
+        foo1.j = 4;
         byte[] bArr2 = bArr;
         byte b1 = b;
         char f = c;
@@ -42,16 +46,24 @@ public class DataUtils {
         if(num*5 == 2)
             System.out.println("");
     }*/
-    public boolean doSomething(int a){
+    /*public boolean doSomething(int a){
         int c;
         int s = a;
-        if(a == 5){
+        if(a == 243432){
             c = 7;
             return true;
         }
         return true;
 
+    }*/
+    public void sqrtFloor(int x, int y, int z) {
+        int q = x;
+        if(q ==100){
+            int z1 = 1;
+        }
+
     }
+
 
     /*public static boolean isWellFormedSlowPath(byte[] bytes, int off, int end) {
         *//*int index = off;*//*

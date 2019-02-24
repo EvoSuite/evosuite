@@ -1,10 +1,10 @@
 package org.evosuite.coverage.dataflow;
 
-import jdk.internal.org.objectweb.asm.tree.AbstractInsnNode;
-import jdk.internal.org.objectweb.asm.tree.FieldInsnNode;
 import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -61,6 +61,18 @@ public class FeatureFactory implements Serializable {
         return true;
     }
 
+    public static boolean registerAsFeature(String varName, String methodName) {
+
+        defCounter++;
+        String var = varName;
+        Feature feature = new Feature();
+        feature.setVariableName(var);
+        feature.setMethodName(methodName);
+        features.put(defCounter, feature);
+
+        return true;
+    }
+
     /**
      * This method identifies if the accessed field belongs to the original class or to some sub class.
      * For e.g
@@ -80,7 +92,7 @@ public class FeatureFactory implements Serializable {
      */
     public static boolean isRecursiveElement(BytecodeInstruction bytecodeInstruction){
         if(bytecodeInstruction.getASMNode().getType() == AbstractInsnNode.FIELD_INSN){
-            if(!bytecodeInstruction.getClassName().equals(((org.objectweb.asm.tree.FieldInsnNode) bytecodeInstruction.getASMNode()).owner.replace('/','.'))){
+            if(!bytecodeInstruction.getClassName().equals(((FieldInsnNode) bytecodeInstruction.getASMNode()).owner.replace('/','.'))){
                 return true;
             }
         }
