@@ -56,7 +56,7 @@ public class DataUtils {
         return true;
 
     }*/
-    public void sqrtFloor(int x, int y, int z) {
+    public static void sqrtFloor(int x, int f) {
         int q = x;
         if(q ==100){
             int z1 = 1;

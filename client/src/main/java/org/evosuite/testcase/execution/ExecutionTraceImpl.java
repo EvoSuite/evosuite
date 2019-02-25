@@ -751,10 +751,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			Map<Integer, Integer> existingFeatureCountMap = objectFeatureCount.get(caller);
 			if(existingFeatureCountMap.containsKey(featId)){
 				int count = existingFeatureCountMap.get(featId);
-				if(!mapFeatureList.get(featId).contains(feature)){
+				/*if(!mapFeatureList.get(featId).contains(feature)){*/
 					count++;
 					existingFeatureCountMap.put(featId, count);
-				}
+				/*}*/
 				if(count >= 5)
 					shouldAddFeature = false;
 			}else{
@@ -773,10 +773,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			if (shouldAddFeature) {
 				// update the list
 				List<Feature> featureVector = mapFeatureList.get(featId);
-				if (!featureVector.contains(feature)) {
+				/*if (!featureVector.contains(feature)) {*/
 					// only update with unique values for performance
 					featureVector.add(feature);
-				}
+				/*}*/
 			}else{
 				return;
 			}
@@ -785,7 +785,28 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			List<Feature> featureVector = new ArrayList<>();
 			featureVector.add(feature);
 			mapFeatureList.put(featId,featureVector);
+
+
 		}
+        // ----------------------------------------------------------------------------------
+        if(listOfFeatureMap.isEmpty()){
+            Map<Integer, Feature> newFeatureMap = Collections.synchronizedMap(new HashMap<Integer, Feature>());
+            newFeatureMap.put(featId, feature);
+            listOfFeatureMap.add(newFeatureMap);
+        }
+        // case 2. when the list size is > 1
+        else if(listOfFeatureMap.size() > 0){
+            Map<Integer, Feature> featureMap = listOfFeatureMap.get(listOfFeatureMap.size()-1);
+            if(featureMap.containsKey(featId)){
+                Map<Integer, Feature> newFeatureMap = Collections.synchronizedMap(new HashMap<Integer, Feature>());
+                newFeatureMap.put(featId, feature);
+                listOfFeatureMap.add(newFeatureMap);
+            }else{
+                // update the same map
+                featureMap.put(featId, feature);
+            }
+        }
+        // ----------------------------------------------------------------------------------
 	}
 
 
@@ -2007,7 +2028,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	@Override
 	public List<Map<Integer, Feature>> getListOfFeatureMap() {
-		return this.listOfFeatureMap;
+	    return this.listOfFeatureMap;
 	}
 
 	@Override

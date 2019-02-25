@@ -43,6 +43,20 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 boolean isCreated = false;
                 if(entry.getValue().getValue() instanceof  String){
                     map = FeatureValueAnalyser.getAnalysisFromStringRepresentationUsingDomParser((String)entry.getValue().getValue());
+                    // the derived features may grow rapidly increasing the number of features
+                    // limit the number of features
+                    Map<String, List<Double>> tempMap = new HashMap<>();
+                    if(map.size()>5){
+                        int countTemp = 0;
+                        for(Map.Entry<String, List<Double>> entryTemp : map.entrySet()){
+                            tempMap.put(entryTemp.getKey(), entryTemp.getValue());
+                            countTemp++;
+                            if(countTemp == 5)
+                                break;
+                        }
+                     map.clear();
+                     map.putAll(tempMap);
+                    }
                     isCreated = true;
                 }
                 if(isCreated){
