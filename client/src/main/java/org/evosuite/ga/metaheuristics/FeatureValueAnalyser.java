@@ -247,9 +247,9 @@ public class FeatureValueAnalyser {
                 FeatureKey featureKey = new FeatureKey(entry.getValue().getVariableName(), entry.getValue().getMethodName());
                 List<Double> valueRange = featureValueRangeList.get(featureKey);
                 Feature feature = entry.getValue();
-                double normalizedVal = getNormalizedValue(readDoubleValue(feature.getValue()), valueRange);
+                double normalizedVal = Double.parseDouble(String.format("%.3f", getNormalizedValue(readDoubleValue(feature.getValue()), valueRange)));
                 feature.setNormalizedValue(normalizedVal);
-                System.out.println("Normalized Score : "+normalizedVal);
+                //System.out.println("Normalized Score : "+normalizedVal);
             }
         }
 
@@ -349,9 +349,14 @@ public class FeatureValueAnalyser {
      * @param feature2
      * @return
      */
+
     public static double getFeatureDistance(Feature feature1, Feature feature2){
         if((feature1 != null) && (feature2 != null)){
-            return (feature1.getNormalizedValue() - feature2.getNormalizedValue()) * (feature1.getNormalizedValue() - feature2.getNormalizedValue());
+            // to limit the precision value
+            double diff = feature1.getNormalizedValue() - feature2.getNormalizedValue();
+            diff = Double.parseDouble(String.format("%.3f", diff));
+            double sqrdDiff = Double.parseDouble(String.format("%.3f", (diff*diff)));
+            return sqrdDiff;
         }else{
             //TODO: decide what to do
             // returning max distance as of now
