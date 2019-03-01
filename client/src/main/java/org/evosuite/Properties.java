@@ -785,9 +785,9 @@ public class Properties {
     @Parameter(key = "mutation_probability_distribution", group = "Search Algorithm", description = "Mutation probability distribution")
     public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
-    public enum SecondaryObjective {
-        AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO
-    }
+	public enum SecondaryObjective {
+		AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO, PERFORMANCE
+	}
 
     @Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
     public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[]{SecondaryObjective.TOTAL_LENGTH};
@@ -2200,6 +2200,11 @@ public class Properties {
 				for (String stringValue : values)
 					indicators[pos++] = Enum.valueOf(PerformanceIndicators.class, stringValue.toUpperCase());
 				f.set(this, indicators);
+			} else if (f.getType().getComponentType().equals(SecondaryObjective.class)) {
+				String[] values = value.split(":");
+				SecondaryObjective[] secondaryObjectives = new SecondaryObjective[1];
+				secondaryObjectives[0] = Enum.valueOf(SecondaryObjective.class, values[0].toUpperCase());
+				f.set(this, secondaryObjectives);
 			}
 		} else {
 			f.set(null, value);
