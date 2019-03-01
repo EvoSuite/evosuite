@@ -1,5 +1,10 @@
 package org.evosuite.ga.metaheuristics.mosa.structural.adaptive;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.evosuite.Properties;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
+import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
@@ -21,11 +26,14 @@ import java.util.*;
  * The version of the budget manager needed for the adaptive version (implement the different calculation of the
  * fitness function)
  *
- * @author Giovanni Grano
+ * @author Annibale Panichella, Giovanni Grano
  */
 public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatManager<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AdaptiveGoalManager.class);
+
+    protected final Map<Integer, FitnessFunction<T>> lineMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
+    protected final Map<Integer, FitnessFunction<T>> weakMutationMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
 
     private PerformanceScoreComparator comparator = new PerformanceScoreComparator();
 
@@ -37,9 +45,15 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
     public AdaptiveGoalManager(List<FitnessFunction<T>> fitnessFunctions) {
         super(fitnessFunctions);
         this.bestValues = new HashMap<>();
+        for (FitnessFunction f : fitnessFunctions) {
+            if (f instanceof LineCoverageTestFitness)
+                lineMap.put(((LineCoverageTestFitness) f).getLine(), f);
+            if (f instanceof WeakMutationTestFitness)
+                weakMutationMap.put(((WeakMutationTestFitness) f).getMutation().getId(), f);
+        }
     }
 
-    public void runTest(T c){
+    public void runTest(T c) {
         TestChromosome tch = (TestChromosome) c;
         if (tch.getLastExecutionResult() == null) {
             // run the test
@@ -69,40 +83,70 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
         }
 
         /* ------------------------------------- update of best values ----------------------------------- */
-        Set<FitnessFunction<T>> visitedStatements = new HashSet<FitnessFunction<T>>(uncoveredGoals.size()*2);
+        // 1) we update the set of currents goals
+        Set<FitnessFunction<T>> visitedTargets = new LinkedHashSet<FitnessFunction<T>>(uncoveredGoals.size() * 2);
         LinkedList<FitnessFunction<T>> targets = new LinkedList<FitnessFunction<T>>();
         targets.addAll(this.currentGoals);
 
-        boolean updateArchive = false;
+        boolean toArchive = false;
 
-        while (targets.size() > 0){
+        while (targets.size() > 0) {
             FitnessFunction<T> fitnessFunction = targets.poll();
 
-            int past_size = visitedStatements.size();
-            visitedStatements.add(fitnessFunction);
-            if (past_size == visitedStatements.size() || this.coveredGoals.containsKey(fitnessFunction))
+            int past_size = visitedTargets.size();
+            visitedTargets.add(fitnessFunction);
+            if (past_size == visitedTargets.size())
                 continue;
 
             double value = fitnessFunction.getFitness(c);
-            if (bestValues.get(fitnessFunction) == null || value < bestValues.get(fitnessFunction)){
+            if (bestValues.get(fitnessFunction) == null || value < bestValues.get(fitnessFunction)) {
                 bestValues.put(fitnessFunction, value);
                 this.hasBetterObjectives = true;
+                toArchive = true;
             }
 
             if (value == 0.0) {
-                updateArchive = true;
-                this.bestValues.remove(fitnessFunction);
+                toArchive = true;
                 updateCoveredGoals(fitnessFunction, c);
-                for (FitnessFunction<T> child : graph.getStructuralChildren(fitnessFunction))
-                    targets.addLast(child);
-            } else
+                this.bestValues.remove(fitnessFunction);
+                if (fitnessFunction instanceof BranchCoverageTestFitness) {
+                    for (FitnessFunction<T> child : graph.getStructuralChildren(fitnessFunction)) {
+                        targets.addLast(child);
+                    }
+                    for (FitnessFunction<T> dependentTarget : dependencies.get(fitnessFunction)) {
+                        targets.addLast(dependentTarget);
+                    }
+                }
+            } else {
                 currentGoals.add(fitnessFunction);
+            }
 
         }
         currentGoals.removeAll(coveredGoals.keySet());
-
         /* update of the archives */
-        updateArchive(c, result);
+        if (toArchive)
+            updateArchive(c, result);
+    }
+
+    @Override
+    public void updateArchive(T c, ExecutionResult result) {
+        super.updateArchive(c, result);
+        if (ArrayUtils.contains(Properties.CRITERION, Properties.Criterion.LINE)) {
+            for (Integer line : result.getTrace().getCoveredLines()) {
+                FitnessFunction<T> branch = this.lineMap.get(line);
+                if (branch == null)
+                    continue;
+                updateCoveredGoals((FitnessFunction<T>) branch, c);
+            }
+        }
+        if (ArrayUtils.contains(Properties.CRITERION, Properties.Criterion.WEAKMUTATION)) {
+            for (Integer id : result.getTrace().getInfectedMutants()) {
+                FitnessFunction<T> branch = this.weakMutationMap.get(id);
+                if (branch == null)
+                    continue;
+                updateCoveredGoals((FitnessFunction<T>) branch, c);
+            }
+        }
     }
 
     /**
