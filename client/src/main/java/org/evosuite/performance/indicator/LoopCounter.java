@@ -46,7 +46,7 @@ public class LoopCounter extends AbstractIndicator {
                 }
             }
         }
-        // remove multiple branches within the same loop
+        // getting only the first branch within the loop; ignoring all the control dependent ones
         Set<Branch> toRemove = new HashSet<>();
         for (Branch b : loopBranches) {
             ActualControlFlowGraph CFG = b.getInstruction().getActualCFG();
