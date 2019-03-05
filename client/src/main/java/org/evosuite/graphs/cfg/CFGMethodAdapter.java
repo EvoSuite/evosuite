@@ -173,9 +173,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 				instrumentations.add(new BranchInstrumentation());
 				instrumentations.add(new MutationInstrumentation());
-			}else if(ArrayUtil.contains(Properties.CRITERION, Criterion.NOVELTY)){
+			}else if(Properties.ALGORITHM.equals(Properties.Algorithm.NOVELTY)){
 				instrumentations.add(new FeatureInstrumentation());
-				instrumentations.add(new BranchInstrumentation());
+		    	instrumentations.add(new BranchInstrumentation());
 			}
 			else {
 				instrumentations.add(new BranchInstrumentation());

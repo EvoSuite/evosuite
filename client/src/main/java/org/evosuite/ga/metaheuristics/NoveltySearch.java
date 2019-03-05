@@ -53,9 +53,6 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             Class<?> testFit = FitnessFunctions.getTestFitnessFunctionClass(criterion);
             this.suiteFitnessFunctions.put(suiteFit, testFit);
         }
-        // set the secondary objectives of test cases (useful when MOSA compares two test
-        // cases to, for example, update the archive)
-        //TestCaseSecondaryObjective.setSecondaryObjectives();
     }
 
     public void setNoveltyFunction(NoveltyFunction<T> function) {
@@ -66,11 +63,9 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
      * Use Novelty Function to do the calculation
      *
      */
-    public void calculateNoveltyAndSortPopulation(List<String> uncoveredMethodList){
+    public void calculateNoveltyAndSortPopulation(List<String> uncoveredMethodList, boolean processForNovelty){
         logger.debug("Calculating novelty for " + this.population.size() + " individuals");
-
-        noveltyFunction.calculateNovelty(this.population, noveltyArchive, uncoveredMethodList);
-        //noveltyFunction.sortPopulation(this.population);
+        noveltyFunction.calculateNovelty(this.population, noveltyArchive, uncoveredMethodList, processForNovelty);
     }
 
     /**
@@ -163,7 +158,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         generateInitialPopulation(Properties.POPULATION);
 
         // Determine novelty
-        calculateNoveltyAndSortPopulation(getUncoveredMethodNames());
+        calculateNoveltyAndSortPopulation(getUncoveredMethodNames(), true);
 
         // Determine fitness
         this.calculateFitness();
@@ -275,6 +270,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         return flag;
     }
 
+
     @Override
     protected void evolve() {
 
@@ -285,7 +281,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             T parent1 = null;
             T parent2 = null;
             if(Properties.RANK_AND_NOVELTY_SELECTION){ // by default true
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
                 parent1 = this.selectionFunction.select(this.population);
                 ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
                 parent2 = this.selectionFunction.select(this.population);
@@ -423,21 +419,29 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
 
         logger.warn("Starting evolution of novelty search algorithm");
-        /*!isFinished() &&*/
+
         while (!isFinished() && this.getNumberOfUncoveredGoals() > 0) {
             logger.warn("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
-            //logger.info("Best fitness: " + getBestIndividual().getFitness());
+            // for experiments
+            boolean processForNovelty = true;
+            /*if((currentIteration%5) == 0){
+                Properties.RANK_AND_NOVELTY_SELECTION = false;
+                Properties.NOVELTY_SELECTION = true;
+                processForNovelty = true;
+            }else{
+                Properties.RANK_AND_NOVELTY_SELECTION = true;
+                Properties.NOVELTY_SELECTION = false;
+            }*/
 
             long startTime = System.currentTimeMillis();
             evolve();
 
             // TODO: Sort by novelty
-            calculateNoveltyAndSortPopulation(getUncoveredMethodNames());
+            calculateNoveltyAndSortPopulation(getUncoveredMethodNames(), processForNovelty);
 
             // Calculate dominance ranks and crowding distance
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
 
-            //this.calculateFitness();
             long endTime = System.currentTimeMillis();
 
             this.notifyIteration();
@@ -445,7 +449,6 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         }
 
         System.out.println("Archive size after all the generations : "+this.noveltyArchive.size());
-        //updateBestIndividualFromArchive();
         // storing the time needed to reach the maximum coverage
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
                 this.budgetMonitor.getTime2MaxCoverage());

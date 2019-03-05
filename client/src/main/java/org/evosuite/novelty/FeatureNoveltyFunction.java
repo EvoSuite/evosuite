@@ -19,7 +19,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
     private static final Logger logger = LoggerFactory.getLogger(FeatureNoveltyFunction.class);
 
     private static int evaluations = 0; // to store how many individuals in the current generation have novelty score greater than the novelty threshold
-
+    private static int count = 0;
 
     /**
      * This method analyses features which are basically the serialized form of some complex objects.
@@ -28,134 +28,135 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
      *
      * @param individual
      */
-    public void executeAndAnalyseFeature(T individual) {
+    public void executeAndAnalyseFeature(T individual, boolean processForNovelty) {
         getExecutionResult((TestChromosome) individual);
-        Map<String, List<Double>> map= null;
-       /* Map<Integer, Feature> featureMap = ((TestChromosome)individual).getLastExecutionResult().getTrace().getVisitedFeaturesMap();*/
-        List<Map<Integer, Feature>> featureMapList = ((TestChromosome)individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
-        Map<Integer, List<Feature>> mapFeatureList = ((TestChromosome)individual).getLastExecutionResult().getTrace().getMapFeatureList();
+        if (processForNovelty) {
+            Map<String, List<Double>> map = null;
+            List<Map<Integer, Feature>> featureMapList = ((TestChromosome) individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
 
-        for(Map<Integer, Feature> map1 : featureMapList){
-            Map<Integer, Feature> newFeatures = new LinkedHashMap<>();
-            int featuresSize = map1.size();
-            for(Map.Entry<Integer, Feature> entry: map1.entrySet()){
+            for (Map<Integer, Feature> map1 : featureMapList) {
+                Map<Integer, Feature> newFeatures = new LinkedHashMap<>();
+                int featuresSize = map1.size();
+                for (Map.Entry<Integer, Feature> entry : map1.entrySet()) {
 
-                boolean isCreated = false;
-                if(entry.getValue().getValue() instanceof  String){
-                    map = FeatureValueAnalyser.getAnalysisFromStringRepresentationUsingDomParser((String)entry.getValue().getValue());
-                    // the derived features may grow rapidly increasing the number of features
-                    // limit the number of features
-                    Map<String, List<Double>> tempMap = new HashMap<>();
-                    if(map.size()>5){
-                        int countTemp = 0;
-                        for(Map.Entry<String, List<Double>> entryTemp : map.entrySet()){
-                            tempMap.put(entryTemp.getKey(), entryTemp.getValue());
-                            countTemp++;
-                            if(countTemp == 7)
-                                break;
+                    boolean isCreated = false;
+                    if (entry.getValue().getValue() instanceof String) {
+                        map = FeatureValueAnalyser.getAnalysisFromStringRepresentationUsingDomParser((String) entry.getValue().getValue());
+                        // the derived features may grow rapidly increasing the number of features
+                        // limit the number of features
+                        Map<String, List<Double>> tempMap = new HashMap<>();
+                        if (map.size() > 5) {
+                            int countTemp = 0;
+                            for (Map.Entry<String, List<Double>> entryTemp : map.entrySet()) {
+                                tempMap.put(entryTemp.getKey(), entryTemp.getValue());
+                                countTemp++;
+                                if (countTemp == 10)
+                                    break;
+                            }
+                            map.clear();
+                            map.putAll(tempMap);
                         }
-                     map.clear();
-                     map.putAll(tempMap);
+                        isCreated = true;
                     }
-                    isCreated = true;
-                }
-                if(isCreated){
-                    boolean isFirst = true;
-                    // add new features which we derived from the Complex Object
-                    for(Map.Entry<String, List<Double>> newFeaturesMapEntry: map.entrySet()){
-                        Feature structureFeature = new Feature();
-                        structureFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Struct");
-                        structureFeature.setValue(newFeaturesMapEntry.getValue().get(0));
-                        structureFeature.setMethodName(entry.getValue().getMethodName());
-                        if(isFirst){
-                            newFeatures.put(entry.getKey(), structureFeature);
-                            FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
-                        }else{
+                    if (isCreated) {
+                        boolean isFirst = true;
+                        // add new features which we derived from the Complex Object
+                        for (Map.Entry<String, List<Double>> newFeaturesMapEntry : map.entrySet()) {
+                            Feature structureFeature = new Feature();
+                            structureFeature.setVariableName(newFeaturesMapEntry.getKey() + "_Struct");
+                            structureFeature.setValue(newFeaturesMapEntry.getValue().get(0));
+                            structureFeature.setMethodName(entry.getValue().getMethodName());
+                            if (isFirst) {
+                                newFeatures.put(entry.getKey(), structureFeature);
+                                FeatureFactory.updateFeatureMap(entry.getKey(), structureFeature);
+                            } else {
+                                featuresSize++;
+                                newFeatures.put(featuresSize, structureFeature);
+                                FeatureFactory.updateFeatureMap(featuresSize, structureFeature);
+                            }
+
+                            Feature valueFeature = new Feature();
+                            valueFeature.setVariableName(newFeaturesMapEntry.getKey() + "_Value");
+                            valueFeature.setValue(newFeaturesMapEntry.getValue().get(1));
+                            valueFeature.setMethodName(entry.getValue().getMethodName());
                             featuresSize++;
-                            newFeatures.put(featuresSize, structureFeature);
-                            FeatureFactory.updateFeatureMap(featuresSize, structureFeature);
+                            newFeatures.put(featuresSize, valueFeature);
+                            FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
+                            isFirst = false;
                         }
 
-                        Feature valueFeature = new Feature();
-                        valueFeature.setVariableName(newFeaturesMapEntry.getKey()+"_Value");
-                        valueFeature.setValue(newFeaturesMapEntry.getValue().get(1));
-                        valueFeature.setMethodName(entry.getValue().getMethodName());
-                        featuresSize++;
-                        newFeatures.put(featuresSize, valueFeature);
-                        FeatureFactory.updateFeatureMap(featuresSize, valueFeature);
-                        isFirst = false;
                     }
-
                 }
-            }
-            if(!newFeatures.isEmpty()){
-                map1.putAll(newFeatures);
+                if (!newFeatures.isEmpty()) {
+                    map1.putAll(newFeatures);
+                }
             }
         }
     }
 
     @Override
-    public void calculateNovelty(Collection<T> population, Collection<T> noveltyArchive, List<String> uncoveredMethodList) {
+    public void calculateNovelty(Collection<T> population, Collection<T> noveltyArchive, List<String> uncoveredMethodList, boolean processForNovelty) {
         // Step 1. Run all the tests
         for(T t : population){
-            executeAndAnalyseFeature(t);
+            executeAndAnalyseFeature(t, processForNovelty);
         }
-        // Step 2. Normalize each of the feature values. For this we need to
-        // find the min, max range for each Feature
-        Iterator<T> iterator = (Iterator<T>) population.iterator();
+        if (processForNovelty) {
+            // Step 2. Normalize each of the feature values. For this we need to
+            // find the min, max range for each Feature
+            Iterator<T> iterator = (Iterator<T>) population.iterator();
 
-        // stores the min and max value for each of the Feature
-        Map<FeatureKey, List<Double>> featureValueRangeList = new HashMap<>();
-        // Making it static
-        while (iterator.hasNext()) {
-            T individual = iterator.next();
-            // expect all the feature vectors to be populated
-            List<Map<Integer, Feature>> featureMapList =((TestChromosome)individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
-            for(Map<Integer, Feature> map: featureMapList){
-                for(Map.Entry<Integer, Feature> entry : map.entrySet())
-                    updateFeatureValueRange(featureValueRangeList, entry);
+            // stores the min and max value for each of the Feature
+            Map<FeatureKey, List<Double>> featureValueRangeList = new HashMap<>();
+            // Making it static
+            while (iterator.hasNext()) {
+                T individual = iterator.next();
+                // expect all the feature vectors to be populated
+                List<Map<Integer, Feature>> featureMapList = ((TestChromosome) individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
+                for (Map<Integer, Feature> map : featureMapList) {
+                    for (Map.Entry<Integer, Feature> entry : map.entrySet())
+                        updateFeatureValueRange(featureValueRangeList, entry);
+                }
             }
-        }
-        // Also do this for the Archive
-        for(T individual :noveltyArchive){
-            List<Map<Integer, Feature>> featureMapList =((TestChromosome)individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
-            for(Map<Integer, Feature> map: featureMapList){
-                for(Map.Entry<Integer, Feature> entry : map.entrySet())
-                    updateFeatureValueRange(featureValueRangeList, entry);
+            // Also do this for the Archive
+            for (T individual : noveltyArchive) {
+                List<Map<Integer, Feature>> featureMapList = ((TestChromosome) individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
+                for (Map<Integer, Feature> map : featureMapList) {
+                    for (Map.Entry<Integer, Feature> entry : map.entrySet())
+                        updateFeatureValueRange(featureValueRangeList, entry);
+                }
             }
-        }
 
-        // better to normalize all the feature values to (0-1) according to their value ranges
-        // calculated above. Otherwise the calculation and the values may go in 'long' range
-        // calculating the normalized novelty
-        for(T t : population){
-            FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
-        }
-        for(T t : noveltyArchive){
-            FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
-        }
-
-        evaluations = 0;
-        // calculating the normalized novelty
-        for(T t : population){
-            updateEuclideanDistance(t, population, noveltyArchive, featureValueRangeList, uncoveredMethodList);
-        }
-
-        // update the NOVELTY_THRESHOLD
-        if(evaluations >= 25){
-            Properties.NOVELTY_THRESHOLD += (0.20 * Properties.NOVELTY_THRESHOLD);
-            if(Double.compare(Properties.NOVELTY_THRESHOLD,1.0) > 0){
-                Properties.NOVELTY_THRESHOLD = 1.0;
+            // better to normalize all the feature values to (0-1) according to their value ranges
+            // calculated above. Otherwise the calculation and the values may go in 'long' range
+            // calculating the normalized novelty
+            for (T t : population) {
+                FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
             }
-        }
-        if(evaluations < 15){
-            Properties.NOVELTY_THRESHOLD -= (0.05 * Properties.NOVELTY_THRESHOLD);
-            if(Double.compare(Properties.NOVELTY_THRESHOLD,0.0) < 0){
-                Properties.NOVELTY_THRESHOLD = 0.0;
+            for (T t : noveltyArchive) {
+                FeatureValueAnalyser.updateNormalizedFeatureValues((TestChromosome) t, featureValueRangeList);
+            }
+
+            evaluations = 0;
+            // calculating the normalized novelty
+            for (T t : population) {
+                updateEuclideanDistance(t, population, noveltyArchive, featureValueRangeList, uncoveredMethodList);
+            }
+
+            // update the NOVELTY_THRESHOLD
+            if (evaluations >= 25) {
+                Properties.NOVELTY_THRESHOLD += (0.20 * Properties.NOVELTY_THRESHOLD);
+                if (Double.compare(Properties.NOVELTY_THRESHOLD, 1.0) > 0) {
+                    Properties.NOVELTY_THRESHOLD = 1.0;
+                }
+            }
+            if (evaluations < 15) {
+                Properties.NOVELTY_THRESHOLD -= (0.05 * Properties.NOVELTY_THRESHOLD);
+                if (Double.compare(Properties.NOVELTY_THRESHOLD, 0.0) < 0) {
+                    Properties.NOVELTY_THRESHOLD = 0.0;
+                }
             }
         }
     }
-
 
     /**
      * list(0) -> min , list(1) -> max
@@ -189,18 +190,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 featureValueRangeList.get(featureKey).add(1, featureMax);
             }
         }
-
-        if(entry.getValue().getVariableName().equals("someArr_int_Struct") ){
-            Feature feature = entry.getValue();
-            System.out.println("someArr_int_Struct Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
-        }
-        if(entry.getValue().getVariableName().equals("someArr_int_Value") ){
-            Feature feature = entry.getValue();
-            System.out.println("someArr_int_Value Feature Name : "+feature.getVariableName()+" , "+"Value : "+feature.getValue());
-        }
-        System.out.println("------------------------------------------------------------------------");
     }
-    static int count = 0;
     /**
      * This calculates normalized novelty for 't' w.r.t the other population and the noveltyArchive
      * The closer the score to 1 more is the novelty or the distance and vice versa.
@@ -214,11 +204,10 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         double noveltyScore = 0;
         double sumDiff = 0;
         // fetch the features
-        /*Map<Integer, Feature> featureMap1= ((TestChromosome)t).getLastExecutionResult().getTrace().getVisitedFeaturesMap();*/
         List<Map<Integer, Feature>> featureMapList1= ((TestChromosome)t).getLastExecutionResult().getTrace().getListOfFeatureMap();
 
         //Setting to lowest novelty if there is no featureMap
-        if(featureMapList1==null || featureMapList1.isEmpty()){
+        if(!((TestChromosome) t).getLastExecutionResult().getAllThrownExceptions().isEmpty() || featureMapList1==null || featureMapList1.isEmpty()){
             t.setNoveltyScore(noveltyScore);
             // no need to update the novelty archive
             count++;
@@ -282,22 +271,16 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                 }
             }
         }
-
-
-
         // Number of features will remain constant throughout the iterations
-        /*int numOfFeatures = featureValueRangeList.size()==0?1:featureValueRangeList.size();*/
         // FeatureFactory.getFeatures().size() and featureValueRangeList.size() should always be equal.
         int numOfFeatures = FeatureFactory.getFeatures().size()==0?1:FeatureFactory.getFeatures().size();
-
         double distance = Math.sqrt(sumDiff);
         noveltyScore = distance / (Math.sqrt(((population.size()-1) + noveltyArchive.size()) * numOfFeatures)); // dividing by max. possible distance
         noveltyScore = Double.parseDouble(String.format("%.3f", noveltyScore));
-        t.setNoveltyScore(noveltyScore);
-        System.out.println("Novelty  : "+noveltyScore);
         if(Double.compare(noveltyScore, 1) >0){
-            System.out.println();
+            noveltyScore = 1;
         }
+        t.setNoveltyScore(noveltyScore);
         updateNoveltyArchive(t, noveltyArchive);
     }
 
@@ -334,27 +317,6 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             return "ONE";
         else
             return "NONE";
-    }
-
-    private boolean isFeaturePresentInOneLists(FeatureKey featureKey, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
-        boolean isPresentInList1 = false;
-        boolean isPresentInList2 = false;
-        for (Map<Integer, Feature> map1 : featureMapList1) {
-            if (null != matchFeatureWithKey(map1, featureKey)) {
-                isPresentInList1 = true;
-                break;
-            }
-        }
-        for (Map<Integer, Feature> map2 : featureMapList2) {
-            if (null != matchFeatureWithKey(map2, featureKey)) {
-                isPresentInList2 = true;
-                break;
-            }
-        }
-        if(isPresentInList1 || isPresentInList2)
-            return true;
-        else
-            return false;
     }
 
     private double getMaxFeatureDistance(FeatureKey featureKey, List<Map<Integer, Feature>> featureMapList1, List<Map<Integer, Feature>> featureMapList2){
@@ -428,13 +390,6 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             archive.add(t);
         }
     }
-
-    private double getDistance(Feature feature1, Feature feature2){
-        return Math.abs((Integer)feature1.getValue() - (Integer)feature2.getValue());
-    }
-
-
-
 
     @Override
     public void sortPopulation(List<T> population) {

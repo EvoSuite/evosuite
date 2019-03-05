@@ -8,7 +8,6 @@ import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.FeatureNoveltyFunction;
-import org.evosuite.novelty.NoveltyFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -25,7 +24,8 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NoveltyStrategy extends TestGenerationStrategy {
 
@@ -39,7 +39,6 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 
         PropertiesNoveltySearchFactory algorithmFactory = new PropertiesNoveltySearchFactory();
         NoveltySearch<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
-        //NoveltySearch<TestChromosome, TestSuiteChromosome> algorithm = new NoveltySearch<TestChromosome, TestSuiteChromosome>(chromosomeFactory);
 
         ChromosomeFactory factory = new RandomLengthTestFactory();
         algorithm.setChromosomeFactory(factory);
@@ -54,15 +53,10 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
         for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
             fitnessFunctions.addAll(goalFactory.getCoverageGoals());
-            // TODO; remove this break. Added just to avoid duplicate entries as we have 2 goalFactories of type 'BranchCoverageFactory'.
-            break;
         }
 
         // adding all branches as different goals to be optimized
         algorithm.addFitnessFunctions((List)fitnessFunctions);
-
-        /*NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
-        algorithm.addListener(listener);*/
 
         NoveltyFunction<TestChromosome> noveltyFunction = new FeatureNoveltyFunction<TestChromosome>();
 
@@ -86,7 +80,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         // if (analyzing)
         algorithm.resetStoppingConditions();
 
-        /*List<TestFitnessFunction> goals = getGoals(true);*/
+
         if(!canGenerateTestsForSUT()) {
             LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
                     + Properties.TARGET_CLASS);
@@ -106,8 +100,6 @@ public class NoveltyStrategy extends TestGenerationStrategy {
             ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
             algorithm.generateSolution();
-            //testSuite = Archive.getArchiveInstance().mergeArchiveAndSolution((TestSuiteChromosome) algorithm.getBestIndividual());
-            //TODO:fix this
             testSuite = (TestSuiteChromosome) algorithm.getBestIndividual1();
         } else {
             zeroFitness.setFinished();
@@ -118,9 +110,6 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         }
 
         long endTime = System.currentTimeMillis() / 1000;
-
-        //goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
-        //ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
         // Newline after progress bar
         if (Properties.SHOW_PROGRESS)
@@ -136,48 +125,12 @@ public class NoveltyStrategy extends TestGenerationStrategy {
                     + " statements, best individual has fitness: "
                     + testSuite.getFitness());
         }
-System.out.println("Total Time ********* : "+(endTime - startTime));
+        System.out.println("Total Time ********* : "+(endTime - startTime));
         // Search is finished, send statistics
         sendExecutionStatistics();
 
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, algorithm.getFitnessFunctions().size());
 
         return testSuite;
-    }
-
-    private List<TestFitnessFunction> getGoals(boolean verbose) {
-        List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-        List<TestFitnessFunction> goals = new ArrayList<>();
-
-        if(goalFactories.size() == 1) {
-            TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
-            goals.addAll(factory.getCoverageGoals());
-
-            if(verbose) {
-                LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-                if (Properties.PRINT_GOALS) {
-                    for (TestFitnessFunction goal : factory.getCoverageGoals())
-                        LoggingUtils.getEvoLogger().info("" + goal.toString());
-                }
-            }
-        } else {
-            if(verbose) {
-                LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-            }
-
-            for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-                goals.addAll(goalFactory.getCoverageGoals());
-
-                if(verbose) {
-                    LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-                            + " " + goalFactory.getCoverageGoals().size());
-                    if (Properties.PRINT_GOALS) {
-                        for (TestFitnessFunction goal : goalFactory.getCoverageGoals())
-                            LoggingUtils.getEvoLogger().info("" + goal.toString());
-                    }
-                }
-            }
-        }
-        return goals;
     }
 }

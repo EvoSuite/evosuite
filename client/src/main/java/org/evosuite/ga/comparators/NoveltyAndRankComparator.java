@@ -82,7 +82,7 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
             } else if (c1.getRank() > c2.getRank()) {
                 return 1;
             } else if (c1.getRank() == c2.getRank()) {
-                return 0;
+                return (c2.getNoveltyScore() < c1.getNoveltyScore())? -1 : 1;
             }
         }
 
@@ -91,7 +91,7 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
         } else if (c2.getNoveltyScore() > c1.getNoveltyScore()) {
             return 1;
         } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
-            return (c1.getRank() < c2.getRank()) ? -1 : 1;
+            return 0;
         }
 
         return 0;
