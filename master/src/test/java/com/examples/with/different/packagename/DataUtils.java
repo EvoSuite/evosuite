@@ -1,51 +1,19 @@
 package com.examples.with.different.packagename;
 
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.List;
 
 public class DataUtils {
 
-    /*private static int global;
-    private int count=0;
-    private Foo foo = new Foo();*/
-
-    /*public static void listOperation(Foo foo) {
+    public static void listOperation(Foo foo, int[] arr) throws Exception {
         Foo foo1 = foo;
-        *//*List<Integer> list1 = list;*//*
-
-        if(foo1.getSomething()){
+        if(foo1.getSomething() && arr[2]==2){
             System.out.println("Equal");
         }else{
             System.out.println("Not Equal");
         }
-    }*/
-    /*public void listOperation1(int x, int z) {
-        int count = x;
-        listOperation2(2);
-        if(x<z) {
-            System.out.println("");
-        }
-        System.out.println(this.count);
-    }*/
-
-    /*public void listOperation2(int num, CharSequence sequence, char c, byte b, byte[] bArr) {
-        int y = this.count;
-        this.count = 4;
-        this.count = 4;
-        foo.j = 4;
+    }
 
 
-        Foo foo1 = new Foo();
-        foo1.j = 4;
-        byte[] bArr2 = bArr;
-        byte b1 = b;
-        char f = c;
-        CharSequence sequence1 = sequence;
-        if(num*5 == 2)
-            System.out.println("");
-    }*/
     /*public boolean doSomething(int a){
         int c;
         int s = a;
@@ -55,43 +23,13 @@ public class DataUtils {
         }
         return true;
 
-    }*/
-    public static void sqrtFloor(int x, int f) {
+    }
+    public static void sqrtFloor(int x) {
         int q = x;
         if(q ==100){
             int z1 = 1;
         }
 
-    }
-
-
-    /*public static boolean isWellFormedSlowPath(byte[] bytes, int off, int end) {
-        *//*int index = off;*//*
-        Byte byte1 = bytes[4];
-         if(true) {
-                byte byte2;
-                if (byte1 < -16) {// that's it
-                    *//*if (index + 1 >= end) {
-                        return false;
-                    }*//*
-
-                    byte2 = bytes[5];
-                    *//*j = end;*//*
-                    *//*if (byte2 > -65 || byte1 == -32 && byte2 < -96 || byte1 == -19 && -96 <= byte2 || bytes[index++] > -65) {
-                        return false;
-                    }*//*
-                } *//*else {
-                    if (index + 2 >= end) {
-                        return false;
-                    }
-
-                    byte2 = bytes[index++];
-                    if (byte2 > -65 || (byte1 << 28) + (byte2 - -112) >> 30 != 0 || bytes[index++] > -65 || bytes[index++] > -65) {
-                        return false;
-                    }
-                }*//*
-            }
-            return true;
     }*/
 
 }
@@ -115,8 +53,7 @@ class Foo {
     }
 
     boolean getSomething() {
-
-        if (boo.checkEquals()) {
+        if (boo.checkEquals() && someArr[4]==4) {
             System.out.println("Equals");
             return true;
         } else {
@@ -138,7 +75,7 @@ class Boo {
     }
 
     public boolean checkEquals() {
-        if (input == 2 && result && input2 == 12) {
+        if (input == 2) {
             return true;
         } else
             return false;

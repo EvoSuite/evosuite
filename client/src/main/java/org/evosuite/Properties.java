@@ -1531,7 +1531,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "novelty_threshold", group = "Runtime", description = "If novelty of an individual is greater than this threshold then it is added to the novelty archive")
-	public static double NOVELTY_THRESHOLD = 0.2;
+	public static double NOVELTY_THRESHOLD = 0.5;
 
 	// parameters used for experiment purpose
 	@Parameter(key = "max_feature_distance", group = "Runtime", description = "If true, then maximum distance between the same feature of multiple maps will be considered.")
@@ -1549,7 +1549,7 @@ public class Properties {
 	public static boolean NOVELTY_SELECTION = false;
 
 	@Parameter(key = "max_novelty_archive_size", group = "Runtime", description = "Maximum size of the novelty archive")
-	public static int MAX_NOVELTY_ARCHIVE_SIZE = 156;
+	public static int MAX_NOVELTY_ARCHIVE_SIZE = 500;
 
 	//TODO: Ensure that this is always a multiple of 5
 	@Parameter(key = "local_competition_group_size", group = "Runtime", description = "Group size for local competition")

@@ -76,8 +76,6 @@ public class NoveltyStrategy extends TestGenerationStrategy {
                 || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.AMBIGUITY))
             ExecutionTracer.enableTraceCalls();
 
-        // TODO: why it was only if "analyzing"???
-        // if (analyzing)
         algorithm.resetStoppingConditions();
 
 

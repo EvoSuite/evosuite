@@ -7,6 +7,7 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.ga.operators.selection.TournamentSelectionNoveltyAndRankComparator;
@@ -40,6 +41,9 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
     /** Keep track of overall suite fitness functions and correspondent test fitness functions */
     protected final Map<TestSuiteFitnessFunction, Class<?>> suiteFitnessFunctions;
+
+    /** Crowding distance measure to use */
+    protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
 
     private LocalCompetition<T> lc = new LocalCompetition<>();
 
@@ -274,6 +278,55 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
     @Override
     protected void evolve() {
 
+        /*List<T> offspringPopulation = this.breedNextGeneration();
+
+        // Create the union of parents and offSpring
+        List<T> union = new ArrayList<T>();
+        union.addAll(this.population);
+        union.addAll(offspringPopulation);
+
+        Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
+
+        // Ranking the union
+        logger.debug("Union Size =" + union.size());
+        // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
+        this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
+
+        int remain = this.population.size();
+        int index = 0;
+        List<T> front = null;
+        this.population.clear();
+
+        // Obtain the next front
+        front = this.rankingFunction.getSubfront(index);
+
+        while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
+            // Assign crowding distance to individuals
+            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
+            // Add the individuals of this front
+            this.population.addAll(front);
+
+            // Decrement remain
+            remain = remain - front.size();
+
+            // Obtain the next front
+            index++;
+            if (remain > 0) {
+                front = this.rankingFunction.getSubfront(index);
+            }
+        }
+        // Remain is less than front(index).size, insert only the best one
+        if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
+            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
+            Collections.sort(front, new OnlyCrowdingComparator());
+            for (int k = 0; k < remain; k++) {
+                this.population.add(front.get(k));
+            }
+
+            remain = 0;
+        }
+        this.currentIteration++;*/
+
         List<T> newGeneration = new ArrayList<T>();
         // changes start
         for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
@@ -352,6 +405,78 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         //
         currentIteration++;
     }
+    protected List<T> breedNextGeneration() {
+        List<T> offspringPopulation = new ArrayList<T>(Properties.POPULATION);
+        // we apply only Properties.POPULATION/2 iterations since in each generation
+        // we generate two offsprings
+        for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
+            // select best individuals
+            T parent1 = null;
+            T parent2 = null;
+            if(Properties.RANK_AND_NOVELTY_SELECTION){ // by default true
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
+                parent1 = this.selectionFunction.select(this.population);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
+                parent2 = this.selectionFunction.select(this.population);
+            }
+            else if(Properties.NOVELTY_SELECTION){
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                parent1 = this.selectionFunction.select(this.population);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                parent2 = this.selectionFunction.select(this.population);
+            }
+            T offspring1 = (T) parent1.clone();
+            T offspring2 = (T) parent2.clone();
+            // apply crossover
+            try {
+                if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+                    this.crossoverFunction.crossOver(offspring1, offspring2);
+                }
+            } catch (ConstructionFailedException e) {
+                logger.debug("CrossOver failed.");
+                continue;
+            }
+
+            this.removeUnusedVariables(offspring1);
+            this.removeUnusedVariables(offspring2);
+
+            // apply mutation on offspring1
+            this.mutate(offspring1, parent1);
+            if (offspring1.isChanged()) {
+                this.clearCachedResults(offspring1);
+                offspring1.updateAge(this.currentIteration);
+                this.calculateFitness(offspring1);
+                offspringPopulation.add(offspring1);
+            }
+
+            // apply mutation on offspring2
+            this.mutate(offspring2, parent2);
+            if (offspring2.isChanged()) {
+                this.clearCachedResults(offspring2);
+                offspring2.updateAge(this.currentIteration);
+                this.calculateFitness(offspring2);
+                offspringPopulation.add(offspring2);
+            }
+        }
+        // Add new randomly generate tests
+        for (int i = 0; i < Properties.POPULATION * Properties.P_TEST_INSERTION; i++) {
+            T tch = null;
+            if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()) {
+                tch = this.chromosomeFactory.getChromosome();
+                tch.setChanged(true);
+            } else {
+                tch = (T) Randomness.choice(this.getSolutions()).clone();
+                tch.mutate(); tch.mutate(); // TODO why is it mutated twice?
+            }
+            if (tch.isChanged()) {
+                tch.updateAge(this.currentIteration);
+                this.calculateFitness(tch);
+                offspringPopulation.add(tch);
+            }
+        }
+        logger.info("Number of offsprings = {}", offspringPopulation.size());
+        return offspringPopulation;
+    }
 
     /**
      * Returns the goals that have been covered by the test cases stored in the archive.
@@ -415,8 +540,11 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         if (population.isEmpty())
             initializePopulation();
 
-        // Calculate dominance ranks and crowding distance
-        this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+        // Calculate dominance ranks
+        /*this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+        for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
+            this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
+        }*/
 
         logger.warn("Starting evolution of novelty search algorithm");
 
@@ -436,11 +564,11 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             long startTime = System.currentTimeMillis();
             evolve();
 
+            // Calculate dominance ranks
+            //this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+
             // TODO: Sort by novelty
             calculateNoveltyAndSortPopulation(getUncoveredMethodNames(), processForNovelty);
-
-            // Calculate dominance ranks and crowding distance
-            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
 
             long endTime = System.currentTimeMillis();
 

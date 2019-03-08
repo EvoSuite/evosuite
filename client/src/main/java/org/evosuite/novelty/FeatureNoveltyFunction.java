@@ -50,7 +50,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                             for (Map.Entry<String, List<Double>> entryTemp : map.entrySet()) {
                                 tempMap.put(entryTemp.getKey(), entryTemp.getValue());
                                 countTemp++;
-                                if (countTemp == 10)
+                                if (countTemp == 20)
                                     break;
                             }
                             map.clear();
@@ -144,7 +144,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
 
             // update the NOVELTY_THRESHOLD
             if (evaluations >= 25) {
-                Properties.NOVELTY_THRESHOLD += (0.20 * Properties.NOVELTY_THRESHOLD);
+                Properties.NOVELTY_THRESHOLD += (0.05 * Properties.NOVELTY_THRESHOLD);
                 if (Double.compare(Properties.NOVELTY_THRESHOLD, 1.0) > 0) {
                     Properties.NOVELTY_THRESHOLD = 1.0;
                 }
@@ -155,6 +155,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                     Properties.NOVELTY_THRESHOLD = 0.0;
                 }
             }
+            FeatureFactory.setFeatureValueRangeList(featureValueRangeList);
         }
     }
 
@@ -207,13 +208,13 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         List<Map<Integer, Feature>> featureMapList1= ((TestChromosome)t).getLastExecutionResult().getTrace().getListOfFeatureMap();
 
         //Setting to lowest novelty if there is no featureMap
-        if(!((TestChromosome) t).getLastExecutionResult().getAllThrownExceptions().isEmpty() || featureMapList1==null || featureMapList1.isEmpty()){
+        /*if(!(((TestChromosome) t).getLastExecutionResult().getAllThrownExceptions().isEmpty())){
             t.setNoveltyScore(noveltyScore);
             // no need to update the novelty archive
             count++;
             System.out.println("No. of Individuals setting score to min novelty : "+count);
             return;
-        }
+        }*/
 
         for(T other: population){
             boolean testDiffMethodsTemp = false;
@@ -239,9 +240,9 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                         double squaredDiff = getMaxFeatureDistance(entry.getKey(), featureMapList1, featureMapList2);
                         sumDiff +=squaredDiff;
                     }
-                    else{
+                    /*else{
                         sumDiff++; // '1' -> maximum distance between two individuals testing two different methods
-                    }
+                    }*/
                 }
 
             }
@@ -265,9 +266,9 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                         double squaredDiff = getMaxFeatureDistance(entry.getKey(), featureMapList1, featureMapList2);
                         sumDiff +=squaredDiff;
                     }
-                    else{
+                    /*else{
                         sumDiff++; // '1' -> maximum distance between two individuals testing two different methods
-                    }
+                    }*/
                 }
             }
         }

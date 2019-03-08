@@ -719,8 +719,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			// We cannot save the 'Object' as it is because it would be difficult to reconstruct it later.
 			// More over the same object may change as it is just a object reference.
 			// Hence serializing it to a xml string and storing it.
-			System.out.println("Updating visitedFeaturesMap in ExeTracerImpl");
-			logger.error("Updating visitedFeaturesMap in ExeTracerImpl");
+			/*System.out.println("Updating visitedFeaturesMap in ExeTracerImpl");
+			logger.error("Updating visitedFeaturesMap in ExeTracerImpl");*/
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 
 			vistedFeaturesMap.put(featID, feature);

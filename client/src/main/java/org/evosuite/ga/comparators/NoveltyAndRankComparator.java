@@ -72,11 +72,25 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
             return -1;
         }
 
-        if (c1.getNoveltyScore() == c2.getNoveltyScore() && c1.getRank() == c2.getRank()) {
-            return 0;
+        /*if (this.isRankBasedCompetition){
+            if (c1.getRank() == c2.getRank() && c1.getDistance() == c2.getDistance()) {
+                return 0;
+            }
         }
+        if (!this.isRankBasedCompetition) {
+            if (c1.getNoveltyScore() == c2.getNoveltyScore() && c1.getRank() == c2.getRank()) {
+                return 0;
+            }
+        }*/
 
         if (this.isRankBasedCompetition) {
+            /*if (c1.getRank() < c2.getRank()) {
+                return -1;
+            } else if (c1.getRank() > c2.getRank()) {
+                return 1;
+            } else if (c1.getRank() == c2.getRank()) {
+                return (c1.getDistance() > c2.getDistance()) ? -1 : 1;
+            }*/
             if (c1.getRank() < c2.getRank()) {
                 return -1;
             } else if (c1.getRank() > c2.getRank()) {

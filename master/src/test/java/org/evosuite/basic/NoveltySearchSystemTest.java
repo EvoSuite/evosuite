@@ -21,13 +21,17 @@ public class NoveltySearchSystemTest extends SystemTestBase {
     public void testNoveltySearch() {
         EvoSuite evosuite = new EvoSuite();
 
-        String targetClass = DataUtils.class.getCanonicalName();
+        String targetClass = DataUtils1.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
+        Properties.MAX_NOVELTY_ARCHIVE_SIZE = 2550;
+        Properties.MAX_FEATURE_DISTANCE = true;
+        Properties.NOVELTY_THRESHOLD = 0.4;
         Properties.STRATEGY = Properties.Strategy.NOVELTY;
         Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
-        Properties.RANK_AND_NOVELTY_SELECTION = true;
-        Properties.NOVELTY_SELECTION = false;
+        Properties.RANK_AND_NOVELTY_SELECTION = false;
+        Properties.NOVELTY_SELECTION = true;
+        Properties.RANKING_TYPE = Properties.RankingType.PREFERENCE_SORTING;
         //Properties.TEST_ARCHIVE = false;
         //Properties.ALGORITHM = Properties.Algorithm.MOSA;
         //Properties.MAX_FEATURE_DISTANCE = false;

@@ -8,12 +8,14 @@ import org.objectweb.asm.tree.FieldInsnNode;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FeatureFactory implements Serializable {
 
     private static Map<Integer, Feature> features = new HashMap<Integer, Feature>();
     private static Map<Integer, Feature> tempMap = new HashMap<>();
+    private static Map<FeatureKey, List<Double>> featureValueRangeList = new HashMap<>();
     private static Map<BytecodeInstruction, Integer> knownInstructions = new HashMap<BytecodeInstruction, Integer>();
     private static int defCounter = 0;
 
@@ -160,4 +162,11 @@ public class FeatureFactory implements Serializable {
         return null;
     }
 
+    public static Map<FeatureKey, List<Double>> getFeatureValueRangeList() {
+        return featureValueRangeList;
+    }
+
+    public static void setFeatureValueRangeList(Map<FeatureKey, List<Double>> featureValueRangeList) {
+        FeatureFactory.featureValueRangeList = featureValueRangeList;
+    }
 }
