@@ -17,7 +17,12 @@ public final class FeatureVector implements Serializable {
    */
   private static final long serialVersionUID = 1L;
  
-  private final class Entry {
+  private final class Entry implements Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    
     private final String name;
     private final Object value;
     private final int group;

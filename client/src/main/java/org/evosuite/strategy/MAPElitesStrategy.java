@@ -61,11 +61,15 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
 
     algorithm.resetStoppingConditions();
     
+    List<TestFitnessFunction> goals = this.getGoals();
+    
+    algorithm.addFitnessFunctions((List)goals);
+    
     if (!canGenerateTestsForSUT()) {
       LoggingUtils.getEvoLogger()
           .info("* Found no testable methods in the target class " + Properties.TARGET_CLASS);
       
-      ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, getGoals(true).size());
+      ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
       return new TestSuiteChromosome();
     }
@@ -80,7 +84,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     
     long endTime = System.currentTimeMillis() / 1000;
     
-    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, getGoals(false).size());
+    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
     
     // Newline after progress bar
     if (Properties.SHOW_PROGRESS)
@@ -103,39 +107,12 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     return testSuite;
   }
   
-  private List<TestFitnessFunction> getGoals(boolean verbose) {
+  private List<TestFitnessFunction> getGoals() {
     List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
-    List<TestFitnessFunction> goals = new ArrayList<>();
-
-    if(goalFactories.size() == 1) {
-        TestFitnessFactory<? extends TestFitnessFunction> factory = goalFactories.iterator().next();
-        goals.addAll(factory.getCoverageGoals());
-
-        if(verbose) {
-            LoggingUtils.getEvoLogger().info("* Total number of test goals: {}", factory.getCoverageGoals().size());
-            if (Properties.PRINT_GOALS) {
-                for (TestFitnessFunction goal : factory.getCoverageGoals())
-                    LoggingUtils.getEvoLogger().info("" + goal.toString());
-            }
-        }
-    } else {
-        if(verbose) {
-            LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
-        }
-
-        for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-            goals.addAll(goalFactory.getCoverageGoals());
-
-            if(verbose) {
-                LoggingUtils.getEvoLogger().info("  - " + goalFactory.getClass().getSimpleName().replace("CoverageFactory", "")
-                        + " " + goalFactory.getCoverageGoals().size());
-                if (Properties.PRINT_GOALS) {
-                    for (TestFitnessFunction goal : goalFactory.getCoverageGoals())
-                        LoggingUtils.getEvoLogger().info("" + goal.toString());
-                }
-            }
-        }
-    }
-    return goals;
+    List<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();
+          for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+              fitnessFunctions.addAll(goalFactory.getCoverageGoals());
+          }
+    return fitnessFunctions;
 }
 }

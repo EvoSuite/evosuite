@@ -61,7 +61,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     branchCoverage.forEach(branch -> {
       this.populationMap.put(branch, new LinkedHashMap<>());
       // TODO This will not work with a subclass of TestChromosome...
-      super.addFitnessFunction((FitnessFunction<T>) branch);
+      //super.addFitnessFunction((FitnessFunction<T>) branch);
     });
   }
   
@@ -135,12 +135,19 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       T mutation = (T)chromosome.clone();
       notifyMutation(mutation);
       mutation.mutate();
-      this.population.add(mutation);
-      
-      analyzeChromosome(chromosome);
+      this.add(mutation);
+    }
+    
+    if(Randomness.nextBoolean()) {
+      this.add(this.getRandomPopulation(1).get(0));
     }
 
     ++currentIteration;
+  }
+  
+  private void add(T chromosome) {
+    this.population.add(chromosome);
+    analyzeChromosome(chromosome);
   }
 
   private double getDensity() {
@@ -204,8 +211,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       this.analyzeChromosome(chromosome);
     }
   }
-
-
 
   @Override
   public void generateSolution() {

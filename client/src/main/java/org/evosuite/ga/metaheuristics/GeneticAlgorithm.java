@@ -413,19 +413,28 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 *            a int.
 	 */
 	protected void generateRandomPopulation(int population_size) {
-		logger.debug("Creating random population");
-		for (int i = 0; i < population_size; i++) {
-			T individual = chromosomeFactory.getChromosome();
-			for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
-				individual.addFitness(fitnessFunction);
-			}
-
-			population.add(individual);
-			if (isFinished())
-				break;
-		}
-		logger.debug("Created " + population.size() + " individuals");
+	    population.addAll(this.getRandomPopulation(population_size));
 	}
+	
+	protected List<T> getRandomPopulation(int population_size) {
+      logger.debug("Creating random population");
+      
+      List<T> newPopulation = new ArrayList<>(population_size);
+      
+      for (int i = 0; i < population_size; i++) {
+          T individual = chromosomeFactory.getChromosome();
+          for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
+              individual.addFitness(fitnessFunction);
+          }
+
+          newPopulation.add(individual);
+          if (isFinished())
+              break;
+      }
+      logger.debug("Created " + newPopulation.size() + " individuals");
+      
+      return newPopulation;
+  }
 
 	/**
 	 * Delete all current individuals
