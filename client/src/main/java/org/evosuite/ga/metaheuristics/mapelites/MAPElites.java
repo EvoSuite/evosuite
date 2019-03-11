@@ -227,7 +227,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     while (!isFinished()) {
       evolve();
       
-      this.sortPopulation();
+      //this.sortPopulation();
       
       ClientServices.getInstance().getClientNode()
       .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());

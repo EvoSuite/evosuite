@@ -47,7 +47,8 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     // What's the search target
     List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
     SuiteFitnessEvaluationListener listener = new SuiteFitnessEvaluationListener(fitnessFunctions);
-    algorithm.addListener(listener);
+    
+    //algorithm.addListener(listener);
     
     if (Properties.TRACK_DIVERSITY)
       algorithm.addListener(new DiversityObserver());
