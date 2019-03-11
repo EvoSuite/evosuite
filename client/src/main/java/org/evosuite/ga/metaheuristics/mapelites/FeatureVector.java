@@ -28,11 +28,14 @@ public final class FeatureVector implements Serializable {
     private final int group;
     
     public Entry(Inspector inspector, Object instance) {
+      Object value;
       try {
-        this.value = inspector.getValue(instance);
-      } catch (ReflectiveOperationException e) {
-        throw new RuntimeException(e);
+        value = inspector.getValue(instance);
+      } catch (Exception e) {
+        value = null;
       }
+      
+      this.value = value;
       this.name = inspector.getMethodCall();
       this.group = this.calculateGroup();
     }
