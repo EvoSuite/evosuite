@@ -21,7 +21,7 @@ public class NoveltySearchSystemTest extends SystemTestBase {
     public void testNoveltySearch() {
         EvoSuite evosuite = new EvoSuite();
 
-        String targetClass = DataUtils1.class.getCanonicalName();
+        String targetClass = DataUtils.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
 
         Properties.MAX_NOVELTY_ARCHIVE_SIZE = 2550;
@@ -29,8 +29,14 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         Properties.NOVELTY_THRESHOLD = 0.4;
         Properties.STRATEGY = Properties.Strategy.NOVELTY;
         Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
+
         Properties.RANK_AND_NOVELTY_SELECTION = false;
-        Properties.NOVELTY_SELECTION = true;
+        Properties.RANK_AND_DISTANCE_SELECTION = false;
+        Properties.NOVELTY_SELECTION = false;
+
+        Properties.SWITCH_NOVELTY_FITNESS = true;
+        Properties.SWITCH_ITERATIONS = 5;
+
         Properties.RANKING_TYPE = Properties.RankingType.PREFERENCE_SORTING;
         //Properties.TEST_ARCHIVE = false;
         //Properties.ALGORITHM = Properties.Algorithm.MOSA;
@@ -88,20 +94,28 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         String targetClass = "com.google.common.base.Utf8";
         Properties.TARGET_CLASS = targetClass;
         //Properties.INSTRUMENT_ONLY_FIELD = true;
-        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
+      /*  Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
         //Properties.STRATEGY = Properties.Strategy.MOSUITE;
         Properties.STRATEGY = Properties.Strategy.NOVELTY;
         Properties.SELECTION_FUNCTION = NOVELTY_RANK_TOURNAMENT;
         //Properties.TEST_ARCHIVE = false;
         //Properties.ALGORITHM = Properties.Algorithm.MOSA;
         //Properties.MAX_FEATURE_DISTANCE = false;
-        Properties.ALGORITHM = Properties.Algorithm.NOVELTY;
-        String[] command = new String[]{"-generateSuite", "-projectCP", "C:\\Users\\Prathmesh\\Downloads\\subjects-icst15\\subjects\\guava-18.0",  "-class", targetClass};
+        Properties.ALGORITHM = Properties.Algorithm.NOVELTY;*/
+
+        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH};
+        Properties.SELECTION_FUNCTION = RANK_CROWD_DISTANCE_TOURNAMENT;
+        Properties.ALGORITHM = Properties.Algorithm.MOSA;
+        Properties.STRATEGY = Properties.Strategy.MOSUITE;
+
+
+        String[] command = new String[]{"-generateMOSuite", "-projectCP", "C:\\Users\\Prathmesh\\Downloads\\subjects-icst15\\subjects\\guava-18.0",  "-class", targetClass};
 
         Object result = evosuite.parseCommandLine(command);
 
-        NoveltySearch<?> ga = (NoveltySearch)getGAFromResult(result);
-        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual1();
+        /*NoveltySearch<?> ga = (NoveltySearch)getGAFromResult(result);*/
+        MOSA<?> ga = (MOSA<?>) getGAFromResult(result);
+        TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("Generations : "+ga.getAge());
         System.out.print(best.toString());
         System.out.println("Feature values : "+ FeatureFactory.getFeatures());

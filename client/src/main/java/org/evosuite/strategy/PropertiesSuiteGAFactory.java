@@ -202,6 +202,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
         	logger.info("Chosen search algorithm: MOSA");
             return new MOSA<TestSuiteChromosome>(factory);
 		case NOVELTY:
+			logger.info("Chosen search algorithm: NOVELTY");
 			return new NoveltySearch<TestSuiteChromosome>(factory);
         case DYNAMOSA:
         	logger.info("Chosen search algorithm: DynaMOSA");

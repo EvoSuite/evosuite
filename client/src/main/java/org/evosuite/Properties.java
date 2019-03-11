@@ -1545,8 +1545,18 @@ public class Properties {
 	public static boolean RANK_AND_NOVELTY_SELECTION = true;
 
 	// used in selection
+	@Parameter(key = "rank_and_distance_selection", group = "Runtime", description = "If true, it enables selection based on rank and distance")
+	public static boolean RANK_AND_DISTANCE_SELECTION = true;
+
+	// used in selection
 	@Parameter(key = "novelty_selection", group = "Runtime", description = "If true, it enables selection based only on novelty")
 	public static boolean NOVELTY_SELECTION = false;
+
+	@Parameter(key = "switch_novelty_fitness", group = "Runtime", description = "If true, the algorithm switches between novelty and optimization")
+	public static boolean SWITCH_NOVELTY_FITNESS = false;
+
+	@Parameter(key = "switch_iterations", group = "Runtime", description = "Decides after how many iterations the algorithm switches between novelty and optimization")
+	public static int SWITCH_ITERATIONS = 5;
 
 	@Parameter(key = "max_novelty_archive_size", group = "Runtime", description = "Maximum size of the novelty archive")
 	public static int MAX_NOVELTY_ARCHIVE_SIZE = 500;

@@ -37,7 +37,11 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
 
     private boolean isToMaximize;
 
-    private boolean isRankBasedCompetition = false;
+    private boolean isRankAndNoveltyBasedCompetition = false;
+
+    private boolean isRankAndDistanceBasedCompetition = false;
+
+    private boolean isOnlyNoveltyBasedCompetition = true;
 
     public NoveltyAndRankComparator() {
         this.isToMaximize = false;
@@ -48,11 +52,27 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
     }
 
     public boolean isRankBasedCompetition() {
-        return this.isRankBasedCompetition;
+        return this.isRankAndNoveltyBasedCompetition;
     }
 
-    public void setRankBasedCompetition(boolean rankBasedCompetition) {
-        this.isRankBasedCompetition = rankBasedCompetition;
+    public boolean isRankAndDistanceBasedCompetition() {
+        return isRankAndDistanceBasedCompetition;
+    }
+
+    public void setRankAndDistanceBasedCompetition(boolean rankAndDistanceBasedCompetition) {
+        isRankAndDistanceBasedCompetition = rankAndDistanceBasedCompetition;
+    }
+
+    public boolean isOnlyNoveltyBasedCompetition() {
+        return isOnlyNoveltyBasedCompetition;
+    }
+
+    public void setOnlyNoveltyBasedCompetition(boolean onlyNoveltyBasedCompetition) {
+        isOnlyNoveltyBasedCompetition = onlyNoveltyBasedCompetition;
+    }
+
+    public void setRankAndNoveltyBasedCompetition(boolean rankBasedCompetition) {
+        this.isRankAndNoveltyBasedCompetition = rankBasedCompetition;
     }
 
     /**
@@ -72,40 +92,39 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
             return -1;
         }
 
-        /*if (this.isRankBasedCompetition){
-            if (c1.getRank() == c2.getRank() && c1.getDistance() == c2.getDistance()) {
+        if (this.isRankAndNoveltyBasedCompetition){
+            if (c1.getRank() == c2.getRank() && c1.getNoveltyScore() == c2.getNoveltyScore()) {
                 return 0;
             }
-        }
-        if (!this.isRankBasedCompetition) {
-            if (c1.getNoveltyScore() == c2.getNoveltyScore() && c1.getRank() == c2.getRank()) {
-                return 0;
-            }
-        }*/
-
-        if (this.isRankBasedCompetition) {
-            /*if (c1.getRank() < c2.getRank()) {
-                return -1;
-            } else if (c1.getRank() > c2.getRank()) {
-                return 1;
-            } else if (c1.getRank() == c2.getRank()) {
-                return (c1.getDistance() > c2.getDistance()) ? -1 : 1;
-            }*/
             if (c1.getRank() < c2.getRank()) {
                 return -1;
             } else if (c1.getRank() > c2.getRank()) {
                 return 1;
             } else if (c1.getRank() == c2.getRank()) {
-                return (c2.getNoveltyScore() < c1.getNoveltyScore())? -1 : 1;
+                return (c1.getNoveltyScore() > c2.getNoveltyScore()) ? -1 : 1;
             }
         }
+        else if (this.isRankAndDistanceBasedCompetition){
+            if (c1.getRank() == c2.getRank() && c1.getDistance() == c2.getDistance()) {
+                return 0;
+            }
+            if (c1.getRank() < c2.getRank()) {
+                return -1;
+            } else if (c1.getRank() > c2.getRank()) {
+                return 1;
+            } else if (c1.getRank() == c2.getRank()) {
+                return (c1.getDistance() > c2.getDistance()) ? -1 : 1;
+            }
+        }
+        else if (this.isOnlyNoveltyBasedCompetition) {
+            if (c2.getNoveltyScore() < c1.getNoveltyScore()) {
+                return -1;
+            } else if (c2.getNoveltyScore() > c1.getNoveltyScore()) {
+                return 1;
+            } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
+                return 0;
 
-        if (c2.getNoveltyScore() < c1.getNoveltyScore()) {
-            return -1;
-        } else if (c2.getNoveltyScore() > c1.getNoveltyScore()) {
-            return 1;
-        } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
-            return 0;
+            }
         }
 
         return 0;

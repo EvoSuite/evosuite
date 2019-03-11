@@ -127,6 +127,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
     @Override
     //public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
     public NoveltySearch<TestChromosome> getSearchAlgorithm() {
+        logger.info("Chosen search algorithm: NOVELTY");
         ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
 
         NoveltySearch<TestChromosome> ga = new NoveltySearch<>(factory);

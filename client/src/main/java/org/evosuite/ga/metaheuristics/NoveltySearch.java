@@ -278,56 +278,68 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
     @Override
     protected void evolve() {
 
-        /*List<T> offspringPopulation = this.breedNextGeneration();
+        List<T> offspringPopulation = this.breedNextGeneration();
 
-        // Create the union of parents and offSpring
-        List<T> union = new ArrayList<T>();
-        union.addAll(this.population);
-        union.addAll(offspringPopulation);
+        if(Properties.NOVELTY_SELECTION){
+            this.population.clear();
+            this.population.addAll(offspringPopulation);
+        }else{
+            // Create the union of parents and offSpring
+            List<T> union = new ArrayList<T>();
+            union.addAll(this.population);
+            union.addAll(offspringPopulation);
 
-        Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
+            Set<FitnessFunction<T>> uncoveredGoals = this.getUncoveredGoals();
 
-        // Ranking the union
-        logger.debug("Union Size =" + union.size());
-        // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
-        this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
+            // Ranking the union
+            logger.debug("Union Size =" + union.size());
+            // Ranking the union using the best rank algorithm (modified version of the non dominated sorting algorithm)
+            this.rankingFunction.computeRankingAssignment(union, uncoveredGoals);
 
-        int remain = this.population.size();
-        int index = 0;
-        List<T> front = null;
-        this.population.clear();
-
-        // Obtain the next front
-        front = this.rankingFunction.getSubfront(index);
-
-        while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
-            // Assign crowding distance to individuals
-            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
-            // Add the individuals of this front
-            this.population.addAll(front);
-
-            // Decrement remain
-            remain = remain - front.size();
+            int remain = this.population.size();
+            int index = 0;
+            List<T> front = null;
+            this.population.clear();
 
             // Obtain the next front
-            index++;
-            if (remain > 0) {
-                front = this.rankingFunction.getSubfront(index);
+            front = this.rankingFunction.getSubfront(index);
+
+            while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
+                // Assign crowding distance to individuals
+                if(Properties.RANK_AND_DISTANCE_SELECTION){
+                    this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
+                }
+                // Add the individuals of this front
+                this.population.addAll(front);
+
+                // Decrement remain
+                remain = remain - front.size();
+
+                // Obtain the next front
+                index++;
+                if (remain > 0) {
+                    front = this.rankingFunction.getSubfront(index);
+                }
             }
-        }
-        // Remain is less than front(index).size, insert only the best one
-        if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
-            this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
-            Collections.sort(front, new OnlyCrowdingComparator());
-            for (int k = 0; k < remain; k++) {
-                this.population.add(front.get(k));
+            // Remain is less than front(index).size, insert only the best one
+            if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
+                if(Properties.RANK_AND_DISTANCE_SELECTION) {
+                    this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
+                    Collections.sort(front, new OnlyCrowdingComparator());
+                }
+                for (int k = 0; k < remain; k++) {
+                    this.population.add(front.get(k));
+                }
+
+                remain = 0;
             }
 
-            remain = 0;
         }
-        this.currentIteration++;*/
+        this.currentIteration++;
 
-        List<T> newGeneration = new ArrayList<T>();
+
+
+        /*List<T> newGeneration = new ArrayList<T>();
         // changes start
         for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
             // select best individuals
@@ -403,7 +415,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         //archive
         updateFitnessFunctionsAndValues();
         //
-        currentIteration++;
+        currentIteration++;*/
     }
     protected List<T> breedNextGeneration() {
         List<T> offspringPopulation = new ArrayList<T>(Properties.POPULATION);
@@ -414,15 +426,30 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             T parent1 = null;
             T parent2 = null;
             if(Properties.RANK_AND_NOVELTY_SELECTION){ // by default true
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(false);
+
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(true);
                 parent1 = this.selectionFunction.select(this.population);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(true);
+                parent2 = this.selectionFunction.select(this.population);
+            }
+            else if(Properties.RANK_AND_DISTANCE_SELECTION){
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(false);
+
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(true);
+                parent1 = this.selectionFunction.select(this.population);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(true);
                 parent2 = this.selectionFunction.select(this.population);
             }
             else if(Properties.NOVELTY_SELECTION){
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(false);
+
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(true);
                 parent1 = this.selectionFunction.select(this.population);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(true);
                 parent2 = this.selectionFunction.select(this.population);
             }
             T offspring1 = (T) parent1.clone();
@@ -541,25 +568,51 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             initializePopulation();
 
         // Calculate dominance ranks
-        /*this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
-        for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
-            this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
-        }*/
+        if(Properties.RANK_AND_NOVELTY_SELECTION){
+            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+        }
+        if (Properties.RANK_AND_DISTANCE_SELECTION) {
+            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+            for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
+                this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
+            }
+        }
+
+        if(Properties.SWITCH_NOVELTY_FITNESS){
+            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+            for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
+                this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
+            }
+        }
+
+
 
         logger.warn("Starting evolution of novelty search algorithm");
 
         while (!isFinished() && this.getNumberOfUncoveredGoals() > 0) {
             logger.warn("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
+
             // for experiments
             boolean processForNovelty = true;
-            /*if((currentIteration%5) == 0){
-                Properties.RANK_AND_NOVELTY_SELECTION = false;
-                Properties.NOVELTY_SELECTION = true;
-                processForNovelty = true;
-            }else{
-                Properties.RANK_AND_NOVELTY_SELECTION = true;
-                Properties.NOVELTY_SELECTION = false;
-            }*/
+            if(Properties.SWITCH_NOVELTY_FITNESS){
+                if((currentIteration%Properties.SWITCH_ITERATIONS) == 0){
+                    Properties.RANK_AND_NOVELTY_SELECTION = false;
+                    Properties.RANK_AND_DISTANCE_SELECTION = false;
+                    Properties.NOVELTY_SELECTION = true;
+                    calculateNoveltyAndSortPopulation(getUncoveredMethodNames(), true);
+                    processForNovelty = false;
+                }else{
+                    Properties.RANK_AND_DISTANCE_SELECTION = true;
+                    Properties.NOVELTY_SELECTION = false;
+                    Properties.RANK_AND_NOVELTY_SELECTION = false;
+                    processForNovelty = false;
+                }
+            }
+            if (Properties.RANK_AND_DISTANCE_SELECTION) {
+                processForNovelty = false;
+            }
+
+            /**/
 
             long startTime = System.currentTimeMillis();
             evolve();
