@@ -120,6 +120,11 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private Set<T> getToMutateRandom() {
     Set<T> toMutate = new LinkedHashSet<>(1);
     Map<FeatureVector, T> entry = Randomness.choice(populationMap.values());
+    
+    if(entry == null) {
+      return toMutate;
+    }
+    
     T chromosome = Randomness.choice(entry.values());
     
     if(chromosome != null) {
