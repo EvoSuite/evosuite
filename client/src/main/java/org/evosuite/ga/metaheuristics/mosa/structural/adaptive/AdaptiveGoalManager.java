@@ -3,7 +3,10 @@ package org.evosuite.ga.metaheuristics.mosa.structural.adaptive;
 import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
+import org.evosuite.coverage.method.MethodCoverageTestFitness;
+import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
@@ -11,6 +14,7 @@ import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.PerformanceScoreComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.BranchesManager;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriatManager;
+import org.evosuite.instrumentation.LinePool;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -33,7 +37,6 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
     private static final Logger logger = LoggerFactory.getLogger(AdaptiveGoalManager.class);
 
     protected final Map<Integer, FitnessFunction<T>> lineMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
-    protected final Map<Integer, FitnessFunction<T>> weakMutationMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
 
     private PerformanceScoreComparator comparator = new PerformanceScoreComparator();
 
@@ -48,8 +51,6 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
         for (FitnessFunction f : fitnessFunctions) {
             if (f instanceof LineCoverageTestFitness)
                 lineMap.put(((LineCoverageTestFitness) f).getLine(), f);
-            if (f instanceof WeakMutationTestFitness)
-                weakMutationMap.put(((WeakMutationTestFitness) f).getMutation().getId(), f);
         }
     }
 
@@ -133,18 +134,13 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
         super.updateArchive(c, result);
         if (ArrayUtils.contains(Properties.CRITERION, Properties.Criterion.LINE)) {
             for (Integer line : result.getTrace().getCoveredLines()) {
-                FitnessFunction<T> branch = this.lineMap.get(line);
-                if (branch == null)
-                    continue;
-                updateCoveredGoals((FitnessFunction<T>) branch, c);
+                updateCoveredGoals(this.lineMap.get(line), c);
             }
         }
         if (ArrayUtils.contains(Properties.CRITERION, Properties.Criterion.WEAKMUTATION)) {
             for (Integer id : result.getTrace().getInfectedMutants()) {
-                FitnessFunction<T> branch = this.weakMutationMap.get(id);
-                if (branch == null)
-                    continue;
-                updateCoveredGoals((FitnessFunction<T>) branch, c);
+                FitnessFunction mutant = new WeakMutationTestFitness (MutationPool.getMutant(id));
+                updateCoveredGoals(mutant, c);
             }
         }
     }
