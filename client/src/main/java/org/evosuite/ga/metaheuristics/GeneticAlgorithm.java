@@ -288,7 +288,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * 
 	 * @return
 	 */
-	private boolean isMaximizationFunction() {
+	protected final boolean isMaximizationFunction() {
 		return fitnessFunctions.get(0).isMaximizationFunction();
 	}
 

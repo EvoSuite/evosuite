@@ -1,9 +1,11 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,9 +50,12 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   
   private final int featureVectorPossibilityCount;
   
+  private final List<T> bestIndividuals;
+  
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
-    this.droppedFeatureVectors = new HashSet<>();
+    this.bestIndividuals = new LinkedList<>();
+    this.droppedFeatureVectors = new LinkedHashSet<>();
     TestResultObserver observer = new TestResultObserver();
     this.featureVectorPossibilityCount = observer.getPossibilityCount();
     TestCaseExecutor.getInstance().addObserver(observer);
@@ -60,8 +65,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     this.populationMap = new LinkedHashMap<>(branchCoverage.size());
     branchCoverage.forEach(branch -> {
       this.populationMap.put(branch, new LinkedHashMap<>());
-      // TODO This will not work with a subclass of TestChromosome...
-      //super.addFitnessFunction((FitnessFunction<T>) branch);
     });
   }
   
@@ -146,14 +149,13 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   }
   
   private void add(T chromosome) {
-    this.population.add(chromosome);
     analyzeChromosome(chromosome);
   }
 
   private double getDensity() {
     int n = this.featureVectorPossibilityCount;
     
-    Set<FeatureVector>  vectors = new HashSet<>();
+    Set<FeatureVector>  vectors = new LinkedHashSet<>();
     
     this.populationMap.values().forEach(entry -> vectors.addAll(entry.keySet()));
         
@@ -190,10 +192,11 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       }
       
       if(branchFitness.isCovered(chromosome)) {
-        // Remove from map. Covering chromosomes are stored in Archive.getArchiveInstance() and this.population.
+        // Remove from map. Covering chromosomes are stored in Archive.getArchiveInstance() and this.coveringChromosomes.
         it.remove();
         
         this.droppedFeatureVectors.addAll(featureMap.keySet());
+        this.bestIndividuals.add(chromosome);
       }
     }
   }
@@ -205,19 +208,47 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     currentIteration = 0;
 
     // Set up initial population
-    generateInitialPopulation(Properties.POPULATION);
+    List<T> population = this.getRandomPopulation(Properties.POPULATION);
 
-    for (T chromosome : this.population) {    
+    for (T chromosome : population) {    
       this.analyzeChromosome(chromosome);
     }
   }
+  
+  @Override
+  public T getBestIndividual() {
+    if(this.bestIndividuals.isEmpty()) {
+        return this.chromosomeFactory.getChromosome();
+    }
+    
+    return this.bestIndividuals.get(0);
+  }
 
   @Override
-  public void generateSolution() {
-    if (population.isEmpty()) {
-      initializePopulation();
-      assert !population.isEmpty() : "Could not create any test";
+  public List<T> getBestIndividuals() {
+     throw new UnsupportedOperationException();
+  }
+  
+  private void updateAndSortBest() {
+    for(Map<FeatureVector, T> branch : this.populationMap.values()) {
+        this.bestIndividuals.addAll(branch.values());
     }
+    
+    if (isMaximizationFunction()) {
+      Collections.sort(this.bestIndividuals, Collections.reverseOrder());
+    } else {
+      Collections.sort(this.bestIndividuals);
+    }
+  }
+  
+  @Override
+  public List<T> getPopulation() {
+    return this.bestIndividuals;
+  }
+  
+  @Override
+  public void generateSolution() {
+    initializePopulation();
 
     currentIteration = 0;
 
@@ -227,15 +258,13 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     while (!isFinished()) {
       evolve();
       
-      //this.sortPopulation();
-      
       ClientServices.getInstance().getClientNode()
       .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
       
       this.notifyIteration();
     }
 
-    updateBestIndividualFromArchive();
+    updateAndSortBest();
     notifySearchFinished();
   }
 
