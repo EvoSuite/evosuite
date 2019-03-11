@@ -72,16 +72,21 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * Mutate one branch on average
    * @return The chromosomes to be mutated
    */
-  private List<T> getToMutateWithChance() {
+  private Set<T> getToMutateWithChance() {
     final double chance = 1.0 / populationMap.size();
 
     // Required to prevent concurrent modification
-    List<T> toMutate = new ArrayList<>(1);
+    Set<T> toMutate = new LinkedHashSet<>(1);
 
     for (Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry : populationMap.entrySet()) {
 
       if (Randomness.nextDouble() <= chance) {
         T chromosome = Randomness.choice(entry.getValue().values());
+        
+        if(chromosome != null) {
+          toMutate.add(chromosome);
+        }
+        
         toMutate.add(chromosome);
       }
     }
@@ -94,8 +99,8 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * Mutate every branch
    * @return The chromosomes to be mutated
    */
-  private List<T> getToMutateAll() {
-    List<T> toMutate = new ArrayList<>(populationMap.values().size());
+  private Set<T> getToMutateAll() {
+    Set<T> toMutate = new LinkedHashSet<>(populationMap.values().size());
     
     for(Map<FeatureVector, T> entry : populationMap.values()) {
       T chromosome = Randomness.choice(entry.values());
@@ -112,17 +117,21 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * Mutate exactly one branch and one chromosome
    * @return The chromosomes to be mutated
    */
-  private List<T> getToMutateRandom() {
-    List<T> toMutate = new ArrayList<>(1);
+  private Set<T> getToMutateRandom() {
+    Set<T> toMutate = new LinkedHashSet<>(1);
     Map<FeatureVector, T> entry = Randomness.choice(populationMap.values());
     T chromosome = Randomness.choice(entry.values());
-    toMutate.add(chromosome);
+    
+    if(chromosome != null) {
+      toMutate.add(chromosome);
+    }
+
     return toMutate;
   }
   
   @Override
   protected void evolve() {
-    List<T> toMutate;
+    Set<T> toMutate;
     
     switch(Properties.MAP_ELITES_CHOICE) {
       case ALL:
