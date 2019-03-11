@@ -14,6 +14,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
@@ -99,7 +100,10 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     
     for(Map<FeatureVector, T> entry : populationMap.values()) {
       T chromosome = Randomness.choice(entry.values());
-      toMutate.add(chromosome);
+      
+      if(chromosome != null) {
+        toMutate.add(chromosome);
+      }
     }
     
     return toMutate;
@@ -135,23 +139,20 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     }
     
     for(T chromosome : toMutate) {
-      T mutation = (T)chromosome.clone();
+      Chromosome clone = chromosome.clone();
+      T mutation = (T)clone;
       notifyMutation(mutation);
       mutation.mutate();
-      this.add(mutation);
+      this.analyzeChromosome(mutation);
     }
     
-    if(Randomness.nextBoolean()) {
-      this.add(this.getRandomPopulation(1).get(0));
+    if(toMutate.isEmpty() || Randomness.nextBoolean()) {
+      this.analyzeChromosome(this.getRandomPopulation(1).get(0));
     }
 
     ++currentIteration;
   }
   
-  private void add(T chromosome) {
-    analyzeChromosome(chromosome);
-  }
-
   private double getDensity() {
     int n = this.featureVectorPossibilityCount;
     
@@ -210,6 +211,10 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     // Set up initial population
     List<T> population = this.getRandomPopulation(Properties.POPULATION);
 
+    if(population.isEmpty()) {
+      throw new IllegalStateException();
+    }
+    
     for (T chromosome : population) {    
       this.analyzeChromosome(chromosome);
     }
