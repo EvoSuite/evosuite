@@ -159,7 +159,8 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       }
     }
     
-    if(toMutate.isEmpty() || Randomness.nextBoolean()) {
+    if((toMutate.isEmpty() && Properties.MAP_ELITES_CHOICE != Properties.MapElitesChoice.SINGLE_AVG)
+        || Randomness.nextDouble() <= 0.3) {
       this.analyzeChromosome(this.getRandomPopulation(1).get(0));
     }
 
