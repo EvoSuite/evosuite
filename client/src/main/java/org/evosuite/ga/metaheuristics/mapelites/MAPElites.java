@@ -1,6 +1,5 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -154,7 +153,10 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       T mutation = (T)clone;
       notifyMutation(mutation);
       mutation.mutate();
-      this.analyzeChromosome(mutation);
+      
+      if(mutation.isChanged() && !isTooLong(mutation)) {
+        this.analyzeChromosome(mutation);
+      }
     }
     
     if(toMutate.isEmpty() || Randomness.nextBoolean()) {
@@ -278,8 +280,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   @Override
   public void generateSolution() {
     initializePopulation();
-
-    currentIteration = 0;
     
     ClientServices.getInstance().getClientNode()
     .trackOutputVariable(RuntimeVariable.FeatureSize, this.featureVectorPossibilityCount);

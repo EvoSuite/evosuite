@@ -93,7 +93,6 @@ public class PropertiesMapElitesSearchFactory
         ga.addListener(new MutationTestPool());
     }
     ga.resetStoppingConditions();
-    ga.setPopulationLimit(getPopulationLimit());
 
     if (Properties.CHECK_BEST_LENGTH) {
       RelativeSuiteLengthBloatControl bloat_control =
