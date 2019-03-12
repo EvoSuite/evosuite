@@ -164,21 +164,34 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     ++currentIteration;
   }
   
-  private double getDensity() {
-    int n = this.featureVectorPossibilityCount;
-    
+  private int getFoundVectorCount() {
     Set<FeatureVector>  vectors = new LinkedHashSet<>();
     
     this.populationMap.values().forEach(entry -> vectors.addAll(entry.keySet()));
         
     vectors.addAll(this.droppedFeatureVectors);
     
-    int z = vectors.size();
+    return vectors.size();
+  }
+  
+  private void sendFeatureData() {
+    int foundVectorCount = this.getFoundVectorCount();
+    double density = this.getDensity(foundVectorCount);
+    
+    ClientServices.getInstance().getClientNode()
+    .trackOutputVariable(RuntimeVariable.DensityTimeline, density);
+    
+    ClientServices.getInstance().getClientNode()
+    .trackOutputVariable(RuntimeVariable.FeaturesFound, foundVectorCount);
+  }
+  
+  private double getDensity(int foundVectorCount) {
+    int n = this.featureVectorPossibilityCount;
+    int z = this.getFoundVectorCount();
     
     // TODO MOSA Sparcity + Add feature vector extraction there for timing
     
     double density = z/(double)n;
-    logger.debug("Density: {}, Vectors: {}", density, vectors);
     return density;
   }
   
@@ -267,15 +280,16 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     initializePopulation();
 
     currentIteration = 0;
-
+    
     ClientServices.getInstance().getClientNode()
-    .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
+    .trackOutputVariable(RuntimeVariable.FeatureSize, this.featureVectorPossibilityCount);
+
+    this.sendFeatureData();
     
     while (!isFinished()) {
       evolve();
       
-      ClientServices.getInstance().getClientNode()
-      .trackOutputVariable(RuntimeVariable.DensityTimeline, this.getDensity());
+      this.sendFeatureData();
       
       this.notifyIteration();
     }
