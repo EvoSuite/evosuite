@@ -6,6 +6,8 @@ import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.coverage.dataflow.FeatureKey;
 import org.evosuite.testcase.TestChromosome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,6 +31,8 @@ public class FeatureValueAnalyser {
     public static final String VALUE_DIFF = "VALUE_DIFF";
     public static final String STRUCT_DIFF = "STRUCT_DIFF";
     public static final String TOTAL_TAGS = "TOTAL_TAGS";
+
+    private final static Logger logger = LoggerFactory.getLogger(FeatureValueAnalyser.class);
 
     private static Map<String, List<Double>>  nodeAnalysisMap = new HashMap<String, List<Double>>();
 
@@ -161,6 +165,11 @@ public class FeatureValueAnalyser {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
+            //fix TODO: FeatureInstrumentation is yet not intelligent enough to not serialize certain classes.
+            if(xm11.contains("&#")){
+                xm11 = xm11.replace("&#", "");
+            }
+
             Document doc = dBuilder.parse(new InputSource(new StringReader(xm11)));
             doc.getDocumentElement().normalize();
 
@@ -168,7 +177,7 @@ public class FeatureValueAnalyser {
                 iterateNodes(doc.getChildNodes());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while parsing xml string. Empty map will be returned");
         }
         return nodeAnalysisMap;
     }
