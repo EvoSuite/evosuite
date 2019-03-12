@@ -86,8 +86,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
         if(chromosome != null) {
           toMutate.add(chromosome);
         }
-        
-        toMutate.add(chromosome);
       }
     }
     
