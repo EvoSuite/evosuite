@@ -1531,7 +1531,13 @@ public class Properties {
 	}
 
 	@Parameter(key = "novelty_threshold", group = "Runtime", description = "If novelty of an individual is greater than this threshold then it is added to the novelty archive")
-	public static double NOVELTY_THRESHOLD = 0.5;
+    public static double NOVELTY_THRESHOLD = 0.5;
+
+    @Parameter(key = "novelty_threshold_percentage", group = "Runtime", description = "By how much percentage should the threshold change")
+    public static double NOVELTY_THRESHOLD_PERCENTAGE = 0.05;
+
+    @Parameter(key = "dynamic_novelty_threshold", group = "Runtime", description = "If true, it enables the novelty threshold to be adjusted dynamically depending on the number of individuals qualifying above the previously set threshold")
+    public static boolean DYNAMIC_NOVELTY_THRESHOLD = true;
 
 	// parameters used for experiment purpose
 	@Parameter(key = "max_feature_distance", group = "Runtime", description = "If true, then maximum distance between the same feature of multiple maps will be considered.")
@@ -1543,6 +1549,10 @@ public class Properties {
 	// used in selection
 	@Parameter(key = "rank_and_novelty_selection", group = "Runtime", description = "If true, it enables selection based on novelty and fitness")
 	public static boolean RANK_AND_NOVELTY_SELECTION = true;
+
+	//Experimental purpose
+    @Parameter(key = "distance_for_novelty", group = "Runtime", description = "If true, it replaces noveltyScore with the distance")
+    public static boolean DISTANCE_FOR_NOVELTY = false;
 
 	// used in selection
 	@Parameter(key = "rank_and_distance_selection", group = "Runtime", description = "If true, it enables selection based on rank and distance")

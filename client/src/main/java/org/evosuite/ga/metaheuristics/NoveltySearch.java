@@ -1,14 +1,11 @@
 package org.evosuite.ga.metaheuristics;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
-import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
-import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.ga.operators.selection.TournamentSelectionNoveltyAndRankComparator;
 import org.evosuite.rmi.ClientServices;
@@ -16,7 +13,6 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -25,9 +21,7 @@ import org.evosuite.utils.BudgetConsumptionMonitor;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.util.*;
 
 public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
@@ -283,7 +277,14 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         if(Properties.NOVELTY_SELECTION){
             this.population.clear();
             this.population.addAll(offspringPopulation);
-        }else{
+        }
+        else if(Properties.DISTANCE_FOR_NOVELTY){
+            this.population.clear();
+            this.population.addAll(offspringPopulation);
+            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+            this.distance.fastEpsilonDominanceAssignment(this.population, this.getUncoveredGoals());
+        }
+        else{
             // Create the union of parents and offSpring
             List<T> union = new ArrayList<T>();
             union.addAll(this.population);
@@ -443,7 +444,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
                 ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(true);
                 parent2 = this.selectionFunction.select(this.population);
             }
-            else if(Properties.NOVELTY_SELECTION){
+            else if(Properties.NOVELTY_SELECTION || Properties.DISTANCE_FOR_NOVELTY){
                 ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(false);
                 ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(false);
 
@@ -571,14 +572,20 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         if(Properties.RANK_AND_NOVELTY_SELECTION){
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
         }
-        if (Properties.RANK_AND_DISTANCE_SELECTION) {
+        // Properties.DISTANCE_FOR_NOVELTY added for Experimental purpose
+        else if (Properties.DISTANCE_FOR_NOVELTY) {
+            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+            this.distance.fastEpsilonDominanceAssignment(this.population, this.getUncoveredGoals()); // distance for the entire population instead of each of the fronts.
+        }
+
+        else if (Properties.RANK_AND_DISTANCE_SELECTION) {
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
             for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
                 this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
             }
         }
 
-        if(Properties.SWITCH_NOVELTY_FITNESS){
+        else if(Properties.SWITCH_NOVELTY_FITNESS){
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
             for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
                 this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
@@ -608,7 +615,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
                     processForNovelty = false;
                 }
             }
-            if (Properties.RANK_AND_DISTANCE_SELECTION) {
+            if (Properties.RANK_AND_DISTANCE_SELECTION || Properties.DISTANCE_FOR_NOVELTY) {
                 processForNovelty = false;
             }
 

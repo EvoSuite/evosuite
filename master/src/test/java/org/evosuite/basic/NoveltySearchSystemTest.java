@@ -21,7 +21,7 @@ public class NoveltySearchSystemTest extends SystemTestBase {
     public void testNoveltySearch() {
         EvoSuite evosuite = new EvoSuite();
 
-        String targetClass = DataUtils.class.getCanonicalName();
+        String targetClass = "com.google.common.base.Utf8";
         Properties.TARGET_CLASS = targetClass;
 
         Properties.MAX_NOVELTY_ARCHIVE_SIZE = 2550;
@@ -33,13 +33,14 @@ public class NoveltySearchSystemTest extends SystemTestBase {
         Properties.RANK_AND_NOVELTY_SELECTION = false;
         Properties.RANK_AND_DISTANCE_SELECTION = false;
         Properties.NOVELTY_SELECTION = false;
+        Properties.SWITCH_NOVELTY_FITNESS = false;
+        Properties.DISTANCE_FOR_NOVELTY = true;
 
-        Properties.SWITCH_NOVELTY_FITNESS = true;
         Properties.SWITCH_ITERATIONS = 5;
 
         Properties.RANKING_TYPE = Properties.RankingType.PREFERENCE_SORTING;
         Properties.ALGORITHM = Properties.Algorithm.NOVELTY;
-        String[] command = new String[]{"-generateSuite", "-class", targetClass};
+        String[] command = new String[]{"-generateSuite", "-projectCP", "C:\\Users\\Prathmesh\\Downloads\\subjects-icst15\\subjects\\guava-18.0", "-class", targetClass};
         Object result = evosuite.parseCommandLine(command);
         NoveltySearch<?> ga = (NoveltySearch)getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual2();
@@ -55,7 +56,7 @@ public class NoveltySearchSystemTest extends SystemTestBase {
     public void testNoveltySearch1() {
         EvoSuite evosuite = new EvoSuite();
 
-        String targetClass = DataUtils.class.getCanonicalName();
+        String targetClass = DataUtils1.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
         /*Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.BRANCH};
         Properties.STRATEGY = Properties.Strategy.NOVELTY;

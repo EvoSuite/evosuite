@@ -117,14 +117,24 @@ public class NoveltyAndRankComparator<T extends Chromosome> implements Comparato
             }
         }
         else if (this.isOnlyNoveltyBasedCompetition) {
-            if (c2.getNoveltyScore() < c1.getNoveltyScore()) {
-                return -1;
-            } else if (c2.getNoveltyScore() > c1.getNoveltyScore()) {
-                return 1;
-            } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
-                return 0;
-
+            if(!Properties.DISTANCE_FOR_NOVELTY){
+                if (c2.getNoveltyScore() < c1.getNoveltyScore()) {
+                    return -1;
+                } else if (c2.getNoveltyScore() > c1.getNoveltyScore()) {
+                    return 1;
+                } else if (c1.getNoveltyScore() == c2.getNoveltyScore()) {
+                    return 0;
+                }
+            }else{
+                if (c2.getDistance() < c1.getDistance()) {
+                    return -1;
+                } else if (c2.getDistance() > c1.getDistance()) {
+                    return 1;
+                } else if (c1.getDistance() == c2.getDistance()) {
+                    return 0;
+                }
             }
+
         }
 
         return 0;

@@ -100,6 +100,18 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         for(T t : population){
             executeAndAnalyseFeature(t, processForNovelty);
         }
+        //For Experimental Purpose
+
+        // Treat the 'distance' calculated in the process of MOSA as novelty score
+        if(!processForNovelty && Properties.DISTANCE_FOR_NOVELTY) {
+            // since the distance is already calculated we just need to check if it needs to
+            // be added in the archive or not
+            for (T t : population) {
+                //t.setNoveltyScore(t.getDistance());
+                updateNoveltyArchive(t, noveltyArchive);
+            }
+        }
+        //End
         if (processForNovelty) {
             // Step 2. Normalize each of the feature values. For this we need to
             // find the min, max range for each Feature
@@ -143,14 +155,15 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
             }
 
             // update the NOVELTY_THRESHOLD
-            if (evaluations >= 25) {
-                Properties.NOVELTY_THRESHOLD += (0.05 * Properties.NOVELTY_THRESHOLD);
+
+            if (Properties.DYNAMIC_NOVELTY_THRESHOLD && evaluations >= 25) {
+                Properties.NOVELTY_THRESHOLD += (Properties.NOVELTY_THRESHOLD_PERCENTAGE * Properties.NOVELTY_THRESHOLD);
                 if (Double.compare(Properties.NOVELTY_THRESHOLD, 1.0) > 0) {
                     Properties.NOVELTY_THRESHOLD = 1.0;
                 }
             }
-            if (evaluations < 15) {
-                Properties.NOVELTY_THRESHOLD -= (0.05 * Properties.NOVELTY_THRESHOLD);
+            if (Properties.DYNAMIC_NOVELTY_THRESHOLD && evaluations < 15) {
+                Properties.NOVELTY_THRESHOLD -= (Properties.NOVELTY_THRESHOLD_PERCENTAGE * Properties.NOVELTY_THRESHOLD);
                 if (Double.compare(Properties.NOVELTY_THRESHOLD, 0.0) < 0) {
                     Properties.NOVELTY_THRESHOLD = 0.0;
                 }
@@ -379,7 +392,7 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         //1. read threshold from the Properties file
         double noveltyThreshold = Properties.NOVELTY_THRESHOLD;
         //2. read novelty score
-        double currentNovelty = t.getNoveltyScore();
+        double currentNovelty = Properties.DISTANCE_FOR_NOVELTY? t.getDistance():t.getNoveltyScore();
         //3. decide if it should be added to the archive or not
         if(currentNovelty > noveltyThreshold){
             evaluations++;
