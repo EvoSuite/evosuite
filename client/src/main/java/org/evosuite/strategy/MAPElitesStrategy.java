@@ -3,7 +3,6 @@ package org.evosuite.strategy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
@@ -35,9 +34,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
   @Override
   public TestSuiteChromosome generateTests() {
     // Set up search algorithm
-    LoggingUtils.getEvoLogger().info(
-        "* Setting up search algorithm for MAP-Elites search with choice {}",
-        Properties.MAP_ELITES_CHOICE.name());
+    LoggingUtils.getEvoLogger().info("* Setting up search algorithm for MAP-Elites search with choice {}", Properties.MAP_ELITES_CHOICE.name());
 
     PropertiesMapElitesSearchFactory algorithmFactory = new PropertiesMapElitesSearchFactory();
     MAPElites<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
@@ -47,9 +44,14 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
 
     long startTime = System.currentTimeMillis() / 1000;
 
-    List<TestFitnessFunction> goals = this.getGoals();
-
-    algorithm.addFitnessFunctions((List) goals);
+    // What's the search target
+    List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
+    SuiteFitnessEvaluationListener listener = new SuiteFitnessEvaluationListener(fitnessFunctions);
+    
+    //algorithm.addListener(listener);
+    
+    if (Properties.TRACK_DIVERSITY)
+      algorithm.addListener(new DiversityObserver());
 
     if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
         || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.ALLDEFS)
@@ -59,88 +61,59 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
       ExecutionTracer.enableTraceCalls();
 
     algorithm.resetStoppingConditions();
-
+    
+    List<TestFitnessFunction> goals = this.getGoals();
+    
+    algorithm.addFitnessFunctions((List)goals);
+    
     if (!canGenerateTestsForSUT()) {
       LoggingUtils.getEvoLogger()
           .info("* Found no testable methods in the target class " + Properties.TARGET_CLASS);
-
-      ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-          goals.size());
+      
+      ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
 
       return new TestSuiteChromosome();
     }
-
-    // Perform search
-    LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed());
+    
+ // Perform search
+    LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
     LoggingUtils.getEvoLogger().info("* Starting evolution");
     ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
     algorithm.generateSolution();
+    TestSuiteChromosome testSuite = listener.getSuiteWithFitness(algorithm);
     
-    TestSuiteChromosome testSuite = this.generateSuite();
-
     long endTime = System.currentTimeMillis() / 1000;
-
-    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals,
-        goals.size());
-
+    
+    ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
+    
     // Newline after progress bar
     if (Properties.SHOW_PROGRESS)
-      LoggingUtils.getEvoLogger().info("");
+        LoggingUtils.getEvoLogger().info("");
 
-    if (!Properties.IS_RUNNING_A_SYSTEM_TEST) { // avoid printing time related info in system tests
-                                                // due to lack of determinism
-      LoggingUtils.getEvoLogger()
-          .info("* Search finished after " + (endTime - startTime) + "s and " + algorithm.getAge()
-              + " generations, " + MaxStatementsStoppingCondition.getNumExecutedStatements()
-              + " statements, best individual has fitness: " + testSuite.getFitness());
+    if(!Properties.IS_RUNNING_A_SYSTEM_TEST) { //avoid printing time related info in system tests due to lack of determinism
+        LoggingUtils.getEvoLogger().info("* Search finished after "
+                + (endTime - startTime)
+                + "s and "
+                + algorithm.getAge()
+                + " generations, "
+                + MaxStatementsStoppingCondition.getNumExecutedStatements()
+                + " statements, best individual has fitness: "
+                + testSuite.getFitness());
     }
 
     // Search is finished, send statistics
     sendExecutionStatistics();
-
+    
     return testSuite;
   }
-
+  
   private List<TestFitnessFunction> getGoals() {
     List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
     List<TestFitnessFunction> fitnessFunctions = new ArrayList<TestFitnessFunction>();
-    for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
-      fitnessFunctions.addAll(goalFactory.getCoverageGoals());
-    }
+          for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
+              fitnessFunctions.addAll(goalFactory.getCoverageGoals());
+          }
     return fitnessFunctions;
-  }
-
-  /**
-   * Generates a {@link org.evosuite.testsuite.TestSuiteChromosome} object with all test cases in
-   * the archive.
-   * 
-   * @return
-   */
-  private TestSuiteChromosome generateSuite() {
-    TestSuiteChromosome suite = new TestSuiteChromosome();
-    Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
-
-    this.computeCoverageAndFitness(suite);
-    
-    return suite;
-  }
-  
-  private void computeCoverageAndFitness(TestSuiteChromosome suite) {
-    for (TestSuiteFitnessFunction suiteFitnessFunction : this.getFitnessFunctions()) {
-      int numberCoveredTargets =
-          Archive.getArchiveInstance().getNumberOfCoveredTargets();
-      int numberUncoveredTargets =
-          Archive.getArchiveInstance().getNumberOfUncoveredTargets();
-      int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
-
-      double coverage = totalNumberTargets == 0 ? 1.0
-          : ((double) numberCoveredTargets) / ((double) totalNumberTargets);
-
-      suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-      suite.setCoverage(suiteFitnessFunction, coverage);
-      suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
-      suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
-    }
-  }
+}
 }
