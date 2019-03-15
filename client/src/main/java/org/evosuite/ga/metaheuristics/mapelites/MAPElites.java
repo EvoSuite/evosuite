@@ -20,6 +20,7 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.utils.IterUtil;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
-  private final Map<BranchCoverageTestFitness, Map<FeatureVector, T>> populationMap;
+  private final Map<Branch, Map<FeatureVector, T>> populationMap;
   private final Set<FeatureVector> droppedFeatureVectors;
   
   private final int featureVectorPossibilityCount;
@@ -63,7 +64,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
     this.populationMap = new LinkedHashMap<>(branchCoverage.size());
     branchCoverage.forEach(branch -> {
-      this.populationMap.put(branch, new LinkedHashMap<>());
+      this.populationMap.put(new Branch(branch), new LinkedHashMap<>());
     });
   }
   
@@ -72,15 +73,17 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
    * @return The chromosomes to be mutated
    */
   private Set<T> getToMutateWithChance() {
-    final double chance = 1.0 / populationMap.size();
-
-    // Required to prevent concurrent modification
     Set<T> toMutate = new LinkedHashSet<>(1);
 
-    for (Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry : populationMap.entrySet()) {
-
+    List<Branch> minima = getMinimalBranches();
+    
+    final double chance = 1.0 / minima.size();
+    
+    for (Branch branch : getMinimalBranches()) {
       if (Randomness.nextDouble() <= chance) {
-        T chromosome = Randomness.choice(entry.getValue().values());
+        branch.getCounter().increment();
+        
+        T chromosome = Randomness.choice(this.populationMap.get(branch).values());
         
         if(chromosome != null) {
           toMutate.add(chromosome);
@@ -110,17 +113,28 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     return toMutate;
   }
   
+  private List<Branch> getMinimalBranches() {
+    return IterUtil.minList(this.populationMap.keySet(), 
+        (a,b) -> a.getCounter().compareTo(b.getCounter()));
+  }
+  
   /**
    * Mutate exactly one branch and one chromosome
    * @return The chromosomes to be mutated
    */
   private Set<T> getToMutateRandom() {
     Set<T> toMutate = new LinkedHashSet<>(1);
-    Map<FeatureVector, T> entry = Randomness.choice(populationMap.values());
     
-    if(entry == null) {
+    List<Branch> minima = getMinimalBranches();
+    
+    Branch selectedBranch = Randomness.choice(minima);
+    
+    if(selectedBranch == null) {
       return toMutate;
     }
+    
+    selectedBranch.getCounter().increment();
+    Map<FeatureVector, T> entry = this.populationMap.get(selectedBranch);
     
     T chromosome = Randomness.choice(entry.values());
     
@@ -199,12 +213,12 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   }
   
   private void analyzeChromosome(final T chromosome) {
-    final Iterator<Entry<BranchCoverageTestFitness, Map<FeatureVector, T>>> it =
+    final Iterator<Entry<Branch, Map<FeatureVector, T>>> it =
         this.populationMap.entrySet().iterator();
 
     while (it.hasNext()) {
-      final Entry<BranchCoverageTestFitness, Map<FeatureVector, T>> entry = it.next();
-      final BranchCoverageTestFitness branchFitness = entry.getKey();
+      final Entry<Branch, Map<FeatureVector, T>> entry = it.next();
+      final Branch branchFitness = entry.getKey();
       final Map<FeatureVector, T> featureMap = entry.getValue(); 
       
       final double fitness = branchFitness.getFitness(chromosome);
@@ -214,8 +228,9 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       for (FeatureVector feature : features) {
         T old = featureMap.get(feature);
 
-        if (old == null || old.getFitness(branchFitness) >= fitness) {
+        if (old == null || branchFitness.getFitness(old) >= fitness) {
           featureMap.put(feature, chromosome);
+          branchFitness.getCounter().reset();
         }
       }
       

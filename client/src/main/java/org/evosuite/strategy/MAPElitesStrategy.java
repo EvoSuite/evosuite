@@ -2,13 +2,9 @@ package org.evosuite.strategy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.SuiteFitnessEvaluationListener;
