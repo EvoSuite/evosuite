@@ -339,6 +339,10 @@ public class Properties {
 	@Parameter(key = "map_elites_choice", group = "Runtime", description = "Selection of chromosome branches to mutate")
     public static MapElitesChoice MAP_ELITES_CHOICE = MapElitesChoice.SINGLE_AVG;
 	
+	@Parameter(key = "map_elites_random", group = "Runtime", description = "Probability used for adding new chromosomes")
+    @DoubleValue(min = 0.0, max = 1.0)
+    public static double MAP_ELITES_RANDOM = 0.5;
+	
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
 
