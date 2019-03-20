@@ -1,5 +1,7 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -11,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.assertion.Inspector;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
@@ -51,6 +54,9 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private final int featureVectorPossibilityCount;
   
   private final List<T> bestIndividuals;
+  
+  private static final List<FeatureVector> IGNORE_VECTORS = 
+      Arrays.asList(new FeatureVector[] { new FeatureVector(new Inspector[0], null) });
   
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
@@ -221,8 +227,14 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       
       final double fitness = branchFitness.getFitness(chromosome);
       
-      final List<FeatureVector> features = chromosome.getLastExecutionResult().getFeatureVectors();
+      final List<FeatureVector> features;
 
+      if(Properties.MAP_ELITES_IGNORE_FEATURES) {
+        features = IGNORE_VECTORS;
+      } else {
+        features = chromosome.getLastExecutionResult().getFeatureVectors();
+      }
+      
       for (FeatureVector feature : features) {
         T old = featureMap.get(feature);
 
