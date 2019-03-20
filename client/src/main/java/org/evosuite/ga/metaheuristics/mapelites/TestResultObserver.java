@@ -16,7 +16,7 @@ import org.evosuite.testcase.statements.Statement;
  * @author Felix Prasse
  *
  */
-class TestResultObserver extends ExecutionObserver implements Serializable {
+public class TestResultObserver extends ExecutionObserver implements Serializable {
   /**
    * 
    */

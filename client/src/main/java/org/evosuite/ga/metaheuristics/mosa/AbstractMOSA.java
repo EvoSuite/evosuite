@@ -40,11 +40,17 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.DominanceComparator;
+import org.evosuite.ga.metaheuristics.FunctionalSearchListener;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.SearchListener;
+import org.evosuite.ga.metaheuristics.mapelites.FeatureVector;
+import org.evosuite.ga.metaheuristics.mapelites.TestResultObserver;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testcase.statements.ArrayStatement;
 import org.evosuite.testcase.statements.ConstructorStatement;
@@ -79,6 +85,8 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	/** Object used to keep track of the execution time needed to reach the maximum coverage */
 	protected final BudgetConsumptionMonitor budgetMonitor;
 
+	protected final int featureVectorPossibilityCount;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -106,6 +114,15 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 		      + SelectionFunction.RANK_CROWD_DISTANCE_TOURNAMENT.name()
 		      + "' selection function. You may want to consider using it.");
 		}
+		
+		TestResultObserver observer = new TestResultObserver();
+	    this.featureVectorPossibilityCount = observer.getPossibilityCount();
+	    TestCaseExecutor.getInstance().addObserver(observer);
+	   
+	    this.addListener(new FunctionalSearchListener((GeneticAlgorithm<?> alg) -> {
+	      ClientServices.getInstance().getClientNode()
+	      .trackOutputVariable(RuntimeVariable.FeatureSize, this.featureVectorPossibilityCount);
+	    }, null, (GeneticAlgorithm<?> alg) -> this.sendFeatureData(), null, null));
 	}
 
 	/**
@@ -558,4 +575,35 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
       }
     }
 
+    private int getFoundVectorCount() {
+      Set<FeatureVector>  vectors = new LinkedHashSet<>();
+      
+      for(T chromosome : this.population) {
+          final List<FeatureVector> features = ((TestChromosome)chromosome)
+              .getLastExecutionResult().getFeatureVectors();
+          vectors.addAll(features);
+      }
+      
+      return vectors.size();
+    }
+    
+    private void sendFeatureData() {
+      int foundVectorCount = this.getFoundVectorCount();
+      double density = this.getDensity(foundVectorCount);
+      
+      ClientServices.getInstance().getClientNode()
+      .trackOutputVariable(RuntimeVariable.DensityTimeline, density);
+      
+      ClientServices.getInstance().getClientNode()
+      .trackOutputVariable(RuntimeVariable.FeaturesFound, foundVectorCount);
+    }
+    
+    private double getDensity(int foundVectorCount) {
+      int n = this.featureVectorPossibilityCount;
+      int z = this.getFoundVectorCount();
+      
+      double density = z/(double)n;
+      return density;
+    }
+    
 }

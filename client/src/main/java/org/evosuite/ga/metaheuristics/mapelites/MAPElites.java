@@ -79,7 +79,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     
     final double chance = 1.0 / minima.size();
     
-    for (Branch branch : getMinimalBranches()) {
+    for (Branch branch : minima) {
       if (Randomness.nextDouble() <= chance) {
         branch.getCounter().increment();
         
@@ -205,8 +205,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private double getDensity(int foundVectorCount) {
     int n = this.featureVectorPossibilityCount;
     int z = this.getFoundVectorCount();
-    
-    // TODO MOSA Sparcity + Add feature vector extraction there for timing
     
     double density = z/(double)n;
     return density;
