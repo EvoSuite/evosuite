@@ -2031,6 +2031,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	    return this.listOfFeatureMap;
 	}
 
+	public void setListOfFeatureMap(List<Map<Integer, Feature>> listOfFeatureMap) {
+		this.listOfFeatureMap = listOfFeatureMap;
+	}
+
 	@Override
 	public Map<Integer, List<Feature>> getMapFeatureList() {
 		return this.mapFeatureList;
