@@ -1540,6 +1540,9 @@ public class Properties {
     public static boolean DYNAMIC_NOVELTY_THRESHOLD = true;
 
 	// parameters used for experiment purpose
+	@Parameter(key = "different_method_max_distance", group = "Runtime", description = "If true, then individuals testing different methods will be considered as maximum distant.")
+	public static boolean DIFFERENT_METHOD_MAX_DIST = false;
+
 	@Parameter(key = "max_feature_distance", group = "Runtime", description = "If true, then maximum distance between the same feature of multiple maps will be considered.")
 	public static boolean MAX_FEATURE_DISTANCE = true;
 
