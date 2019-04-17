@@ -8,6 +8,27 @@
 	import java.util.Set;
 	import java.io.*;
 
+	//mycode starts
+	class Aj{
+        double vrd;
+        double vcd;
+        public Aj(double a, double b)
+        {
+            vrd = a;
+            vcd = b;
+        }
+        public double getvrd()
+        {
+            return vrd;
+        }
+        public double getvcd()
+        {
+            return vcd;
+        }
+    }
+    //mycode ends
+
+
 	public class Spectrum {
 
 		private ArrayList<BitSet> transactions;
@@ -137,6 +158,59 @@
 
 		}
 
+		    //mycode starts
+        public  Aj getVrho2() {
+            //Vector v_each_transaction = new Vector();
+            //Vector v_ideal_transaction = new Vector();
+
+
+
+
+
+
+            System.out.println("******************* The program works **********************");
+            if (!this.isValidMatrix()) return new Aj(0d, 0d);
+
+            double activityCounter = 0d;
+            double sum_of_squares_transactions = 0d;
+            double sum_of_squares_components = 0d;
+            for (BitSet transaction : this.transactions) {
+                activityCounter += transaction.cardinality();
+                sum_of_squares_transactions += ((double)transaction.cardinality())*((double)transaction.cardinality());
+            }
+            double rho_transaction = 0d;
+            if(activityCounter==0)
+                rho_transaction = 0;
+            else
+                rho_transaction = activityCounter/( Math.sqrt( (double) this.getNumTransactions() ) * Math.sqrt((double)sum_of_squares_transactions) );
+
+
+            int components = this.getNumComponents();
+            int[] comp = new int[components];
+            for(int c=0; c < components; c++)
+                comp[c]=0;
+            //BitSet activations = new BitSet(components);
+            for (BitSet transaction : this.transactions) {
+                for (int c = 0; c < components; c++) {
+                    comp[c] += transaction.get(c) ? 1 : 0;
+                }
+            }
+            for (int c = 0; c < components; c++) {
+                sum_of_squares_components += comp[c]*comp[c];
+            }
+            double rho_component =0d;
+            if(activityCounter ==0)
+                rho_component =0;
+            else
+                rho_component = activityCounter/( Math.sqrt( (double) this.getNumComponents() ) * Math.sqrt(sum_of_squares_components) );
+            return new Aj(rho_transaction, rho_component);
+            //double rho = rho_transaction/2;
+            //return rho;
+
+        }
+
+    //mycode ends
+		
 		public double getVCrho() {
 			//Vector v_each_transaction = new Vector();
 		      //Vector v_ideal_transaction = new Vector();
