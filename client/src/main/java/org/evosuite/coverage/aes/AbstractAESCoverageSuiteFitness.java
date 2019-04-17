@@ -155,13 +155,13 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
             double lambda = 1 - Math.min(1, (((double) iteration) / 10000));
 
-            double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * result);
+            double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * (1 - result));
 
 
             data_dump = "Start" + "," + data_dump + "," + String.valueOf(result) + "," + String.valueOf(new_result) + "end" + "\n";
             appendStrToFile("/tmp/feature_dump_VMDDU.csv", data_dump);
 
-            return new_result;
+            return (0.5 * new_result);
             //mycode ends
         }
             //return spectrum.getVrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity() * spectrum.basicCoverage();
