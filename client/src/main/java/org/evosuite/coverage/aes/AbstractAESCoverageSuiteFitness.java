@@ -80,10 +80,10 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         //Changed VMDDU flag to return VDDU * branch_coverage
         //case VMDDU:
         //return spectrum.getVMrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-        case VMDDU:
+        case VMDDU:{
             //mycode starts
             //lambda implementation
-        {
+
             iteration++;
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
@@ -169,12 +169,12 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             //mycode ends
         }
         //return spectrum.getVrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity() * spectrum.basicCoverage();
-        case VCDDU:
+        case VCDDU:{
 
 
             //mycode starts
             //switching implementation
-        {
+
             iteration++;
 
             Aj aj = spectrum.getVrho2();
@@ -266,9 +266,9 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         }
             //mycode ends
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-		case VCMDDU1:
+		case VCMDDU1:{
             //mycode starts
-        {
+
             //target value = coverage + mrf
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
@@ -334,9 +334,9 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-		case VCMDDU2:
+		case VCMDDU2:{
             //mycode starts
-        {
+
             //target value = coverage * mrf
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
@@ -352,7 +352,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             //int matrix_size = spectrum.getNumTransactions();
 
 
-            
+
             mydata[0] = (mydata[0] - 6.528579662598990030e-01) / 3.091870017158382389e-01;
             mydata[1] = (mydata[1] - 2.830355552505142147e-01) / 2.559463383939822312e-01;
             mydata[2] = (mydata[2] - 8.741161545340463412e-01) / 2.935632591125947877e-01;
