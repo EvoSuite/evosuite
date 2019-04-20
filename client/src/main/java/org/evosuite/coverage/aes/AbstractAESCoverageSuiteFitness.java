@@ -80,8 +80,10 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         //Changed VMDDU flag to return VDDU * branch_coverage
         //case VMDDU:
         //return spectrum.getVMrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-        case VMDDU: {
+        case VMDDU:
             //mycode starts
+            //lambda implementation
+        {
             iteration++;
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
@@ -169,8 +171,10 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         //return spectrum.getVrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity() * spectrum.basicCoverage();
         case VCDDU:
 
-        {
+
             //mycode starts
+            //switching implementation
+        {
             iteration++;
 
             Aj aj = spectrum.getVrho2();
@@ -263,15 +267,12 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             //mycode ends
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU1:
-			return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-		case VCMDDU2:
-			return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-		case VRDDU:
-		    //mycode starts
-
+            //mycode starts
+        {
+            //target value = coverage + mrf
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
-            double rho_transaction =  aj.getvrd();
+            double rho_transaction = aj.getvrd();
 
             double[] mydata = new double[6];
             mydata[0] = spectrum.basicCoverage();
@@ -282,8 +283,6 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             mydata[5] = rho_component;
             //int matrix_size = spectrum.getNumTransactions();
 
-
-            //TODO: normalize the feature values
             mydata[0] = (mydata[0] - 6.528579662598990030e-01) / 3.091870017158382389e-01;
             mydata[1] = (mydata[1] - 2.830355552505142147e-01) / 2.559463383939822312e-01;
             mydata[2] = (mydata[2] - 8.741161545340463412e-01) / 2.935632591125947877e-01;
@@ -323,7 +322,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
             double result = model.output(test_data).getDouble(0);
 
-            //TODO: normalize the target value
+
 
             if (result < 0)
                 result = 0;
@@ -331,10 +330,82 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 result = 1;
 
 
+            return (0.5 - (0.5 * result));
+        }
+        //mycode ends
+			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+		case VCMDDU2:
+            //mycode starts
+        {
+            //target value = coverage * mrf
+            Aj aj = spectrum.getVrho2();
+            double rho_component = aj.getvcd();
+            double rho_transaction = aj.getvrd();
 
-            return  (0.5 * result);
-            //mycode ends
-			//return spectrum.getVRrho();
+            double[] mydata = new double[6];
+            mydata[0] = spectrum.basicCoverage();
+            mydata[1] = spectrum.getRho();
+            mydata[2] = (1 - spectrum.getSimpson());
+            mydata[3] = spectrum.getAmbiguity();
+            mydata[4] = rho_transaction;
+            mydata[5] = rho_component;
+            //int matrix_size = spectrum.getNumTransactions();
+
+
+            
+            mydata[0] = (mydata[0] - 6.528579662598990030e-01) / 3.091870017158382389e-01;
+            mydata[1] = (mydata[1] - 2.830355552505142147e-01) / 2.559463383939822312e-01;
+            mydata[2] = (mydata[2] - 8.741161545340463412e-01) / 2.935632591125947877e-01;
+            mydata[3] = (mydata[3] - 2.417415102720089359e-01) / 1.476727560690869467e-01;
+            mydata[4] = (mydata[4] - 9.075997634198873509e-01) / 7.665414057345444621e-02;
+            mydata[5] = (mydata[5] - 6.171747989139511059e-01) / 2.047115140756818608e-01;
+
+
+            INDArray test_data = Nd4j.create(1, 6);
+            INDArray myrow = Nd4j.create(mydata);
+            test_data.putRow(0, myrow);
+            String model_path = "";
+            MultiLayerNetwork model;
+            BufferedReader br = null;
+            File file = new File("/tmp/model_path8.txt");
+            //File file = new File("/home/abhijit/Thesis/repos/evo_vddu/evo_iteration_dump/iteration_number.txt");
+
+            try {
+                br = new BufferedReader(new FileReader(file));
+            } catch (FileNotFoundException e) {
+                System.out.println("File doesn't exist");
+                e.printStackTrace();
+                //return;
+            }
+            try {
+                model_path = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+
+                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            double result = model.output(test_data).getDouble(0);
+
+
+
+            if (result < 0)
+                result = 0;
+            else if (result > 1)
+                result = 1;
+
+
+            return (0.5 - (0.5 * result));
+        }
+        //mycode ends
+			//return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+		case VRDDU:
+		    return spectrum.getVRrho();
 		case AES:
 		default:
 			 return spectrum.getRho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();                   
