@@ -330,7 +330,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 result = 1;
 
 
-            return (0.5 - (0.5 * result));
+            return (0.5 * result);
         }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
@@ -400,7 +400,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 result = 1;
 
 
-            return (0.5 - (0.5 * result));
+            return (0.5 * result);
         }
         //mycode ends
 			//return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
