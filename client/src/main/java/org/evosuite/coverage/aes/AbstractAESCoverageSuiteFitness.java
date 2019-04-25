@@ -101,13 +101,13 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             mydata[3] = spectrum.getAmbiguity();
             mydata[4] = rho_transaction;
             mydata[5] = rho_component;
-            //int matrix_size = spectrum.getNumTransactions();
+            int matrix_size = spectrum.getNumTransactions();
 
 
-            //String data_dump = "";
-            //data_dump = String.valueOf(iteration) + "," + String.valueOf(mydata[0]) + "," + String.valueOf(mydata[1]) + "," + String.valueOf(mydata[2]) + ","
-             //       + String.valueOf(mydata[3]) + "," + String.valueOf(mydata[4]) + "," + String.valueOf(mydata[5]) + ","
-             //       + String.valueOf(matrix_size);
+            String data_dump = "";
+            data_dump = String.valueOf(iteration) + "," + String.valueOf(mydata[0]) + "," + String.valueOf(mydata[1]) + "," + String.valueOf(mydata[2]) + ","
+                    + String.valueOf(mydata[3]) + "," + String.valueOf(mydata[4]) + "," + String.valueOf(mydata[5]) + ","
+                    + String.valueOf(matrix_size);
 
             //normalize the features
             mydata[0] = (mydata[0] - 6.528579662598990030e-01) / 3.091870017158382389e-01;
@@ -162,8 +162,8 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * (1 - result));
 
 
-            //data_dump = "Start" + "," + data_dump + "," + String.valueOf(result) + "," + String.valueOf(new_result) + "," +"end" + "\n";
-            //appendStrToFile("/tmp/feature_dump_VMDDU.csv", data_dump);
+            data_dump = "Start" + "," + data_dump + "," + String.valueOf(result) + "," + String.valueOf(new_result) + "," +"end" + "\n";
+            appendStrToFile("/tmp/feature_dump_Lang_VMDDU.csv", data_dump);
 
             return (0.5 * new_result);
             //mycode ends
