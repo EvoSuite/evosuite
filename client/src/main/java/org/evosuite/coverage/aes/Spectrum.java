@@ -7,15 +7,19 @@
 	import java.util.LinkedHashMap;
 	import java.util.Set;
 	import java.io.*;
+    import java.lang.Math;
+
 
 	//mycode starts
 	class Aj{
-        double vrd;
-        double vcd;
+        double vrd = 0.0;
+        double vcd = 0.0;
+
         public Aj(double a, double b)
         {
             vrd = a;
             vcd = b;
+
         }
         public double getvrd()
         {
@@ -1061,5 +1065,58 @@
 
 			double coverage = (double) activations.cardinality() / (double) components;
 			return coverage;
+		}
+
+		public double[] getDistances(){
+            double distances[] = {0.0,0.0,0.0};
+            if (!this.isValidMatrix()) return distances;
+
+		    int rowsize = this.getNumTransactions();
+		    int colsize = this.getNumComponents();
+
+		    double myspectrum[][] = new double[rowsize][colsize];
+            int counter = 0;
+            for (BitSet transaction : transactions)
+            {
+                for(int j=0;j<colsize;j++)
+                {
+                    if(transaction.get(j))
+                        myspectrum[counter][j] = 1.0;
+
+                    else
+                        myspectrum[counter][j] = 0.0;
+
+                }
+                counter++;
+            }
+            counter=0;
+            double sum_eucledian = 0.0;
+            double sum_manhattan = 0.0;
+            double sum_hamming = 0.0;
+            for(int i=0;i<rowsize;i++)
+            {
+                for(int j=i+1;j<rowsize;j++)
+                {
+                    double temp1 = 0.0;
+                    for(int k=0;k<colsize;k++)
+                    {
+                        if(myspectrum[i][k] != myspectrum[j][k]) {
+                            temp1 = temp1 + 1.0;
+                        }
+                    }
+                    sum_eucledian = sum_eucledian + Math.sqrt(temp1);
+                    sum_manhattan = sum_manhattan + temp1;
+                    sum_hamming = sum_hamming + (temp1 / colsize);
+                    counter++;
+
+                }
+            }
+
+            if(counter == 0)
+                return distances;
+            distances[0] = (sum_eucledian / counter);
+            distances[1] = (sum_manhattan / counter);
+            distances[2] = (sum_hamming / counter);
+            return distances;
 		}
 	}

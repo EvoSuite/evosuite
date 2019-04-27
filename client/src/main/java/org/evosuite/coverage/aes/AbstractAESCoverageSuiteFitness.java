@@ -1,5 +1,6 @@
 package org.evosuite.coverage.aes;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
 
@@ -69,6 +70,77 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         }
     }
 
+    public ArrayList<String> getMean(String file_path)
+    {
+        ArrayList<String> means = new ArrayList<>();
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(
+                    file_path));
+            String line = reader.readLine();
+            while (line != null) {
+                means.add(line);
+                // read next line
+                line = reader.readLine();
+
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return means;
+
+    }
+
+    public ArrayList<String> getStd_dev(String file_path)
+    {
+        ArrayList<String> std_devs = new ArrayList<>();
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(
+                    file_path));
+            String line = reader.readLine();
+            while (line != null) {
+                std_devs.add(line);
+                // read next line
+                line = reader.readLine();
+
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return std_devs;
+
+    }
+
+
+
+    public double[] powerset(double[] features,int size)
+    {
+        int pow_set_size = ((int)Math.pow(2, size));
+        double powset[] = new double[pow_set_size-1];
+        int pow_index = 0;
+        for(int counter=1;counter<pow_set_size;counter++)
+        {
+            double temp = 1.0;
+            for(int j=0;j<size;j++)
+            {
+                if((counter & (1 << j)) > 0)
+                {
+                    temp = temp * features[j];
+                }
+
+            }
+            powset[pow_index] = temp;
+            pow_index++;
+        }
+
+        return powset;
+
+    }
 
     public double getMetric(Spectrum spectrum) {
 		switch (this.metric) {
@@ -269,29 +341,40 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 		case VCMDDU1:{
             //mycode starts
 
-            //target value = coverage + mrf
+            //distance feature added
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
+            double[] distances = spectrum.getDistances();
 
-            double[] mydata = new double[6];
+            double[] mydata = new double[9];
             mydata[0] = spectrum.basicCoverage();
             mydata[1] = spectrum.getRho();
             mydata[2] = (1 - spectrum.getSimpson());
             mydata[3] = spectrum.getAmbiguity();
             mydata[4] = rho_transaction;
             mydata[5] = rho_component;
+            mydata[6] = distances[0];
+            mydata[7] = distances[1];
+            mydata[8] = distances[2];
             //int matrix_size = spectrum.getNumTransactions();
 
-            mydata[0] = (mydata[0] - 6.528579662598990030e-01) / 3.091870017158382389e-01;
-            mydata[1] = (mydata[1] - 2.830355552505142147e-01) / 2.559463383939822312e-01;
-            mydata[2] = (mydata[2] - 8.741161545340463412e-01) / 2.935632591125947877e-01;
-            mydata[3] = (mydata[3] - 2.417415102720089359e-01) / 1.476727560690869467e-01;
-            mydata[4] = (mydata[4] - 9.075997634198873509e-01) / 7.665414057345444621e-02;
-            mydata[5] = (mydata[5] - 6.171747989139511059e-01) / 2.047115140756818608e-01;
+            //normalise the data
+            ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
+            ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
+
+            for(int i=0;i<means.size();i++)
+            {
+                double std_dev  = Double.parseDouble(std_devs.get(i));
+                if(std_dev == 0)
+                    mydata[i] = 0.0;
+                else
+                    mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
+            }
 
 
-            INDArray test_data = Nd4j.create(1, 6);
+
+            INDArray test_data = Nd4j.create(1, 9);
             INDArray myrow = Nd4j.create(mydata);
             test_data.putRow(0, myrow);
             String model_path = "";
@@ -330,39 +413,64 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 result = 1;
 
 
-            return (0.5 * result);
+            return (0.5 - (0.5 * result));
         }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU2:{
             //mycode starts
 
-            //target value = coverage * mrf
+            //feature power set implementation
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
+            double[] distances = spectrum.getDistances();
 
-            double[] mydata = new double[6];
+
+            double[] mydata = new double[9];
             mydata[0] = spectrum.basicCoverage();
             mydata[1] = spectrum.getRho();
             mydata[2] = (1 - spectrum.getSimpson());
             mydata[3] = spectrum.getAmbiguity();
             mydata[4] = rho_transaction;
             mydata[5] = rho_component;
+            mydata[6] = distances[0];
+            mydata[7] = distances[1];
+            mydata[8] = distances[2];
             //int matrix_size = spectrum.getNumTransactions();
 
+            //first normalise the 9 features
+            ArrayList<String> means1 = getMean("/tmp/mean1_VCMDDU2");
+            ArrayList<String> std_devs1 = getStd_dev("/tmp/std_dev1_VCMDDU2");
+
+            for(int i=0;i<means1.size();i++)
+            {
+                double std_dev  = Double.parseDouble(std_devs1.get(i));
+                if(std_dev == 0)
+                    mydata[i] = 0.0;
+                else
+                    mydata[i] = (mydata[i] - (Double.parseDouble(means1.get(i)))) / std_dev;
+            }
+
+            //compute the power set
+            double pow_feature_set[] = powerset(mydata,9);
+
+            //normalise the power set
+            ArrayList<String> means2 = getMean("/tmp/mean2_VCMDDU2");
+            ArrayList<String> std_devs2 = getStd_dev("/tmp/std_dev2_VCMDDU2");
+
+            for(int i=0;i<means2.size();i++)
+            {
+                double std_dev  = Double.parseDouble(std_devs2.get(i));
+                if(std_dev == 0)
+                    pow_feature_set[i] = 0.0;
+                else
+                    pow_feature_set[i] = (pow_feature_set[i] - (Double.parseDouble(means2.get(i)))) / std_dev;
+            }
 
 
-            mydata[0] = (mydata[0] - 6.528579662598990030e-01) / 3.091870017158382389e-01;
-            mydata[1] = (mydata[1] - 2.830355552505142147e-01) / 2.559463383939822312e-01;
-            mydata[2] = (mydata[2] - 8.741161545340463412e-01) / 2.935632591125947877e-01;
-            mydata[3] = (mydata[3] - 2.417415102720089359e-01) / 1.476727560690869467e-01;
-            mydata[4] = (mydata[4] - 9.075997634198873509e-01) / 7.665414057345444621e-02;
-            mydata[5] = (mydata[5] - 6.171747989139511059e-01) / 2.047115140756818608e-01;
-
-
-            INDArray test_data = Nd4j.create(1, 6);
-            INDArray myrow = Nd4j.create(mydata);
+            INDArray test_data = Nd4j.create(1, 511);
+            INDArray myrow = Nd4j.create(pow_feature_set);
             test_data.putRow(0, myrow);
             String model_path = "";
             MultiLayerNetwork model;
@@ -400,7 +508,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 result = 1;
 
 
-            return (0.5 * result);
+            return (0.5 - (0.5 * result));
         }
         //mycode ends
 			//return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
