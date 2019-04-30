@@ -340,7 +340,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU1:{
             //mycode starts
-
+            iteration++;
             //distance feature added
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
@@ -412,8 +412,13 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             else if (result > 1)
                 result = 1;
 
+            double lambda = 1 - Math.min(1, (((double) iteration) / 10000));
 
-            return (0.5 - (0.5 * result));
+            double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * (1 - result));
+
+
+            return (0.5 * new_result);
+
         }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
