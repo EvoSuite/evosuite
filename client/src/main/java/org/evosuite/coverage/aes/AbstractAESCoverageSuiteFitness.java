@@ -15,6 +15,8 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
+
+import static java.lang.Math.abs;
 //mycode ends
 
 public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFunction {
@@ -139,6 +141,30 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         }
 
         return powset;
+
+    }
+
+    public double[] compute_quadset(double[] features,int size)
+    {
+        int quad_set_size = size + ((size * (size -1)) / 2);
+        double quadset[] = new double[quad_set_size];
+
+        //copy the feature set to quadset first
+        for(int i=0;i<size;i++)
+            quadset[i] = features[i];
+        int quad_index = size;
+        //compute the pairwise multiplication and add it to the quadset
+        for(int i=0;i<size;i++)
+        {
+            for(int j=i+1;j<size;j++)
+            {
+                quadset[quad_index] = quadset[i] * quadset[j];
+                quad_index++;
+            }
+
+        }
+
+        return quadset;
 
     }
 
@@ -347,9 +373,9 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             double rho_transaction = aj.getvrd();
             double[] distances = spectrum.getDistances();
 
-            double[] mydata = new double[9];
+            double[] mydata = new double[10];
             mydata[0] = spectrum.basicCoverage();
-            mydata[1] = spectrum.getRho();
+            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
             mydata[2] = (1 - spectrum.getSimpson());
             mydata[3] = spectrum.getAmbiguity();
             mydata[4] = rho_transaction;
@@ -357,6 +383,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             mydata[6] = distances[0];
             mydata[7] = distances[1];
             mydata[8] = distances[2];
+            mydata[9] = (mydata[1] * mydata[2] * mydata[3]);
             //int matrix_size = spectrum.getNumTransactions();
 
             //normalise the data
@@ -374,7 +401,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 
 
-            INDArray test_data = Nd4j.create(1, 9);
+            INDArray test_data = Nd4j.create(1, 10);
             INDArray myrow = Nd4j.create(mydata);
             test_data.putRow(0, myrow);
             String model_path = "";
@@ -424,7 +451,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU2:{
             //mycode starts
-
+            iteration++;
             //feature power set implementation
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
@@ -434,7 +461,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
             double[] mydata = new double[9];
             mydata[0] = spectrum.basicCoverage();
-            mydata[1] = spectrum.getRho();
+            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
             mydata[2] = (1 - spectrum.getSimpson());
             mydata[3] = spectrum.getAmbiguity();
             mydata[4] = rho_transaction;
@@ -457,10 +484,10 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                     mydata[i] = (mydata[i] - (Double.parseDouble(means1.get(i)))) / std_dev;
             }
 
-            //compute the power set
-            double pow_feature_set[] = powerset(mydata,9);
+            //compute the quad set
+            double quad_feature_set[] = compute_quadset(mydata,9);
 
-            //normalise the power set
+            //normalise the quad set
             ArrayList<String> means2 = getMean("/tmp/mean2_VCMDDU2");
             ArrayList<String> std_devs2 = getStd_dev("/tmp/std_dev2_VCMDDU2");
 
@@ -468,14 +495,14 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             {
                 double std_dev  = Double.parseDouble(std_devs2.get(i));
                 if(std_dev == 0)
-                    pow_feature_set[i] = 0.0;
+                    quad_feature_set[i] = 0.0;
                 else
-                    pow_feature_set[i] = (pow_feature_set[i] - (Double.parseDouble(means2.get(i)))) / std_dev;
+                    quad_feature_set[i] = (quad_feature_set[i] - (Double.parseDouble(means2.get(i)))) / std_dev;
             }
 
 
-            INDArray test_data = Nd4j.create(1, 511);
-            INDArray myrow = Nd4j.create(pow_feature_set);
+            INDArray test_data = Nd4j.create(1, 45);
+            INDArray myrow = Nd4j.create(quad_feature_set);
             test_data.putRow(0, myrow);
             String model_path = "";
             MultiLayerNetwork model;
@@ -512,8 +539,12 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             else if (result > 1)
                 result = 1;
 
+            double lambda = 1 - Math.min(1, (((double) iteration) / 10000));
 
-            return (0.5 - (0.5 * result));
+            double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * (1 - result));
+
+
+            return (0.5 * new_result);
         }
         //mycode ends
 			//return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
@@ -526,7 +557,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 	}
 
 	public static double metricToFitness(double metric) {
-		return Math.abs(0.5d - metric);
+		return abs(0.5d - metric);
 	}
 
 }
