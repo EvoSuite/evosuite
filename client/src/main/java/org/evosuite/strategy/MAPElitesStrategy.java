@@ -60,7 +60,7 @@ public class MAPElitesStrategy extends TestGenerationStrategy {
     
     List<TestFitnessFunction> goals = this.getGoals();
     
-    algorithm.addFitnessFunctions((List)goals);
+    algorithm.addTestFitnessFunctions(goals);
     
     if (!canGenerateTestsForSUT()) {
       LoggingUtils.getEvoLogger()

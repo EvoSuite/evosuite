@@ -1,17 +1,17 @@
 package org.evosuite.ga.metaheuristics.mapelites;
 
-import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 
-public class Branch {
+public class FitnessFunctionWrapper {
   /**
    * Counter for Feedback-Directed Sampling
    * @see https://arxiv.org/pdf/1901.01541.pdf
    */
   private final Counter counter;
-  private final BranchCoverageTestFitness fitnessFunction;
+  private final TestFitnessFunction fitnessFunction;
 
-  public Branch(BranchCoverageTestFitness fitnessFunction) {
+  public FitnessFunctionWrapper(TestFitnessFunction fitnessFunction) {
     super();
     this.fitnessFunction = fitnessFunction;
     this.counter = new Counter();

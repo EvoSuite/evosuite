@@ -18,10 +18,12 @@ import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.IterUtil;
 import org.evosuite.utils.Randomness;
@@ -48,7 +50,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(MAPElites.class);
 
-  private final Map<Branch, Map<FeatureVector, T>> populationMap;
+  private final Map<FitnessFunctionWrapper, Map<FeatureVector, T>> populationMap;
   private final Set<FeatureVector> droppedFeatureVectors;
   
   private final int featureVectorPossibilityCount;
@@ -66,12 +68,14 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     this.featureVectorPossibilityCount = observer.getPossibilityCount();
     TestCaseExecutor.getInstance().addObserver(observer);
 
-    List<BranchCoverageTestFitness> branchCoverage = new BranchCoverageFactory().getCoverageGoals();
+    this.populationMap = new LinkedHashMap<>();
+  }
 
-    this.populationMap = new LinkedHashMap<>(branchCoverage.size());
-    branchCoverage.forEach(branch -> {
-      this.populationMap.put(new Branch(branch), new LinkedHashMap<>());
-    });
+  public void addTestFitnessFunctions(List<TestFitnessFunction> functions) {
+     for(TestFitnessFunction function : functions) {
+       this.populationMap.put(new FitnessFunctionWrapper(function), new LinkedHashMap<>());
+       this.addFitnessFunction((FitnessFunction<T>) function);
+     }
   }
   
   /**
@@ -81,11 +85,11 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private Set<T> getToMutateWithChance() {
     Set<T> toMutate = new LinkedHashSet<>(1);
 
-    List<Branch> minima = getMinimalBranches();
+    List<FitnessFunctionWrapper> minima = getMinimalBranches();
     
     final double chance = 1.0 / minima.size();
     
-    for (Branch branch : minima) {
+    for (FitnessFunctionWrapper branch : minima) {
       if (Randomness.nextDouble() <= chance) {
         branch.getCounter().increment();
         
@@ -119,7 +123,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     return toMutate;
   }
   
-  private List<Branch> getMinimalBranches() {
+  private List<FitnessFunctionWrapper> getMinimalBranches() {
     return IterUtil.minList(this.populationMap.keySet(), 
         (a,b) -> a.getCounter().compareTo(b.getCounter()));
   }
@@ -131,9 +135,9 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private Set<T> getToMutateRandom() {
     Set<T> toMutate = new LinkedHashSet<>(1);
     
-    List<Branch> minima = getMinimalBranches();
+    List<FitnessFunctionWrapper> minima = getMinimalBranches();
     
-    Branch selectedBranch = Randomness.choice(minima);
+    FitnessFunctionWrapper selectedBranch = Randomness.choice(minima);
     
     if(selectedBranch == null) {
       return toMutate;
@@ -217,12 +221,12 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   }
   
   private void analyzeChromosome(final T chromosome) {
-    final Iterator<Entry<Branch, Map<FeatureVector, T>>> it =
+    final Iterator<Entry<FitnessFunctionWrapper, Map<FeatureVector, T>>> it =
         this.populationMap.entrySet().iterator();
 
     while (it.hasNext()) {
-      final Entry<Branch, Map<FeatureVector, T>> entry = it.next();
-      final Branch branchFitness = entry.getKey();
+      final Entry<FitnessFunctionWrapper, Map<FeatureVector, T>> entry = it.next();
+      final FitnessFunctionWrapper branchFitness = entry.getKey();
       final Map<FeatureVector, T> featureMap = entry.getValue(); 
       
       final double fitness = branchFitness.getFitness(chromosome);
