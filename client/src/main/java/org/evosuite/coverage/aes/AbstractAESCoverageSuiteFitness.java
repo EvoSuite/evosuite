@@ -373,7 +373,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             double rho_transaction = aj.getvrd();
             double[] distances = spectrum.getDistances();
 
-            double[] mydata = new double[10];
+            double[] mydata = new double[9];
             mydata[0] = spectrum.basicCoverage();
             mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
             mydata[2] = (1 - spectrum.getSimpson());
@@ -383,7 +383,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             mydata[6] = distances[0];
             mydata[7] = distances[1];
             mydata[8] = distances[2];
-            mydata[9] = (mydata[1] * mydata[2] * mydata[3]);
+//            mydata[9] = (mydata[1] * mydata[2] * mydata[3]);
             //int matrix_size = spectrum.getNumTransactions();
 
             //normalise the data
@@ -439,7 +439,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             else if (result > 1)
                 result = 1;
 
-            double lambda = 1 - Math.min(1, (((double) iteration) / 10000));
+            double lambda = Math.pow((1 - Math.min(1, (((double) iteration) / 10000))),2.0);
 
             double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * (1 - result));
 
