@@ -401,7 +401,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 
 
-            INDArray test_data = Nd4j.create(1, 10);
+            INDArray test_data = Nd4j.create(1, 9);
             INDArray myrow = Nd4j.create(mydata);
             test_data.putRow(0, myrow);
             String model_path = "";
