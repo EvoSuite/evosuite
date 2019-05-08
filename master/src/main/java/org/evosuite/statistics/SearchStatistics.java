@@ -25,6 +25,7 @@ import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
+import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.io.input.InputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
@@ -539,6 +540,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 		public CoverageSequenceOutputVariableFactory() {
 			super(RuntimeVariable.CoverageTimeline);
+			FeatureFactory.getFeatures();
 		}
 
 		@Override

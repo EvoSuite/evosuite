@@ -21,6 +21,7 @@ package org.evosuite.testcase.execution;
 
 
 import com.thoughtworks.xstream.XStream;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -711,6 +712,14 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			// something went wrogn
 			System.out.println("Something went wrong");
 		}else{
+
+			/*int count = object==null?0:((Object[])object).length;
+			if(count>9)
+				System.out.println("Got it");*/
+			/*if(object!=null && ((boolean[]) object).length > 0)
+                logger.warn("Size : "+((boolean[]) object).length);
+			else
+			    Properties.count++;*/
 
 			XStream xstream = new XStream(new StaticFieldConverter());
 			String dataXml = xstream.toXML(object);

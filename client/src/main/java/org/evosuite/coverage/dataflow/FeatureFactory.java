@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,48 @@ public class FeatureFactory implements Serializable {
     private static Map<FeatureKey, List<Double>> featureValueRangeList = new HashMap<>();
     private static Map<BytecodeInstruction, Integer> knownInstructions = new HashMap<BytecodeInstruction, Integer>();
     private static int defCounter = 0;
+
+    // Experiment - histogram
+    private static List<Integer> trueList = new ArrayList<>();
+    private static List<Integer> falseList = new ArrayList<>();
+    private static Integer trueCount = 0;
+    private static Integer falseCount = 0;
+
+    public static Integer getTrueCount() {
+        return trueCount;
+    }
+
+    public static Integer getFalseCount() {
+        return falseCount;
+    }
+
+    public static List<Integer> getTrueList() {
+        return trueList;
+    }
+
+    public static void setTrueList(List<Integer> trueList) {
+        FeatureFactory.trueList = trueList;
+    }
+
+    public static List<Integer> getFalseList() {
+        return falseList;
+    }
+
+    public static void setFalseList(List<Integer> falseList) {
+        FeatureFactory.falseList = falseList;
+    }
+    public static void updateTrueList(Integer val) {
+        FeatureFactory.trueList.add(val);
+    }
+    public static void updateFalseList(Integer val) {
+        FeatureFactory.falseList.add(val);
+    }
+    public static void updateTrueCount() {
+        trueCount++;
+    }
+    public static void updateFalseCount() {
+        falseCount++;
+    }
 
     /**
      * This method recognizes all the instructions which ASMWrapper.isDefinition() returns as true.

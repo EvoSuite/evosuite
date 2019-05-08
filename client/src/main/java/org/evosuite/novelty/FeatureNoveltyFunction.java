@@ -30,6 +30,9 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
      */
     public void executeAndAnalyseFeature(T individual, boolean processForNovelty) {
         getExecutionResult((TestChromosome) individual);
+        //experiment
+        if(Properties.IS_EXPERIMENT)
+            processForNovelty = true;
         if (processForNovelty) {
             Map<String, List<Double>> map = null;
             List<Map<Integer, Feature>> featureMapList = ((TestChromosome) individual).getLastExecutionResult().getTrace().getListOfFeatureMap();
@@ -78,6 +81,11 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
                             Feature valueFeature = new Feature();
                             valueFeature.setVariableName(newFeaturesMapEntry.getKey() + "_Value");
                             valueFeature.setValue(newFeaturesMapEntry.getValue().get(1));
+                            /*if(Double.compare(newFeaturesMapEntry.getValue().get(1),1) == 0){
+                                FeatureFactory.updateTrueList(newFeaturesMapEntry.getValue().get(0).intValue());
+                            }else
+                                FeatureFactory.updateFalseList(newFeaturesMapEntry.getValue().get(0).intValue());*/
+
                             valueFeature.setMethodName(entry.getValue().getMethodName());
                             featuresSize++;
                             newFeatures.put(featuresSize, valueFeature);
@@ -100,6 +108,8 @@ public class FeatureNoveltyFunction<T extends Chromosome> extends NoveltyFunctio
         for(T t : population){
             executeAndAnalyseFeature(t, processForNovelty);
         }
+        /*Object one = FeatureValueAnalyser.trueMAP;
+        Object two = FeatureValueAnalyser.falseMAP;*/
         //For Experimental Purpose
 
         // Treat the 'distance' calculated in the process of MOSA as novelty score

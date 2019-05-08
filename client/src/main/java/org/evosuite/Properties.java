@@ -39,10 +39,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Central property repository. All global parameters of EvoSuite should be
@@ -565,6 +562,8 @@ public class Properties {
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
 	public static int POPULATION = 50;
+
+	public static int count =0;
 
 	public enum PopulationLimit {
 		INDIVIDUALS, TESTS, STATEMENTS;
@@ -1557,6 +1556,9 @@ public class Properties {
     @Parameter(key = "distance_for_novelty", group = "Runtime", description = "If true, it replaces noveltyScore with the distance")
     public static boolean DISTANCE_FOR_NOVELTY = false;
 
+    @Parameter(key = "config_id", group = "Runtime", description = "If true, it replaces noveltyScore with the distance")
+	public static String CONFIG_ID = "NOVELTY";
+
 	// used in selection
 	@Parameter(key = "rank_and_distance_selection", group = "Runtime", description = "If true, it enables selection based on rank and distance")
 	public static boolean RANK_AND_DISTANCE_SELECTION = true;
@@ -1567,6 +1569,28 @@ public class Properties {
 
 	@Parameter(key = "switch_novelty_fitness", group = "Runtime", description = "If true, the algorithm switches between novelty and optimization")
 	public static boolean SWITCH_NOVELTY_FITNESS = false;
+
+	public static List<Integer> trueList = new ArrayList<>();
+	public static List<Integer> falseList = new ArrayList<>();
+
+	@Parameter(key = "is_experiment", group = "Runtime", description = "If true, the algorithm switches between novelty and optimization")
+	public static boolean IS_EXPERIMENT = false;
+
+	public static List<Integer> getTrueList() {
+		return trueList;
+	}
+
+	public static void setTrueList(List<Integer> trueList) {
+		Properties.trueList = trueList;
+	}
+
+	public static List<Integer> getFalseList() {
+		return falseList;
+	}
+
+	public static void setFalseList(List<Integer> falseList) {
+		Properties.falseList = falseList;
+	}
 
 	@Parameter(key = "switch_iterations", group = "Runtime", description = "Decides after how many iterations the algorithm switches between novelty and optimization")
 	public static int SWITCH_ITERATIONS = 5;

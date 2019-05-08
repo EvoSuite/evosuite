@@ -381,10 +381,19 @@ public enum RuntimeVariable {
 	/* -------------------------------------------------------------------- */
 	/** Search budget needed to reach the maximum coverage */ 
 	/** Used in the comparison between LISP and MOSA */
-	Time2MaxCoverage
-	
-	;
+	Time2MaxCoverage,
+
 	/* -------------------------------------------------- */
+	/** Features derived from a complex object as used in Novelty Search */
+	DerivedFeatures,
+
+	/** Features derived from a complex object as used in Novelty Search */
+	ArchiveSizeUsed,
+
+	TrueList,
+
+	FalseList
+	;
 
 	
 	private static Logger logger = LoggerFactory.getLogger(RuntimeVariable.class);

@@ -37,10 +37,10 @@ public class NoveltyFuctionTest {
         feature.setVariableName("x");
         feature.setMethodName("foo");
         feature.setValue(feat);
-        /*Feature feature1 = new Feature();
+        Feature feature1 = new Feature();
         feature1.setVariableName("y");
-        feature1.setMethodName("foo");
-        feature1.setValue(0);*/
+        feature1.setMethodName("boo");
+        feature1.setValue(0);
         Map<Integer, Feature> featureMap = new HashMap<>();
         featureMap.put(1, feature);
         //featureMap.put(2, feature1);
@@ -73,10 +73,10 @@ public class NoveltyFuctionTest {
         feature.setVariableName("x");
         feature.setMethodName("foo");
         feature.setValue(feat1);
-        /*Feature feature1 = new Feature();
+        Feature feature1 = new Feature();
         feature1.setVariableName("y");
         feature1.setMethodName("foo");
-        feature1.setValue(7);*/
+        feature1.setValue(7);
         Map<Integer, Feature> featureMap = new HashMap<>();
         featureMap.put(1, feature);
         //featureMap.put(2, feature1);
@@ -93,10 +93,10 @@ public class NoveltyFuctionTest {
         feature.setVariableName("x");
         feature.setMethodName("foo");
         feature.setValue(feat2);
-        /*Feature feature1 = new Feature();
+        Feature feature1 = new Feature();
         feature1.setVariableName("y");
         feature1.setMethodName("foo");
-        feature1.setValue(7);*/
+        feature1.setValue(7);
         Map<Integer, Feature> featureMap = new HashMap<>();
         featureMap.put(1, feature);
         //featureMap.put(2, feature1);
@@ -114,10 +114,10 @@ public class NoveltyFuctionTest {
         feature.setVariableName("x");
         feature.setMethodName("foo");
         feature.setValue(feat3);
-        /*Feature feature1 = new Feature();
+        Feature feature1 = new Feature();
         feature1.setVariableName("y");
         feature1.setMethodName("foo");
-        feature1.setValue(9);*/
+        feature1.setValue(9);
         Map<Integer, Feature> featureMap = new HashMap<>();
         featureMap.put(1, feature);
         //featureMap.put(2, feature1);
@@ -134,10 +134,10 @@ public class NoveltyFuctionTest {
         feature.setVariableName("x");
         feature.setMethodName("foo");
         feature.setValue(feat4);
-        /*Feature feature1 = new Feature();
+        Feature feature1 = new Feature();
         feature1.setVariableName("y");
         feature1.setMethodName("foo");
-        feature1.setValue(7);*/
+        feature1.setValue(7);
         Map<Integer, Feature> featureMap = new HashMap<>();
         featureMap.put(1, feature);
         //featureMap.put(2, feature1);
@@ -1727,7 +1727,7 @@ public class NoveltyFuctionTest {
         testChromosome4.setChanged(false);
 
         // setup
-        FeatureFactory.registerAsFeature("x", "foo");
+        //FeatureFactory.registerAsFeature("x", "foo");
         FeatureFactory.registerAsFeature("y", "foo");
 
 
@@ -1739,7 +1739,7 @@ public class NoveltyFuctionTest {
         population.add(testChromosome4);
 
         List<String> uncoveredMethod = new ArrayList<>();
-        uncoveredMethod.add("foo");
+        uncoveredMethod.add("foo");uncoveredMethod.add("boo");
         Properties.NOVELTY_THRESHOLD =2;// diabling the archive
         Properties.MAX_NOVELTY_ARCHIVE_SIZE = 2;
         noveltyFunction.calculateNovelty(population, new ArrayDeque<TestChromosome>(), uncoveredMethod, true);

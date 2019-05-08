@@ -19,14 +19,6 @@
  */
 package org.evosuite.ga.metaheuristics.mosa;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
@@ -43,6 +35,9 @@ import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Implementation of the Many-Objective Sorting Algorithm (MOSA) described in the

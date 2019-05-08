@@ -2,9 +2,11 @@ package org.evosuite.ga.metaheuristics;
 
 import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
 import com.thoughtworks.xstream.XStream;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.coverage.dataflow.Feature;
 import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.coverage.dataflow.FeatureKey;
+import org.evosuite.feature.converters.StaticFieldConverter;
 import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,12 @@ public class FeatureValueAnalyser {
     public static final String VALUE_DIFF = "VALUE_DIFF";
     public static final String STRUCT_DIFF = "STRUCT_DIFF";
     public static final String TOTAL_TAGS = "TOTAL_TAGS";
+
+    //EXPERIMENTATION TODO: remove
+    public static Map<Integer, Integer> trueMAP = new HashMap<>();
+    public static Map<Integer, Integer> mediumMAP = new HashMap<>();
+    public static Map<Integer, Integer> falseMAP = new HashMap<>();
+    public static int arrayIndex = 0;
 
     private final static Logger logger = LoggerFactory.getLogger(FeatureValueAnalyser.class);
 
@@ -77,14 +85,81 @@ public class FeatureValueAnalyser {
         if(!nodeAnalysisMap.containsKey(nodeName)){
             List<Double> listOfCountAndVal = new ArrayList<Double>();
             listOfCountAndVal.add(1.0);
-            listOfCountAndVal.add(readDoubleValue(val));
+            double value = readDoubleValue(val);
+            listOfCountAndVal.add(value);
+            /*if(Double.compare(value,77.0)==0){//Double.compare(value,77.0)==0
+                *//*if(trueList.size()>arrayIndex &&  trueList.get(arrayIndex)!= null){
+                    value +=trueList.get(arrayIndex);
+                }*//*
+                //trueList.add(arrayIndex,1);
+                if(trueMAP.get(arrayIndex)!= null) {
+                    double valueTemp = trueMAP.get(arrayIndex);
+                    valueTemp++;
+                    trueMAP.put(arrayIndex, (int) valueTemp);
+                }else{
+                    trueMAP.put(arrayIndex, 1);
+                }
+
+            }else if(Double.compare(value,119.0)==0){
+                if(mediumMAP.get(arrayIndex)!= null) {
+                    double valueTemp = mediumMAP.get(arrayIndex);
+                    valueTemp++;
+                    mediumMAP.put(arrayIndex, (int) valueTemp);
+                }else{
+                    mediumMAP.put(arrayIndex, 1);
+                }
+            }
+            else{
+                *//*if(falseList.size()>arrayIndex &&  falseList.get(arrayIndex)!= null){
+                    value +=trueList.get(arrayIndex);
+                }*//*
+                //falseList.add(arrayIndex,1);
+                if(falseMAP.get(arrayIndex)!= null){
+                    double valueTemp = falseMAP.get(arrayIndex);
+                    valueTemp++;
+                    falseMAP.put(arrayIndex,(int)valueTemp);
+                }else{
+                    falseMAP.put(arrayIndex,1);
+                }
+            }*/
             nodeAnalysisMap.put(nodeName, listOfCountAndVal);
         }else{
             // update the count and value
             List<Double> listOfCountAndVal = nodeAnalysisMap.get(nodeName);
             double count = listOfCountAndVal.get(0);
             count++;
-            double newVal = listOfCountAndVal.get(1) + readDoubleValue(val);
+
+            arrayIndex++;
+            double value = readDoubleValue(val);
+            double newVal = listOfCountAndVal.get(1) + value;
+            /*if(Double.compare(value,77.0)==0){//Double.compare(value,77.0)==0
+                // true map
+                if(trueMAP.get(arrayIndex)!= null){
+                    double valueTemp = trueMAP.get(arrayIndex);
+                    valueTemp++;
+                    trueMAP.put(arrayIndex, (int)valueTemp);
+                }else{
+                    trueMAP.put(arrayIndex,1);
+                }
+                // but make sure other entries
+            }else if(Double.compare(value,119.0)==0){
+                if(mediumMAP.get(arrayIndex)!= null){
+                    double valueTemp = mediumMAP.get(arrayIndex);
+                    valueTemp++;
+                    mediumMAP.put(arrayIndex, (int)valueTemp);
+                }else{
+                    mediumMAP.put(arrayIndex,1);
+                }
+            }
+            else{
+                if(falseMAP.get(arrayIndex)!= null){
+                    double valueTemp = falseMAP.get(arrayIndex);
+                    valueTemp++;
+                    falseMAP.put(arrayIndex,(int)valueTemp);
+                }else{
+                    falseMAP.put(arrayIndex,1);
+                }
+            }*/
             listOfCountAndVal.clear();
             listOfCountAndVal.add(0,count);
             listOfCountAndVal.add(1, newVal);
@@ -105,6 +180,9 @@ public class FeatureValueAnalyser {
                 }
             }
             else{
+                // TODO: Remove, only for experimentation purpose.
+                if(tempNode.getPreviousSibling() == null || tempNode.getPreviousSibling().getNodeName().equals("null"))
+                    arrayIndex++;
                 if(tempNode.getPreviousSibling()!=null && !tempNode.getPreviousSibling().getNodeName().equals("null") && !tempNode.getPreviousSibling().getNodeName().equals("serialVersionUID")
                         /*&& !tempNode.getPreviousSibling().getNodeName().equals("j")
                         && !tempNode.getPreviousSibling().getNodeName().equals("someFlag")
@@ -115,6 +193,11 @@ public class FeatureValueAnalyser {
                         && !tempNode.getPreviousSibling().getNodeName().equals("int")
                         && !tempNode.getPreviousSibling().getNodeName().equals("result")*/
                         ){//&& !tempNode.getPreviousSibling().getNodeName().equals("null")
+                    //TODO:REOMVE
+                    arrayIndex--;
+                    if(arrayIndex<0)
+                        arrayIndex=0;
+
                     updateMap((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName(), tempNode.getPreviousSibling().getTextContent());
                 }
 
@@ -154,13 +237,20 @@ public class FeatureValueAnalyser {
      *   </entry>
      * </map>
      *  then this method will return :
-     *  {entry_int=[4.0, 10.0], entry_string=[4.0, 0.0], map_entry=[4.0, 0.0]}
+     *  {entry_int=[4.0, 10.0], entry_string=[4.0, 477.0], map_entry=[4.0, 455.0]}
      *
      * @param xm11
      * @return
      */
     public static Map<String, List<Double>> getAnalysisFromStringRepresentationUsingDomParser(String xm11){
         nodeAnalysisMap.clear();
+
+        /*trueList.clear();
+        falseList.clear();*/
+        /*int count = StringUtils.countMatches(xm11, "<com.examples.with.different.packagename.Level>");
+        if(count>9)
+            System.out.println("Got it");*/
+        arrayIndex = 0;
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -179,7 +269,42 @@ public class FeatureValueAnalyser {
         } catch (Exception e) {
             logger.error("Error while parsing xml string. Empty map will be returned");
         }
+        /*if(arrayIndex>8)
+            System.out.println("Index > 8 detected.");*/
         return nodeAnalysisMap;
+    }
+
+    public static void main(String[] args){
+        String xml = "<map>\n" +
+                " <entry>\n" +
+                "  <string>Second</string>\n" +
+                "  <int>2</int>\n" +
+                " </entry>\n" +
+                " <entry>\n" +
+                "  <string>Third</string>\n" +
+                "  <int>3</int>\n" +
+                " </entry>\n" +
+                " <entry>\n" +
+                "  <string>First</string>\n" +
+                "  <int>1</int>\n" +
+                " </entry>\n" +
+                " <entry>\n" +
+                "  <string>Fourth</string>\n" +
+                "  <int>4</int>\n" +
+                " </entry>\n" +
+                "</map>";
+        Map<String, List<Double>> res  = getAnalysisFromStringRepresentationUsingDomParser(xml);
+
+
+        Account account = new Account();
+        account.setDob("01.01.1991");
+        account.setId(1);
+        account.setSecret("asdhsahsakjhd");
+
+        XStream xstream = new XStream(new StaticFieldConverter());
+        String dataXml = xstream.toXML(account);
+
+        res  = getAnalysisFromStringRepresentationUsingDomParser(dataXml);
     }
 
     /**
@@ -215,9 +340,16 @@ public class FeatureValueAnalyser {
 
                     } catch (NumberFormatException e3) {
                         //try for Boolean
-                        try {
-                            return Boolean.valueOf(objValue1) ? 1 : 0;
-                        } catch (Exception e4) {
+
+                        if (objValue1 != null) {
+                            if (objValue1.equalsIgnoreCase("true"))
+                                return 1;
+                            else if (objValue1.equalsIgnoreCase("false"))
+                                return 0;
+                            else
+                                return -9999999;
+                        } else {
+                            //"Object value is a String"
                             // log the exception
                             // invalid format or possibly non parsable String
                             // This might be the case when
@@ -229,7 +361,6 @@ public class FeatureValueAnalyser {
                             // TODO: Maybe we can use length of the string or good old way of char by char comparision?
                             return -9999999;
                         }
-
                     }
 
                 }
@@ -247,7 +378,7 @@ public class FeatureValueAnalyser {
         if(featureMapList == null || featureMapList.isEmpty()){
             // no need to process
             count++;
-            System.out.println("No. of Individuals having no feature map : "+count);
+            //System.out.println("No. of Individuals having no feature map : "+count);
             return;
         }
 
