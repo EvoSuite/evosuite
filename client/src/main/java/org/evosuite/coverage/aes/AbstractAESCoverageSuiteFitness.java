@@ -399,7 +399,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                     mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
             }
 
-
+            double DDU = mydata[1] * mydata[2] * mydata[3];
 
             INDArray test_data = Nd4j.create(1, 9);
             INDArray myrow = Nd4j.create(mydata);
@@ -440,10 +440,10 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 result = 1;
 
             double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
-            double lambda_sqr = Math.pow(lambda,2);
+//            double lambda_sqr = Math.pow(lambda,2);
 //          double comp_lambda_sqr = Math.pow((1 - lambda),2);
 
-            double new_result = (lambda_sqr * spectrum.basicCoverage()) + ((1-lambda_sqr) * (1 - result));
+            double new_result = (lambda * DDU) + ((1-lambda) * (1 - result));
 
 
             return (0.5 * new_result);
