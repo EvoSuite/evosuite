@@ -5,7 +5,6 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.dataflow.FeatureFactory;
-import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.execution.reset.ClassReInitializer;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
@@ -35,14 +34,6 @@ public class FeatureInstrumentationTest {
         Properties.getInstance().resetToDefaults();
     }
 
-    @Test
-    public void testOnlyFieldInstrumentation() throws ClassNotFoundException {
-        Properties.TARGET_CLASS = Feature1.class.getCanonicalName();
-        Properties.INSTRUMENT_ONLY_FIELD = true;
-        Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
-        Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        assertEquals(1, FeatureFactory.getFeatures().size());
-    }
     @Test
     public void testFieldAndLocalInstrumentation() throws ClassNotFoundException {
         Properties.TARGET_CLASS = Feature1.class.getCanonicalName();

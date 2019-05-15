@@ -312,17 +312,15 @@ public class Properties {
 		// mu-lambda
 		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
 		// many-objective algorithms
-		MOSA, DYNAMOSA, LIPS, MIO,
+		MOSA, DYNAMOSA, LIPS, MIO, NOVELTY,
 		// multiple-objective optimisation algorithms
-		NSGAII, SPEA2,
-		//
-		NOVELTY
+		NSGAII, SPEA2
 	}
 
 	// MOSA PROPERTIES
 	public enum RankingType {
 		// Preference sorting is the ranking strategy proposed in
-		PREFERENCE_SORTING, 
+		PREFERENCE_SORTING,
 		FAST_NON_DOMINATED_SORTING
 	}
 
@@ -562,8 +560,6 @@ public class Properties {
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
 	public static int POPULATION = 50;
-
-	public static int count =0;
 
 	public enum PopulationLimit {
 		INDIVIDUALS, TESTS, STATEMENTS;
@@ -1070,7 +1066,7 @@ public class Properties {
 
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
-	
+
 	@Parameter(key = "ignore_missing_statistics", group = "Output", description = "Return an empty string for missing output variables")
 	public static boolean IGNORE_MISSING_STATISTICS = false;
 
@@ -1200,7 +1196,7 @@ public class Properties {
 
 	@Parameter(key = "instrument_method_calls", description = "Instrument methods calls")
 	public static boolean INSTRUMENT_METHOD_CALLS = false;
-	
+
 	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
 	public static boolean INSTRUMENT_LIBRARIES = false;
 
@@ -1350,7 +1346,7 @@ public class Properties {
 	@Parameter(key = "replace_gui", group = "Test Execution", description = "Replace javax.swing with a smart stub/mock")
 	public static boolean REPLACE_GUI = false;
 
-	
+
     @Parameter(key = "max_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
     public static int MAX_STARTED_THREADS = RuntimeSettings.maxNumberOfThreads;
 
@@ -1424,7 +1420,7 @@ public class Properties {
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
-	
+
 	/** Cache target regression class */
 	private static Class<?> TARGET_REGRESSION_CLASS_INSTANCE = null;
 
@@ -1523,12 +1519,13 @@ public class Properties {
 
 	@Parameter(key = "keep_regression_archive", group = "Runtime", description = "Keep an archive of regression tests")
 	public static boolean KEEP_REGRESSION_ARCHIVE = false;
-	
-	
+
+
 	public enum Strategy {
 	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
 	}
 
+	// parameters for novelty search algorithm
 	@Parameter(key = "novelty_threshold", group = "Runtime", description = "If novelty of an individual is greater than this threshold then it is added to the novelty archive")
     public static double NOVELTY_THRESHOLD = 0.5;
 
@@ -1545,52 +1542,26 @@ public class Properties {
 	@Parameter(key = "max_feature_distance", group = "Runtime", description = "If true, then maximum distance between the same feature of multiple maps will be considered.")
 	public static boolean MAX_FEATURE_DISTANCE = true;
 
-	@Parameter(key = "instrument_only_field", group = "Runtime", description = "Whether only field variables to be considered as features.")
-	public static boolean INSTRUMENT_ONLY_FIELD = false;
-
-	// used in selection
+	// selection parameters. Only one of them should be true.
 	@Parameter(key = "rank_and_novelty_selection", group = "Runtime", description = "If true, it enables selection based on novelty and fitness")
 	public static boolean RANK_AND_NOVELTY_SELECTION = true;
 
-	//Experimental purpose
     @Parameter(key = "distance_for_novelty", group = "Runtime", description = "If true, it replaces noveltyScore with the distance")
     public static boolean DISTANCE_FOR_NOVELTY = false;
 
-    @Parameter(key = "config_id", group = "Runtime", description = "If true, it replaces noveltyScore with the distance")
-	public static String CONFIG_ID = "NOVELTY";
-
-	// used in selection
 	@Parameter(key = "rank_and_distance_selection", group = "Runtime", description = "If true, it enables selection based on rank and distance")
 	public static boolean RANK_AND_DISTANCE_SELECTION = true;
 
-	// used in selection
 	@Parameter(key = "novelty_selection", group = "Runtime", description = "If true, it enables selection based only on novelty")
 	public static boolean NOVELTY_SELECTION = false;
 
 	@Parameter(key = "switch_novelty_fitness", group = "Runtime", description = "If true, the algorithm switches between novelty and optimization")
 	public static boolean SWITCH_NOVELTY_FITNESS = false;
 
-	public static List<Integer> trueList = new ArrayList<>();
-	public static List<Integer> falseList = new ArrayList<>();
+	// selection parameters end.
 
 	@Parameter(key = "is_experiment", group = "Runtime", description = "If true, the algorithm switches between novelty and optimization")
 	public static boolean IS_EXPERIMENT = false;
-
-	public static List<Integer> getTrueList() {
-		return trueList;
-	}
-
-	public static void setTrueList(List<Integer> trueList) {
-		Properties.trueList = trueList;
-	}
-
-	public static List<Integer> getFalseList() {
-		return falseList;
-	}
-
-	public static void setFalseList(List<Integer> falseList) {
-		Properties.falseList = falseList;
-	}
 
 	@Parameter(key = "switch_iterations", group = "Runtime", description = "Decides after how many iterations the algorithm switches between novelty and optimization")
 	public static int SWITCH_ITERATIONS = 5;
