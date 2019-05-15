@@ -1,27 +1,18 @@
 package org.evosuite.ga.metaheuristics;
 
 import com.sun.org.apache.xerces.internal.dom.DeferredTextImpl;
-import com.thoughtworks.xstream.XStream;
-import org.apache.commons.lang3.StringUtils;
 import org.evosuite.coverage.dataflow.Feature;
-import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.coverage.dataflow.FeatureKey;
-import org.evosuite.feature.converters.StaticFieldConverter;
 import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,138 +21,27 @@ import java.util.Map;
 
 public class FeatureValueAnalyser {
 
-    public static final String VALUE_DIFF = "VALUE_DIFF";
-    public static final String STRUCT_DIFF = "STRUCT_DIFF";
-    public static final String TOTAL_TAGS = "TOTAL_TAGS";
-
-    //EXPERIMENTATION TODO: remove
-    public static Map<Integer, Integer> trueMAP = new HashMap<>();
-    public static Map<Integer, Integer> mediumMAP = new HashMap<>();
-    public static Map<Integer, Integer> falseMAP = new HashMap<>();
-    public static int arrayIndex = 0;
-
     private final static Logger logger = LoggerFactory.getLogger(FeatureValueAnalyser.class);
 
-    private static Map<String, List<Double>>  nodeAnalysisMap = new HashMap<String, List<Double>>();
+    private static Map<String, List<Double>> nodeAnalysisMap = new HashMap<String, List<Double>>();
 
-    public static Map<String, Double> getAnalysisFromStringRepresentation(String xm11){
-        try{
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            XmlPullParser xpp1 = factory.newPullParser();
-            double diff = 0; // Stores structural difference
-            double val = 0;
-            double totalTags = 0; // stores the max. no of tags a particular xml representation has
-            Map<String, Double> result = new HashMap<>();
-            xpp1.setInput(new StringReader(xm11));
-
-            int eventType1 = xpp1.getEventType();
-
-            while (eventType1 != XmlPullParser.END_DOCUMENT) {
-                totalTags++;
-                if (eventType1 == XmlPullParser.TEXT) {
-                    val += readDoubleValue(xpp1.getText());
-                }
-                eventType1 = xpp1.next();
-            }
-
-            result.put(VALUE_DIFF, val);
-            result.put(STRUCT_DIFF, totalTags);
-            result.put(TOTAL_TAGS, totalTags);
-            System.out.println("Value Diff is : " + val);
-            System.out.println("Structural Diff is : " + diff);
-            System.out.println("Total Tags : " + totalTags);
-            return result;
-        }catch(Exception e){
-            //TODO: log the exception
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
-    private static void updateMap(String nodeName, String val){
+    private static void updateMap(String nodeName, String val) {
         // if the nodeName is already not present in the map then make an entry
-        if(!nodeAnalysisMap.containsKey(nodeName)){
+        if (!nodeAnalysisMap.containsKey(nodeName)) {
             List<Double> listOfCountAndVal = new ArrayList<Double>();
             listOfCountAndVal.add(1.0);
             double value = readDoubleValue(val);
             listOfCountAndVal.add(value);
-            /*if(Double.compare(value,77.0)==0){//Double.compare(value,77.0)==0
-                *//*if(trueList.size()>arrayIndex &&  trueList.get(arrayIndex)!= null){
-                    value +=trueList.get(arrayIndex);
-                }*//*
-                //trueList.add(arrayIndex,1);
-                if(trueMAP.get(arrayIndex)!= null) {
-                    double valueTemp = trueMAP.get(arrayIndex);
-                    valueTemp++;
-                    trueMAP.put(arrayIndex, (int) valueTemp);
-                }else{
-                    trueMAP.put(arrayIndex, 1);
-                }
-
-            }else if(Double.compare(value,119.0)==0){
-                if(mediumMAP.get(arrayIndex)!= null) {
-                    double valueTemp = mediumMAP.get(arrayIndex);
-                    valueTemp++;
-                    mediumMAP.put(arrayIndex, (int) valueTemp);
-                }else{
-                    mediumMAP.put(arrayIndex, 1);
-                }
-            }
-            else{
-                *//*if(falseList.size()>arrayIndex &&  falseList.get(arrayIndex)!= null){
-                    value +=trueList.get(arrayIndex);
-                }*//*
-                //falseList.add(arrayIndex,1);
-                if(falseMAP.get(arrayIndex)!= null){
-                    double valueTemp = falseMAP.get(arrayIndex);
-                    valueTemp++;
-                    falseMAP.put(arrayIndex,(int)valueTemp);
-                }else{
-                    falseMAP.put(arrayIndex,1);
-                }
-            }*/
             nodeAnalysisMap.put(nodeName, listOfCountAndVal);
-        }else{
+        } else {
             // update the count and value
             List<Double> listOfCountAndVal = nodeAnalysisMap.get(nodeName);
             double count = listOfCountAndVal.get(0);
             count++;
-
-            arrayIndex++;
             double value = readDoubleValue(val);
             double newVal = listOfCountAndVal.get(1) + value;
-            /*if(Double.compare(value,77.0)==0){//Double.compare(value,77.0)==0
-                // true map
-                if(trueMAP.get(arrayIndex)!= null){
-                    double valueTemp = trueMAP.get(arrayIndex);
-                    valueTemp++;
-                    trueMAP.put(arrayIndex, (int)valueTemp);
-                }else{
-                    trueMAP.put(arrayIndex,1);
-                }
-                // but make sure other entries
-            }else if(Double.compare(value,119.0)==0){
-                if(mediumMAP.get(arrayIndex)!= null){
-                    double valueTemp = mediumMAP.get(arrayIndex);
-                    valueTemp++;
-                    mediumMAP.put(arrayIndex, (int)valueTemp);
-                }else{
-                    mediumMAP.put(arrayIndex,1);
-                }
-            }
-            else{
-                if(falseMAP.get(arrayIndex)!= null){
-                    double valueTemp = falseMAP.get(arrayIndex);
-                    valueTemp++;
-                    falseMAP.put(arrayIndex,(int)valueTemp);
-                }else{
-                    falseMAP.put(arrayIndex,1);
-                }
-            }*/
             listOfCountAndVal.clear();
-            listOfCountAndVal.add(0,count);
+            listOfCountAndVal.add(0, count);
             listOfCountAndVal.add(1, newVal);
             nodeAnalysisMap.put(nodeName, listOfCountAndVal);
             // the same map entry
@@ -178,27 +58,10 @@ public class FeatureValueAnalyser {
                     // loop again if has child nodes
                     iterateNodes(tempNode.getChildNodes());
                 }
-            }
-            else{
-                // TODO: Remove, only for experimentation purpose.
-                if(tempNode.getPreviousSibling() == null || tempNode.getPreviousSibling().getNodeName().equals("null"))
-                    arrayIndex++;
-                if(tempNode.getPreviousSibling()!=null && !tempNode.getPreviousSibling().getNodeName().equals("null") && !tempNode.getPreviousSibling().getNodeName().equals("serialVersionUID")
-                        /*&& !tempNode.getPreviousSibling().getNodeName().equals("j")
-                        && !tempNode.getPreviousSibling().getNodeName().equals("someFlag")
-                        && !tempNode.getPreviousSibling().getNodeName().equals("special")
-                        && !tempNode.getPreviousSibling().getNodeName().equals("someArr")
-                        && !tempNode.getPreviousSibling().getNodeName().equals("someL")
-                        && !tempNode.getPreviousSibling().getNodeName().equals("boo")
-                        && !tempNode.getPreviousSibling().getNodeName().equals("int")
-                        && !tempNode.getPreviousSibling().getNodeName().equals("result")*/
-                        ){//&& !tempNode.getPreviousSibling().getNodeName().equals("null")
-                    //TODO:REOMVE
-                    arrayIndex--;
-                    if(arrayIndex<0)
-                        arrayIndex=0;
-
-                    updateMap((((DeferredTextImpl) tempNode).getParentNode()).getNodeName()+"_"+tempNode.getPreviousSibling().getNodeName(), tempNode.getPreviousSibling().getTextContent());
+            } else {
+                if (tempNode.getPreviousSibling() != null && !tempNode.getPreviousSibling().getNodeName().equals("null") && !tempNode.getPreviousSibling().getNodeName().equals("serialVersionUID")
+                        ) {
+                    updateMap((((DeferredTextImpl) tempNode).getParentNode()).getNodeName() + "_" + tempNode.getPreviousSibling().getNodeName(), tempNode.getPreviousSibling().getTextContent());
                 }
 
             }
@@ -210,53 +73,46 @@ public class FeatureValueAnalyser {
      * all the distinct members/children of the parent node. Each distinct entry contains 'ParentName_ChildName'
      * as the key and the value is a List containing at index (0) -> Occurrence of the same member in the xml
      * representation and at index (1) -> total value of such member elements
-     *
+     * <p>
      * For e.g. if we have the String representation of the following MAP
      * Map<String, Integer> map = new HashMap<String, Integer>();
-     *         map.put("First", 1);
-     *         map.put("Second", 2);
-     *         map.put("Third", 3);
-     *         map.put("Fourth", 4);
-     *  as
-     *  <map>
-     *   <entry>
-     *     <string>Second</string>
-     *     <int>2</int>
-     *   </entry>
-     *   <entry>
-     *     <string>Third</string>
-     *     <int>3</int>
-     *   </entry>
-     *   <entry>
-     *     <string>First</string>
-     *     <int>1</int>
-     *   </entry>
-     *   <entry>
-     *     <string>Fourth</string>
-     *     <int>4</int>
-     *   </entry>
+     * map.put("First", 1);
+     * map.put("Second", 2);
+     * map.put("Third", 3);
+     * map.put("Fourth", 4);
+     * as
+     * <map>
+     * <entry>
+     * <string>Second</string>
+     * <int>2</int>
+     * </entry>
+     * <entry>
+     * <string>Third</string>
+     * <int>3</int>
+     * </entry>
+     * <entry>
+     * <string>First</string>
+     * <int>1</int>
+     * </entry>
+     * <entry>
+     * <string>Fourth</string>
+     * <int>4</int>
+     * </entry>
      * </map>
-     *  then this method will return :
-     *  {entry_int=[4.0, 10.0], entry_string=[4.0, 477.0], map_entry=[4.0, 455.0]}
+     * then this method will return :
+     * {entry_int=[4.0, 10.0], entry_string=[4.0, 477.0], map_entry=[4.0, 455.0]}
      *
      * @param xm11
      * @return
      */
-    public static Map<String, List<Double>> getAnalysisFromStringRepresentationUsingDomParser(String xm11){
+    public static Map<String, List<Double>> getAnalysisFromStringRepresentationUsingDomParser(String xm11) {
         nodeAnalysisMap.clear();
-
-        /*trueList.clear();
-        falseList.clear();*/
-        /*int count = StringUtils.countMatches(xm11, "<com.examples.with.different.packagename.Level>");
-        if(count>9)
-            System.out.println("Got it");*/
-        arrayIndex = 0;
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
             //fix TODO: FeatureInstrumentation is yet not intelligent enough to not serialize certain classes.
-            if(xm11.contains("&#")){
+            if (xm11.contains("&#")) {
                 xm11 = xm11.replace("&#", "");
             }
 
@@ -269,42 +125,7 @@ public class FeatureValueAnalyser {
         } catch (Exception e) {
             logger.error("Error while parsing xml string. Empty map will be returned");
         }
-        /*if(arrayIndex>8)
-            System.out.println("Index > 8 detected.");*/
         return nodeAnalysisMap;
-    }
-
-    public static void main(String[] args){
-        String xml = "<map>\n" +
-                " <entry>\n" +
-                "  <string>Second</string>\n" +
-                "  <int>2</int>\n" +
-                " </entry>\n" +
-                " <entry>\n" +
-                "  <string>Third</string>\n" +
-                "  <int>3</int>\n" +
-                " </entry>\n" +
-                " <entry>\n" +
-                "  <string>First</string>\n" +
-                "  <int>1</int>\n" +
-                " </entry>\n" +
-                " <entry>\n" +
-                "  <string>Fourth</string>\n" +
-                "  <int>4</int>\n" +
-                " </entry>\n" +
-                "</map>";
-        Map<String, List<Double>> res  = getAnalysisFromStringRepresentationUsingDomParser(xml);
-
-
-        Account account = new Account();
-        account.setDob("01.01.1991");
-        account.setId(1);
-        account.setSecret("asdhsahsakjhd");
-
-        XStream xstream = new XStream(new StaticFieldConverter());
-        String dataXml = xstream.toXML(account);
-
-        res  = getAnalysisFromStringRepresentationUsingDomParser(dataXml);
     }
 
     /**
@@ -370,62 +191,35 @@ public class FeatureValueAnalyser {
     }
 
 
-
     static int count = 0;
-    public static void updateNormalizedFeatureValues(TestChromosome t, Map<FeatureKey, List<Double>> featureValueRangeList){
+
+    public static void updateNormalizedFeatureValues(TestChromosome t, Map<FeatureKey, List<Double>> featureValueRangeList) {
         List<Map<Integer, Feature>> featureMapList = t.getLastExecutionResult().getTrace().getListOfFeatureMap();
 
-        if(featureMapList == null || featureMapList.isEmpty()){
+        if (featureMapList == null || featureMapList.isEmpty()) {
             // no need to process
             count++;
-            //System.out.println("No. of Individuals having no feature map : "+count);
             return;
         }
 
-        for(Map<Integer, Feature> map: featureMapList){
-            for(Map.Entry<Integer, Feature> entry : map.entrySet()){
+        for (Map<Integer, Feature> map : featureMapList) {
+            for (Map.Entry<Integer, Feature> entry : map.entrySet()) {
                 FeatureKey featureKey = new FeatureKey(entry.getValue().getVariableName(), entry.getValue().getMethodName());
                 List<Double> valueRange = featureValueRangeList.get(featureKey);
                 Feature feature = entry.getValue();
                 double normalizedVal = Double.parseDouble(String.format("%.3f", getNormalizedValue(readDoubleValue(feature.getValue()), valueRange)));
                 feature.setNormalizedValue(normalizedVal);
-                //System.out.println("Normalized Score : "+normalizedVal);
             }
         }
 
-
-        /*else if(featureMap.size() != FeatureFactory.getFeatures().size()){
-            // update missing features with some Default value. I think this
-            // default value shouldn't affect the novelty as long as the default
-            // remains consistent
-
-            Map<Integer, Feature> newFeatureMap = new HashMap<>(FeatureFactory.getFeatures());
-            for(Map.Entry<Integer, Feature> entry : newFeatureMap.entrySet()){
-                if(!featureMap.containsKey(entry.getKey())){
-                    Feature dummyFeature = entry.getValue();
-                    dummyFeature.setValue(null);
-                    featureMap.put(entry.getKey(), dummyFeature);
-                }
-            }
-
-        }*/
-
-        /*for(Map.Entry<Integer, Feature>entry : featureMap.entrySet()){
-            List<Double> valueRange = featureValueRangeList.get(entry.getKey());
-            Feature feature = entry.getValue();
-            double normalizedVal = getNormalizedValue(readDoubleValue(feature.getValue()), valueRange);
-            feature.setNormalizedValue(normalizedVal);
-            System.out.println("Normalized Score : "+normalizedVal);
-        }*/
-
     }
 
-    public static double getNormalizedValue(double value, List<Double> valueRange){
+    public static double getNormalizedValue(double value, List<Double> valueRange) {
         double minVal = valueRange.get(0);
         double maxVal = valueRange.get(1);
-        double range = (maxVal-minVal) == 0 ? 1 : (maxVal-minVal);
+        double range = (maxVal - minVal) == 0 ? 1 : (maxVal - minVal);
         // the value should be in the range of 0-1
-        return (maxVal-value)/range;
+        return (maxVal - value) / range;
     }
 
     public static double readDoubleValue(Object val) {
@@ -439,7 +233,7 @@ public class FeatureValueAnalyser {
             return ((Double) val);
         } else if (val instanceof String) {
 
-            return getCharValueAsIntFromString((String)val);
+            return getCharValueAsIntFromString((String) val);
         }
         // default case
         return 0.1;
@@ -448,37 +242,22 @@ public class FeatureValueAnalyser {
     /**
      * This method returns the sum of all the int value of the Unicode characters
      * of the input String.
+     *
      * @param input
      * @return
      */
-    private static double getCharValueAsIntFromString(String input){
+    private static double getCharValueAsIntFromString(String input) {
 
         double val = getNumericValue(input);
-        if(Double.compare(val, -9999999) != 0){
+        if (Double.compare(val, -9999999) != 0) {
             return val;
         }
         // this is definitely a String
         char[] arr = input.toCharArray();
-        int sum=0;
-        for(char c:arr)
-            sum +=  Character.getNumericValue(c);
+        int sum = 0;
+        for (char c : arr)
+            sum += Character.getNumericValue(c);
         return sum;
-    }
-
-    /**
-     * The return value should be in the range of 0-1. The difference between totalTags and structDiff is directly proportional
-     * to the result value. This gives the Normalized Structural Difference. More similar the structure higher the result.
-     * Less similar the structure lower the result.
-     *
-     * @param structDiff
-     * @param totalTags
-     * @return
-     */
-    public static double getNormalizedStructDiff(double structDiff, double totalTags){
-        double result = (totalTags-structDiff)/totalTags;
-        // log the result value
-        System.out.println("Struct Diff val : "+ result);
-        return result;
     }
 
     /**
@@ -490,14 +269,14 @@ public class FeatureValueAnalyser {
      * @return
      */
 
-    public static double getFeatureDistance(Feature feature1, Feature feature2){
-        if((feature1 != null) && (feature2 != null)){
+    public static double getFeatureDistance(Feature feature1, Feature feature2) {
+        if ((feature1 != null) && (feature2 != null)) {
             // to limit the precision value
             double diff = feature1.getNormalizedValue() - feature2.getNormalizedValue();
             diff = Double.parseDouble(String.format("%.3f", diff));
-            double sqrdDiff = Double.parseDouble(String.format("%.3f", (diff*diff)));
+            double sqrdDiff = Double.parseDouble(String.format("%.3f", (diff * diff)));
             return sqrdDiff;
-        }else{
+        } else {
             //TODO: decide what to do
             // returning max distance as of now
             return 1;

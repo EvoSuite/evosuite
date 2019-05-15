@@ -6,7 +6,6 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.ga.comparators.NoveltyAndRankComparator;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.ga.operators.selection.TournamentSelectionNoveltyAndRankComparator;
@@ -24,25 +23,27 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
+public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
     private NoveltyFunction<T> noveltyFunction;
 
-    /** Object used to keep track of the execution time needed to reach the maximum coverage */
+    /**
+     * Object used to keep track of the execution time needed to reach the maximum coverage
+     */
     protected final BudgetConsumptionMonitor budgetMonitor;
 
-    /** Keep track of overall suite fitness functions and correspondent test fitness functions */
+    /**
+     * Keep track of overall suite fitness functions and correspondent test fitness functions
+     */
     protected final Map<TestSuiteFitnessFunction, Class<?>> suiteFitnessFunctions;
 
-    /** Crowding distance measure to use */
+    /**
+     * Crowding distance measure to use
+     */
     protected CrowdingDistance<T> distance = new CrowdingDistance<T>();
 
     private LocalCompetition<T> lc = new LocalCompetition<>();
@@ -65,25 +66,10 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
     /**
      * Use Novelty Function to do the calculation
-     *
      */
-    public void calculateNoveltyAndSortPopulation(List<String> uncoveredMethodList, boolean processForNovelty){
+    public void calculateNoveltyAndSortPopulation(List<String> uncoveredMethodList, boolean processForNovelty) {
         logger.debug("Calculating novelty for " + this.population.size() + " individuals");
         noveltyFunction.calculateNovelty(this.population, noveltyArchive, uncoveredMethodList, processForNovelty);
-    }
-
-    /**
-     * Sort the population by novelty
-     */
-    protected void sortPopulation(List<T> population, Map<T, Double> noveltyMap) {
-        // TODO: Handle case when no novelty value is stored in map
-        // TODO: Use lambdas
-        Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
-            @Override
-            public int compare(Chromosome c1, Chromosome c2) {
-                return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
-            }
-        }));
     }
 
 
@@ -109,20 +95,12 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
     public TestSuiteChromosome getBestIndividual1() {
         TestSuiteChromosome best = this.generateSuite();
-        /*if (best.getTestChromosomes().isEmpty()) {
-
-            for (FitnessFunction suiteFitness : this.fitnessFunctions) {
-                best.setCoverage(suiteFitness, 0.0);
-                best.setFitness(suiteFitness,  1.0);
-            }
-            return (TestSuiteChromosome) best;
-        }*/
-
         // compute overall fitness and coverage
         this.computeCoverageAndFitness(best);
         result = (TestSuiteChromosome) best;
         return result;
     }
+
     protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
         for (Map.Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
                 .entrySet()) {
@@ -145,13 +123,10 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         }
     }
 
-    public TestSuiteChromosome getBestIndividual2(){
+    public TestSuiteChromosome getBestIndividual2() {
         return result;
     }
 
-    /*private List<String> getUncoveredMethodNames(){
-            getUncoveredGoals().stream().map((entry) -> entry.)
-    }*/
 
     @Override
     public void initializePopulation() {
@@ -175,7 +150,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         this.notifyIteration();
     }
 
-    public void formSubRegions(){
+    public void formSubRegions() {
         lc.formSubRegions(this.population);
     }
 
@@ -280,40 +255,29 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
         List<T> offspringPopulation = this.breedNextGeneration();
 
-        if(Properties.NOVELTY_SELECTION){
+        if (Properties.NOVELTY_SELECTION) {
             this.population.clear();
-            if(offspringPopulation.size()>Properties.POPULATION){
+            if (offspringPopulation.size() > Properties.POPULATION) {
                 Collections.sort(offspringPopulation, new Comparator<T>() {
                     @Override
                     public int compare(T individual1, T individual2) {
-                        if(individual1.getNoveltyScore() > individual2.getNoveltyScore())
+                        if (individual1.getNoveltyScore() > individual2.getNoveltyScore())
                             return -1;
                         else
                             return 0;
                     }
                 });
                 offspringPopulation = offspringPopulation.subList(0, Properties.POPULATION);
-                /*int extra = offspringPopulation.size() - 50;
-                for(int i=Properties.POPULATION-1 ; i< (Properties.POPULATION-1)+extra; i++){
 
-                }*/
             }
-               /* Collections.sort(offspringPopulation, new Comparator<T>() {
-                    @Override
-                    public int compare(T individual1, T individual2) {
-                        if(individual1.getNoveltyScore() > in)
-                        return 0;
-                    }
-                });*/
+
             this.population.addAll(offspringPopulation);
-        }
-        else if(Properties.DISTANCE_FOR_NOVELTY){
+        } else if (Properties.DISTANCE_FOR_NOVELTY) {
             this.population.clear();
             this.population.addAll(offspringPopulation);
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
             this.distance.fastEpsilonDominanceAssignment(this.population, this.getUncoveredGoals());
-        }
-        else{
+        } else {
             // Create the union of parents and offSpring
             List<T> union = new ArrayList<T>();
             union.addAll(this.population);
@@ -336,7 +300,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
             while ((remain > 0) && (remain >= front.size()) && !front.isEmpty()) {
                 // Assign crowding distance to individuals
-                if(Properties.RANK_AND_DISTANCE_SELECTION){
+                if (Properties.RANK_AND_DISTANCE_SELECTION) {
                     this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
                 }
                 // Add the individuals of this front
@@ -353,7 +317,7 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             }
             // Remain is less than front(index).size, insert only the best one
             if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
-                if(Properties.RANK_AND_DISTANCE_SELECTION) {
+                if (Properties.RANK_AND_DISTANCE_SELECTION) {
                     this.distance.fastEpsilonDominanceAssignment(front, uncoveredGoals);
                     Collections.sort(front, new OnlyCrowdingComparator());
                 }
@@ -366,87 +330,8 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
         }
         this.currentIteration++;
-
-
-
-        /*List<T> newGeneration = new ArrayList<T>();
-        // changes start
-        for (int i = 0; i < Properties.POPULATION / 2 && !this.isFinished(); i++) {
-            // select best individuals
-            T parent1 = null;
-            T parent2 = null;
-            if(Properties.RANK_AND_NOVELTY_SELECTION){ // by default true
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
-                parent1 = this.selectionFunction.select(this.population);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(true);
-                parent2 = this.selectionFunction.select(this.population);
-            }
-            else if(Properties.NOVELTY_SELECTION){
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
-                parent1 = this.selectionFunction.select(this.population);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankBasedCompetition(false);
-                parent2 = this.selectionFunction.select(this.population);
-            }
-
-            T offspring1 = (T) parent1.clone();
-            T offspring2 = (T) parent2.clone();
-            // apply crossover
-            try {
-                if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-                    this.crossoverFunction.crossOver(offspring1, offspring2);
-                }
-            } catch (ConstructionFailedException e) {
-                logger.debug("CrossOver failed.");
-                continue;
-            }
-
-            this.removeUnusedVariables(offspring1);
-            this.removeUnusedVariables(offspring2);
-
-            // apply mutation on offspring1
-            this.mutate(offspring1, parent1);
-            if (offspring1.isChanged()) {
-                this.clearCachedResults(offspring1);
-                offspring1.updateAge(this.currentIteration);
-                this.calculateFitness(offspring1);
-                newGeneration.add(offspring1);
-            }
-            // apply mutation on offspring2
-            this.mutate(offspring2, parent2);
-            if (offspring2.isChanged()) {
-                this.clearCachedResults(offspring2);
-                offspring2.updateAge(this.currentIteration);
-                this.calculateFitness(offspring2);
-                newGeneration.add(offspring2);
-            }
-
-        }
-        // Add new randomly generate tests
-        for (int i = 0; i < Properties.POPULATION * Properties.P_TEST_INSERTION; i++) {
-            T tch = null;
-            if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()) {
-                tch = this.chromosomeFactory.getChromosome();
-                tch.setChanged(true);
-            } else {
-                tch = (T) Randomness.choice(this.getSolutions()).clone();
-                tch.mutate(); tch.mutate(); // TODO why is it mutated twice?
-            }
-            if (tch.isChanged()) {
-                tch.updateAge(this.currentIteration);
-                this.calculateFitness(tch);
-                newGeneration.add(tch);
-            }
-        }
-        logger.info("Number of offsprings = {}", newGeneration.size());
-        // changes end
-
-
-        this.population = newGeneration;
-        //archive
-        updateFitnessFunctionsAndValues();
-        //
-        currentIteration++;*/
     }
+
     protected List<T> breedNextGeneration() {
         List<T> offspringPopulation = new ArrayList<T>(Properties.POPULATION);
         // we apply only Properties.POPULATION/2 iterations since in each generation
@@ -455,31 +340,29 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             // select best individuals
             T parent1 = null;
             T parent2 = null;
-            if(Properties.RANK_AND_NOVELTY_SELECTION){ // by default true
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(false);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(false);
+            if (Properties.RANK_AND_NOVELTY_SELECTION) { // by default true
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndDistanceBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setOnlyNoveltyBasedCompetition(false);
 
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndNoveltyBasedCompetition(true);
                 parent1 = this.selectionFunction.select(this.population);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndNoveltyBasedCompetition(true);
                 parent2 = this.selectionFunction.select(this.population);
-            }
-            else if(Properties.RANK_AND_DISTANCE_SELECTION){
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(false);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(false);
+            } else if (Properties.RANK_AND_DISTANCE_SELECTION) {
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndNoveltyBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setOnlyNoveltyBasedCompetition(false);
 
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndDistanceBasedCompetition(true);
                 parent1 = this.selectionFunction.select(this.population);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndDistanceBasedCompetition(true);
                 parent2 = this.selectionFunction.select(this.population);
-            }
-            else if(Properties.NOVELTY_SELECTION || Properties.DISTANCE_FOR_NOVELTY){
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndDistanceBasedCompetition(false);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setRankAndNoveltyBasedCompetition(false);
+            } else if (Properties.NOVELTY_SELECTION || Properties.DISTANCE_FOR_NOVELTY) {
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndDistanceBasedCompetition(false);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setRankAndNoveltyBasedCompetition(false);
 
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setOnlyNoveltyBasedCompetition(true);
                 parent1 = this.selectionFunction.select(this.population);
-                ((TournamentSelectionNoveltyAndRankComparator)this.selectionFunction).setOnlyNoveltyBasedCompetition(true);
+                ((TournamentSelectionNoveltyAndRankComparator) this.selectionFunction).setOnlyNoveltyBasedCompetition(true);
                 parent2 = this.selectionFunction.select(this.population);
             }
             T offspring1 = (T) parent1.clone();
@@ -523,7 +406,8 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
                 tch.setChanged(true);
             } else {
                 tch = (T) Randomness.choice(this.getSolutions()).clone();
-                tch.mutate(); tch.mutate(); // TODO why is it mutated twice?
+                tch.mutate();
+                tch.mutate(); // TODO why is it mutated twice?
             }
             if (tch.isChanged()) {
                 tch.updateAge(this.currentIteration);
@@ -577,12 +461,12 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
         return uncoveredGoals;
     }
 
-    private List<String> getUncoveredMethodNames(){
+    private List<String> getUncoveredMethodNames() {
         Set<String> uncoveredMethodNames = new HashSet<>();
         Set<FitnessFunction<T>> uncoveredGoals = getUncoveredGoals();
         Iterator i = uncoveredGoals.iterator();
-        while (i.hasNext()){
-            uncoveredMethodNames.add(((BranchCoverageTestFitness)i.next()).getBranchGoal().getMethodName());
+        while (i.hasNext()) {
+            uncoveredMethodNames.add(((BranchCoverageTestFitness) i.next()).getBranchGoal().getMethodName());
         }
         return new ArrayList<>(uncoveredMethodNames);
     }
@@ -598,29 +482,24 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             initializePopulation();
 
         // Calculate dominance ranks
-        if(Properties.RANK_AND_NOVELTY_SELECTION){
+        if (Properties.RANK_AND_NOVELTY_SELECTION) {
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
         }
         // Properties.DISTANCE_FOR_NOVELTY added for Experimental purpose
         else if (Properties.DISTANCE_FOR_NOVELTY) {
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
             this.distance.fastEpsilonDominanceAssignment(this.population, this.getUncoveredGoals()); // distance for the entire population instead of each of the fronts.
-        }
-
-        else if (Properties.RANK_AND_DISTANCE_SELECTION) {
+        } else if (Properties.RANK_AND_DISTANCE_SELECTION) {
+            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
+            for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
+                this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
+            }
+        } else if (Properties.SWITCH_NOVELTY_FITNESS) {
             this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
             for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
                 this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
             }
         }
-
-        else if(Properties.SWITCH_NOVELTY_FITNESS){
-            this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
-            for (int i = 0; i < this.rankingFunction.getNumberOfSubfronts(); i++) {
-                this.distance.fastEpsilonDominanceAssignment(this.rankingFunction.getSubfront(i), this.getUncoveredGoals());
-            }
-        }
-
 
 
         logger.warn("Starting evolution of novelty search algorithm");
@@ -630,14 +509,14 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
 
             // for experiments
             boolean processForNovelty = true;
-            if(Properties.SWITCH_NOVELTY_FITNESS){
-                if((currentIteration%Properties.SWITCH_ITERATIONS) == 0){
+            if (Properties.SWITCH_NOVELTY_FITNESS) {
+                if ((currentIteration % Properties.SWITCH_ITERATIONS) == 0) {
                     Properties.RANK_AND_NOVELTY_SELECTION = false;
                     Properties.RANK_AND_DISTANCE_SELECTION = false;
                     Properties.NOVELTY_SELECTION = true;
                     calculateNoveltyAndSortPopulation(getUncoveredMethodNames(), true);
                     processForNovelty = false;
-                }else{
+                } else {
                     Properties.RANK_AND_DISTANCE_SELECTION = true;
                     Properties.NOVELTY_SELECTION = false;
                     Properties.RANK_AND_NOVELTY_SELECTION = false;
@@ -648,14 +527,8 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
                 processForNovelty = false;
             }
 
-
-            /**/
-
             long startTime = System.currentTimeMillis();
             evolve();
-
-            // Calculate dominance ranks
-            //this.rankingFunction.computeRankingAssignment(this.population, this.getUncoveredGoals());
 
             // TODO: Sort by novelty
             calculateNoveltyAndSortPopulation(getUncoveredMethodNames(), processForNovelty);
@@ -663,108 +536,17 @@ public class NoveltySearch<T extends Chromosome> extends  GeneticAlgorithm<T>{
             long endTime = System.currentTimeMillis();
 
             this.notifyIteration();
-            System.out.println("Execution Time for Generation : "+this.currentIteration+" is (ms):"+(endTime-startTime));
+            System.out.println("Execution Time for Generation : " + this.currentIteration + " is (ms):" + (endTime - startTime));
         }
 
-        System.out.println("Archive size after all the generations : "+this.noveltyArchive.size());
+        System.out.println("Archive size after all the generations : " + this.noveltyArchive.size());
         // storing the time needed to reach the maximum coverage
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Time2MaxCoverage,
                 this.budgetMonitor.getTime2MaxCoverage());
 
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.DerivedFeatures, FeatureFactory.getFeatures().size());
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.ArchiveSizeUsed, this.noveltyArchive.size());
-
-        /*ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.TrueList, FeatureFactory.getTrueList());
-        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.FalseList, FeatureFactory.getFalseList());*/
-       /* List<Integer> trueList = new ArrayList<>();
-        List<Integer> falseList = new ArrayList<>();
-        List<Integer> mediumList = new ArrayList<>();
-        for(Map.Entry<Integer, Integer> entry : FeatureValueAnalyser.trueMAP.entrySet()){
-            //entry.getKey();// position in the array
-            //entry.getValue();// how many times this position was true
-            for(int i=0 ; i< entry.getValue(); i++)
-                trueList.add(entry.getKey());
-        }
-        for(Map.Entry<Integer, Integer> entry : FeatureValueAnalyser.falseMAP.entrySet()){
-            //entry.getKey();// position in the array
-            //entry.getValue();// how many times this position was true
-            for(int i=0 ; i< entry.getValue(); i++)
-                falseList.add(entry.getKey());
-        }
-        for(Map.Entry<Integer, Integer> entry : FeatureValueAnalyser.mediumMAP.entrySet()){
-            //entry.getKey();// position in the array
-            //entry.getValue();// how many times this position was true
-            for(int i=0 ; i< entry.getValue(); i++)
-                mediumList.add(entry.getKey());
-        }
-        System.out.println("Empty Array : "+Properties.count);
-        Properties.count =0;
-        writeFeatureData(Properties.CONFIGURATION_ID, trueList, falseList, mediumList);*/
-        FeatureValueAnalyser.trueMAP.clear(); // low
-        FeatureValueAnalyser.falseMAP.clear(); // high
-        FeatureValueAnalyser.mediumMAP.clear(); // medium
-        FeatureValueAnalyser.mediumMAP.clear(); // medium
         notifySearchFinished();
 
-    }
-    public static File getReportDir() throws RuntimeException{
-        File dir = new File(Properties.REPORT_DIR);
-
-        if(!dir.exists()){
-            boolean created = dir.mkdirs();
-            if(!created){
-                String msg = "Cannot create report dir: "+Properties.REPORT_DIR;
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
-        }
-
-        return dir;
-    }
-
-    public void writeFeatureData(String config, List<Integer> data1, List<Integer> data2, List<Integer> data3) {
-        // Write to evosuite-report/statistics.csv
-        try {
-            File outputDir = getReportDir();
-            File f = new File(outputDir.getAbsolutePath() + File.separator + "statistics_feature.csv");
-            BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
-            if (f.length() == 0L) {
-                out.write("Configuration_id"+",Low,High,Medium" + "\n");
-            }
-            out.write(getCSVData1(config, data1, data2, data3));
-            out.close();
-
-        } catch (IOException e) {
-            logger.warn("Error while writing statistics: " + e.getMessage());
-        }
-    }
-
-    private String getCSVData1(String config, List<Integer> data1, List<Integer> data2, List<Integer> data3) {
-        StringBuilder r = new StringBuilder();
-        int length = data1.size() > data2.size() ? (data1.size() > data3.size()?data1.size():data3.size()) : (data2.size() > data3.size()?data2.size():data3.size());
-
-        for(int i=0; i < length; i++){
-            String val1;
-            String val2;
-            String val3;
-            try{
-                val1 = data1.get(i).toString();
-            }catch (IndexOutOfBoundsException | NullPointerException e){
-                val1 = "";
-            }
-            try{
-                val2 = data2.get(i).toString();
-            }catch (IndexOutOfBoundsException | NullPointerException e){
-                val2 = "";
-            }
-            try{
-                val3 = data3.get(i).toString();
-            }catch (IndexOutOfBoundsException | NullPointerException e){
-                val3 = "";
-            }
-            r.append(config).append(",").append(val1).append(",").append(val2).append(",").append(val3).append("\n");
-        }
-
-        return r.toString();
     }
 }

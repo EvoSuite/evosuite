@@ -161,9 +161,6 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
                 ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
             else
                 ga.addListener(new MutationTestPool());
-            // } else if (Properties.CRITERION == Criterion.DEFUSE) {
-            // if (Properties.STRATEGY == Strategy.EVOSUITE)
-            // ga.addListener(new DefUseTestPool());
         }
         ga.resetStoppingConditions();
         ga.setPopulationLimit(getPopulationLimit());
@@ -184,13 +181,6 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         // ga.addBloatControl(new MaxLengthBloatControl());
 
         TestCaseSecondaryObjective.setSecondaryObjectives();
-
-        // Some statistics
-        //if (Properties.STRATEGY == Strategy.EVOSUITE)
-        //	ga.addListener(SearchStatistics.getInstance());
-        // ga.addListener(new MemoryMonitor());
-        // ga.addListener(MutationStatistics.getInstance());
-        // ga.addListener(BestChromosomeTracker.getInstance());
 
         if (Properties.DYNAMIC_LIMIT) {
             // max_s = GAProperties.generations * getBranches().size();
