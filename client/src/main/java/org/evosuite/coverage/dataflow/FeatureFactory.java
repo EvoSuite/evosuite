@@ -1,6 +1,13 @@
 package org.evosuite.coverage.dataflow;
 
+import org.evosuite.Properties;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,21 +17,101 @@ public class FeatureFactory implements Serializable {
     private static Map<Integer, Feature> features = new HashMap<Integer, Feature>();
     private static Map<Integer, Feature> tempMap = new HashMap<>();
     private static Map<FeatureKey, List<Double>> featureValueRangeList = new HashMap<>();
+    private static Map<BytecodeInstruction, Integer> knownInstructions = new HashMap<BytecodeInstruction, Integer>();
     private static int defCounter = 0;
 
+    // Experiment - histogram
+    private static List<Integer> trueList = new ArrayList<>();
+    private static List<Integer> falseList = new ArrayList<>();
+    private static Integer trueCount = 0;
+    private static Integer falseCount = 0;
+
+    public static Integer getTrueCount() {
+        return trueCount;
+    }
+
+    public static Integer getFalseCount() {
+        return falseCount;
+    }
+
+    public static List<Integer> getTrueList() {
+        return trueList;
+    }
+
+    public static void setTrueList(List<Integer> trueList) {
+        FeatureFactory.trueList = trueList;
+    }
+
+    public static List<Integer> getFalseList() {
+        return falseList;
+    }
+
+    public static void setFalseList(List<Integer> falseList) {
+        FeatureFactory.falseList = falseList;
+    }
+    public static void updateTrueList(Integer val) {
+        FeatureFactory.trueList.add(val);
+    }
+    public static void updateFalseList(Integer val) {
+        FeatureFactory.falseList.add(val);
+    }
+    public static void updateTrueCount() {
+        trueCount++;
+    }
+    public static void updateFalseCount() {
+        falseCount++;
+    }
 
     /**
-     * Registers the feature using the combination of variable name and the method name.
-     * @param varName
-     * @param methodName
-     * @return
+     * This method recognizes all the instructions which ASMWrapper.isDefinition() returns as true.
+     * It registers the instruction as a Feature only if the instruction is seen for the first time.
+     * Instructions are verified as redundant or unique depending on their variable name.
+     * <p>
+     * PUTFIELD instructions
+     *
+     * @param d BytecodeInstruction
+     * @return a boolean
      */
+    public static boolean registerAsFeature(BytecodeInstruction d) {
+        if (null != knownInstructions.get(d)) {
+            return false;
+        } else {
+
+            if (null != getFeatureByVarName(d.getVariableName()))
+                return false;
+
+            if (d.getASMNode().getOpcode() == Opcodes.POP)
+                return false;
+
+            if(isStandardJavaVariable(d.getVariableName()))
+                return false;
+
+            if(isRecursiveElement(d))
+                return false;
+
+            // only for experiment purpose
+            if(Properties.INSTRUMENT_ONLY_FIELD){
+                if(d.isLocalVariableDefinition() || d.isLocalVariableUse())
+                    return false;
+            }
+
+            defCounter++;
+            knownInstructions.put(d, defCounter);
+            String var = d.getVariableName();
+            Feature feature = new Feature();
+            feature.setVariableName(var);
+            feature.setMethodName(d.getMethodName());
+            features.put(defCounter, feature);
+        }
+        return true;
+    }
+
     public static boolean registerAsFeature(String varName, String methodName) {
 
         defCounter++;
         String var = varName;
         Feature feature = new Feature();
-        feature.setVariableName(methodName + '_' + var);
+        feature.setVariableName(methodName+'_'+var);
         feature.setMethodName(methodName);
         features.put(defCounter, feature);
 
@@ -32,14 +119,47 @@ public class FeatureFactory implements Serializable {
     }
 
     /**
+     * This method identifies if the accessed field belongs to the original class or to some sub class.
+     * For e.g
+     * Class A{
+     *     B b = new B();
+     *     void foo(){
+     *         b.j=4;
+     *     }
+     * }
+     * In the above CUT the variable 'j' belongs to class B and not A and thus this method will identify such variables.
+     * In novelty search approach we do not need to care about such variables as we already serialize any complex object
+     * once after all the modification to such a object has been done. And hence we would still be able to capture any difference
+     * to such recursive variables.
+     *
+     * @param bytecodeInstruction
+     * @return
+     */
+    public static boolean isRecursiveElement(BytecodeInstruction bytecodeInstruction){
+        if(bytecodeInstruction.getASMNode().getType() == AbstractInsnNode.FIELD_INSN){
+            if(!bytecodeInstruction.getClassName().equals(((FieldInsnNode) bytecodeInstruction.getASMNode()).owner.replace('/','.'))){
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    public static boolean isStandardJavaVariable(String variableName){
+        //TODO: read such string prefix from a .txt of .properties file or at least make a constant.
+        return variableName.startsWith("java/lang/System");
+    }
+
+    /**
      * Just to keep track of total number of features. As a part of evaluation features are added to the
      * featureList (One such place is FeatureNoveltyFunction.executeAndAnalyseFeature()). The newly added
      * feature will not contain any specific value or normalizedValue.
-     * This is just to keep a track of total number of features.
+     * This is just to keep a track to total number of features.
      *
      * @param feature
      */
-    public static void updateFeatureMap(Integer key, Feature feature) {
+    public static void updateFeatureMap(Integer key, Feature feature){
         tempMap.put(key, feature);
     }
 
@@ -74,6 +194,19 @@ public class FeatureFactory implements Serializable {
                 return entry;
         }
         return null;
+    }
+
+    public static BytecodeInstruction getInstructionById(int id) {
+        for (Map.Entry<BytecodeInstruction, Integer> entry : knownInstructions.entrySet()) {
+            int val = entry.getValue();
+            if (val == id)
+                return entry.getKey();
+        }
+        return null;
+    }
+
+    public static Map<FeatureKey, List<Double>> getFeatureValueRangeList() {
+        return featureValueRangeList;
     }
 
     public static void setFeatureValueRangeList(Map<FeatureKey, List<Double>> featureValueRangeList) {
