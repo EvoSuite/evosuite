@@ -15,6 +15,9 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dimensionalityreduction.PCA;
+import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 
 import static java.lang.Math.abs;
 //mycode ends
@@ -167,7 +170,32 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         return quadset;
 
     }
-
+//    public double[] getPCA(double[][] mySpectrum)
+//    {
+//        double[] features = new double[20];
+//        for(int i=0;i<20;i++)
+//            features[i] = -1;
+//        INDArray activity_mtrx = Nd4j.create(mySpectrum);
+//        long[] shape = activity_mtrx.shape();
+//        if(shape[1] == 1)
+//            return features;
+//
+//        //  center and scale the data
+//        NormalizerStandardize scaler = new NormalizerStandardize();
+//        scaler.fit(activity_mtrx);
+//        scaler.transform(activity_mtrx);
+//        PCA mypca = new PCA(activity_mtrx);
+//        INDArray principalC =  mypca.pca(activity_mtrx, 10, false);
+//        scaler.fit(principalC);
+//        INDArray mean = scaler.getMean();
+//        INDArray std_dev = scaler.getStd();
+//        for(int i=0;i<10;i++)
+//            features[i] = mean[i];
+//        for(int i=10;i<20;i++)
+//            features[i] = std_dev[i];
+//        return features;
+//
+//    }
     public double getMetric(Spectrum spectrum) {
 		switch (this.metric) {
         case DTR:
@@ -385,21 +413,30 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             mydata[8] = distances[2];
 //            mydata[9] = (mydata[1] * mydata[2] * mydata[3]);
             //int matrix_size = spectrum.getNumTransactions();
-
+            double DDU =  (mydata[1] * mydata[2] * mydata[3]);
             //normalise the data
             ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
             ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
 
             for(int i=0;i<means.size();i++)
             {
-                double std_dev  = Double.parseDouble(std_devs.get(i));
-                if(std_dev == 0)
-                    mydata[i] = 0.0;
-                else
-                    mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
-            }
 
-            //double DDU = mydata[1] * mydata[2] * mydata[3];
+                double std_dev  = Double.parseDouble(std_devs.get(i));
+
+                if(i == (means.size() - 1))
+                {
+                    if(std_dev == 0)
+                        DDU = 0.0;
+                    else
+                        DDU = (DDU - (Double.parseDouble(means.get(i)))) / std_dev;
+                }
+                else {
+                    if (std_dev == 0)
+                        mydata[i] = 0.0;
+                    else
+                        mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
+                }
+            }
 
             INDArray test_data = Nd4j.create(1, 9);
             INDArray myrow = Nd4j.create(mydata);
@@ -443,7 +480,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //            double lambda_sqr = Math.pow(lambda,2);
 //          double comp_lambda_sqr = Math.pow((1 - lambda),2);
 
-            double new_result = (lambda * spectrum.basicCoverage()) + ((1-lambda) * (1 - result));
+            double new_result = (lambda * DDU) + ((1-lambda) * (1 - result));
 
 
             return (0.5 * new_result);
