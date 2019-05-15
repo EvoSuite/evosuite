@@ -312,11 +312,9 @@ public class Properties {
 		// mu-lambda
 		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
 		// many-objective algorithms
-		MOSA, DYNAMOSA, LIPS, MIO,
+		MOSA, DYNAMOSA, LIPS, MIO, NOVELTY,
 		// multiple-objective optimisation algorithms
-		NSGAII, SPEA2,
-		//
-		NOVELTY
+		NSGAII, SPEA2
 	}
 
 	// MOSA PROPERTIES
@@ -562,8 +560,6 @@ public class Properties {
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
 	public static int POPULATION = 50;
-
-	public static int count =0;
 
 	public enum PopulationLimit {
 		INDIVIDUALS, TESTS, STATEMENTS;
@@ -1529,6 +1525,7 @@ public class Properties {
 	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
 	}
 
+	// parameters for novelty search algorithm
 	@Parameter(key = "novelty_threshold", group = "Runtime", description = "If novelty of an individual is greater than this threshold then it is added to the novelty archive")
     public static double NOVELTY_THRESHOLD = 0.5;
 
@@ -1545,52 +1542,29 @@ public class Properties {
 	@Parameter(key = "max_feature_distance", group = "Runtime", description = "If true, then maximum distance between the same feature of multiple maps will be considered.")
 	public static boolean MAX_FEATURE_DISTANCE = true;
 
-	@Parameter(key = "instrument_only_field", group = "Runtime", description = "Whether only field variables to be considered as features.")
-	public static boolean INSTRUMENT_ONLY_FIELD = false;
-
-	// used in selection
+	// selection parameters. Only one of them should be true.
 	@Parameter(key = "rank_and_novelty_selection", group = "Runtime", description = "If true, it enables selection based on novelty and fitness")
 	public static boolean RANK_AND_NOVELTY_SELECTION = true;
 
-	//Experimental purpose
     @Parameter(key = "distance_for_novelty", group = "Runtime", description = "If true, it replaces noveltyScore with the distance")
     public static boolean DISTANCE_FOR_NOVELTY = false;
 
-    @Parameter(key = "config_id", group = "Runtime", description = "If true, it replaces noveltyScore with the distance")
-	public static String CONFIG_ID = "NOVELTY";
-
-	// used in selection
 	@Parameter(key = "rank_and_distance_selection", group = "Runtime", description = "If true, it enables selection based on rank and distance")
 	public static boolean RANK_AND_DISTANCE_SELECTION = true;
 
-	// used in selection
 	@Parameter(key = "novelty_selection", group = "Runtime", description = "If true, it enables selection based only on novelty")
 	public static boolean NOVELTY_SELECTION = false;
 
 	@Parameter(key = "switch_novelty_fitness", group = "Runtime", description = "If true, the algorithm switches between novelty and optimization")
 	public static boolean SWITCH_NOVELTY_FITNESS = false;
 
+	// selection parameters end.
+
 	public static List<Integer> trueList = new ArrayList<>();
 	public static List<Integer> falseList = new ArrayList<>();
 
 	@Parameter(key = "is_experiment", group = "Runtime", description = "If true, the algorithm switches between novelty and optimization")
 	public static boolean IS_EXPERIMENT = false;
-
-	public static List<Integer> getTrueList() {
-		return trueList;
-	}
-
-	public static void setTrueList(List<Integer> trueList) {
-		Properties.trueList = trueList;
-	}
-
-	public static List<Integer> getFalseList() {
-		return falseList;
-	}
-
-	public static void setFalseList(List<Integer> falseList) {
-		Properties.falseList = falseList;
-	}
 
 	@Parameter(key = "switch_iterations", group = "Runtime", description = "Decides after how many iterations the algorithm switches between novelty and optimization")
 	public static int SWITCH_ITERATIONS = 5;
