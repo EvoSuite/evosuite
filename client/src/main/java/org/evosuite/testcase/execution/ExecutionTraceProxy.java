@@ -43,11 +43,6 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	private ExecutionTraceImpl trace;
 
-	@Override
-	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
-		trace.updateFeatureObjectLink(id, featureMap);
-	}
-
 	/**
 	 * <p>
 	 * Constructor for ExecutionTraceProxy.

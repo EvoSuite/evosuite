@@ -79,6 +79,9 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	/** Object used to keep track of the execution time needed to reach the maximum coverage */
 	protected final BudgetConsumptionMonitor budgetMonitor;
 
+	/** Final test suite */
+	private static TestSuiteChromosome suite = new TestSuiteChromosome();
+
 	/**
 	 * Constructor.
 	 * 
@@ -182,7 +185,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * @param offspring
 	 * @param parent
 	 */
-	private void mutate(T offspring, T parent) {
+	protected void mutate(T offspring, T parent) {
 		offspring.mutate();
 		TestChromosome tch = (TestChromosome) offspring;
 		if (!offspring.isChanged()) {
@@ -211,7 +214,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * @return true if the test has at least one method or constructor call (i.e., the test may
 	 * cover something when executed; false otherwise
 	 */
-	private boolean hasMethodCall(T test) {
+	protected boolean hasMethodCall(T test) {
 		boolean flag = false;
 		TestCase tc = ((TestChromosome) test).getTestCase();
 		for (Statement s : tc) {
@@ -255,7 +258,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * @param chromosome
 	 * @return true or false depending on whether "unused variables" are removed
 	 */
-	private boolean removeUnusedVariables(T chromosome) {
+	protected boolean removeUnusedVariables(T chromosome) {
 		int sizeBefore = chromosome.size();
 		TestCase t = ((TestChromosome) chromosome).getTestCase();
 		List<Integer> to_delete = new ArrayList<Integer>(chromosome.size());
@@ -412,7 +415,6 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
      * @return
      */
     protected TestSuiteChromosome generateSuite() {
-      TestSuiteChromosome suite = new TestSuiteChromosome();
       Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
       return suite;
     }

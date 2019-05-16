@@ -190,15 +190,11 @@ public class FeatureValueAnalyser {
         }
     }
 
-
-    static int count = 0;
-
     public static void updateNormalizedFeatureValues(TestChromosome t, Map<FeatureKey, List<Double>> featureValueRangeList) {
         List<Map<Integer, Feature>> featureMapList = t.getLastExecutionResult().getTrace().getListOfFeatureMap();
 
         if (featureMapList == null || featureMapList.isEmpty()) {
             // no need to process
-            count++;
             return;
         }
 

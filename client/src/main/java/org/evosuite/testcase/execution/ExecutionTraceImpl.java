@@ -187,8 +187,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	private List<BranchEval> branchesTrace = new ArrayList<BranchEval>();
 
-
-
 	// Coverage information
 	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections
 			.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
@@ -255,13 +253,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	public Map<Object, Map<Integer, Integer>> objectFeatureCount = Collections
 			.synchronizedMap(new HashMap<Object, Map<Integer, Integer>>());
-
-	public List<Object> callerList = Collections
-			.synchronizedList(new ArrayList<Object>());
-
-
-    /*public Map<Integer, Map<Integer, Feature>> visitedFeatureObjectMap = Collections
-			.synchronizedMap(new HashMap<Integer, Map<Integer, Feature>>());*/
 
 
 	private int proxyCount = 1;
@@ -575,7 +566,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		coveredFalse = new HashMap<Integer, Integer>();
 		coveredDefs = new HashMap<Integer, Integer>();
 		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
-		//visitedFeatureObjectMap = new HashMap<Integer, Map<Integer, Feature>>();
 		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		passedDefinitionObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
 		passedUseObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
@@ -583,7 +573,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		listOfFeatureMap = new ArrayList<Map<Integer, Feature>>();
 		mapFeatureList = new HashMap<Integer, List<Feature>>();
 		objectFeatureCount = new HashMap<Object, Map<Integer, Integer>>();
-		callerList = new ArrayList<Object>();
 		branchesTrace = new ArrayList<BranchEval>();
 		coveredTrueContext = new HashMap<Integer, Map<CallContext, Double>>();
 		coveredFalseContext = new HashMap<Integer, Map<CallContext, Double>>();
@@ -625,7 +614,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.touchedMutants.addAll(touchedMutants);
 		copy.mutantDistances.putAll(mutantDistances);
 		copy.passedDefinitions.putAll(passedDefinitions);
-		//copy.visitedFeatureObjectMap.putAll(visitedFeatureObjectMap);
 		copy.passedUses.putAll(passedUses);
 		copy.passedDefinitionObject.putAll(passedDefinitionObject);
 		copy.passedUseObject.putAll(passedUseObject);
@@ -634,7 +622,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.listOfFeatureMap.addAll(listOfFeatureMap);
 		copy.mapFeatureList.putAll(mapFeatureList);
 		copy.objectFeatureCount.putAll(objectFeatureCount);
-		copy.callerList.addAll(callerList);
 
 		copy.coveredTrueContext.putAll(coveredTrueContext);
 		copy.coveredFalseContext.putAll(coveredFalseContext);
@@ -710,16 +697,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
         Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
-			System.out.println("Something went wrong");
+			logger.info("Something went wrong : Feature cannot be null");
 		}else{
-
-			/*int count = object==null?0:((Object[])object).length;
-			if(count>9)
-				System.out.println("Got it");*/
-			/*if(object!=null && ((boolean[]) object).length > 0)
-                logger.warn("Size : "+((boolean[]) object).length);
-			else
-			    Properties.count++;*/
 
 			XStream xstream = new XStream(new StaticFieldConverter());
 			String dataXml = xstream.toXML(object);
@@ -728,8 +707,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			// We cannot save the 'Object' as it is because it would be difficult to reconstruct it later.
 			// More over the same object may change as it is just a object reference.
 			// Hence serializing it to a xml string and storing it.
-			/*System.out.println("Updating visitedFeaturesMap in ExeTracerImpl");
-			logger.error("Updating visitedFeaturesMap in ExeTracerImpl");*/
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 
 			vistedFeaturesMap.put(featID, feature);
@@ -825,7 +802,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 		    // something went wrogn
-            System.out.println("Something went wrong");
+			logger.info("Something went wrong : Feature cannot be null");
         }else{
 			feature.setValue(object);
 			int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
@@ -840,7 +817,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
-			System.out.println("Something went wrong");
+			logger.info("Something went wrong : Feature cannot be null");
 		}else{
 			feature.setValue(object);
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
@@ -855,7 +832,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
-			System.out.println("Something went wrong");
+			logger.info("Something went wrong : Feature cannot be null");
 		}else{
 			feature.setValue(object);
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
@@ -870,28 +847,13 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		Feature feature = new Feature(FeatureFactory.getFeatureByVarName((String)varName));
 		if(null == feature){
 			// something went wrogn
-			System.out.println("Something went wrong");
+			logger.info("Something went wrong : Feature cannot be null");
 		}else{
 			feature.setValue(object);
             int featID = FeatureFactory.getFeatureIdByVarName((String)varName);
 			vistedFeaturesMap.put(featID, feature);
 			updateListFeatureMap(caller, featID, feature);
 		}
-	}
-
-	/**
-	 * helper method.
-	 * TODO: Move to a different location
-	 * @param varName
-	 * @return
-	 */
-	public static Feature getFeatureFromVisitedFeatureMapByName(Map<Integer, Feature> map, String varName){
-		for(Map.Entry<Integer, Feature> entry: map.entrySet()){
-			Feature feature = entry.getValue();
-			if(feature.getVariableName().equals(varName))
-				return feature;
-		}
-		return null;
 	}
 
 	/**
@@ -1273,8 +1235,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Map<Integer, HashMap<Integer, Integer>>
-	getPassedDefinitions(String variableName) {
+	public Map<Integer, HashMap<Integer, Integer>> getPassedDefinitions(String variableName) {
 		return passedDefinitions.get(variableName);
 	}
 
@@ -2047,11 +2008,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Map<Integer, List<Feature>> getMapFeatureList() {
 		return this.mapFeatureList;
-	}
-
-	@Override
-	public void updateFeatureObjectLink(int id, Map<Integer, Feature> featureMap) {
-		//visitedFeatureObjectMap.put(id, featureMap);
 	}
 
 }

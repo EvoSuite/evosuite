@@ -6,6 +6,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
@@ -32,6 +33,7 @@ import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.factories.SerializationSuiteChromosomeFactory;
 import org.evosuite.testsuite.factories.TestSuiteChromosomeFactory;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ResourceController;
@@ -39,37 +41,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
 
-public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFactory<TestChromosome> {
+public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFactory<TestSuiteChromosome> {
 
     private static final Logger logger = LoggerFactory.getLogger(PropertiesNoveltySearchFactory.class);
 
-    private ChromosomeFactory<TestChromosome> getChromosomeFactory() {
+    private ChromosomeFactory<TestSuiteChromosome> getChromosomeFactory() {
         switch (Properties.STRATEGY) {
             case EVOSUITE:
                 switch (Properties.TEST_FACTORY) {
                     case ALLMETHODS:
                         logger.info("Using all methods chromosome factory");
-                        return new AllMethodsTestChromosomeFactory();
+                        return new TestSuiteChromosomeFactory(
+                                new AllMethodsTestChromosomeFactory());
                     case RANDOM:
                         logger.info("Using random chromosome factory");
-                        return new RandomLengthTestFactory();
+                        return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
                     case ARCHIVE:
                         logger.info("Using archive chromosome factory");
-                        return new ArchiveTestChromosomeFactory();
+                        return new TestSuiteChromosomeFactory(new ArchiveTestChromosomeFactory());
                     case JUNIT:
                         logger.info("Using seeding chromosome factory");
                         JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
                                 new RandomLengthTestFactory());
-                        return factory;
+                        return new TestSuiteChromosomeFactory(factory);
                     case SERIALIZATION:
                         logger.info("Using serialization seeding chromosome factory");
-                        return new RandomLengthTestFactory();
+                        return new SerializationSuiteChromosomeFactory(
+                                new RandomLengthTestFactory());
                     default:
                         throw new RuntimeException("Unsupported test factory: "
                                 + Properties.TEST_FACTORY);
                 }
             case NOVELTY:
-                return new RandomLengthTestFactory();
+                return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
             default:
                 throw new RuntimeException("Unsupported test factory: "
                         + Properties.TEST_FACTORY);
@@ -77,7 +81,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
 
     }
 
-    protected SelectionFunction<TestChromosome> getSelectionFunction() {
+    protected SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
         switch (Properties.SELECTION_FUNCTION) {
             case ROULETTEWHEEL:
                 return new FitnessProportionateSelection<>();
@@ -114,7 +118,7 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         }
     }
 
-    private RankingFunction<TestChromosome> getRankingFunction() {
+    private RankingFunction<TestSuiteChromosome> getRankingFunction() {
       switch (Properties.RANKING_TYPE) {
         case FAST_NON_DOMINATED_SORTING:
           return new FastNonDominatedSorting<>();
@@ -125,22 +129,21 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
     }
 
     @Override
-    //public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
-    public NoveltySearch<TestChromosome> getSearchAlgorithm() {
+    public NoveltySearch<TestSuiteChromosome> getSearchAlgorithm() {
         logger.info("Chosen search algorithm: NOVELTY");
-        ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
+        ChromosomeFactory<TestSuiteChromosome> factory = getChromosomeFactory();
 
-        NoveltySearch<TestChromosome> ga = new NoveltySearch<>(factory);
+        NoveltySearch<TestSuiteChromosome> ga = new NoveltySearch<>(factory);
 
         if (Properties.NEW_STATISTICS)
             ga.addListener(new StatisticsListener());
 
         // How to select candidates for reproduction
-        SelectionFunction<TestChromosome> selectionFunction = getSelectionFunction();
+        SelectionFunction<TestSuiteChromosome> selectionFunction = getSelectionFunction();
         selectionFunction.setMaximize(false);
         ga.setSelectionFunction(selectionFunction);
 
-        RankingFunction<TestChromosome> ranking_function = getRankingFunction();
+        RankingFunction<TestSuiteChromosome> ranking_function = getRankingFunction();
         ga.setRankingFunction(ranking_function);
 
         // When to stop the search

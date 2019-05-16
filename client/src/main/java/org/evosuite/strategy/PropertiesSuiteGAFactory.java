@@ -115,7 +115,6 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			}
 		case REGRESSION:
 			return new RegressionTestSuiteChromosomeFactory();
-		case NOVELTY:
 		case MOSUITE:
 			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
 		default:

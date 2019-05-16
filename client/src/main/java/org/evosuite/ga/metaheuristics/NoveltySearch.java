@@ -7,15 +7,13 @@ import org.evosuite.coverage.dataflow.FeatureFactory;
 import org.evosuite.ga.*;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
+import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.ga.operators.selection.TournamentSelectionNoveltyAndRankComparator;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.BudgetConsumptionMonitor;
@@ -25,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class NoveltySearch<T extends Chromosome> extends AbstractMOSA<T> {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
@@ -72,13 +70,6 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
         noveltyFunction.calculateNovelty(this.population, noveltyArchive, uncoveredMethodList, processForNovelty);
     }
 
-
-    protected TestSuiteChromosome generateSuite() {
-        TestSuiteChromosome suite = new TestSuiteChromosome();
-        Archive.getArchiveInstance().getSolutions().forEach(test -> suite.addTest(test));
-        return suite;
-    }
-
     /**
      * Return the test cases in the archive as a list.
      *
@@ -90,43 +81,6 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
         Archive.getArchiveInstance().getSolutions().forEach(test -> solutions.add((T) test));
         return solutions;
     }
-
-    public static TestSuiteChromosome result;
-
-    public TestSuiteChromosome getBestIndividual1() {
-        TestSuiteChromosome best = this.generateSuite();
-        // compute overall fitness and coverage
-        this.computeCoverageAndFitness(best);
-        result = (TestSuiteChromosome) best;
-        return result;
-    }
-
-    protected void computeCoverageAndFitness(TestSuiteChromosome suite) {
-        for (Map.Entry<TestSuiteFitnessFunction, Class<?>> entry : this.suiteFitnessFunctions
-                .entrySet()) {
-            TestSuiteFitnessFunction suiteFitnessFunction = entry.getKey();
-            Class<?> testFitnessFunction = entry.getValue();
-
-            int numberCoveredTargets =
-                    Archive.getArchiveInstance().getNumberOfCoveredTargets(testFitnessFunction);
-            int numberUncoveredTargets =
-                    Archive.getArchiveInstance().getNumberOfUncoveredTargets(testFitnessFunction);
-            int totalNumberTargets = numberCoveredTargets + numberUncoveredTargets;
-
-            double coverage = totalNumberTargets == 0 ? 1.0
-                    : ((double) numberCoveredTargets) / ((double) totalNumberTargets);
-
-            suite.setFitness(suiteFitnessFunction, ((double) numberUncoveredTargets));
-            suite.setCoverage(suiteFitnessFunction, coverage);
-            suite.setNumOfCoveredGoals(suiteFitnessFunction, numberCoveredTargets);
-            suite.setNumOfNotCoveredGoals(suiteFitnessFunction, numberUncoveredTargets);
-        }
-    }
-
-    public TestSuiteChromosome getBestIndividual2() {
-        return result;
-    }
-
 
     @Override
     public void initializePopulation() {
@@ -153,102 +107,6 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
     public void formSubRegions() {
         lc.formSubRegions(this.population);
     }
-
-    /**
-     * When a test case is changed via crossover and/or mutation, it can contains some
-     * primitive variables that are not used as input (or to store the output) of method calls.
-     * Thus, this method removes all these "trash" statements.
-     *
-     * @param chromosome
-     * @return true or false depending on whether "unused variables" are removed
-     */
-    private boolean removeUnusedVariables(T chromosome) {
-        int sizeBefore = chromosome.size();
-        TestCase t = ((TestChromosome) chromosome).getTestCase();
-        List<Integer> to_delete = new ArrayList<Integer>(chromosome.size());
-        boolean has_deleted = false;
-
-        int num = 0;
-        for (Statement s : t) {
-            VariableReference var = s.getReturnValue();
-            boolean delete = false;
-            delete = delete || s instanceof PrimitiveStatement;
-            delete = delete || s instanceof ArrayStatement;
-            delete = delete || s instanceof StringPrimitiveStatement;
-            if (!t.hasReferences(var) && delete) {
-                to_delete.add(num);
-                has_deleted = true;
-            }
-            num++;
-        }
-        Collections.sort(to_delete, Collections.reverseOrder());
-        for (Integer position : to_delete) {
-            t.remove(position);
-        }
-        int sizeAfter = chromosome.size();
-        if (has_deleted) {
-            logger.debug("Removed {} unused statements", (sizeBefore - sizeAfter));
-        }
-        return has_deleted;
-    }
-
-    /**
-     * Method used to mutate an offspring.
-     *
-     * @param offspring
-     * @param parent
-     */
-    private void mutate(T offspring, T parent) {
-        offspring.mutate();
-        TestChromosome tch = (TestChromosome) offspring;
-        if (!offspring.isChanged()) {
-            // if offspring is not changed, we try to mutate it once again
-            offspring.mutate();
-        }
-        if (!this.hasMethodCall(offspring)) {
-            tch.setTestCase(((TestChromosome) parent).getTestCase().clone());
-            boolean changed = tch.mutationInsert();
-            if (changed) {
-                for (Statement s : tch.getTestCase()) {
-                    s.isValid();
-                }
-            }
-            offspring.setChanged(changed);
-        }
-        this.notifyMutation(offspring);
-    }
-
-    /**
-     * This method checks whether the test has only primitive type statements. Indeed,
-     * crossover and mutation can lead to tests with no method calls (methods or constructors
-     * call), thus, when executed they will never cover something in the class under test.
-     *
-     * @param test to check
-     * @return true if the test has at least one method or constructor call (i.e., the test may
-     * cover something when executed; false otherwise
-     */
-    private boolean hasMethodCall(T test) {
-        boolean flag = false;
-        TestCase tc = ((TestChromosome) test).getTestCase();
-        for (Statement s : tc) {
-            if (s instanceof MethodStatement) {
-                MethodStatement ms = (MethodStatement) s;
-                boolean isTargetMethod = ms.getDeclaringClassName().equals(Properties.TARGET_CLASS);
-                if (isTargetMethod) {
-                    return true;
-                }
-            }
-            if (s instanceof ConstructorStatement) {
-                ConstructorStatement ms = (ConstructorStatement) s;
-                boolean isTargetMethod = ms.getDeclaringClassName().equals(Properties.TARGET_CLASS);
-                if (isTargetMethod) {
-                    return true;
-                }
-            }
-        }
-        return flag;
-    }
-
 
     @Override
     protected void evolve() {

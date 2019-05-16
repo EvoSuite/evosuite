@@ -12,7 +12,6 @@ import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.statistics.RuntimeVariable;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -38,12 +37,12 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         LoggingUtils.getEvoLogger().info("* Setting up search algorithm for novelty search");
 
         PropertiesNoveltySearchFactory algorithmFactory = new PropertiesNoveltySearchFactory();
-        NoveltySearch<TestChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
+        NoveltySearch<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
 
         ChromosomeFactory factory = new RandomLengthTestFactory();
         algorithm.setChromosomeFactory(factory);
 
-        if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
+        if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
             TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
 
         long startTime = System.currentTimeMillis() / 1000;
@@ -56,9 +55,9 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         }
 
         // adding all branches as different goals to be optimized
-        algorithm.addFitnessFunctions((List)fitnessFunctions);
+        algorithm.addFitnessFunctions((List) fitnessFunctions);
 
-        NoveltyFunction<TestChromosome> noveltyFunction = new FeatureNoveltyFunction<TestChromosome>();
+        NoveltyFunction<TestSuiteChromosome> noveltyFunction = new FeatureNoveltyFunction<TestSuiteChromosome>();
 
         // adding a novelty function
         algorithm.setNoveltyFunction(noveltyFunction);
@@ -66,7 +65,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         // if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
         //algorithm.addListener(progressMonitor); // FIXME progressMonitor expects testsuitechromosomes
 
-        if(Properties.TRACK_DIVERSITY)
+        if (Properties.TRACK_DIVERSITY)
             algorithm.addListener(new DiversityObserver());
 
         if (ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.DEFUSE)
@@ -79,7 +78,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         algorithm.resetStoppingConditions();
 
 
-        if(!canGenerateTestsForSUT()) {
+        if (!canGenerateTestsForSUT()) {
             LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
                     + Properties.TARGET_CLASS);
             ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, fitnessFunctions.size());
@@ -87,18 +86,18 @@ public class NoveltyStrategy extends TestGenerationStrategy {
             return new TestSuiteChromosome();
         }
 
-		/*
-		 * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
-		 */
+        /*
+         * Proceed with search if CRITERION=EXCEPTION, even if goals is empty
+         */
         TestSuiteChromosome testSuite = null;
         if (!(Properties.STOP_ZERO && fitnessFunctions.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Properties.Criterion.EXCEPTION)) {
             // Perform search
-            LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed() );
+            LoggingUtils.getEvoLogger().info("* Using seed {}", Randomness.getSeed());
             LoggingUtils.getEvoLogger().info("* Starting evolution");
             ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 
             algorithm.generateSolution();
-            testSuite = (TestSuiteChromosome) algorithm.getBestIndividual1();
+            testSuite = (TestSuiteChromosome) algorithm.getBestIndividual();
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();
@@ -113,7 +112,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         if (Properties.SHOW_PROGRESS)
             LoggingUtils.getEvoLogger().info("");
 
-        if(!Properties.IS_RUNNING_A_SYSTEM_TEST) { //avoid printing time related info in system tests due to lack of determinism
+        if (!Properties.IS_RUNNING_A_SYSTEM_TEST) { //avoid printing time related info in system tests due to lack of determinism
             LoggingUtils.getEvoLogger().info("* Search finished after "
                     + (endTime - startTime)
                     + "s and "
@@ -123,7 +122,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
                     + " statements, best individual has fitness: "
                     + testSuite.getFitness());
         }
-        System.out.println("Total Time ********* : "+(endTime - startTime));
+        System.out.println("Total Time ********* : " + (endTime - startTime));
         // Search is finished, send statistics
         sendExecutionStatistics();
 
