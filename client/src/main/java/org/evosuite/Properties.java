@@ -339,6 +339,9 @@ public class Properties {
 	@Parameter(key = "map_elites_choice", group = "Search Algorithm", description = "Selection of chromosome branches to mutate")
     public static MapElitesChoice MAP_ELITES_CHOICE = MapElitesChoice.SINGLE_AVG;
 	
+	@Parameter(key = "map_elites_mosa_mutations", group = "Search Algorithm", description = "Enable mosa style mutations for map elites")
+	public static boolean MAP_ELITES_MOSA_MUTATIONS = true;
+	
 	@Parameter(key = "map_elites_random", group = "Search Algorithm", description = "Probability used for adding new chromosomes")
     @DoubleValue(min = 0.0, max = 1.0)
     public static double MAP_ELITES_RANDOM = 0.5;

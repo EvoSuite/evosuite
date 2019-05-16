@@ -185,7 +185,12 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
       T mutation = (T)clone;
       this.removeUnusedVariables(mutation);
       
-      this.mutate(mutation, chromosome);
+      if(Properties.MAP_ELITES_MOSA_MUTATIONS) {
+        this.mutate(mutation, chromosome);
+      } else {
+        notifyMutation(mutation);
+        mutation.mutate();
+      }
       
       if(mutation.isChanged() && !isTooLong(mutation)) {
         this.analyzeChromosome(mutation);
