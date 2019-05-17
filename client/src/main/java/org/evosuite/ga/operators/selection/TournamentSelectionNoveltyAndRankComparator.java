@@ -26,9 +26,9 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Select an individual from a population as winner of a number of tournaments according to the
- * "non-dominance" relationship and the crowding distance.
+ * novelty score and/or "non-dominance" relationship and the crowding distance.
  *
- * @author Annibale Panichella, Fitsum M. Kifetew
+ * @author Prathmesh Halgekar
  */
 public class TournamentSelectionNoveltyAndRankComparator<T extends Chromosome> extends SelectionFunction<T> {
 
