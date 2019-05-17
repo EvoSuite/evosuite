@@ -27,9 +27,9 @@ import org.evosuite.ga.Chromosome;
 
 /**
  * This class implements a <code>Comparator</code> (a method for comparing <code>Chromosomes</code>
- * objects) based on the dominance test, as in NSGA-II.
+ * objects) based on the novelty score and/or dominance test, as in NSGA-II.
  *
- * @author José Campos
+ * @author Prathmesh Halgekar
  */
 public class NoveltyAndRankComparator<T extends Chromosome> implements Comparator<T>, Serializable {
 
