@@ -98,17 +98,6 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/** to store novelty score or distance from other individuals*/
 	protected double noveltyScore = 0.0;
 
-	/** to store the feature wise distance. This should help to find out which individuals are nearby in feature space */
-	/*private Map<Integer, Double> distanceVector = new HashMap<>();*/
-
-	public Map<Integer, Double> getDistanceVector() {
-		return null;
-	}
-
-	/*public void setDistanceVector(Map<Integer, Double> distanceVector) {
-		this.distanceVector = distanceVector;
-	}*/
-
 	public double getNoveltyScore() {
 		return noveltyScore;
 	}

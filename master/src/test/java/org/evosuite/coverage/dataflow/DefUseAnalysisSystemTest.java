@@ -19,11 +19,11 @@
  */
 package org.evosuite.coverage.dataflow;
 
-import com.examples.with.different.packagename.DataUtils1;
-import com.examples.with.different.packagename.defuse.DefUseExample1;
+import java.util.Arrays;
+
+import com.examples.with.different.packagename.DataUtils;
 import com.examples.with.different.packagename.defuse.DefUseExample2;
 import com.examples.with.different.packagename.defuse.DefUseExample3;
-import com.examples.with.different.packagename.defuse.GCD;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -35,7 +35,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
+import com.examples.with.different.packagename.defuse.DefUseExample1;
+import com.examples.with.different.packagename.defuse.GCD;
 
 public class DefUseAnalysisSystemTest extends SystemTestBase {
 
@@ -163,7 +164,7 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 	@Test
 	public void test2DArrayInstrumentation() {
 		EvoSuite evosuite = new EvoSuite();
-		String targetClass = DataUtils1.class.getCanonicalName();
+		String targetClass = DataUtils.class.getCanonicalName();
 		Properties.ASSERTIONS = false;
 		String[] command = new String[]{"-generateSuite", "-class", targetClass};
 		Object result = evosuite.parseCommandLine(command);

@@ -388,11 +388,7 @@ public enum RuntimeVariable {
 	DerivedFeatures,
 
 	/** Features derived from a complex object as used in Novelty Search */
-	ArchiveSizeUsed,
-
-	TrueList,
-
-	FalseList
+	ArchiveSizeUsed
 	;
 
 	
