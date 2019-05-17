@@ -38,7 +38,8 @@ public class FeatureInstrumentationTest {
     public void testFieldAndLocalInstrumentation() throws ClassNotFoundException {
         Properties.TARGET_CLASS = Feature1.class.getCanonicalName();
         Properties.CRITERION = new Properties.Criterion[]{Properties.Criterion.NOVELTY, Properties.Criterion.BRANCH};
+        Properties.ALGORITHM = Properties.Algorithm.NOVELTY;
         Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
-        assertEquals(2, FeatureFactory.getFeatures().size());
+        assertEquals(1, FeatureFactory.getFeatures().size());
     }
 }
