@@ -284,7 +284,8 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         int components = spectrum.getNumComponents();
         double[] one_hot_vec_dists = compute_dist_one_hot_vector(ochiai,components);
         double result = compute_mean(one_hot_vec_dists,components);
-        return result / (components-1);
+//        return result / (components-1);
+        return result;
 //        result =  ((result - mean) / std_dev);
 //        result =  (result - min_val) / (max_val - min_val);
 //        if(result<0d)
@@ -590,7 +591,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU2:
-		    return 0.5d - (0.5 * one_hot_dist_mean_metric(spectrum));
+		    return 0.5d - (one_hot_dist_mean_metric(spectrum));
 //		{
 //            //mycode starts
 //            iteration++;
