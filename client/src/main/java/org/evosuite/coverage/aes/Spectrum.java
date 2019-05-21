@@ -1068,35 +1068,35 @@
 		}
 
 
-//        public double[][] getActivityMatrix()
-//        {
-//            if (!this.isValidMatrix())
-//            {
-//                double myspectrum[][] = new double[1][1];
-//                return myspectrum;
-//            }
-//
-//
-//            int rowsize = this.getNumTransactions();
-//            int colsize = this.getNumComponents();
-//
-//            double myspectrum[][] = new double[rowsize][colsize];
-//            int counter = 0;
-//            for (BitSet transaction : transactions)
-//            {
-//                for(int j=0;j<colsize;j++)
-//                {
-//                    if(transaction.get(j))
-//                        myspectrum[counter][j] = 1.0;
-//
-//                    else
-//                        myspectrum[counter][j] = 0.0;
-//
-//                }
-//                counter++;
-//            }
-//            return myspectrum;
-//        }
+        public double[][] getActivityMatrix()
+        {
+            if (!this.isValidMatrix())
+            {
+                double myspectrum[][] = new double[1][1];
+                return myspectrum;
+            }
+
+
+            int rowsize = this.getNumTransactions();
+            int colsize = this.getNumComponents();
+
+            double myspectrum[][] = new double[rowsize][colsize];
+            int counter = 0;
+            for (BitSet transaction : transactions)
+            {
+                for(int j=0;j<colsize;j++)
+                {
+                    if(transaction.get(j))
+                        myspectrum[counter][j] = 1.0;
+
+                    else
+                        myspectrum[counter][j] = 0.0;
+
+                }
+                counter++;
+            }
+            return myspectrum;
+        }
 
 
 
@@ -1152,4 +1152,38 @@
             distances[2] = (sum_hamming / counter);
             return distances;
 		}
+
+        public double[][] compute_ochiai()
+        {
+            if (!this.isValidMatrix()) return null;
+
+            ArrayList<BitSet> A = this.transactions;
+            int rows = this.getNumTransactions();
+            int cols = this.getNumComponents();
+            double[][] result = new double[cols][cols];
+            for(int i=0;i<cols;i++)
+            {
+                for(int j=0;j<cols;j++)
+                {
+                    double ef = 0d;
+                    double ep = 0d;
+                    double nf = 0d;
+
+                    for(int k=0;k<rows;k++)
+                    {
+                        if((A.get(k).get(i) == true) && (A.get(k).get(j) == true))
+                            ef++;
+                        else if((A.get(k).get(i) == false) && (A.get(k).get(j) == true))
+                            ep++;
+                        else if((A.get(k).get(i) == true) && (A.get(k).get(j) == false))
+                            nf++;
+                    }
+                    double denominator = Math.sqrt((ef + ep) * (ef + nf));
+                    if(denominator != 0)
+                        result[i][j] = ef / denominator;
+                }
+
+            }
+            return result;
+        }
 	}

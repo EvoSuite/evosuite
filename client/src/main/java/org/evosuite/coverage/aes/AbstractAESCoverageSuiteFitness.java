@@ -2,6 +2,7 @@ package org.evosuite.coverage.aes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.BitSet;
 import java.io.*;
 
 import org.evosuite.testcase.ExecutableChromosome;
@@ -172,30 +173,111 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
     }
 //    public double[] getPCA(double[][] mySpectrum)
 //    {
-//        double[] features = new double[20];
-//        for(int i=0;i<20;i++)
-//            features[i] = -1;
+//        double[] features = new double[10];
+//        for(int i=0;i<10;i++)
+//            features[i] = 0;
 //        INDArray activity_mtrx = Nd4j.create(mySpectrum);
 //        long[] shape = activity_mtrx.shape();
 //        if(shape[1] == 1)
 //            return features;
 //
 //        //  center and scale the data
-//        NormalizerStandardize scaler = new NormalizerStandardize();
-//        scaler.fit(activity_mtrx);
-//        scaler.transform(activity_mtrx);
+//        INDArray mean = activity_mtrx.mean(1);
+//        INDArray std_dev = activity_mtrx.std(1);
+//
+//        for(int i=0;i<shape[1];i++)
+//        {
+//            for(int j=0;j<shape[0];j++)
+//            {
+//                double val = activity_mtrx.getDouble(j,i);
+//                if(std_dev.getDouble(i) == 0.0)
+//                    activity_mtrx.putScalar(new int[] {j,i},0.0);
+//                else
+//                    activity_mtrx.putScalar(new int[] {j,i},((val - mean.getDouble(i))/std_dev.getDouble(i)));
+//
+//            }
+//
+//        }
+//
 //        PCA mypca = new PCA(activity_mtrx);
-//        INDArray principalC =  mypca.pca(activity_mtrx, 10, false);
-//        scaler.fit(principalC);
-//        INDArray mean = scaler.getMean();
-//        INDArray std_dev = scaler.getStd();
+//        INDArray cov =  mypca.covarianceMatrix(activity_mtrx);
+//        INDArray principalC = principalComponents(cov);
 //        for(int i=0;i<10;i++)
-//            features[i] = mean[i];
-//        for(int i=10;i<20;i++)
-//            features[i] = std_dev[i];
-//        return features;
+//            features[i] = principalC.getDouble(1,i)
+//
 //
 //    }
+
+
+
+
+
+    public double compute_euclid_dist(double[] A, double[] B, int size)
+    {
+        double result = 0d;
+        for(int i=0;i<size;i++)
+        {
+            result = result + Math.pow(Math.abs(A[i] - B[i]),2);
+        }
+        return Math.sqrt(result);
+    }
+
+
+    public double[] compute_dist_one_hot_vector(double[][] ochiai, int components)
+    {
+        double[] one_hot_vec = new double[components];
+        double[] result = new double[components];
+
+        for(int i=0;i<components;i++)
+        {
+            one_hot_vec[i] = 1d;
+            result[i] = compute_euclid_dist(one_hot_vec,ochiai[i],components);
+            // printer(one_hot_vec,components);
+            one_hot_vec[i] = 0d;
+        }
+
+        return result;
+
+    }
+
+    public double compute_mean(double[] A, int components)
+    {
+        double sum = 0d;
+        for(int i=0;i<components;i++)
+            sum = sum + A[i];
+        return (sum / components);
+    }
+
+    public double mean_mean_metric(Spectrum spectrum)
+    {
+        double mean = 2.702036492668407064e-01;
+        double std_dev = 2.602917479375488896e-01;
+        double[][] ochiai = spectrum.compute_ochiai();
+        if(ochiai == null)
+            return 0d;
+        int components = spectrum.getNumComponents();
+        double[] ochiai_mean = new double[components];
+        for(int i=0;i<components;i++)
+            ochiai_mean[i] = compute_mean(ochiai[i],components);
+        double result =  compute_mean(ochiai_mean,components);
+        return ((result - mean) / std_dev);
+    }
+
+    public double one_hot_dist_mean_metric(Spectrum spectrum)
+    {
+        double mean = 3.890780293711493254e+00;
+        double std_dev = 1.809356985849612354e+00;
+        double[][] ochiai = spectrum.compute_ochiai();
+        if(ochiai == null)
+            return 0d;
+        int components = spectrum.getNumComponents();
+        double[] one_hot_vec_dists = compute_dist_one_hot_vector(ochiai,components);
+        double result = compute_mean(one_hot_vec_dists,components);
+        return ((result - mean) / std_dev);
+
+
+    }
+
     public double getMetric(Spectrum spectrum) {
 		switch (this.metric) {
         case DTR:
@@ -392,199 +474,203 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         }
             //mycode ends
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-		case VCMDDU1:{
+		case VCMDDU1:
+//		{
+            return (0.5 * mean_mean_metric(spectrum));
             //mycode starts
-            iteration++;
-            //distance feature added
-            Aj aj = spectrum.getVrho2();
-            double rho_component = aj.getvcd();
-            double rho_transaction = aj.getvrd();
-            double[] distances = spectrum.getDistances();
+//            iteration++;
+//            //distance feature added
+//            Aj aj = spectrum.getVrho2();
+//            double rho_component = aj.getvcd();
+//            double rho_transaction = aj.getvrd();
+//            double[] distances = spectrum.getDistances();
+//
+//            double[] mydata = new double[9];
+//            mydata[0] = spectrum.basicCoverage();
+//            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
+//            mydata[2] = (1 - spectrum.getSimpson());
+//            mydata[3] = spectrum.getAmbiguity();
+//            mydata[4] = rho_transaction;
+//            mydata[5] = rho_component;
+//            mydata[6] = distances[0];
+//            mydata[7] = distances[1];
+//            mydata[8] = distances[2];
+////            mydata[9] = (mydata[1] * mydata[2] * mydata[3]);
+//            //int matrix_size = spectrum.getNumTransactions();
+//            double DDU =  (mydata[1] * mydata[2] * mydata[3]);
+//            //normalise the data
+//            ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
+//            ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
+//
+//            for(int i=0;i<means.size();i++)
+//            {
+//
+//                double std_dev  = Double.parseDouble(std_devs.get(i));
+//
+//                if(i == (means.size() - 1))
+//                {
+//                    if(std_dev == 0)
+//                        DDU = 0.0;
+//                    else
+//                        DDU = (DDU - (Double.parseDouble(means.get(i)))) / std_dev;
+//                }
+//                else {
+//                    if (std_dev == 0)
+//                        mydata[i] = 0.0;
+//                    else
+//                        mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
+//                }
+//            }
+//
+//            INDArray test_data = Nd4j.create(1, 9);
+//            INDArray myrow = Nd4j.create(mydata);
+//            test_data.putRow(0, myrow);
+//            String model_path = "";
+//            MultiLayerNetwork model;
+//            BufferedReader br = null;
+//            File file = new File("/tmp/model_path7.txt");
+//            //File file = new File("/home/abhijit/Thesis/repos/evo_vddu/evo_iteration_dump/iteration_number.txt");
+//
+//            try {
+//                br = new BufferedReader(new FileReader(file));
+//            } catch (FileNotFoundException e) {
+//                System.out.println("File doesn't exist");
+//                e.printStackTrace();
+//                //return;
+//            }
+//            try {
+//                model_path = br.readLine();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            try {
+//
+//                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            double result = model.output(test_data).getDouble(0);
+//
+//
+//
+//            if (result < 0)
+//                result = 0;
+//            else if (result > 1)
+//                result = 1;
+//
+//            double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
+////            double lambda_sqr = Math.pow(lambda,2);
+////          double comp_lambda_sqr = Math.pow((1 - lambda),2);
+//
+//            double new_result = (lambda * DDU) + ((1-lambda) * (1 - result));
+//
+//
+//            return (0.5 * new_result);
 
-            double[] mydata = new double[9];
-            mydata[0] = spectrum.basicCoverage();
-            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
-            mydata[2] = (1 - spectrum.getSimpson());
-            mydata[3] = spectrum.getAmbiguity();
-            mydata[4] = rho_transaction;
-            mydata[5] = rho_component;
-            mydata[6] = distances[0];
-            mydata[7] = distances[1];
-            mydata[8] = distances[2];
-//            mydata[9] = (mydata[1] * mydata[2] * mydata[3]);
-            //int matrix_size = spectrum.getNumTransactions();
-            double DDU =  (mydata[1] * mydata[2] * mydata[3]);
-            //normalise the data
-            ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
-            ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
-
-            for(int i=0;i<means.size();i++)
-            {
-
-                double std_dev  = Double.parseDouble(std_devs.get(i));
-
-                if(i == (means.size() - 1))
-                {
-                    if(std_dev == 0)
-                        DDU = 0.0;
-                    else
-                        DDU = (DDU - (Double.parseDouble(means.get(i)))) / std_dev;
-                }
-                else {
-                    if (std_dev == 0)
-                        mydata[i] = 0.0;
-                    else
-                        mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
-                }
-            }
-
-            INDArray test_data = Nd4j.create(1, 9);
-            INDArray myrow = Nd4j.create(mydata);
-            test_data.putRow(0, myrow);
-            String model_path = "";
-            MultiLayerNetwork model;
-            BufferedReader br = null;
-            File file = new File("/tmp/model_path7.txt");
-            //File file = new File("/home/abhijit/Thesis/repos/evo_vddu/evo_iteration_dump/iteration_number.txt");
-
-            try {
-                br = new BufferedReader(new FileReader(file));
-            } catch (FileNotFoundException e) {
-                System.out.println("File doesn't exist");
-                e.printStackTrace();
-                //return;
-            }
-            try {
-                model_path = br.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-
-                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            double result = model.output(test_data).getDouble(0);
-
-
-
-            if (result < 0)
-                result = 0;
-            else if (result > 1)
-                result = 1;
-
-            double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
-//            double lambda_sqr = Math.pow(lambda,2);
-//          double comp_lambda_sqr = Math.pow((1 - lambda),2);
-
-            double new_result = (lambda * DDU) + ((1-lambda) * (1 - result));
-
-
-            return (0.5 * new_result);
-
-        }
+//        }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-		case VCMDDU2:{
-            //mycode starts
-            iteration++;
-            //feature power set implementation
-            Aj aj = spectrum.getVrho2();
-            double rho_component = aj.getvcd();
-            double rho_transaction = aj.getvrd();
-            double[] distances = spectrum.getDistances();
-
-
-            double[] mydata = new double[9];
-            mydata[0] = spectrum.basicCoverage();
-            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
-            mydata[2] = (1 - spectrum.getSimpson());
-            mydata[3] = spectrum.getAmbiguity();
-            mydata[4] = rho_transaction;
-            mydata[5] = rho_component;
-            mydata[6] = distances[0];
-            mydata[7] = distances[1];
-            mydata[8] = distances[2];
-            //int matrix_size = spectrum.getNumTransactions();
-
-            //first normalise the 9 features
-            ArrayList<String> means1 = getMean("/tmp/mean1_VCMDDU2");
-            ArrayList<String> std_devs1 = getStd_dev("/tmp/std_dev1_VCMDDU2");
-
-            for(int i=0;i<means1.size();i++)
-            {
-                double std_dev  = Double.parseDouble(std_devs1.get(i));
-                if(std_dev == 0)
-                    mydata[i] = 0.0;
-                else
-                    mydata[i] = (mydata[i] - (Double.parseDouble(means1.get(i)))) / std_dev;
-            }
-
-            //compute the quad set
-            double quad_feature_set[] = compute_quadset(mydata,9);
-
-            //normalise the quad set
-            ArrayList<String> means2 = getMean("/tmp/mean2_VCMDDU2");
-            ArrayList<String> std_devs2 = getStd_dev("/tmp/std_dev2_VCMDDU2");
-
-            for(int i=0;i<means2.size();i++)
-            {
-                double std_dev  = Double.parseDouble(std_devs2.get(i));
-                if(std_dev == 0)
-                    quad_feature_set[i] = 0.0;
-                else
-                    quad_feature_set[i] = (quad_feature_set[i] - (Double.parseDouble(means2.get(i)))) / std_dev;
-            }
-
-
-            INDArray test_data = Nd4j.create(1, 45);
-            INDArray myrow = Nd4j.create(quad_feature_set);
-            test_data.putRow(0, myrow);
-            String model_path = "";
-            MultiLayerNetwork model;
-            BufferedReader br = null;
-            File file = new File("/tmp/model_path8.txt");
-            //File file = new File("/home/abhijit/Thesis/repos/evo_vddu/evo_iteration_dump/iteration_number.txt");
-
-            try {
-                br = new BufferedReader(new FileReader(file));
-            } catch (FileNotFoundException e) {
-                System.out.println("File doesn't exist");
-                e.printStackTrace();
-                //return;
-            }
-            try {
-                model_path = br.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            try {
-
-                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            double result = model.output(test_data).getDouble(0);
-
-
-
-            if (result < 0)
-                result = 0;
-            else if (result > 1)
-                result = 1;
-
-            double lambda = 1 - Math.min(1, (((double) iteration) / 10000));
-
-            double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * (1 - result));
-
-
-            return (0.5 * new_result);
-        }
+		case VCMDDU2:
+		    return (0.5 * one_hot_dist_mean_metric(spectrum));
+//		{
+//            //mycode starts
+//            iteration++;
+//            //feature power set implementation
+//            Aj aj = spectrum.getVrho2();
+//            double rho_component = aj.getvcd();
+//            double rho_transaction = aj.getvrd();
+//            double[] distances = spectrum.getDistances();
+//
+//
+//            double[] mydata = new double[9];
+//            mydata[0] = spectrum.basicCoverage();
+//            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
+//            mydata[2] = (1 - spectrum.getSimpson());
+//            mydata[3] = spectrum.getAmbiguity();
+//            mydata[4] = rho_transaction;
+//            mydata[5] = rho_component;
+//            mydata[6] = distances[0];
+//            mydata[7] = distances[1];
+//            mydata[8] = distances[2];
+//            //int matrix_size = spectrum.getNumTransactions();
+//
+//            //first normalise the 9 features
+//            ArrayList<String> means1 = getMean("/tmp/mean1_VCMDDU2");
+//            ArrayList<String> std_devs1 = getStd_dev("/tmp/std_dev1_VCMDDU2");
+//
+//            for(int i=0;i<means1.size();i++)
+//            {
+//                double std_dev  = Double.parseDouble(std_devs1.get(i));
+//                if(std_dev == 0)
+//                    mydata[i] = 0.0;
+//                else
+//                    mydata[i] = (mydata[i] - (Double.parseDouble(means1.get(i)))) / std_dev;
+//            }
+//
+//            //compute the quad set
+//            double quad_feature_set[] = compute_quadset(mydata,9);
+//
+//            //normalise the quad set
+//            ArrayList<String> means2 = getMean("/tmp/mean2_VCMDDU2");
+//            ArrayList<String> std_devs2 = getStd_dev("/tmp/std_dev2_VCMDDU2");
+//
+//            for(int i=0;i<means2.size();i++)
+//            {
+//                double std_dev  = Double.parseDouble(std_devs2.get(i));
+//                if(std_dev == 0)
+//                    quad_feature_set[i] = 0.0;
+//                else
+//                    quad_feature_set[i] = (quad_feature_set[i] - (Double.parseDouble(means2.get(i)))) / std_dev;
+//            }
+//
+//
+//            INDArray test_data = Nd4j.create(1, 45);
+//            INDArray myrow = Nd4j.create(quad_feature_set);
+//            test_data.putRow(0, myrow);
+//            String model_path = "";
+//            MultiLayerNetwork model;
+//            BufferedReader br = null;
+//            File file = new File("/tmp/model_path8.txt");
+//            //File file = new File("/home/abhijit/Thesis/repos/evo_vddu/evo_iteration_dump/iteration_number.txt");
+//
+//            try {
+//                br = new BufferedReader(new FileReader(file));
+//            } catch (FileNotFoundException e) {
+//                System.out.println("File doesn't exist");
+//                e.printStackTrace();
+//                //return;
+//            }
+//            try {
+//                model_path = br.readLine();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            try {
+//
+//                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            double result = model.output(test_data).getDouble(0);
+//
+//
+//
+//            if (result < 0)
+//                result = 0;
+//            else if (result > 1)
+//                result = 1;
+//
+//            double lambda = 1 - Math.min(1, (((double) iteration) / 10000));
+//
+//            double new_result = (lambda * spectrum.basicCoverage()) + ((1 - lambda) * (1 - result));
+//
+//
+//            return (0.5 * new_result);
+//        }
         //mycode ends
 			//return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VRDDU:
