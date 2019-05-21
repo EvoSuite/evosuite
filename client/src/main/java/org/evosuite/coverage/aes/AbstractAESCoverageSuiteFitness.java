@@ -262,7 +262,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         double[] ochiai_mean = new double[components];
         for(int i=0;i<components;i++)
             ochiai_mean[i] = compute_mean(ochiai[i],components);
-        return result =  compute_mean(ochiai_mean,components);
+        return compute_mean(ochiai_mean,components);
 ////        result =  ((result - mean) / std_dev);
 //        result = (result - min_val) / (max_val - min_val);
 //        if(result<0d)
