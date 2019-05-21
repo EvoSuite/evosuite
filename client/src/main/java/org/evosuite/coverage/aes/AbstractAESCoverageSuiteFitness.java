@@ -248,10 +248,13 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         return (sum / components);
     }
 
+
     public double mean_mean_metric(Spectrum spectrum)
     {
         double mean = 2.702036492668407064e-01;
         double std_dev = 2.602917479375488896e-01;
+        double max_val = 1.6190573910443273;
+        double min_val = -3.1802215920491417;
         double[][] ochiai = spectrum.compute_ochiai();
         if(ochiai == null)
             return 0d;
@@ -260,21 +263,34 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         for(int i=0;i<components;i++)
             ochiai_mean[i] = compute_mean(ochiai[i],components);
         double result =  compute_mean(ochiai_mean,components);
-        return ((result - mean) / std_dev);
+        result =  ((result - mean) / std_dev);
+        result = (result - min_val) / (max_val - min_val);
+        if(result<0d)
+            return 0d;
+        if(result>1d)
+            return 1d;
+        return result;
     }
 
     public double one_hot_dist_mean_metric(Spectrum spectrum)
     {
         double mean = 3.890780293711493254e+00;
         double std_dev = 1.809356985849612354e+00;
+        double max_val = 2.287275214843024;
+        double min_val = -2.876011406839377;
         double[][] ochiai = spectrum.compute_ochiai();
         if(ochiai == null)
             return 0d;
         int components = spectrum.getNumComponents();
         double[] one_hot_vec_dists = compute_dist_one_hot_vector(ochiai,components);
         double result = compute_mean(one_hot_vec_dists,components);
-        return ((result - mean) / std_dev);
-
+        result =  ((result - mean) / std_dev);
+        result =  (result - min_val) / (max_val - min_val);
+        if(result<0d)
+            return 0d;
+        if(result>1d)
+            return 1d;
+        return result;
 
     }
 
