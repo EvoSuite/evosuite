@@ -19,6 +19,9 @@
  */
 package org.evosuite.ga.metaheuristics;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,9 +215,26 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 														// rounding error in LS,
 														// but hard to debug :(
 
-	/** {@inheritDoc} */
+    public void appendStrToFile(String fileName,
+                                       String str)
+    {
+        try {
+
+            // Open given file in append mode.
+            BufferedWriter out = new BufferedWriter(
+                    new FileWriter(fileName, true));
+            out.write(str);
+            out.close();
+        }
+        catch (IOException e) {
+            System.out.println("exception occoured" + e);
+        }
+    }
+
+    /** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
+	    appendStrToFile("/tmp/iteration_ff.txt",Integer.toString(-1));
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
@@ -313,7 +333,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 		// archive
 		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
-
+        appendStrToFile("/tmp/iteration_ff.txt", Integer.toString(currentIteration));
 		notifySearchFinished();
 	}
 
