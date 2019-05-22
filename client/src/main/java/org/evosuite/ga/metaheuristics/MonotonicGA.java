@@ -234,7 +234,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
     /** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
-	    appendStrToFile("/tmp/iteration_ff.txt",Integer.toString(-1));
+	    appendStrToFile("/tmp/iteration_ddu.txt",Integer.toString(-1));
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
@@ -333,7 +333,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		}
 		// archive
 		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
-        appendStrToFile("/tmp/iteration_ff.txt", Integer.toString(currentIteration));
+        appendStrToFile("/tmp/iteration_ddu.txt", Integer.toString(currentIteration));
 		notifySearchFinished();
 	}
 
