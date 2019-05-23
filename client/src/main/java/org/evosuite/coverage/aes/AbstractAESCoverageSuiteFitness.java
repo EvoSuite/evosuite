@@ -494,7 +494,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU1:
 //		{
-            return (0.5d * mean_mean_metric(spectrum));
+            return 0.5d - (0.5d * mean_mean_metric(spectrum));
             //mycode starts
 //            iteration++;
 //            //distance feature added
