@@ -1,26 +1,22 @@
 package org.evosuite.coverage.aes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.BitSet;
-import java.io.*;
-
+import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-
-//mycode starts
-import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-import org.nd4j.linalg.io.ClassPathResource;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dimensionalityreduction.PCA;
-import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
-import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
+import org.nd4j.linalg.factory.Nd4j;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Math.abs;
+
+//mycode starts
+//import org.nd4j.linalg.io.ClassPathResource;
 //mycode ends
 
 public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFunction {
@@ -257,7 +253,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //        double min_val = -3.1802215920491417;
         double[][] ochiai = spectrum.compute_ochiai();
         if(ochiai == null)
-            return 0d;
+            return Double.MAX_VALUE;
         int components = spectrum.getNumComponents();
         double[] ochiai_mean = new double[components];
         for(int i=0;i<components;i++)
@@ -280,7 +276,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //        double min_val = -2.876011406839377;
         double[][] ochiai = spectrum.compute_ochiai();
         if(ochiai == null)
-            return 0d;
+            return Double.MAX_VALUE;
         int components = spectrum.getNumComponents();
         double[] one_hot_vec_dists = compute_dist_one_hot_vector(ochiai,components);
         double result = compute_mean(one_hot_vec_dists,components);
@@ -293,6 +289,71 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //        if(result>1d)
 //            return 1d;
 //        return result;
+
+    }
+
+    public double compute_log(double[] A, int size)
+    {
+        double sum = 0d;
+        for(int i=0;i<size;i++)
+        {
+            if(A[i] > 0)
+                sum += Math.log(A[i]);
+        }
+        return Math.exp(sum/size);
+    }
+
+    public double max_mean_metric(Spectrum spectrum)
+    {
+        double[][] ochiai = spectrum.compute_ochiai();
+        if(ochiai == null)
+            return 1d;
+        int components = spectrum.getNumComponents();
+        double[] max_mean = new double[components];
+        for(int i=0;i<components;i++)
+        {
+            if(ochiai[i][i] == 0d)
+                max_mean[i] = 1d;
+            else
+            {
+                double max_val = -1d;
+                for(int j=0;j<components;j++)
+                {
+                    if( (j!=i) && (ochiai[i][j] > max_val))
+                        max_val = ochiai[i][j];
+                }
+                max_mean[i] = max_val;
+            }
+        }
+        return compute_mean(max_mean,components);
+    }
+
+    public double number_of_1s_metric(Spectrum spectrum)
+    {
+        double[][] ochiai = spectrum.compute_ochiai();
+        if(ochiai == null)
+            return 1d;
+        int components = spectrum.getNumComponents();
+        double[] avg_val = new double[components];
+
+        for(int i=0;i<components;i++)
+        {
+            double ones = 0;
+            if(ochiai[i][i] == 0)
+                avg_val[i] = 1d;
+            else
+            {
+                for (int j = 0; j < components; j++)
+                {
+                    if ((i != j) && ochiai[i][j] == 1)
+                        ones++;
+
+                }
+                avg_val[i] = (ones / (components - 1));
+            }
+        }
+
+        return compute_mean(avg_val,components);
 
     }
 
@@ -494,7 +555,9 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU1:
 //		{
-            return 0.5d - (0.5d * mean_mean_metric(spectrum));
+//            return 0.5d - (0.5d * mean_mean_metric(spectrum));
+            double max_min_val = max_mean_metric(spectrum);
+            return 0.5d * ((1-spectrum.getSimpson()) * (1 - max_min_val));
             //mycode starts
 //            iteration++;
 //            //distance feature added
@@ -591,7 +654,8 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU2:
-		    return 0.5d - (0.5d * one_hot_dist_mean_metric(spectrum));
+//		    return 0.5d - (0.5d * one_hot_dist_mean_metric(spectrum));
+            return 0.5d - (0.5d * number_of_1s_metric(spectrum));
 //		{
 //            //mycode starts
 //            iteration++;

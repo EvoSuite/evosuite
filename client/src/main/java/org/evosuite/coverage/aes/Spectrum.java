@@ -1184,11 +1184,13 @@
                 }
 
             }
-            for(int i=0;i<cols;i++)
-            {
-                if(result[i][i] == 0d)
-                    result[i][i] = (double)(cols/2);
-            }
+//            for(int i=0;i<cols;i++)
+//            {
+//                if(result[i][i] == 0d)
+//                    result[i][i] = (double)(cols/2);
+//            }
             return result;
         }
+
+
 	}
