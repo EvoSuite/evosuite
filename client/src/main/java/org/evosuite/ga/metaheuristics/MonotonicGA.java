@@ -334,7 +334,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 		// archive
 		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 		String iteration_val = Integer.toString(currentIteration) + "\n";
-        appendStrToFile("/tmp/iteration_nn.txt",  iteration_val);
+        appendStrToFile("/tmp/iteration_ddu.txt",  iteration_val);
 		notifySearchFinished();
 	}
 
