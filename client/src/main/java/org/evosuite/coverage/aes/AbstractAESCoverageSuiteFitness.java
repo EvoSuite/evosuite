@@ -23,12 +23,30 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 	private static final long serialVersionUID = 5184507726269266351L;
 	private static int iteration = 0; //mycode
+//	private static String model_path;
+//    MultiLayerNetwork model;
+
 
 	public static enum Metric { AES, DTR, VDDU,VMDDU,VRDDU,VCDDU,VCMDDU1,VCMDDU2};		//New enum added 1
 	private Metric metric;
 
 	public AbstractAESCoverageSuiteFitness(Metric metric) {
 		this.metric = metric;
+//        BufferedReader br = null;
+//        File file = new File("/tmp/model_path7.txt");
+//        try {
+//                br = new BufferedReader(new FileReader(file));
+//            } catch (FileNotFoundException e) {
+//                System.out.println("File doesn't exist");
+//                e.printStackTrace();
+//
+//            }
+//            try {
+//                model_path = br.readLine();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
 	}
 
 	public double getMetric(AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
@@ -554,103 +572,83 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             //mycode ends
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU1:
-//		{
-//            return 0.5d - (0.5d * mean_mean_metric(spectrum));
-            double max_min_val = max_mean_metric(spectrum);
-            return 0.5d * ((1-spectrum.getSimpson()) * (1 - max_min_val));
+		{
+////            return 0.5d - (0.5d * mean_mean_metric(spectrum));
+//            double max_min_val = max_mean_metric(spectrum);
+//            return 0.5d * ((1-spectrum.getSimpson()) * (1 - max_min_val));
             //mycode starts
-//            iteration++;
-//            //distance feature added
-//            Aj aj = spectrum.getVrho2();
-//            double rho_component = aj.getvcd();
-//            double rho_transaction = aj.getvrd();
-//            double[] distances = spectrum.getDistances();
-//
-//            double[] mydata = new double[9];
-//            mydata[0] = spectrum.basicCoverage();
-//            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
-//            mydata[2] = (1 - spectrum.getSimpson());
-//            mydata[3] = spectrum.getAmbiguity();
-//            mydata[4] = rho_transaction;
-//            mydata[5] = rho_component;
-//            mydata[6] = distances[0];
-//            mydata[7] = distances[1];
-//            mydata[8] = distances[2];
-////            mydata[9] = (mydata[1] * mydata[2] * mydata[3]);
-//            //int matrix_size = spectrum.getNumTransactions();
-//            double DDU =  (mydata[1] * mydata[2] * mydata[3]);
-//            //normalise the data
-//            ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
-//            ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
-//
-//            for(int i=0;i<means.size();i++)
-//            {
-//
-//                double std_dev  = Double.parseDouble(std_devs.get(i));
-//
-//                if(i == (means.size() - 1))
-//                {
-//                    if(std_dev == 0)
-//                        DDU = 0.0;
-//                    else
-//                        DDU = (DDU - (Double.parseDouble(means.get(i)))) / std_dev;
-//                }
-//                else {
-//                    if (std_dev == 0)
-//                        mydata[i] = 0.0;
-//                    else
-//                        mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
-//                }
-//            }
-//
-//            INDArray test_data = Nd4j.create(1, 9);
-//            INDArray myrow = Nd4j.create(mydata);
-//            test_data.putRow(0, myrow);
-//            String model_path = "";
-//            MultiLayerNetwork model;
-//            BufferedReader br = null;
-//            File file = new File("/tmp/model_path7.txt");
-//            //File file = new File("/home/abhijit/Thesis/repos/evo_vddu/evo_iteration_dump/iteration_number.txt");
-//
-//            try {
-//                br = new BufferedReader(new FileReader(file));
-//            } catch (FileNotFoundException e) {
-//                System.out.println("File doesn't exist");
-//                e.printStackTrace();
-//                //return;
-//            }
-//            try {
-//                model_path = br.readLine();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            try {
-//
-//                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            double result = model.output(test_data).getDouble(0);
-//
-//
-//
-//            if (result < 0)
-//                result = 0;
-//            else if (result > 1)
-//                result = 1;
-//
-//            double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
-////            double lambda_sqr = Math.pow(lambda,2);
-////          double comp_lambda_sqr = Math.pow((1 - lambda),2);
-//
-//            double new_result = (lambda * DDU) + ((1-lambda) * (1 - result));
-//
-//
-//            return (0.5 * new_result);
+            iteration++;
+            //distance feature added
+            Aj aj = spectrum.getVrho2();
+            double rho_component = aj.getvcd();
+            double rho_transaction = aj.getvrd();
+            double[] distances = spectrum.getDistances();
 
-//        }
+            double[] mydata = new double[9];
+            mydata[0] = spectrum.basicCoverage();
+            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
+            mydata[2] = (1 - spectrum.getSimpson());
+            mydata[3] = spectrum.getAmbiguity();
+            mydata[4] = rho_transaction;
+            mydata[5] = rho_component;
+            mydata[6] = distances[0];
+            mydata[7] = distances[1];
+            mydata[8] = distances[2];
+
+            //normalise the data
+            ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
+            ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
+
+            for(int i=0;i<means.size();i++)
+            {
+                double std_dev  = Double.parseDouble(std_devs.get(i));
+                if (std_dev == 0)
+                    mydata[i] = 0.0;
+                else
+                    mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
+            }
+
+            INDArray test_data = Nd4j.create(1, 9);
+            INDArray myrow = Nd4j.create(mydata);
+            test_data.putRow(0, myrow);
+            String model_path = null;
+            MultiLayerNetwork model;
+            BufferedReader br = null;
+            File file = new File("/tmp/model_path7.txt");
+            try {
+                br = new BufferedReader(new FileReader(file));
+            } catch (FileNotFoundException e) {
+                System.out.println("File doesn't exist");
+                e.printStackTrace();
+            }
+            try {
+                model_path = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+
+                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            double result = model.output(test_data).getDouble(0);
+
+
+            if (result < 0)
+                result = 0d;
+            else if (result > 1)
+                result = 1d;
+
+            double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
+
+            double new_result = (lambda * mydata[0]) + ((1-lambda) * (1 - result));
+
+            return (0.5 * new_result);
+
+        }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU2:
