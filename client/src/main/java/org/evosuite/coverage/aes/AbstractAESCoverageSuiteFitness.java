@@ -23,6 +23,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 	private static final long serialVersionUID = 5184507726269266351L;
 	private static int iteration = 0; //mycode
+    final double THRESHOLD = 0.000001;
 //	private static String model_path;
 //    MultiLayerNetwork model;
 
@@ -74,8 +75,8 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 	protected abstract Spectrum getSpectrum(List<ExecutionResult> results);
 
-    public static void appendStrToFile(String fileName,
-                                       String str)
+    public void appendStrToFile(String fileName,
+                                String str)
     {
         try {
 
@@ -356,14 +357,14 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
         for(int i=0;i<components;i++)
         {
-            double ones = 0;
-            if(ochiai[i][i] == 0)
+            double ones = 0d;
+            if(Math.abs(ochiai[i][i])<THRESHOLD)
                 avg_val[i] = 1d;
             else
             {
                 for (int j = 0; j < components; j++)
                 {
-                    if ((i != j) && ochiai[i][j] == 1)
+                    if ((i != j) && (Math.abs((ochiai[i][j])-1d)<THRESHOLD))
                         ones++;
 
                 }
@@ -602,7 +603,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             for(int i=0;i<means.size();i++)
             {
                 double std_dev  = Double.parseDouble(std_devs.get(i));
-                if (std_dev == 0)
+                if (Math.abs(std_dev)<THRESHOLD)
                     mydata[i] = 0.0;
                 else
                     mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
@@ -645,15 +646,26 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
 
             double new_result = (lambda * mydata[0]) + ((1-lambda) * (1 - result));
-
+            String txttodump = String.valueOf(iteration) + "," + String.valueOf(result) + "," + String.valueOf(mydata[0])
+            +","+ String.valueOf(new_result) + "," + "\n";
+            appendStrToFile("/tmp/nn_val.txt",txttodump);
             return (0.5 * new_result);
 
         }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU2:
+		    iteration++;
 //		    return 0.5d - (0.5d * one_hot_dist_mean_metric(spectrum));
-            return 0.5d - (0.5d * number_of_1s_metric(spectrum));
+            double ff_val = number_of_1s_metric(spectrum);
+            double coverage = spectrum.basicCoverage();
+            double density = 1 - abs(1 - (2 * spectrum.getRho()));
+            double diversity = (1 - spectrum.getSimpson());
+            double uniqueness = spectrum.getAmbiguity();
+            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + ","+ String.valueOf(diversity) +
+            ","+ String.valueOf(uniqueness) + ","+ String.valueOf(ff_val) + "\n";
+            appendStrToFile("/tmp/ff4_val.txt",txttoprint);
+            return 0.5d - (0.5d * ff_val);
 //		{
 //            //mycode starts
 //            iteration++;

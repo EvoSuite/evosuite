@@ -329,8 +329,8 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 			logger.info("Population size: " + population.size());
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: " + population.get(population.size() - 1).getFitness());
-			String txttoprint = String.valueOf(currentIteration) + "," + String.valueOf(getBestFitness()) + "\n";
-			appendStrToFile("/tmp/ff_val.txt",txttoprint);
+//			String txttoprint = String.valueOf(currentIteration) + "," + String.valueOf(getBestFitness()) + "\n";
+//			appendStrToFile("/tmp/ff_val.txt",txttoprint);
 
 
 		}
