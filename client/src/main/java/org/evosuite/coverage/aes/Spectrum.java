@@ -1068,34 +1068,35 @@
 		}
 
 
-        public double[][] getActivityMatrix()
+        public ArrayList<BitSet> getActivityMatrix()
         {
-            if (!this.isValidMatrix())
-            {
-                double myspectrum[][] = new double[1][1];
-                return myspectrum;
-            }
-
-
-            int rowsize = this.getNumTransactions();
-            int colsize = this.getNumComponents();
-
-            double myspectrum[][] = new double[rowsize][colsize];
-            int counter = 0;
-            for (BitSet transaction : transactions)
-            {
-                for(int j=0;j<colsize;j++)
-                {
-                    if(transaction.get(j))
-                        myspectrum[counter][j] = 1.0;
-
-                    else
-                        myspectrum[counter][j] = 0.0;
-
-                }
-                counter++;
-            }
-            return myspectrum;
+//            if (!this.isValidMatrix())
+//            {
+//                double myspectrum[][] = new double[1][1];
+//                return myspectrum;
+//            }
+//
+//
+//            int rowsize = this.getNumTransactions();
+//            int colsize = this.getNumComponents();
+//
+//            double myspectrum[][] = new double[rowsize][colsize];
+//            int counter = 0;
+//            for (BitSet transaction : transactions)
+//            {
+//                for(int j=0;j<colsize;j++)
+//                {
+//                    if(transaction.get(j))
+//                        myspectrum[counter][j] = 1.0;
+//
+//                    else
+//                        myspectrum[counter][j] = 0.0;
+//
+//                }
+//                counter++;
+//            }
+//            return myspectrum;
+            return transactions;
         }
 
 
