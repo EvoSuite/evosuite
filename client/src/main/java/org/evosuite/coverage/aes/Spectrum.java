@@ -1096,6 +1096,9 @@
 //                counter++;
 //            }
 //            return myspectrum;
+            if (!this.isValidMatrix())
+                return null;
+
             return transactions;
         }
 

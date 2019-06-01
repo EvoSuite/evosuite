@@ -377,8 +377,31 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
     }
 
+    public static int getActivityMatixIndex(String fileName)
+    {
+        BufferedReader reader;
+        int val = 0;
+        try {
+            reader = new BufferedReader(new FileReader(
+                    fileName));
+            val = Integer.parseInt(reader.readLine());
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            BufferedWriter out = new BufferedWriter(
+                    new FileWriter(fileName, false));
+            out.write(String.valueOf(val+1));
+            out.close();
+        }
+        catch (IOException e) {
+            System.out.println("exception occoured" + e);
+        }
+        return val;
 
-    public static void printActivityMatrix(ArrayList<BitSet> A, String filelocation, int iteration, String prefix, int rowsize, int colsize)
+    }
+    public static void printActivityMatrix(ArrayList<BitSet> A, String filelocation, int iteration, String prefix, int rowsize, int colsize, String index_fileName)
     {
         String toprint = "";
         for (BitSet transaction : A)
@@ -395,8 +418,8 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             toprint = toprint.substring(0, toprint.length() - 1);
             toprint += "\n";
         }
-
-        String fileName = filelocation +  prefix + "_" + "activity_matrix" +"_"+ String.valueOf(iteration);
+        int index = getActivityMatixIndex(index_fileName);
+        String fileName = filelocation +  prefix + "_" + "activity_matrix"+ String.valueOf(index) +"_"+ String.valueOf(iteration);
         try {
 
             // Open given file in append mode.
@@ -618,8 +641,8 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," + String.valueOf(max_min_val) + "\n";
             appendStrToFile("/tmp/ff3_val.txt", txttoprint);
-            if((iteration % 500) == 1)
-                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"FF3",spectrum.getNumTransactions(),spectrum.getNumComponents());
+            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
+                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"FF3",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/FF3_activity_matrix_index.txt");
             return 0.5d * (1 - max_min_val);
         }
             //mycode starts
@@ -710,8 +733,8 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," + String.valueOf(ff_val) + "\n";
             appendStrToFile("/tmp/ff4_val.txt", txttoprint);
-            if((iteration % 500) == 1)
-                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"FF4",spectrum.getNumTransactions(),spectrum.getNumComponents());
+            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
+                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"FF4",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/FF4_activity_matrix_index.txt");
             return 0.5d - (0.5d * ff_val);
         }
 //		{
