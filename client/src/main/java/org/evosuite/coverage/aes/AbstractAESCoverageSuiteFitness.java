@@ -839,8 +839,21 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 		case VRDDU:
 		    return spectrum.getVRrho();
 		case AES:
-		default:
-			 return spectrum.getRho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();                   
+		default: {
+            iteration++;
+//		    return 0.5d - (0.5d * one_hot_dist_mean_metric(spectrum));
+            double ff_val = spectrum.getRho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+            double coverage = spectrum.basicCoverage();
+            double density =  spectrum.getRho();
+            double diversity = (1 - spectrum.getSimpson());
+            double uniqueness = spectrum.getAmbiguity();
+            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
+                    "," + String.valueOf(uniqueness) + "," + String.valueOf(ff_val) + "\n";
+            appendStrToFile("/tmp/ddu_val.txt", txttoprint);
+            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
+                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"DDU",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/DDU_activity_matrix_index.txt");
+            return ff_val;
+        }
 		}
 	}
 
