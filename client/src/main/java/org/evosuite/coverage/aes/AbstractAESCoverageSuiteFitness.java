@@ -631,95 +631,99 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             //mycode ends
 			// return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU1: {
-////            return 0.5d - (0.5d * mean_mean_metric(spectrum));
-            iteration++;
-            double max_min_val = max_mean_metric(spectrum);
-            double coverage = spectrum.basicCoverage();
-            double density = spectrum.getRho();
-            double diversity = (1 - spectrum.getSimpson());
-            double uniqueness = spectrum.getAmbiguity();
-            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
-                    "," + String.valueOf(uniqueness) + "," + String.valueOf(max_min_val) + "\n";
-            appendStrToFile("/tmp/ff3_val.txt", txttoprint);
-            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
-                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"FF3",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/FF3_activity_matrix_index.txt");
-            return 0.5d * (1 - max_min_val);
-        }
-            //mycode starts
+//////            return 0.5d - (0.5d * mean_mean_metric(spectrum));
 //            iteration++;
-//            //distance feature added
-//            Aj aj = spectrum.getVrho2();
-//            double rho_component = aj.getvcd();
-//            double rho_transaction = aj.getvrd();
-//            double[] distances = spectrum.getDistances();
-//
-//            double[] mydata = new double[9];
-//            mydata[0] = spectrum.basicCoverage();
-//            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
-//            mydata[2] = (1 - spectrum.getSimpson());
-//            mydata[3] = spectrum.getAmbiguity();
-//            mydata[4] = rho_transaction;
-//            mydata[5] = rho_component;
-//            mydata[6] = distances[0];
-//            mydata[7] = distances[1];
-//            mydata[8] = distances[2];
-//
-//            //normalise the data
-//            ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
-//            ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
-//
-//            for(int i=0;i<means.size();i++)
-//            {
-//                double std_dev  = Double.parseDouble(std_devs.get(i));
-//                if (Math.abs(std_dev)<THRESHOLD)
-//                    mydata[i] = 0.0;
-//                else
-//                    mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
-//            }
-//
-//            INDArray test_data = Nd4j.create(1, 9);
-//            INDArray myrow = Nd4j.create(mydata);
-//            test_data.putRow(0, myrow);
-//            String model_path = null;
-//            MultiLayerNetwork model;
-//            BufferedReader br = null;
-//            File file = new File("/tmp/model_path7.txt");
-//            try {
-//                br = new BufferedReader(new FileReader(file));
-//            } catch (FileNotFoundException e) {
-//                System.out.println("File doesn't exist");
-//                e.printStackTrace();
-//            }
-//            try {
-//                model_path = br.readLine();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            try {
-//
-//                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            double result = model.output(test_data).getDouble(0);
-//
-//
-//            if (result < 0)
-//                result = 0d;
-//            else if (result > 1)
-//                result = 1d;
-//
-//            double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
-//
-//            double new_result = (lambda * mydata[0]) + ((1-lambda) * (1 - result));
-//            String txttodump = String.valueOf(iteration) + "," + String.valueOf(result) + "," + String.valueOf(mydata[0])
-//            +","+ String.valueOf(new_result) + "," + "\n";
-//            appendStrToFile("/tmp/nn_val.txt",txttodump);
-//            return (0.5 * new_result);
-
+//            double max_min_val = max_mean_metric(spectrum);
+//            double coverage = spectrum.basicCoverage();
+//            double density = spectrum.getRho();
+//            double diversity = (1 - spectrum.getSimpson());
+//            double uniqueness = spectrum.getAmbiguity();
+//            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
+//                    "," + String.valueOf(uniqueness) + "," + String.valueOf(max_min_val) + "\n";
+//            appendStrToFile("/tmp/ff3_val.txt", txttoprint);
+//            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
+//                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"FF3",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/FF3_activity_matrix_index.txt");
+//            return 0.5d * (1 - max_min_val);
 //        }
+            //mycode starts
+            iteration++;
+            //distance feature added
+            Aj aj = spectrum.getVrho2();
+            double rho_component = aj.getvcd();
+            double rho_transaction = aj.getvrd();
+            double[] distances = spectrum.getDistances();
+
+            double[] mydata = new double[9];
+            mydata[0] = spectrum.basicCoverage();
+            mydata[1] = 1 - abs(1 - (2 * spectrum.getRho()));
+            mydata[2] = (1 - spectrum.getSimpson());
+            mydata[3] = spectrum.getAmbiguity();
+            mydata[4] = rho_transaction;
+            mydata[5] = rho_component;
+            mydata[6] = distances[0];
+            mydata[7] = distances[1];
+            mydata[8] = distances[2];
+
+            //normalise the data
+            ArrayList<String> means = getMean("/tmp/mean_VCMDDU1");
+            ArrayList<String> std_devs = getStd_dev("/tmp/std_dev_VCMDDU1");
+
+            for(int i=0;i<means.size();i++)
+            {
+                double std_dev  = Double.parseDouble(std_devs.get(i));
+                if (Math.abs(std_dev)<THRESHOLD)
+                    mydata[i] = 0.0;
+                else
+                    mydata[i] = (mydata[i] - (Double.parseDouble(means.get(i)))) / std_dev;
+            }
+
+            INDArray test_data = Nd4j.create(1, 9);
+            INDArray myrow = Nd4j.create(mydata);
+            test_data.putRow(0, myrow);
+            String model_path = null;
+            MultiLayerNetwork model;
+            BufferedReader br = null;
+            File file = new File("/tmp/model_path7.txt");
+            try {
+                br = new BufferedReader(new FileReader(file));
+            } catch (FileNotFoundException e) {
+                System.out.println("File doesn't exist");
+                e.printStackTrace();
+            }
+            try {
+                model_path = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+
+                model = KerasModelImport.importKerasSequentialModelAndWeights(model_path);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            double result = model.output(test_data).getDouble(0);
+
+
+            if (result < 0)
+                result = 0d;
+            else if (result > 1)
+                result = 1d;
+
+            double lambda = (1 - Math.min(1, (((double) iteration) / 10000)));
+
+            double new_result = (lambda * spectrum.basicCoverage()) + ((1-lambda) * (1 - result));
+
+            
+            String txttodump = String.valueOf(iteration) + "," + String.valueOf(result) + "," + String.valueOf(spectrum.basicCoverage())
+            +","+String.valueOf(spectrum.getRho())+"," + String.valueOf(1 - spectrum.getSimpson())+ "," + String.valueOf(spectrum.getAmbiguity())+
+            ","+ String.valueOf(new_result) + "," + "\n";
+
+            appendStrToFile("/tmp/nn_val.txt",txttodump);
+            return (0.5 * new_result);
+
+        }
         //mycode ends
 			//return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VCMDDU2: {
