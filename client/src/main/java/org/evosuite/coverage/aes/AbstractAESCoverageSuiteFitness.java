@@ -740,7 +740,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
-            String filename = "/tmp/feature_dump_d1.csv";
+            String filename = "/tmp/feature_dump_d1_ff4.csv";
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
                     + String.valueOf(ff_val) + "\n";
@@ -863,7 +863,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
             double ff4 = number_of_1s_metric(spectrum);
-            String filename = "/tmp/feature_dump_d6.csv";
+            String filename = "/tmp/feature_dump_d1_ddu.csv";
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
                     + String.valueOf(ff4) + "," + String.valueOf(ff_val) + "\n";
