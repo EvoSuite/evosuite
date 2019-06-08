@@ -27,6 +27,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -41,8 +43,8 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
- * Fitness function for a single test on a single branch
- * 
+ * Fitness function for a single test on a single line
+ *
  * @author Gordon Fraser, Jose Miguel Rojas
  */
 public class LineCoverageTestFitness extends TestFitnessFunction {
@@ -74,7 +76,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * getClassName
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
@@ -85,7 +87,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * getMethod
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMethod() {
@@ -96,20 +98,20 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * getLine
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.lang.Integer} object.
 	 */
 	public Integer getLine() {
 		return line;
 	}
-	
+
 
 	private void setupDependencies() {
 		goalInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getFirstInstructionAtLineNumber(className, methodName, line);
 
 		if(goalInstruction == null)
 			return;
-		
+
 		Set<ControlDependency> cds = goalInstruction.getControlDependencies();
 
 		for (ControlDependency cd : cds) {
@@ -133,22 +135,18 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 
 		branchFitnesses.sort(Comparator.naturalOrder());
 	}
-	
+
 	@Override
 	public boolean isCovered(ExecutionResult result) {
-		for ( Integer coveredLine : result.getTrace().getCoveredLines()) {
-			if (coveredLine.intValue() == this.line.intValue()) {
-				return true;
-			}
-		}
-		return false;
+		Stream<Integer> coveredLines = result.getTrace().getCoveredLines().stream();
+		return coveredLines.anyMatch(coveredLine -> coveredLine.intValue() == this.line.intValue());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Calculate fitness
-	 * 
+	 *
 	 * @param individual
 	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
 	 * @param result
@@ -184,7 +182,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 				if (newFitness < r)
 					r = newFitness;
 			}
-			
+
 			fitness = r;
 		}
 		Properties.TEST_ARCHIVE = archive;
@@ -211,7 +209,7 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public int hashCode() {
 		int iConst = 13;
-		return 51 * iConst + className.hashCode() * iConst + methodName.hashCode() + iConst + line.hashCode();        
+		return 51 * iConst + className.hashCode() * iConst + methodName.hashCode() + iConst + line.hashCode();
 	}
 
 	/** {@inheritDoc} */
@@ -267,17 +265,17 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	public String getTargetMethod() {
 		return getMethod();
 	}
-	
+
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		ois.defaultReadObject();
-		branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+		branchFitnesses = new ArrayList<>();
 		if(GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getActualCFG(className,
 				methodName) != null) {
 			// TODO: Figure out why the CFG may not exist
 			setupDependencies();
 		}
 	}
-	
+
 	private void writeObject(ObjectOutputStream oos) throws ClassNotFoundException, IOException {
 		oos.defaultWriteObject();
 	}
