@@ -744,6 +744,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
                     + String.valueOf(ff_val) + "\n";
+                    
             appendStrToFile(filename, txttoprint);
 
 //            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
