@@ -740,7 +740,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
-            String filename = "/tmp/feature_dump_d5_ff4.csv";
+            String filename = "/tmp/feature_dump_d1_ff4_with_density.csv";
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
                     + String.valueOf(ff_val) + "\n";
@@ -748,7 +748,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 //            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
 //                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/data_dump/activity_matrices/",iteration,"FF4",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/FF4_activity_matrix_index.txt");
-            return 0.5d - (0.5d * ff_val);
+            return density * (0.5d - (0.5d * ff_val));
         }
 //		{
 //            //mycode starts
