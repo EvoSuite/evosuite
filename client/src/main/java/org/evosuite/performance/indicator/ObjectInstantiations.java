@@ -35,11 +35,9 @@ public class ObjectInstantiations extends AbstractIndicator {
 
     /** To keep track of the branches in the CUT (class under test) */
     private static HashMap<Integer,Integer> branches;
-
     private static HashMap<String, Integer> methods;
 
     public ObjectInstantiations(){
-        super();
         if (branches == null) {
             branches = new HashMap();
             for (Branch b : BranchPool
@@ -64,10 +62,11 @@ public class ObjectInstantiations extends AbstractIndicator {
                 if (instr.isConstructorInvocation() ||
                         instr.isLocalArrayDefinition() ||
                         instr.isWithinConstructor()) {
+                    String fullyQualifiedName = instr.getClassName() + "." + instr.getMethodName();
                     if (set == null){
-                        methods.put(instr.getMethodName(), 1);
+                        methods.put(fullyQualifiedName, 1);
                     } else {
-                        methods.put(instr.getMethodName(), set+1);
+                        methods.put(fullyQualifiedName, set+1);
                     }
 
                 }
