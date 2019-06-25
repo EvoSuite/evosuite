@@ -3,6 +3,7 @@ package org.evosuite.coverage.aes;
 //import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 //import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 //import org.evosuite.Properties;
+import org.evosuite.coverage.aes.branch.BranchDetails;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -14,6 +15,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
+//import java.util.Map;
 
 import static java.lang.Math.abs;
 
@@ -76,6 +79,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 	}
 
 	protected abstract Spectrum getSpectrum(List<ExecutionResult> results);
+    protected abstract Map<Integer,Double> getWeights();    //mycode, returns the likelihood weights
 
     public void appendStrToFile(String fileName,
                                 String str)
@@ -349,7 +353,17 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         return compute_mean(max_mean,components);
     }
 
-    public double number_of_1s_metric(Spectrum spectrum)
+
+    public void normalize_weights(Map<Integer,Double> A)
+    {
+        Double sum = 0d;
+        for(Map.Entry<Integer,Double> entry : A.entrySet())
+            sum = sum + entry.getValue();
+        for(Map.Entry<Integer,Double> entry : A.entrySet())
+            A.put(entry.getKey(),(entry.getValue()/sum));
+
+    }
+    public double number_of_1s_metric(Spectrum spectrum, Map<Integer,Double> weights)
     {
         double[][] ochiai = spectrum.compute_ochiai();
         if(ochiai == null)
@@ -373,6 +387,13 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 avg_val[i] = (ones / (components - 1));
             }
         }
+
+        if(weights == null)
+            return compute_mean(avg_val,components);
+        normalize_weights(weights);
+
+        for(int i=0;i<components;i++)
+            avg_val[i] = avg_val[i] * weights.get(i);
 
         return compute_mean(avg_val,components);
 
@@ -732,7 +753,9 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 		case VCMDDU2: {
             iteration++;
 //		    return 0.5d - (0.5d * one_hot_dist_mean_metric(spectrum));
-            double ff_val = number_of_1s_metric(spectrum);
+            double ff_val = number_of_1s_metric(spectrum,getWeights());
+
+
             double coverage = spectrum.basicCoverage();
             double density =  spectrum.getRho();
             double diversity = (1 - spectrum.getSimpson());
@@ -740,16 +763,15 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
-            String filename = "/tmp/feature_dump_d1_ff4_with_density.csv";
+            String filename = "/tmp/feature_dump_d14_ff4.csv";
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
                     + String.valueOf(ff_val) + "\n";
-                    
             appendStrToFile(filename, txttoprint);
 
 //            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
 //                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/data_dump/activity_matrices/",iteration,"FF4",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/FF4_activity_matrix_index.txt");
-            return density * (0.5d - (0.5d * ff_val));
+            return  (0.5d - (0.5d * ff_val));
         }
 //		{
 //            //mycode starts
@@ -856,24 +878,24 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 		default: {
             iteration++;
             double ff_val = spectrum.getRho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-            double coverage = spectrum.basicCoverage();
-            double density =  spectrum.getRho();
-            double diversity = (1 - spectrum.getSimpson());
-            double uniqueness = spectrum.getAmbiguity();
-            Aj aj = spectrum.getVrho2();
-            double rho_component = aj.getvcd();
-            double rho_transaction = aj.getvrd();
-            double ff4 = number_of_1s_metric(spectrum);
-            String filename = "/tmp/feature_dump_d5_ddu.csv";
-            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
-                    "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
-                    + String.valueOf(ff4) + "," + String.valueOf(ff_val) + "\n";
-            appendStrToFile(filename, txttoprint);
-
-//            String txtToPrint = Properties.OUTPUT_DIR + "\n";
-//            appendStrToFile("/tmp/temp_dump.csv", txtToPrint);
-//            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
-//                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"DDU",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/DDU_activity_matrix_index.txt");
+//            double coverage = spectrum.basicCoverage();
+//            double density =  spectrum.getRho();
+//            double diversity = (1 - spectrum.getSimpson());
+//            double uniqueness = spectrum.getAmbiguity();
+//            Aj aj = spectrum.getVrho2();
+//            double rho_component = aj.getvcd();
+//            double rho_transaction = aj.getvrd();
+//            double ff4 = number_of_1s_metric(spectrum,getWeights());
+//            String filename = "/tmp/feature_dump_d5_ddu.csv";
+//            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
+//                    "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
+//                    + String.valueOf(ff4) + "," + String.valueOf(ff_val) + "\n";
+//            appendStrToFile(filename, txttoprint);
+//
+////            String txtToPrint = Properties.OUTPUT_DIR + "\n";
+////            appendStrToFile("/tmp/temp_dump.csv", txtToPrint);
+////            if(((iteration % 500) == 1) && (spectrum.getActivityMatrix() != null))
+////                printActivityMatrix(spectrum.getActivityMatrix(), "/home/ubuntu/abhijitc/activity_matrices/",iteration,"DDU",spectrum.getNumTransactions(),spectrum.getNumComponents(),"/tmp/DDU_activity_matrix_index.txt");
             return ff_val;
         }
 		}
@@ -882,5 +904,30 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 	public static double metricToFitness(double metric) {
 		return abs(0.5d - metric);
 	}
+
+
+	private void printmyhashmap(Map<Integer,Double> A)
+    {
+        if(A == null)
+            return;
+        BufferedWriter out = null;
+
+        for(Map.Entry<Integer,Double> entry : A.entrySet())
+        {
+            try {
+                // Open given file in append mode.
+                String str = String.valueOf(entry.getKey()) + "," + String.valueOf(entry.getValue()) + "\n";
+                out = new BufferedWriter(
+                        new FileWriter("/tmp/weights_normalised.csv", true));
+                out.write(str);
+                out.close();
+            }
+            catch (IOException e) {
+                System.out.println("exception occoured" + e);
+            }
+        }
+
+
+    }
 
 }

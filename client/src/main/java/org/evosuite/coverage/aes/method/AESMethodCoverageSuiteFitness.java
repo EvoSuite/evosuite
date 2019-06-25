@@ -3,9 +3,11 @@ package org.evosuite.coverage.aes.method;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
+import java.util.Map;
 
 import org.evosuite.coverage.aes.AbstractAESCoverageSuiteFitness;
 import org.evosuite.coverage.aes.Spectrum;
+import org.evosuite.coverage.aes.branch.BranchDetails;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
 import org.evosuite.testcase.execution.ExecutionResult;
 
@@ -54,4 +56,9 @@ public class AESMethodCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 		
 		return spectrum;
 	}
+
+    protected Map<Integer,Double> getWeights()
+    {
+        return null;
+    }
 }
