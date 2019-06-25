@@ -153,8 +153,9 @@ public class EvoSuite {
 
             setupProperties();
 
-            if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
-                throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
+            if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10 || SystemUtils.IS_JAVA_11) {
+                logger.warn("EvoSuite does not support Java versions > 8 yet");
+                //throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
             }
 
             if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
