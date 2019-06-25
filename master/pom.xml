@@ -12,6 +12,18 @@
     <artifactId>evosuite-master</artifactId>
     <packaging>jar</packaging>
 
+    <profiles>
+        <profile>
+            <id>java9</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>9</jdk>
+            </activation>
+            <dependencies>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <!-- dependency versions are inherited from parent pom -->
     <dependencies>
 
@@ -61,6 +73,9 @@
              Ie, the runtime jar should not contain those libraries, as to
              avoid conflicts with the configuration of the SUT
           -->
+
+
+
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
