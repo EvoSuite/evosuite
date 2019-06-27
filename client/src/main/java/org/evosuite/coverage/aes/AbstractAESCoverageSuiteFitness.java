@@ -80,6 +80,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
 	protected abstract Spectrum getSpectrum(List<ExecutionResult> results);
     protected abstract Map<Integer,Double> getWeights();    //mycode, returns the likelihood weights
+    protected abstract double getSumWeights();              //mycode, returns the sum of likelihood weights
 
     public void appendStrToFile(String fileName,
                                 String str)
@@ -354,15 +355,17 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
     }
 
 
-    public void normalize_weights(Map<Integer,Double> A)
-    {
-        Double sum = 0d;
-        for(Map.Entry<Integer,Double> entry : A.entrySet())
-            sum = sum + entry.getValue();
-        for(Map.Entry<Integer,Double> entry : A.entrySet())
-            A.put(entry.getKey(),(entry.getValue()/sum));
+//    public void normalize_weights(Map<Integer,Double> A)
+//    {
+//        Double sum = 0d;
+//        for(Map.Entry<Integer,Double> entry : A.entrySet())
+//            sum = sum + entry.getValue();
+//        for(Map.Entry<Integer,Double> entry : A.entrySet())
+//            A.put(entry.getKey(),(entry.getValue()/sum));
+//
+//    }
 
-    }
+
     public double number_of_1s_metric(Spectrum spectrum, Map<Integer,Double> weights)
     {
         double[][] ochiai = spectrum.compute_ochiai();
@@ -387,19 +390,23 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 avg_val[i] = (ones / (components - 1));
             }
         }
-
-        if(weights == null)
+        double sumWeights = getSumWeights();
+//        appendStrToFile("/tmp/sumvals.txt",String.valueOf(sumWeights) + "\n");
+        if(weights == null || sumWeights == -1d)
             return compute_mean(avg_val,components);
-        normalize_weights(weights);
 
-        for(int i=0;i<components;i++)
+
+        double sum = 0d;
+        for(int i=0;i<components;i++) {
             avg_val[i] = avg_val[i] * weights.get(i);
+            sum = sum + avg_val[i];
 
-        return compute_mean(avg_val,components);
+        }
+        return sum/(sumWeights+1);
 
     }
 
-    public static int getActivityMatixIndex(String fileName)
+    public static int getActivityMatrixIndex(String fileName)
     {
         BufferedReader reader;
         int val = 0;
@@ -440,7 +447,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             toprint = toprint.substring(0, toprint.length() - 1);
             toprint += "\n";
         }
-        int index = getActivityMatixIndex(index_fileName);
+        int index = getActivityMatrixIndex(index_fileName);
         String fileName = filelocation +  prefix + "_" + "activity_matrix"+ String.valueOf(index) +"_"+ String.valueOf(iteration);
         try {
 
@@ -763,7 +770,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
-            String filename = "/tmp/feature_dump_d14_ff4.csv";
+            String filename = "/tmp/feature_dump_d1_ff4.csv";
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
                     + String.valueOf(ff_val) + "\n";
@@ -878,19 +885,19 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 		default: {
             iteration++;
             double ff_val = spectrum.getRho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-//            double coverage = spectrum.basicCoverage();
-//            double density =  spectrum.getRho();
-//            double diversity = (1 - spectrum.getSimpson());
-//            double uniqueness = spectrum.getAmbiguity();
-//            Aj aj = spectrum.getVrho2();
-//            double rho_component = aj.getvcd();
-//            double rho_transaction = aj.getvrd();
-//            double ff4 = number_of_1s_metric(spectrum,getWeights());
-//            String filename = "/tmp/feature_dump_d5_ddu.csv";
-//            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
-//                    "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
-//                    + String.valueOf(ff4) + "," + String.valueOf(ff_val) + "\n";
-//            appendStrToFile(filename, txttoprint);
+            double coverage = spectrum.basicCoverage();
+            double density =  spectrum.getRho();
+            double diversity = (1 - spectrum.getSimpson());
+            double uniqueness = spectrum.getAmbiguity();
+            Aj aj = spectrum.getVrho2();
+            double rho_component = aj.getvcd();
+            double rho_transaction = aj.getvrd();
+            double ff4 = number_of_1s_metric(spectrum,getWeights());
+            String filename = "/tmp/feature_dump_d14_ddu.csv";
+            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
+                    "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
+                    + String.valueOf(ff4) + "," + String.valueOf(ff_val) + "\n";
+            appendStrToFile(filename, txttoprint);
 //
 ////            String txtToPrint = Properties.OUTPUT_DIR + "\n";
 ////            appendStrToFile("/tmp/temp_dump.csv", txtToPrint);

@@ -61,4 +61,9 @@ public class AESMethodCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     {
         return null;
     }
+
+    @Override
+    protected double getSumWeights() {
+        return -1d;
+    }
 }

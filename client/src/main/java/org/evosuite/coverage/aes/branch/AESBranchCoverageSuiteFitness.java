@@ -24,12 +24,13 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     private Map<Integer, Integer> trueMap;
     private Map<Integer, Integer> falseMap;
     private Map<String, Integer> branchlessMethodsMap;
-    private Map<Integer, BranchDetails> branchToMethodMap;  //mycode Integer=component_number
-    private Map<String, Double> suspiciousnesScores;         //mycode String=classname+"."+method_name, Double = Suspiciousness_score
-    private Map<Integer, Double> weights;                    //mycode Integer=component_number, Double=Suspiciousness
+    //    private Map<Integer, BranchDetails> branchToMethodMap;  //mycode Integer=component_number
+    private Map<String, Double> suspiciousnesScores;         //mycode String=classname+"."+method_name, Double = Suspiciousness_score, contains the liklihood values
+    private Map<Integer, Double> weights;                    //mycode Integer=component_number, Double=Suspiciousness, contains the liklihood values of the components
     private boolean mode;               //mode = false => uniform distribution
     private int numberOfGoals = 0;
     private static int count = 0;
+    private double sumWeights = -1d;
 
     public AESBranchCoverageSuiteFitness(Metric metric) {
         super(metric);
@@ -42,11 +43,11 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     //modified
     private void determineCoverageGoals() {
 
-        if (this.branchlessMethodsMap == null || this.trueMap == null || this.falseMap == null || branchToMethodMap == null) {
+        if (this.branchlessMethodsMap == null || this.trueMap == null || this.falseMap == null) {
             this.branchlessMethodsMap = new HashMap<String, Integer>();
             this.trueMap = new HashMap<Integer, Integer>();
             this.falseMap = new HashMap<Integer, Integer>();
-            this.branchToMethodMap = new HashMap<Integer, BranchDetails>();
+//            this.branchToMethodMap = new HashMap<Integer, BranchDetails>();
 
             List<TestFitnessFunction> goals = new AESBranchCoverageFactory().getCoverageGoals();
             this.numberOfGoals = goals.size() - 1;
@@ -57,15 +58,17 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
                 if (ff instanceof BranchCoverageTestFitness) {
                     BranchCoverageTestFitness goal = (BranchCoverageTestFitness) ff;
 
+                    //map it to the prior
+                    branchToSuspiciousnessMap(goal, g);
                     if (goal.getBranch() == null) { // branchless method{
                         branchlessMethodsMap.put(goal.getClassName() + "." + goal.getMethod(), g);
-                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), -1, true, -1));
+//                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), -1, true, -1));
                     } else if (goal.getBranchExpressionValue()) { // true branch
                         trueMap.put(goal.getBranch().getActualBranchId(), g);
-                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), goal.getBranch().getActualBranchId(), true, goal.getBranch().getInstruction().getLineNumber()));
+//                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), goal.getBranch().getActualBranchId(), true, goal.getBranch().getInstruction().getLineNumber()));
                     } else { // false branch
                         falseMap.put(goal.getBranch().getActualBranchId(), g);
-                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), goal.getBranch().getActualBranchId(), false, goal.getBranch().getInstruction().getLineNumber()));
+//                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), goal.getBranch().getActualBranchId(), false, goal.getBranch().getInstruction().getLineNumber()));
                     }
                 }
             }
@@ -74,14 +77,16 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 
     @Override
     protected Spectrum getSpectrum(List<ExecutionResult> results) {
-        determineCoverageGoals();
 
         //get the likelihoods
         if (count == 0) {
-            extract_data("/tmp/suspiciousnes_scores14.json");
+            extract_data("/tmp/suspiciousnes_scores1.json");
             count++;
         }
-        branchToSuspiciousnessMap();
+
+
+
+        determineCoverageGoals();
         Spectrum spectrum = new Spectrum(results.size(), this.numberOfGoals);
 
         for (int t = 0; t < results.size(); t++) {
@@ -152,7 +157,7 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     }
 
 
-    private void branchToSuspiciousnessMap() {
+    private void branchToSuspiciousnessMap(BranchCoverageTestFitness A, int component_no) {
         //uniform distribution
         if (!mode)
             return;
@@ -162,79 +167,56 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
             weights = new HashMap<>();                    //mycode Integer=component_number, Double=Suspiciousness
 
 
-        for (Map.Entry<Integer, BranchDetails> entry : branchToMethodMap.entrySet()) {
+        String method_name = A.getMethod();
+        String class_name = A.getClassName();
 
-            String methodname = entry.getValue().getMethodName();
-            methodname = trimString(methodname);
-            //constructor case
-            if (methodname.contains("<init>")) {
-                for (int i = 0; i < methodname.length(); i++) {
-                    if (methodname.charAt(i) == '.') {
-                        String temp = methodname.substring(0, i);
-                        methodname = temp + "." + temp;
-                    }
-                }
-            }
+        String method_final = method_name.substring(0, method_name.indexOf('('));
+        String class_final = class_name.substring(class_name.lastIndexOf('.') + 1);
+        if (method_final.contains("<init>"))
+            method_final = class_final;
 
-            if (suspiciousnesScores.containsKey(methodname))
-                weights.put(entry.getKey(), suspiciousnesScores.get(methodname));
-            else
-                weights.put(entry.getKey(), Double.MIN_VALUE);
-
+        Double temp = suspiciousnesScores.get(class_final + "." + method_final);
+        if (temp == null) {
+            weights.put(component_no, Double.MIN_VALUE);
+            sumWeights = sumWeights + Double.MIN_VALUE;
+        } else {
+            weights.put(component_no, temp);
+            sumWeights = sumWeights + temp;
         }
-    }
 
-    //returns the methodname in <class_name>.<method_name> format
-    private String trimString(String s) {
-        String result = "";
-        String final_result = "";
-        for (int i = s.length() - 1; i >= 0; i--) {
-            if (s.charAt(i) == '(') {
-                result = s.substring(0, i);
-                break;
-            }
-
-        }
-        int counter = 2;
-        for (int i = result.length() - 1; i >= 0; i--) {
-            if (result.charAt(i) == '.')
-                counter--;
-            if (counter == 0) {
-                final_result = result.substring(i + 1);
-                break;
-            }
-        }
-        return final_result;
     }
 
     protected Map<Integer, Double> getWeights() {
         return weights;
     }
-}
 
-//    //temp
-//	private void printmyhashmap(Map<Integer,Double> A)
-//    {
+    protected double getSumWeights() {
+        return sumWeights;
+    }
+
+
+//       //temp
+//    private void printmyhashmap(Map<Integer, Double> A) {
+//
+//        if(A == null)
+//            return;
+//
 //        BufferedWriter out = null;
-////        for(Map.Entry<Integer,BranchDetails> entry : A.entrySet())
-//        for(Map.Entry<Integer,Double> entry : A.entrySet())
-//        {
+//        for (Map.Entry<Integer, Double> entry : A.entrySet()) {
 //            try {
-//                // Open given file in append mode.
-////                BranchDetails b = entry.getValue();
-////                String str = b.getMethodName() + "," + b.getBranchId() + "," + b.getEvaluation() + "," + b.getLineno() + "\n";
-//                String str = String.valueOf(entry.getKey()) + "," + String.valueOf(entry.getValue()) + "\n";
+//
+//                String str = String.valueOf(entry.getKey()) + "," + String.valueOf(entry.getValue()) + "," + String.valueOf(sumWeights) + "\n";
 //                out = new BufferedWriter(
-//                        new FileWriter("/tmp/weights.csv", true));
+//                        new FileWriter("/tmp/weights2.csv", true));
 //                out.write(str);
 //                out.close();
-//            }
-//            catch (IOException e) {
+//            } catch (IOException e) {
 //                System.out.println("exception occoured" + e);
 //            }
 //        }
 //
 //
 //    }
+}
 
 
