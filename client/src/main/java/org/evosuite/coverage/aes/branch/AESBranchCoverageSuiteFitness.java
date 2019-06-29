@@ -31,6 +31,7 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     private int numberOfGoals = 0;
     private static int count = 0;
     private double sumWeights = -1d;
+    private static double otherWeight = 0d;
 
     public AESBranchCoverageSuiteFitness(Metric metric) {
         super(metric);
@@ -75,17 +76,26 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         }
     }
 
+    protected void readOtherWeight(String filepath)
+    {
+        BufferedReader reader = null;
+        try{
+            reader = new BufferedReader(new FileReader(filepath));
+            otherWeight = Double.valueOf(reader.readLine());
+        }catch (IOException e){
+            otherWeight = 0d;
+        }
+    }
     @Override
     protected Spectrum getSpectrum(List<ExecutionResult> results) {
 
         //get the likelihoods
         if (count == 0) {
-            extract_data("/tmp/suspiciousnes_scores1.json");
-            count++;
+            extract_data(System.getenv("PRIOR_VAL"));
+            readOtherWeight(System.getenv("OTHER_PRIOR_VAL"));
+
         }
-
-
-
+        count++;
         determineCoverageGoals();
         Spectrum spectrum = new Spectrum(results.size(), this.numberOfGoals);
 
@@ -177,8 +187,8 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 
         Double temp = suspiciousnesScores.get(class_final + "." + method_final);
         if (temp == null) {
-            weights.put(component_no, Double.MIN_VALUE);
-            sumWeights = sumWeights + Double.MIN_VALUE;
+            weights.put(component_no, otherWeight);
+            sumWeights = sumWeights + otherWeight;
         } else {
             weights.put(component_no, temp);
             sumWeights = sumWeights + temp;
@@ -195,7 +205,7 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     }
 
 
-//       //temp
+       //temp
 //    private void printmyhashmap(Map<Integer, Double> A) {
 //
 //        if(A == null)
@@ -207,7 +217,7 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
 //
 //                String str = String.valueOf(entry.getKey()) + "," + String.valueOf(entry.getValue()) + "," + String.valueOf(sumWeights) + "\n";
 //                out = new BufferedWriter(
-//                        new FileWriter("/tmp/weights2.csv", true));
+//                        new FileWriter("/tmp/weights.csv", true));
 //                out.write(str);
 //                out.close();
 //            } catch (IOException e) {
