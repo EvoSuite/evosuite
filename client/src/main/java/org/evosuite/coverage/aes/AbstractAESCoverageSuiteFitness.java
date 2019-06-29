@@ -452,7 +452,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             toprint = toprint.substring(0, toprint.length() - 1);
             toprint += "\n";
         }
-        String fileName = filelocation + "activity_matrix"+"_"+ String.valueOf(iteration);
+        String fileName = filelocation + "/activity_matrix"+"_"+ String.valueOf(iteration);
         try {
 
 
@@ -774,7 +774,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
             Aj aj = spectrum.getVrho2();
             double rho_component = aj.getvcd();
             double rho_transaction = aj.getvrd();
-            String filename = System.getenv("FEATURE_DUMP_LOC");
+            String filename = System.getenv("FEATURE_DUMP_LOC" + "/feature_dump.csv");
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
                     "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
                     + String.valueOf(ff_val) + "\n";
