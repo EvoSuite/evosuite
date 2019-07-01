@@ -4,6 +4,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.archive.CoverageArchive;
 import org.evosuite.ga.metaheuristics.mosa.structural.adaptive.AdaptiveGoalManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.performance.strategies.PerformanceStrategy;
@@ -241,8 +242,9 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
      */
     @Override
     protected List<T> getSolutions() {
-        List<T> suite = new ArrayList<>(this.goalsManager.getArchive());
-        return suite;
+        List<T> solutions = new ArrayList<T>();
+        CoverageArchive.getArchiveInstance().getSolutions().forEach(test -> solutions.add((T) test));
+        return solutions;
     }
 
     /**
@@ -354,10 +356,12 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
             else
                 performanceStagnation++;
 
-            if (performanceStagnation > crowdingStagnation)
+            if (performanceStagnation > crowdingStagnation+1)
                 choice = Heuristics.CROWDING;
-            else
+            else if (performanceStagnation <= crowdingStagnation)
                 choice = Heuristics.PERFORMANCE;
+            else
+                choice = this.last_heuristic;
         } else {
             goalsManager.setHasBetterObjectives(false);
 
@@ -377,6 +381,9 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
         if (last_heuristic == Heuristics.CROWDING) {
             distance.fastEpsilonDominanceAssignment(front, goalsManager.getCurrentGoals());
         } else if (last_heuristic == Heuristics.PERFORMANCE) {
+            for (T t : front){
+                this.goalsManager.computePerformanceMetrics(t);
+            }
             strategy.setDistances(front);
         } else {
             for (T t : front)
