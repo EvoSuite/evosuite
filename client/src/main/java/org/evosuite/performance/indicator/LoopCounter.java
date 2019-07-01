@@ -76,7 +76,7 @@ public class LoopCounter extends AbstractIndicator {
         ExecutionResult result = chromosome.getLastExecutionResult();
 
         // let's initialize the counter
-        double counter = 1.0;
+        double counter = 0.0;
 
         Map<Integer, Integer> noExecutionForConditionalNode =
                 result.getTrace().getNoExecutionForConditionalNode();
@@ -84,7 +84,7 @@ public class LoopCounter extends AbstractIndicator {
         /**/
         for (Branch branch : loopBranches) {
             Integer freq = noExecutionForConditionalNode.get(branch.getActualBranchId());
-            if (freq != null && freq > 2)
+            if (freq != null && freq >= 2)
                 counter += freq;
         }
 
