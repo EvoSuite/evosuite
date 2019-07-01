@@ -33,7 +33,7 @@ public class StatementsCounter extends AbstractIndicator {
             if (!MethodCallCounter.isMethodCall(statement))
                 statements++;
         }
-        if (statements < 5)
+        if (statements < 10)
             statements = 0.0;
 
         test.setIndicatorValues(getIndicatorId(), statements);
