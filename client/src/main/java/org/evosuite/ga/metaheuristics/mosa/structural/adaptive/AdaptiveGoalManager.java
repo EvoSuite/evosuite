@@ -3,18 +3,14 @@ package org.evosuite.ga.metaheuristics.mosa.structural.adaptive;
 import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
-import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
-import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.coverage.mutation.MutationPool;
+import org.evosuite.coverage.method.MethodCoverageFactory;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.archive.CoverageArchive;
 import org.evosuite.ga.comparators.PerformanceScoreComparator;
-import org.evosuite.ga.metaheuristics.mosa.structural.BranchesManager;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriatManager;
-import org.evosuite.instrumentation.LinePool;
 import org.evosuite.performance.AbstractIndicator;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -37,6 +33,7 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
     private static final Logger logger = LoggerFactory.getLogger(AdaptiveGoalManager.class);
 
     protected final Map<Integer, FitnessFunction<T>> lineMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
+    protected final Map<Integer, FitnessFunction<T>> weakMutationMap = new LinkedHashMap<Integer, FitnessFunction<T>>();
 
     private PerformanceScoreComparator comparator = new PerformanceScoreComparator();
 
@@ -51,6 +48,9 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
         for (FitnessFunction f : fitnessFunctions) {
             if (f instanceof LineCoverageTestFitness)
                 lineMap.put(((LineCoverageTestFitness) f).getLine(), f);
+            else if (f instanceof WeakMutationTestFitness) {
+                weakMutationMap.put(((WeakMutationTestFitness) f).getMutation().getId(), f);
+            }
         }
     }
 
@@ -66,17 +66,15 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     public void calculateFitness(T c){
         this.runTest(c);
 
         ExecutionResult result = ((TestChromosome) c).getLastExecutionResult();
-
         computePerformanceMetrics(c);
 
         /* check exceptions and if the test does not cover anything */
         if (result.hasTimeout() || result.hasTestException() || result.getTrace().getCoveredLines().size() == 0){
-            for (FitnessFunction<T> f : uncoveredGoals)
+            for (FitnessFunction<T> f : currentGoals)
                 c.setFitness(f, Double.MAX_VALUE);
 
             c.setPerformanceScore(Double.MAX_VALUE);
@@ -139,8 +137,14 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
         }
         if (ArrayUtils.contains(Properties.CRITERION, Properties.Criterion.WEAKMUTATION)) {
             for (Integer id : result.getTrace().getInfectedMutants()) {
-                FitnessFunction mutant = new WeakMutationTestFitness (MutationPool.getMutant(id));
-                updateCoveredGoals(mutant, c);
+                if (this.weakMutationMap.keySet().contains(id))
+                    updateCoveredGoals(this.weakMutationMap.get(id), c);
+            }
+        }
+        if (ArrayUtils.contains(Properties.CRITERION, Properties.Criterion.METHOD)) {
+            for (String id : result.getTrace().getCoveredMethods()) {
+                FitnessFunction ff = MethodCoverageFactory.createMethodTestFitness(Properties.TARGET_CLASS, id);
+                updateCoveredGoals(ff, c);
             }
         }
     }
@@ -157,35 +161,17 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
         tch.getTestCase().getCoveredGoals().add((TestFitnessFunction) f);
 
         // update covered targets
-        boolean toArchive = false;
         T best = coveredGoals.get(f);
         if (best == null){
-            toArchive = true;
             coveredGoals.put(f, tc);
             uncoveredGoals.remove(f);
             currentGoals.remove(f);
-            Archive.getArchiveInstance().updateArchive((TestFitnessFunction) f, tch, tc.getFitness(f));
+            CoverageArchive.getArchiveInstance().updateArchive((TestFitnessFunction) f, tch, tc.getFitness(f));
         } else {
             boolean toUpdate = comparator.compare(tc, best) == -1;
             if (toUpdate) {
-                toArchive = true;
                 coveredGoals.put(f, tc);
-                archive.get(best).remove(f);
-                if (archive.get(best).size() == 0)
-                    archive.remove(best);
-            }
-            Archive.getArchiveInstance().updateArchive((TestFitnessFunction) f, tch, tc.getFitness(f));
-        }
-
-        // update archive
-        if (toArchive){
-            List<FitnessFunction<T>> coveredTargets = archive.get(tc);
-            if (coveredTargets == null){
-                List<FitnessFunction<T>> list = new ArrayList<>();
-                list.add(f);
-                archive.put(tc, list);
-            } else {
-                coveredTargets.add(f);
+                CoverageArchive.getArchiveInstance().updateArchive((TestFitnessFunction) f, tch, tc.getFitness(f));
             }
         }
     }
@@ -219,6 +205,9 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
     }
 
     public void computePerformanceMetrics(T test) {
+        if (test.getIndicatorValues().size()>0)
+            return;
+
         double sum = 0.0;
         for (AbstractIndicator indicator : this.indicators) {
             double value = indicator.getIndicatorValue(test);
@@ -226,5 +215,14 @@ public class AdaptiveGoalManager<T extends Chromosome> extends MultiCriteriatMan
         }
         test.setPerformanceScore(sum);
         logger.debug("performance score for {} = {}", test.hashCode(), test.getPerformanceScore());
+    }
+
+    @Override
+    public Set<T> getArchive(){
+        Set<T> set = new HashSet<>();
+        for (TestChromosome tch : CoverageArchive.getArchiveInstance().getSolutions()){
+            set.add((T) tch);
+        }
+        return set;
     }
 }
