@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.Policy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
