@@ -23,7 +23,6 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
@@ -31,8 +30,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.objectweb.asm.commons.GeneratorAdapter;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 
 /**
  * Statements serve as the building blocks for test cases. Conceptually, a statement in EvoSuite
@@ -151,7 +149,7 @@ public interface Statement {
 	 * 
 	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
-	public GenericAccessibleObject<?> getAccessibleObject();
+	public GenericAccessibleMember<?> getAccessibleObject();
 
 	/**
 	 * Get Java code representation of assertions

@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.testcase.factories;
 
@@ -36,7 +36,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.ExecutionTracer;
-import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * AllMethodsTestChromosomeFactory class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
@@ -58,13 +58,13 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	protected static final Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
-	private static Set<GenericAccessibleObject<?>> attemptedMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private static Set<GenericAccessibleMember<?>> attemptedMethods = new LinkedHashSet<GenericAccessibleMember<?>>();
 
 	/** Methods we have not already seen */
-	private static Set<GenericAccessibleObject<?>> remainingMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
+	private static Set<GenericAccessibleMember<?>> remainingMethods = new LinkedHashSet<GenericAccessibleMember<?>>();
 
 	/** Methods we have to cover */
-	private static List<GenericAccessibleObject<?>> allMethods = new LinkedList<GenericAccessibleObject<?>>();
+	private static List<GenericAccessibleMember<?>> allMethods = new LinkedList<GenericAccessibleMember<?>>();
 
 	/**
 	 * Create a list of all methods
@@ -77,7 +77,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 
 	/**
 	 * Create a random individual
-	 * 
+	 *
 	 * @param size
 	 */
 	private TestCase getRandomTestCase(int size) {
@@ -100,7 +100,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 			if (remainingMethods.size() == 0) {
 				reset();
 			}
-			GenericAccessibleObject<?> call = Randomness.choice(remainingMethods);
+			GenericAccessibleMember<?> call = Randomness.choice(remainingMethods);
 			attemptedMethods.add(call);
 			remainingMethods.remove(call);
 
@@ -130,7 +130,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Generate a random chromosome
 	 */
 	@Override
@@ -143,7 +143,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	/**
 	 * Provided so that subtypes of this factory type can modify the returned
 	 * TestCase
-	 * 
+	 *
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	protected TestCase getNewTestCase() {
@@ -152,7 +152,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 
 	/**
 	 * How many methods do we still need to cover?
-	 * 
+	 *
 	 * @return a int.
 	 */
 	public int getNumUncoveredMethods() {

@@ -40,7 +40,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
@@ -367,8 +367,8 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    */
   protected void ignoreMethodCall(String className, String methodName) {
     TestCluster cluster = TestCluster.getInstance();
-    List<GenericAccessibleObject<?>> calls = cluster.getTestCalls();
-    for (GenericAccessibleObject<?> call : calls) {
+    List<GenericAccessibleMember<?>> calls = cluster.getTestCalls();
+    for (GenericAccessibleMember<?> call : calls) {
       if (!call.getDeclaringClass().getName().equals(className)) {
         continue;
       }

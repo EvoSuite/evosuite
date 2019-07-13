@@ -41,7 +41,7 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,7 +187,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 
 		for (int i = position2; i < other.size(); i++) {
-			GenericAccessibleObject<?> accessibleObject = otherChromosome.test.getStatement(i).getAccessibleObject();
+			GenericAccessibleMember<?> accessibleObject = otherChromosome.test.getStatement(i).getAccessibleObject();
 			if(accessibleObject != null) {
 				if (accessibleObject.getDeclaringClass().equals(Injector.class))
 					continue;

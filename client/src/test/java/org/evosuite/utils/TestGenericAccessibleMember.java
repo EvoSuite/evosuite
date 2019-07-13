@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.utils;
 
@@ -51,9 +51,9 @@ import com.googlecode.gentyref.TypeToken;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
-public class TestGenericAccessibleObject {
+public class TestGenericAccessibleMember {
 
 	@Test
 	public void testGenericMethod() throws SecurityException, NoSuchMethodException,

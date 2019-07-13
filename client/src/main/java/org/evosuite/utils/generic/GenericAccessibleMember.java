@@ -44,10 +44,10 @@ import com.googlecode.gentyref.GenericTypeReflector;
  *
  * @author Gordon Fraser
  */
-public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<?>>
+public abstract class GenericAccessibleMember<T extends GenericAccessibleMember<?>>
         implements Serializable {
 
-	protected static final Logger logger = LoggerFactory.getLogger(GenericAccessibleObject.class);
+	protected static final Logger logger = LoggerFactory.getLogger(GenericAccessibleMember.class);
 
 	private static final long serialVersionUID = 7069749492563662621L;
 
@@ -182,7 +182,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		}
 	}
 
-	protected void copyTypeVariables(GenericAccessibleObject<?> copy) {
+	protected void copyTypeVariables(GenericAccessibleMember<?> copy) {
 		for(GenericClass variable : typeVariables) {
 			copy.typeVariables.add(new GenericClass(variable));
 		}

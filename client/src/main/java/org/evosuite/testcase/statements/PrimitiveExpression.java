@@ -27,7 +27,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 
 // TODO-JRO Implement methods of PrimitiveExpression as needed
 
@@ -89,7 +89,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * <p>
 	 * Constructor for PrimitiveExpression.
 	 * </p>
-	 * 
+	 *
 	 * @param testCase
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param reference
@@ -149,7 +149,7 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject<?> getAccessibleObject() {
+	public GenericAccessibleMember<?> getAccessibleObject() {
 		throw new UnsupportedOperationException(
 		        "Method getAccessibleObject not implemented!");
 	}
@@ -167,7 +167,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * <p>
 	 * Getter for the field <code>leftOperand</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getLeftOperand() {
@@ -178,7 +178,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * <p>
 	 * Getter for the field <code>operator</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.testcase.statements.PrimitiveExpression.Operator}
 	 *         object.
 	 */
@@ -190,7 +190,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * <p>
 	 * Getter for the field <code>rightOperand</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
 	 */
 	public VariableReference getRightOperand() {

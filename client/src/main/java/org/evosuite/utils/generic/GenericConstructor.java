@@ -30,7 +30,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
@@ -45,7 +44,7 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericConstructor extends GenericAccessibleObject<GenericConstructor> {
+public class GenericConstructor extends GenericAccessibleMember<GenericConstructor> {
 
 	private static final long serialVersionUID = 1361882947700615341L;
 
@@ -127,7 +126,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getAccessibleObject()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getAccessibleObject()
 	 */
 	@Override
 	public AccessibleObject getAccessibleObject() {
@@ -135,7 +134,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getDeclaringClass()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getDeclaringClass()
 	 */
 	@Override
 	public Class<?> getDeclaringClass() {
@@ -185,7 +184,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getName()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getName()
 	 */
 	@Override
 	public String getName() {
@@ -242,7 +241,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#isConstructor()
+	 * @see org.evosuite.utils.GenericAccessibleMember#isConstructor()
 	 */
 	@Override
 	public boolean isConstructor() {
@@ -317,7 +316,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#toString()
+	 * @see org.evosuite.utils.GenericAccessibleMember#toString()
 	 */
 	@Override
 	public String toString() {

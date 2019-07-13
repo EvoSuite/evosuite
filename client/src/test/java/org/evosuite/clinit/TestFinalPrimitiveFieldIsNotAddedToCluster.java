@@ -33,7 +33,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.clinit.FinalPrimitiveField;
@@ -44,8 +44,8 @@ public class TestFinalPrimitiveFieldIsNotAddedToCluster {
 	 * As RESET_STATIC_FINAL_FIELDS=true removes the <code>final</code> modifier
 	 * of static fields in the target class, the purpose of this test case is to
 	 * check that the TestClusterGenerator indeed does not include these fields.
-	 * 
-	 * 
+	 *
+	 *
 	 * @throws ClassNotFoundException
 	 * @throws RuntimeException
 	 */
@@ -61,7 +61,7 @@ public class TestFinalPrimitiveFieldIsNotAddedToCluster {
 		TestClusterGenerator gen = new TestClusterGenerator(tree);
 		assertNotNull(gen);
 		TestCluster cluster = TestCluster.getInstance();
-		List<GenericAccessibleObject<?>> testCalls = cluster.getTestCalls();
+		List<GenericAccessibleMember<?>> testCalls = cluster.getTestCalls();
 		assertEquals("Unexpected number of TestCalls", 2, testCalls.size());
 	}
 

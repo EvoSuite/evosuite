@@ -24,11 +24,9 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 import org.evosuite.utils.generic.GenericMethod;
 
-import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,8 +146,8 @@ public class ConstraintHelper {
                 continue;
             }
 
-            GenericAccessibleObject ao = st.getAccessibleObject();
-            Class<?> declaringClass = ao.getDeclaringClass();
+            GenericAccessibleMember m = st.getAccessibleObject();
+            Class<?> declaringClass = m.getDeclaringClass();
 
             for(String excluded : constraints.excludeOthers()) {
                 String[] klassAndMethod = getClassAndMethod(excluded, declaringClass);

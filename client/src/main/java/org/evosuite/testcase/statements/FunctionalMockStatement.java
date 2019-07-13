@@ -26,7 +26,6 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.FalsePositiveException;
 import org.evosuite.runtime.RuntimeSettings;
-import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.instrumentation.InstrumentedClass;
 import org.evosuite.runtime.mock.EvoSuiteMock;
 import org.evosuite.runtime.mock.MockList;
@@ -41,13 +40,11 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.generic.GenericAccessibleObject;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;
-import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.stubbing.OngoingStubbing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,7 +196,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 !Modifier.isPublic(rawClass.getModifiers())) {
             return false;
         }
-        
+
         if (!InstrumentedClass.class.isAssignableFrom(rawClass) &&
                 Modifier.isFinal(rawClass.getModifiers())) {
             /*
@@ -868,7 +865,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     }
 
     @Override
-    public GenericAccessibleObject<?> getAccessibleObject() {
+    public GenericAccessibleMember<?> getAccessibleObject() {
         return null; //not defined for FM
     }
 
@@ -915,7 +912,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
         return true;
     }
-    
+
     @Override
     public String toString() {
     	return "mock(" + retval.getType() +")";

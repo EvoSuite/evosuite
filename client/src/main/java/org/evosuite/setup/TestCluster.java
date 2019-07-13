@@ -22,7 +22,6 @@ package org.evosuite.setup;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
@@ -163,7 +162,7 @@ public class TestCluster {
 		removeOnlySelfGenerator();
 
 		removeDirectCycle();
-		
+
 		generatorCache.clear();
 	}
 
@@ -214,9 +213,8 @@ public class TestCluster {
 						continue; //as there is no need to instantiate X, it is not an issue
 					}
 					//is any generator for X using as input an instance of Y?
-					final boolean b = Arrays.stream(genOwner.getGenericParameterTypes())
-							.anyMatch(t -> t.equals(entry.getKey().getType()));
-					if(b) {
+					if(Arrays.stream(genOwner.getGenericParameterTypes())
+							.anyMatch(t -> t.equals(entry.getKey().getType()))) {
 						iter.remove();
 						break;
 					}
@@ -626,7 +624,7 @@ public class TestCluster {
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 * 
+	 *
 	 * @param clazz
 	 * @param resolve
 	 * @return

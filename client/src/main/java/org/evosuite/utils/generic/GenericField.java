@@ -40,7 +40,7 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericField extends GenericAccessibleObject<GenericField> {
+public class GenericField extends GenericAccessibleMember<GenericField> {
 
 	private static final long serialVersionUID = -2344346234923642901L;
 
@@ -113,7 +113,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getAccessibleObject()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getAccessibleObject()
 	 */
 	@Override
 	public AccessibleObject getAccessibleObject() {
@@ -121,7 +121,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getDeclaringClass()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getDeclaringClass()
 	 */
 	@Override
 	public Class<?> getDeclaringClass() {
@@ -163,7 +163,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#isField()
+	 * @see org.evosuite.utils.GenericAccessibleMember#isField()
 	 */
 	@Override
 	public boolean isField() {
@@ -171,7 +171,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#isStatic()
+	 * @see org.evosuite.utils.GenericAccessibleMember#isStatic()
 	 */
 	@Override
 	public boolean isStatic() {
@@ -183,7 +183,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#getName()
+	 * @see org.evosuite.utils.GenericAccessibleMember#getName()
 	 */
 	@Override
 	public String getName() {
@@ -191,7 +191,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.evosuite.utils.GenericAccessibleObject#toString()
+	 * @see org.evosuite.utils.GenericAccessibleMember#toString()
 	 */
 	@Override
 	public String toString() {

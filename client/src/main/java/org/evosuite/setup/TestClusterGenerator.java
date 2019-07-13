@@ -59,11 +59,8 @@ import org.evosuite.setup.PutStaticMethodCollector.MethodIdentifier;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericField;
-import org.evosuite.utils.generic.GenericMethod;
+import org.evosuite.utils.generic.*;
+import org.evosuite.utils.generic.GenericAccessibleMember;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
@@ -78,7 +75,7 @@ public class TestClusterGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
-	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<>();
+	private final Set<GenericAccessibleMember<?>> dependencyCache = new LinkedHashSet<>();
 
 	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<>();
 
@@ -587,7 +584,7 @@ public class TestClusterGenerator {
 							 *
 							 * public static final DurationField INSTANCE = new
 							 * MillisDurationField();
-							 * 
+							 *
 							 * private MillisDurationField() { super(); }
 							 */
 							try {
@@ -722,13 +719,13 @@ public class TestClusterGenerator {
 	}
 
 	/**
-	 * This method returns is a given field is final or not. 
-	 * Since we might have removed the <code>final</code> modifier 
+	 * This method returns is a given field is final or not.
+	 * Since we might have removed the <code>final</code> modifier
 	 * during our instrumentation, we also check the list of those
 	 * static fields we have modified during the instrumentation.
-	 * 
+	 *
 	 * @param field field to check
-	 * @return 
+	 * @return
 	 */
 	public static boolean isFinalField(Field field) {
 		if (Properties.RESET_STATIC_FINAL_FIELDS) {

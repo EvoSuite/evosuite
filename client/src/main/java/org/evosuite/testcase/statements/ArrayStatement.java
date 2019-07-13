@@ -47,12 +47,12 @@ import org.evosuite.utils.Randomness;
  * An array statement creates a new array. For example, {@code Object[] var = new Object[10]}.
  * Technically, an array definition implicitly defines a set of values of the component type of the
  * array, according to the length of the array.
- *
+ * 
  * @author Gordon Fraser
  */
 /*
  *  TODO: The length is currently stored in ArrayReference and the ArrayStatement.
- *  This is bound to lead to inconsistencies.
+ *  This is bound to lead to inconsistencies. 
  */
 public class ArrayStatement extends AbstractStatement {
 
@@ -70,7 +70,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * determineDimensions
 	 * </p>
-	 *
+	 * 
 	 * @param type
 	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a int.
@@ -92,7 +92,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * Constructor for ArrayStatement.
 	 * </p>
-	 *
+	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param arrayReference
@@ -107,7 +107,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * Constructor for ArrayStatement.
 	 * </p>
-	 *
+	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param arrayReference
@@ -125,7 +125,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * Constructor for ArrayStatement.
 	 * </p>
-	 *
+	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param type
@@ -139,7 +139,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * Constructor for ArrayStatement.
 	 * </p>
-	 *
+	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param type
@@ -155,7 +155,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * Constructor for ArrayStatement.
 	 * </p>
-	 *
+	 * 
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param type
@@ -227,7 +227,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * Getter for the field <code>lengths</code>.
 	 * </p>
-	 *
+	 * 
 	 * @return an array of int.
 	 */
 	public List<Integer> getLengths() {
@@ -236,7 +236,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
@@ -378,7 +378,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * Setter for the field <code>lengths</code>.
 	 * </p>
-	 *
+	 * 
 	 * @param lengths
 	 *            an array of int.
 	 */
@@ -392,7 +392,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * setSize
 	 * </p>
-	 *
+	 * 
 	 * @param size
 	 *            a int.
 	 */
@@ -406,14 +406,14 @@ public class ArrayStatement extends AbstractStatement {
 	 * <p>
 	 * size
 	 * </p>
-	 *
+	 * 
 	 * @return a int.
 	 */
 	public int size() {
 		// assert lengths.length == 1;
 		return lengths[0];
 	}
-
+	
 	public ArrayReference getArrayReference() {
 		return (ArrayReference) getReturnValue();
 	}

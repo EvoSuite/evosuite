@@ -48,7 +48,7 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
+public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
 
 	private static final long serialVersionUID = 6091851133071150237L;
 
@@ -247,7 +247,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	public boolean isStatic() {
 		return Modifier.isStatic(method.getModifiers());
 	}
-	
+
 	public boolean isOverloaded() {
 		String methodName = getName();
 		Class<?> declaringClass = method.getDeclaringClass();
@@ -255,7 +255,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			for(java.lang.reflect.Method otherMethod : declaringClass.getMethods()) {
 				if(otherMethod.equals(method))
 					continue;
-				
+
 				if(otherMethod.getName().equals(methodName)) {
 					return true;
 				}
@@ -291,7 +291,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			for(java.lang.reflect.Method otherMethod : declaringClass.getMethods()) {
 				if(otherMethod.equals(method))
 					continue;
-				
+
 				if(otherMethod.getName().equals(methodName)) {
 					if(!Arrays.equals(otherMethod.getParameterTypes(), parameterTypes)) {
 						return true;
