@@ -390,4 +390,27 @@ public class PerformanceDynaMOSA<T extends Chromosome> extends DynaMOSA<T> {
                 t.setDistance(0);
         }
     }
+    
+    @Override
+    protected void evaluate(T offspring, List<T> offspringPopulation, boolean isFinished){
+        if (offspring.isChanged() && !isFinished()) {
+            this.clearCachedResults(offspring);
+            offspring.updateAge(this.currentIteration);
+            this.calculateFitness(offspring);
+            if (shouldAdd(offspring))
+                offspringPopulation.add(offspring);
+        }
+    }
+
+    protected boolean shouldAdd(T test){
+        ExecutionResult results = ((TestChromosome) test).getLastExecutionResult();
+        if (results.hasTimeout() ||
+                results.hasTestException() ||
+                results.getTrace().getCoveredLines().size()==0) {
+            logger.debug("Test not added to the population");
+            return false;
+        }
+
+        return true;
+    }
 }
