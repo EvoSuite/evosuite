@@ -10,6 +10,7 @@ import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.performance.strategies.PerformanceStrategy;
 import org.evosuite.performance.strategies.PerformanceStrategyFactory;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.LoggingUtils;
