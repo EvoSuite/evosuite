@@ -19,12 +19,16 @@
  */
 package org.evosuite.testcase;
 
-import java.util.List;
-
+import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.graphs.GraphPool;
+import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
+
+import java.util.List;
 
 /**
  * Abstract base class for fitness functions for test case chromosomes
@@ -35,6 +39,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
         implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
+	private int cyclomaticComplexity; // initialized when the getter is called
 
 	static boolean warnedAboutIsSimilarTo = false;
 
@@ -122,6 +127,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 				return true;
 		}
 		return false;
+		// return testSuite.getTestChromosomes().stream().anyMatch(this::isCovered);
 	}
 
 	/**
@@ -205,7 +211,62 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return false;
 	}
 
+	/**
+	 * Returns the fully qualified name of the target class. For example, a class named {@code Bar}
+	 * in a package {@code com.example.foo} has the fully qualified name
+	 * {@code com.example.foo.Bar}. For more thorough information about this topic please refer to
+	 * <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-6.7">The Java® Language Specification</a>.
+	 *
+	 * @return the fully qualified name of the target class
+	 */
 	public abstract String getTargetClass();
 
+	/**
+	 * <p>
+	 * Returns the method name and method descriptor of the target method concatenated as string.
+	 * For instance, consider the method
+	 * <blockquote><pre>
+	 * Object someMethod(int i, double d, Thread t) {...}
+	 * </pre></blockquote>
+	 * The method name is <code>someMethod</code> and the method descriptor is
+	 * <blockquote><pre>
+	 * (IDLjava/lang/Thread;)Ljava/lang/Object;
+	 * </pre></blockquote>
+	 * The concatenation of method name and descriptor therefore is
+	 * <blockquote><pre>
+	 * someMethod(IDLjava/lang/Thread;)Ljava/lang/Object;
+	 * </pre></blockquote>
+	 * Any constructor of a given class has the special name <code>&lt;init&gt;</code>.
+	 * </p>
+	 * <p>
+	 * For more thorough information about method descriptors refer to the
+	 * <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3">The Java® Virtual Machine Specification</a>.
+	 * </p>
+	 *
+	 * @return the method name and descriptor of the target method
+	 */
 	public abstract String getTargetMethod();
+
+	/**
+	 * Returns the cyclomatic complexity of the target method (as given by
+	 * {@link TestFitnessFunction#getTargetMethod()}).
+	 *
+	 * @return the cyclomatic complexity of the target method
+	 */
+    int getCyclomaticComplexity() {
+		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
+		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
+		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
+
+		if (cyclomaticComplexity < 1) { // Lazy initialization of the cyclomaticComplexity field
+			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+			final GraphPool gp = GraphPool.getInstance(cl);
+			final RawControlFlowGraph cfg = gp.getRawCFG(getTargetClass(), getTargetMethod());
+			cyclomaticComplexity = cfg.getCyclomaticComplexity();
+		}
+
+		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
+
+    	return cyclomaticComplexity;
+	}
 }
