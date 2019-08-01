@@ -22,6 +22,7 @@ package org.evosuite;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
+import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.contracts.ContractChecker;
@@ -553,7 +554,11 @@ public class TestSuiteGenerator {
                     + "WARNING: Not including the runtime dependencies is likely to lead to flaky tests!");
 		}
 		else if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
-			compileAndCheckTests(testSuite);
+			// TODO remove true
+			if(ClassPathHacker.isJunitCheckAvailable() || true)
+				compileAndCheckTests(testSuite);
+			else
+				logger.warn("Cannot run Junit tests. Cause: {}",ClassPathHacker.getCause());
 		}
 
 		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {

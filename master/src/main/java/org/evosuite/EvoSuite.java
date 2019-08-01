@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javassist.ClassPath;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -225,6 +226,12 @@ public class EvoSuite {
 
             CommandLineParameters.handleJVMOptions(javaOpts, line);
 
+
+            if (!ClassPathHacker.isJunitCheckAvailable()){
+                if(Properties.JUNIT_CHECK && Properties.FORCE_JUNIT_CHECK){
+                    throw new IllegalStateException(ClassPathHacker.getCause());
+                }
+            }
 
             if (line.hasOption("base_dir")) {
                 base_dir_path = line.getOptionValue("base_dir");

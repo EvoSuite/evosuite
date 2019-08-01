@@ -1088,6 +1088,11 @@ public class Properties {
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
 
+
+	@Parameter(key = "force_junit_check", group = "Output", description = "If this flag is set, the program exits, if the program can not run the test. Otherwise a warning is printed")
+	public static boolean FORCE_JUNIT_CHECK = true;
+
+
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV, HTML, DEBUG;
 	}

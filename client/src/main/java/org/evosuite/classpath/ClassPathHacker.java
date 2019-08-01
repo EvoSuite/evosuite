@@ -45,6 +45,10 @@ public class ClassPathHacker {
 
 	private static final Class<?>[] parameters = new Class[] { URL.class };
 
+	private static boolean junitCheckAvailable = true;
+
+	private static String cause = "";
+
 	//public static URLClassLoader urlClassLoader;
 	/**
 	 * Locate and add to classpath the tools.jar.
@@ -56,8 +60,11 @@ public class ClassPathHacker {
 	 * to be sure we can use tools.jar
 	 */
 	public static void initializeToolJar() throws RuntimeException {
-		if(SystemUtils.IS_JAVA_11 || SystemUtils.IS_JAVA_10 || SystemUtils.IS_JAVA_9)
+		if(SystemUtils.IS_JAVA_11 || SystemUtils.IS_JAVA_10 || SystemUtils.IS_JAVA_9) {
+			junitCheckAvailable = false;
+			cause = "Running the junit tests on Java >8 is not available yet";
 			return;
+		}
 		ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
 		locator.getLoaderForToolsJar();
 		if (locator.getLocationNotOnClasspath() != null) {
@@ -69,6 +76,14 @@ public class ClassPathHacker {
 			}
 		}
 
+	}
+
+	public static String getCause(){
+		return cause;
+	}
+
+	public static boolean isJunitCheckAvailable(){
+		return junitCheckAvailable;
 	}
 
 	/**

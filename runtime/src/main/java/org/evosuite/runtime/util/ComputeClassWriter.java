@@ -19,22 +19,14 @@
  */
 package org.evosuite.runtime.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.Policy;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A ClassWriter that computes the common super class of two classes without
@@ -192,7 +184,6 @@ public class ComputeClassWriter extends ClassWriter {
      *             if the bytecode of 'type' cannot be found.
      */
     private ClassReader typeInfo(final String type) throws IOException, NullPointerException {
-        // In Java 9+ this method throws a NullPointerException for type = "java/lang/RuntimeException"
         logger.info("Computing type info for: {}", type);
         InputStream is = l.getResourceAsStream(type + ".class");
         logger.debug("Loaded stream-is: {}",is);
