@@ -555,7 +555,7 @@ public class TestSuiteGenerator {
 		}
 		else if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
 			// TODO remove true
-			if(ClassPathHacker.isJunitCheckAvailable() || true)
+			if(ClassPathHacker.isJunitCheckAvailable())
 				compileAndCheckTests(testSuite);
 			else
 				logger.warn("Cannot run Junit tests. Cause: {}",ClassPathHacker.getCause());

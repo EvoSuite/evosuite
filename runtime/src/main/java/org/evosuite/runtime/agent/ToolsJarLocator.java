@@ -55,7 +55,8 @@ public class ToolsJarLocator {
 	 * @throws RuntimeException  if it was not possible to locate/load tools.jar
 	 */
 	public ClassLoader getLoaderForToolsJar() throws RuntimeException{
-		if(SystemUtils.IS_JAVA_11 || SystemUtils.IS_JAVA_10 || SystemUtils.IS_JAVA_9){
+		Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
+		if(javaVersion >= 9){
 			try {
 				Class<?> clazz  = Class.forName(EXAMPLE_CLASS);
 				return clazz.getClassLoader();

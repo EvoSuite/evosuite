@@ -60,9 +60,12 @@ public class ClassPathHacker {
 	 * to be sure we can use tools.jar
 	 */
 	public static void initializeToolJar() throws RuntimeException {
-		if(SystemUtils.IS_JAVA_11 || SystemUtils.IS_JAVA_10 || SystemUtils.IS_JAVA_9) {
-			junitCheckAvailable = false;
+		Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
+		if(javaVersion >= 9) {
+			/*junitCheckAvailable = false;
 			cause = "Running the junit tests on Java >8 is not available yet";
+			return; */
+			// running junit tests only causes errors when executing the jar in IntelliJ
 			return;
 		}
 		ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
