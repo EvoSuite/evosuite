@@ -177,6 +177,15 @@ public class EvoSuite {
                 javaOpts.add("-Dcriterion=regression");
             }
 
+            if (line.hasOption("propertyfile")) {
+                javaOpts.add("-Dpropertyfile=" + line.getOptionValue("propertyfile"));
+                try {
+                    Properties.getInstance().setValue("propertyfile", line.getOptionValue("propertyfile"));
+                } catch (Exception e) {
+                    throw new Error("Invalid value for propertyfile: "+e.getMessage());
+                }
+            }
+
             if (line.hasOption("parallel")) {
                 String[] values = line.getOptionValues("parallel");
 

@@ -564,7 +564,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //
 //            return (0.5 * new_result);
             //mycode ends
-            return spectrum.getVrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity() * spectrum.basicCoverage();
+            return (1.0 - spectrum.getSecondOrderDiversity());
         }
 
         case VCDDU:{
@@ -661,7 +661,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //            appendStrToFile("/tmp/feature_dump_VCDDU.csv", data_dump);
 //            //data_dump = "";
 //            return (0.5 - (0.5 * result));
-             return spectrum.getVCrho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+             return spectrum.getSecondOrderDiversitybyDistance();
         }
             //mycode ends
 
@@ -884,7 +884,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
         //mycode ends
 			//return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
 		case VRDDU:
-		    return spectrum.getVRrho();
+		    return spectrum.getAmbiguity();
 		case AES:
 		default: {
 //            iteration++;

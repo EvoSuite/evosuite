@@ -25,13 +25,13 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     private Map<Integer, Integer> falseMap;
     private Map<String, Integer> branchlessMethodsMap;
     //    private Map<Integer, BranchDetails> branchToMethodMap;  //mycode Integer=component_number
-    private Map<String, Double> suspiciousnesScores;         //mycode String=classname+"."+method_name, Double = Suspiciousness_score, contains the liklihood values
-    private Map<Integer, Double> weights;                    //mycode Integer=component_number, Double=Suspiciousness, contains the liklihood values of the components
-    private boolean mode;               //mode = false => uniform distribution
+    //private Map<String, Double> suspiciousnesScores;         //mycode String=classname+"."+method_name, Double = Suspiciousness_score, contains the liklihood values
+    //private Map<Integer, Double> weights;                    //mycode Integer=component_number, Double=Suspiciousness, contains the liklihood values of the components
+    //private boolean mode;               //mode = false => uniform distribution
     private int numberOfGoals = 0;
-    private static int count = 0;
-    private double sumWeights = -1d;
-    private static double otherWeight = 0d;
+    //private static int count = 0;
+    //private double sumWeights = -1d;
+    //private static double otherWeight = 0d;
 
     public AESBranchCoverageSuiteFitness(Metric metric) {
         super(metric);
@@ -59,8 +59,15 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
                 if (ff instanceof BranchCoverageTestFitness) {
                     BranchCoverageTestFitness goal = (BranchCoverageTestFitness) ff;
 
+                    if (goal.getBranch() == null) { // branchless method
+                        branchlessMethodsMap.put(goal.getClassName() + "." + goal.getMethod(), g);
+                    } else if (goal.getBranchExpressionValue()) { // true branch
+                        trueMap.put(goal.getBranch().getActualBranchId(), g);
+                    } else { // false branch
+                        falseMap.put(goal.getBranch().getActualBranchId(), g);
+                    }
                     //map it to the prior
-                    branchToSuspiciousnessMap(goal, g);
+                    /*branchToSuspiciousnessMap(goal, g);
                     if (goal.getBranch() == null) { // branchless method{
                         branchlessMethodsMap.put(goal.getClassName() + "." + goal.getMethod(), g);
 //                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), -1, true, -1));
@@ -70,13 +77,13 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
                     } else { // false branch
                         falseMap.put(goal.getBranch().getActualBranchId(), g);
 //                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), goal.getBranch().getActualBranchId(), false, goal.getBranch().getInstruction().getLineNumber()));
-                    }
+                    }*/
                 }
             }
         }
     }
 
-    protected void readOtherWeight(String filepath)
+    /*protected void readOtherWeight(String filepath)
     {
         BufferedReader reader = null;
         try{
@@ -85,17 +92,17 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         }catch (IOException e){
             otherWeight = 0d;
         }
-    }
+    }*/
     @Override
     protected Spectrum getSpectrum(List<ExecutionResult> results) {
 
         //get the likelihoods
-        if (count == 0) {
+        /*if (count == 0) {
             extract_data(System.getenv("PRIOR_VAL"));
             readOtherWeight(System.getenv("OTHER_PRIOR_VAL"));
 
         }
-        count++;
+        count++;*/
         determineCoverageGoals();
         Spectrum spectrum = new Spectrum(results.size(), this.numberOfGoals);
 
@@ -125,7 +132,7 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         return spectrum;
     }
 
-    private void extract_data(String filename) {
+    /*private void extract_data(String filename) {
         JSONParser jsonParser = new JSONParser();
         try {
             FileReader reader = new FileReader(filename);
@@ -194,14 +201,16 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
             sumWeights = sumWeights + temp;
         }
 
-    }
+    }*/
 
     protected Map<Integer, Double> getWeights() {
-        return weights;
+        //return weights;
+        return null;
     }
 
     protected double getSumWeights() {
-        return sumWeights;
+        //return sumWeights;
+        return 0d;
     }
 
 

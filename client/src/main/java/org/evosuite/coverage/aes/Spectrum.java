@@ -1,6 +1,8 @@
 	package org.evosuite.coverage.aes;
 
 
+	//import jdk.jfr.Threshold;
+
 	import java.util.ArrayList;
 	import java.util.BitSet;
 	import java.util.HashSet;
@@ -1065,6 +1067,100 @@
 
 			double coverage = (double) activations.cardinality() / (double) components;
 			return coverage;
+		}
+
+		public double getSecondOrderDiversity() {
+			if (!this.isValidMatrix()) return 1d;
+
+			double prob = 0.2;
+			int threshold = 3;
+			ArrayList<BitSet> A = this.transactions;
+			int rows = this.getNumTransactions();
+			int cols = this.getNumComponents();
+			int[][] similarity = new int[cols][cols];
+			int[][]similarityCount = new int[cols][threshold+1];
+			double result = 0d;
+			for(int i = 0; i < cols; i++) {
+				for (int j = i + 1; j < cols; j++) {
+					for (int k = 0; k < rows; k++) {
+						if (A.get(k).get(i) != A.get(k).get(j))
+							similarity[i][j]++;
+						if (similarity[i][j] == threshold)
+							break;
+					}
+				}
+			}
+			for(int i = 0; i < cols; i++) {
+				for(int j = 0; j < cols; j++) {
+					if(i > j)
+						similarityCount[i][similarity[i][j]]++;
+					else if(j > i)
+						similarityCount[i][similarity[j][i]]++;
+				}
+			}
+			double score = 0d;
+			for(int i = 0; i < cols; i++) {
+				int numworld = 0;
+				double sum = 0d;
+				for (int j = 0; j < rows; j++) {
+					if(A.get(j).get(i) == true)
+						numworld++;
+				}
+				threshold = Math.min(threshold, numworld);
+				for (int j = 0; j <= threshold; j++) {
+					int nchoosek = computenchoosek(threshold, j);
+					sum = sum + (double)nchoosek * Math.pow( (prob/(1-prob)) , j) * similarityCount[i][j];
+				}
+				/*sum = sum + (double)similarityCount[i][0];
+				if(numworld >= 1)
+					sum = sum + numworld * prob * Math.pow((1-prob), (numworld-1)) * (double)similarityCount[i][1];
+				if(numworld >= 2)
+					sum = sum + ((numworld * (numworld-1))/2.0) * prob * Math.pow((1-prob), (numworld-2)) * (double)similarityCount[i][2];
+				for(int j = 0; j < threshold; j++) {
+
+				}
+				sum = sum / (1 + numworld + ((numworld * (numworld-1))/2.0));*/
+				sum = sum / ((double)cols-1);
+				score = score + sum;
+			}
+			score = score / cols;
+			return score;
+		}
+
+		public int computenchoosek(int n, int k)
+		{
+			if(k == 0) return 1;
+			int result = 1;
+			int kfactorial = 1;
+			for(int i = 0; i < k ; i++) {
+				result = result * (n-i);
+				kfactorial = kfactorial * (k-i);
+			}
+			return (result/kfactorial);
+		}
+
+		public double getSecondOrderDiversitybyDistance() {
+			if (!this.isValidMatrix()) return 0d;
+			int threshold = 2;
+			ArrayList<BitSet> A = this.transactions;
+			int rows = this.getNumTransactions();
+			int cols = this.getNumComponents();
+			int[][] pairwiseDistance = new int[cols][cols];
+			int minDist = rows;
+			for(int i = 0; i < cols ; i++) {
+				for(int j = i+1; i < cols ; i++) {
+					for (int k = 0; k < rows; k++) {
+						if(A.get(k).get(i) != A.get(k).get(j))
+							pairwiseDistance[i][j]++;
+					}
+					if(pairwiseDistance[i][j] < minDist)
+						minDist = pairwiseDistance[i][j];
+				}
+			}
+			if(minDist < threshold)
+				return  0d;
+			else
+				return 1d;
 		}
 
 
