@@ -25,11 +25,7 @@ package org.evosuite.utils.generic;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,27 +41,54 @@ import com.googlecode.gentyref.GenericTypeReflector;
 import org.evosuite.utils.LoggingUtils;
 
 /**
+ * A wrapper class around {@link java.lang.reflect.Method Method} from the Java Reflection API,
+ * aimed at simplifying the work with methods that feature generics.
+ *
  * @author Gordon Fraser
  *
  */
-public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
+public class GenericMethod extends GenericExecutableMember<GenericMethod, Method> {
 
 	private static final long serialVersionUID = 6091851133071150237L;
 
+	/**
+	 * The enclosed {@link java.lang.reflect.Method Method} object.
+	 */
 	private transient Method method;
 
+	/**
+	 * Constructs a new {@code GenericMethod} according to the specified Java Reflection {@code
+	 * Method} object and the given owning {@code type}.
+	 *
+	 * @param method the method to enclose
+	 * @param type the owning type of the {@code method}
+	 */
 	public GenericMethod(Method method, GenericClass type) {
 		super(new GenericClass(type));
 		this.method = method;
 		Inputs.checkNull(method, type);
 	}
 
+	/**
+	 * Constructs a new {@code GenericMethod} according to the specified Java Reflection {@code
+	 * Method} object and the given owning {@code type}.
+	 *
+	 * @param method the method to enclose
+	 * @param type the owning type of the {@code method}
+	 */
 	public GenericMethod(Method method, Class<?> type) {
 		super(new GenericClass(type));
 		this.method = method;
 		Inputs.checkNull(method, type);
 	}
 
+	/**
+	 * Constructs a new {@code GenericMethod} according to the specified Java Reflection {@code
+	 * Method} object and the given owning {@code type}.
+	 *
+	 * @param method the method to enclose
+	 * @param type the owning type of the {@code method}
+	 */
 	public GenericMethod(Method method, Type type) {
 		super(new GenericClass(type));
 		this.method = method;
@@ -95,6 +118,11 @@ public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
 		return copy;
 	}
 
+	/**
+	 * Returns the Java Reflection {@code Method} object enclosed by this instance.
+	 *
+	 * @return the Java Reflection {@code Method} object
+	 */
 	public Method getMethod() {
 		return method;
 	}
@@ -111,8 +139,14 @@ public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
 		return method.getDeclaringClass();
 	}
 
+	@Override
 	public Type[] getParameterTypes() {
 		return getExactParameterTypes(method, owner.getType());
+	}
+
+	@Override
+	public Parameter[] getParameters() {
+		return method.getParameters();
 	}
 
 	public List<GenericClass> getParameterClasses() {
@@ -133,6 +167,7 @@ public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
 		return method.getGenericParameterTypes();
 	}
 
+	@Override
 	public Class<?>[] getRawParameterTypes() {
 		return method.getParameterTypes();
 	}
@@ -142,6 +177,7 @@ public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
 		return getReturnType();
 	}
 
+	@Override
 	public Type getReturnType() {
 		Type returnType = getExactReturnType(method, owner.getType());
 		if (returnType == null) {
@@ -268,6 +304,7 @@ public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
 	}
 
 
+	@Override
 	public boolean isOverloaded(List<VariableReference> parameters) {
 		String methodName = getName();
 		Class<?> declaringClass = method.getDeclaringClass();
@@ -325,10 +362,12 @@ public class GenericMethod extends GenericAccessibleMember<GenericMethod> {
 		return method.getName();
 	}
 
+	@Override
 	public String getNameWithDescriptor() {
 		return method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
 	}
 
+	@Override
 	public String getDescriptor() {
 		return org.objectweb.asm.Type.getMethodDescriptor(method);
 	}

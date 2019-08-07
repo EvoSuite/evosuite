@@ -25,11 +25,7 @@ package org.evosuite.utils.generic;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
@@ -44,7 +40,8 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericConstructor extends GenericAccessibleMember<GenericConstructor> {
+public class GenericConstructor extends GenericExecutableMember<GenericConstructor,
+		Constructor<?>> {
 
 	private static final long serialVersionUID = 1361882947700615341L;
 
@@ -191,10 +188,12 @@ public class GenericConstructor extends GenericAccessibleMember<GenericConstruct
 		return constructor.getName();
 	}
 
+	@Override
 	public String getNameWithDescriptor() {
 		return "<init>" + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 	}
 
+	@Override
 	public String getDescriptor() {
 		return org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 	}
@@ -222,10 +221,17 @@ public class GenericConstructor extends GenericAccessibleMember<GenericConstruct
 		return types;
 	}
 
+	@Override
+	public Parameter[] getParameters() {
+		return constructor.getParameters();
+	}
+
+	@Override
 	public Type[] getRawParameterTypes() {
 		return constructor.getParameterTypes();
 	}
 
+	@Override
 	public Type getReturnType() {
 		return owner.getType();
 	}
@@ -253,6 +259,7 @@ public class GenericConstructor extends GenericAccessibleMember<GenericConstruct
 		return Modifier.isStatic(constructor.getModifiers());
 	}
 
+	@Override
 	public boolean isOverloaded(List<VariableReference> parameters) {
 		Class<?> declaringClass = constructor.getDeclaringClass();
 		Class<?>[] parameterTypes = constructor.getParameterTypes();
@@ -367,6 +374,4 @@ public class GenericConstructor extends GenericAccessibleMember<GenericConstruct
 			return false;
 		return true;
 	}
-
-
 }
