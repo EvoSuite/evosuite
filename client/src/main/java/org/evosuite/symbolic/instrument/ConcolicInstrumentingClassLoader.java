@@ -38,18 +38,18 @@ import org.objectweb.asm.Type;
 /**
  * A ClassLoader very similar to the <code>org.evosuite.javaagent.InstrumentingClassLoader</code>
  * It must instrument java bytecode to allow recording constraints on the program.
- * 
+ *
  * @author galeotti
  *
  */
 public class ConcolicInstrumentingClassLoader extends ClassLoader {
-	
+
 	//private final static Logger logger = LoggerFactory.getLogger(DscInstrumentingClassLoader.class);
 
 	private final ClassLoader classLoader;
 	private final ConcolicBytecodeInstrumentation instrumentation;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
-	
+
 	public ConcolicInstrumentingClassLoader() {
 		super(ConcolicInstrumentingClassLoader.class.getClassLoader());
 		this.instrumentation = new ConcolicBytecodeInstrumentation();
@@ -90,7 +90,7 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 
 	}
 
-	
+
 	private boolean checkIfCanInstrument(String name) {
 		return !MainConfig.get().isIgnored(name);
 	}
@@ -122,9 +122,9 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 			throw new ClassNotFoundException(e.getMessage(), e);
 		}
 	}
-	
+
 	private InputStream findTargetResource(String name) throws FileNotFoundException {
-		Collection<String> resources = ResourceList.findResourceInClassPath(name); 
+		Collection<String> resources = ResourceList.findResourceInClassPath(name);
 		if (resources.isEmpty())
 			throw new FileNotFoundException(name);
 		else {
@@ -138,64 +138,24 @@ public class ConcolicInstrumentingClassLoader extends ClassLoader {
 
 	/**
 	 * Loads class named className, without initializing it.
-	 * 
+	 *
 	 * @param className
 	 *            either as p/q/MyClass or as p.q.MyClass
 	 */
 	public Class<?> getClassForName(String className) {
-		notNull(className);
-	
-		Class<?> res = null;
-		String classNameDot = className.replace('/', '.');
-		try {
-			res = this.loadClass(classNameDot);
-		} catch (ClassNotFoundException cnfe) {
-			check(false, cnfe);
-		}
-		return notNull(res);
+		return ClassLoaderUtils.getClassForName(this, className);
 	}
 
 
 
 	/**
 	 * Loads class whose type is aType, without initializing it.
-	 * 
+	 *
 	 * @param aType
 	 */
 	public Class<?> getClassForType(Type aType) {
-		switch (aType.getSort()) {
-		case Type.BOOLEAN:
-			return Boolean.TYPE;
-		case Type.BYTE:
-			return Byte.TYPE;
-		case Type.CHAR:
-			return Character.TYPE;
-		case Type.DOUBLE:
-			return Double.TYPE;
-		case Type.FLOAT:
-			return Float.TYPE;
-		case Type.INT:
-			return Integer.TYPE;
-		case Type.LONG:
-			return Long.TYPE;
-		case Type.SHORT:
-			return Short.TYPE;
-		case Type.VOID:
-			return Void.TYPE;
-		case Type.ARRAY: {
-			Class<?> elementClass = this.getClassForType(aType.getElementType());
-			int dimensions = aType.getDimensions();
-			int[] lenghts = new int[dimensions];
-			Class<?> array_class = Array.newInstance(elementClass, lenghts)
-					.getClass();
-			return array_class;
-	
-		}
-		default:
-			return this.getClassForName(aType.getInternalName());
-	
-		}
+		return ClassLoaderUtils.getClassForType(this, aType);
 	}
-	
+
 
 }
