@@ -22,7 +22,7 @@ public class AbstractErrorBranchTest extends SystemTestBase {
         Properties.TARGET_CLASS = targetClassName;
         Properties.ASSERTIONS = false;
         Properties.JUNIT_TESTS = false;
-        Properties.JUNIT_CHECK = false;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.FALSE;
         Properties.CRITERION = new Properties.Criterion[] {Properties.Criterion.BRANCH, Properties.Criterion.TRYCATCH};
 
         String[] command = new String[] { "-generateSuite", "-class", targetClassName };

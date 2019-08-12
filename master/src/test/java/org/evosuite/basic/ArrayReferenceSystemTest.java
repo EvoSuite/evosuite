@@ -18,7 +18,7 @@ public class ArrayReferenceSystemTest extends SystemTestBase {
         Properties.TARGET_CLASS = targetClass;
 
         Properties.ASSERTIONS = false;
-        Properties.JUNIT_CHECK = false;
+        Properties.JUNIT_CHECK = Properties.JUnitCheckValues.FALSE;
         Properties.MINIMIZE = minimize;
         String[] command = new String[]{"-generateSuite", "-class", targetClass};
 

@@ -46,7 +46,7 @@ public class FinalSingletonArrayUserSystemTest extends SystemTestBase {
 		Properties.RESET_STATIC_FIELDS=true;
 		Properties.RESET_STATIC_FIELD_GETS = true;
 		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
 		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;

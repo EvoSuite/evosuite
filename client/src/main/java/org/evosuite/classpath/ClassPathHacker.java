@@ -49,7 +49,6 @@ public class ClassPathHacker {
 
 	private static String cause = "";
 
-	//public static URLClassLoader urlClassLoader;
 	/**
 	 * Locate and add to classpath the tools.jar.
 	 * It is important that tools.jar ends up in the classpath of the <emp>system</emp> classloader,
@@ -75,7 +74,10 @@ public class ClassPathHacker {
 				logger.info("Using JDK libraries at: " + locator.getLocationNotOnClasspath());
 				addFile(locator.getLocationNotOnClasspath());  //FIXME needs refactoring
 			} catch (IOException e) {
-				throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
+				cause = "Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath";
+				junitCheckAvailable = false;
+				//throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
+				return;
 			}
 		}
 
@@ -127,7 +129,6 @@ public class ClassPathHacker {
 				method.setAccessible(true);
 				method.invoke(sysloader, u);
 			} catch (Throwable t) {
-				t.printStackTrace();
 				throw new IOException("Error, could not add URL to system classloader");
 			}
 			logger.info("Successfully added " + u + " to class path");
