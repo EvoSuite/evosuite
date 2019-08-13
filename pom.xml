@@ -247,10 +247,9 @@
                 <jdk>9</jdk>
             </activation>
             <properties>
-                <compiler.argline.modules>--add-modules=java.activation,java.xml.bind,java.xml.ws,java.xml.ws.annotation</compiler.argline.modules>
-                <compiler.argline.opens>--add-opens=java.base/java.lang=ALL-UNNAMED</compiler.argline.opens>
+                <compiler.argline.modules>--add-modules=java.xml.bind</compiler.argline.modules>
                 <compiler.target>1.9</compiler.target>
-                <compiler.source>1.9</compiler.source>
+                <compiler.source>1.8</compiler.source>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -286,7 +285,6 @@
                 <compiler.target>1.8</compiler.target>
                 <compiler.source>1.8</compiler.source>
                 <compiler.argline.modules></compiler.argline.modules>
-                <compiler.argline.opens></compiler.argline.opens>
             </properties>
         </profile>
     </profiles>
@@ -727,10 +725,9 @@
                     <target>${compiler.target}</target>
                     <compilerArgs>
                         <arg>${compiler.argline.modules}</arg>
-                        <arg>${compiler.argline.opens}</arg>
                     </compilerArgs>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <fork>true</fork>
+                    <!--<fork>true</fork>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -791,7 +788,7 @@
                         <exclude>${integrationTests}</exclude>
                         <exclude>${systemTests}</exclude>
                     </excludes>
-                    <argLine> ${compiler.argline.modules} ${compiler.argline.opens} -Xms512m -Xmx4096m </argLine>
+                    <argLine> ${compiler.argline.modules} -Xms512m -Xmx4096m </argLine>
                     <systemProperties>
                     <property>
                         <name>jdk.attach.allowAttachSelf</name>
@@ -817,7 +814,6 @@
                             <value>true</value>
                         </property>
                     </systemProperties>
-                    <argLine>${plugins.argline}</argLine>
                 </configuration>
                 <executions>
                     <execution>
