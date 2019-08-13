@@ -19,7 +19,6 @@
  */
 package org.evosuite.runtime.agent;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.runtime.util.JarPathing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
