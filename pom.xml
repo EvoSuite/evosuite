@@ -241,6 +241,54 @@
                 </plugins>
             </reporting>
         </profile>
+        <profile>
+            <id>Java-9</id>
+            <activation>
+                <jdk>9</jdk>
+            </activation>
+            <properties>
+                <compiler.argline.modules>--add-modules=java.activation,java.xml.bind,java.xml.ws,java.xml.ws.annotation</compiler.argline.modules>
+                <compiler.argline.opens>--add-opens=java.base/java.lang=ALL-UNNAMED</compiler.argline.opens>
+                <compiler.target>1.9</compiler.target>
+                <compiler.source>1.9</compiler.source>
+            </properties>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                        <version>2.3.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                        <version>2.3.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>jaxb-runtime</artifactId>
+                        <version>2.3.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                        <version>1.1.1</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+        <profile>
+            <id>Java-8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <compiler.target>1.8</compiler.target>
+                <compiler.source>1.8</compiler.source>
+                <compiler.argline.modules></compiler.argline.modules>
+                <compiler.argline.opens></compiler.argline.opens>
+            </properties>
+        </profile>
     </profiles>
 
 
@@ -257,6 +305,8 @@
                 <scope>system</scope>
                 <systemPath>${toolsjar}</systemPath>
             </dependency>-->
+
+
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -673,9 +723,14 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${compiler.source}</source>
+                    <target>${compiler.target}</target>
+                    <compilerArgs>
+                        <arg>${compiler.argline.modules}</arg>
+                        <arg>${compiler.argline.opens}</arg>
+                    </compilerArgs>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <fork>true</fork>
                 </configuration>
             </plugin>
             <plugin>
@@ -683,7 +738,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-                    <source>1.8</source>
+                    <source>${compiler.source}</source>
                     <additionalOptions>-Xdoclint:none</additionalOptions>
                 </configuration>
             </plugin>
@@ -736,7 +791,7 @@
                         <exclude>${integrationTests}</exclude>
                         <exclude>${systemTests}</exclude>
                     </excludes>
-                    <argLine> -Xms512m -Xmx4096m </argLine>
+                    <argLine> ${compiler.argline.modules} ${compiler.argline.opens} -Xms512m -Xmx4096m </argLine>
                     <systemProperties>
                     <property>
                         <name>jdk.attach.allowAttachSelf</name>
@@ -762,6 +817,7 @@
                             <value>true</value>
                         </property>
                     </systemProperties>
+                    <argLine>${plugins.argline}</argLine>
                 </configuration>
                 <executions>
                     <execution>
@@ -925,8 +981,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
-
             </plugins>
         </pluginManagement>
     </build>
