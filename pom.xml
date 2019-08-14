@@ -241,23 +241,20 @@
                 </plugins>
             </reporting>
         </profile>
+        <!--
+        does not work
         <profile>
             <id>Java-9</id>
             <activation>
                 <jdk>9</jdk>
             </activation>
             <properties>
-                <compiler.argline.modules>--add-modules=java.xml.bind</compiler.argline.modules>
+                <compiler.argline.modules>-add-modules=java.xml.bind</compiler.argline.modules>
                 <compiler.target>1.9</compiler.target>
                 <compiler.source>1.8</compiler.source>
             </properties>
             <dependencyManagement>
                 <dependencies>
-                    <dependency>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                        <version>2.3.0</version>
-                    </dependency>
                     <dependency>
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
@@ -276,6 +273,7 @@
                 </dependencies>
             </dependencyManagement>
         </profile>
+        -->
         <profile>
             <id>Java-8</id>
             <activation>
@@ -303,13 +301,6 @@
                 <scope>system</scope>
                 <systemPath>${toolsjar}</systemPath>
             </dependency>-->
-
-
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.3.0</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
