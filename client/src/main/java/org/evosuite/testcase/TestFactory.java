@@ -945,8 +945,8 @@ public class TestFactory {
 	 * @return a reference to the created object
 	 * @throws ConstructionFailedException if creation fails
 	 */
-	protected VariableReference attemptObjectGeneration(TestCase test, int position,
-	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
+	protected VariableReference attemptInstantiationOfObjectClass(TestCase test, int position,
+																  int recursionDepth, boolean allowNull) throws ConstructionFailedException {
 
 		if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 			logger.debug("Using a null reference to satisfy the type: {}", Object.class);
@@ -1533,7 +1533,7 @@ public class TestFactory {
 	        throws ConstructionFailedException {
 
 		if (Properties.SEED_TYPES && parameterType.equals(Object.class)) {
-			return createOrReuseObjectVariable(test, position, recursionDepth, exclude, allowNull, canUseMocks);
+			return createOrReuseVariableForObjectClass(test, position, recursionDepth, exclude, allowNull, canUseMocks);
 		}
 
 		double reuse = Randomness.nextDouble();
@@ -1814,7 +1814,7 @@ public class TestFactory {
 		}
 		logger.debug("Attempting object generation");
 
-		return attemptObjectGeneration(test, position, recursionDepth, allowNull);
+		return attemptInstantiationOfObjectClass(test, position, recursionDepth, allowNull);
 
 	}
 
