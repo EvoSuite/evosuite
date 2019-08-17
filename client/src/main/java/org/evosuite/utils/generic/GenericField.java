@@ -40,7 +40,7 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericField extends GenericAccessibleMember<GenericField> {
+public class GenericField extends GenericAccessibleObject<GenericField> {
 
 	private static final long serialVersionUID = -2344346234923642901L;
 

@@ -36,7 +36,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.ExecutionTracer;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
@@ -58,13 +58,13 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	protected static final Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
-	private static Set<GenericAccessibleMember<?>> attemptedMethods = new LinkedHashSet<GenericAccessibleMember<?>>();
+	private static Set<GenericAccessibleObject<?>> attemptedMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	/** Methods we have not already seen */
-	private static Set<GenericAccessibleMember<?>> remainingMethods = new LinkedHashSet<GenericAccessibleMember<?>>();
+	private static Set<GenericAccessibleObject<?>> remainingMethods = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	/** Methods we have to cover */
-	private static List<GenericAccessibleMember<?>> allMethods = new LinkedList<GenericAccessibleMember<?>>();
+	private static List<GenericAccessibleObject<?>> allMethods = new LinkedList<GenericAccessibleObject<?>>();
 
 	/**
 	 * Create a list of all methods
@@ -100,7 +100,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 			if (remainingMethods.size() == 0) {
 				reset();
 			}
-			GenericAccessibleMember<?> call = Randomness.choice(remainingMethods);
+			GenericAccessibleObject<?> call = Randomness.choice(remainingMethods);
 			attemptedMethods.add(call);
 			remainingMethods.remove(call);
 

@@ -33,7 +33,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.numeric.CharPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.generic.GenericMethod;
@@ -87,7 +87,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 	@Test
 	public void testTestCalls() throws ConstructionFailedException,
 	        NoSuchMethodException, SecurityException {
-		List<GenericAccessibleMember<?>> testCalls = TestCluster.getInstance().getTestCalls();
+		List<GenericAccessibleObject<?>> testCalls = TestCluster.getInstance().getTestCalls();
 		System.out.println(testCalls.toString());
 		assertEquals("Expected 5 test calls, but got: " + testCalls.size() + ": "
 		        + testCalls, 4, testCalls.size());

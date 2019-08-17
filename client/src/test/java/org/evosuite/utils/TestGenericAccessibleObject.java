@@ -53,7 +53,7 @@ import com.googlecode.gentyref.TypeToken;
  * @author Gordon Fraser
  *
  */
-public class TestGenericAccessibleMember {
+public class TestGenericAccessibleObject {
 
 	@Test
 	public void testGenericMethod() throws SecurityException, NoSuchMethodException,
@@ -68,7 +68,7 @@ public class TestGenericAccessibleMember {
 		Assert.assertFalse(parameters.get(0).hasTypeVariables());
 		Assert.assertTrue(parameters.get(0).hasWildcardTypes());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiation();
+		GenericMethod instantiatedMethod = (GenericMethod) genericMethod.getGenericInstantiation();
 		parameters = instantiatedMethod.getParameterClasses();
 		Assert.assertFalse(parameters.get(0).hasTypeVariables());
 		Assert.assertFalse(parameters.get(0).hasWildcardTypes());
@@ -88,7 +88,7 @@ public class TestGenericAccessibleMember {
 		Assert.assertTrue(parameters.get(0).hasWildcardTypes());
 		Assert.assertTrue(genericMethod.getGeneratedClass().hasWildcardTypes());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiation();
+		GenericMethod instantiatedMethod = (GenericMethod) genericMethod.getGenericInstantiation();
 		parameters = instantiatedMethod.getParameterClasses();
 		Assert.assertFalse(parameters.get(0).hasTypeVariables());
 		Assert.assertFalse(parameters.get(0).hasWildcardTypes());
@@ -135,7 +135,7 @@ public class TestGenericAccessibleMember {
 		Assert.assertTrue(parameters.get(0).hasWildcardTypes());
 		Assert.assertTrue(genericMethod.getGeneratedClass().hasWildcardTypes());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiation();
+		GenericMethod instantiatedMethod = (GenericMethod) genericMethod.getGenericInstantiation();
 		parameters = instantiatedMethod.getParameterClasses();
 		Assert.assertFalse(parameters.get(0).hasTypeVariables());
 		Assert.assertFalse(parameters.get(0).hasWildcardTypes());
@@ -180,7 +180,7 @@ public class TestGenericAccessibleMember {
 		System.out.println(genericMethod.getGeneratedClass().toString());
 		Assert.assertTrue(genericMethod.getGeneratedClass().hasWildcardOrTypeVariables());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiation();
+		GenericMethod instantiatedMethod = (GenericMethod) genericMethod.getGenericInstantiation();
 		System.out.println(instantiatedMethod.getGeneratedClass().toString());
 		Assert.assertFalse(instantiatedMethod.getGeneratedClass().hasWildcardOrTypeVariables());
 	}
@@ -201,7 +201,8 @@ public class TestGenericAccessibleMember {
 		Assert.assertTrue(genericMethod.getGeneratedClass().hasWildcardOrTypeVariables());
 
 		System.out.println("------------------");
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(genericInstantiation);
+		GenericMethod instantiatedMethod =
+				(GenericMethod) genericMethod.getGenericInstantiationFromReturnValue(genericInstantiation);
 		System.out.println(instantiatedMethod.getGeneratedClass().toString());
 		Assert.assertFalse(instantiatedMethod.getGeneratedClass().hasWildcardOrTypeVariables());
 		Assert.assertEquals(genericInstantiation, instantiatedMethod.getGeneratedClass());
@@ -219,7 +220,8 @@ public class TestGenericAccessibleMember {
 		        new TypeToken<java.util.List<Integer>>() {
 		        }.getType());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType);
+		GenericMethod instantiatedMethod =
+				(GenericMethod) genericMethod.getGenericInstantiationFromReturnValue(generatedType);
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass(), generatedType);
 	}
 
@@ -235,7 +237,8 @@ public class TestGenericAccessibleMember {
 		        new TypeToken<com.examples.with.different.packagename.generic.GenericClassWithGenericMethodAndSubclass.Foo<String>>() {
 		        }.getType());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType);
+		GenericMethod instantiatedMethod =
+				(GenericMethod) genericMethod.getGenericInstantiationFromReturnValue(generatedType);
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getParameterTypes().get(0),
 		                    String.class);
 	}
@@ -251,11 +254,13 @@ public class TestGenericAccessibleMember {
 		GenericClass generatedType1 = new GenericClass(Integer.class);
 		GenericClass generatedType2 = new GenericClass(String.class);
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType2);
+		GenericMethod instantiatedMethod =
+				(GenericMethod)	genericMethod.getGenericInstantiationFromReturnValue(generatedType2);
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    String.class);
 
-		instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType1);
+		instantiatedMethod =
+				(GenericMethod) genericMethod.getGenericInstantiationFromReturnValue(generatedType1);
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    Integer.class);
 	}
@@ -271,7 +276,8 @@ public class TestGenericAccessibleMember {
 		        new TypeToken<com.examples.with.different.packagename.generic.GuavaExample4<java.lang.Iterable<Integer>>>() {
 		        }.getType());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(iterableIntegerClass);
+		GenericMethod instantiatedMethod =
+				(GenericMethod) genericMethod.getGenericInstantiationFromReturnValue(iterableIntegerClass);
 		System.out.println(instantiatedMethod.getGeneratedClass().toString());
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    GuavaExample4.class);
@@ -292,7 +298,8 @@ public class TestGenericAccessibleMember {
 		        new TypeToken<com.examples.with.different.packagename.generic.AbstractGenericClass<java.lang.Integer>>() {
 		        }.getType());
 
-		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(iterableIntegerClass);
+		GenericMethod instantiatedMethod =
+				(GenericMethod) genericMethod.getGenericInstantiationFromReturnValue(iterableIntegerClass);
 		System.out.println(instantiatedMethod.getGeneratedClass().toString());
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
@@ -302,7 +309,8 @@ public class TestGenericAccessibleMember {
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
 
-		instantiatedMethod = genericMethod.getGenericInstantiation(iterableIntegerClass);
+		instantiatedMethod =
+				(GenericMethod) genericMethod.getGenericInstantiation(iterableIntegerClass);
 		System.out.println(instantiatedMethod.getGeneratedClass().toString());
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
@@ -328,7 +336,8 @@ public class TestGenericAccessibleMember {
 		        new TypeToken<com.examples.with.different.packagename.generic.GenericClassTwoParameters<Integer, Integer>>() {
 		        }.getType());
 
-		GenericMethod genericCreatorMethod = new GenericMethod(creatorMethod, targetClass).getGenericInstantiationFromReturnValue(listOfInteger);
+		GenericMethod genericCreatorMethod = (GenericMethod) new GenericMethod(creatorMethod,
+				targetClass).getGenericInstantiationFromReturnValue(listOfInteger);
 		System.out.println(genericCreatorMethod.getGeneratedClass().toString());
 		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass).copyWithNewOwner(genericCreatorMethod.getGeneratedClass());
 		System.out.println(genericMethod.getGeneratedClass().toString());

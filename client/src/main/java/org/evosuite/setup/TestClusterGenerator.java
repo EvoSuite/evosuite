@@ -60,7 +60,7 @@ import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.generic.*;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
@@ -75,7 +75,7 @@ public class TestClusterGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
-	private final Set<GenericAccessibleMember<?>> dependencyCache = new LinkedHashSet<>();
+	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<>();
 
 	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<>();
 

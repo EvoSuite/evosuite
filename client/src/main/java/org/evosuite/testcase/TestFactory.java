@@ -86,7 +86,6 @@ import javax.servlet.http.HttpServlet;
 
 /**
  * @author Gordon Fraser
- *
  */
 public class TestFactory {
 

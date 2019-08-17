@@ -33,7 +33,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.clinit.FinalReferenceField;
@@ -61,7 +61,7 @@ public class TestFinalReferenceFieldIsNotAddedToCluster {
 		TestClusterGenerator gen = new TestClusterGenerator(tree);
 		assertNotNull(gen);
 		TestCluster cluster = TestCluster.getInstance();
-		List<GenericAccessibleMember<?>> testCalls = cluster.getTestCalls();
+		List<GenericAccessibleObject<?>> testCalls = cluster.getTestCalls();
 		assertEquals("Unexpected number of TestCalls", 2, testCalls.size());
 	}
 

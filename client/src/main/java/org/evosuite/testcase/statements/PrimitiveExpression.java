@@ -27,7 +27,7 @@ import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.Scope;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 
 // TODO-JRO Implement methods of PrimitiveExpression as needed
 
@@ -149,7 +149,7 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleMember<?> getAccessibleObject() {
+	public GenericAccessibleObject<?> getAccessibleObject() {
 		throw new UnsupportedOperationException(
 		        "Method getAccessibleObject not implemented!");
 	}

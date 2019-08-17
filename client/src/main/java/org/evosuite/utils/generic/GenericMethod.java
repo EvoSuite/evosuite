@@ -47,7 +47,7 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericMethod extends GenericExecutableMember<GenericMethod, Method> {
+public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 
 	private static final long serialVersionUID = 6091851133071150237L;
 

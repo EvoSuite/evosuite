@@ -24,7 +24,7 @@ import org.evosuite.runtime.util.Inputs;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,7 +184,7 @@ public class ConstraintVerifier {
         return dep;
     }
 
-    public static boolean isValidPositionForInsertion(GenericAccessibleMember<?> obj, TestCase tc, int pos)
+    public static boolean isValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int pos)
         throws IllegalArgumentException{
 
         Inputs.checkNull(obj,tc);
@@ -229,7 +229,7 @@ public class ConstraintVerifier {
      * @return position where the object can be inserted, otherwise a negative value if no insertion is possible
      * @throws IllegalArgumentException
      */
-    public static int getAValidPositionForInsertion(GenericAccessibleMember<?> obj, TestCase tc, int lastValid) throws IllegalArgumentException{
+    public static int getAValidPositionForInsertion(GenericAccessibleObject<?> obj, TestCase tc, int lastValid) throws IllegalArgumentException{
         Inputs.checkNull(obj,tc);
 
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
@@ -262,7 +262,7 @@ public class ConstraintVerifier {
         }
     }
 
-    private static int getMinPosForAfter(GenericAccessibleMember<?> obj, TestCase tc, int lastValid){
+    private static int getMinPosForAfter(GenericAccessibleObject<?> obj, TestCase tc, int lastValid){
 
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         Class<?> declaringClass = obj.getDeclaringClass();
@@ -286,7 +286,7 @@ public class ConstraintVerifier {
         return minPos;
     }
 
-    private static boolean canBeInsertedRegardlessOfPosition(GenericAccessibleMember<?> obj, TestCase tc){
+    private static boolean canBeInsertedRegardlessOfPosition(GenericAccessibleObject<?> obj, TestCase tc){
 
         Constraints constraints = obj.getAccessibleObject().getAnnotation(Constraints.class);
         if(constraints == null){

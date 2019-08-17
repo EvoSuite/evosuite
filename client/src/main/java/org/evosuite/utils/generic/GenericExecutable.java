@@ -15,13 +15,13 @@ import java.util.List;
  * @param <T>
  * @param <U>
  */
-public abstract class GenericExecutableMember<T extends GenericExecutableMember<?, ?>,
-        U extends Executable> extends GenericAccessibleMember<GenericExecutableMember<T, U>> {
+public abstract class GenericExecutable<T extends GenericExecutable<?, ?>,
+        U extends Executable> extends GenericAccessibleObject<GenericExecutable<T, U>> {
 
     /**
      * @param owner the class where this accessible object is located in
      */
-    GenericExecutableMember(final GenericClass owner) {
+    GenericExecutable(final GenericClass owner) {
         super(owner);
     }
 

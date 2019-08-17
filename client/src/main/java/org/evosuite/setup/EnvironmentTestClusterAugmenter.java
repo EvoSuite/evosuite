@@ -36,7 +36,7 @@ import org.evosuite.runtime.vfs.VirtualFileSystem;
 import org.evosuite.runtime.vnet.EndPointInfo;
 import org.evosuite.runtime.vnet.VirtualNetwork;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericMethod;
@@ -316,7 +316,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleMember gc = new GenericConstructor(c, klass);
+			GenericAccessibleObject gc = new GenericConstructor(c, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gc);
 			GenericClass genclass = new GenericClass(klass);
 			TestCluster.getInstance().invalidateGeneratorCache(genclass);
@@ -330,7 +330,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleMember gm = new GenericMethod(m, klass);
+			GenericAccessibleObject gm = new GenericMethod(m, klass);
 			TestCluster.getInstance().addEnvironmentTestCall(gm);
 
 			testClusterGenerator.addNewDependencies(Arrays.asList(m.getParameterTypes()));
@@ -361,7 +361,7 @@ public class EnvironmentTestClusterAugmenter {
 				continue;
 			}
 
-			GenericAccessibleMember gm = new GenericMethod(m, klass);
+			GenericAccessibleObject gm = new GenericMethod(m, klass);
 			GenericClass gc = new GenericClass(klass);
 			TestCluster.getInstance().addModifier(gc, gm);
 

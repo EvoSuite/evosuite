@@ -40,7 +40,7 @@ import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.execution.UncompilableCodeException;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.generic.GenericAccessibleMember;
+import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
@@ -865,7 +865,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
     }
 
     @Override
-    public GenericAccessibleMember<?> getAccessibleObject() {
+    public GenericAccessibleObject<?> getAccessibleObject() {
         return null; //not defined for FM
     }
 

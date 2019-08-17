@@ -40,7 +40,7 @@ import org.evosuite.utils.LoggingUtils;
  * @author Gordon Fraser
  *
  */
-public class GenericConstructor extends GenericExecutableMember<GenericConstructor,
+public class GenericConstructor extends GenericExecutable<GenericConstructor,
 		Constructor<?>> {
 
 	private static final long serialVersionUID = 1361882947700615341L;
