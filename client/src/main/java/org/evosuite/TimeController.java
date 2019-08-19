@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * <p>
+ *
  * This file is part of EvoSuite.
- * <p>
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3.0 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * EvoSuite is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,11 +21,11 @@ package org.evosuite;
 
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.TestFactory;
-import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.evosuite.classpath.ClassPathHacker;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * TODO: in the long run, this should replace all the occurrences of time handling in EvoSuite
  *
  * @author arcuri
- *
  */
 public class TimeController {
 
@@ -49,7 +48,7 @@ public class TimeController {
     private static final TimeController singleton = new TimeController();
 
     /**
-     *  The current state of the client
+     * The current state of the client
      */
     private volatile ClientState state;
 
@@ -96,7 +95,7 @@ public class TimeController {
      * Execute the given runnable synchronously, but issue a warning if it takes too long
      *
      * @param runnable
-     * @param name of the operation (will be used in the log)
+     * @param name         of the operation (will be used in the log)
      * @param warn_time_ms max time allowed for this operation before issuing a warning
      */
     public static void execute(Runnable runnable, String name, long warn_time_ms) {
@@ -113,6 +112,7 @@ public class TimeController {
 
     /**
      * Get the singleton reference
+     *
      * @return
      */
     public static TimeController getInstance() {
@@ -235,7 +235,7 @@ public class TimeController {
         if (Properties.JUNIT_TESTS) {
             time += Properties.WRITE_JUNIT_TIMEOUT;
             if (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE || (
-                    Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL && ClassPathHacker.isJunitCheckAvailable())) {
+                     Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL && ClassPathHacker.isJunitCheckAvailable())) {
                 time += Properties.JUNIT_CHECK_TIMEOUT;
             }
         }
