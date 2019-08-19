@@ -19,6 +19,9 @@
  */
 package org.evosuite;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.TestFactory;
 import org.evosuite.rmi.service.ClientState;
@@ -27,296 +30,294 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.evosuite.classpath.ClassPathHacker;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 
 /**
  * This class is used to keep track of how long EvoSuite has spent
  * in each of its different phases (eg search, minimization, assertion generation).
- *
- *
+ * 
+ * 
  * <p>
  * TODO: in the long run, this should replace all the occurrences of time handling in EvoSuite
- *
+ * 
  * @author arcuri
+ *
  */
 public class TimeController {
 
-    private static final Logger logger = LoggerFactory.getLogger(TimeController.class);
+	private static final Logger logger = LoggerFactory.getLogger(TimeController.class);
+	
+	private static final TimeController singleton = new TimeController();
 
-    private static final TimeController singleton = new TimeController();
+	/**
+	 *  The current state of the client
+	 */
+	private volatile ClientState state;
 
-    /**
-     * The current state of the client
-     */
-    private volatile ClientState state;
+	/**
+	 * When the client was started
+	 */
+	private volatile long clientStartTime;
 
-    /**
-     * When the client was started
-     */
-    private volatile long clientStartTime;
+	/**
+	 * When the current phase was started
+	 */
+	private volatile long currentPhaseStartTime;
 
-    /**
-     * When the current phase was started
-     */
-    private volatile long currentPhaseStartTime;
+	/**
+	 * Leftover time
+	 */
+	private volatile long timeLeftFromPreviousPhases;
 
-    /**
-     * Leftover time
-     */
-    private volatile long timeLeftFromPreviousPhases;
+	/**
+	 * Map from ClientState phase (key), to timeout (key)
+	 * in milliseconds for that phase
+	 */
+	private Map<ClientState,Long> phaseTimeouts;
 
-    /**
-     * Map from ClientState phase (key), to timeout (key)
-     * in milliseconds for that phase
-     */
-    private Map<ClientState, Long> phaseTimeouts;
+	/**
+	 * Map from ClientState phase (key), to how long (key)
+	 * in milliseconds EvoSuite was in that phase
+	 */
+	private Map<ClientState,Long> timeSpentInEachPhase;
 
-    /**
-     * Map from ClientState phase (key), to how long (key)
-     * in milliseconds EvoSuite was in that phase
-     */
-    private Map<ClientState, Long> timeSpentInEachPhase;
+	
+	/**
+	 * Main and only constructor
+	 */
+	protected TimeController(){
+		init();
+	}
 
-
-    /**
-     * Main and only constructor
-     */
-    protected TimeController() {
-        init();
-    }
-
-    public static void resetSingleton() {
-        getInstance().init();
-    }
-
-    /**
-     * Execute the given runnable synchronously, but issue a warning if it takes too long
-     *
-     * @param runnable
-     * @param name         of the operation (will be used in the log)
-     * @param warn_time_ms max time allowed for this operation before issuing a warning
-     */
-    public static void execute(Runnable runnable, String name, long warn_time_ms) {
-        Inputs.checkNull(runnable, name);
-
-        long start = java.lang.System.currentTimeMillis();
-        runnable.run();
-        long delta = java.lang.System.currentTimeMillis() - start;
-
-        if (delta > warn_time_ms) {
-            logger.warn("Operation '{}' took too long: {}ms", name, delta);
-        }
-    }
-
-    /**
-     * Get the singleton reference
-     *
-     * @return
-     */
-    public static TimeController getInstance() {
-        return singleton;
-    }
-
-    public static int getSearchBudgetInSeconds() {
-        if (Properties.STOPPING_CONDITION == StoppingCondition.MAXTIME) {
-            return (int) Properties.SEARCH_BUDGET;
-        } else {
-            return (int) Properties.GLOBAL_TIMEOUT;
-        }
-    }
-
-    private void init() {
-        state = ClientState.NOT_STARTED;
-        clientStartTime = 0;
+	private void init() {
+		state = ClientState.NOT_STARTED;
+		clientStartTime = 0;
         timeLeftFromPreviousPhases = 0;
-        initializePhaseTimeouts();
-    }
+		initializePhaseTimeouts();
+	}
 
-    private void initializePhaseTimeouts() {
-        if (phaseTimeouts != null) {
-            phaseTimeouts.clear();
-        } else {
-            phaseTimeouts = new ConcurrentHashMap<>();
-        }
+	public static void resetSingleton(){
+		getInstance().init();
+	}
 
-        // TODO: I don't understand why, but this may not have happened at this point
-        Properties.getInstance();
+	/**
+	 * Execute the given runnable synchronously, but issue a warning if it takes too long
+	 *
+	 * @param runnable
+	 * @param name of the operation (will be used in the log)
+	 * @param warn_time_ms max time allowed for this operation before issuing a warning
+     */
+	public static void execute(Runnable runnable, String name, long warn_time_ms){
+		Inputs.checkNull(runnable, name);
+
+		long start = java.lang.System.currentTimeMillis();
+		runnable.run();
+		long delta = java.lang.System.currentTimeMillis() - start;
+
+		if(delta > warn_time_ms){
+			logger.warn("Operation '{}' took too long: {}ms", name, delta);
+		}
+	}
+
+	private void initializePhaseTimeouts() {
+		if(phaseTimeouts!=null){
+			phaseTimeouts.clear();
+		} else {
+			phaseTimeouts = new ConcurrentHashMap<>();
+		}
+
+		// TODO: I don't understand why, but this may not have happened at this point 
+		Properties.getInstance();
 
 
-        phaseTimeouts.put(ClientState.SEARCH, (Long) 1000l * getSearchBudgetInSeconds());
-        phaseTimeouts.put(ClientState.MINIMIZATION, (Long) 1000l * Properties.MINIMIZATION_TIMEOUT);
-        phaseTimeouts.put(ClientState.ASSERTION_GENERATION, (Long) 1000l * Properties.ASSERTION_TIMEOUT);
-        phaseTimeouts.put(ClientState.CARVING, (Long) 1000l * Properties.CARVING_TIMEOUT);
-        phaseTimeouts.put(ClientState.INITIALIZATION, (Long) 1000l * Properties.INITIALIZATION_TIMEOUT);
+		phaseTimeouts.put(ClientState.SEARCH, (Long) 1000l * getSearchBudgetInSeconds());
+		phaseTimeouts.put(ClientState.MINIMIZATION, (Long) 1000l * Properties.MINIMIZATION_TIMEOUT);
+		phaseTimeouts.put(ClientState.ASSERTION_GENERATION, (Long) 1000l * Properties.ASSERTION_TIMEOUT);
+		phaseTimeouts.put(ClientState.CARVING, (Long) 1000l * Properties.CARVING_TIMEOUT);
+		phaseTimeouts.put(ClientState.INITIALIZATION, (Long) 1000l * Properties.INITIALIZATION_TIMEOUT);
         phaseTimeouts.put(ClientState.JUNIT_CHECK, (Long) 1000l * Properties.JUNIT_CHECK_TIMEOUT);
-        phaseTimeouts.put(ClientState.WRITING_TESTS, (Long) 1000l * Properties.WRITE_JUNIT_TIMEOUT);
+		phaseTimeouts.put(ClientState.WRITING_TESTS, (Long) 1000l * Properties.WRITE_JUNIT_TIMEOUT);
 
-        if (timeSpentInEachPhase != null) {
-            timeSpentInEachPhase.clear();
-        } else {
-            timeSpentInEachPhase = new ConcurrentHashMap<ClientState, Long>();
-        }
-    }
+		if(timeSpentInEachPhase!=null){
+			timeSpentInEachPhase.clear();
+		} else {
+			timeSpentInEachPhase = new ConcurrentHashMap<ClientState,Long>();
+		}
+	}
 
-    public synchronized void updateState(ClientState newState) throws IllegalArgumentException {
-        Inputs.checkNull(newState);
-
-        if (state.equals(newState)) {
-            //no change of state. do nothing
-            return;
-        }
-
-        if (newState.getNumPhase() < state.getNumPhase()) {
-            throw new IllegalArgumentException("Phase '" + newState + "' cannot be executed after phase '" + state + "'");
-        }
-
-        //first log the current state before changing it
-        if (!state.equals(ClientState.NOT_STARTED)) {
-            long elapsed = java.lang.System.currentTimeMillis() - currentPhaseStartTime;
-            if (timeSpentInEachPhase.containsKey(state)) {
-                logger.warn("Already entered in phase: " + state + ". This will mess up the timing calculations.");
-            }
-            timeSpentInEachPhase.put(state, elapsed);
-
-            logger.debug("Phase {} lasted {} seconds", state, (elapsed / 1000));
+	/**
+	 * Get the singleton reference
+	 * @return
+	 */
+	public static TimeController getInstance(){
+		return singleton;
+	}
 
 
-            //check if spent too much time, eg due to bug in EvoSuite
-            if (currentPhaseHasTimeout()) {
-                long timeoutInMs = getCurrentPhaseTimeout();
-                long left = timeoutInMs - elapsed;
-                if (left < -(0.1 * timeoutInMs)) {
-                    //just check if phase went over by more than 10%...
-                    logger.warn("Phase " + state + " lasted too long, " + (-left / 1000) + " seconds more than allowed.");
-                }
-                if (Properties.REUSE_LEFTOVER_TIME) {
+	public synchronized void updateState(ClientState newState) throws IllegalArgumentException{
+		Inputs.checkNull(newState);
+
+		if(state.equals(newState)){
+			//no change of state. do nothing
+			return;
+		}
+
+		if(newState.getNumPhase() < state.getNumPhase()){
+			throw new IllegalArgumentException("Phase '"+newState+"' cannot be executed after phase '"+state+"'");
+		}
+
+		//first log the current state before changing it
+		if(!state.equals(ClientState.NOT_STARTED)){
+			long elapsed = java.lang.System.currentTimeMillis() - currentPhaseStartTime;
+			if(timeSpentInEachPhase.containsKey(state)){
+				logger.warn("Already entered in phase: "+state+". This will mess up the timing calculations.");
+			}
+			timeSpentInEachPhase.put(state, elapsed);
+			
+			logger.debug("Phase {} lasted {} seconds", state, (elapsed/1000));
+
+
+			//check if spent too much time, eg due to bug in EvoSuite
+			if(currentPhaseHasTimeout()) {
+				long timeoutInMs = getCurrentPhaseTimeout();
+				long left = timeoutInMs - elapsed;
+				if( left < - (0.1 * timeoutInMs)){
+					//just check if phase went over by more than 10%...
+					logger.warn("Phase "+state + " lasted too long, "+ (-left/1000) + " seconds more than allowed.");
+				}
+                if(Properties.REUSE_LEFTOVER_TIME) {
                     timeLeftFromPreviousPhases += left;
                     logger.info("Time left from previous phases: {}/{} -> {}, {}", left, timeoutInMs, timeLeftFromPreviousPhases, getLeftTimeBeforeEnd());
                 }
             }
 
-        }
+		}
 
-        state = newState;
-        currentPhaseStartTime = System.currentTimeMillis();
+		state = newState;
+		currentPhaseStartTime = System.currentTimeMillis();
 
-        if (state.equals(ClientState.STARTED)) {
-            clientStartTime = currentPhaseStartTime;
-        }
+		if(state.equals(ClientState.STARTED)){
+			clientStartTime = currentPhaseStartTime;
+		}
 
-        if (currentPhaseHasTimeout()) {
-            long left = getLeftTimeBeforeEnd();
-            long timeout = getCurrentPhaseTimeout() + timeLeftFromPreviousPhases;
-            if (left < timeout) {
-                logger.warn("Current phase {} could run up to {}s, but only {}s are left",
-                        state, (int) (timeout / 1000), (int) (left / 1000));
-            }
-        }
-    }
+		if(currentPhaseHasTimeout()) {
+			long left = getLeftTimeBeforeEnd();
+			long timeout = getCurrentPhaseTimeout() + timeLeftFromPreviousPhases;
+			if(left < timeout){
+				logger.warn("Current phase {} could run up to {}s, but only {}s are left",
+						state, (int)(timeout/1000), (int)(left/1000));
+			}
+		}
+	}
+	
+	public static int getSearchBudgetInSeconds(){
+		if (Properties.STOPPING_CONDITION == StoppingCondition.MAXTIME) {
+			return (int) Properties.SEARCH_BUDGET;
+		} else {
+			return (int) Properties.GLOBAL_TIMEOUT;
+		}
+	}
 
-    public int calculateForHowLongClientWillRunInSeconds() {
-        int time = Properties.EXTRA_TIMEOUT;
+	public int calculateForHowLongClientWillRunInSeconds() {
+		int time = Properties.EXTRA_TIMEOUT;
 
-        time += Properties.INITIALIZATION_TIMEOUT;
+		time += Properties.INITIALIZATION_TIMEOUT;
+		
+		time += getSearchBudgetInSeconds();
 
-        time += getSearchBudgetInSeconds();
-
-        if (Properties.MINIMIZE) {
-            time += Properties.MINIMIZATION_TIMEOUT;
-        }
-        if (Properties.ASSERTIONS) {
-            time += Properties.ASSERTION_TIMEOUT;
-        }
-        if (Properties.TEST_FACTORY == TestFactory.JUNIT) {
-            time += Properties.CARVING_TIMEOUT;
-        }
-        if (Properties.JUNIT_TESTS) {
-            time += Properties.WRITE_JUNIT_TIMEOUT;
+		if (Properties.MINIMIZE) {
+			time += Properties.MINIMIZATION_TIMEOUT;
+		}
+		if (Properties.ASSERTIONS) {
+			time += Properties.ASSERTION_TIMEOUT;
+		}
+		if(Properties.TEST_FACTORY == TestFactory.JUNIT) {
+			time += Properties.CARVING_TIMEOUT;
+		}
+        if(Properties.JUNIT_TESTS){
+			time += Properties.WRITE_JUNIT_TIMEOUT;
             if (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE || (
-                     Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL && ClassPathHacker.isJunitCheckAvailable())) {
-                time += Properties.JUNIT_CHECK_TIMEOUT;
-            }
+                      Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL && ClassPathHacker.isJunitCheckAvailable())) {
+				time += Properties.JUNIT_CHECK_TIMEOUT;
+			}
         }
 
-        return time;
-    }
+		return time;
+	}
 
-    /**
-     * Is there time to execute a test case?
-     * This not only depends on which phase we are in, but
-     * also on how maximum long a test case can be left run
-     * before trying to kill its threads if timeout.
-     *
-     * @return
-     */
-    public synchronized boolean hasTimeToExecuteATestCase() {
-        return isThereStillTimeInThisPhase(Properties.TIMEOUT);
-    }
+	/**
+	 * Is there time to execute a test case?
+	 * This not only depends on which phase we are in, but
+	 * also on how maximum long a test case can be left run
+	 * before trying to kill its threads if timeout.
+	 * 
+	 * @return
+	 */
+	public synchronized boolean hasTimeToExecuteATestCase(){				
+		return isThereStillTimeInThisPhase(Properties.TIMEOUT);
+	}
 
-    public synchronized boolean isThereStillTimeInThisPhase() {
-        return isThereStillTimeInThisPhase(1);
-    }
+	public synchronized boolean isThereStillTimeInThisPhase(){
+		return isThereStillTimeInThisPhase(1); 
+	}
 
-    public synchronized boolean isThereStillTimeInThisPhase(long ms) {
+    public synchronized boolean isThereStillTimeInThisPhase(long ms){
 
-        if (state.equals(ClientState.NOT_STARTED)) {
-            return true;
-        }
+		if(state.equals(ClientState.NOT_STARTED)){
+			return true;
+		}
 
-        //all time values are in milliseconds
-        long left = getLeftTimeBeforeEnd();
+		//all time values are in milliseconds
+		long left = getLeftTimeBeforeEnd();
 
-        if (ms > left) {
-            return false;
-        }
+		if(ms > left){
+			return false;
+		}
 
-        /*
-         * OK, there is enough time, but have we spent too long
-         * in the current phase?
-         */
-        if (currentPhaseHasTimeout()) {
-            long timeoutInMs = getCurrentPhaseTimeout();
-            long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
-            long phaseLeft = timeoutInMs - timeSincePhaseStarted + timeLeftFromPreviousPhases;
-            logger.debug("Time left for current phase {}: {}", state, phaseLeft);
-            if (ms > phaseLeft) {
-                return false;
-            }
-        }
+		/*
+		 * OK, there is enough time, but have we spent too long
+		 * in the current phase?
+		 */
+		if(currentPhaseHasTimeout()){
+			long timeoutInMs = getCurrentPhaseTimeout();
+			long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
+			long phaseLeft = timeoutInMs - timeSincePhaseStarted + timeLeftFromPreviousPhases;
+			logger.debug("Time left for current phase {}: {}", state, phaseLeft);
+			if(ms > phaseLeft){
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true; 
+	}
 
-    private long getLeftTimeBeforeEnd() {
-        long timeSinceStart = System.currentTimeMillis() - clientStartTime;
-        long totalTimeLimit = 1000 * calculateForHowLongClientWillRunInSeconds();
-        return totalTimeLimit - timeSinceStart;
-    }
+	private long getLeftTimeBeforeEnd() {
+		long timeSinceStart = System.currentTimeMillis() - clientStartTime;
+		long totalTimeLimit = 1000 * calculateForHowLongClientWillRunInSeconds();
+		return totalTimeLimit - timeSinceStart;
+	}
 
-    /**
+	/**
      * Calculate the percentage of progress in which we currently are in the phase.
      *
      * @return a value in [0,1] if the current phase has a timeout, otherwise a negative value
      */
-    public double getPhasePercentage() {
-        if (currentPhaseHasTimeout()) {
+    public double getPhasePercentage(){
+        if(currentPhaseHasTimeout()){
             long timeoutInMs = getCurrentPhaseTimeout();
             long timeSincePhaseStarted = System.currentTimeMillis() - currentPhaseStartTime;
             double ratio = (double) timeSincePhaseStarted / (double) timeoutInMs;
             assert ratio >= 0; // but could become >1 due to timer
-            return Math.min(ratio, 1);
+            return Math.min(ratio,1);
         } else {
             return -1;
         }
     }
 
-    private long getCurrentPhaseTimeout() {
-        return phaseTimeouts.get(state);
-    }
+	private long getCurrentPhaseTimeout() {		
+		return phaseTimeouts.get(state);
+	}
 
-    private boolean currentPhaseHasTimeout() {
-        return phaseTimeouts.containsKey(state);
-    }
+	private boolean currentPhaseHasTimeout() {		
+		return phaseTimeouts.containsKey(state);
+	}
 }
