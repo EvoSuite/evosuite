@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 public class JavaExecCmdUtilUnixTest {
 
   private static final String SEPARATOR = "/";
-  private static final String JAVA_HOME_SYSTEM = System.getenv("JAVA_HOME");
+  private static final String JAVA_HOME_SYSTEM = System.getenv("JAVA_HOME") != null ? System.getenv("JAVA_HOME") : System.getProperty("java.home");
   private static final String JAVA_HOME_MOCK_PATH =
       SEPARATOR + "usr" + SEPARATOR + "home" + SEPARATOR + "jdk_8";
   private static final String MOCK_OS = "Mac OS X";
@@ -38,7 +38,6 @@ public class JavaExecCmdUtilUnixTest {
     assertNotNull(JavaExecCmdUtil.getJavaBinExecutablePath(false));
   }
 
-  @Ignore
   @Test
   public void unixMockEnvIsOk() {
     System.setProperty("os.name", MOCK_OS);
@@ -68,7 +67,6 @@ public class JavaExecCmdUtilUnixTest {
             JAVA_HOME_MOCK_PATH + SEPARATOR + "bin" + SEPARATOR + "java"));
   }
 
-  @Ignore
   @Test
   public void unixNewBehavior() {
         // run test only on unix build
