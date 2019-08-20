@@ -40,7 +40,7 @@ public class StaticSingletonResetSystemTest extends SystemTestBase {
 	public void testResetWithAssertionGenerationAll() {
 		Properties.RESET_STATIC_FIELD_GETS = true;
 		Properties.RESET_STATIC_FIELDS = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 		Properties.JUNIT_TESTS = true;
 		Properties.SANDBOX = true;
 		Properties.ASSERTION_STRATEGY = Properties.AssertionStrategy.ALL;

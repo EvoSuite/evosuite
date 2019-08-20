@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -66,7 +66,7 @@ public class TestSuiteWriterSystemTest extends SystemTestBase {
 		String targetClass = Foo.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.JUNIT_TESTS = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

@@ -5,10 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.core.IsEqual;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.runners.MethodSorters;
@@ -18,7 +15,7 @@ import org.springframework.util.StringUtils;
 public class JavaExecCmdUtilUnixTest {
 
   private static final String SEPARATOR = "/";
-  private static final String JAVA_HOME_SYSTEM = System.getenv("JAVA_HOME");
+  private static final String JAVA_HOME_SYSTEM = System.getenv("JAVA_HOME") != null ? System.getenv("JAVA_HOME") : System.getProperty("java.home");
   private static final String JAVA_HOME_MOCK_PATH =
       SEPARATOR + "usr" + SEPARATOR + "home" + SEPARATOR + "jdk_8";
   private static final String MOCK_OS = "Mac OS X";

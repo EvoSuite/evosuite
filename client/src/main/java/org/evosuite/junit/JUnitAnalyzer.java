@@ -199,10 +199,10 @@ public class JUnitAnalyzer {
 					 * in such case, everything need to be deleted
 					 */
                     StringBuilder sb = new StringBuilder();
-                    sb.append("Issue in scaffolding of the test suite: "+failure.getMessage()+"\n");
+                    sb.append("Issue in scaffolding of the test suite: ").append(failure.getMessage()).append("\n");
                     sb.append("Stack trace:\n");
 					for (String elem : failure.getExceptionStackTrace()) {
-                        sb.append(elem+"\n");
+                        sb.append(elem).append("\n");
 					}
                     logger.error(sb.toString());
 					numUnstable = tests.size();
@@ -323,8 +323,7 @@ public class JUnitAnalyzer {
 		}
 		
 		JUnitResultBuilder builder = new JUnitResultBuilder();
-		JUnitResult junitResult = builder.build(result);
-		return junitResult;
+		return builder.build(result);
 	}
 
 	/**

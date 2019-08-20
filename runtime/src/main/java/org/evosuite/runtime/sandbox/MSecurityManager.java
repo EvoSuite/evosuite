@@ -1013,7 +1013,8 @@ public class MSecurityManager extends SecurityManager {
 				|| name.startsWith("defineClassInPackage")
 				|| name.equals("setContextClassLoader")
                 || name.equals("enableContextClassLoaderOverride")
-				|| name.equals("accessDeclaredMembers")) {
+				|| name.equals("accessDeclaredMembers")
+		        || name.equals("accessSystemModules")) {
 			return true;
 		}
 

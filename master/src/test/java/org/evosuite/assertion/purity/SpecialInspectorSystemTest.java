@@ -44,7 +44,7 @@ import com.examples.with.different.packagename.purity.SpecialInspector;
 
 public class SpecialInspectorSystemTest extends SystemTestBase {
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
-	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
@@ -53,7 +53,7 @@ public class SpecialInspectorSystemTest extends SystemTestBase {
 	public void saveProperties() {
 		Properties.SANDBOX = true;
 		Properties.RESET_STATIC_FIELDS = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
 	}

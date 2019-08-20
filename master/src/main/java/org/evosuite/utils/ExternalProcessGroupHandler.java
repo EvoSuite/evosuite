@@ -140,7 +140,7 @@ public class ExternalProcessGroupHandler {
 	 * startProcess
 	 * </p>
 	 * 
-	 * @param command
+	 * @param commands
 	 *            an array of {@link java.lang.String} objects.
 	 * @return a boolean.
 	 */
@@ -674,7 +674,6 @@ public class ExternalProcessGroupHandler {
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public TestGenerationResult waitForResult(int timeout) {
-
 		try {
 			long start = System.currentTimeMillis();
 			Map<String, ClientNodeRemote> clients = MasterServices.getInstance()
@@ -690,8 +689,7 @@ public class ExternalProcessGroupHandler {
 				if(remaining <=0 ){ remaining = 1;}
 				boolean finished = false;
 				ClientState clientState = MasterServices.getInstance().getMasterNode().getCurrentState(entry.getKey());
-
-				if (!clientState.equals(ClientState.FINISHED)) {
+				if (clientState == null || !clientState.equals(ClientState.FINISHED)) {
 					try {
 						finished = entry.getValue().waitUntilFinished(remaining);
 					} catch (ConnectException e) {
@@ -711,7 +709,7 @@ public class ExternalProcessGroupHandler {
 					logger.error("Class "+ Properties.TARGET_CLASS+". Clients have not finished yet, although a timeout occurred.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses());
 				}				
 			}
-		} catch (InterruptedException e) {		
+		} catch (InterruptedException e) {
 		} catch(RemoteException e){
 
 			String msg = "Class "+ Properties.TARGET_CLASS+". Lost connection with clients.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses();
@@ -735,7 +733,6 @@ public class ExternalProcessGroupHandler {
 			killProcess(i);
 		}
 		LoggingUtils.getEvoLogger().info("* Computation finished");
-
 		return null; //TODO refactoring
 		/*
 		try {

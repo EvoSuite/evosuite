@@ -76,7 +76,7 @@ public class ClientProcess {
 		Sandbox.setCheckForInitialization(Properties.SANDBOX);
 		MockFramework.enable();
 
-		if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+		if (TestSuiteWriterUtils.needToUseAgent() && (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE || Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL)) {
 			initializeToolJar();
 		}
 
