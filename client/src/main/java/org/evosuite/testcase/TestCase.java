@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sun.istack.internal.NotNull;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
@@ -90,8 +91,9 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 *
 	 * @param statement
 	 *            New statement
-	 * @return VariableReference of return value
+	 * @return VariableReference of return value, never {@code null}
 	 */
+	@NotNull
 	public VariableReference addStatement(Statement statement);
 
 	/**
