@@ -22,12 +22,6 @@
  */
 package org.evosuite;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -39,12 +33,12 @@ import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
-import org.evosuite.executionmode.WriteDependencies;
 import org.evosuite.executionmode.ListParameters;
 import org.evosuite.executionmode.MeasureCoverage;
 import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
+import org.evosuite.executionmode.WriteDependencies;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.runtime.sandbox.MSecurityManager;
 import org.evosuite.runtime.util.JavaExecCmdUtil;
@@ -56,6 +50,12 @@ import org.evosuite.utils.SpawnProcessKeepAliveChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * EvoSuite class.
@@ -65,15 +65,6 @@ import org.slf4j.LoggerFactory;
  */
 public class EvoSuite {
 
-    static {
-        LoggingUtils.loadLogbackForEvoSuite();
-    }
-
-    private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
-
-    private static String separator = System.getProperty("file.separator");
-    //private static String javaHome = System.getProperty("java.home");
-
     /**
      * Functional moved to @{@link JavaExecCmdUtil#getJavaBinExecutablePath()}
      * Constant
@@ -82,6 +73,14 @@ public class EvoSuite {
     //public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
 
     public static String base_dir_path = System.getProperty("user.dir");
+    private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
+
+    private static String separator = System.getProperty("file.separator");
+    //private static String javaHome = System.getProperty("java.home");
+
+    static {
+        LoggingUtils.loadLogbackForEvoSuite();
+    }
 
     public static String generateInheritanceTree(String cp) throws IOException {
         LoggingUtils.getEvoLogger().info("* Analyzing classpath (generating inheritance tree)");
@@ -93,6 +92,40 @@ public class EvoSuite {
         outputFile.deleteOnExit();
         InheritanceTreeGenerator.writeInheritanceTree(tree, outputFile);
         return outputFile.getAbsolutePath();
+    }
+
+    public static boolean hasLegacyTargets() {
+        File directory = new File(Properties.OUTPUT_DIR);
+        if (!directory.exists()) {
+            return false;
+        }
+        String[] extensions = {"task"};
+        return !FileUtils.listFiles(directory, extensions, false).isEmpty();
+    }
+
+    /**
+     * <p>
+     * main
+     * </p>
+     *
+     * @param args an array of {@link java.lang.String} objects.
+     */
+    public static void main(String[] args) {
+
+        try {
+            EvoSuite evosuite = new EvoSuite();
+            evosuite.parseCommandLine(args);
+        } catch (Throwable t) {
+            logger.error("Fatal crash on main EvoSuite process. Class "
+                    + Properties.TARGET_CLASS + " using seed " + Randomness.getSeed()
+                    + ". Configuration id : " + Properties.CONFIGURATION_ID, t);
+            System.exit(-1);
+        }
+
+        /*
+         * Some threads could still be running, so we need to kill the process explicitly
+         */
+        System.exit(0);
     }
 
     private void setupProperties() {
@@ -133,14 +166,14 @@ public class EvoSuite {
 
             if (!line.hasOption(Setup.NAME)) {
                 /*
-				 * -setup is treated specially because it uses the extra input arguments
-				 * 
-				 * TODO: Setup should be refactored/fixed
-				 */
+                 * -setup is treated specially because it uses the extra input arguments
+                 *
+                 * TODO: Setup should be refactored/fixed
+                 */
                 String[] unrecognized = line.getArgs();
                 if (unrecognized.length > 0) {
                     String msg = "";
-                    if(unrecognized.length==1){
+                    if (unrecognized.length == 1) {
                         msg = "There is one unrecognized input:";
                     } else {
                         msg = "There are " + unrecognized.length + " unrecognized inputs:";
@@ -152,12 +185,16 @@ public class EvoSuite {
             }
 
             setupProperties();
+            final Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
+            /*if (javaVersion >= 9) {
+                // Todo remove warning when sure EvoSuite works for Java > 8
+                // logger.warn("EvoSuite does not support Java versions > 8 yet");
+                //throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
+            }*/
 
-            if (SystemUtils.IS_JAVA_9 || SystemUtils.IS_JAVA_10) {
-                throw new RuntimeException(Properties.JAVA_VERSION_WARN_MSG);
-            }
-
-            if (TestSuiteWriterUtils.needToUseAgent() && Properties.JUNIT_CHECK) {
+            if (TestSuiteWriterUtils.needToUseAgent() &&
+                    (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE ||
+                            Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL)) {
                 ClassPathHacker.initializeToolJar();
             }
 
@@ -170,7 +207,7 @@ public class EvoSuite {
                     try {
                         Properties.getInstance().setValue("criterion", line.getOptionValue("criterion"));
                     } catch (Exception e) {
-                        throw new Error("Invalid value for criterion: "+e.getMessage());
+                        throw new Error("Invalid value for criterion: " + e.getMessage());
                     }
                 }
             } else {
@@ -206,10 +243,10 @@ public class EvoSuite {
                 }
             }
 
-			/*
-			 * FIXME: every time in the Master we set a parameter with -D,
-			 * we should check if it actually exists (ie detect typos)
-			 */
+            /*
+             * FIXME: every time in the Master we set a parameter with -D,
+             * we should check if it actually exists (ie detect typos)
+             */
 
             CommandLineParameters.handleSeed(javaOpts, line);
 
@@ -223,6 +260,13 @@ public class EvoSuite {
 
             CommandLineParameters.handleJVMOptions(javaOpts, line);
 
+
+            if (!ClassPathHacker.isJunitCheckAvailable()) {
+                if (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE) {
+                    logger.error("Can not execute Junit tests. Run EvoSuite with -Djunit_check=optional to generate tests, but dont check them.");
+                    throw new IllegalStateException(ClassPathHacker.getCause());
+                }
+            }
 
             if (line.hasOption("base_dir")) {
                 base_dir_path = line.getOptionValue("base_dir");
@@ -241,37 +285,37 @@ public class EvoSuite {
 
             CommandLineParameters.validateInputOptionsAndParameters(line);
 
-			/*
-			 * We shouldn't print when -listClasses, as we do not want to have
-			 * side effects (eg, important when using it in shell scripts)
-			 */
+            /*
+             * We shouldn't print when -listClasses, as we do not want to have
+             * side effects (eg, important when using it in shell scripts)
+             */
             if (!line.hasOption(ListClasses.NAME)) {
 
                 LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
 
                 String conf = Properties.CONFIGURATION_ID;
                 if (conf != null && !conf.isEmpty()) {
-					/*
-					 * This is useful for debugging on cluster
-					 */
+                    /*
+                     * This is useful for debugging on cluster
+                     */
                     LoggingUtils.getEvoLogger().info("* Configuration: " + conf);
                 }
             }
 
 
-            if(Properties.CLIENT_ON_THREAD){
+            if (Properties.CLIENT_ON_THREAD) {
                 MSecurityManager.setRunningClientOnThread(true);
             }
 
-            if(Properties.SPAWN_PROCESS_MANAGER_PORT != null){
+            if (Properties.SPAWN_PROCESS_MANAGER_PORT != null) {
                 SpawnProcessKeepAliveChecker.getInstance().registerToRemoteServerAndDieIfFails(
                         Properties.SPAWN_PROCESS_MANAGER_PORT
                 );
             }
 
-			/*
-			 * Following "options" are the actual (mutually exclusive) execution modes of EvoSuite
-			 */
+            /*
+             * Following "options" are the actual (mutually exclusive) execution modes of EvoSuite
+             */
 
             if (line.hasOption(Help.NAME)) {
                 return Help.execute(options);
@@ -315,41 +359,6 @@ public class EvoSuite {
         }
 
         return null;
-    }
-
-
-    public static boolean hasLegacyTargets() {
-        File directory = new File(Properties.OUTPUT_DIR);
-        if (!directory.exists()) {
-            return false;
-        }
-        String[] extensions = {"task"};
-        return !FileUtils.listFiles(directory, extensions, false).isEmpty();
-    }
-
-    /**
-     * <p>
-     * main
-     * </p>
-     *
-     * @param args an array of {@link java.lang.String} objects.
-     */
-    public static void main(String[] args) {
-
-        try {
-            EvoSuite evosuite = new EvoSuite();
-            evosuite.parseCommandLine(args);
-        } catch (Throwable t) {
-            logger.error("Fatal crash on main EvoSuite process. Class "
-                    + Properties.TARGET_CLASS + " using seed " + Randomness.getSeed()
-                    + ". Configuration id : " + Properties.CONFIGURATION_ID, t);
-            System.exit(-1);
-        }
-
-		/*
-		 * Some threads could still be running, so we need to kill the process explicitly
-		 */
-        System.exit(0);
     }
 
 }

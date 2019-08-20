@@ -898,8 +898,12 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
+	public enum JUnitCheckValues{
+		TRUE, OPTIONAL, FALSE
+	}
+
 	@Parameter(key = "junit_check", group = "Output", description = "Compile and run resulting JUnit test suite (if any was created)")
-	public static boolean JUNIT_CHECK = true;
+	public static JUnitCheckValues JUNIT_CHECK = JUnitCheckValues.TRUE;
 
 	@Parameter(key = "junit_check_on_separate_process", group = "Output", description = "Compile and run resulting JUnit test suite on a separate process")
 	@Deprecated
@@ -1087,6 +1091,7 @@ public class Properties {
 
 	@Parameter(key = "serialize_ga", group = "Output", description = "Include the GA instance in the test generation result")
 	public static boolean SERIALIZE_GA = false;
+
 
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV, HTML, DEBUG;

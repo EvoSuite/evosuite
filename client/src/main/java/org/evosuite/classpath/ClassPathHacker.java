@@ -22,6 +22,7 @@
  */
 package org.evosuite.classpath;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties;
 import org.evosuite.runtime.agent.ToolsJarLocator;
 import org.slf4j.Logger;
@@ -44,6 +45,10 @@ public class ClassPathHacker {
 
 	private static final Class<?>[] parameters = new Class[] { URL.class };
 
+	private static boolean junitCheckAvailable = true;
+
+	private static String cause = "";
+
 	/**
 	 * Locate and add to classpath the tools.jar.
 	 * It is important that tools.jar ends up in the classpath of the <emp>system</emp> classloader,
@@ -54,6 +59,14 @@ public class ClassPathHacker {
 	 * to be sure we can use tools.jar
 	 */
 	public static void initializeToolJar() throws RuntimeException {
+		Integer javaVersion = Integer.valueOf(SystemUtils.JAVA_VERSION.split("\\.")[0]);
+		if(javaVersion >= 9) {
+			/*junitCheckAvailable = false;
+			cause = "Running the junit tests on Java >8 is not available yet";
+			return; */
+			// running junit tests only causes errors when executing the jar in IntelliJ
+			return;
+		}
 		ToolsJarLocator locator = new ToolsJarLocator(Properties.TOOLS_JAR_LOCATION);
 		locator.getLoaderForToolsJar();
 		if (locator.getLocationNotOnClasspath() != null) {
@@ -61,10 +74,21 @@ public class ClassPathHacker {
 				logger.info("Using JDK libraries at: " + locator.getLocationNotOnClasspath());
 				addFile(locator.getLocationNotOnClasspath());  //FIXME needs refactoring
 			} catch (IOException e) {
-				throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
+				cause = "Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath";
+				junitCheckAvailable = false;
+				//throw new RuntimeException("Failed to add " + locator.getLocationNotOnClasspath() + " to system classpath");
+				return;
 			}
 		}
 
+	}
+
+	public static String getCause(){
+		return cause;
+	}
+
+	public static boolean isJunitCheckAvailable(){
+		return junitCheckAvailable;
 	}
 
 	/**
@@ -96,19 +120,20 @@ public class ClassPathHacker {
 	 * @throws java.io.IOException if any.
 	 */
 	public static void addURL(URL u) throws IOException {
-
-		
-		URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-		Class<?> sysclass = URLClassLoader.class;
-
-		try {
-			Method method = sysclass.getDeclaredMethod("addURL", parameters);
-			method.setAccessible(true);
-			method.invoke(sysloader, new Object[] { u });
-		} catch (Throwable t) {
-			t.printStackTrace();
-			throw new IOException("Error, could not add URL to system classloader");
-		}//end try catch
-
-	}//end method
+		logger.info("Trying to add URL to class path:" + u.toString());
+		ClassLoader sysloader = ClassLoader.getSystemClassLoader();
+		if(sysloader instanceof URLClassLoader) {
+			try {
+				Class<?> sysclass = URLClassLoader.class;
+				Method method = sysclass.getDeclaredMethod("addURL", parameters);
+				method.setAccessible(true);
+				method.invoke(sysloader, u);
+			} catch (Throwable t) {
+				throw new IOException("Error, could not add URL to system classloader");
+			}
+			logger.info("Successfully added " + u + " to class path");
+		} else {
+			logger.info("Did not add " + u + ", because system class loader is no URLClassLoader");
+		}
+	}
 }

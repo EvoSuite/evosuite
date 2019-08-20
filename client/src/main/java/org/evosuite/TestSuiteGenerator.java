@@ -73,6 +73,7 @@ import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.evosuite.classpath.ClassPathHacker;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -552,9 +553,13 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("* " +ClientProcess.getPrettyPrintIdentifier()
                     + "WARNING: Not including the runtime dependencies is likely to lead to flaky tests!");
 		}
-		else if (Properties.JUNIT_TESTS && Properties.JUNIT_CHECK) {
-			compileAndCheckTests(testSuite);
-		}
+        else if (Properties.JUNIT_TESTS && (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE ||
+                Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL)) {
+            if(ClassPathHacker.isJunitCheckAvailable())
+                compileAndCheckTests(testSuite);
+            else
+                logger.warn("Cannot run Junit test. Cause {}",ClassPathHacker.getCause());
+        }
 
 		if (Properties.SERIALIZE_REGRESSION_TEST_SUITE) {
 			RegressionSuiteSerializer.appendToRegressionTestSuite(testSuite);

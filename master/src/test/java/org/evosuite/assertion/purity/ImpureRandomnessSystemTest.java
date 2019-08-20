@@ -46,7 +46,7 @@ public class ImpureRandomnessSystemTest extends SystemTestBase {
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
 	private final boolean DEFAULT_RESET_STATIC_FIELDS = Properties.RESET_STATIC_FIELDS;
 	private final boolean DEFAULT_REPLACE_CALLS = Properties.REPLACE_CALLS;
-	private final boolean DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
+	private final Properties.JUnitCheckValues DEFAULT_JUNIT_CHECK = Properties.JUNIT_CHECK;
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_JUNIT_CHECK_ON_SEPARATE_PROCESS = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
 
@@ -58,7 +58,7 @@ public class ImpureRandomnessSystemTest extends SystemTestBase {
 		Properties.PURE_INSPECTORS = true;
 		Properties.RESET_STATIC_FIELDS = true;
 		Properties.REPLACE_CALLS = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 		Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
 	}
 

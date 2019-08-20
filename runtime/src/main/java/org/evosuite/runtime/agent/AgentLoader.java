@@ -19,6 +19,10 @@
  */
 package org.evosuite.runtime.agent;
 
+import org.evosuite.runtime.util.JarPathing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -28,15 +32,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.evosuite.runtime.util.JarPathing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
- 
 
 /**
  * This class is responsible to load the jar with the agent
@@ -121,7 +122,7 @@ public class AgentLoader {
 			String msg = "AttachProvider.providers() failed to return any provider. Tool classloader: "+toolLoader;
 			throw  new RuntimeException(msg);
 		}
-		if(list.stream().anyMatch(k -> k==null)){
+		if(list.stream().anyMatch(Objects::isNull)){
 			throw new RuntimeException("AttachProvider.providers() returned null values");
 		}
 

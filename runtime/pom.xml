@@ -16,9 +16,22 @@
         As such, it should have no reference to any other EvoSuite module, and we
         should try to keep the number of external dependencies to a minimum -->
 
-    <dependencies>
+    <profiles>
+        <profile>
+            <id>Java8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
-        <!-- test dependencies  -->
+    <dependencies>
 
         <dependency>
             <groupId>junit</groupId>
@@ -35,6 +48,12 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant-junit</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>compile</scope>
         </dependency>
 
 
@@ -119,10 +138,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>     
-        <dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>

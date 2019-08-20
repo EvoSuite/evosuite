@@ -45,7 +45,7 @@ public class StaticFinalSingletonFieldSystemTest extends SystemTestBase {
 		Properties.RESET_STATIC_FINAL_FIELDS = true;
 
 		Properties.SANDBOX = true;
-		Properties.JUNIT_CHECK = true;
+		Properties.JUNIT_CHECK = Properties.JUnitCheckValues.TRUE;
 		Properties.JUNIT_TESTS = true;
 		Properties.PURE_INSPECTORS = true;
 		Properties.OUTPUT_VARIABLES = "" + RuntimeVariable.HadUnstableTests;

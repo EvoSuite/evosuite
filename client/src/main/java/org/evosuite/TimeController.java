@@ -28,6 +28,7 @@ import org.evosuite.rmi.service.ClientState;
 import org.evosuite.runtime.util.Inputs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.evosuite.classpath.ClassPathHacker;
 
 
 /**
@@ -234,7 +235,8 @@ public class TimeController {
 		}
         if(Properties.JUNIT_TESTS){
 			time += Properties.WRITE_JUNIT_TIMEOUT;
-			if(Properties.JUNIT_CHECK) {
+            if (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE || (
+                      Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL && ClassPathHacker.isJunitCheckAvailable())) {
 				time += Properties.JUNIT_CHECK_TIMEOUT;
 			}
         }

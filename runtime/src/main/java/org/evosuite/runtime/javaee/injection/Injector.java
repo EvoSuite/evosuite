@@ -291,7 +291,6 @@ public class Injector {
 
     @EvoSuiteExclude
     public static boolean hasPostConstruct(Class<?> clazz) {
-
         if(!postConstructCache.containsKey(clazz)) {
             Method pc = null;
             outer : for(Method m : ReflectionUtils.getDeclaredMethods(clazz)) {
