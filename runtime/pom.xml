@@ -33,13 +33,6 @@
 
     <dependencies>
 
-        <!-- test dependencies  -->
-        <!--
-        <dependency>
-            <groupId>evosuite-master</groupId>
-            <artifactId>${project.version}</artifactId>
-        </dependency>-->
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -56,6 +49,7 @@
             <artifactId>ant-junit</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -84,12 +78,6 @@
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
             <scope>compile</scope>
         </dependency>
 
