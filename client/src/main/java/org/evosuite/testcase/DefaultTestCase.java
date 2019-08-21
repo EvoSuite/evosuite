@@ -19,23 +19,6 @@
  */
 package org.evosuite.testcase;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
@@ -43,25 +26,32 @@ import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.setup.TestClusterUtils;
-import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.*;
+import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericField;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.GenericClass;
+import org.evosuite.utils.generic.GenericField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.googlecode.gentyref.GenericTypeReflector;
 import org.springframework.util.ClassUtils;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A test case is a list of statements
- * 
+ *
  * @author Gordon Fraser
  */
 public class DefaultTestCase implements TestCase, Serializable {
@@ -174,7 +164,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 					fieldType = field.getGenericType();
 				} catch (java.lang.reflect.GenericSignatureFormatError e) {
 					// Ignore
-					fieldType = field.getType();
 				}
 				FieldReference f = new FieldReference(this, new GenericField(field,
 				        var.getGenericClass()), fieldType, var);
@@ -255,7 +244,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 * <p>
 	 * changeClassLoader
 	 * </p>
-	 * 
+	 *
 	 * @param loader
 	 *            a {@link java.lang.ClassLoader} object.
 	 */
@@ -265,13 +254,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 			s.changeClassLoader(loader);
 		}
 	}
-	
+
 	private transient ClassLoader changedClassLoader = null;
 
 	public ClassLoader getChangedClassLoader() {
 		return changedClassLoader;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#chop(int)
 	 */
@@ -282,16 +271,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 			statements.remove(length);
 		}
 	}
-	
+
 	@Override
 	public int sliceFor(VariableReference var) {
 
 		Set<Statement> dependentStatements = new LinkedHashSet<>();
 		dependentStatements.add(statements.get(var.getStPosition()));
-		
+
 		int lastPosition = var.getStPosition();
 		// Add all statements that use this var
-		for(VariableReference ref : getReferences(var)) {
+		for(VariableReference ref : getVariablesDependingOn(var)) {
 			if(ref.getStPosition() > lastPosition)
 				lastPosition = ref.getStPosition();
 			dependentStatements.add(statements.get(ref.getStPosition()));
@@ -320,7 +309,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 		return var.getStPosition();
 	}
-	
+
 	public boolean contains(Statement statement) {
 		return statements.contains(statement);
 	}
@@ -336,13 +325,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Create a copy of the test case
 	 */
 	@Override
 	public DefaultTestCase clone() {
 		DefaultTestCase t = null;
-		t = new DefaultTestCase(); //Note: cannot use super.clone() due to final fields :( 
+		t = new DefaultTestCase(); //Note: cannot use super.clone() due to final fields :(
 		/*
 		try {
 			t = (DefaultTestCase) super.clone();
@@ -626,7 +615,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 				variables.add(value);
 			} else {
 				addFields(variables, value, type);
-			}			
+			}
 		}
 
 		return variables;
@@ -698,10 +687,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public VariableReference getRandomObject(int position) {
 		List<VariableReference> variables = getObjects(position);
-		if (variables.isEmpty())
-			return null;
-
-		return Randomness.choice(variables);
+		return variables.isEmpty() ? null : Randomness.choice(variables);
 	}
 
 	/* (non-Javadoc)
@@ -735,7 +721,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Set<VariableReference> getReferences(VariableReference var) {
+	public Set<VariableReference> getVariablesDependingOn(VariableReference var, boolean reflexive) {
 		Set<VariableReference> references = new LinkedHashSet<>();
 
 		if (var == null || var.getStPosition() == -1)
@@ -782,7 +768,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 		return statements.get(position);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#hasStatement(int)
 	 */
@@ -806,13 +792,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean hasCastableObject(Type type) {
-		return statements.stream().anyMatch(s -> s.getReturnValue().isAssignableFrom(type));
+	public boolean hasCastableObject(Type t) {
+		return statements.stream().anyMatch(s -> s.getReturnValue().isAssignableFrom(t));
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Equality check
 	 */
 	// public boolean equals(TestCase t) {
@@ -829,15 +815,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public boolean hasObject(Type type, int position) {
-		for (int i = 0; i < position && i < size(); i++) {
-			Statement st = statements.get(i);
-			if (st.getReturnValue() == null)
-				continue; // Nop
-			if (st.getReturnValue().isAssignableTo(type)) {
-				return true;
-			}
-		}
-		return false;
+		return statements.stream()
+				.limit(position)
+				.map(Statement::getReturnValue)
+				.filter(Objects::nonNull)
+				.anyMatch(retVal -> retVal.isAssignableTo(type));
 	}
 
 	/* (non-Javadoc)
@@ -957,8 +939,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	@Override
-	public void removeAssertion(Assertion assertion) {
-		statements.forEach(s -> s.removeAssertion(assertion));
+	public void removeAssertion(Assertion a) {
+		statements.forEach(s -> s.removeAssertion(a));
 	}
 
 	/* (non-Javadoc)
@@ -1055,7 +1037,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 					if(assertionsNeedDownCast(ms, retVal, methodReturnClass)) {
 						return;
 					}
-					for(VariableReference ref : getReferences(retVal)) {
+					for(VariableReference ref : getVariablesDependingOn(retVal)) {
 						Statement usageStatement = statements.get(ref.getStPosition());
 						if(assertionsNeedDownCast(usageStatement, retVal, methodReturnClass)) {
 							return;

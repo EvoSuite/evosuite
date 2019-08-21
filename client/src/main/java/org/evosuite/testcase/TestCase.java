@@ -36,7 +36,9 @@ import org.evosuite.utils.Listenable;
 
 
 /**
- * A test case is a sequence of {@link Statement statements}.
+ * A test case is essentially a program that executes the system under test. Formally, a test case
+ * is defined as a sequence of {@link Statement statements}. This class prvides a representation of
+ * test cases, as well as useful methods to analyze and manipulate test cases.
  *
  * @author Gordon Fraser
  * @author Sebastian Steenbuck
@@ -51,17 +53,16 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	public int getID();
 
 	/**
-	 * Handle test visitor
+	 * Handle the given test visitor.
 	 *
 	 * @param visitor a {@link org.evosuite.testcase.TestVisitor} object.
 	 */
 	public void accept(TestVisitor visitor);
 
 	/**
-	 * Copy all the assertions from other test case
+	 * Copy all the assertions from the other test case {@code other} to this test case.
 	 *
-	 * @param other
-	 *            The other test case
+	 * @param other the other test case from which to copy the assertions
 	 */
 	public void addAssertions(TestCase other);
 
@@ -74,7 +75,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 
 	/**
 	 * Remove goal that may have been covered
-	 * 
+	 *
 	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
 	 */
 	public void removeCoveredGoal(TestFitnessFunction goal);
@@ -87,11 +88,10 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	public void addContractViolation(ContractViolation violation);
 
 	/**
-	 * Append new statement at end of test case
+	 * Appends the given {@code statement} at the end of this test case.
 	 *
-	 * @param statement
-	 *            New statement
-	 * @return VariableReference of return value, never {@code null}
+	 * @param statement the statement to append
+	 * @return VariableReference of the appended statement's return value, never {@code null}
 	 */
 	@NotNull
 	public VariableReference addStatement(Statement statement);
@@ -117,13 +117,14 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	public void addStatements(List<? extends Statement> statements);
 
 	/**
-	 * Remove all statements after a given position
+	 * Chops this test case to the given {@code length}. The first {@code length} statements will
+	 * be kept, while all other statements will be deleted. The position of the last statement in
+	 * the test case after chopping will be {@code length - 1}.
 	 *
-	 * @param length
-	 *            Length of the test case after chopping
+	 * @param length length of the test case after chopping
 	 */
 	public void chop(int length);
-	
+
 	public int sliceFor(VariableReference var);
 
 	/**
@@ -131,9 +132,14 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 */
 	public void clearCoveredGoals();
 
-	
+
+	/**
+	 * Tests if this test case contains the given {@code statement}
+	 * @param statement the statement to check for
+	 * @return {@code true} if this test case contains the given statement, {@code false} otherwise
+	 */
 	public boolean contains(Statement statement);
-	
+
 	/**
 	 * <p>clone</p>
 	 *
@@ -166,26 +172,26 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 
 	/**
 	 * Retrieve all violations observed during test execution
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<ContractViolation> getContractViolations();
-		
-	
+
+
 	/**
 	 * Retrieve all coverage goals covered by this test
 	 *
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<TestFitnessFunction> getCoveredGoals();
-	
+
 	/**
 	 * <p>getDeclaredExceptions</p>
 	 *
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Class<?>> getDeclaredExceptions();
-	
+
 	/**
 	 * Determine the set of variables that var depends on
 	 *
@@ -197,17 +203,16 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 
 	/**
 	 * Get the last object of the defined type
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference getLastObject(Type type)
-			throws ConstructionFailedException;
-	
+	public VariableReference getLastObject(Type type) throws ConstructionFailedException;
+
 	/**
 	 * Get the last object of the defined type
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 * @throws ConstructionFailedException
@@ -228,77 +233,82 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	public Object getObject(VariableReference reference, Scope scope);
 
 	/**
-	 * Get all objects up to the given position.
+	 * Returns all objects in this test case up to the given position (exclusively).
 	 *
-	 * @param position a int.
-	 * @return a {@link java.util.List} object.
+	 * @param position exclusive upper bound for the position
+	 * @return a list of objects up to {@code position}
 	 */
 	public List<VariableReference> getObjects(int position);
 
 	/**
-	 * Get all objects up to position satisfying constraint
+	 * Returns all objects in this test case up to the given position (exclusively) matching the
+	 * specified {@code type}.
 	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param position a int.
-	 * @return a {@link java.util.List} object.
+	 * @param type the type of objects to be returned
+	 * @param position exclusive upper bound for the position
+	 * @return a list of objects up to {@code position} where each object matches the given type
 	 */
 	public List<VariableReference> getObjects(Type type, int position);
 
 	/**
-	 * Get a random object matching type
+	 * In this test case up to the given {@code position}, returns a random object of the given
+	 * {@code type} that is neither primitive nor null. In EvoSuite, the following data types are
+	 * considered primitive:
+	 * <ul>
+	 *     <li>all primitive data types according to JLS8 §4.2 ({@code byte}, {@code short},
+	 *     {@code int}, {@code long}, {@code float}, {@code double}, {@code boolean},
+	 *     {@code char}),</li>
+	 *     <li>{@code String}s,</li>
+	 *     <li>enumeration types ("enums"),</li>
+	 *     <li>EvoSuite environment data types as defined in
+	 *     {@link org.evosuite.runtime.testdata.EnvironmentDataList EnvironmentDataList}, and</li>
+	 *     <li>class primitives ({@code Class.class}).</li>
+	 * </ul>
 	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param position
-	 *            Upper bound in test case up to which objects are considered
-	 * @throws org.evosuite.ga.ConstructionFailedException
-	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
+	 * @param type the type of the object to return
+	 * @param position upper bound in test case up to which objects are considered
+	 * @throws org.evosuite.ga.ConstructionFailedException if no such object exists
+	 * @return a random non-null non-primitive object matching the given type
 	 */
 	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
 	        throws ConstructionFailedException;
 
 	/**
-	 * Get a random object matching type
+	 * Gets a random non-null object matching the specified {@code type} up to the given {@code
+	 * position} in this test case.
 	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param position
-	 *            Upper bound in test case up to which objects are considered
-	 * @throws org.evosuite.ga.ConstructionFailedException
-	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
+	 * @param type the type of the object to return
+	 * @param position upper bound in this test case up to which objects are considered
+	 * @throws org.evosuite.ga.ConstructionFailedException if no such object exists
+	 * @return a reference to a random non-null object
 	 */
 	public VariableReference getRandomNonNullObject(Type type, int position)
 	        throws ConstructionFailedException;
 
 	/**
-	 * Get a random object matching type
+	 * Returns a random object present in this test case.
 	 *
-	 * @return Random object
-	 * @throws ConstructionFailedException if any.
+	 * @return a random object
 	 */
 	public VariableReference getRandomObject();
 
 	/**
-	 * Get a random object matching type
+	 * Returns a random object present in this test case up to the given {@code position}.
 	 *
-	 * @param position
-	 *            Upper bound in test case up to which objects are considered
-	 * @throws ConstructionFailedException
-	 *             if no such object exists
-	 * @return a {@link org.evosuite.testcase.variable.VariableReference} object.
+	 * @param position upper bound in this test case up to which objects are considered
+	 * @return a random object
 	 */
 	public VariableReference getRandomObject(int position);
 
 	/**
-	 * Get a random object matching type
+	 * Gets a random object matching the given {@code type}.
 	 *
-	 * @param type
-	 *            Class we are looking for
-	 * @return Random object
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @param type the type we are looking for
+	 * @return a random object matching the given {@code type}
+	 * @throws org.evosuite.ga.ConstructionFailedException if no object matching the specified
+	 * {@code type} is present in this test case
 	 */
-	public VariableReference getRandomObject(Type type)
-	        throws ConstructionFailedException;
+	public VariableReference getRandomObject(Type type) throws ConstructionFailedException;
 
 	/**
 	 * Get a random object matching type
@@ -314,13 +324,31 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	        throws ConstructionFailedException;
 
 	/**
-	 * Determine the set of variables that depend on var
+	 * In this test case, determines and returns the set of variables that depend on the given
+	 * variable {@code var}. Returns . Note
+	 * that the result set does not include {@code var} itself.
 	 *
-	 * @param var
-	 *            Variable to check for
-	 * @return Set of dependent variables
+	 * @param var the variable for which to return all dependent variables
+	 * @return the set of variables that depend on {@code var}
 	 */
-	public Set<VariableReference> getReferences(VariableReference var);
+	default public Set<VariableReference> getVariablesDependingOn(VariableReference var) {
+		return getVariablesDependingOn(var, false);
+	}
+
+	/**
+	 * In this test case, determines and returns the set of variables that depend on the given
+	 * variable {@code var}. If {@code reflexive} is {@code true}, the dependency relation used
+	 * to compute the dependent variables will be reflexive, i.e., the result set will
+	 * always contain at least {@code var} itself. If {@code reflexive} is {@code false},
+	 * the dependency relation is not reflexive and the result set does not include {@code var}.
+	 * In this case, the empty set will be returned if no variables other than {@code var} depend on
+	 * {@code var}.
+	 *
+	 * @param var the variable for which to return all dependent variables
+	 * @param reflexive whether the dependency relation should be reflexive (see above)
+	 * @return the set of variables that depend on {@code var}
+	 */
+	public Set<VariableReference> getVariablesDependingOn(VariableReference var, boolean reflexive);
 
 	/**
 	 * Get return value (variable) of statement at position
@@ -331,27 +359,27 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	public VariableReference getReturnValue(int position);
 
 	/**
-	 * Access statement by index
+	 * Access a statement of this test case by the given {@code index}.
 	 *
-	 * @param position
-	 *            Index of statement
-	 * @return Statement at position
+	 * @param position the index of the statement to return
+	 * @return the statement at the given {@code position}
 	 */
 	public Statement getStatement(int position);
-	
+
 	/**
-	 * Check if there is a statement at the given position.
+	 * Checks if there is a statement at the given position.
 	 *
-	 * @param position
-	 *            Index of statement
-	 * @return Whether or not there is a statement at the given position.
+	 * @param position the index to check
+	 * @return whether or not there is a statement at the given position
 	 */
 	public boolean hasStatement(int position);
 
 	/**
-	 * Check if there are any assertions
+	 * Checks if there are any assertions in this test case.
 	 *
-	 * @return True if there are assertions
+	 * @return {@code true} if there are assertions, {@code false} otherwise
+	 * @see Statement#hasAssertions()
+	 * @see Assertion
 	 */
 	public boolean hasAssertions();
 
@@ -386,11 +414,11 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 
 	/**
 	 * Check if all methods/fields accessed are accessible also for the current SUT
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isAccessible();
-	
+
 	/**
 	 * <p>isEmpty</p>
 	 *
@@ -427,7 +455,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	/**
 	 * A test can be unstable if its assertions fail, eg due to non-determinism,
 	 * non-properly handled static variables and side effects on environment, etc
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isUnstable();
@@ -482,7 +510,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 
 	/**
 	 * Define whether this test case is unstable or not
-	 * 
+	 *
 	 * @param unstable
 	 */
 	public void setUnstable(boolean unstable);
@@ -507,7 +535,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 * @return Code as string
 	 */
 	public String toCode();
-	
+
 	/**
 	 * Get Java code representation of the test case
 	 *
@@ -515,5 +543,5 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 * @param exceptions a {@link java.util.Map} object.
 	 */
 	public String toCode(Map<Integer, Throwable> exceptions);
-	
+
 }

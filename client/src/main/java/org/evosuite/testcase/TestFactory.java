@@ -2189,10 +2189,11 @@ public class TestFactory {
     private boolean insertRandomReflectionCall(TestCase test, int position, int recursionDepth)
         throws ConstructionFailedException {
 
-        logger.debug("Recursion depth: " + recursionDepth);
+        logger.debug("Recursion depth: {}", recursionDepth);
         if (recursionDepth > Properties.MAX_RECURSION) {
-            logger.debug("Max recursion depth reached");
-            throw new ConstructionFailedException("Max recursion depth reached");
+			final String message = "Max recursion depth reached";
+			logger.debug(message);
+            throw new ConstructionFailedException(message);
         }
 
         int length = test.size();
@@ -2369,33 +2370,24 @@ public class TestFactory {
 		return -1;
 	}
 
-
-	/**
-	 * Inserts a random call for the UUT into the given {@code test} at the specified {@code
-	 * position}. Returns {@code true} on success, {@code false} otherwise.
-	 *
-	 * @param test the test case in which to insert
-	 * @param position the position at which to insert
-	 * @return {@code true} if successful, {@code false} otherwise
-	 */
-	public boolean insertRandomCall(TestCase test, int position) {
+	boolean insertCallFor(TestCase test, GenericAccessibleObject<?> o, int position) {
 		int previousLength = test.size();
 		String name = "";
 		currentRecursion.clear();
-		logger.debug("Inserting random call at position {}", position);
+		logger.debug("Inserting call for {} at position {}", o, position);
 		try {
-            if(reflectionFactory==null){
-    			final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-                reflectionFactory = new ReflectionFactory(targetClass);
-            }
+			if(reflectionFactory==null){
+				final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
+				reflectionFactory = new ReflectionFactory(targetClass);
+			}
 
-            if(reflectionFactory.hasPrivateFieldsOrMethods() &&
-                    TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
-                    (Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE || TestCluster.getInstance().getNumTestCalls() == 0)){
-                logger.debug("Going to insert random reflection call");
+			if(reflectionFactory.hasPrivateFieldsOrMethods() &&
+					TimeController.getInstance().getPhasePercentage() >= Properties.REFLECTION_START_PERCENT &&
+					(Randomness.nextDouble() < Properties.P_REFLECTION_ON_PRIVATE || TestCluster.getInstance().getNumTestCalls() == 0)){
+				logger.debug("Going to insert random reflection call");
 				return insertRandomReflectionCall(test,position, 0);
-            }
-			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall(test);
+			}
+
 			if (o == null) {
 				logger.warn("Have no target methods to test");
 				return false;
@@ -2473,6 +2465,26 @@ public class TestFactory {
 			}
 			return false;
 		}
+	}
+
+	/**
+	 * Inserts a random call for the UUT into the given {@code test} at the specified {@code
+	 * position}. Returns {@code true} on success, {@code false} otherwise.
+	 *
+	 * @param test the test case in which to insert
+	 * @param position the position at which to insert
+	 * @return {@code true} if successful, {@code false} otherwise
+	 */
+	public boolean insertRandomCall(TestCase test, int position) {
+		final GenericAccessibleObject<?> o;
+		try {
+			logger.debug("Choosing random call");
+			o = TestCluster.getInstance().getRandomTestCall(test);
+		} catch (ConstructionFailedException e) {
+			logger.error("Could not choose random call\nCause: {}", e.getMessage());
+			return false;
+		}
+		return insertCallFor(test, o, position);
 	}
 
 	/**
