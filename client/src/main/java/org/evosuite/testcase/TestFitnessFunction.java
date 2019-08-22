@@ -253,7 +253,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 *
 	 * @return the cyclomatic complexity of the target method
 	 */
-    int getCyclomaticComplexity() {
+	public int getCyclomaticComplexity() {
 		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
 		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
 		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
