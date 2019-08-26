@@ -241,39 +241,16 @@
                 </plugins>
             </reporting>
         </profile>
-        <!--
-        does not work
         <profile>
             <id>Java-9</id>
             <activation>
                 <jdk>9</jdk>
             </activation>
             <properties>
-                <compiler.argline.modules>-add-modules=java.xml.bind</compiler.argline.modules>
                 <compiler.target>1.9</compiler.target>
                 <compiler.source>1.8</compiler.source>
             </properties>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                        <version>2.3.0</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.glassfish.jaxb</groupId>
-                        <artifactId>jaxb-runtime</artifactId>
-                        <version>2.3.0</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                        <version>1.1.1</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
         </profile>
-        -->
         <profile>
             <id>Java-8</id>
             <activation>
@@ -282,7 +259,6 @@
             <properties>
                 <compiler.target>1.8</compiler.target>
                 <compiler.source>1.8</compiler.source>
-                <compiler.argline.modules></compiler.argline.modules>
             </properties>
         </profile>
     </profiles>
@@ -294,13 +270,6 @@
             libraries: https://glassfish.java.net/public/CDDL+GPL_1_1.html For each library
             you want to add, add a comment regarding its used license. -->
         <dependencies>
-            <!--<dependency>
-                <groupId>com.sun</groupId>
-                <artifactId>tools</artifactId>
-                <version>1.0.0</version>
-                <scope>system</scope>
-                <systemPath>${toolsjar}</systemPath>
-            </dependency>-->
 
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
@@ -710,15 +679,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${compiler.source}</source>
                     <target>${compiler.target}</target>
-                    <compilerArgs>
-                        <arg>${compiler.argline.modules}</arg>
-                    </compilerArgs>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <!--<fork>true</fork>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -779,7 +744,7 @@
                         <exclude>${integrationTests}</exclude>
                         <exclude>${systemTests}</exclude>
                     </excludes>
-                    <argLine> ${compiler.argline.modules} -Xms512m -Xmx4096m </argLine>
+                    <argLine>-Xms512m -Xmx4096m </argLine>
                     <systemProperties>
                     <property>
                         <name>jdk.attach.allowAttachSelf</name>
@@ -799,12 +764,6 @@
                         <include>${integrationTests}</include>
                         <include>${systemTests}</include>
                     </includes -->
-                    <systemProperties>
-                        <property>
-                            <name>jdk.attach.allowAttachSelf</name>
-                            <value>true</value>
-                        </property>
-                    </systemProperties>
                 </configuration>
                 <executions>
                     <execution>
