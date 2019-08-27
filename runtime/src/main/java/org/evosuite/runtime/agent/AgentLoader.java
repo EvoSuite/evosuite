@@ -20,7 +20,6 @@
 package org.evosuite.runtime.agent;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
-import net.bytebuddy.agent.VirtualMachine;
 import org.evosuite.runtime.util.JarPathing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
