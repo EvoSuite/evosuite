@@ -1102,15 +1102,16 @@
 			for(int i = 0; i < cols; i++) {
 				int numworld = 0;
 				double sum = 0d;
-				for (int j = 0; j < rows; j++) {
+				/*for (int j = 0; j < rows; j++) {
 					if(A.get(j).get(i) == true)
 						numworld++;
 				}
-				threshold = Math.min(threshold, numworld);
+				threshold = Math.min(threshold, numworld);*/
 				for (int j = 0; j <= threshold; j++) {
-					int nchoosek = computenchoosek(threshold, j);
-					sum = sum + (double)nchoosek * Math.pow( (prob/(1-prob)) , j) * similarityCount[i][j];
-				}
+					//int nchoosek = computenchoosek(threshold, j);
+					//sum = sum + (double)nchoosek * Math.pow( (prob/(1-prob)) , j) * similarityCount[i][j];
+                    sum = sum + similarityCount[i][j];
+                }
 				/*sum = sum + (double)similarityCount[i][0];
 				if(numworld >= 1)
 					sum = sum + numworld * prob * Math.pow((1-prob), (numworld-1)) * (double)similarityCount[i][1];
@@ -1123,7 +1124,7 @@
 				sum = sum / ((double)cols-1);
 				score = score + sum;
 			}
-			score = score / cols;
+			score = score / (double)cols;
 			return score;
 		}
 

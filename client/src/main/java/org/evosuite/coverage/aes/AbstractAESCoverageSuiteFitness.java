@@ -3,6 +3,7 @@ package org.evosuite.coverage.aes;
 //import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 //import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 //import org.evosuite.Properties;
+import org.evosuite.Properties;
 import org.evosuite.coverage.aes.branch.BranchDetails;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -10,7 +11,7 @@ import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 //import org.nd4j.linalg.api.ndarray.INDArray;
 //import org.nd4j.linalg.factory.Nd4j;
-
+//import org.evosuite.Properties;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -564,6 +565,10 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //
 //            return (0.5 * new_result);
             //mycode ends
+            double result = spectrum.getSecondOrderDiversity();
+            String ffval = "";
+            ffval = result + "\n";
+            appendStrToFile(Properties.PROPERTY_FILE_PATH, ffval);
             return (1.0 - spectrum.getSecondOrderDiversity());
         }
 
@@ -757,31 +762,32 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //
 //            appendStrToFile("/tmp/nn_val.txt",txttodump);
 //            return (0.5 * new_result);
-            return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+            //return spectrum.getVCMrho1() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+            double ff_val = number_of_1s_metric(spectrum,null);
+            return spectrum.getRho() * (1.0 - spectrum.getSimpson()) * (1.0 - ff_val);
         }
         //mycode ends
 
 		case VCMDDU2: {
-            iteration++;
+ //           iteration++;
 //		    return 0.5d - (0.5d * one_hot_dist_mean_metric(spectrum));
-            double ff_val = number_of_1s_metric(spectrum,getWeights());
-
-
+            //double ff_val = number_of_1s_metric(spectrum,getWeights());
+            double ff_val = number_of_1s_metric(spectrum,null);
+            int numTransactions = spectrum.getNumTransactions();
             double coverage = spectrum.basicCoverage();
             double density =  spectrum.getRho();
             double diversity = (1 - spectrum.getSimpson());
             double uniqueness = spectrum.getAmbiguity();
-            Aj aj = spectrum.getVrho2();
-            double rho_component = aj.getvcd();
-            double rho_transaction = aj.getvrd();
+            //Aj aj = spectrum.getVrho2();
+            //double rho_component = aj.getvcd();
+            //double rho_transaction = aj.getvrd();
             String filename = System.getenv("FEATURE_DUMP_LOC") + "/feature_dump.csv";
             String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
-                    "," + String.valueOf(uniqueness) + "," +String.valueOf(rho_transaction) + "," + String.valueOf(rho_component)+ ","
-                    + String.valueOf(ff_val) + "\n";
+                    "," + String.valueOf(uniqueness) + "," +String.valueOf(numTransactions) + "," + String.valueOf(ff_val) + "\n";
             appendStrToFile(filename, txttoprint);
 
-            if(((iteration % 100) == 1) && (spectrum.getActivityMatrix() != null))
-                printActivityMatrix(spectrum.getActivityMatrix(), spectrum.getNumTransactions(),spectrum.getNumComponents(),System.getenv("SPEC_DUMP_LOC"));
+            /*if(((iteration % 100) == 1) && (spectrum.getActivityMatrix() != null))
+                printActivityMatrix(spectrum.getActivityMatrix(), spectrum.getNumTransactions(),spectrum.getNumComponents(),System.getenv("SPEC_DUMP_LOC"));*/
             return  (0.5d - (0.5d * ff_val));
         }
 //		{
@@ -883,12 +889,38 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //        }
         //mycode ends
 			//return spectrum.getVCMrho2() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
-		case VRDDU:
-		    return spectrum.getAmbiguity();
+		case VRDDU: {
+            double ff_val = number_of_1s_metric(spectrum, null);
+            int numTransactions = spectrum.getNumTransactions();
+            double coverage = spectrum.basicCoverage();
+            double density = spectrum.getRho();
+            double diversity = (1 - spectrum.getSimpson());
+            double uniqueness = spectrum.getAmbiguity();
+            //Aj aj = spectrum.getVrho2();
+            //double rho_component = aj.getvcd();
+            //double rho_transaction = aj.getvrd();
+            String filename = System.getenv("FEATURE_DUMP_LOC") + "/feature_dump.csv";
+            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
+                    "," + String.valueOf(uniqueness) + "," + String.valueOf(numTransactions) + "," + String.valueOf(ff_val) + "\n";
+            appendStrToFile(filename, txttoprint);
+            return 0.5d * spectrum.basicCoverage();
+        }
 		case AES:
 		default: {
-//            iteration++;
-            return spectrum.getRho() * (1.0 - spectrum.getSimpson()) * spectrum.getAmbiguity();
+             double ff_val = number_of_1s_metric(spectrum,null);
+            int numTransactions = spectrum.getNumTransactions();
+            double coverage = spectrum.basicCoverage();
+            double density =  spectrum.getRho();
+            double diversity = (1 - spectrum.getSimpson());
+            double uniqueness = spectrum.getAmbiguity();
+            //Aj aj = spectrum.getVrho2();
+            //double rho_component = aj.getvcd();
+            //double rho_transaction = aj.getvrd();
+            String filename = System.getenv("FEATURE_DUMP_LOC") + "/feature_dump.csv";
+            String txttoprint = String.valueOf(iteration) + "," + String.valueOf(coverage) + "," + String.valueOf(density) + "," + String.valueOf(diversity) +
+                    "," + String.valueOf(uniqueness) + "," +String.valueOf(numTransactions) + "," + String.valueOf(ff_val) + "\n";
+            appendStrToFile(filename, txttoprint);
+            return density * diversity * uniqueness;
 //            double coverage = spectrum.basicCoverage();
 //            double density =  spectrum.getRho();
 //            double diversity = (1 - spectrum.getSimpson());

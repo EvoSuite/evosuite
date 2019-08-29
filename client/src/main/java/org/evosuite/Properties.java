@@ -1422,7 +1422,7 @@ public class Properties {
             Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
 
-	@Parameter(key = "property_file_path", group = "Runtime", description = "Location of file where property is specified (in its first line). This is needed for operating systems like Windows where cannot have too long input parameters")
+	@Parameter(key = "propertyfile", group = "Runtime", description = "Location of file where property is specified (in its first line). This is needed for operating systems like Windows where cannot have too long input parameters")
 	public static String PROPERTY_FILE_PATH = null;
 
 	/** Cache target class */

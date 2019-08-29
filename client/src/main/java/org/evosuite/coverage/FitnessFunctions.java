@@ -167,10 +167,10 @@ public class FitnessFunctions {
 			return new AESBranchCoverageSuiteFitness(Metric.VDDU);           // new case vddu
 
 		case VMDDU:
-			return new AESMethodCoverageSuiteFitness(Metric.VMDDU);           // new case vmddu
+			return new AESBranchCoverageSuiteFitness(Metric.VMDDU);           // new case vmddu
 
 		case VCDDU:
-			return new AESMethodCoverageSuiteFitness(Metric.VCDDU);           // new case vcddu
+			return new AESBranchCoverageSuiteFitness(Metric.VCDDU);           // new case vcddu
 
 		case VCMDDU1:
 //			return new AESMethodCoverageSuiteFitness(Metric.VCMDDU1);           // new case vcmddu1
@@ -180,7 +180,7 @@ public class FitnessFunctions {
             return new AESBranchCoverageSuiteFitness(Metric.VCMDDU2);
 
 		case VRDDU:
-			return new AESMethodCoverageSuiteFitness(Metric.VRDDU);           // new case vrddu
+			return new AESBranchCoverageSuiteFitness(Metric.VRDDU);           // new case vrddu
 		case DDU_METHOD:
 			return new AESMethodCoverageSuiteFitness();
 		case DDU_METHOD_DTR:
