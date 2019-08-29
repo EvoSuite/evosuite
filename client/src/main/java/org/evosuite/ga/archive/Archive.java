@@ -82,7 +82,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   public void addTarget(F target) {
     assert target != null;
 
-    if (!ArchiveUtils.isCriterionEnabled(target)) {
+    if (ArchiveUtils.isCriterionDisabled(target)) {
       throw new RuntimeException("Trying to add a target of '" + target.getClass().getSimpleName()
           + "' type to the archive, but correspondent criterion is not enabled.");
     }
@@ -144,7 +144,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
     assert solution != null;
     assert fitnessValue >= 0.0;
 
-    if (!ArchiveUtils.isCriterionEnabled(target)) {
+    if (ArchiveUtils.isCriterionDisabled(target)) {
       throw new RuntimeException(
           "Trying to update the archive with a target of '" + target.getClass().getSimpleName()
               + "' type, but correspondent criterion is not enabled.");

@@ -62,109 +62,109 @@ public final class ArchiveUtils {
       switch (criterion) {
         case EXCEPTION:
           if (goal instanceof ExceptionCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case DEFUSE:
           if (goal instanceof DefUseCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case ALLDEFS:
           if (goal instanceof AllDefsCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case BRANCH:
           if (goal instanceof BranchCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case CBRANCH:
           if (goal instanceof CBranchTestFitness) {
-            return true;
+            return false;
           }
           break;
         case STRONGMUTATION:
           if (goal instanceof StrongMutationTestFitness) {
-            return true;
+            return false;
           }
           break;
         case WEAKMUTATION:
           if (goal instanceof WeakMutationTestFitness) {
-            return true;
+            return false;
           }
           break;
         case MUTATION:
           if (goal instanceof MutationTestFitness) {
-            return true;
+            return false;
           }
           break;
         case STATEMENT:
           if (goal instanceof StatementCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case RHO:
           if (goal instanceof RhoCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case AMBIGUITY:
           if (goal instanceof LineCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case IBRANCH:
           if (goal instanceof IBranchTestFitness) {
-            return true;
+            return false;
           }
           break;
         case READABILITY:
           break;
         case ONLYBRANCH:
           if (goal instanceof OnlyBranchCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case ONLYMUTATION:
           if (goal instanceof OnlyMutationTestFitness) {
-            return true;
+            return false;
           }
           break;
         case METHODTRACE:
           if (goal instanceof MethodTraceCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case METHOD:
           if (goal instanceof MethodCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case METHODNOEXCEPTION:
           if (goal instanceof MethodNoExceptionCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case LINE:
           if (goal instanceof LineCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case ONLYLINE:
           if (goal instanceof LineCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case OUTPUT:
           if (goal instanceof OutputCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case INPUT:
           if (goal instanceof InputCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         case REGRESSION:
@@ -172,7 +172,7 @@ public final class ArchiveUtils {
           break;
         case TRYCATCH:
           if (goal instanceof TryCatchCoverageTestFitness) {
-            return true;
+            return false;
           }
           break;
         default:
@@ -180,6 +180,6 @@ public final class ArchiveUtils {
           break;
       }
     }
-    return false;
+    return true;
   }
 }
