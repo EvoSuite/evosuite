@@ -20,18 +20,25 @@ import org.evosuite.testcase.execution.ExecutionResult;
 public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitness {
 
     private static final long serialVersionUID = 7409239464436681146L;
-
+    /* A branch can be of 3 types: 1) true branch (stored in the "trueMap"), 2) false branch (stored in the "falseMap") and 3) a method not containing a branch
+    (stored in the "branchlessMethodMap") */
     private Map<Integer, Integer> trueMap;
     private Map<Integer, Integer> falseMap;
     private Map<String, Integer> branchlessMethodsMap;
-    //    private Map<Integer, BranchDetails> branchToMethodMap;  //mycode Integer=component_number
-    //private Map<String, Double> suspiciousnesScores;         //mycode String=classname+"."+method_name, Double = Suspiciousness_score, contains the liklihood values
-    //private Map<Integer, Double> weights;                    //mycode Integer=component_number, Double=Suspiciousness, contains the liklihood values of the components
-    //private boolean mode;               //mode = false => uniform distribution
+
+    /* This map parses the JSON object. And maps the string <classname+"."+method_name> to the suspiciousness score*/
+    private Map<String, Double> suspiciousnesScores;
+    /*This map stores the weights of each method (likelihood). This is done by mapping the component number of each branch to its corresponding suspiciousness score
+    found in the "suspiciousnessScores" map. The idea is we first find the method to which the branch belongs to. Then we make the string in the format
+    <classname+"."+method_name> and  do a look up in the "suspiciousnessScores" */
+    private Map<Integer, Double> weights;
+    /* mode signified whether we are using the priors or not. If set to false then all the components have equal chance of being faulty */
+    private boolean mode;
     private int numberOfGoals = 0;
-    //private static int count = 0;
-    //private double sumWeights = -1d;
-    //private static double otherWeight = 0d;
+    /* We want to parse the JSON object once. This variable value if 0 we parse the json object and increment it by 1. So that we don't end up parsing again */
+    private static int count = 0;
+    private double sumWeights = -1d;
+    private static double otherWeight = 0d;
 
     public AESBranchCoverageSuiteFitness(Metric metric) {
         super(metric);
@@ -41,68 +48,50 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         this(Metric.AES);
     }
 
-    //modified
+
     private void determineCoverageGoals() {
 
         if (this.branchlessMethodsMap == null || this.trueMap == null || this.falseMap == null) {
             this.branchlessMethodsMap = new HashMap<String, Integer>();
             this.trueMap = new HashMap<Integer, Integer>();
             this.falseMap = new HashMap<Integer, Integer>();
-//            this.branchToMethodMap = new HashMap<Integer, BranchDetails>();
 
+            /* list "goals" contains all the branches that has been covered by the current generation of test suites */
             List<TestFitnessFunction> goals = new AESBranchCoverageFactory().getCoverageGoals();
             this.numberOfGoals = goals.size() - 1;
 
+            /* This variable "g" is the component number */
             for (int g = 0; g < this.numberOfGoals; g++) {
                 TestFitnessFunction ff = goals.get(g);
 
                 if (ff instanceof BranchCoverageTestFitness) {
                     BranchCoverageTestFitness goal = (BranchCoverageTestFitness) ff;
 
-                    if (goal.getBranch() == null) { // branchless method
+                    /* For each of the goal object, which is essentially a branch covered, we must map it to the prior.
+                    "branchToSuspiciousnessMap" takes care of that.*/
+                    branchToSuspiciousnessMap(goal, g);
+                    if (goal.getBranch() == null) { // branchless method{
                         branchlessMethodsMap.put(goal.getClassName() + "." + goal.getMethod(), g);
                     } else if (goal.getBranchExpressionValue()) { // true branch
                         trueMap.put(goal.getBranch().getActualBranchId(), g);
                     } else { // false branch
                         falseMap.put(goal.getBranch().getActualBranchId(), g);
                     }
-                    //map it to the prior
-                    /*branchToSuspiciousnessMap(goal, g);
-                    if (goal.getBranch() == null) { // branchless method{
-                        branchlessMethodsMap.put(goal.getClassName() + "." + goal.getMethod(), g);
-//                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), -1, true, -1));
-                    } else if (goal.getBranchExpressionValue()) { // true branch
-                        trueMap.put(goal.getBranch().getActualBranchId(), g);
-//                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), goal.getBranch().getActualBranchId(), true, goal.getBranch().getInstruction().getLineNumber()));
-                    } else { // false branch
-                        falseMap.put(goal.getBranch().getActualBranchId(), g);
-//                        branchToMethodMap.put(g, new BranchDetails(goal.getClassName() + "." + goal.getMethod(), goal.getBranch().getActualBranchId(), false, goal.getBranch().getInstruction().getLineNumber()));
-                    }*/
                 }
             }
         }
     }
 
-    /*protected void readOtherWeight(String filepath)
-    {
-        BufferedReader reader = null;
-        try{
-            reader = new BufferedReader(new FileReader(filepath));
-            otherWeight = Double.valueOf(reader.readLine());
-        }catch (IOException e){
-            otherWeight = 0d;
-        }
-    }*/
+
     @Override
     protected Spectrum getSpectrum(List<ExecutionResult> results) {
 
-        //get the likelihoods
-        /*if (count == 0) {
-            extract_data(System.getenv("PRIOR_VAL"));
-            readOtherWeight(System.getenv("OTHER_PRIOR_VAL"));
-
+       /* If count is 0, getSpectrum is getting called for the first time. We parse the JSON object now. This is done by first extracting the location of the JSON file
+       that has been stored as an environment variable "PRIOR_VAL". And then calling the "extract_data" function.*/
+        if (count == 0) {
+            extract_data(System.getenv("PRIOR_LOC"));
         }
-        count++;*/
+        count++;
         determineCoverageGoals();
         Spectrum spectrum = new Spectrum(results.size(), this.numberOfGoals);
 
@@ -132,7 +121,25 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         return spectrum;
     }
 
-    /*private void extract_data(String filename) {
+    /* extract_data uses an external library to parse the JSON object.
+
+
+<dependencies>
+    <dependency>
+        <groupId>com.googlecode.json-simple</groupId>
+        <artifactId>json-simple</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+</dependencies>
+
+    IMPORTANT:: Above mentioned code has been added to the POM file handle the dependency. This piece of code must be placed as a direct child of <project> tag. If it is placed
+    under <dependencyManagement>, it will not work.
+
+
+    The libraries required have been added using "import" at the top of the file
+    Please refer to online documents to resolve any queries on how the parsing is done. */
+
+    private void extract_data(String filename) {
         JSONParser jsonParser = new JSONParser();
         try {
             FileReader reader = new FileReader(filename);
@@ -174,6 +181,8 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
     }
 
 
+    /* This function maps the prior to the branches */
+
     private void branchToSuspiciousnessMap(BranchCoverageTestFitness A, int component_no) {
         //uniform distribution
         if (!mode)
@@ -184,28 +193,33 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
             weights = new HashMap<>();                    //mycode Integer=component_number, Double=Suspiciousness
 
 
+        /* We first extract the method and class name from the goal object */
         String method_name = A.getMethod();
         String class_name = A.getClassName();
 
+        /* Modify the string such that it follows the <classname+"."+method_name> format */
         String method_final = method_name.substring(0, method_name.indexOf('('));
         String class_final = class_name.substring(class_name.lastIndexOf('.') + 1);
+
+        /* If the method name is <init>, it is a constructor. So we rename it to the classname */
         if (method_final.contains("<init>"))
             method_final = class_final;
 
+        /* We make the lookup in the "suspiciousnesScores" map  to get the corresponding prior value of the branch */
         Double temp = suspiciousnesScores.get(class_final + "." + method_final);
+        /* If there doesn't exist an entry then we give it a very small prior val. The weights map uses <component_no, prior_val> key-value pair. */
         if (temp == null) {
-            weights.put(component_no, otherWeight);
-            sumWeights = sumWeights + otherWeight;
+            weights.put(component_no, 0.0000001);
         } else {
             weights.put(component_no, temp);
-            sumWeights = sumWeights + temp;
         }
 
-    }*/
+    }
 
+    /* This method that will be called during computation of FF4, to get the weights. Remember if mode is false (not using prior) then weights map is null.
+    We must put a check in the calling method to know if priors are being used or not. */
     protected Map<Integer, Double> getWeights() {
-        //return weights;
-        return null;
+        return weights;
     }
 
     protected double getSumWeights() {
@@ -213,8 +227,7 @@ public class AESBranchCoverageSuiteFitness extends AbstractAESCoverageSuiteFitne
         return 0d;
     }
 
-
-       //temp
+    //temp
 //    private void printmyhashmap(Map<Integer, Double> A) {
 //
 //        if(A == null)

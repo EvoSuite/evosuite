@@ -367,6 +367,30 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //    }
 
 
+    public double compute_FF4(Spectrum spectrum, Map<Integer,Double> weights)
+    {
+
+        double[] wweVec = spectrum.compute_WWE_vec();
+        if(wweVec == null)
+            return 1d;
+        int components = spectrum.getNumComponents();
+
+        if(weights == null)
+            return compute_mean(wweVec,components);
+
+        double sumWeights = 0d;
+        double sum = 0d;
+        for(int i=0;i<components;i++) {
+            sumWeights = sumWeights + weights.get(i);
+            wweVec[i] = wweVec[i] * weights.get(i);
+            sum = sum + wweVec[i];
+        }
+        return sum/(sumWeights);
+
+    }
+
+
+
     public double number_of_1s_metric(Spectrum spectrum, Map<Integer,Double> weights)
     {
         double[][] ochiai = spectrum.compute_ochiai();
@@ -386,15 +410,14 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
                 {
                     if ((i != j) && (Math.abs((ochiai[i][j])-1d)<THRESHOLD))
                         ones++;
-
                 }
-                avg_val[i] = (ones / (components - 1));
+                if(components < 2)
+                    avg_val[i] = (ones / (components - 1));
             }
         }
         double sumWeights = 0d;
         if(weights == null)
             return compute_mean(avg_val,components);
-
 
         double sum = 0d;
         for(int i=0;i<components;i++) {
@@ -574,9 +597,9 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 
         case VCDDU:{
 
+            double ff_val = compute_FF4(spectrum,getWeights());
+            return 0.5d * spectrum.basicCoverage() * (1 - ff_val);
 
-            //mycode starts
-            //switching implementation
 
 //            iteration++;
 //
@@ -666,7 +689,7 @@ public abstract class AbstractAESCoverageSuiteFitness extends TestSuiteFitnessFu
 //            appendStrToFile("/tmp/feature_dump_VCDDU.csv", data_dump);
 //            //data_dump = "";
 //            return (0.5 - (0.5 * result));
-             return spectrum.getSecondOrderDiversitybyDistance();
+//             return spectrum.getSecondOrderDiversitybyDistance();
         }
             //mycode ends
 

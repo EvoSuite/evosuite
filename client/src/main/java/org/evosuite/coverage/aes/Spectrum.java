@@ -1294,4 +1294,58 @@
         }
 
 
+        /* simplified implementation of FF4 */
+        public double[] compute_WWE_vec()
+        {
+            if (!this.isValidMatrix()) return null;
+
+            ArrayList<BitSet> A = this.transactions;
+            int rows = this.getNumTransactions();
+            int cols = this.getNumComponents();
+            double[] result = new double[cols];
+
+
+            for(int i=0;i<cols;i++)
+            {
+                /* counts how many components have extact same involvement pattern as the current component */
+                double exactMatchCounter = 0d;
+                /* shows if the current component has been covered by any test case or not */
+                boolean isCovered = false;
+
+                /* check to see if the component is covered or not */
+                for(int l=0;l<rows;l++)
+                {
+                    if(A.get(l).get(i))
+                    {
+                        isCovered = true;
+                        break;
+                    }
+                }
+                if(!isCovered){
+                    result[i] = 1d;
+                    continue;
+                }
+
+                /* Iterate through all columns to check if any other involvement pattern is exactly same the current component */
+                for(int j=0;j<cols;j++)
+                {
+                    for(int k=0;k<rows;k++)
+                    {
+                        if(A.get(k).get(i) != A.get(k).get(j))
+                            break;
+                        if(k == (rows - 1))
+                            exactMatchCounter++;
+                    }
+                }
+                /* set the WWE_vec value to (r-1) / (n-1), exactMatch counter should always be equal to or more than 1 */
+                if(cols > 1)
+                    result[i] = (exactMatchCounter - 1) / (cols - 1);
+                else
+                    result[i] = 0d;
+
+
+            }
+            return result;
+        }
+
 	}
