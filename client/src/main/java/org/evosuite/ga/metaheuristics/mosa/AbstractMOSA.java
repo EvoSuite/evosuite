@@ -427,7 +427,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
      * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
      */
     @Override
-	protected void notifyEvaluation(Chromosome chromosome) {
+	protected void notifyEvaluation(TestChromosome chromosome) {
 		// ProgressMonitor requires a TestSuiteChromosome
 		listeners.stream()
 				.filter(l -> !(l instanceof ProgressMonitor))
@@ -440,7 +440,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
      * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
      */
     @Override
-    protected void notifyMutation(Chromosome chromosome) {
+    protected void notifyMutation(TestChromosome chromosome) {
 		// ProgressMonitor requires a TestSuiteChromosome
 		listeners.stream()
 				.filter(l -> !(l instanceof ProgressMonitor))

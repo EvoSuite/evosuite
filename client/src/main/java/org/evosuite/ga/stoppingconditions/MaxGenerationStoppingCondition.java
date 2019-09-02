@@ -20,6 +20,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**
@@ -27,7 +28,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  *
  * @author Gordon Fraser
  */
-public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
+public class MaxGenerationStoppingCondition<T extends Chromosome> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = 251196904115160351L;
 
@@ -55,7 +56,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	 * Increase iteration counter
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		currentIteration++;
 	}
 
@@ -71,7 +72,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 		currentIteration = 0;
 	}
 

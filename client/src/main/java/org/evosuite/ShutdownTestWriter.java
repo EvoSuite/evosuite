@@ -18,10 +18,11 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 import org.evosuite.utils.LoggingUtils;
 
@@ -32,11 +33,11 @@ import sun.misc.SignalHandler;
  * <p>
  * ShutdownTestWriter class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 @SuppressWarnings("restriction")
-public class ShutdownTestWriter extends StoppingConditionImpl implements SignalHandler {
+public class ShutdownTestWriter<T extends Chromosome> extends StoppingConditionImpl<T> implements SignalHandler {
 
 	private static final long serialVersionUID = -5703624299360241009L;
 
@@ -60,7 +61,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	 * <p>
 	 * isInterrupted
 	 * </p>
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	public static boolean isInterrupted() {

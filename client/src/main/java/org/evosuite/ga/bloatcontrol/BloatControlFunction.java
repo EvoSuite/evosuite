@@ -29,7 +29,7 @@ import org.evosuite.ga.Chromosome;
  *
  * @author Gordon Fraser
  */
-public interface BloatControlFunction extends Serializable {
+public interface BloatControlFunction<T extends Chromosome> extends Serializable {
 
 	/**
 	 * <p>isTooLong</p>
@@ -37,6 +37,6 @@ public interface BloatControlFunction extends Serializable {
 	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	public boolean isTooLong(Chromosome chromosome);
+	public boolean isTooLong(T chromosome);
 
 }

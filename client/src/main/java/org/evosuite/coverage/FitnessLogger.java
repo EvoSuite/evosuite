@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gordon Fraser
  */
-public class FitnessLogger implements SearchListener {
+public class FitnessLogger<T extends Chromosome> implements SearchListener<T> {
 
 	private static Logger logger = LoggerFactory.getLogger(FitnessLogger.class);
 
@@ -64,7 +64,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 		evaluations = 0;
 		evaluations_history.clear();
 		statements_history.clear();
@@ -85,7 +85,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		if (algorithm.getPopulation().isEmpty())
 			return;
 
@@ -100,7 +100,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 		if (name == null)
 			return;
 
@@ -126,7 +126,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		evaluations++;
 	}
 
@@ -135,7 +135,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

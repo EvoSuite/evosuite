@@ -40,6 +40,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  */
 public class StatisticsListener implements SearchListener {
+	// FIXME should extend SearchListener<TestSuiteChromosome>
+	//  but this requires an adapter for NoveltySearch first
 
 	private volatile BlockingQueue<Chromosome> individuals = new LinkedBlockingQueue<Chromosome>();
 
@@ -78,7 +80,7 @@ public class StatisticsListener implements SearchListener {
 
 
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm algorithm) {
 
 		long elapsed = System.currentTimeMillis() - timeFromLastGenerationUpdate;
 		if(elapsed > Properties.TIMELINE_INTERVAL){
@@ -97,7 +99,7 @@ public class StatisticsListener implements SearchListener {
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 
 		// If the search is finished, we may want to clear the queue and just send the final element?
 		//individuals.clear(); // TODO: Maybe have a check on size
@@ -125,7 +127,7 @@ public class StatisticsListener implements SearchListener {
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		done = false;
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;

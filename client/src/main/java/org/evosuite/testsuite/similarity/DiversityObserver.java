@@ -37,11 +37,13 @@ import java.util.List;
  * Created by gordon on 18/12/2015.
  */
 public class DiversityObserver implements SearchListener {
+    // FIXME this should implement SearchListener<TestSuiteChromosome>
+    //  but this requires an adapter for NoveltySearch first
 
     private static final Logger logger = LoggerFactory.getLogger(DiversityObserver.class);
 
     @Override
-    public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+    public void iteration(GeneticAlgorithm algorithm) {
         List<TestSuiteChromosome> individuals = (List<TestSuiteChromosome>) algorithm.getPopulation();
         double diversity = 0.0;
         int numComparisons = 0;
@@ -177,12 +179,12 @@ public class DiversityObserver implements SearchListener {
     }
 
     @Override
-    public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+    public void searchStarted(GeneticAlgorithm algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+    public void searchFinished(GeneticAlgorithm algorithm) {
 
     }
 

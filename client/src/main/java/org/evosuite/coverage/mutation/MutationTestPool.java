@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  */
 public class MutationTestPool implements SearchListener {
+	// FIXME should extend SearchListener<TestSuiteChromosome>
+	//  but this requires an adapter for NoveltySearch (which uses TestChromosomes)
 
 	private final static Logger logger = LoggerFactory.getLogger(MutationTestPool.class);
 
@@ -153,7 +155,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 
 	}
 
@@ -162,7 +164,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm algorithm) {
 
 	}
 
@@ -171,7 +173,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		TestSuiteChromosome solution = (TestSuiteChromosome) algorithm.getBestIndividual();
 
 		logger.info("Search finished with size " + solution.size());

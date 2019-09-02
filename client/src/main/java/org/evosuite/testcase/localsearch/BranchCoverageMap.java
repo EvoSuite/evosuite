@@ -31,7 +31,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-public class BranchCoverageMap implements SearchListener {
+public class BranchCoverageMap implements SearchListener<TestSuiteChromosome> {
 
 	public static BranchCoverageMap instance = null;
 
@@ -75,27 +75,26 @@ public class BranchCoverageMap implements SearchListener {
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
-		coveredTrueBranches  = new LinkedHashMap<Integer, TestCase>();
-		coveredFalseBranches = new LinkedHashMap<Integer, TestCase>();
+	public void searchStarted(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
+		coveredTrueBranches  = new LinkedHashMap<>();
+		coveredFalseBranches = new LinkedHashMap<>();
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
 
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<TestSuiteChromosome, ?> algorithm) {
 		coveredTrueBranches  = null;
 		coveredFalseBranches = null;
 	}
 
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
-		if(individual instanceof TestSuiteChromosome) {
-			TestSuiteChromosome suite = (TestSuiteChromosome)individual;
-			for(TestChromosome testChromosome : suite.getTestChromosomes()) {
+	public void fitnessEvaluation(TestSuiteChromosome individual) {
+		if(individual != null) {
+			for(TestChromosome testChromosome : individual.getTestChromosomes()) {
 				ExecutionResult lastResult = testChromosome.getLastExecutionResult();
 				if(lastResult != null) {
 					for(Integer branchId : lastResult.getTrace().getCoveredTrueBranches()) {
@@ -115,7 +114,7 @@ public class BranchCoverageMap implements SearchListener {
 	}
 
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(TestSuiteChromosome individual) {
 		// TODO Auto-generated method stub
 
 	}

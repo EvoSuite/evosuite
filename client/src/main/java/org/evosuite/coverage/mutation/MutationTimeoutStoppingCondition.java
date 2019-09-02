@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.coverage.mutation;
 
@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Strategy;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 
@@ -37,7 +38,7 @@ import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
  *
  * @author Gordon Fraser
  */
-public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
+public class MutationTimeoutStoppingCondition<T extends Chromosome> extends StoppingConditionImpl<T> {
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MutationTimeoutStoppingCondition.class);
 
@@ -50,7 +51,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	private static boolean hasException = false;
 
 	private static Set<Mutation> exceptions = new HashSet<Mutation>();
-	
+
 	private static int MAX_TIMEOUTS = Properties.MUTATION_TIMEOUTS;
 
 	private static Set<Mutation> disabled = new HashSet<Mutation>();
@@ -86,11 +87,11 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	public boolean isFinished() {
 		logger.debug("Number of timeouts registered for this mutant: " + timeouts + "/"
 		        + MAX_TIMEOUTS);
-		
+
 		if (Properties.STRATEGY != Strategy.ONEBRANCH){
 			return false;
 		}
-		
+
 		if (timeout >= MAX_TIMEOUTS) {
 			logger.debug("Mutation timed out, stopping search");
 		}
@@ -133,14 +134,14 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public static void timeOut(Mutation mutation) {
-		
+
 		if (Properties.STRATEGY != Strategy.ONEBRANCH){
 			int t = 1;
 			if (timeouts.containsKey(mutation)){
 				t = timeouts.get(mutation) + 1;
 			}
 			timeouts.put(mutation, t);
-			
+
 	//		timeouts++;
 			if (t >= MAX_TIMEOUTS)
 				disabled.add(mutation);
@@ -174,7 +175,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 			timeout = (int) value;
 		}
 	}
-	
+
 	public static void resetStatic() {
 		timeouts.clear();
 		exceptions.clear();

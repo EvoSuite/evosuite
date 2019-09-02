@@ -20,13 +20,14 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 
 /**
  * <p>MaxTestsStoppingCondition class.</p>
  *
  * @author Gordon Fraser
  */
-public class MaxTestsStoppingCondition extends StoppingConditionImpl {
+public class MaxTestsStoppingCondition<T extends Chromosome> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = -3375236459377313641L;
 

@@ -23,6 +23,7 @@
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gordon Fraser
  */
-public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
+public class GlobalTimeStoppingCondition<T extends Chromosome> extends StoppingConditionImpl<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(GlobalTimeStoppingCondition.class);
 
@@ -48,7 +49,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 		if (startTime == 0)
 			reset();
 	}

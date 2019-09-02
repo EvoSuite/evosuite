@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gordon Fraser
  */
-public class SocketStoppingCondition implements StoppingCondition {
+public class SocketStoppingCondition<T extends Chromosome> implements StoppingCondition<T> {
 
 	private volatile boolean interrupted = false;
 
@@ -47,31 +47,28 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 * <p>accept</p>
 	 */
 	public void accept() {
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				ServerSocket serverSocket = null;
-				try {
-					serverSocket = new ServerSocket(Properties.STOPPING_PORT);
-					serverSocket.accept();
-					LoggingUtils.getEvoLogger().info("* Stopping request received");
-					interrupted = true;
+		Thread t = new Thread(() -> {
+			ServerSocket serverSocket = null;
+			try {
+				serverSocket = new ServerSocket(Properties.STOPPING_PORT);
+				serverSocket.accept();
+				LoggingUtils.getEvoLogger().info("* Stopping request received");
+				interrupted = true;
 
-				} catch (IOException e) {
-					LoggingUtils.getEvoLogger().warn("Failed to create socket on port "
-					                                         + Properties.STOPPING_PORT);
-				} finally {
-					if(serverSocket != null) {
-						try {
-							serverSocket.close();
-						} catch(IOException e) {
-							logger.info("Error while closing socket: "+e);
-						}
+			} catch (IOException e) {
+				LoggingUtils.getEvoLogger().warn("Failed to create socket on port "
+														 + Properties.STOPPING_PORT);
+			} finally {
+				if(serverSocket != null) {
+					try {
+						serverSocket.close();
+					} catch(IOException e) {
+						logger.info("Error while closing socket: "+e);
 					}
 				}
-
 			}
-		};
+
+		});
 		t.start();
 	}
 
@@ -80,7 +77,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -90,7 +87,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -100,7 +97,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

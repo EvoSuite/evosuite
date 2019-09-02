@@ -40,7 +40,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author gordon
  */
-public class ProgressMonitor implements SearchListener, Serializable {
+public class ProgressMonitor<T extends Chromosome> implements SearchListener<T>, Serializable {
 
 	private static final long serialVersionUID = -8518559681906649686L;
 
@@ -84,7 +84,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 		for(StoppingCondition cond : algorithm.getStoppingConditions()) {
 			if(cond.getLimit() == 0) // No ZeroStoppingCondition
 				continue;
@@ -99,7 +99,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		long current = stoppingCondition.getCurrentValue();
 		currentCoverage = (int) Math.floor(algorithm.getBestIndividual().getCoverage() * 100);
 		updateStatus((int) (100 * current / max));
@@ -111,7 +111,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 		currentCoverage = (int) Math.floor(algorithm.getBestIndividual().getCoverage() * 100);
 		if(currentCoverage > lastCoverage) {
 			updateStatus((int) (100 * stoppingCondition.getCurrentValue() / max));
@@ -124,7 +124,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome individual) {
+	public void fitnessEvaluation(T individual) {
 		int current = (int) ((int)(100 * stoppingCondition.getCurrentValue())/max);
 		currentCoverage = (int) Math.floor(individual.getCoverage() * 100);
 		if(currentCoverage > lastCoverage || current > lastProgress)
@@ -136,7 +136,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

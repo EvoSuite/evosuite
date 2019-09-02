@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MaxLengthStoppingCondition extends StoppingConditionImpl {
+public class MaxLengthStoppingCondition<T extends Chromosome> extends StoppingConditionImpl<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaxLengthStoppingCondition.class);
 
@@ -63,7 +63,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		averageLength = algorithm.getPopulation().stream()
 				.mapToInt(Chromosome::size)
 				.average()

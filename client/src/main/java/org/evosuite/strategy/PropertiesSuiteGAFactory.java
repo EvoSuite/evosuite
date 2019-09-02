@@ -313,21 +313,21 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		ga.setRankingFunction(rankingFunction);
 
 		// When to stop the search
-		StoppingCondition stoppingCondition = getStoppingCondition();
+		StoppingCondition<TestSuiteChromosome> stoppingCondition = getStoppingCondition();
 		ga.setStoppingCondition(stoppingCondition);
 		// ga.addListener(stoppingCondition);
 		if (Properties.STOP_ZERO) {
-			ga.addStoppingCondition(new ZeroFitnessStoppingCondition());
+			ga.addStoppingCondition(new ZeroFitnessStoppingCondition<>());
 		}
 
 		if (!(stoppingCondition instanceof MaxTimeStoppingCondition)) {
-			ga.addStoppingCondition(new GlobalTimeStoppingCondition());
+			ga.addStoppingCondition(new GlobalTimeStoppingCondition<>());
 		}
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)
 		        || ArrayUtil.contains(Properties.CRITERION, Criterion.STRONGMUTATION)) {
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
-				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
+				ga.addStoppingCondition(new MutationTimeoutStoppingCondition<>());
 			else
 				ga.addListener(new MutationTestPool());
 			// } else if (Properties.CRITERION == Criterion.DEFUSE) {
@@ -346,7 +346,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		// ga.setBloatControl(bloat_control);
 
 		if (Properties.CHECK_BEST_LENGTH) {
-			RelativeSuiteLengthBloatControl bloatControl = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
+			RelativeSuiteLengthBloatControl<TestSuiteChromosome> bloatControl =
+					new org.evosuite.testsuite.RelativeSuiteLengthBloatControl<>();
 			ga.addBloatControl(bloatControl);
 			ga.addListener(bloatControl);
 		}
@@ -374,14 +375,15 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		}
 
 		if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-			org.evosuite.ga.metaheuristics.SearchListener map = BranchCoverageMap.getInstance();
+			org.evosuite.ga.metaheuristics.SearchListener<TestSuiteChromosome> map =
+					BranchCoverageMap.getInstance();
 			ga.addListener(map);
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {
 			// ShutdownTestWriter writer = new
 			// ShutdownTestWriter(Thread.currentThread());
-			ShutdownTestWriter writer = new ShutdownTestWriter();
+			ShutdownTestWriter<TestSuiteChromosome> writer = new ShutdownTestWriter<>();
 			ga.addStoppingCondition(writer);
 			RMIStoppingCondition rmi = RMIStoppingCondition.getInstance();
 			ga.addStoppingCondition(rmi);

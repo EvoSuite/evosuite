@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Stop search after a predefined maximum search depth
- * 
+ *
  * @author Gordon Fraser
  */
-public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImpl {
+public class MaxFitnessEvaluationsStoppingCondition<T extends Chromosome> extends StoppingConditionImpl<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
 
@@ -43,7 +43,7 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Stop when maximum number of fitness evaluations has been reached
 	 */
 	@Override
@@ -54,7 +54,7 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Keep track of the number of fitness evaluations
 	 */
 	@Override
@@ -64,7 +64,7 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 
 	/**
 	 * Static getter method
-	 * 
+	 *
 	 * @return a long.
 	 */
 	public static long getNumFitnessEvaluations() {
@@ -73,7 +73,7 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * At the end, reset
 	 */
 	@Override

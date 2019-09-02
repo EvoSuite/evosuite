@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class NoveltyFitnessEvaluationListener implements SearchListener {
+public class NoveltyFitnessEvaluationListener implements SearchListener<TestChromosome> {
 
     private List<TestSuiteFitnessFunction> fitnessFunctions;
 
@@ -26,10 +26,10 @@ public class NoveltyFitnessEvaluationListener implements SearchListener {
         return suite;
     }
     @Override
-    public void iteration(GeneticAlgorithm<?, ?> algorithm) {
-        List<TestChromosome> population = ((GeneticAlgorithm<TestChromosome, ?>)algorithm).getPopulation();
+    public void iteration(GeneticAlgorithm<TestChromosome, ?> algorithm) {
+        List<TestChromosome> population = algorithm.getPopulation();
         TestSuiteChromosome suite = createMergedSolution(population);
-        for (FitnessFunction fitnessFunction : fitnessFunctions) {
+        for (TestSuiteFitnessFunction fitnessFunction : fitnessFunctions) {
             fitnessFunction.getFitness(suite);
         }
 
@@ -39,22 +39,22 @@ public class NoveltyFitnessEvaluationListener implements SearchListener {
 
 
     @Override
-    public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+    public void searchStarted(GeneticAlgorithm<TestChromosome, ?> algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+    public void searchFinished(GeneticAlgorithm<TestChromosome, ?> algorithm) {
 
     }
 
     @Override
-    public void fitnessEvaluation(Chromosome individual) {
+    public void fitnessEvaluation(TestChromosome individual) {
 
     }
 
     @Override
-    public void modification(Chromosome individual) {
+    public void modification(TestChromosome individual) {
 
     }
 }

@@ -62,24 +62,24 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome, F e
 		}
 	}
 
-	protected StoppingCondition getStoppingCondition() {
+	protected StoppingCondition<T> getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
 		case MAXGENERATIONS:
-			return new MaxGenerationStoppingCondition();
+			return new MaxGenerationStoppingCondition<>();
 		case MAXFITNESSEVALUATIONS:
-			return new MaxFitnessEvaluationsStoppingCondition();
+			return new MaxFitnessEvaluationsStoppingCondition<>();
 		case MAXTIME:
-			return new MaxTimeStoppingCondition();
+			return new MaxTimeStoppingCondition<>();
 		case MAXTESTS:
-			return new MaxTestsStoppingCondition();
+			return new MaxTestsStoppingCondition<>();
 		case MAXSTATEMENTS:
-			return new MaxStatementsStoppingCondition();
+			return new MaxStatementsStoppingCondition<>();
 		case TIMEDELTA:
-			return new TimeDeltaStoppingCondition();
+			return new TimeDeltaStoppingCondition<>();
 		default:
 			logger.warn("Unknown stopping condition: " + Properties.STOPPING_CONDITION);
-			return new MaxGenerationStoppingCondition();
+			return new MaxGenerationStoppingCondition<>();
 		}
 	}
 

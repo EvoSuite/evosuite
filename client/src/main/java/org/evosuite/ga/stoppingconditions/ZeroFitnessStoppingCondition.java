@@ -19,6 +19,7 @@
  */
 package org.evosuite.ga.stoppingconditions;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**
@@ -26,7 +27,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
  *
  * @author Gordon Fraser
  */
-public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
+public class ZeroFitnessStoppingCondition<T extends Chromosome> extends StoppingConditionImpl<T> {
 
 	private static final long serialVersionUID = -6925872054053635256L;
 
@@ -39,7 +40,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	 * Update information on currently lowest fitness
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		lastFitness = Math.min(lastFitness, algorithm.getBestIndividual().getFitness());
 	}
 

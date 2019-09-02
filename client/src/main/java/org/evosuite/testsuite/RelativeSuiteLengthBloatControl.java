@@ -32,7 +32,8 @@ import org.evosuite.testcase.TestChromosome;
  *
  * @author Gordon Fraser
  */
-public class RelativeSuiteLengthBloatControl implements BloatControlFunction, SearchListener {
+public class RelativeSuiteLengthBloatControl<T extends Chromosome> implements BloatControlFunction<T>,
+		SearchListener<T> {
 
 	private static final long serialVersionUID = -2352882640530431653L;
 
@@ -41,8 +42,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	 */
 	protected int current_max = 0;
 
-	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
-	                                                  // minimizing fitness!
+	protected double best_fitness = Double.MAX_VALUE; // FIXME: Assuming minimizing fitness!
 
 	/**
 	 * {@inheritDoc}
@@ -51,7 +51,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	 * best individual
 	 */
 	@Override
-	public boolean isTooLong(Chromosome chromosome) {
+	public boolean isTooLong(T chromosome) {
 
 		// Always accept if fitness is better
 		if (chromosome.getFitness() < best_fitness)
@@ -68,7 +68,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 			if (chromosome instanceof TestSuiteChromosome)
 				length = ((TestSuiteChromosome) chromosome).totalLengthOfTestCases();
 			if (chromosome instanceof TestChromosome)
-				length = ((TestChromosome) chromosome).size();
+				length = chromosome.size();
 			return length > (Properties.BLOAT_FACTOR * current_max);
 		} else
 			return false; // Don't know max length so can't reject!
@@ -81,28 +81,28 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	 * Set current max length to max of best chromosome
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm<T, ?> algorithm) {
 		Chromosome best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome)
 			current_max = ((TestSuiteChromosome) best).totalLengthOfTestCases();
 		if (best instanceof TestChromosome)
-			current_max = ((TestChromosome) best).size();
+			current_max = best.size();
 		best_fitness = best.getFitness();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<T, ?> algorithm) {
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<T, ?> algorithm) {
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void fitnessEvaluation(Chromosome result) {
+	public void fitnessEvaluation(T result) {
 	}
 
 	/*
@@ -114,7 +114,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void modification(Chromosome individual) {
+	public void modification(T individual) {
 		// TODO Auto-generated method stub
 
 	}

@@ -54,7 +54,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -63,7 +63,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -72,7 +72,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}

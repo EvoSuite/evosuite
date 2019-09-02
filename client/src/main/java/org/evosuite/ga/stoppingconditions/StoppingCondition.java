@@ -19,8 +19,9 @@
  */
 package org.evosuite.ga.stoppingconditions;
 
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.metaheuristics.SearchListener;
-public interface StoppingCondition extends SearchListener {
+public interface StoppingCondition<T extends Chromosome> extends SearchListener<T> {
 
 	/**
 	 * Force a specific amount of used up budget. Handle with care!

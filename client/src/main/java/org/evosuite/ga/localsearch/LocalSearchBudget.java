@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -16,9 +16,6 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- *
  */
 package org.evosuite.ga.localsearch;
 
@@ -41,6 +38,12 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser
  */
 public class LocalSearchBudget implements SearchListener, Serializable {
+	/*
+	 * Since this class is implemented as singleton and Java has no bottom type (i.e., a type that
+	 * is subtype of all other types), we have no choice but to use raw types as an escape hook.
+	 * This should not cause any problems, however, since we're only ever assuming the basic
+	 * functionality of Chromosome anyway.
+	 */
 
 	private static final long serialVersionUID = 9152147170303160131L;
 
@@ -56,7 +59,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	protected long startTime     = 0L;
 	protected long endTime       = 0L;
 
-	protected GeneticAlgorithm<?, ?> ga = null;
+	protected GeneticAlgorithm ga = null;
 
 	// Private constructor because of singleton type
 	private LocalSearchBudget() {
@@ -149,7 +152,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchStarted(GeneticAlgorithm algorithm) {
 		ga = algorithm;
 		tests         = 0;
 		suites        = 0;
@@ -161,7 +164,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+	public void iteration(GeneticAlgorithm algorithm) {
 		tests         = 0;
 		suites        = 0;
 		fitnessEvaluations      = 0;
@@ -172,7 +175,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
+	public void searchFinished(GeneticAlgorithm algorithm) {
 		ga = null;
 	}
 
