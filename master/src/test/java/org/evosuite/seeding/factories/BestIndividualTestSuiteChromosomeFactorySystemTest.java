@@ -35,7 +35,7 @@ import com.examples.with.different.packagename.staticusage.Class1;
 public class BestIndividualTestSuiteChromosomeFactorySystemTest extends SystemTestBase {
 	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
 	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome> ga;
+	GeneticAlgorithm<TestSuiteChromosome, ?> ga;
 
 	@Before
 	public void setup(){
@@ -50,18 +50,18 @@ public class BestIndividualTestSuiteChromosomeFactorySystemTest extends SystemTe
 
 		Object result = evosuite.parseCommandLine(command);
 
-		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
+		ga = (GeneticAlgorithm<TestSuiteChromosome, ?>) getGAFromResult(result);
 		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
 	}
-	
+
 	@Test
 	public void testSeed(){
 		BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(
 				defaultFactory, bestIndividual);
-		
+
 		assertEquals(bestIndividual.toString(), bicf.getChromosome().toString());
 	}
-	
+
 	@Test
 	public void testNotSeed(){
 		BestIndividualTestSuiteChromosomeFactory bicf = new BestIndividualTestSuiteChromosomeFactory(

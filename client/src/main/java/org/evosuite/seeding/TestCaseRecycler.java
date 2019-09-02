@@ -30,14 +30,14 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
- * 
+ *
  * This singleton class serves as a pool for TestChromosomes that are worth
  * recycling
- * 
+ *
  * Whenever a TestFitnessFunction detects, that a TestChromosome covers it, the
  * TestFitnessFunction will notify this Class by calling
  * testIsInterestingForGoal()
- * 
+ *
  * Then whenever a genetic algorithm fills it's initial population it will ask
  * this class for interesting TestChromosomes concerning it's current
  * fitness_function getRecycableChromosomes() then returns to the GA a set of
@@ -45,7 +45,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * similar to the given fitness_function - for more information look at
  * TestFitnessFunction.isSimilarTo(), .isCovered() and
  * GeneticAlgorithm.recycleChromosomes()
- * 
+ *
  * @author Andre Mis
  */
 public final class TestCaseRecycler implements SearchListener {
@@ -58,7 +58,7 @@ public final class TestCaseRecycler implements SearchListener {
 	 * <p>
 	 * Getter for the field <code>instance</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.seeding.TestCaseRecycler} object.
 	 */
 	public static TestCaseRecycler getInstance() {
@@ -73,19 +73,19 @@ public final class TestCaseRecycler implements SearchListener {
 
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
 		Chromosome individual = algorithm.getBestIndividual();
 		if(individual instanceof TestChromosome) {
 			TestChromosome testChromosome = (TestChromosome)individual;
@@ -99,12 +99,12 @@ public final class TestCaseRecycler implements SearchListener {
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

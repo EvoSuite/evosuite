@@ -50,12 +50,12 @@ import com.examples.with.different.packagename.staticfield.StaticFoo;
  */
 public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
-	private Properties.Criterion[] oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length); 
-	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION; 
+	private Properties.Criterion[] oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION;
 	private double oldPrimitivePool = Properties.PRIMITIVE_POOL;
 	private boolean oldResetStaticFields = Properties.RESET_STATIC_FIELDS;
 	private int oldChromosomeLength = Properties.CHROMOSOME_LENGTH;
-	
+
 	@Before
 	public void beforeTest() {
 		oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
@@ -65,7 +65,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
         oldResetStaticFields = Properties.RESET_STATIC_FIELDS;
 		//Properties.MINIMIZE = false;
 	}
-	
+
 	@After
 	public void restoreProperties() {
 		Properties.CRITERION = oldCriteria;
@@ -80,46 +80,46 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = false;
-		
+
 		String targetClass = SingleMethod.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.ONLYLINE };
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
+
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLineCoverageFitnessSimpleExampleWithArchive() {
 		EvoSuite evosuite = new EvoSuite();
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = false;
-		
+
 		String targetClass = SingleMethod.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
+
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLineCoverageFitnessSimpleExampleWithoutArchive() {
 		EvoSuite evosuite = new EvoSuite();
@@ -128,13 +128,13 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String targetClass = SingleMethod.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
+
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
@@ -154,17 +154,17 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
-		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLineCoverageFitnessFlagExample3WithArchive() {
 		EvoSuite evosuite = new EvoSuite();
@@ -177,23 +177,23 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
-		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLineCoverageFitnessBranchGuidanceWithoutArchive() {
 		EvoSuite evosuite = new EvoSuite();
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = false;
-		
+
 		String targetClass = IntExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
@@ -204,23 +204,23 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
-		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLineCoverageFitnessBranchGuidanceWithArchive() {
 		EvoSuite evosuite = new EvoSuite();
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = true;
-		
+
 		String targetClass = IntExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
@@ -231,24 +231,24 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
-		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testOnlyLineCoverageFitnessBranchGuidanceWithArchive() {
 		EvoSuite evosuite = new EvoSuite();
 		boolean archive = Properties.TEST_ARCHIVE;
 		Properties.TEST_ARCHIVE = true;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.ONLYLINE };
-		
+
 		String targetClass = IntExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 
@@ -259,18 +259,18 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
-		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		// Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
 	}
-	
+
 	@Test
 	public void testLineCoverageFitnessBranchGuidance2WithoutArchive() {
 		EvoSuite evosuite = new EvoSuite();
@@ -287,17 +287,17 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
-		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(6, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLineCoverageFitnessBranchGuidance2WithArchive() {
 		EvoSuite evosuite = new EvoSuite();
@@ -314,11 +314,11 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Properties.TEST_ARCHIVE = archive;
-		
-		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());	
+
+		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(6, goals );
@@ -398,7 +398,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
             System.out.println(line);
         }
 
-        // lines: 22, 24, 27, 30, 31, 32, 33, 35, 38 
+        // lines: 22, 24, 27, 30, 31, 32, 33, 35, 38
         Assert.assertEquals(9, lines.size());
     }
 
@@ -417,7 +417,7 @@ public class LineCoverageFitnessFunctionSystemTest extends SystemTestBase {
         EvoSuite evosuite = new EvoSuite();
 
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         // lines: 22, 24, 27, 30, 31, 32, 33, 35, 38

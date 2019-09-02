@@ -41,7 +41,7 @@ public class DiversityObserver implements SearchListener {
     private static final Logger logger = LoggerFactory.getLogger(DiversityObserver.class);
 
     @Override
-    public void iteration(GeneticAlgorithm<?> algorithm) {
+    public void iteration(GeneticAlgorithm<?, ?> algorithm) {
         List<TestSuiteChromosome> individuals = (List<TestSuiteChromosome>) algorithm.getPopulation();
         double diversity = 0.0;
         int numComparisons = 0;
@@ -177,12 +177,12 @@ public class DiversityObserver implements SearchListener {
     }
 
     @Override
-    public void searchStarted(GeneticAlgorithm<?> algorithm) {
+    public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<?> algorithm) {
+    public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
 
     }
 

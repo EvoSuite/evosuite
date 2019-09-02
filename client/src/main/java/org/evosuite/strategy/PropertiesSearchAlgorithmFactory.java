@@ -20,6 +20,7 @@
 package org.evosuite.strategy;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.populationlimit.IndividualPopulationLimit;
@@ -38,12 +39,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Factory class for GAs
- * 
+ *
  * @author gordon
  *
  * @param <T>
  */
-public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
+public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome, F extends FitnessFunction<T>>  {
 
 	protected static final Logger logger = LoggerFactory.getLogger(PropertiesSearchAlgorithmFactory.class);
 
@@ -60,7 +61,7 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 			throw new RuntimeException("Unsupported population limit");
 		}
 	}
-	
+
 	protected StoppingCondition getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
@@ -81,6 +82,6 @@ public abstract class PropertiesSearchAlgorithmFactory<T extends Chromosome>  {
 			return new MaxGenerationStoppingCondition();
 		}
 	}
-	
-	public abstract GeneticAlgorithm<?> getSearchAlgorithm();
+
+	public abstract GeneticAlgorithm<T, ? extends F> getSearchAlgorithm();
 }

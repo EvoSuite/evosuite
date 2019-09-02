@@ -48,18 +48,18 @@ public class SUTArrayLimitSystemTest extends SystemTestBase {
 	public void testWithinLimits() {
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = ArrayLimit.class.getCanonicalName();
-		
+
 		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
+
+		String[] command = new String[]{
 				"-generateSuite",
 				"-class",
 				targetClass
 		};
-		
+
 		Object result = evosuite.parseCommandLine(command);
-		
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n"+best);
 
@@ -70,19 +70,19 @@ public class SUTArrayLimitSystemTest extends SystemTestBase {
 	public void testAboveLimits() {
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = ArrayLimit.class.getCanonicalName();
-		
+
 		Properties.ARRAY_LIMIT = 10;
 		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
+
+		String[] command = new String[]{
 				"-generateSuite",
 				"-class",
 				targetClass
 		};
-		
+
 		Object result = evosuite.parseCommandLine(command);
-		
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n"+best);
 

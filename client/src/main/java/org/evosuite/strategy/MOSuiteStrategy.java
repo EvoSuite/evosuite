@@ -19,11 +19,11 @@
  */
 package org.evosuite.strategy;
 
+import junit.framework.TestSuite;
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -44,13 +44,13 @@ import java.util.List;
 
 /**
  * Test generation with MOSA
- * 
+ *
  * @author Annibale,Fitsum
  *
  */
 public class MOSuiteStrategy extends TestGenerationStrategy {
 
-	@Override	
+	@Override
 	public TestSuiteChromosome generateTests() {
 		// Currently only LIPS uses its own Archive
 		if (Properties.ALGORITHM == Properties.Algorithm.LIPS) {
@@ -60,13 +60,9 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// Set up search algorithm
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
 
-		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
-		
-		// Override chromosome factory
-		// TODO handle this better by introducing generics
-		ChromosomeFactory factory = new RandomLengthTestFactory();
-		algorithm.setChromosomeFactory(factory);
-		
+		GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> algorithm =
+				algorithmFactory.getSearchAlgorithm();
+
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
 
@@ -76,32 +72,32 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
 		List<TestFitnessFunction> fitnessFunctions = new ArrayList<>();
 		goalFactories.forEach(f -> fitnessFunctions.addAll(f.getCoverageGoals()));
-		algorithm.addFitnessFunctions((List)fitnessFunctions);
+		algorithm.addFitnessFunctions((List)fitnessFunctions); // FIXME this cast is still ugly :(
 
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 		algorithm.addListener(progressMonitor); // FIXME progressMonitor may cause
 		// client hang if EvoSuite is
 		// executed with -prefix!
-		
+
 //		List<TestFitnessFunction> goals = getGoals(true);
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Total number of test goals for {}: {}",
 				Properties.ALGORITHM.name(), fitnessFunctions.size());
-		
+
 //		ga.setChromosomeFactory(getChromosomeFactory(fitnessFunctions.get(0))); // FIXME: just one fitness function?
 
 //		if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 //			ga.addListener(progressMonitor); // FIXME progressMonitor may cause
 
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) || 
-				ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS) || 
-				ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT) || 
-				ArrayUtil.contains(Properties.CRITERION, Criterion.RHO) || 
+		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE) ||
+				ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS) ||
+				ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT) ||
+				ArrayUtil.contains(Properties.CRITERION, Criterion.RHO) ||
 				ArrayUtil.contains(Properties.CRITERION, Criterion.BRANCH) ||
 				ArrayUtil.contains(Properties.CRITERION, Criterion.AMBIGUITY))
 			ExecutionTracer.enableTraceCalls();
 
 		algorithm.resetStoppingConditions();
-		
+
 		TestSuiteChromosome testSuite = null;
 
 		if (!(Properties.STOP_ZERO && fitnessFunctions.isEmpty()) || ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)) {
@@ -128,11 +124,11 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 
 //		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
 //        ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
-        
+
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
-		
+
 		String text = " statements, best individual has fitness: ";
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Search finished after "
 				+ (endTime - startTime)
@@ -145,13 +141,13 @@ public class MOSuiteStrategy extends TestGenerationStrategy {
 		// Search is finished, send statistics
 		sendExecutionStatistics();
 
-		// We send the info about the total number of coverage goals/targets only after 
+		// We send the info about the total number of coverage goals/targets only after
 		// the end of the search. This is because the number of coverage targets may vary
 		// when the criterion Properties.Criterion.EXCEPTION is used (exception coverage
 		// goal are dynamically added when the generated tests trigger some exceptions
 		ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, algorithm.getFitnessFunctions().size());
-		
+
 		return testSuite;
 	}
-	
+
 }

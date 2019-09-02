@@ -36,7 +36,7 @@ public class RandomIndividualTestSuiteChromosomeFactorySystemTest extends System
 
 	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
 	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome> ga;
+	GeneticAlgorithm<TestSuiteChromosome, ?> ga;
 
 	@Before
 	public void setup() {
@@ -49,7 +49,7 @@ public class RandomIndividualTestSuiteChromosomeFactorySystemTest extends System
 
 		Object result = evosuite.parseCommandLine(command);
 
-		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
+		ga = (GeneticAlgorithm<TestSuiteChromosome, ?>) getGAFromResult(result);
 		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
 	}
 

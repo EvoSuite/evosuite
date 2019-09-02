@@ -55,7 +55,7 @@ public class GenericFM_SystemTest extends SystemTestBase {
 
     @Test
     public void testGenericsWithConstrainedTypeParameter(){
-        GeneticAlgorithm<?> ga = do100percentLineTest(GenericFM_ConstrainedType.class);
+        GeneticAlgorithm<?, ?> ga = do100percentLineTest(GenericFM_ConstrainedType.class);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
         assertFalse(best.toString().contains("any(java.lang.Number.class)"));

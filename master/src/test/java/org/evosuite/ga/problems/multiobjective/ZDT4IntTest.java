@@ -44,7 +44,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
+ *
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -84,18 +84,18 @@ public class ZDT4IntTest
 
     /**
      * Testing NSGA-II with ZDT4 Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
     public void testZDT4() throws NumberFormatException, IOException
     {
         Properties.MUTATION_RATE = 1d / 10d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(true, 10, -5.0, 5.0);
+        ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(true, 10, -5.0, 5.0);
 
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         ts.setMaximize(false);
         ga.setSelectionFunction(ts);
@@ -110,21 +110,16 @@ public class ZDT4IntTest
         // execute
         ga.generateSolution();
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        chromosomes.sort(Comparator.comparingDouble(arg0 -> arg0.getFitness(f1)));
 
         double[][] front = new double[Properties.POPULATION][2];
         int index = 0;
 
         for (Chromosome chromosome : chromosomes) {
             System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-            front[index][0] = Double.valueOf(chromosome.getFitness(f1));
-            front[index][1] = Double.valueOf(chromosome.getFitness(f2));
+            front[index][0] = chromosome.getFitness(f1);
+            front[index][1] = chromosome.getFitness(f2);
 
             index++;
         }

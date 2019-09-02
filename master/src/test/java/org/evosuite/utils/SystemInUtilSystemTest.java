@@ -34,31 +34,31 @@ import com.examples.with.different.packagename.ReadFromSystemIn;
 public class SystemInUtilSystemTest extends SystemTestBase {
 
 	private static final boolean defaultSystemIn = Properties.REPLACE_SYSTEM_IN;
-	
+
 	/*
 	 * We consider VFS has it might mess up System.in handling (eg, these test cases were
-	 * created to debug such issue that actually happened) 
+	 * created to debug such issue that actually happened)
 	 */
 	private static final boolean defaultVFS = Properties.VIRTUAL_FS;
-	
+
 	@After
 	public void tearDown(){
 		Properties.REPLACE_SYSTEM_IN = defaultSystemIn;
 		Properties.VIRTUAL_FS = defaultVFS;
 	}
-	
+
 	@Test
 	public void testWithNoVFS(){
 		Properties.VIRTUAL_FS = false;
 		_test();
 	}
-	
+
 	@Test
 	public void testWithVFS(){
 		Properties.VIRTUAL_FS = true;
 		_test();
 	}
-	
+
 	private void _test(){
 
 		EvoSuite evosuite = new EvoSuite();
@@ -72,7 +72,7 @@ public class SystemInUtilSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

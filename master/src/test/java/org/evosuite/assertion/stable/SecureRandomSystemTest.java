@@ -43,7 +43,7 @@ public class SecureRandomSystemTest extends SystemTestBase {
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
-	
+
 
 	@Before
 	public void configureProperties() {
@@ -78,7 +78,7 @@ public class SecureRandomSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

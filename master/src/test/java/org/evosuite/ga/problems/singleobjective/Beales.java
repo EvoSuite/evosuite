@@ -36,7 +36,7 @@ import org.evosuite.ga.variables.DoubleVariable;
 @SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 public class Beales<T extends NSGAChromosome> implements Problem
 {
-    private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<FitnessFunction<T>>();
+    private List<FitnessFunction<T>> fitnessFunctions = new ArrayList<>();
 
     public Beales()
     {
@@ -69,7 +69,7 @@ public class Beales<T extends NSGAChromosome> implements Problem
     }
 
     @Override
-    public List getFitnessFunctions() {
+    public List<FitnessFunction<T>> getFitnessFunctions() {
         return this.fitnessFunctions;
     }
 }

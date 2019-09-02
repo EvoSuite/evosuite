@@ -30,7 +30,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.BMICalculator;
 
 /**
- * 
+ *
  * @author Yan Ge
  */
 public class OnePlusLambdaLambdaGASystemTest extends SystemTestBase {
@@ -50,7 +50,7 @@ public class OnePlusLambdaLambdaGASystemTest extends SystemTestBase {
 
     Object result = evoSuite.parseCommandLine(command);
 
-    GeneticAlgorithm<?> ga = getGAFromResult(result);
+    GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);

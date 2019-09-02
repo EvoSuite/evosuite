@@ -71,15 +71,14 @@ import static java.util.stream.Collectors.*;
  * 
  * @author Gordon Fraser
  */
-public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAlgorithm,
-		Serializable {
+public abstract class GeneticAlgorithm<T extends Chromosome, F extends FitnessFunction<T>> implements SearchAlgorithm, Serializable {
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
 	private static final Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/** Fitness function to rank individuals */
-	protected List<FitnessFunction<T>> fitnessFunctions = new ArrayList<>();
+    protected List<F> fitnessFunctions = new ArrayList<>();
 
 	/** Selection function to select parents */
 	protected SelectionFunction<T> selectionFunction = new RankSelection<>();
@@ -436,12 +435,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * @param function
 	 *            a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public void addFitnessFunction(FitnessFunction<T> function) {
+    public void addFitnessFunction(F function) {
 		fitnessFunctions.add(function);
 		localObjective.addFitnessFunction(function);
 	}
 
-	public void addFitnessFunctions(List<FitnessFunction<T>> functions) {
+    public void addFitnessFunctions(List<? extends F> functions) {
         functions.forEach(this::addFitnessFunction);
 	}
 
@@ -450,7 +449,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * 
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public FitnessFunction<T> getFitnessFunction() {
+    public F getFitnessFunction() {
 		return fitnessFunctions.get(0);
 	}
 
@@ -459,7 +458,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * 
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public List<FitnessFunction<T>> getFitnessFunctions() {
+    public List<F> getFitnessFunctions() {
 		return fitnessFunctions;
 	}
 
@@ -479,7 +478,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 		for (Chromosome c : population) {
 			str.append("\n  - test " + i);
 
-			for (FitnessFunction<T> ff : this.fitnessFunctions) {
+            for (F ff : this.fitnessFunctions) {
 				DecimalFormat df = new DecimalFormat("#.#####");
 				str.append(", " + ff.getClass().getSimpleName().replace("CoverageSuiteFitness", "")
 						+ " " + df.format(c.getFitness(ff)));

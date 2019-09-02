@@ -4,6 +4,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ import java.util.List;
  *
  * @param <T>
  */
-public class BreederGA<T extends Chromosome> extends StandardGA<T> {
+public class BreederGA<T extends Chromosome, F extends FitnessFunction<T>> extends StandardGA<T, F> {
 
     private final Logger logger = LoggerFactory.getLogger(BreederGA.class);
 

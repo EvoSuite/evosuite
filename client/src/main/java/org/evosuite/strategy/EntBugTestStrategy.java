@@ -27,6 +27,7 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.rho.RhoCoverageFactory;
 import org.evosuite.coverage.rho.RhoCoverageTestFitness;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -60,8 +61,8 @@ import org.slf4j.LoggerFactory;
 	  address = {New York, NY, USA},
 	  keywords = {Fault localization, test case generation},
    }
- * 
- * 
+ *
+ *
  * @author José Campos
  */
 public class EntBugTestStrategy extends TestGenerationStrategy {
@@ -80,7 +81,7 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 
 		// Set up genetic algorithm
 		PropertiesTestGAFactory factory = new PropertiesTestGAFactory();
-		GeneticAlgorithm<TestChromosome> ga = factory.getSearchAlgorithm();
+		GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga = factory.getSearchAlgorithm();
 
 		if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD) {
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(ga);
@@ -92,8 +93,8 @@ public class EntBugTestStrategy extends TestGenerationStrategy {
 		ga.addFitnessFunction(rhoTestFitnessFunction);
 
 		// Goals
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(rhoFactory.getCoverageGoals());
-		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");        
+		List<TestFitnessFunction> goals = new ArrayList<>(rhoFactory.getCoverageGoals());
+		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
         LoggingUtils.getEvoLogger().info("  - Rho " + goals.size());
 		ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 

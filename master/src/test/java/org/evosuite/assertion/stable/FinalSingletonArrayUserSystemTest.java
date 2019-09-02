@@ -29,7 +29,6 @@ import org.evosuite.statistics.OutputVariable;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.backend.DebugStatisticsBackend;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +63,7 @@ public class FinalSingletonArrayUserSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

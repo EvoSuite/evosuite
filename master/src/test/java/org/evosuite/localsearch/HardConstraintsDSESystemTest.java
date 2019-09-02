@@ -38,7 +38,7 @@ import com.examples.with.different.packagename.concolic.HardConstraints;
  */
 public class HardConstraintsDSESystemTest extends SystemTestBase {
 
-	@Before 
+	@Before
 	public void prepareTest() {
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
 		Properties.LOCAL_SEARCH_RATE = 1;
@@ -52,7 +52,7 @@ public class HardConstraintsDSESystemTest extends SystemTestBase {
 		Properties.RESET_STATIC_FIELD_GETS = true;
 
 	}
-	
+
 	@Test
 	public void testCVC4() {
 		String cvc4Path = System.getenv("cvc4_path");
@@ -69,10 +69,10 @@ public class HardConstraintsDSESystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
-		
+
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
 				0.001);
 
@@ -94,10 +94,10 @@ public class HardConstraintsDSESystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
-		
+
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
 				0.001);
 

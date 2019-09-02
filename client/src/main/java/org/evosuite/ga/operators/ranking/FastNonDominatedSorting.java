@@ -17,22 +17,16 @@
  */
 package org.evosuite.ga.operators.ranking;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.DominanceComparator;
 
 /**
- * This class ranks the test cases according to the 
- *  the "PreferenceCriterion" defined for the MOSA algorithm 
- * 
+ * This class ranks the test cases according to the
+ *  the "PreferenceCriterion" defined for the MOSA algorithm
+ *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 
@@ -52,8 +46,8 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void computeRankingAssignment(List<T> solutions, Set<FitnessFunction<T>> uncovered_goals) {
-		List<T>[] fronts = getNextNonDominatedFronts(solutions, uncovered_goals);
+	public void computeRankingAssignment(List<T> solutions, Set<? extends FitnessFunction<T>> uncoveredGoals) {
+		List<T>[] fronts = getNextNonDominatedFronts(solutions, uncoveredGoals);
 		ranking_ = new ArrayList[fronts.length];
 		System.arraycopy(fronts, 0, ranking_, 0, fronts.length);
 	}
@@ -66,7 +60,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 	 * @return the list of fronts according to the uncovered goals
 	 */
 	@SuppressWarnings("unchecked")
-	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet, Set<FitnessFunction<T>> uncovered_goals) {
+	private List<T>[] getNextNonDominatedFronts(List<T> solutionSet, Set<? extends FitnessFunction<T>> uncovered_goals) {
 
 		DominanceComparator<T> criterion_ = new DominanceComparator<>(uncovered_goals);
 		List<T> solutionSet_ = solutionSet;
@@ -84,8 +78,7 @@ public class FastNonDominatedSorting<T extends Chromosome> implements RankingFun
 		int flagDominate;
 
 		// Initialize the fronts
-		for (int i = 0; i < front.length; i++)
-			front[i] = new LinkedList<>();
+		Arrays.fill(front, new LinkedList<>());
 
 		// Initialize distance
 		for (int p = 0; p < (solutionSet_.size()); p++) {

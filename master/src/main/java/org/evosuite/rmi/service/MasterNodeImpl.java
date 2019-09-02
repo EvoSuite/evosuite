@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
@@ -235,7 +234,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	 * <p>
 	 * fireEvent
 	 * </p>
-	 * 
+	 *
 	 * @param event
 	 *            a T object.
 	 */

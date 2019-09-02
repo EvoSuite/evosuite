@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author José Campos
  */
-public class MuPlusLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
+public class MuPlusLambdaEA<T extends Chromosome, F extends FitnessFunction<T>> extends AbstractMuLambda<T, F> {
 
   private static final long serialVersionUID = -8685698059226067598L;
 

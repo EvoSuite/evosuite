@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.evosuite.Properties;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.symbolic.expr.Constraint;
@@ -28,6 +29,7 @@ import org.evosuite.symbolic.vm.ConstraintFactory;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.localsearch.DSETestGenerator;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -37,12 +39,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class implements a DSE algorithm *as* a subclass of genetic algorithm.
- * 
- * @author jgaleotti
  *
- * @param <T>
+ * @author jgaleotti
  */
-public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
+public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome,
+        FitnessFunction<TestSuiteChromosome>> {
 
   private static final Logger logger = LoggerFactory.getLogger(DSEAlgorithm.class);
 
@@ -55,9 +56,9 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
   /**
    * Applies DSE test generation on a static non-private method until a stopping condition is met or
    * all queries have been explored.
-   * 
+   *
    * @param staticEntryMethod
-   * 
+   *
    */
   private void generateTestCasesAndAppendToBestIndividual(Method staticEntryMethod) {
 
@@ -241,7 +242,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
   /**
    * Returns true if the constraints in the query are a subset of any of the constraints in the set
    * of queries
-   * 
+   *
    * @param query
    * @param queries
    * @return
@@ -258,7 +259,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
   /**
    * Builds a default test case for a static target method
-   * 
+   *
    * @param targetStaticMethod
    * @return
    */
@@ -351,7 +352,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
   }
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 964984026539409121L;
 
@@ -376,7 +377,7 @@ public class DSEAlgorithm extends GeneticAlgorithm<TestSuiteChromosome> {
 
   /**
    * Returns a set with the static methods of a class
-   * 
+   *
    * @param targetClass a class instance
    * @return
    */

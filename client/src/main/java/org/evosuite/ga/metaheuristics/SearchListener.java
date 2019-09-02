@@ -34,21 +34,21 @@ public interface SearchListener {
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchStarted(GeneticAlgorithm<?> algorithm);
+	public void searchStarted(GeneticAlgorithm<?, ?> algorithm);
 
 	/**
 	 * Called after each iteration of the search
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void iteration(GeneticAlgorithm<?> algorithm);
+	public void iteration(GeneticAlgorithm<?, ?> algorithm);
 
 	/**
 	 * Called after the last iteration
 	 *
 	 * @param algorithm a {@link org.evosuite.ga.metaheuristics.GeneticAlgorithm} object.
 	 */
-	public void searchFinished(GeneticAlgorithm<?> algorithm);
+	public void searchFinished(GeneticAlgorithm<?, ?> algorithm);
 
 	/**
 	 * Called after every single fitness evaluation

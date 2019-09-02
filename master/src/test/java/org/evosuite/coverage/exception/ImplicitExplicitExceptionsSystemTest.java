@@ -41,7 +41,7 @@ import java.util.Map;
 public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
-    
+
     private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
@@ -68,7 +68,7 @@ public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = ImplicitExplicitException.class.getCanonicalName();
-		
+
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = new Criterion[]{Properties.Criterion.EXCEPTION};
 		Properties.OUTPUT_VARIABLES = ""+
@@ -76,11 +76,11 @@ public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 				RuntimeVariable.Explicit_TypeExceptions + "," +
 				RuntimeVariable.Implicit_MethodExceptions +"," +
 				RuntimeVariable.Implicit_TypeExceptions;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -111,7 +111,7 @@ public class ImplicitExplicitExceptionsSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

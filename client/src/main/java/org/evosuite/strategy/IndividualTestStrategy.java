@@ -53,17 +53,17 @@ import org.slf4j.LoggerFactory;
 /**
  * This strategy selects one coverage goal at a time
  * and generates a test that satisfies it.
- * 
- * The order of goals is randomized. Coincidental coverage is 
+ *
+ * The order of goals is randomized. Coincidental coverage is
  * checked.
- * 
+ *
  * @author gordon
  *
  */
 public class IndividualTestStrategy extends TestGenerationStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(IndividualTestStrategy.class);
-	
+
 	@Override
 	public TestSuiteChromosome generateTests() {
 		// In order to improve strategy's performance, in here we explicitly disable EvoSuite's
@@ -75,7 +75,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 		ExecutionTracer.enableTraceCalls();
 
 		PropertiesTestGAFactory factory = new PropertiesTestGAFactory();
-		
+
 		List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
 		long start_time = System.currentTimeMillis() / 1000;
@@ -83,7 +83,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 		// Get list of goals
         List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
 		// long goalComputationStart = System.currentTimeMillis();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		List<TestFitnessFunction> goals = new ArrayList<>();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: ");
         for (TestFitnessFactory<? extends TestFitnessFunction> goalFactory : goalFactories) {
             goals.addAll(goalFactory.getCoverageGoals());
@@ -115,7 +115,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 
 		StoppingCondition stoppingCondition = getStoppingCondition();
 		TestSuiteChromosome suite = (TestSuiteChromosome) bootstrapRandomSuite(fitnessFunctions.get(0), goalFactories.get(0)); // FIXME: just one fitness and one factory?!
-		Set<Integer> covered = new HashSet<Integer>();
+		Set<Integer> covered = new HashSet<>();
 		int covered_goals = 0;
 		int num = 0;
 
@@ -157,8 +157,9 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 					num++;
 					continue;
 				}
-				
-				GeneticAlgorithm<TestChromosome> ga = factory.getSearchAlgorithm();
+
+				GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga =
+						factory.getSearchAlgorithm();
 
 				// ga.resetStoppingConditions();
 				// ga.clearPopulation();
@@ -302,7 +303,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 	        List<? extends TestFitnessFunction> goals, Set<Integer> covered,
 	        TestChromosome best) {
 
-		Set<Integer> r = new HashSet<Integer>();
+		Set<Integer> r = new HashSet<>();
 		ExecutionResult result = best.getLastExecutionResult();
 		assert (result != null);
 		// if (result == null) {
@@ -322,7 +323,7 @@ public class IndividualTestStrategy extends TestGenerationStrategy {
 		}
 		return r;
 	}
-	
+
 	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction<?> fitness,
 	        TestFitnessFactory<?> goals) {
 

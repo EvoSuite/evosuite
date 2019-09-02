@@ -25,7 +25,7 @@ public class BreederGASystemTest extends SystemTestBase {
 
         Object result = evoSuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
         Assert.assertEquals(BreederGA.class, ga.getClass());
 

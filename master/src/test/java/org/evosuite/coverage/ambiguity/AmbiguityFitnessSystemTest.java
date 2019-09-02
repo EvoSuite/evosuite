@@ -146,7 +146,7 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		List<?> goals = AmbiguityCoverageFactory.getGoals();
 		assertEquals(12, goals.size());
 
-		GeneticAlgorithm<?> ga = result.get(0).get(0).getGeneticAlgorithm();
+		GeneticAlgorithm<?, ?> ga = result.get(0).get(0).getGeneticAlgorithm();
 		Assert.assertNotNull(ga);
 		assertEquals(0.0, ga.getBestIndividual().getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class), 0.0);
 	}
@@ -175,7 +175,7 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		List<?> goals = AmbiguityCoverageFactory.getGoals();
 		assertEquals(12, goals.size());
 
-		GeneticAlgorithm<?> ga = result.get(0).get(0).getGeneticAlgorithm();
+		GeneticAlgorithm<?, ?> ga = result.get(0).get(0).getGeneticAlgorithm();
 		Assert.assertNotNull(ga);
 		assertEquals(0.0, ga.getBestIndividual().getFitnessInstanceOf(AmbiguityCoverageSuiteFitness.class), 0.0);
 	}
@@ -200,7 +200,7 @@ public class AmbiguityFitnessSystemTest extends SystemTestBase {
 		List<?> goals = AmbiguityCoverageFactory.getGoals();
 		assertEquals(12, goals.size());
 
-		GeneticAlgorithm<?> ga = result.get(0).get(0).getGeneticAlgorithm();
+		GeneticAlgorithm<?, ?> ga = result.get(0).get(0).getGeneticAlgorithm();
 		assertNotNull(ga);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();

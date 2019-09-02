@@ -48,7 +48,7 @@ import com.examples.with.different.packagename.SingleMethod;
 public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
-    
+
     private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
@@ -77,13 +77,13 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 	public void testMethodFitnessSimpleExample() {
 		EvoSuite evosuite = new EvoSuite();
-		
+
 		String targetClass = SingleMethod.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -97,24 +97,24 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Properties.TEST_ARCHIVE = true;
 		testMethodFitnessFlagExample3();
 	}
-	
+
 	@Test
 	public void testMethodFitnessFlagExample3WithoutArchive() {
 		Properties.TEST_ARCHIVE = false;
 		testMethodFitnessFlagExample3();
 	}
-	
+
 	public void testMethodFitnessFlagExample3() {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = FlagExample3.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		
+
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(2, goals );
@@ -126,13 +126,13 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
     	Properties.TEST_ARCHIVE = true;
     	testMethodFitnessCompositionalExample();
     }
-    
+
     @Test
     public void testMethodFitnessCompositionalExampleWithoutArchive() {
     	Properties.TEST_ARCHIVE = false;
     	testMethodFitnessCompositionalExample();
     }
-    
+
     public void testMethodFitnessCompositionalExample() {
         EvoSuite evosuite = new EvoSuite();
 
@@ -141,7 +141,7 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
@@ -162,7 +162,7 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
 		Assert.assertEquals(4, goals);
@@ -181,7 +181,7 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();
@@ -200,7 +200,7 @@ public class MethodCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		String[] command = new String[] {"-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		assertFalse("Test suite must have at least one test case, however it is empty", best.getTests().isEmpty());

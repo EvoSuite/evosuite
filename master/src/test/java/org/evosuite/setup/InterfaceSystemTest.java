@@ -28,7 +28,7 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 
@@ -48,7 +48,7 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 
@@ -69,7 +69,7 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 
@@ -90,7 +90,7 @@ public class InterfaceSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertEquals(0.0, best.getFitness(), 0.0);
 

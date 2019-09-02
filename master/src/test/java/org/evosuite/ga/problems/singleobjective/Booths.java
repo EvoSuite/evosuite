@@ -67,7 +67,7 @@ public class Booths<T extends NSGAChromosome> implements Problem
     }
 
     @Override
-    public List getFitnessFunctions() {
+    public List<FitnessFunction<T>> getFitnessFunctions() {
         return this.fitnessFunctions;
     }
 }

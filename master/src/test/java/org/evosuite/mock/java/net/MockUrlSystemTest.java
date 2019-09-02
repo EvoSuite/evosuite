@@ -83,7 +83,7 @@ public class MockUrlSystemTest extends SystemTestBase {
         Object result = evosuite.parseCommandLine(command);
         Assert.assertTrue(result != null);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -107,7 +107,7 @@ public class MockUrlSystemTest extends SystemTestBase {
         Object result = evosuite.parseCommandLine(command);
         Assert.assertTrue(result != null);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 

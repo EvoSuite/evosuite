@@ -66,14 +66,14 @@ public class MockRandomSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEARCH_BUDGET = 20000;
 		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

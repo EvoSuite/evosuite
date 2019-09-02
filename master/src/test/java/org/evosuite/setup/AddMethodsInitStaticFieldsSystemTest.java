@@ -53,13 +53,13 @@ public class AddMethodsInitStaticFieldsSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();
 		Assert.assertTrue("Optimal coverage not reached: "+best_fitness, best_fitness == 0.0);
 	}
-	
+
 	@Test
 	public void testStaticFields() {
 		EvoSuite evosuite = new EvoSuite();
@@ -71,13 +71,13 @@ public class AddMethodsInitStaticFieldsSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();
 		Assert.assertTrue("Optimal coverage not reached: "+best_fitness, best_fitness == 0.0);
 	}
-	
+
 	@After
 	public void restore() {
 		Properties.HANDLE_STATIC_FIELDS = ADD_METHODS_INITIALIZING_STATIC_FIELDS;

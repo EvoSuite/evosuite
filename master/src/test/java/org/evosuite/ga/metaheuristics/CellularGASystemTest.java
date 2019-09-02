@@ -22,7 +22,7 @@ import com.examples.with.different.packagename.XMLElement2;
  *
  */
 public class CellularGASystemTest extends SystemTestBase{
-	
+
 	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
@@ -42,28 +42,28 @@ public class CellularGASystemTest extends SystemTestBase{
 	    Object result = evosuite.parseCommandLine(command);
 	    Assert.assertNotNull(result);
 
-	    GeneticAlgorithm<?> ga = getGAFromResult(result);
-	    
+	    GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
+
 	    List<Chromosome> population = new ArrayList<Chromosome>(ga.getBestIndividuals());
-	    
+
 	    return population;
 	}
 
 	@Test
 	public void testCellularGAWithLimitedTime(){
-		
+
 		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
-		
+
 	    for (Chromosome p : population) {
             Assert.assertNotEquals(p.getCoverage(), 1.0);
         }
 	}
-	
+
 	@Test
 	public void testCellularGAWithLimitedGenerations(){
-		
+
 	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
-	    
+
 	    for (Chromosome p : population) {
             Assert.assertNotEquals(p.getCoverage(), 1.0);
         }

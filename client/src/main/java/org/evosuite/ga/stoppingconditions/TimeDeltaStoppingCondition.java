@@ -39,12 +39,12 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 
 	/** Best fitness value observed so far */
 	protected double lastFitness = 0.0;
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(TimeDeltaStoppingCondition.class);
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			lastFitness = 0.0;
 		} else {
@@ -53,9 +53,9 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 		startTime = System.currentTimeMillis();
 		lastGeneration = 0L;
 	}
-	
+
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {		
+	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
 		double currentBestFitness = algorithm.getBestIndividual().getFitness();
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			if(currentBestFitness > lastFitness) {
@@ -66,7 +66,7 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 			if(currentBestFitness < lastFitness) {
 				lastFitness = currentBestFitness;
 				lastImprovement = System.currentTimeMillis();
-			}			
+			}
 		}
 		lastGeneration = System.currentTimeMillis();
 	}
@@ -99,13 +99,13 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 				logger.info("Waiting for first generation.");
 				return false;
 			}
-			
+
 			// If we haven't managed to evolve one generation in the time since the last iteration, also continue
 			if((current_time - lastGeneration) / 1000 > Properties.SEARCH_BUDGET) {
 				logger.info("Waiting for at least a generation within the timeout.");
 				return false;
 			}
-			
+
 			// Check time since last improvement
 			if((current_time - lastImprovement) / 1000 > Properties.SEARCH_BUDGET) {
 				logger.info("No improvement timeout.");
@@ -144,7 +144,7 @@ public class TimeDeltaStoppingCondition extends StoppingConditionImpl {
 	@Override
 	public void forceCurrentValue(long value) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

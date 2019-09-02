@@ -34,15 +34,15 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	private static final long serialVersionUID = 1306033906557741929L;
 
 	private Status status = Status.ERROR;
-	
+
 	private String errorMessage = "";
-	
+
 	private Map<String, Set<Failure>> contractViolations = new LinkedHashMap<String, Set<Failure>>();
-	
+
 	private Map<String, TestCase> testCases = new LinkedHashMap<String, TestCase>();
-	
+
 	private Map<String, String> testCode = new LinkedHashMap<String, String>();
-	
+
 	private Map<String, Set<Integer>> testLineCoverage = new LinkedHashMap<String, Set<Integer>>();
 
 	private Map<String, Set<BranchInfo>> testBranchCoverage = new LinkedHashMap<String, Set<BranchInfo>>();
@@ -60,90 +60,90 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	private Set<MutationInfo> coveredMutants = new LinkedHashSet<MutationInfo>();
 
 	private Set<MutationInfo> uncoveredMutants = new LinkedHashSet<MutationInfo>();
-	
+
 	private Set<MutationInfo> exceptionMutants = new LinkedHashSet<MutationInfo>();
 
 	private Map<String, String> testComments = new LinkedHashMap<String, String>();
-	
+
 	private String testSuiteCode = "";
-	
+
 	private String targetClass = "";
-	
+
 	//private String targetCriterion = "";
 	private String[] targetCriterion;
 
     private LinkedHashMap<FitnessFunction<?>, Double> targetCoverages = new LinkedHashMap<FitnessFunction<?>, Double>();
-	
-	private GeneticAlgorithm<?> ga = null;
-	
+
+	private GeneticAlgorithm<?, ?> ga = null;
+
 	/** Did test generation succeed? */
 	public Status getTestGenerationStatus() {
 		return status;
 	}
-	
+
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	
+
 	/** If there was an error, this contains the error message */
 	public String getErrorMessage() {
 		return errorMessage;
 	}
-	
+
 	public void setErrorMessage(String errorMessage) {
 		status = Status.ERROR;
 		this.errorMessage = errorMessage;
 	}
-	
+
 	/** The entire GA in its final state */
-	public GeneticAlgorithm<?> getGeneticAlgorithm() {
+	public GeneticAlgorithm<?, ?> getGeneticAlgorithm() {
 		return ga;
 	}
-	
-	public void setGeneticAlgorithm(GeneticAlgorithm<?> ga) {
+
+	public void setGeneticAlgorithm(GeneticAlgorithm<?, ?> ga) {
 		this.ga = ga;
 	}
-	
+
 	/** Map from test method to ContractViolation */
 	public Set<Failure> getContractViolations(String name)  {
 		return contractViolations.get(name);
 	}
-	
+
 	public void setContractViolations(String name, Set<Failure> violations) {
 		contractViolations.put(name, violations);
 	}
-	
+
 	public void setClassUnderTest(String targetClass) {
 		this.targetClass = targetClass;
 	}
-	
+
 	@Override
 	public String getClassUnderTest() {
 		return targetClass;
 	}
-	
+
 	public void setTargetCoverage(FitnessFunction<?> function, double coverage) {
         this.targetCoverages.put(function, coverage);
 	}
-	
+
 	public double getTargetCoverage(FitnessFunction<?> function) {
 		return this.targetCoverages.containsKey(function) ? this.targetCoverages.get(function) : 0.0;
 	}
-	
+
 	@Override
 	public String[] getTargetCriterion() {
 		return targetCriterion;
 	}
-	
+
 	public void setTargetCriterion(String[] criterion) {
 		this.targetCriterion = criterion;
 	}
-	
+
 	/** Map from test method to EvoSuite test case */
 	public TestCase getTestCase(String name) {
 		return testCases.get(name);
 	}
-	
+
 	public void setTestCase(String name, TestCase test) {
 		testCases.put(name,  test);
 	}
@@ -152,7 +152,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	public String getTestCode(String name) {
 		return testCode.get(name);
 	}
-	
+
 	public void setTestCode(String name, String code) {
 		testCode.put(name, code);
 	}
@@ -161,16 +161,16 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	public String getTestSuiteCode() {
 		return testSuiteCode;
 	}
-	
+
 	public void setTestSuiteCode(String code) {
 		this.testSuiteCode = code;
 	}
 
-	/** Lines covered by final test suite */ 
+	/** Lines covered by final test suite */
 	public Set<Integer> getCoveredLines() {
 		return coveredLines;
 	}
-	
+
 	public void setCoveredLines(String name, Set<Integer> covered) {
 		testLineCoverage.put(name, covered);
 		coveredLines.addAll(covered);
@@ -190,7 +190,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	public String getComment(String name) {
 		return testComments.get(name);
 	}
-	
+
 	public void setComment(String name, String comment) {
 		testComments.put(name, comment);
 	}
@@ -199,7 +199,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	public Set<Integer> getCoveredLines(String name) {
 		return testLineCoverage.get(name);
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -253,7 +253,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	public Set<Integer> getUncoveredLines() {
 		return uncoveredLines;
 	}
-	
+
 	public void setUncoveredLines(Set<Integer> lines) {
 		uncoveredLines.addAll(lines);
 	}
@@ -271,7 +271,7 @@ class TestGenerationResultImpl implements TestGenerationResult {
 	public Set<MutationInfo> getUncoveredMutants() {
 		return uncoveredMutants;
 	}
-	
+
 	@Override
 	public Set<MutationInfo> getExceptionMutants() {
 		return exceptionMutants;

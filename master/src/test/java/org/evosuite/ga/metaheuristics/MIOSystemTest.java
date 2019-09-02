@@ -29,7 +29,7 @@ import com.examples.with.different.packagename.BMICalculator;
 
 /**
  * System tests for the implementation of the Many Independent Objective (MIO) algorithm
- * 
+ *
  * @author José Campos
  */
 public class MIOSystemTest extends SystemTestBase {
@@ -47,7 +47,7 @@ public class MIOSystemTest extends SystemTestBase {
     String[] command = new String[] {"-generateSuite", "-class", targetClass};
 
     EvoSuite evoSuite = new EvoSuite();
-    GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
+    GeneticAlgorithm<?, ?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
     Assert.assertEquals(MIO.class, ga.getClass());
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();

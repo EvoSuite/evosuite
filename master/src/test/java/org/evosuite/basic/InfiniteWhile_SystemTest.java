@@ -68,13 +68,13 @@ public class InfiniteWhile_SystemTest  extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
         Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
     }
-    
+
     @Test(timeout = 30_000)
     public void systemTestJUnit(){
 
@@ -90,7 +90,7 @@ public class InfiniteWhile_SystemTest  extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);

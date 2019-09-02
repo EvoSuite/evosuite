@@ -42,7 +42,7 @@ import java.util.ListIterator;
 
 /**
  * SPEA2 implementation.
- * 
+ *
  * @techreport{ZLT:2001,
             author = {E. Zitzler and M. Laumanns and L. Thiele},
             title = {{SPEA2: Improving the Strength Pareto Evolutionary Algorithm}},
@@ -53,7 +53,7 @@ import java.util.ListIterator;
  *
  * @author José Campos
  */
-public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class SPEA2<T extends Chromosome, F extends FitnessFunction<T>> extends GeneticAlgorithm<T, F> {
 
   private static final long serialVersionUID = -7638497183625040479L;
 
@@ -112,7 +112,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
      */
 
     for (T element : offspringPopulation) {
-      for (final FitnessFunction<T> ff : this.getFitnessFunctions()) {
+      for (final F ff : this.getFitnessFunctions()) {
         ff.getFitness(element);
         notifyEvaluation(element);
       }
@@ -139,7 +139,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
     this.archive = new ArrayList<T>(Properties.POPULATION);
 
     for (T element : this.population) {
-      for (final FitnessFunction<T> ff : this.getFitnessFunctions()) {
+      for (final F ff : this.getFitnessFunctions()) {
         ff.getFitness(element);
         notifyEvaluation(element);
       }
@@ -179,8 +179,8 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
   }
 
   /**
-   * 
-   * @param population
+   *
+   * @param union
    * @return
    */
   protected List<T> environmentalSelection(List<T> union) {
@@ -311,8 +311,8 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
   }
 
   /**
-   * 
-   * @param solutions
+   *
+   * @param solution
    */
   protected void computeStrength(List<T> solution) {
     // count the number of individuals each solution dominates
@@ -359,7 +359,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   /**
    * Returns a matrix with the euclidean distance between each pair of solutions in the population.
-   * 
+   *
    * @param solution
    * @return
    */
@@ -379,7 +379,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   /**
    * Returns the euclidean distance between a pair of solutions in the objective space.
-   * 
+   *
    * @param t1
    * @param t2
    * @return

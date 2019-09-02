@@ -34,7 +34,7 @@ import com.examples.with.different.packagename.staticfield.StaticFoo;
 public class ResetStaticFieldSystemTest extends SystemTestBase {
 
 	private boolean reset_statick_field__property;
-	
+
 	@Before
 	public void saveProperties() {
 		reset_statick_field__property = Properties.RESET_STATIC_FIELDS;
@@ -57,12 +57,12 @@ public class ResetStaticFieldSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();
 		Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
-		
+
 	}
 
 }

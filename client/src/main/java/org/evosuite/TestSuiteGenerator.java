@@ -82,7 +82,7 @@ import java.util.*;
 /**
  * Main entry point. Does all the static analysis, invokes a test generation
  * strategy, and then applies postprocessing.
- * 
+ *
  * @author Gordon Fraser
  */
 public class TestSuiteGenerator {
@@ -114,7 +114,7 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Generate a test suite for the target class
-	 * 
+	 *
 	 * @return a {@link java.lang.String} object.
 	 */
 	public TestGenerationResult generateTestSuite() {
@@ -275,7 +275,7 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Returns true iif the test case execution has thrown an instance of ExceptionInInitializerError
-	 * 
+	 *
 	 * @param execResult of the test case execution
 	 * @return true if the test case has thrown an ExceptionInInitializerError
 	 */
@@ -287,11 +287,11 @@ public class TestSuiteGenerator {
 		}
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * Returns the initialized  error from the test case execution
-	 * 
+	 *
 	 * @param execResult of the test case execution
 	 * @return null if there were no thrown instances of ExceptionInInitializerError
 	 */
@@ -327,7 +327,7 @@ public class TestSuiteGenerator {
 	}
 
 	/**
-	 * Creates a single Test Case that only loads the target class. 
+	 * Creates a single Test Case that only loads the target class.
 	 * <code>
 	 * Thread currentThread = Thread.currentThread();
 	 * ClassLoader classLoader = currentThread.getClassLoader();
@@ -363,7 +363,7 @@ public class TestSuiteGenerator {
 
 			BooleanPrimitiveStatement stmt1 = new BooleanPrimitiveStatement(test, true);
 			VariableReference boolean0 = test.addStatement(stmt1);
-			
+
 			Method forNameMethod = Class.class.getMethod("forName",String.class, boolean.class, ClassLoader.class);
 			Statement forNameStmt = new MethodStatement(test,
 					new GenericMethod(forNameMethod, forNameMethod.getDeclaringClass()), null,
@@ -379,7 +379,7 @@ public class TestSuiteGenerator {
 	/**
 	 * Apply any readability optimizations and other techniques that should use
 	 * or modify the generated tests
-	 * 
+	 *
 	 * @param testSuite
 	 */
 	protected void postProcessTests(TestSuiteChromosome testSuite) {
@@ -699,11 +699,11 @@ public class TestSuiteGenerator {
 	 * <p>
 	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases
 	 * to the default directory Properties.TEST_DIR.
-	 * 
+	 *
 	 * <p>
 	 * The name of the test will be equal to the SUT followed by the given
 	 * suffix
-	 * 
+	 *
 	 * @param testSuite
 	 *            a test suite.
 	 */
@@ -726,7 +726,7 @@ public class TestSuiteGenerator {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param testSuite
 	 *            the test cases which should be written to file
 	 */
@@ -774,7 +774,7 @@ public class TestSuiteGenerator {
 	 * <p>
 	 * getFitnessFunctions
 	 * </p>
-	 * 
+	 *
 	 * @return a list of {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
 	 *         objects.
 	 */
@@ -789,10 +789,10 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Prints out all information regarding this GAs stopping conditions
-	 * 
+	 *
 	 * So far only used for testing purposes in TestSuiteGenerator
 	 */
-	public void printBudget(GeneticAlgorithm<?> algorithm) {
+	public void printBudget(GeneticAlgorithm<?, ?> algorithm) {
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Search Budget:");
 		for (StoppingCondition sc : algorithm.getStoppingConditions())
 			LoggingUtils.getEvoLogger().info("\t- " + sc.toString());
@@ -802,10 +802,10 @@ public class TestSuiteGenerator {
 	 * <p>
 	 * getBudgetString
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getBudgetString(GeneticAlgorithm<?> algorithm) {
+	public String getBudgetString(GeneticAlgorithm<?, ?> algorithm) {
 		String r = "";
 		for (StoppingCondition sc : algorithm.getStoppingConditions())
 			r += sc.toString() + " ";
@@ -817,7 +817,7 @@ public class TestSuiteGenerator {
 	 * <p>
 	 * getFitnessFactories
 	 * </p>
-	 * 
+	 *
 	 * @return a list of {@link org.evosuite.coverage.TestFitnessFactory}
 	 *         objects.
 	 */
@@ -834,7 +834,7 @@ public class TestSuiteGenerator {
 	 * <p>
 	 * main
 	 * </p>
-	 * 
+	 *
 	 * @param args
 	 *            an array of {@link java.lang.String} objects.
 	 */

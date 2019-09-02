@@ -62,7 +62,7 @@ public class ClassWithProtectedConstructorSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		String name = targetClass.substring(targetClass.lastIndexOf(".") + 1) + Properties.JUNIT_SUFFIX;

@@ -33,7 +33,7 @@ import com.examples.with.different.packagename.TypeSeedingExampleLocale;
 import com.examples.with.different.packagename.TypeSeedingExampleString;
 
 public class TypeSeedingSystemTest extends SystemTestBase {
-	
+
 	@Test
 	public void testStringToObject() {
 		EvoSuite evosuite = new EvoSuite();
@@ -48,7 +48,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -57,7 +57,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		Assert.assertEquals("Wrong number of goals: ", 5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testStringToObjectNoSeeding() {
 		EvoSuite evosuite = new EvoSuite();
@@ -71,7 +71,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -80,7 +80,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		Assert.assertEquals("Wrong number of goals: ", 5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 2d/5d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLocaleToObject() {
 		EvoSuite evosuite = new EvoSuite();
@@ -95,7 +95,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -104,7 +104,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testLocaleToObjectNoSeeding() {
 		EvoSuite evosuite = new EvoSuite();
@@ -118,7 +118,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -127,7 +127,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 2d/3d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testGenericObject() {
 		EvoSuite evosuite = new EvoSuite();
@@ -142,7 +142,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -151,7 +151,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testGenericObjectNoSeeding() {
 		EvoSuite evosuite = new EvoSuite();
@@ -165,7 +165,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);

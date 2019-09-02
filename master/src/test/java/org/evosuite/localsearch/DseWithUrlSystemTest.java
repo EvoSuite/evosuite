@@ -57,10 +57,10 @@ public class DseWithUrlSystemTest extends SystemTestBase {
 	public void testDSE() {
 
 		Properties.DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
-		
+
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXTIME;
 		Properties.SEARCH_BUDGET = 120;
-		
+
 		// should it be trivial for DSE ?
 
 		EvoSuite evosuite = new EvoSuite();
@@ -68,17 +68,17 @@ public class DseWithUrlSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 
 		Properties.CRITERION = new Criterion[] {Criterion.BRANCH, Criterion.EXCEPTION};
-		
+
 		Properties.MINIMIZE = true;
 		Properties.ASSERTIONS = true;
-		
+
 		Properties.DSE_PROBABILITY = 1.0; // force using only DSE, no LS
 
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

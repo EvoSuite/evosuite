@@ -34,22 +34,22 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class BranchCoverageMap implements SearchListener {
 
 	public static BranchCoverageMap instance = null;
-	
+
 	private Map<Integer, TestCase> coveredTrueBranches;
 
 	private Map<Integer, TestCase> coveredFalseBranches;
 
 	private BranchCoverageMap() {
-		
+
 	}
-	
+
 	public static BranchCoverageMap getInstance() {
 		if(instance == null)
 			instance = new BranchCoverageMap();
-		
+
 		return instance;
 	}
-	
+
 	public boolean isCoveredTrue(int branchId) {
 		return coveredTrueBranches.containsKey(branchId);
 	}
@@ -57,7 +57,7 @@ public class BranchCoverageMap implements SearchListener {
 	public boolean isCoveredFalse(int branchId) {
 		return coveredFalseBranches.containsKey(branchId);
 	}
-	
+
 	public TestCase getTestCoveringTrue(int branchId) {
 		return coveredTrueBranches.get(branchId);
 	}
@@ -65,7 +65,7 @@ public class BranchCoverageMap implements SearchListener {
 	public TestCase getTestCoveringFalse(int branchId) {
 		return coveredFalseBranches.get(branchId);
 	}
-	
+
 	public Set<Integer> getCoveredTrueBranches() {
 		return coveredTrueBranches.keySet();
 	}
@@ -75,18 +75,18 @@ public class BranchCoverageMap implements SearchListener {
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 		coveredTrueBranches  = new LinkedHashMap<Integer, TestCase>();
-		coveredFalseBranches = new LinkedHashMap<Integer, TestCase>();		
+		coveredFalseBranches = new LinkedHashMap<Integer, TestCase>();
 	}
 
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
-		
+	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
 		coveredTrueBranches  = null;
 		coveredFalseBranches = null;
 	}
@@ -111,15 +111,15 @@ public class BranchCoverageMap implements SearchListener {
 				}
 			}
 		}
-		
+
 	}
 
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	
-	
+
+
 }

@@ -29,6 +29,7 @@ import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.NSGAChromosome;
 import org.evosuite.ga.operators.crossover.SBXCrossover;
 import org.evosuite.ga.operators.selection.BinaryTournamentSelectionCrowdedComparison;
 import org.evosuite.ga.problems.Problem;
@@ -47,7 +48,7 @@ import java.util.List;
 
 /**
  * Unit tests for SPEA2's functions.
- * 
+ *
  * @author José Campos
  */
 public class SPEA2Test {
@@ -70,7 +71,7 @@ public class SPEA2Test {
 
     Properties.POPULATION = 3;
 
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
     List<Chromosome> archive = algorithm.environmentalSelection(population);
     assertEquals(3, archive.size());
     assertEquals(0.0, archive.get(0).getDistance(), 0.0);
@@ -80,7 +81,7 @@ public class SPEA2Test {
 
   @Test
   public void testEnvironmentalSelection_SmallArchive() {
-    List<Chromosome> population = new ArrayList<Chromosome>();
+    List<Chromosome> population = new ArrayList<>();
 
     TestSuiteChromosome t1 = new TestSuiteChromosome();
     t1.setDistance(0.0);
@@ -96,7 +97,7 @@ public class SPEA2Test {
 
     Properties.POPULATION = 5;
 
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
     List<Chromosome> archive = algorithm.environmentalSelection(population);
     assertEquals(3, archive.size());
 
@@ -158,7 +159,7 @@ public class SPEA2Test {
 
     Properties.POPULATION = 3; // max number of solutions
 
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
     List<Chromosome> archive = algorithm.environmentalSelection(population);
     assertEquals(3, archive.size());
     assertTrue(t1.equals(archive.get(0)));
@@ -191,7 +192,7 @@ public class SPEA2Test {
     t3.setFitness(line, 1.0);
     population.add(t3);
 
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
     algorithm.computeStrength(population);
 
     assertEquals(0.36, t1.getDistance(), 0.01);
@@ -214,8 +215,8 @@ public class SPEA2Test {
 
   @Test
   public void testEuclideanDistanceMatrix_EmptyPopulation() {
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
-    double[][] matrix = algorithm.euclideanDistanceMatrix(new ArrayList<Chromosome>());
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
+    double[][] matrix = algorithm.euclideanDistanceMatrix(new ArrayList<>());
     assertEquals(0, matrix.length);
   }
 
@@ -236,7 +237,7 @@ public class SPEA2Test {
     t2.setFitness(line, 0.5);
     population.add(t2);
 
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
     double[][] matrix = algorithm.euclideanDistanceMatrix(population);
     assertEquals(2, matrix.length);
     assertEquals(2, matrix[0].length);
@@ -249,7 +250,7 @@ public class SPEA2Test {
 
   @Test
   public void testDistanceOfEqualChromosomes() {
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
 
     BranchCoverageSuiteFitness branch = new BranchCoverageSuiteFitness();
     LineCoverageSuiteFitness line = new LineCoverageSuiteFitness();
@@ -267,7 +268,7 @@ public class SPEA2Test {
 
   @Test
   public void testDistanceOfDifferentChromosomes() {
-    SPEA2<Chromosome> algorithm = new SPEA2<Chromosome>(null);
+    SPEA2<Chromosome, FitnessFunction<Chromosome>> algorithm = new SPEA2<>(null);
 
     BranchCoverageSuiteFitness branch = new BranchCoverageSuiteFitness();
     LineCoverageSuiteFitness line = new LineCoverageSuiteFitness();
@@ -293,16 +294,16 @@ public class SPEA2Test {
     Properties.CROSSOVER_RATE = 0.9;
     Properties.RANDOM_SEED = 1l;
 
-    ChromosomeFactory<?> factory = new RandomFactory(true, 10, -5.0, 5.0);
+    ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(true, 10, -5.0, 5.0);
 
-    GeneticAlgorithm<?> ga = new SPEA2(factory);
+    GeneticAlgorithm<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new SPEA2<>(factory);
     BinaryTournamentSelectionCrowdedComparison ts =
         new BinaryTournamentSelectionCrowdedComparison();
     ts.setMaximize(false);
     ga.setSelectionFunction(ts);
     ga.setCrossOverFunction(new SBXCrossover());
 
-    Problem p = new ZDT4();
+    Problem p = new ZDT4<>();
     final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
     final FitnessFunction f2 = (FitnessFunction) p.getFitnessFunctions().get(1);
     ga.addFitnessFunction(f1);
@@ -311,20 +312,15 @@ public class SPEA2Test {
     // execute
     ga.generateSolution();
 
-    List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-    Collections.sort(chromosomes, new Comparator<Chromosome>() {
-      @Override
-      public int compare(Chromosome arg0, Chromosome arg1) {
-        return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-      }
-    });
+    List<NSGAChromosome> chromosomes = ga.getPopulation();
+    chromosomes.sort(Comparator.comparingDouble(arg0 -> arg0.getFitness(f1)));
 
     double[][] front = new double[Properties.POPULATION][2];
     for (int i = 0; i < chromosomes.size(); i++) {
       Chromosome chromosome = chromosomes.get(i);
       System.out.printf("%f,%f\n", chromosome.getFitness(f1), chromosome.getFitness(f2));
-      front[i][0] = Double.valueOf(chromosome.getFitness(f1));
-      front[i][1] = Double.valueOf(chromosome.getFitness(f2));
+      front[i][0] = chromosome.getFitness(f1);
+      front[i][1] = chromosome.getFitness(f2);
     }
 
     // load True Pareto Front

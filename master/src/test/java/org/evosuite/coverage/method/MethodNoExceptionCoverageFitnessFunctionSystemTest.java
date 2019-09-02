@@ -44,7 +44,7 @@ import java.util.List;
 public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
-    
+
     private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
@@ -62,13 +62,13 @@ public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTe
 	@Ignore
 	public void testMethodNoExceptionFitnessOnlyExceptionExample() {
 		EvoSuite evosuite = new EvoSuite();
-		
+
 		String targetClass = OnlyException.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -87,7 +87,7 @@ public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTe
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
@@ -101,7 +101,7 @@ public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTe
     	Properties.TEST_ARCHIVE = true;
     	testMethodNoExceptionFitnessImplicitExplicitExample();
     }
-    
+
 
     @Test
     public void testMethodNoExceptionFitnessImplicitExplicitExampleWithoutArchive() {
@@ -117,7 +117,7 @@ public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTe
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
@@ -131,7 +131,7 @@ public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTe
     	Properties.TEST_ARCHIVE = true;
     	testMethodFitnessCompositionalExample();
     }
-    
+
     @Test
     public void testMethodFitnessCompositionalExampleWithoutArchive() {
     	Properties.TEST_ARCHIVE = false;
@@ -146,7 +146,7 @@ public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTe
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
@@ -165,7 +165,7 @@ public class MethodNoExceptionCoverageFitnessFunctionSystemTest extends SystemTe
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();

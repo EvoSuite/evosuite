@@ -47,19 +47,19 @@ public class StaticBlockCoverageSystemTest extends SystemTestBase {
 		String targetClass = StaticBlockCoverage.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = new Criterion[]{Criterion.LINE};
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best.toString());
-		
+
 		double best_fitness = best.getFitness();
 		Assert.assertEquals("Optimal coverage was not achieved ", 0.0, best_fitness , 0.0001);
-		
+
 	}
 
 }

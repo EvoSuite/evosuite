@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.seeding.factories;
 
@@ -38,7 +38,7 @@ import com.examples.with.different.packagename.staticusage.Class1;
 public class BIandRITestSuiteChromosomeFactorySystemTest extends SystemTestBase {
 	ChromosomeSampleFactory defaultFactory = new ChromosomeSampleFactory();
 	TestSuiteChromosome bestIndividual;
-	GeneticAlgorithm<TestSuiteChromosome> ga;
+	GeneticAlgorithm<TestSuiteChromosome, ?> ga;
 
 	@Before
 	public void setup() {
@@ -51,7 +51,7 @@ public class BIandRITestSuiteChromosomeFactorySystemTest extends SystemTestBase 
 
 		Object result = evosuite.parseCommandLine(command);
 
-		ga = (GeneticAlgorithm<TestSuiteChromosome>) getGAFromResult(result);
+		ga = (GeneticAlgorithm<TestSuiteChromosome, ?>) getGAFromResult(result);
 		bestIndividual = (TestSuiteChromosome) ga.getBestIndividual();
 	}
 

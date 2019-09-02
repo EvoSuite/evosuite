@@ -41,16 +41,16 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		String targetClass = ObjectCastExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEED_TYPES = true;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testObjectToStringCaseWithoutSeeding() {
 		EvoSuite evosuite = new EvoSuite();
@@ -58,16 +58,16 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		String targetClass = ObjectCastExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEED_TYPES = false;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
 	}
-	
+
 	@Test
 	public void testObjectInheritance() {
 		EvoSuite evosuite = new EvoSuite();
@@ -76,18 +76,18 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEED_TYPES = true;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
-		
+
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
+
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testObjectInheritanceWithoutSeeding() {
 		EvoSuite evosuite = new EvoSuite();
@@ -95,17 +95,17 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		String targetClass = ObjectInheritanceExample.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEED_TYPES = false;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1);
 	}
-	
-	
+
+
 	@Test
 	public void testTypeExample () {
 		EvoSuite evosuite = new EvoSuite();
@@ -121,7 +121,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
@@ -144,7 +144,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -153,7 +153,7 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		Assert.assertEquals("Wrong number of goals: ", 4, goals);
 		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
-	
+
 	private String printArray(String[] s) {
 		StringBuilder sb = new StringBuilder("[");
 		for (int i = 0; i < s.length ; i++) {
@@ -165,5 +165,5 @@ public class TypeSeedingSystemTest extends SystemTestBase {
 		sb.append("]");
 		return sb.toString();
 	}
-	
+
 }

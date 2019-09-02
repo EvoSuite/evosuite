@@ -29,6 +29,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
@@ -78,14 +79,14 @@ import sun.misc.Signal;
 
 /**
  * Factory for GA on test suites
- * 
+ *
  * @author gordon
  *
  */
 @SuppressWarnings("restriction")
-public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<TestSuiteChromosome> {
+public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> {
 
-	
+
 	protected ChromosomeFactory<TestSuiteChromosome> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
@@ -122,8 +123,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 					+ Properties.TEST_FACTORY);
 		}
 	}
-	
-	protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
+
+	protected GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
 		switch (Properties.ALGORITHM) {
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
@@ -136,7 +137,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				return new MuLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
 			case MONOTONIC_GA: {
 				logger.info("Chosen search algorithm: MonotonicGA");
-				MonotonicGA<TestSuiteChromosome> ga = new MonotonicGA<>(factory);
+				MonotonicGA<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga =
+						new MonotonicGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -148,7 +150,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			}
 			case CELLULAR_GA: {
 				logger.info("Chosen search algorithm: CellularGA");
-				CellularGA<TestSuiteChromosome> ga = new CellularGA<>(Properties.MODEL, factory);
+				CellularGA<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga =
+						new CellularGA<>(Properties.MODEL, factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -160,7 +163,8 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			}
 			case STEADY_STATE_GA: {
 				logger.info("Chosen search algorithm: Steady-StateGA");
-				SteadyStateGA<TestSuiteChromosome> ga = new SteadyStateGA<>(factory);
+				SteadyStateGA<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga =
+						new SteadyStateGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -184,28 +188,60 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 				return new SPEA2<>(factory);
 			case MOSA:
 				logger.info("Chosen search algorithm: MOSA");
-				return new MOSA<>(factory);
+//				return new MOSA(factory);
+				if (factory instanceof TestSuiteChromosomeFactory) {
+					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+					return new MOSATestSuiteAdapter(new MOSA(tscf.getTestChromosomeFactory()), tscf);
+				} else {
+					logger.info("No specific factory for test cases given...");
+					logger.info("Using a default factory that creates tests with variable length");
+					return new MOSATestSuiteAdapter(new MOSA(new RandomLengthTestFactory()), factory);
+				}
 			case DYNAMOSA:
 				logger.info("Chosen search algorithm: DynaMOSA");
-				return new DynaMOSA<>(factory);
+//				return new DynaMOSA(factory);
+				if (factory instanceof TestSuiteChromosomeFactory) {
+					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+					return new MOSATestSuiteAdapter(new DynaMOSA(tscf.getTestChromosomeFactory()), tscf);
+				} else {
+					logger.info("No specific factory for test cases given...");
+					logger.info("Using a default factory that creates tests with variable length");
+					return new MOSATestSuiteAdapter(new DynaMOSA(new RandomLengthTestFactory()), factory);
+				}
 			case ONE_PLUS_LAMBDA_LAMBDA_GA:
 				logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
 				return new OnePlusLambdaLambdaGA<>(factory, Properties.LAMBDA);
 			case MIO:
 				logger.info("Chosen search algorithm: MIO");
-				return new MIO<>(factory);
+//				return new MIO(factory);
+				if (factory instanceof TestSuiteChromosomeFactory) {
+					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+					return new MOSATestSuiteAdapter(new MIO(tscf.getTestChromosomeFactory()), tscf);
+				} else {
+					logger.info("No specific factory for test cases given...");
+					logger.info("Using a default factory that creates tests with variable length");
+					return new MOSATestSuiteAdapter(new MIO(new RandomLengthTestFactory()), factory);
+				}
 			case STANDARD_CHEMICAL_REACTION:
 				logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
 				return new StandardChemicalReaction<>(factory);
 			case LIPS:
 				logger.info("Chosen search algorithm: LIPS");
-				return new LIPS<>(factory);
+//				return new LIPS(factory);
+				if (factory instanceof TestSuiteChromosomeFactory) {
+					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+					return new LIPSTestSuiteAdapter(new LIPS(tscf.getTestChromosomeFactory()), tscf);
+				} else {
+					logger.info("No specific factory for test cases given...");
+					logger.info("Using a default factory that creates tests with variable length");
+					return new LIPSTestSuiteAdapter(new LIPS(new RandomLengthTestFactory()), factory);
+				}
 			default:
 				logger.info("Chosen search algorithm: StandardGA");
 				return new StandardGA<>(factory);
 		}
 	}
-	
+
 	protected SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
@@ -224,7 +260,7 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			return new RankSelection<>();
 		}
 	}
-	
+
 	protected CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
@@ -258,11 +294,12 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 	}
 
 	@Override
-	public GeneticAlgorithm<TestSuiteChromosome> getSearchAlgorithm() {
+	public GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> getSearchAlgorithm() {
 		ChromosomeFactory<TestSuiteChromosome> factory = getChromosomeFactory();
-		
+
 		// FIXXME
-		GeneticAlgorithm<TestSuiteChromosome> ga = getGeneticAlgorithm(factory);
+		GeneticAlgorithm<TestSuiteChromosome, FitnessFunction<TestSuiteChromosome>> ga =
+				getGeneticAlgorithm(factory);
 
 		if (Properties.NEW_STATISTICS)
 			ga.addListener(new StatisticsListener());
@@ -272,18 +309,18 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		selectionFunction.setMaximize(false);
 		ga.setSelectionFunction(selectionFunction);
 
-		RankingFunction<TestSuiteChromosome> ranking_function = getRankingFunction();
-		ga.setRankingFunction(ranking_function);
+		RankingFunction<TestSuiteChromosome> rankingFunction = getRankingFunction();
+		ga.setRankingFunction(rankingFunction);
 
 		// When to stop the search
-		StoppingCondition stopping_condition = getStoppingCondition();
-		ga.setStoppingCondition(stopping_condition);
-		// ga.addListener(stopping_condition);
+		StoppingCondition stoppingCondition = getStoppingCondition();
+		ga.setStoppingCondition(stoppingCondition);
+		// ga.addListener(stoppingCondition);
 		if (Properties.STOP_ZERO) {
 			ga.addStoppingCondition(new ZeroFitnessStoppingCondition());
 		}
 
-		if (!(stopping_condition instanceof MaxTimeStoppingCondition)) {
+		if (!(stoppingCondition instanceof MaxTimeStoppingCondition)) {
 			ga.addStoppingCondition(new GlobalTimeStoppingCondition());
 		}
 
@@ -301,17 +338,17 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over
-		CrossOverFunction crossover_function = getCrossoverFunction();
-		ga.setCrossOverFunction(crossover_function);
+		CrossOverFunction crossoverFunction = getCrossoverFunction();
+		ga.setCrossOverFunction(crossoverFunction);
 
 		// What to do about bloat
 		// MaxLengthBloatControl bloat_control = new MaxLengthBloatControl();
 		// ga.setBloatControl(bloat_control);
 
 		if (Properties.CHECK_BEST_LENGTH) {
-			RelativeSuiteLengthBloatControl bloat_control = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
-			ga.addBloatControl(bloat_control);
-			ga.addListener(bloat_control);
+			RelativeSuiteLengthBloatControl bloatControl = new org.evosuite.testsuite.RelativeSuiteLengthBloatControl();
+			ga.addBloatControl(bloatControl);
+			ga.addListener(bloatControl);
 		}
 		// ga.addBloatControl(new MaxLengthBloatControl());
 
@@ -332,12 +369,12 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 			// I think BranchPool.getBranchCount() was intended
 			Properties.SEARCH_BUDGET = Properties.SEARCH_BUDGET
 			        * (BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchCountForClass(Properties.TARGET_CLASS) * 2);
-			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
+			stoppingCondition.setLimit(Properties.SEARCH_BUDGET);
 			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
 		}
 
 		if (Properties.LOCAL_SEARCH_RESTORE_COVERAGE) {
-			org.evosuite.ga.metaheuristics.SearchListener map = BranchCoverageMap.getInstance(); 
+			org.evosuite.ga.metaheuristics.SearchListener map = BranchCoverageMap.getInstance();
 			ga.addListener(map);
 		}
 

@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.seeding.factories;
 
@@ -37,27 +37,27 @@ public class BIAndRITestSuiteChromosomeFactory implements
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
+	private final GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm;
 	private boolean seeded = false;
 
 	/**
 	 * <p>
 	 * Constructor for BestIndividualAndRandomTestSuiteChromosomeFactory.
 	 * </p>
-	 * 
+	 *
 	 * @param defaultFactory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public BIAndRITestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
+			GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm) {
 		this.defaultFactory = defaultFactory;
 		this.geneticAlgorithm = geneticAlgorithm;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
 	/** {@inheritDoc} */

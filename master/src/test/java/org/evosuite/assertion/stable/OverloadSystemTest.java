@@ -78,24 +78,24 @@ public class OverloadSystemTest extends SystemTestBase {
 	public void testIsOverloaded() throws NoSuchMethodException, SecurityException {
 		Method m1 = Overload.class.getMethod("execute", Overload.class, Overload.class);
 		Method m2 = Overload.class.getMethod("execute", Overload.class, Object.class);
-		
+
 		GenericMethod gm1 = new GenericMethod(m1, Overload.class);
 		GenericMethod gm2 = new GenericMethod(m2, Overload.class);
-		
+
 		Assert.assertTrue(gm1.isOverloaded());
 		Assert.assertTrue(gm2.isOverloaded());
 	}
-	
+
 	@Test
 	public void testIsOverloadedInstance() throws NoSuchMethodException, SecurityException {
 		Method m1 = Overload.class.getMethod("execute", Overload.class, Overload.class);
 		Method m2 = Overload.class.getMethod("execute", Overload.class, Object.class);
-		
+
 		GenericMethod gm1 = new GenericMethod(m1, Overload.class);
 		GenericMethod gm2 = new GenericMethod(m2, Overload.class);
-		
+
 		TestCase test = new DefaultTestCase();
-		
+
 		GenericConstructor gc = new GenericConstructor(Overload.class.getConstructors()[0], Overload.class);
 		ConstructorStatement cs = new ConstructorStatement(test, gc, new ArrayList<VariableReference>());
 		VariableReference overloadInstance = test.addStatement(cs);
@@ -116,7 +116,7 @@ public class OverloadSystemTest extends SystemTestBase {
 		Assert.assertTrue(gm1.isOverloaded(vars2));
 		Assert.assertFalse(gm2.isOverloaded(vars2));
 	}
-	
+
 	@Test
 	public void testOverload() {
 		EvoSuite evosuite = new EvoSuite();
@@ -129,7 +129,7 @@ public class OverloadSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

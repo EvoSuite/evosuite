@@ -95,14 +95,14 @@ import java.util.Arrays;
  *
  */
 public class FitnessFunctions {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(FitnessFunctions.class);
 
 	/**
 	 * <p>
 	 * getFitnessFunction
 	 * </p>
-	 * 
+	 *
 	 * @param criterion
 	 *            a {@link org.evosuite.Properties.Criterion} object.
 	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
@@ -162,12 +162,12 @@ public class FitnessFunctions {
 			return new BranchCoverageSuiteFitness();
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * getFitnessFactory
 	 * </p>
-	 * 
+	 *
 	 * @param crit
 	 *            a {@link org.evosuite.Properties.Criterion} object.
 	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
@@ -228,7 +228,7 @@ public class FitnessFunctions {
 	/**
 	 * Converts a {@link org.evosuite.Properties.Criterion} object to a
 	 * {@link org.evosuite.testcase.TestFitnessFunction} class.
-	 * 
+	 *
 	 * @param criterion a {@link org.evosuite.Properties.Criterion} object.
 	 * @return a {@link java.lang.Class} object.
 	 */

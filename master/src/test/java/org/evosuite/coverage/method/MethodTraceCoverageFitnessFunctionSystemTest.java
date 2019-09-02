@@ -43,7 +43,7 @@ import com.examples.with.different.packagename.SingleMethod;
 public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
-    
+
     private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
@@ -63,22 +63,22 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
 		Properties.TEST_ARCHIVE = true;
 		testMethodFitnessSimpleExample();
 	}
-	
+
 	@Test
 	public void testMethodFitnessSimpleExampleWithoutArchive() {
 		Properties.TEST_ARCHIVE = false;
 		testMethodFitnessSimpleExample();
 	}
-	
+
 	public void testMethodFitnessSimpleExample() {
 		EvoSuite evosuite = new EvoSuite();
-		
+
 		String targetClass = SingleMethod.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -92,7 +92,7 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
 		Properties.TEST_ARCHIVE = true;
 		testMethodFitnessFlagExample3();
 	}
-	
+
 	@Test
 	public void testMethodFitnessFlagExample3WithoutArchive() {
 		Properties.TEST_ARCHIVE = false;
@@ -104,12 +104,12 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
 
 		String targetClass = FlagExample3.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		
+
 		System.out.println("EvolvedTestSuite:\n" + best);
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size(); // assuming single fitness function
 		Assert.assertEquals(2, goals);
@@ -121,13 +121,13 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
     	Properties.TEST_ARCHIVE = true;
     	testMethodFitnessCompositionalExample();
     }
-    
+
     @Test
     public void testMethodFitnessCompositionalExampleWithoutArchive() {
     	Properties.TEST_ARCHIVE = false;
     	testMethodFitnessCompositionalExample();
     }
-    
+
     public void testMethodFitnessCompositionalExample() {
         EvoSuite evosuite = new EvoSuite();
 
@@ -136,7 +136,7 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println("EvolvedTestSuite:\n" + best);
@@ -155,7 +155,7 @@ public class MethodTraceCoverageFitnessFunctionSystemTest extends SystemTestBase
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals().size();

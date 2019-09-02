@@ -26,8 +26,8 @@ public class NoveltyFitnessEvaluationListener implements SearchListener {
         return suite;
     }
     @Override
-    public void iteration(GeneticAlgorithm<?> algorithm) {
-        List<TestChromosome> population = ((GeneticAlgorithm<TestChromosome>)algorithm).getPopulation();
+    public void iteration(GeneticAlgorithm<?, ?> algorithm) {
+        List<TestChromosome> population = ((GeneticAlgorithm<TestChromosome, ?>)algorithm).getPopulation();
         TestSuiteChromosome suite = createMergedSolution(population);
         for (FitnessFunction fitnessFunction : fitnessFunctions) {
             fitnessFunction.getFitness(suite);
@@ -39,12 +39,12 @@ public class NoveltyFitnessEvaluationListener implements SearchListener {
 
 
     @Override
-    public void searchStarted(GeneticAlgorithm<?> algorithm) {
+    public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 
     }
 
     @Override
-    public void searchFinished(GeneticAlgorithm<?> algorithm) {
+    public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
 
     }
 

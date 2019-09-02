@@ -24,7 +24,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 
 /**
  * Stop search after a predefined number of iterations
- * 
+ *
  * @author Gordon Fraser
  */
 public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
@@ -41,7 +41,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	 * <p>
 	 * setMaxIterations
 	 * </p>
-	 * 
+	 *
 	 * @param max
 	 *            a int.
 	 */
@@ -51,17 +51,17 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Increase iteration counter
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
 		currentIteration++;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Stop search after a number of iterations
 	 */
 	@Override
@@ -71,13 +71,13 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
 		currentIteration = 0;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Reset counter
 	 */
 	@Override

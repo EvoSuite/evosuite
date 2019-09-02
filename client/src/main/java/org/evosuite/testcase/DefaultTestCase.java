@@ -180,7 +180,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 	}
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+     * @param listener*/
 	@Override
 	public void addListener(Listener<Void> listener) {
 		statements.addListener(listener);
@@ -357,7 +358,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return t;
 	}
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+	 * @param listener*/
 	@Override
 	public void deleteListener(Listener<Void> listener) {
 		statements.deleteListener(listener);

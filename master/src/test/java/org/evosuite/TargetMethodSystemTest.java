@@ -23,7 +23,7 @@ public class TargetMethodSystemTest extends SystemTestBase {
 
     Object result = evosuite.parseCommandLine(command);
 
-    GeneticAlgorithm<?> ga = getGAFromResult(result);
+    GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best.toString());
     assertTrue(best.toString().contains(methodName.substring(0, methodName.indexOf("("))));

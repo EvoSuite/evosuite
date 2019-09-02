@@ -47,7 +47,7 @@ public class RandomUserSystemTest extends SystemTestBase {
 	private final boolean DEFAULT_JUNIT_TESTS = Properties.JUNIT_TESTS;
 	private final boolean DEFAULT_PURE_INSPECTORS = Properties.PURE_INSPECTORS;
 	private final boolean DEFAULT_SANDBOX = Properties.SANDBOX;
-	
+
 
 	@Before
 	public void configureProperties() {
@@ -71,7 +71,7 @@ public class RandomUserSystemTest extends SystemTestBase {
 		Properties.PURE_INSPECTORS = DEFAULT_PURE_INSPECTORS;
 	}
 
-	@Test 
+	@Test
 	public void testRandom() {
 		EvoSuite evosuite = new EvoSuite();
 
@@ -83,7 +83,7 @@ public class RandomUserSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -102,7 +102,7 @@ public class RandomUserSystemTest extends SystemTestBase {
 				"nextInt", descriptor);
 		assertFalse(secureRandomNextInt );
 
-		
+
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
 		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());

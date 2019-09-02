@@ -25,15 +25,16 @@ import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.FitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * 1+(lambda,lambda) GA
- * 
+ *
  * @author Yan Ge
  */
-public class OnePlusLambdaLambdaGA<T extends Chromosome> extends AbstractMuLambda<T> {
+public class OnePlusLambdaLambdaGA<T extends Chromosome, F extends FitnessFunction<T>> extends AbstractMuLambda<T, F> {
 
   private static final long serialVersionUID = 529089847512798127L;
 

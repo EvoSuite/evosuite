@@ -49,13 +49,13 @@ public class AbstractSUTSystemTest extends SystemTestBase {
 
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testAbstractSUTWithOnlyStaticFactory() {
 		EvoSuite evosuite = new EvoSuite();
@@ -75,7 +75,7 @@ public class AbstractSUTSystemTest extends SystemTestBase {
 
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

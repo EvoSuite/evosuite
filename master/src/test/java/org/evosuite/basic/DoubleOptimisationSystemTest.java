@@ -32,14 +32,14 @@ import com.examples.with.different.packagename.DoubleExample;
 import com.examples.with.different.packagename.DoubleExample2;
 
 public class DoubleOptimisationSystemTest extends SystemTestBase {
-	
+
 	private double seedConstants = Properties.PRIMITIVE_POOL;
-	
+
 	@After
 	public void resetSeedConstants() {
 		Properties.PRIMITIVE_POOL = seedConstants;
 	}
-	
+
 	@Test
 	public void testDoubleSUT() {
 		EvoSuite evosuite = new EvoSuite();
@@ -56,13 +56,13 @@ public class DoubleOptimisationSystemTest extends SystemTestBase {
 
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testDoubleSUTExact() {
 		EvoSuite evosuite = new EvoSuite();
@@ -80,7 +80,7 @@ public class DoubleOptimisationSystemTest extends SystemTestBase {
 
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

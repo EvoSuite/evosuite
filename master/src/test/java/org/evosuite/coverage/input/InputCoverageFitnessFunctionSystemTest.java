@@ -62,7 +62,7 @@ import static junit.framework.TestCase.assertEquals;
 public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
-    
+
     private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
@@ -79,7 +79,7 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 	@Test
 	public void testInputCoverage() {
 		EvoSuite evosuite = new EvoSuite();
-		
+
 		String targetClass = MethodWithSeveralInputArguments.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.MAX_ARRAY = 2;
@@ -87,7 +87,7 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 20000;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(12, goals.size());
@@ -102,7 +102,7 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(23, goals.size());
@@ -118,7 +118,7 @@ public class InputCoverageFitnessFunctionSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		List<?> goals = TestGenerationStrategy.getFitnessFactories().get(0).getCoverageGoals();
 		Assert.assertEquals(31, goals.size());

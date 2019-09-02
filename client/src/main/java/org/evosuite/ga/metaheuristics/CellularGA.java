@@ -13,6 +13,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.Neighbourhood;
 import org.evosuite.ga.ReplacementFunction;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -21,38 +22,38 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of cellular GA
- * 
+ *
  * @author Nasser Albunian
  */
-public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
-	
+public class CellularGA<T extends Chromosome, F extends FitnessFunction<T>> extends GeneticAlgorithm<T, F> {
+
 	private static final long serialVersionUID = 7846967347821123201L;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CellularGA.class);
 
 	/** An object of ReplacementFunction **/
 	protected ReplacementFunction replacementFunction;
-	
+
 	/** Constructing the neighbourhood **/
 	private Neighbourhood<T> neighb;
-	
+
 	/** Constructing the temporary grid */
 	private List<T> temp_cells = new ArrayList<>();
-	
+
 	private static final double DELTA = 0.000000001;
-	
-	
+
+
 	public CellularGA (Properties.CGA_Models model, ChromosomeFactory<T> factory){
-		
+
 		super(factory);
-		
+
 		neighb = new Neighbourhood<T>(Properties.POPULATION);
-		
+
 		setReplacementFunction(new FitnessReplacementFunction());
-		
+
 		LoggingUtils.getEvoLogger().info("* Running the Cellular GA with the '" + Properties.MODEL + "' neighbourhoods model ");
 	}
-	
+
 	/**
 	 * Launching the algorithm
 	 */
@@ -61,16 +62,16 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		evolve();
 
 		replacePopulations(population, temp_cells);
-		
+
 		for(T individual : population) {
 			assert(((TestSuiteChromosome)individual).totalLengthOfTestCases() < Properties.MAX_SIZE * Properties.CHROMOSOME_LENGTH);
 		}
-		
+
 		updateFitnessFunctionsAndValues();
 
 		currentIteration++;
 	}
-	
+
 	/**
 	 * Evolution process on individuals in the grid
 	 */
@@ -81,25 +82,25 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		int numberIndividualsToCreate = this.population.size() - temp_cells.size();
 		for (int i = 0; i < numberIndividualsToCreate; i++) {
 			List<T> neighbors = neighb.getNeighbors(population, i);
-			
+
 			if (getFitnessFunction().isMaximizationFunction()) {
 				Collections.sort(neighbors, Collections.reverseOrder());
 			} else {
 				Collections.sort(neighbors);
 			}
 
-			
+
 			List<T> parents = selectionFunction.select(neighbors,2);
-			
+
 			T parent1 = parents.get(0);
 			T parent2 = parents.get(1);
-			
+
 			@SuppressWarnings("unchecked")
 			T offspring1 = (T)parent1.clone();
 			@SuppressWarnings("unchecked")
 			T offspring2 = (T)parent2.clone();
-			
-			
+
+
 			try {
 				// Crossover
 				if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
@@ -110,23 +111,23 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 				logger.info("CrossOver failed");
 				continue;
 			}
-			
+
 			T bestOffspring = getBestOffspring(offspring1, offspring2);
-			
+
 			notifyMutation(bestOffspring);
 			bestOffspring.mutate();
-			
+
 			if (bestOffspring.isChanged()) {
-				bestOffspring.updateAge(currentIteration);
+				bestOffspring.updateGeneration(currentIteration);
 			}
-			
+
 			if (bestOffspring.size() > 0 && !isTooLong(bestOffspring))
 				temp_cells.add(bestOffspring);
 			else
 				temp_cells.add(population.get(i));
 		}
 	}
-	
+
 	/**
 	 * Replace the current individuals with better individuals in the temporary grid
 	 * @param main The main grid
@@ -135,17 +136,17 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	public void replacePopulations(List<T> main, List<T> temp){
 		assert main.size() == temp.size();
 		for(int i=0; i<Properties.POPULATION; i++){
-			
+
 			T mainIndividual = main.get(i);
 			T tempIndividual = temp.get(i);
-			
-			for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+
+			for (F fitnessFunction : fitnessFunctions) {
 				fitnessFunction.getFitness(mainIndividual);
 				notifyEvaluation(mainIndividual);
 				fitnessFunction.getFitness(tempIndividual);
 				notifyEvaluation(tempIndividual);
 			}
-			
+
 			// replace-if-better policy
 			if (isBetterOrEqual(tempIndividual, mainIndividual)) {
 				if (tempIndividual.size() > 0 && !isTooLong(tempIndividual)) {
@@ -154,7 +155,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 			}
 		}
 	}
-	
+
 	/**
 	 * Get the best offspring
 	 * @param offspring1
@@ -162,14 +163,14 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * @return better offspring
 	 */
 	public T getBestOffspring(T offspring1, T offspring2){
-		
-		for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+
+		for (F fitnessFunction : fitnessFunctions) {
 			fitnessFunction.getFitness(offspring1);
 			notifyEvaluation(offspring1);
 			fitnessFunction.getFitness(offspring2);
 			notifyEvaluation(offspring2);
 		}
-		
+
 		if(isBetterOrEqual(offspring1, offspring2))
 			return offspring1;
 		else
@@ -181,17 +182,17 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * Initialise the population
 	 */
 	public void initializePopulation() {
-		
+
 		notifySearchStarted();
-		
+
 		currentIteration = 0;
 
 		generateInitialPopulation(Properties.POPULATION);
-		
+
 		logger.debug("Calculating fitness of initial population");
-		
+
 		calculateFitnessAndSortPopulation();
-		
+
 		this.notifyIteration();
 	}
 
@@ -200,7 +201,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * Generate solution
 	 */
 	public void generateSolution() {
-		
+
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
@@ -220,7 +221,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 		}
 
 		while (!isFinished()) {
-			
+
 			logger.info("Population size before: " + population.size());
 
 			{
@@ -288,24 +289,24 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 
 		notifySearchFinished();
 	}
-	
+
 	/**
 	 * Retrieve the fitness
 	 * @return fitness of an individual
 	 */
 	private double getBestFitness() {
 		T bestIndividual = getBestIndividual();
-		for (FitnessFunction<T> ff : fitnessFunctions) {
+		for (F ff : fitnessFunctions) {
 			ff.getFitness(bestIndividual);
 		}
 		return bestIndividual.getFitness();
 	}
-	
+
 	/**
 	 * <p>
 	 * setReplacementFunction
 	 * </p>
-	 * 
+	 *
 	 * @param replacement_function
 	 *            a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
@@ -317,7 +318,7 @@ public class CellularGA<T extends Chromosome> extends GeneticAlgorithm<T>{
 	 * <p>
 	 * getReplacementFunction
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
 	public ReplacementFunction getReplacementFunction() {

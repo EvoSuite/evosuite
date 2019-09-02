@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
@@ -93,7 +94,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
    *
    * @param targets the targets to register
    */
-  public void addTargets(Collection<F> targets) {
+  public void addTargets(List<F> targets) {
     targets.forEach(this::addTarget);
   }
 
@@ -105,7 +106,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
   protected void registerNonCoveredTargetOfAMethod(F target) {
     String targetMethod = this.getMethodFullName(target);
     if (!this.nonCoveredTargetsOfEachMethod.containsKey(targetMethod)) {
-      this.nonCoveredTargetsOfEachMethod.put(targetMethod, new LinkedHashSet<F>());
+      this.nonCoveredTargetsOfEachMethod.put(targetMethod, new LinkedHashSet<>());
     }
     this.nonCoveredTargetsOfEachMethod.get(targetMethod).add(target);
   }

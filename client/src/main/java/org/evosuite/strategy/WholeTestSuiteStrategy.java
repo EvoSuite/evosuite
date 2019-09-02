@@ -21,16 +21,13 @@ package org.evosuite.strategy;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -46,7 +43,7 @@ import java.util.List;
 
 /**
  * Regular whole test suite generation
- * 
+ *
  * @author gordon
  *
  */
@@ -57,8 +54,8 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for whole suite generation");
 		PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
-		GeneticAlgorithm<TestSuiteChromosome> algorithm = algorithmFactory.getSearchAlgorithm();
-		
+		GeneticAlgorithm<TestSuiteChromosome, ?> algorithm = algorithmFactory.getSearchAlgorithm();
+
 		if(Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD)
 			TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
 
@@ -69,7 +66,7 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 
 		// TODO: Argh, generics.
 		algorithm.addFitnessFunctions((List)fitnessFunctions);
-//		for(TestSuiteFitnessFunction f : fitnessFunctions) 
+//		for(TestSuiteFitnessFunction f : fitnessFunctions)
 //			algorithm.addFitnessFunction(f);
 
 		// if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
@@ -126,11 +123,11 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 
 		goals = getGoals(false); //recalculated now after the search, eg to handle exception fitness
         ClientServices.getInstance().getClientNode().trackOutputVariable(RuntimeVariable.Total_Goals, goals.size());
-        
+
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
-		
+
 		if(!Properties.IS_RUNNING_A_SYSTEM_TEST) { //avoid printing time related info in system tests due to lack of determinism
 			LoggingUtils.getEvoLogger().info("* Search finished after "
 					+ (endTime - startTime)
@@ -147,7 +144,7 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 
 		return testSuite;
 	}
-	
+
     private List<TestFitnessFunction> getGoals(boolean verbose) {
         List<TestFitnessFactory<? extends TestFitnessFunction>> goalFactories = getFitnessFactories();
         List<TestFitnessFunction> goals = new ArrayList<>();

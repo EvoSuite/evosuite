@@ -65,7 +65,7 @@ public class ExceptionInstrumentationSystemTest extends SystemTestBase {
         Properties.OUTPUT_VARIABLES = s.toString();
 
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 

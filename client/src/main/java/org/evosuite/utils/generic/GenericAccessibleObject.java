@@ -93,7 +93,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			//	if(parameterType instanceof TypeVariable<?>) {
 			boolean replaced = false;
 			for (TypeVariable<?> var : typeMap.keySet()) {
-				// D'oh! Why the heck do we need this?? 
+				// D'oh! Why the heck do we need this??
 				if (var.getName().equals(parameterType.getName())) {
 					//if(typeMap.containsKey(parameterType)) {
 					actualParameters[num] = typeMap.get(var);
@@ -211,12 +211,12 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	public Type[] getGenericParameterTypes() {
 		return new Type[] {};
 	}
-	
+
 	public abstract Type getGenericGeneratedType();
 
 	/**
 	 * Instantiate all generic type parameters
-	 * 
+	 *
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -250,7 +250,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	/**
 	 * Instantiate all generic type parameters based on a new callee type
-	 * 
+	 *
 	 * @param calleeType
 	 * @return
 	 * @throws ConstructionFailedException
@@ -284,8 +284,8 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	/**
 	 * Set type parameters based on return type
-	 * 
-	 * @param returnType
+	 *
+	 * @param generatedType
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -315,7 +315,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			generatorTypes.put((TypeVariable<?>) genericReturnType,
 			                   generatedType.getType());
 		}
-		
+
 		if (genericReturnType instanceof ParameterizedType) {
 			for(Type parameterType : getGenericParameterTypes()) {
 				logger.debug("Checking parameter "+parameterType);
@@ -409,7 +409,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	}
 
 	public abstract boolean isAccessible();
-	
+
 	public boolean isConstructor() {
 		return false;
 	}
@@ -436,7 +436,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	/**
 	 * Maps type parameters in a type to their values.
-	 * 
+	 *
 	 * @param toMapType
 	 *            Type possibly containing type arguments
 	 * @param typeAndParams
@@ -470,10 +470,10 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	@Override
 	public abstract String toString();
-	
+
 	@Override
 	public abstract boolean equals(Object other);
-	
+
 	@Override
 	public abstract int hashCode();
 }

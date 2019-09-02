@@ -31,7 +31,7 @@ import org.junit.Test;
 import com.examples.with.different.packagename.RegexBranch;
 
 public class RegexBranchSystemTest extends SystemTestBase {
-	
+
 	public static final double defaultDynamicPool = Properties.DYNAMIC_POOL;
 
 	@After
@@ -39,7 +39,7 @@ public class RegexBranchSystemTest extends SystemTestBase {
 		Properties.DYNAMIC_POOL = defaultDynamicPool;
 	}
 
-	
+
 	@Test
 	public void testRegexBranch() {
 		EvoSuite evosuite = new EvoSuite();
@@ -52,7 +52,7 @@ public class RegexBranchSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass }; // , "-Dprint_to_system=true"
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

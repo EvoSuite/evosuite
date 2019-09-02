@@ -46,7 +46,7 @@ import com.examples.with.different.packagename.Calculator;
 
 /**
  * NSGA-II test
- * 
+ *
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -61,7 +61,7 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
 	public void testUnionEmptyPopulation()
 	{
-	    NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+	    NSGAII<NSGAChromosome, ?> ga = new NSGAII<>(null);
 
 	    List<NSGAChromosome> pop = new ArrayList<NSGAChromosome>();
 	    List<NSGAChromosome> off = new ArrayList<NSGAChromosome>();
@@ -73,7 +73,7 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
     public void testUnion()
     {
-        NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+        NSGAII<NSGAChromosome, ?> ga = new NSGAII<>(null);
 
         NSGAChromosome c1 = new NSGAChromosome();
         NSGAChromosome c2 = new NSGAChromosome();
@@ -93,7 +93,7 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
 	public void testFastNonDominatedSort()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new NSGAII<>(null);
 
 		Problem p = new Booths<NSGAChromosome>();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
@@ -163,7 +163,7 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
 	public void testCrowingDistanceAssignment_OneVariable()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new NSGAII<>(null);
 
 		Problem p = new Booths();
 		List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
@@ -225,7 +225,7 @@ public class NSGAIISystemTest extends SystemTestBase
 	@Test
     public void testCrowingDistanceAssignment_SeveralVariables()
 	{
-        NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+        NSGAII<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new NSGAII<>(null);
 
         Problem p = new SCH();
         List<FitnessFunction<NSGAChromosome>> fitnessFunctions = p.getFitnessFunctions();
@@ -322,7 +322,7 @@ public class NSGAIISystemTest extends SystemTestBase
         Object result = evosuite.parseCommandLine(command);
         Assert.assertNotNull(result);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
         final FitnessFunction rho = ga.getFitnessFunctions().get(0);
         final FitnessFunction ag = ga.getFitnessFunctions().get(1);

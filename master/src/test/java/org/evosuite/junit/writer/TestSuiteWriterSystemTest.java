@@ -36,15 +36,15 @@ import java.nio.file.Paths;
 
 public class TestSuiteWriterSystemTest extends SystemTestBase {
 
-	
+
 	@Test
-	public void testSingleFile(){		
+	public void testSingleFile(){
 		Properties.TEST_SCAFFOLDING = false;
 		test();
 	}
-	
+
 	@Test
-	public void testScaffoldingFile(){		
+	public void testScaffoldingFile(){
 		Properties.TEST_SCAFFOLDING = true;
 		test();
 	}
@@ -57,17 +57,17 @@ public class TestSuiteWriterSystemTest extends SystemTestBase {
 		Assert.assertTrue("Covered goals file does not exist", Files.exists(path));
 		Assert.assertEquals("Covered goals file with 2 lines was expected", 2, Files.readAllLines(path).size());
 	}
-	
-	
+
+
 	public void test(){
 
 		Assert.assertNull(System.getSecurityManager());
-		
+
 		String targetClass = Foo.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.JUNIT_TESTS = true;
 		Properties.JUNIT_CHECK = true;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		EvoSuite evosuite = new EvoSuite();
@@ -75,7 +75,7 @@ public class TestSuiteWriterSystemTest extends SystemTestBase {
 
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);

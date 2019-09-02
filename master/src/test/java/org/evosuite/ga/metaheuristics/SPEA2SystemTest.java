@@ -43,7 +43,7 @@ import java.util.List;
 
 /**
  * SPEA2SystemTest.
- * 
+ *
  * @author José Campos
  */
 public class SPEA2SystemTest extends SystemTestBase {
@@ -74,7 +74,7 @@ public class SPEA2SystemTest extends SystemTestBase {
     Object result = evosuite.parseCommandLine(command);
     Assert.assertNotNull(result);
 
-    GeneticAlgorithm<?> ga = getGAFromResult(result);
+    GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
     final FitnessFunction<?> branch = ga.getFitnessFunctions().get(0);
     final FitnessFunction<?> rho = ga.getFitnessFunctions().get(1);

@@ -49,7 +49,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
      * 
      * @param goals set of target goals to consider when computing the dominance relationship
      */
-    public DominanceComparator(Set<FitnessFunction<T>> goals) {
+    public DominanceComparator(Set<? extends FitnessFunction<T>> goals) {
       this.objectives = new LinkedHashSet<>(goals);
     }
 

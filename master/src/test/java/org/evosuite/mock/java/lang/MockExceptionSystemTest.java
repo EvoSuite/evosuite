@@ -43,7 +43,7 @@ public class MockExceptionSystemTest extends SystemTestBase {
 		  String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		  Object result = evosuite.parseCommandLine(command);
 
-		  GeneticAlgorithm<?> ga = getGAFromResult(result);
+		  GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		  TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		  Assert.assertNotNull(best);
 		  Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);

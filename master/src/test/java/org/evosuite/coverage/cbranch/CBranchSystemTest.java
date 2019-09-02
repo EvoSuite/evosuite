@@ -34,9 +34,9 @@ import org.junit.Test;
 import com.examples.with.different.packagename.coverage.IndirectlyCoverableBranches;
 
 public class CBranchSystemTest extends SystemTestBase {
-	
+
     private static final Criterion[] defaultCriterion = Properties.CRITERION;
-    
+
     private static boolean defaultArchive = Properties.TEST_ARCHIVE;
 
 	@After
@@ -65,13 +65,13 @@ public class CBranchSystemTest extends SystemTestBase {
 
 	public void testBranchFitness() {
 		EvoSuite evosuite = new EvoSuite();
-		
+
 		String targetClass = IndirectlyCoverableBranches.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("EvolvedTestSuite:\n" + best);

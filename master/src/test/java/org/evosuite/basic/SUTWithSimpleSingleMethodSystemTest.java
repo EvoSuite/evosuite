@@ -30,7 +30,7 @@ import com.examples.with.different.packagename.SingleMethod;
 
 /**
  * @author Andrea Arcuri
- * 
+ *
  */
 public class SUTWithSimpleSingleMethodSystemTest extends SystemTestBase {
 
@@ -42,10 +42,10 @@ public class SUTWithSimpleSingleMethodSystemTest extends SystemTestBase {
 	public void testSingleMethod(){
 		EvoSuite evosuite = new EvoSuite();
 		int generations = 1;
-		
+
 		String targetClass = SingleMethod.class.getCanonicalName();
-		
-		String[] command = new String[]{				
+
+		String[] command = new String[]{
 				//EvoSuite.JAVA_CMD,
 				"-generateTests",
 				"-class",
@@ -56,9 +56,9 @@ public class SUTWithSimpleSingleMethodSystemTest extends SystemTestBase {
 				"-Dgenerations="+generations,
 				"-Dserialize_result=true"
 		};
-		
+
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());

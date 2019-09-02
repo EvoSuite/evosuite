@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public class MuLambdaEA<T extends Chromosome> extends AbstractMuLambda<T> {
+public class MuLambdaEA<T extends Chromosome, F extends FitnessFunction<T>> extends AbstractMuLambda<T, F> {
 
   private static final long serialVersionUID = -1104094637643130537L;
 

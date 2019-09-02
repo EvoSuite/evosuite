@@ -52,7 +52,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andrea Arcuri
- * 
+ *
  */
 public class SystemTestBase {
 
@@ -102,7 +102,7 @@ public class SystemTestBase {
 
 	@Before
 	public void setDefaultPropertiesForTestCases() {
-		
+
 		Properties.getInstance().resetToDefaults();
 
 		Properties.IS_RUNNING_A_SYSTEM_TEST = true;
@@ -128,7 +128,7 @@ public class SystemTestBase {
 
 		Properties.NEW_STATISTICS = true;
 		Properties.STATISTICS_BACKEND = StatisticsBackend.DEBUG;
-		
+
 		TestGenerationContext.getInstance().resetContext();
 		ClassReInitializer.resetSingleton();
 
@@ -138,7 +138,7 @@ public class SystemTestBase {
 		Randomness.setSeed(seed);
 
 		currentProperties = (java.util.Properties) System.getProperties().clone();
-		
+
 		MockFramework.enable();
 	}
 
@@ -161,7 +161,7 @@ public class SystemTestBase {
 	}
 
 
-	protected GeneticAlgorithm<?>  do100percentLineTestOnStandardCriteria(Class<?> target){
+	protected GeneticAlgorithm<?, ?>  do100percentLineTestOnStandardCriteria(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = target.getCanonicalName();
@@ -173,7 +173,7 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -185,7 +185,7 @@ public class SystemTestBase {
 	}
 
 
-	protected GeneticAlgorithm<?>  do100percentLineTest(Class<?> target){
+	protected GeneticAlgorithm<?, ?>  do100percentLineTest(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = target.getCanonicalName();
@@ -196,7 +196,7 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -205,7 +205,7 @@ public class SystemTestBase {
 		return ga;
 	}
 
-	protected GeneticAlgorithm<?>  doNonOptimalLineTest(Class<?> target){
+	protected GeneticAlgorithm<?, ?>  doNonOptimalLineTest(Class<?> target){
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = target.getCanonicalName();
@@ -216,7 +216,7 @@ public class SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -243,9 +243,9 @@ public class SystemTestBase {
 		Assert.assertNotNull(unstable);
 		Assert.assertEquals(Boolean.FALSE, unstable.getValue());
 	}
-	
+
 	/*
-	 * this static variable is a safety net to be sure it is called only once. 
+	 * this static variable is a safety net to be sure it is called only once.
 	 * static variables are shared and not re-initialized
 	 * during a sequence of test cases.
 	 */
@@ -296,10 +296,10 @@ public class SystemTestBase {
 	}
 
 	private static String getRuntimeTestsTarget() {
-		String target = 
-				System.getProperty("user.dir") + 
-				File.separator +".." + 
-				File.separator +"runtime" +		
+		String target =
+				System.getProperty("user.dir") +
+				File.separator +".." +
+				File.separator +"runtime" +
 				File.separator + "target"
 		        + File.separator + "test-classes";
 
@@ -343,9 +343,9 @@ public class SystemTestBase {
 		}
 		hasBeenAlreadyRun = false;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	protected GeneticAlgorithm<?> getGAFromResult(Object result) {
+	protected GeneticAlgorithm<?, ?> getGAFromResult(Object result) {
 		assert(result instanceof List);
 		List<List<TestGenerationResult>> results = (List<List<TestGenerationResult>>)result;
 		assert(results.size() == 1);

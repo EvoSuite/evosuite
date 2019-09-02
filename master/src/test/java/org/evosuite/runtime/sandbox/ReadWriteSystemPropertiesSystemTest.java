@@ -74,7 +74,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double cov = best.getCoverage();
@@ -98,9 +98,9 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 		TestGenerationResult tgr = TestGenerationResultBuilder.buildSuccessResult();
 		String code = tgr.getTestSuiteCode();
 		Assert.assertTrue("Test code:\n" + code, code.contains("user.timezone"));
-		
+
 		/*
-		 * This is tricky. The property 'debug' is read, but it does not exist. 
+		 * This is tricky. The property 'debug' is read, but it does not exist.
 		 * Ideally, we should still have in the test case a call to be sure the variable
 		 * is set to null. But that would lead to a lot of problems :( eg cases
 		 * in which we end up in reading hundreds of thousands variables that do not exist
@@ -124,7 +124,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double cov = best.getCoverage();
@@ -148,7 +148,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double cov = best.getCoverage();

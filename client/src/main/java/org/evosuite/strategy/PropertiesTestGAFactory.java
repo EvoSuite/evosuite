@@ -27,6 +27,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
@@ -54,6 +55,7 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.seeding.TestCaseRecycler;
 import org.evosuite.testcase.TestCaseReplacementFunction;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.factories.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.factories.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.factories.RandomLengthTestFactory;
@@ -62,11 +64,12 @@ import org.evosuite.utils.ArrayUtil;
 
 /**
  * Factory for GA for tests
- * 
+ *
  * @author gordon
  *
  */
-public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<TestChromosome> {
+public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<TestChromosome,
+		FitnessFunction<TestChromosome>> {
 
 	protected ChromosomeFactory<TestChromosome> getChromosomeFactory() {
 		switch (Properties.STRATEGY) {
@@ -91,8 +94,8 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		throw new RuntimeException("Unsupported test factory: "
 		        + Properties.TEST_FACTORY);
 	}
-	
-	private GeneticAlgorithm<TestChromosome> getGeneticAlgorithm(ChromosomeFactory<TestChromosome> factory) {
+
+	private GeneticAlgorithm<TestChromosome, TestFitnessFunction> getGeneticAlgorithm(ChromosomeFactory<TestChromosome> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONE_PLUS_ONE_EA:
 			logger.info("Chosen search algorithm: (1+1)EA");
@@ -102,14 +105,14 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
           return new MuPlusLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
 		case MU_LAMBDA_EA:
 			logger.info("Chosen search algorithm: (Mu,Lambda)EA");
-			return new MuLambdaEA<TestChromosome>(factory, Properties.MU, Properties.LAMBDA);
+			return new MuLambdaEA<>(factory, Properties.MU, Properties.LAMBDA);
         case BREEDER_GA:
 				logger.info("Chosen search algorithm: BreederGA");
 				return new BreederGA<>(factory);
 		case MONOTONIC_GA:
 			logger.info("Chosen search algorithm: MonotonicGA");
 			{
-				MonotonicGA<TestChromosome> ga = new MonotonicGA<>(factory);
+				MonotonicGA<TestChromosome, TestFitnessFunction> ga = new MonotonicGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -121,7 +124,8 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		case CELLULAR_GA:
 			logger.info("Chosen search algorithm: CellularGA");
 			{
-				CellularGA<TestChromosome> ga = new CellularGA<TestChromosome>(Properties.MODEL, factory);
+				CellularGA<TestChromosome, TestFitnessFunction> ga = new CellularGA<>(Properties.MODEL,
+						factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -133,7 +137,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 		case STEADY_STATE_GA:
 			logger.info("Chosen search algorithm: Steady-StateGA");
 			{
-				SteadyStateGA<TestChromosome> ga = new SteadyStateGA<>(factory);
+				SteadyStateGA<TestChromosome, TestFitnessFunction> ga = new SteadyStateGA<>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					// user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -160,13 +164,13 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
             return new StandardChemicalReaction<>(factory);
         case LIPS:
         	logger.info("Chosen search algorithm: LIPS");
-            return new LIPS<TestChromosome>(factory);
+            return new LIPS(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA<>(factory);
 		}
 	}
-	
+
 	private SelectionFunction<TestChromosome> getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
@@ -181,7 +185,7 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 			return new RankSelection<>();
 		}
 	}
-	
+
 	private CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
@@ -209,11 +213,11 @@ public class PropertiesTestGAFactory extends PropertiesSearchAlgorithmFactory<Te
 	}
 
 	@Override
-	public GeneticAlgorithm<TestChromosome> getSearchAlgorithm() {
+	public GeneticAlgorithm<TestChromosome, TestFitnessFunction> getSearchAlgorithm() {
 		ChromosomeFactory<TestChromosome> factory = getChromosomeFactory();
-		
+
 		// FIXXME
-		GeneticAlgorithm<TestChromosome> ga = getGeneticAlgorithm(factory);
+		GeneticAlgorithm<TestChromosome, TestFitnessFunction> ga = getGeneticAlgorithm(factory);
 
 		if (Properties.NEW_STATISTICS)
 			ga.addListener(new org.evosuite.statistics.StatisticsListener());

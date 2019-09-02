@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.ga.localsearch;
 
@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This singleton class provides support for updating the amount of LS budget 
+ * This singleton class provides support for updating the amount of LS budget
  * that was consumed during the current application of LS.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class LocalSearchBudget implements SearchListener, Serializable {
@@ -45,10 +45,10 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	private static final long serialVersionUID = 9152147170303160131L;
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalSearchBudget.class);
-	
+
 	// Singleton instance
 	private static LocalSearchBudget instance = null;
-	
+
 	protected int fitnessEvaluations = 0;
 	protected int tests          = 0;
 	protected long executedStart = 0L;
@@ -56,26 +56,26 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	protected long startTime     = 0L;
 	protected long endTime       = 0L;
 
-	protected GeneticAlgorithm<?> ga = null;
+	protected GeneticAlgorithm<?, ?> ga = null;
 
 	// Private constructor because of singleton type
 	private LocalSearchBudget() {
-		
+
 	}
-	
+
 	// Singleton accessor
 	public static LocalSearchBudget getInstance() {
 		if(instance == null)
 			instance = new LocalSearchBudget();
-		
+
 		return instance;
 	}
-	
+
 	/**
 	 * <p>
 	 * isFinished
 	 * </p>
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	public boolean isFinished() {
@@ -84,7 +84,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 			return true;
 
 		boolean isFinished = false;
-		
+
 		switch(Properties.LOCAL_SEARCH_BUDGET_TYPE) {
 		case FITNESS_EVALUATIONS:
 			isFinished = fitnessEvaluations >= Properties.LOCAL_SEARCH_BUDGET;
@@ -124,7 +124,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	public void countLocalSearchOnTest() {
 		tests++;
 	}
-	
+
 	/**
 	 * Reports that local search on a whole test suite has been finished.
 	 */
@@ -149,7 +149,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 		ga = algorithm;
 		tests         = 0;
 		suites        = 0;
@@ -161,7 +161,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
 		tests         = 0;
 		suites        = 0;
 		fitnessEvaluations      = 0;
@@ -172,7 +172,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
 		ga = null;
 	}
 

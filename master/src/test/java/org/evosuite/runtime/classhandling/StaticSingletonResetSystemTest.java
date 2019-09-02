@@ -44,7 +44,7 @@ public class StaticSingletonResetSystemTest extends SystemTestBase {
 		Properties.JUNIT_TESTS = true;
 		Properties.SANDBOX = true;
 		Properties.ASSERTION_STRATEGY = Properties.AssertionStrategy.ALL;
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = SingletonObjectReset.class.getCanonicalName();
@@ -58,7 +58,7 @@ public class StaticSingletonResetSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();

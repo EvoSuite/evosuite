@@ -35,7 +35,7 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class StandardGA<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class StandardGA<T extends Chromosome, F extends FitnessFunction<T>> extends GeneticAlgorithm<T, F> {
 
 	private static final long serialVersionUID = 5043503777821916152L;
 	

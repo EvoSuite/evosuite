@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author José Campos
  */
-public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class StandardChemicalReaction<T extends Chromosome, F extends FitnessFunction<T>> extends GeneticAlgorithm<T, F> {
 
   private static final long serialVersionUID = 2723118789259809773L;
 
@@ -50,7 +50,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
   private double initialEnergy = 0.0;
 
-  private List<T> elite = new ArrayList<T>(Properties.ELITE);
+  private List<T> elite = new ArrayList<>(Properties.ELITE);
 
   /**
    * Constructor
@@ -190,21 +190,20 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
       if (Properties.ELITE > 0) {
         // perform elitism
-        for (int i = 0; i < this.elite.size(); i++) {
-          T best = (T) this.elite.get(i); // elite already includes a copy of each individual, so no
-                                          // need to clone it
+        for (T t : this.elite) { // elite already includes a copy of each individual, so no
+                                 // need to clone it
 
           int moleculeIndex = Randomness.nextInt(this.population.size());
           T molecule = this.population.get(moleculeIndex);
 
-          double bestTotalKineticEnergy = best.getKineticEnergy() + best.getFitness();
+          double bestTotalKineticEnergy = t.getKineticEnergy() + t.getFitness();
           double moleculeTotalKineticEnergy = molecule.getKineticEnergy() + molecule.getFitness();
           double dif = bestTotalKineticEnergy - moleculeTotalKineticEnergy;
-          best.setKineticEnergy(best.getKineticEnergy() - dif);
-          best.setNumCollisions(molecule.getNumCollisions());
+          t.setKineticEnergy(t.getKineticEnergy() - dif);
+          t.setNumCollisions(molecule.getNumCollisions());
 
           this.population.remove(moleculeIndex);
-          this.population.add(best);
+          this.population.add(t);
         }
 
         // keep it sorted. the algorithm does not need to have the population sorted, but if the
@@ -267,7 +266,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
   /**
    * An on-wall ineffective collision represents the situation when a molecule collides with a wall
    * of the container and then bounces away remaining in one single unit.
-   * 
+   *
    * @param molecule a {@link org.evosuite.ga.Chromosome} object
    * @return a {@link org.evosuite.ga.Chromosome} object if new solution is found, null otherwise
    */
@@ -279,7 +278,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
     molecule.increaseNumCollisionsByOne();
 
     T moleculeClone = (T) molecule.clone();
- 
+
     // mutate it
 
     this.notifyMutation(moleculeClone);
@@ -295,7 +294,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
     // evaluate it
 
-    for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+    for (F fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness(moleculeClone);
       this.notifyEvaluation(moleculeClone);
     }
@@ -321,7 +320,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
   /**
    * Decomposition refers to the situation when a molecule hits a wall and then breaks into several
    * parts.
-   * 
+   *
    * @param molecule a {@link org.evosuite.ga.Chromosome} object
    * @return a {@link java.util.List} object with two offspring if new solutions are found, null
    *         otherwise
@@ -358,7 +357,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
     // evaluate offspring
 
-    for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+    for (F fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness(offspring1);
       this.notifyEvaluation(offspring1);
       fitnessFunction.getFitness(offspring2);
@@ -399,7 +398,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
     }
 
     if (decomposed) {
-      List<T> offsprings = new ArrayList<T>(2);
+      List<T> offsprings = new ArrayList<>(2);
       offsprings.add(offspring1);
       offsprings.add(offspring2);
 
@@ -427,7 +426,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
   /**
    * Inter-molecular ineffective collision takes place when multiple molecules collide with each
    * other and then bounce away.
-   * 
+   *
    * @param molecule1 a {@link org.evosuite.ga.Chromosome} object
    * @param molecule2 a {@link org.evosuite.ga.Chromosome} object
    * @return a pair of a {@link org.evosuite.ga.Chromosome} object if new solutions are found, null
@@ -466,7 +465,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
     // evaluate clones
 
-    for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+    for (F fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness(moleculeClone1);
       this.notifyEvaluation(moleculeClone1);
       fitnessFunction.getFitness(moleculeClone2);
@@ -489,7 +488,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
           + potencialEnergy2 + "," + kineticEnergy2 + ")" + " vs " + "(" + potencialEnergyClone2
           + "," + moleculeClone2.getKineticEnergy() + ")\n" + "Buffer: " + this.buffer);
 
-      return new ImmutablePair<T, T>(moleculeClone1, moleculeClone2);
+      return new ImmutablePair<>(moleculeClone1, moleculeClone2);
     }
 
     return null;
@@ -498,7 +497,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
   /**
    * Synthesis does the opposite of decomposition. A synthesis happens when multiple (assume two)
    * molecules hit against each other and fuse together.
-   * 
+   *
    * @param molecule1 a {@link org.evosuite.ga.Chromosome} object
    * @param molecule2 a {@link org.evosuite.ga.Chromosome} object
    * @return a {@link org.evosuite.ga.Chromosome} object if a new solution is found, null otherwise
@@ -535,7 +534,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
     // evaluate and choose one of the offspring
 
-    for (FitnessFunction<T> fitnessFunction : this.fitnessFunctions) {
+    for (F fitnessFunction : this.fitnessFunctions) {
       fitnessFunction.getFitness(offspring1);
       this.notifyEvaluation(offspring1);
       fitnessFunction.getFitness(offspring2);
@@ -570,7 +569,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
   /**
    * Returns the current amount of energy in the system.
-   * 
+   *
    * @return
    */
   private double getCurrentAmountOfEnergy() {
@@ -583,7 +582,7 @@ public class StandardChemicalReaction<T extends Chromosome> extends GeneticAlgor
 
   /**
    * Given a certain amount of energy, it checks whether energy has been conserved in the system.
-   * 
+   *
    * @param energy
    * @return true if energy has been conserved in the system, false otherwise
    */

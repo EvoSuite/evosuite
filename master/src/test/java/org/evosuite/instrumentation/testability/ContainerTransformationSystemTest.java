@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.instrumentation.testability;
 
@@ -36,7 +36,7 @@ import com.examples.with.different.packagename.IntegerContainerBranch;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class ContainerTransformationSystemTest extends SystemTestBase {
 
@@ -54,7 +54,7 @@ public class ContainerTransformationSystemTest extends SystemTestBase {
 		Object result = evosuite.parseCommandLine(command);
 
 		Assert.assertTrue(result != null);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -62,7 +62,7 @@ public class ContainerTransformationSystemTest extends SystemTestBase {
 		Assert.assertEquals("Wrong number of goals: ", 5, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testIntegerListList() {
 		EvoSuite evosuite = new EvoSuite();
@@ -77,7 +77,7 @@ public class ContainerTransformationSystemTest extends SystemTestBase {
 		Object result = evosuite.parseCommandLine(command);
 
 		Assert.assertTrue(result != null);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

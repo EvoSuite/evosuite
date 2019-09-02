@@ -34,7 +34,7 @@ public class IssueStaticInitializerWithTryCatchSystemTest extends SystemTestBase
 	/*
 	 * These tests are based on issues found on project 44_summa, which is using the lucene API.
 	 * those have issues when for example classes uses org.apache.lucene.util.Constants which has:
-	 * 
+	 *
 	  try {
         Collections.class.getMethod("emptySortedSet");
       } catch (NoSuchMethodException nsme) {
@@ -43,7 +43,7 @@ public class IssueStaticInitializerWithTryCatchSystemTest extends SystemTestBase
       *
       * in its static initializer
 	 */
-	
+
 	@Test
 	public void testWithNoReset(){
 		runTheTest(false);
@@ -61,11 +61,11 @@ public class IssueStaticInitializerWithTryCatchSystemTest extends SystemTestBase
 
 		String targetClass = ClassWithStaticInitializerTryCatch.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;		
+		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertNotNull(best);

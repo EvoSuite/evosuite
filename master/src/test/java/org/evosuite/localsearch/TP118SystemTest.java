@@ -40,7 +40,7 @@ public class TP118SystemTest extends SystemTestBase {
 
 		Assume.assumeTrue(System.getenv("z3_path")!=null);
 		Properties.Z3_PATH = System.getenv("z3_path");
-		
+
 		Properties.LOCAL_SEARCH_BUDGET_TYPE = Properties.LocalSearchBudgetType.TIME;
 		Properties.LOCAL_SEARCH_BUDGET = 5;
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
@@ -49,24 +49,24 @@ public class TP118SystemTest extends SystemTestBase {
 		Properties.STOPPING_CONDITION = Properties.StoppingCondition.MAXTIME;
 		Properties.MINIMIZATION_TIMEOUT = 10;
 
-		
+
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = TP118.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
-		
+
 		Properties.DSE_SOLVER = Properties.SolverType.Z3_SOLVER;
-		
+
 		Properties.DSE_PROBABILITY = 1.0; // force using only LS, no DSE
 		Properties.CRITERION = new Criterion[] {
 	            //these are basic criteria that should be always on by default
 	            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
-		
+
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 	}

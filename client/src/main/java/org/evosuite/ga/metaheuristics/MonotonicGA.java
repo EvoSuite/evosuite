@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
+public class MonotonicGA<T extends Chromosome, F extends FitnessFunction<T>> extends GeneticAlgorithm<T, F> {
 
 	private static final long serialVersionUID = 7846967347821123201L;
 
@@ -134,7 +134,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
-			for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+			for (F fitnessFunction : fitnessFunctions) {
 				fitnessFunction.getFitness(offspring1);
 				notifyEvaluation(offspring1);
 				fitnessFunction.getFitness(offspring2);
@@ -187,7 +187,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 	private T newRandomIndividual() {
 		T randomChromosome = chromosomeFactory.getChromosome();
-		for (FitnessFunction<?> fitnessFunction : this.fitnessFunctions) {
+		for (F fitnessFunction : this.fitnessFunctions) {
 			randomChromosome.addFitness(fitnessFunction);
 		}
 		return randomChromosome;
@@ -318,7 +318,7 @@ public class MonotonicGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 	private double getBestFitness() {
 		T bestIndividual = getBestIndividual();
-		for (FitnessFunction<T> ff : fitnessFunctions) {
+		for (F ff : fitnessFunctions) {
 			ff.getFitness(bestIndividual);
 		}
 		return bestIndividual.getFitness();

@@ -37,7 +37,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.context.complex.EntryPointsClass;
 
-/** 
+/**
 	 * Ibranch Goals of provacomplex.EntryPointsClass.
 	 * size: 27
 	 * infeasible: 2
@@ -76,20 +76,20 @@ import com.examples.with.different.packagename.context.complex.EntryPointsClass;
 		provacomplex.EntryPointsClass:dosmt(ILjava/lang/String;D)V provacomplex.SubClass:checkFiftneen(I)Z:provacomplex.SubClass.checkFiftneen(I)Z: I9 Branch 1 IFEQ L13 - true
 		provacomplex.EntryPointsClass:dosmt(ILjava/lang/String;D)V:provacomplex.EntryPointsClass.dosmt(ILjava/lang/String;D)V: I10 Branch 6 IFEQ L12 - false
 		provacomplex.EntryPointsClass:dosmt(ILjava/lang/String;D)V:provacomplex.EntryPointsClass.dosmt(ILjava/lang/String;D)V: I10 Branch 6 IFEQ L12 - true
-	
+
 
 	 * @author mattia
 	 *
 	 */
 public class IBranchSystemTest extends SystemTestBase {
 
-	private Properties.Criterion[] oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length); 
-	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION; 
+	private Properties.Criterion[] oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
+	private Properties.StoppingCondition oldStoppingCondition = Properties.STOPPING_CONDITION;
 	private double oldPrimitivePool = Properties.PRIMITIVE_POOL;
 	private long budget = Properties.SEARCH_BUDGET;
 	private SecondaryObjective[] secondary = Properties.SECONDARY_OBJECTIVE;
 	private boolean oldArchive = Properties.TEST_ARCHIVE;
-	
+
 	@Before
 	public void beforeTest() {
 		oldCriteria = Arrays.copyOf(Properties.CRITERION, Properties.CRITERION.length);
@@ -102,7 +102,7 @@ public class IBranchSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 50000;
 
 	}
-	
+
 	@After
 	public void restoreProperties() {
 		Properties.CRITERION = oldCriteria;
@@ -115,20 +115,20 @@ public class IBranchSystemTest extends SystemTestBase {
 	}
 
 
-	
+
 	@Test
 	public void testIBranchAsSecondaryObjective() {
         Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
         Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.IBRANCH, Properties.SecondaryObjective.TOTAL_LENGTH };
-        
+
         Properties.TEST_ARCHIVE = false;
         Properties.SEARCH_BUDGET = 60000;
-		EvoSuite evosuite = new EvoSuite();		
+		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
@@ -137,19 +137,19 @@ public class IBranchSystemTest extends SystemTestBase {
 		Assert.assertEquals(5, goals );
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testArchiveIBranchAsSecondaryObjective() {
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.BRANCH };
 		Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.IBRANCH, Properties.SecondaryObjective.TOTAL_LENGTH };
-		
+
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEARCH_BUDGET = 80000; // Sometimes seems a bit more difficult?
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
@@ -158,20 +158,20 @@ public class IBranchSystemTest extends SystemTestBase {
 		Assert.assertEquals(5, goals );
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testIBranch() {
 		Properties.SEARCH_BUDGET = 140000;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.IBRANCH };
 		Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.TOTAL_LENGTH };
         Properties.TEST_ARCHIVE = false;
-		
+
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
@@ -186,13 +186,13 @@ public class IBranchSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 100000;
 		Properties.CRITERION = new Properties.Criterion[] { Criterion.IBRANCH };
 		Properties.SECONDARY_OBJECTIVE = new SecondaryObjective[] { Properties.SecondaryObjective.TOTAL_LENGTH };
-		
+
 		EvoSuite evosuite = new EvoSuite();
 		String targetClass = EntryPointsClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println("CoveredGoals:\n" + best.getCoveredGoals());
@@ -202,7 +202,7 @@ public class IBranchSystemTest extends SystemTestBase {
 //		Assert.assertEquals("Non-optimal coverage: ", 0.92d, best.getCoverage(), 0.001);
 	}
 
-	
+
 
 //	@Test
 //	public void testListOfGoalsWith_RESET_STATIC_FIELDS_enable()
@@ -229,5 +229,5 @@ public class IBranchSystemTest extends SystemTestBase {
 //
 //		assertEquals(goals.size(), 8);
 //	}
- 
+
 }

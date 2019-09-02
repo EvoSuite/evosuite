@@ -77,7 +77,7 @@ public class PureEqualsSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		double best_fitness = best.getFitness();
@@ -90,7 +90,7 @@ public class PureEqualsSystemTest extends SystemTestBase {
 		boolean equals = purityAnalyzer.isPure(targetClass,
 				"equals", descriptor);
 		assertTrue(equals);
-		
+
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
 		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());

@@ -62,11 +62,11 @@ public class StaticFinalSingletonFieldSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best.toString());
-		
+
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();
 		Assert.assertNotNull(map);
 		OutputVariable unstable = map.get(RuntimeVariable.HadUnstableTests.toString());
@@ -75,7 +75,7 @@ public class StaticFinalSingletonFieldSystemTest extends SystemTestBase {
 
 		double best_fitness = best.getFitness();
 		Assert.assertTrue("Optimal coverage was not achieved ", best_fitness == 0.0);
-		
+
 	}
 
 }

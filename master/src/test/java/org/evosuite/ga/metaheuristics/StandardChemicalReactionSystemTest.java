@@ -29,13 +29,13 @@ import com.examples.with.different.packagename.BMICalculator;
 
 /**
  * <p>StandardChemicalReactionSystemTest</p>
- * 
+ *
  * @author José Campos
  */
 public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
-  private GeneticAlgorithm<?> test(double molecular_collision_rate, int decomposition_threshold,
-      int synthesis_threshold) {
+  private GeneticAlgorithm<?, ?> test(double molecular_collision_rate, int decomposition_threshold,
+                                      int synthesis_threshold) {
     Properties.ALGORITHM = Properties.Algorithm.STANDARD_CHEMICAL_REACTION;
     Properties.TEST_ARCHIVE = false;
     Properties.SEARCH_BUDGET = 15_000;
@@ -51,7 +51,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
     String[] command = new String[] {"-generateSuite", "-class", targetClass};
 
     EvoSuite evoSuite = new EvoSuite();
-    GeneticAlgorithm<?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
+    GeneticAlgorithm<?, ?> ga = getGAFromResult(evoSuite.parseCommandLine(command));
     Assert.assertEquals(StandardChemicalReaction.class, ga.getClass());
 
     return ga;
@@ -59,7 +59,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   @Test
   public void testOnwallIneffectiveCollision() {
-    GeneticAlgorithm<?> ga = test(0.0, 1_000_000, -1);
+    GeneticAlgorithm<?, ?> ga = test(0.0, 1_000_000, -1);
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
@@ -68,7 +68,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   @Test
   public void testDecomposition() {
-    GeneticAlgorithm<?> ga = test(0.0, 1, -1);
+    GeneticAlgorithm<?, ?> ga = test(0.0, 1, -1);
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
@@ -77,7 +77,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   @Test
   public void testIntermolecularIneffectiveCollision() {
-    GeneticAlgorithm<?> ga = test(1.0, -1, -1);
+    GeneticAlgorithm<?, ?> ga = test(1.0, -1, -1);
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
@@ -86,7 +86,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   @Test
   public void testSynthesis() {
-    GeneticAlgorithm<?> ga = test(1.0, -1, 1_000_000);
+    GeneticAlgorithm<?, ?> ga = test(1.0, -1, 1_000_000);
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);
@@ -95,7 +95,7 @@ public class StandardChemicalReactionSystemTest extends SystemTestBase {
 
   @Test
   public void testIntegration() {
-    GeneticAlgorithm<?> ga = test(0.2, 500, 10);
+    GeneticAlgorithm<?, ?> ga = test(0.2, 500, 10);
 
     TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
     System.out.println("EvolvedTestSuite:\n" + best);

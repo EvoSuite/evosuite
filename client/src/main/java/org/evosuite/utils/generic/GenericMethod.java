@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.sun.tools.javah.Gen;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.util.Inputs;
@@ -303,6 +304,10 @@ public class GenericMethod extends GenericExecutable<GenericMethod, Method> {
 		return false;
 	}
 
+	@Override
+	public GenericMethod getGenericInstantiation(GenericClass calleeType) throws ConstructionFailedException {
+		return (GenericMethod) super.getGenericInstantiation(calleeType);
+	}
 
 	@Override
 	public boolean isOverloaded(List<VariableReference> parameters) {

@@ -84,7 +84,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
     LoggingUtils.getEvoLogger().info(
         "* Setting up search algorithm for REGRESSION suite generation");
     PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
-    GeneticAlgorithm<?> algorithm = algorithmFactory.getSearchAlgorithm();
+    GeneticAlgorithm<?, ?> algorithm = algorithmFactory.getSearchAlgorithm();
 
     if (Properties.SERIALIZE_GA || Properties.CLIENT_ON_THREAD) {
       TestGenerationResultBuilder.getInstance().setGeneticAlgorithm(algorithm);
@@ -237,7 +237,7 @@ public class RegressionSuiteStrategy extends TestGenerationStrategy {
     RegressionTestSuiteChromosome suite = new RegressionTestSuiteChromosome();
 
     PropertiesSuiteGAFactory algorithmFactory = new PropertiesSuiteGAFactory();
-    GeneticAlgorithm<?> suiteGA = algorithmFactory.getSearchAlgorithm();
+    GeneticAlgorithm<?, ?> suiteGA = algorithmFactory.getSearchAlgorithm();
 
     //statistics.searchStarted(suiteGA);
 

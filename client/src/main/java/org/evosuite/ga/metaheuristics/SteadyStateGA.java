@@ -32,7 +32,7 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class SteadyStateGA<T extends Chromosome> extends MonotonicGA<T> {
+public class SteadyStateGA<T extends Chromosome, F extends FitnessFunction<T>> extends MonotonicGA<T, F> {
 
 	private static final long serialVersionUID = 7301010503732698233L;
 	
@@ -91,7 +91,7 @@ public class SteadyStateGA<T extends Chromosome> extends MonotonicGA<T> {
 		
 		// The two offspring replace the parents if and only if one of
 		// the offspring is not worse than the best parent.
-	    for (FitnessFunction<T> fitnessFunction : fitnessFunctions) {
+	    for (F fitnessFunction : fitnessFunctions) {
 	        fitnessFunction.getFitness(offspring1);
 	        notifyEvaluation(offspring1);
 	        fitnessFunction.getFitness(offspring2);

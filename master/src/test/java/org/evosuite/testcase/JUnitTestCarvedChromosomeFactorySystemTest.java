@@ -470,11 +470,11 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
-	
+
 	@Test
 	public void testBeanDateConverterUtils2() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest2.class.getCanonicalName();
@@ -486,7 +486,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -502,7 +502,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -518,7 +518,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -533,11 +533,11 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
-	
+
 	@Test
 	public void testBeanDateConverterUtils6() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.DateConverterTest6.class.getCanonicalName();
@@ -549,7 +549,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -560,12 +560,12 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 
 		Properties.SEED_MUTATIONS = 1;
 		Properties.SEED_CLONE = 1;
-		Properties.CHOP_CARVED_EXCEPTIONS = false; 
+		Properties.CHOP_CARVED_EXCEPTIONS = false;
 
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -580,7 +580,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -595,7 +595,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -610,7 +610,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
@@ -625,11 +625,11 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 		        null);
 		Assert.assertEquals(1, factory.getNumCarvedTestCases());
-		
+
 		String code = factory.getChromosome().getTestCase().toCode();
 		System.out.println(code);
 	}
-	
+
 	@Test
 	public void testBeanIntegerConverterUtils() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.IntegerConverterTestCase.class.getCanonicalName();
@@ -681,7 +681,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		Assert.assertFalse(code.contains("XStream"));
 		Assert.assertTrue(code.contains("classWithPublicField0.x") || code.contains("Locale.CHINESE"));
 	}
-	
+
 	@Test
 	public void testReadPublicStaticField() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ClassWithPublicStaticFieldReadingTestCase.class.getCanonicalName();
@@ -700,7 +700,7 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		Assert.assertFalse(code.contains("XStream"));
 		Assert.assertTrue(code.contains("ClassWithPublicStaticField.x"));
 	}
-	
+
 	@Test
 	public void testReadPublicStaticFieldInOtherClass() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ClassDependingOnStaticFieldInOtherClassTestCase.class.getCanonicalName();
@@ -748,17 +748,17 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TEST_FACTORY = TestFactory.JUNIT;
 		Properties.SELECTED_JUNIT = DifficultClassTest.class.getCanonicalName();
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);		
+		Assert.assertTrue("Did not expect optimal coverage: ", best.getCoverage() < 1d);
 	}
-	
+
 	@Test
 	public void testDifficultClassWithRightTestPasses() {
 		EvoSuite evosuite = new EvoSuite();
@@ -767,18 +767,18 @@ public class JUnitTestCarvedChromosomeFactorySystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TEST_FACTORY = TestFactory.JUNIT;
 		Properties.SELECTED_JUNIT = DifficultClassWithoutCarvingTest.class.getCanonicalName();
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
-		Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);		
+		Assert.assertEquals("Expected optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
-	
+
+
 	@Test
 	public void testConcreteClassWithFields() {
 		Properties.SELECTED_JUNIT = ConcreteSubClassWithFieldsTestCase.class.getCanonicalName();

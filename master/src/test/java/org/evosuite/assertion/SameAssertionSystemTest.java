@@ -36,25 +36,25 @@ import com.examples.with.different.packagename.assertion.WrapperExample;
 public class SameAssertionSystemTest extends SystemTestBase {
 
 	private Properties.AssertionStrategy strategy = null;
-	
+
 	private double nullProbability = Properties.NULL_PROBABILITY;
-	
+
 	private double primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
-	
+
 	@Before
 	public void storeAssertionStrategy() {
 		strategy = Properties.ASSERTION_STRATEGY;
 		nullProbability = Properties.NULL_PROBABILITY;
 		primitiveReuseProbability = Properties.PRIMITIVE_REUSE_PROBABILITY;
 	}
-	
+
 	@After
 	public void restoreAssertionStrategy() {
 		Properties.ASSERTION_STRATEGY = strategy;
 		Properties.NULL_PROBABILITY = nullProbability;
 		Properties.PRIMITIVE_REUSE_PROBABILITY = primitiveReuseProbability;
 	}
-	
+
 	/*
 	 * SameAssertions on primitive/wrapper arrays are problematic,
 	 * so we do not want to have them at all.
@@ -72,7 +72,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -87,7 +87,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertFalse(hasSameAssertion);
 	}
-	
+
 	@Test
 	public void testObjectArray() {
 		EvoSuite evosuite = new EvoSuite();
@@ -101,7 +101,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -133,8 +133,8 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		// to cover the branch without assertions but with
 		// exception
 		Properties.NULL_PROBABILITY = 0.0;
-		
-		// Ensure that a new Integer object is created rather than 
+
+		// Ensure that a new Integer object is created rather than
 		// just using an int, because there's no assertSame between
 		// an int and an Integer
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
@@ -143,7 +143,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
@@ -174,8 +174,8 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		// to cover the branch without assertions but with
 		// exception
 		Properties.NULL_PROBABILITY = 0.0;
-		
-		// Ensure that a new Integer object is created rather than 
+
+		// Ensure that a new Integer object is created rather than
 		// just using an int, because there's no assertSame between
 		// an int and an Integer
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
@@ -183,7 +183,7 @@ public class SameAssertionSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 
 		boolean hasSameAssertion = false;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();

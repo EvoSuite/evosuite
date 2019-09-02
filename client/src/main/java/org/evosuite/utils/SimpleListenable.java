@@ -27,13 +27,15 @@ public class SimpleListenable<T> implements Listenable<T> {
 
 	protected final Collection<Listener<T>> listeners = new ArrayList<Listener<T>>();
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+     * @param listener*/
 	@Override
 	public void addListener(Listener<T> listener) {
 		listeners.add(listener);
 	}
 
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+	 * @param listener*/
 	@Override
 	public void deleteListener(Listener<T> listener) {
 		listeners.remove(listener);
@@ -45,9 +47,7 @@ public class SimpleListenable<T> implements Listenable<T> {
 	 * @param event a T object.
 	 */
 	public void fireEvent(T event) {
-		for (Listener<T> listener : listeners) {
-			listener.receiveEvent(event);
-		}
+		listeners.forEach(listener -> listener.receiveEvent(event));
 	}
 
 }

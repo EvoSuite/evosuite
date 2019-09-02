@@ -58,7 +58,7 @@ public class ServletSystemTest extends SystemTestBase {
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         System.out.println("EvolvedTestSuite:\n" + best);
 

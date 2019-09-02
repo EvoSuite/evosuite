@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.runtime.sandbox;
 
@@ -45,22 +45,22 @@ import com.examples.with.different.packagename.sandbox.DeleteInStaticInitializer
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class DeleteFileSystemTest extends SystemTestBase {
-	
-	private static final boolean DEFAULT_RESET_STATIC = Properties.RESET_STATIC_FIELDS; 
-	
+
+	private static final boolean DEFAULT_RESET_STATIC = Properties.RESET_STATIC_FIELDS;
+
 	@After
 	public void tearDown(){
 		Properties.RESET_STATIC_FIELDS = DEFAULT_RESET_STATIC;
 	}
-	
+
 	@Test
 	public void testDeleteStaticNoReset() throws IOException {
 
 		Properties.RESET_STATIC_FIELDS = false;
-		
+
 		String tmpdir = System.getProperty("java.io.tmpdir");
 		File toDelete = new File(tmpdir + File.separator
 		        + "this_file_should_not_be_deleted_by_evosuite");
@@ -82,12 +82,12 @@ public class DeleteFileSystemTest extends SystemTestBase {
 		           toDelete.exists());
 		toDelete.delete();
 	}
-	
+
 	@Test
 	public void testDeleteStaticWithReset() throws IOException {
 
 		Properties.RESET_STATIC_FIELDS = true;
-		
+
 		String tmpdir = System.getProperty("java.io.tmpdir");
 		File toDelete = new File(tmpdir + File.separator
 		        + "this_file_should_not_be_deleted_by_evosuite");
@@ -109,8 +109,8 @@ public class DeleteFileSystemTest extends SystemTestBase {
 		           toDelete.exists());
 		toDelete.delete();
 	}
-	
-	
+
+
 	@Test
 	public void testDeleteOnExit() throws IOException {
 
@@ -208,7 +208,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -219,7 +219,7 @@ public class DeleteFileSystemTest extends SystemTestBase {
 
 	/*
 	 * The class DeleteFileNIO requires Java 7
-	 *  
+	 *
 	@Test
 	public void testDeleteNIO() throws IOException {
 		Assume.assumeTrue(new File("/bin/rm").exists());

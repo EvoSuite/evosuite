@@ -39,7 +39,7 @@ public class CompositeFitnessSystemTest extends SystemTestBase {
 
         String targetClass = BooleanOneLine.class.getCanonicalName();
         Properties.TARGET_CLASS = targetClass;
-        
+
         Properties.CRITERION = new Properties.Criterion[]{
                 Properties.Criterion.LINE,
                 Properties.Criterion.OUTPUT,
@@ -48,7 +48,7 @@ public class CompositeFitnessSystemTest extends SystemTestBase {
 
         String[] command = new String[] { "-generateSuite", "-class", targetClass };
         Object result = evosuite.parseCommandLine(command);
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
         System.out.println(best);

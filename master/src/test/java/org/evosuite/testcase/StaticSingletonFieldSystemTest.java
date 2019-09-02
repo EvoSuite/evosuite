@@ -59,7 +59,7 @@ public class StaticSingletonFieldSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Map<String, OutputVariable<?>> map = DebugStatisticsBackend.getLatestWritten();

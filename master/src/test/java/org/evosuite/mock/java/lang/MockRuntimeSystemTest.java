@@ -39,17 +39,17 @@ public class MockRuntimeSystemTest extends SystemTestBase {
 	public void testMockMemoryCheck(){
 		String targetClass = MemorySum.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;		
+		Properties.TARGET_CLASS = targetClass;
 		Properties.JUNIT_TESTS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.REPLACE_CALLS = true;
 		Properties.OUTPUT_VARIABLES=""+RuntimeVariable.HadUnstableTests;
-		
+
 		EvoSuite evosuite = new EvoSuite();
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Assert.assertNotNull(best);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -61,7 +61,7 @@ public class MockRuntimeSystemTest extends SystemTestBase {
 	public void testCheckShutdownHook(){
 		String targetClass = HookWithBranch.class.getCanonicalName();
 
-		Properties.TARGET_CLASS = targetClass;		
+		Properties.TARGET_CLASS = targetClass;
 		Properties.JUNIT_TESTS = true;
 		Properties.JUNIT_CHECK = true;
 		Properties.REPLACE_CALLS = true;
@@ -73,7 +73,7 @@ public class MockRuntimeSystemTest extends SystemTestBase {
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Assert.assertNotNull(best);
 

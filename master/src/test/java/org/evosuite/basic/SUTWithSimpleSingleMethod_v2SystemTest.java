@@ -31,27 +31,27 @@ import com.examples.with.different.packagename.SingleMethod;
 
 /**
  * @author Andrea Arcuri
- * 
+ *
  */
 public class SUTWithSimpleSingleMethod_v2SystemTest extends SystemTestBase {
 
 	@Test
 	public void testSingleMethod(){
 		EvoSuite evosuite = new EvoSuite();
-		
+
 		String targetClass = SingleMethod.class.getCanonicalName();
-		
+
 		Properties.TARGET_CLASS = targetClass;
-		
-		String[] command = new String[]{				
+
+		String[] command = new String[]{
 				"-generateSuite",
 				"-class",
 				targetClass
 		};
-		
+
 		Object result = evosuite.parseCommandLine(command);
-		
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());

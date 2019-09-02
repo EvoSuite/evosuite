@@ -39,7 +39,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	 * Update information on currently lowest fitness
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
 		lastFitness = Math.min(lastFitness, algorithm.getBestIndividual().getFitness());
 	}
 

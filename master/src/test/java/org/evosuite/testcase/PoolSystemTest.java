@@ -54,25 +54,25 @@ import com.examples.with.different.packagename.pool.OtherClass;
 public class PoolSystemTest extends SystemTestBase {
 
 	private String pools = "";
-	
+
 	private double pPool = 0.0;
-	
+
 	private long budget = 0;
-	
+
 	@Before
 	public void storeProperties() {
 		pools  = Properties.OBJECT_POOLS;
 		pPool  = Properties.P_OBJECT_POOL;
 		budget = Properties.SEARCH_BUDGET;
 	}
-	
+
 	@After
 	public void restoreProperties() {
 		Properties.OBJECT_POOLS = pools;
 		Properties.P_OBJECT_POOL = pPool;
 		Properties.SEARCH_BUDGET = budget;
 	}
-	
+
 	@Test
 	public void testPoolDependency() throws IOException {
 		EvoSuite evosuite = new EvoSuite();
@@ -82,20 +82,20 @@ public class PoolSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = 100000;
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testPool() throws IOException {
 		File f = File.createTempFile("EvoSuiteTestPool",null, FileUtils.getTempDirectory());
 		String filename = f.getAbsolutePath();
 		f.delete();
 		System.out.println(filename);
-		
-		
-		
+
+
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = DependencyClass.class.getCanonicalName();
@@ -105,7 +105,7 @@ public class PoolSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
 		pool.writePool(filename);
@@ -133,7 +133,7 @@ public class PoolSystemTest extends SystemTestBase {
 		f.delete();
 
 	}
-	
+
 	@Ignore
 	@Test
 	public void testNoPool() throws IOException {
@@ -142,25 +142,25 @@ public class PoolSystemTest extends SystemTestBase {
 		String targetClass = OtherClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.P_OBJECT_POOL = 0.0;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertTrue("Expected non-optimal coverage: ", best.getCoverage() < 1.0);
 		// Seems to pass now even without pool...
 	}
-	
+
 	@Test
 	public void testPoolWithSubClass() throws IOException {
 		File f = File.createTempFile("EvoSuiteTestPool",null, FileUtils.getTempDirectory());
 		String filename = f.getAbsolutePath();
 		f.delete();
 		System.out.println(filename);
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = DependencySubClass.class.getCanonicalName();
@@ -171,7 +171,7 @@ public class PoolSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		ObjectPool pool = ObjectPool.getPoolFromTestSuite(best);
 		pool.writePool(filename);
@@ -198,14 +198,14 @@ public class PoolSystemTest extends SystemTestBase {
 		f.delete();
 
 	}
-	
+
 	@Test
 	public void testPoolWithException() throws IOException, NoSuchMethodException, SecurityException {
 		File f = File.createTempFile("EvoSuiteTestPool",null, FileUtils.getTempDirectory());
 		String filename = f.getAbsolutePath();
 		f.delete();
 		System.out.println(filename);
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = DependencyClassWithException.class.getCanonicalName();
@@ -229,10 +229,10 @@ public class PoolSystemTest extends SystemTestBase {
 		pool.addSequence(new GenericClass(DependencyClassWithException.class), test);
 		pool.writePool(filename);
 		System.out.println("EvolvedTestSuite:\n" + best);
-		
+
 		resetStaticVariables();
 		setDefaultPropertiesForTestCases();
-		
+
 		targetClass = ClassDependingOnExceptionClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
 		Properties.P_OBJECT_POOL = 0.8;
@@ -244,7 +244,7 @@ public class PoolSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -266,7 +266,7 @@ public class PoolSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

@@ -67,9 +67,9 @@ public class TestBeales
 
     /**
      * Testing NSGA-II with Beales Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
     public void testBeales() throws NumberFormatException, IOException
@@ -79,35 +79,28 @@ public class TestBeales
         ChromosomeFactory<?> factory = new RandomFactory(false, 2, -4.5, 4.5);
 
         //GeneticAlgorithm<?> ga = new NSGAII(factory);
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         //BinaryTournament ts = new BinaryTournament();
         ga.setSelectionFunction(ts);
         ga.setCrossOverFunction(new SBXCrossover());
 
-        Problem p = new Beales();
-        final FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
+        Problem<NSGAChromosome> p = new Beales<>();
+        final FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
         ga.addFitnessFunction(f1);
 
         // execute
         ga.generateSolution();
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        chromosomes.sort(Comparator.comparingDouble(arg0 -> arg0.getFitness(f1)));
 
-        for (Chromosome chromosome : chromosomes)
+        for (NSGAChromosome chromosome : chromosomes)
             Assert.assertEquals(chromosome.getFitness(f1), 0.29, 0.01);
 
-        for (Chromosome chromosome : chromosomes) {
-            NSGAChromosome nsga_c = (NSGAChromosome)chromosome;
-
-            DoubleVariable x = (DoubleVariable) nsga_c.getVariables().get(0);
-            DoubleVariable y = (DoubleVariable) nsga_c.getVariables().get(1);
+        for (NSGAChromosome chromosome : chromosomes) {
+            DoubleVariable x = (DoubleVariable) chromosome.getVariables().get(0);
+            DoubleVariable y = (DoubleVariable) chromosome.getVariables().get(1);
             System.out.printf("%f,%f : %f\n", x.getValue(), y.getValue(), chromosome.getFitness(f1));
         }
     }

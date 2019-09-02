@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
+public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T, FitnessFunction<T>>  {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
@@ -31,12 +31,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
     protected void sortPopulation(List<T> population, Map<T, Double> noveltyMap) {
         // TODO: Handle case when no novelty value is stored in map
         // TODO: Use lambdas
-        Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
-            @Override
-            public int compare(Chromosome c1, Chromosome c2) {
-                return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
-            }
-        }));
+        population.sort(Collections.reverseOrder(Comparator.comparingDouble(noveltyMap::get)));
     }
 
     /**

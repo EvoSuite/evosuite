@@ -32,8 +32,7 @@ import org.evosuite.testcase.execution.ExecutionTracer;
  * 
  * @author Sebastian Steenbuck
  */
-public abstract class AbstractFitnessFactory<T extends TestFitnessFunction> implements
-        TestFitnessFactory<T> {
+public abstract class AbstractFitnessFactory<T extends TestFitnessFunction> implements TestFitnessFactory<T> {
 
 	/**
 	 * A concrete factory can store the time consumed to initially compute all

@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.assertion;
 
@@ -39,7 +39,7 @@ import org.junit.Ignore;
 
 /**
  * @author fraser
- * 
+ *
  */
 public class MutationAssertionSystemTest extends SystemTestBase {
 	private TestSuiteChromosome generateSuite(Class<?> clazz) {
@@ -57,7 +57,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		return (TestSuiteChromosome) ga.getBestIndividual();
 	}
 
@@ -125,7 +125,7 @@ public class MutationAssertionSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome suite = (TestSuiteChromosome) ga.getBestIndividual();
 
 		Assert.assertTrue(suite.size() > 0);

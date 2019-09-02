@@ -30,6 +30,8 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: all the methods in this class could be static or the class could be made a singleton
+
 /**
  * A factory that creates {@link TestChromosome}s of random length.
  *

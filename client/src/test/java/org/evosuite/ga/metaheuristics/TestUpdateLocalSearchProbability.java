@@ -33,7 +33,7 @@ public class TestUpdateLocalSearchProbability {
 		Properties.LOCAL_SEARCH_PROBABILITY = 0.5;
 		Properties.LOCAL_SEARCH_ADAPTATION_RATE = 2.0;
 
-		MonotonicGA<?> ga = new MonotonicGA<>(null);
+		MonotonicGA<?, ?> ga = new MonotonicGA<>(null);
 		assertEquals(0.5, ga.localSearchProbability, DELTA);
 	}
 
@@ -42,7 +42,7 @@ public class TestUpdateLocalSearchProbability {
 		Properties.LOCAL_SEARCH_PROBABILITY = 1.0;
 		Properties.LOCAL_SEARCH_ADAPTATION_RATE = 2.0;
 
-		MonotonicGA<?> ga = new MonotonicGA<>(null);
+		MonotonicGA<?, ?> ga = new MonotonicGA<>(null);
 		assertEquals(1.0, ga.localSearchProbability, DELTA);
 
 		ga.updateProbability(false);
@@ -61,7 +61,7 @@ public class TestUpdateLocalSearchProbability {
 		Properties.LOCAL_SEARCH_PROBABILITY = 0.125;
 		Properties.LOCAL_SEARCH_ADAPTATION_RATE = 4.0;
 
-		MonotonicGA<?> ga = new MonotonicGA<>(null);
+		MonotonicGA<?, ?> ga = new MonotonicGA<>(null);
 		assertEquals(0.125, ga.localSearchProbability, DELTA);
 
 		ga.updateProbability(true);
@@ -71,13 +71,13 @@ public class TestUpdateLocalSearchProbability {
 		assertEquals(1.0, ga.localSearchProbability, DELTA);
 
 	}
-	
+
 	@Test
 	public void testIncreaseAndDecrease() {
 		Properties.LOCAL_SEARCH_PROBABILITY = 0.5;
 		Properties.LOCAL_SEARCH_ADAPTATION_RATE = 2.0;
 
-		MonotonicGA<?> ga = new MonotonicGA<>(null);
+		MonotonicGA<?, ?> ga = new MonotonicGA<>(null);
 		assertEquals(0.5, ga.localSearchProbability, DELTA);
 
 		ga.updateProbability(true);

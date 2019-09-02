@@ -41,7 +41,7 @@ public class NumericDynamicSeedingSystemTest extends SystemTestBase {
 	public static final double defaultDynamicPool = Properties.DYNAMIC_POOL;
 
 	// DOUBLES
-	
+
 	@Test
 	public void testDynamicSeedingDouble() {
 		EvoSuite evosuite = new EvoSuite();
@@ -50,28 +50,28 @@ public class NumericDynamicSeedingSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CLIENT_ON_THREAD = true;
-		
+
 		Properties.DYNAMIC_SEEDING = true;
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
-		
+
 		Properties.DYNAMIC_POOL = 0.8d; // Probability of picking value from constants pool
 		ConstantPoolManager.getInstance().reset();
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
 
-	
+
+
 	// FLOATS
-	
+
 	@Test
 	public void testDynamicSeedingFloat() {
 		EvoSuite evosuite = new EvoSuite();
@@ -80,27 +80,27 @@ public class NumericDynamicSeedingSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CLIENT_ON_THREAD = true;
-		
+
 		Properties.DYNAMIC_SEEDING = true;
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
-		
+
 		Properties.DYNAMIC_POOL = 0.8f; // Probability of picking value from constants pool
 		ConstantPoolManager.getInstance().reset();
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 
 	// LONGS
-	
+
 	@Test
 	public void testDynamicSeedingLong() {
 		EvoSuite evosuite = new EvoSuite();
@@ -109,28 +109,28 @@ public class NumericDynamicSeedingSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CLIENT_ON_THREAD = true;
-		
+
 		Properties.DYNAMIC_SEEDING = true;
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
-		
+
 		Properties.DYNAMIC_POOL = 0.8; // Probability of picking value from constants pool
 		ConstantPoolManager.getInstance().reset();
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
 
-	
+
+
 	// INTS
-	
+
 
 	@Test
 	public void testDynamicSeedingInt() {
@@ -140,23 +140,23 @@ public class NumericDynamicSeedingSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CLIENT_ON_THREAD = true;
-		
+
 		Properties.DYNAMIC_SEEDING = true;
 
 		//Properties.ALGORITHM = Properties.Algorithm.ONEPLUSONEEA;
 
 		Properties.DYNAMIC_POOL = 0.8; // Probability of picking value from constants pool
 		ConstantPoolManager.getInstance().reset();
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dprint_to_system=true" };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		System.out.println("ConstantPool:\n" + ConstantPoolManager.getInstance().getDynamicConstantPool().toString());
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 
 }

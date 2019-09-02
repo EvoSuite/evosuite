@@ -81,7 +81,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	 * Set current max length to max of best chromosome
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm<?> algorithm) {
+	public void iteration(GeneticAlgorithm<?, ?> algorithm) {
 		Chromosome best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome)
 			current_max = ((TestSuiteChromosome) best).totalLengthOfTestCases();
@@ -92,12 +92,12 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm<?> algorithm) {
+	public void searchFinished(GeneticAlgorithm<?, ?> algorithm) {
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 	}
 
 	/** {@inheritDoc} */
@@ -107,7 +107,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
 	 * .ga.Chromosome)

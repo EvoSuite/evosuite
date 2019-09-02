@@ -19,10 +19,6 @@
  */
 package org.evosuite.ga.metaheuristics.mosa.structural;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -31,42 +27,48 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.graphs.cfg.BasicBlock;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.stream.Collectors.*;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * 
- * 
+ *
+ *
  * @author Annibale Panichella
  */
-public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
+public class BranchFitnessGraph implements Serializable {
 
 	private static final long serialVersionUID = -8020578778906420503L;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
-	protected DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge> graph = new DefaultDirectedGraph<>(DependencyEdge.class);
+	protected DefaultDirectedGraph<TestFitnessFunction, DependencyEdge> graph =
+			new DefaultDirectedGraph<>(DependencyEdge.class);
 
-	protected Set<FitnessFunction<T>> rootBranches = new HashSet<>();
+	protected Set<TestFitnessFunction> rootBranches = new HashSet<>();
 
-	@SuppressWarnings("unchecked")
-	public BranchFitnessGraph(Set<FitnessFunction<T>> goals){
+	public BranchFitnessGraph(Set<TestFitnessFunction> goals){
 		goals.forEach(g -> graph.addVertex(g));
 
 		// derive dependencies among branches
-		for (FitnessFunction<T> fitness : goals){
+		for (TestFitnessFunction fitness : goals){
 			Branch branch = ((BranchCoverageTestFitness) fitness).getBranch();
 			if (branch==null){
-				this.rootBranches.add(fitness); 
+				this.rootBranches.add(fitness);
 				continue;
 			}
 
 			if (branch.getInstruction().isRootBranchDependent())
 					//|| branch.getInstruction().getControlDependentBranchIds().contains(-1))
-				this.rootBranches.add(fitness); 
+				this.rootBranches.add(fitness);
 			// see dependencies for all true/false branches
 			ActualControlFlowGraph rcfg = branch.getInstruction().getActualCFG();
 			Set<BasicBlock> visitedBlock = new HashSet<>();
@@ -77,19 +79,19 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 					this.rootBranches.add(fitness);
 					continue;
 				}
-				
+
 				BranchCoverageGoal goal = new BranchCoverageGoal(newB, true, newB.getClassName(), newB.getMethodName());
 				BranchCoverageTestFitness newFitness = new BranchCoverageTestFitness(goal);
-				graph.addEdge((FitnessFunction<T>) newFitness, fitness);
+				graph.addEdge(newFitness, fitness);
 
 				BranchCoverageGoal goal2 = new BranchCoverageGoal(newB, false, newB.getClassName(), newB.getMethodName());
 				BranchCoverageTestFitness newfitness2 = new BranchCoverageTestFitness(goal2);
-				graph.addEdge((FitnessFunction<T>) newfitness2, fitness);
+				graph.addEdge(newfitness2, fitness);
 			}
 		}
 	}
-	
-	
+
+
 	public Set<BasicBlock> lookForParent(BasicBlock block, ActualControlFlowGraph acfg, Set<BasicBlock> visitedBlock){
 		Set<BasicBlock> realParent = new HashSet<>();
 		Set<BasicBlock> parents = acfg.getParents(block);
@@ -103,7 +105,7 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 			visitedBlock.add(bb);
 			if (containsBranches(bb))
 				realParent.add(bb);
-			else 
+			else
 				realParent.addAll(lookForParent(bb, acfg, visitedBlock));
 		}
 		return realParent;
@@ -115,7 +117,7 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 	 * @param block object of {@link BasicBlock}
 	 * @return true or false depending on whether a branch is found
 	 */
-	public boolean containsBranches(BasicBlock block){
+	public boolean containsBranches(BasicBlock block) {
 		for (BytecodeInstruction inst : block)
 			if (inst.toBranch()!=null)
 				return true;
@@ -123,7 +125,7 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 	}
 
 	/**
-	 * Utility method that extracts a branch ({@link Branch}) from a basic block 
+	 * Utility method that extracts a branch ({@link Branch}) from a basic block
 	 * (@link {@link BasicBlock}).
 	 * @param block object of {@link BasicBlock}
 	 * @return an object of {@link Branch} representing the branch in the block
@@ -134,22 +136,22 @@ public class BranchFitnessGraph<T extends Chromosome> implements Serializable {
 				return inst.toBranch();
 		return null;
 	}
-	
-	public Set<FitnessFunction<T>> getRootBranches(){
+
+	public Set<TestFitnessFunction> getRootBranches(){
 		return this.rootBranches;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Set<FitnessFunction<T>> getStructuralChildren(FitnessFunction<T> parent){
 		return this.graph.outgoingEdgesOf(parent).stream()
 				.map(edge -> (FitnessFunction<T>) edge.getTarget())
 				.collect(toSet());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Set<FitnessFunction<T>> getStructuralParents(FitnessFunction<T> parent){
 		return this.graph.incomingEdgesOf(parent).stream()
-				.map(edge -> (FitnessFunction<T>) edge.getSource()
-				).collect(toSet());
+				.map(edge -> (FitnessFunction<T>) edge.getSource())
+				.collect(toSet());
 	}
 }

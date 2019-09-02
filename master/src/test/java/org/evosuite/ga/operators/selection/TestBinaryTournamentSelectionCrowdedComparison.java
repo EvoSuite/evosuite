@@ -31,7 +31,7 @@ import org.junit.Test;
 
 /**
  * Test Binary Tournament Selection using Crowded Comparison
- * 
+ *
  * @author José Campos
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -45,7 +45,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	@Test
 	public void testNonDominationRankMinimize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome, ?> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
@@ -67,7 +67,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	@Test
 	public void testNonDominationRankMaximize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome, ?> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(true);
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);
@@ -89,7 +89,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	@Test
 	public void testCrowdingDistanceMinimize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome, ?> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
 		ts.setMaximize(false);
 		ga.setSelectionFunction(ts);
@@ -115,7 +115,7 @@ public class TestBinaryTournamentSelectionCrowdedComparison
 	@Test
 	public void testCrowdingDistanceMaximize()
 	{
-		NSGAII<NSGAChromosome> ga = new NSGAII<NSGAChromosome>(null);
+		NSGAII<NSGAChromosome, ?> ga = new NSGAII<>(null);
 		BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(true);
 		ts.setMaximize(true);
 		ga.setSelectionFunction(ts);

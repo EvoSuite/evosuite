@@ -21,13 +21,14 @@ package org.evosuite.ga.metaheuristics.mulambda;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.FitnessFunction;
 
 /**
  * (1+1)EA
  *
  * @author Gordon Fraser
  */
-public class OnePlusOneEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
+public class OnePlusOneEA<T extends Chromosome, F extends FitnessFunction<T>> extends MuPlusLambdaEA<T, F> {
 
 	private static final long serialVersionUID = 5229089847512798127L;
 

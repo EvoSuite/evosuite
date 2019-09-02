@@ -54,8 +54,8 @@ public class TestBooths
     @Test
     public void testBoothsFitness()
     {
-        Problem p = new Booths();
-        FitnessFunction f1 = (FitnessFunction) p.getFitnessFunctions().get(0);
+        Booths<NSGAChromosome> p = new Booths<>();
+        FitnessFunction<NSGAChromosome> f1 = p.getFitnessFunctions().get(0);
 
         double[] values = {-2.0, 1.0};
         NSGAChromosome c = new NSGAChromosome(-10.0, 10.0, values);
@@ -71,9 +71,9 @@ public class TestBooths
 
     /**
      * Testing NSGA-II with Booths Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
     public void testBooths() throws NumberFormatException, IOException
@@ -83,7 +83,7 @@ public class TestBooths
         ChromosomeFactory<?> factory = new RandomFactory(false, 2, -10.0, 10.0);
 
         //GeneticAlgorithm<?> ga = new NSGAII(factory);
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison(false);
         //BinaryTournament ts = new BinaryTournament();
         ga.setSelectionFunction(ts);
@@ -96,22 +96,16 @@ public class TestBooths
         // execute
         ga.generateSolution();
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        chromosomes.sort(Comparator.comparingDouble(arg0 -> arg0.getFitness(f1)));
 
-        for (Chromosome chromosome : chromosomes)
+        for (NSGAChromosome chromosome : chromosomes)
             Assert.assertEquals(chromosome.getFitness(f1), 0.000, 0.001);
 
-        for (Chromosome chromosome : chromosomes) {
-            NSGAChromosome nsga_c = (NSGAChromosome)chromosome;
+        for (NSGAChromosome chromosome : chromosomes) {
 
-            DoubleVariable x = (DoubleVariable) nsga_c.getVariables().get(0);
-            DoubleVariable y = (DoubleVariable) nsga_c.getVariables().get(1);
+            DoubleVariable x = (DoubleVariable) chromosome.getVariables().get(0);
+            DoubleVariable y = (DoubleVariable) chromosome.getVariables().get(1);
             System.out.printf("%f,%f : %f\n", x.getValue(), y.getValue(), chromosome.getFitness(f1));
         }
     }

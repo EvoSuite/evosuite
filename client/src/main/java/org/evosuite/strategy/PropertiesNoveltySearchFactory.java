@@ -6,8 +6,10 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mutation.MutationTestPool;
 import org.evosuite.coverage.mutation.MutationTimeoutStoppingCondition;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.operators.crossover.CrossOverFunction;
 import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
@@ -36,14 +38,13 @@ import org.evosuite.testcase.factories.RandomLengthTestFactory;
 import org.evosuite.testcase.localsearch.BranchCoverageMap;
 import org.evosuite.testcase.secondaryobjectives.TestCaseSecondaryObjective;
 import org.evosuite.testsuite.RelativeSuiteLengthBloatControl;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.ResourceController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
 
-public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFactory<TestChromosome> {
+public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFactory<TestChromosome, FitnessFunction<TestChromosome>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PropertiesNoveltySearchFactory.class);
 

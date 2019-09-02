@@ -41,7 +41,7 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 	public void resetStuff() {
 		Properties.PRIMITIVE_POOL = oldPPool;
 	}
-	
+
 	@Test
 	public void testPublicStaticInnerClassWithBranch(){
 		EvoSuite evosuite = new EvoSuite();
@@ -55,7 +55,7 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best);
@@ -77,7 +77,7 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best);
@@ -106,7 +106,7 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best);
@@ -135,7 +135,7 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best);
@@ -159,13 +159,13 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 		Properties.CRITERION = new Properties.Criterion[]{
 				Properties.Criterion.BRANCH,
 		};
-		
+
 		// Increase chances of using seeded values to make sure the test finishes in budget
 		Properties.PRIMITIVE_POOL = 1.0;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best);
@@ -196,7 +196,7 @@ public class InnerClassGoalsSystemTest extends SystemTestBase {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		System.out.println(best);

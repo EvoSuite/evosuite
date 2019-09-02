@@ -40,8 +40,9 @@ import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.rho.RhoCoverageTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.runtime.util.AtMostOnceLogger;
-import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,12 +53,12 @@ public final class ArchiveUtils {
   /**
    * Checks whether a specific goal (i.e., a {@link org.evosuite.testcase.TestFitnessFunction}
    * object) is of an enabled criterion. A criterion is considered enabled if and only if defined in
-   * {@link org.evosuite.Properties.CRITERION}.
-   * 
+   * {@link org.evosuite.Properties.Criterion}.
+   *
    * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object
    * @return true if criterion of goal is enabled, false otherwise
    */
-  public static boolean isCriterionEnabled(TestFitnessFunction goal) {
+  public static boolean isCriterionDisabled(FitnessFunction<TestChromosome> goal) {
     for (Properties.Criterion criterion : Properties.CRITERION) {
       switch (criterion) {
         case EXCEPTION:

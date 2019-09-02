@@ -23,7 +23,7 @@ public class NonNullSystemTest extends SystemTestBase {
 
         Object result = evosuite.parseCommandLine(command);
 
-        GeneticAlgorithm<?> ga = getGAFromResult(result);
+        GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
         TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
         Assert.assertFalse(best.toString().contains("(Object) null"));
         Assert.assertFalse(best.toString().contains("null"));

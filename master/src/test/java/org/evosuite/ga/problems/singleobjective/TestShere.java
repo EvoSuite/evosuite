@@ -66,19 +66,19 @@ public class TestShere
 
     /**
      * Testing NSGA-II with Sphere Problem
-     * 
-     * @throws IOException 
-     * @throws NumberFormatException 
+     *
+     * @throws IOException
+     * @throws NumberFormatException
      */
     @Test
     public void testSphere() throws NumberFormatException, IOException
     {
         Properties.MUTATION_RATE = 1d / 1d;
 
-        ChromosomeFactory<?> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));
+        ChromosomeFactory<NSGAChromosome> factory = new RandomFactory(false, 1, Math.pow(-10.0, 3.0), Math.pow(10.0, 3.0));
 
         //GeneticAlgorithm<?> ga = new NSGAII(factory);
-        GeneticAlgorithm<?> ga = new NSGAII(factory);
+        GeneticAlgorithm<NSGAChromosome, FitnessFunction<NSGAChromosome>> ga = new NSGAII(factory);
         BinaryTournamentSelectionCrowdedComparison ts = new BinaryTournamentSelectionCrowdedComparison();
         //BinaryTournament ts = new BinaryTournament();
         ga.setSelectionFunction(ts);
@@ -91,13 +91,8 @@ public class TestShere
         // execute
         ga.generateSolution();
 
-        List<Chromosome> chromosomes = (List<Chromosome>) ga.getPopulation();
-        Collections.sort(chromosomes, new Comparator<Chromosome>() {
-            @Override
-            public int compare(Chromosome arg0, Chromosome arg1) {
-                return Double.compare(arg0.getFitness(f1), arg1.getFitness(f1));
-            }
-        });
+        List<NSGAChromosome> chromosomes = ga.getPopulation();
+        chromosomes.sort(Comparator.comparingDouble(arg0 -> arg0.getFitness(f1)));
 
         for (Chromosome chromosome : chromosomes)
             Assert.assertEquals(chromosome.getFitness(f1), 0.00, 0.01);

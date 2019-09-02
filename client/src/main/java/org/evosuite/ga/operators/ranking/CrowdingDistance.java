@@ -17,18 +17,18 @@
  */
 package org.evosuite.ga.operators.ranking;
 
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
+import org.evosuite.ga.comparators.SortByFitness;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.comparators.SortByFitness;
-
 /**
  * This class implements different variants of Crowding Distance for many-objective problems
- * 
+ *
  * @author Annibale Panichella
  */
 public class CrowdingDistance<T extends Chromosome> implements Serializable {
@@ -37,11 +37,11 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 
 	/**
 	 * Method used to assign the 'traditional' Crowding Distance.
-	 * 
+	 *
 	 * @param front front of non-dominated solutions/tests
 	 * @param set list of goals/targets (e.g., branches) to consider
 	 */
-	public void crowdingDistanceAssignment(List<T> front, List<FitnessFunction<T>> set) {
+	public void crowdingDistanceAssignment(List<T> front, List<? extends FitnessFunction<T>> set) {
 		int size = front.size();
 
 		if (size == 0)
@@ -85,10 +85,10 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 	/**
 	 * This method implements a variant of the crowding distance named "subvector-dominance-assignment"
 	 * proposed by K\"{o}ppen and Yoshida in :
-	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective 
-	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes 
+	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective
+	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes
 	 * in Computer Science pp 727-741.
-	 * 
+	 *
 	 * @param front front of non-dominated solutions/tests
 	 * @param set set of goals/targets (e.g., branches) to consider
 	 */
@@ -125,18 +125,18 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 	/**
 	 * This method implements a "fast" version of the variant of the crowding distance named "epsilon-dominance-assignment"
 	 * proposed by K\"{o}ppen and Yoshida in :
-	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective 
-	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes 
+	 * [1] Mario K\"{o}ppen and Kaori Yoshida, "Substitute Distance Assignments in NSGA-II for handling Many-objective
+	 * Optimization Problems", Evolutionary Multi-Criterion Optimization, Volume 4403 of the series Lecture Notes
 	 * in Computer Science pp 727-741.
-	 * 
+	 *
 	 * @param front front of non-dominated solutions/tests
-	 * @param set set of goals/targets (e.g., branches) to consider
+	 * @param goals set of goals/targets (e.g., branches) to consider
 	 */
-	public void fastEpsilonDominanceAssignment(List<T> front, Set<FitnessFunction<T>> set) {
+	public void fastEpsilonDominanceAssignment(List<T> front, Set<? extends FitnessFunction<T>> goals) {
 		double value;
 		front.forEach(test -> test.setDistance(0));
 
-		for (final FitnessFunction<T> ff : set) {
+		for (final FitnessFunction<T> ff : goals) {
 			double min = Double.POSITIVE_INFINITY;
 			List<T> minSet = new ArrayList<T>(front.size());
 			double max = 0;
@@ -148,15 +148,15 @@ public class CrowdingDistance<T extends Chromosome> implements Serializable {
 					minSet.add(test);
 				} else if (value == min)
 					minSet.add(test);
-				
+
 				if (value > max){
 					max = value;
-				} 
+				}
 			}
 
 			if (max == min)
 				continue;
-			
+
 			for (T test : minSet){
 				double numer = (front.size() - minSet.size());
 				double demon = front.size();

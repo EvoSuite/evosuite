@@ -69,7 +69,7 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 
 		Properties.TARGET_CLASS = targetClass;
 
-		// Need to deactivate assertions, otherwise classloader is chanaged 
+		// Need to deactivate assertions, otherwise classloader is chanaged
 		// and DefUseCoverageFactory is reset
 		Properties.ASSERTIONS = false;
 		//Properties.ANALYSIS_CRITERIA = "Branch,DefUse";
@@ -78,7 +78,7 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 
 		Object result = evosuite.parseCommandLine(command);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -96,14 +96,14 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 		String targetClass = GCD.class.getCanonicalName();
 
 		Properties.ASSERTIONS = false;
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		
+
 		System.out.println("Def: "+DefUsePool.getDefCounter());
 		//DefUseCoverageFactory.computeGoals();
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
@@ -127,7 +127,7 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 
 		System.out.println("Def: "+DefUsePool.getDefCounter());
 		//DefUseCoverageFactory.computeGoals();
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());
@@ -151,7 +151,7 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 
 		System.out.println("Def: "+DefUsePool.getDefCounter());
 		//DefUseCoverageFactory.computeGoals();
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 		Assert.assertEquals(1, DefUseCoverageFactory.getInterMethodGoalsCount());
@@ -170,7 +170,7 @@ public class DefUseAnalysisSystemTest extends SystemTestBase {
 		Object result = evosuite.parseCommandLine(command);
 
 		System.out.println("Def: "+DefUsePool.getDefCounter());
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.print("EvolvedTestSuite:\n" + best.toString());
 		Assert.assertEquals(0, DefUseCoverageFactory.getInterMethodGoalsCount());

@@ -87,19 +87,19 @@ public class Issre13SystemTest extends SystemTestBase {
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(),
 				0.001);
 	}
-	
+
 	@Test
 	public void testOnSpecificTest() throws ClassNotFoundException, ConstructionFailedException, NoSuchMethodException, SecurityException {
 		Properties.TARGET_CLASS = DseBar.class.getCanonicalName();
 		Properties.DSE_PROBABILITY = 1.0; // force using DSE
-		
+
 		Class<?> sut = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(Properties.TARGET_CLASS);
 		Class<?> fooClass = TestGenerationContext.getInstance().getClassLoaderForSUT().loadClass(DseFoo.class.getCanonicalName());
 		GenericClass clazz = new GenericClass(sut);
@@ -133,7 +133,7 @@ public class Issre13SystemTest extends SystemTestBase {
 		MethodStatement ms = new MethodStatement(test, method, callee, Arrays.asList(new VariableReference[] {fooVar}));
 		test.addStatement(ms);
 		System.out.println(test);
-		
+
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		BranchCoverageSuiteFitness fitness = new BranchCoverageSuiteFitness();
 
@@ -143,7 +143,7 @@ public class Issre13SystemTest extends SystemTestBase {
 		assertEquals(1.0, fitness.getFitness(suite), 0.1F);
 
 		System.out.println("Test suite: "+suite);
-		
+
 		TestSuiteLocalSearch localSearch = TestSuiteLocalSearch.selectTestSuiteLocalSearch();
 		LocalSearchObjective<TestSuiteChromosome> localObjective = new DefaultLocalSearchObjective<TestSuiteChromosome>();
 		localObjective.addFitnessFunction(fitness);
@@ -172,7 +172,7 @@ public class Issre13SystemTest extends SystemTestBase {
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -209,7 +209,7 @@ public class Issre13SystemTest extends SystemTestBase {
 				targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

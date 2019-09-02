@@ -36,6 +36,10 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 
 	private static final long serialVersionUID = -3769862881038106087L;
 
+	public ChromosomeFactory<TestChromosome> getTestChromosomeFactory() {
+		return testChromosomeFactory;
+	}
+
 	/** Factory to manipulate and generate method sequences */
 	protected ChromosomeFactory<TestChromosome> testChromosomeFactory;
 

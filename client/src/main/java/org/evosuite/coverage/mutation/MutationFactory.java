@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.coverage.mutation;
 
@@ -38,7 +38,7 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
  * <p>
  * MutationFactory class.
  * </p>
- * 
+ *
  * @author fraser
  */
 public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness> {
@@ -59,7 +59,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 	 * <p>
 	 * Constructor for MutationFactory.
 	 * </p>
-	 * 
+	 *
 	 * @param strongMutation
 	 *            a boolean.
 	 */
@@ -80,7 +80,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 	 * <p>
 	 * getCoverageGoals
 	 * </p>
-	 * 
+	 *
 	 * @param targetMethod
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
@@ -89,13 +89,13 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 		if (goals != null)
 			return goals;
 
-		goals = new ArrayList<MutationTestFitness>();
+		goals = new ArrayList<>();
 
 		for (Mutation m : getMutantsLimitedPerClass()) {
 			if (targetMethod != null && !m.getMethodName().endsWith(targetMethod))
 				continue;
 
-			// We need to return all mutants to make coverage values and bitstrings consistent 
+			// We need to return all mutants to make coverage values and bitstrings consistent
 			//if (MutationTimeoutStoppingCondition.isDisabled(m))
 			//	continue;
 			if (strong)
@@ -107,7 +107,7 @@ public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness>
 
 		return goals;
 	}
-	
+
 	/**
 	 * Try to remove mutants per mutation operator until the number of mutants
 	 * is acceptable wrt the class limit

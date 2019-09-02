@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.seeding.factories;
 
@@ -41,26 +41,26 @@ public class RandomMethodSeedingTestSuiteChromosomeFactory implements
 	private static final long serialVersionUID = 1L;
 
 	private final ChromosomeFactory<TestSuiteChromosome> defaultFactory;
-	private final GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm;
+	private final GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm;
 
 	/**
 	 * <p>
 	 * Constructor for JUnitTestSuiteChromosomeFactory.
 	 * </p>
-	 * 
+	 *
 	 * @param defaultFactory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public RandomMethodSeedingTestSuiteChromosomeFactory(
 			ChromosomeFactory<TestSuiteChromosome> defaultFactory,
-			GeneticAlgorithm<TestSuiteChromosome> geneticAlgorithm) {
+			GeneticAlgorithm<TestSuiteChromosome, ?> geneticAlgorithm) {
 		this.defaultFactory = defaultFactory;
 		this.geneticAlgorithm = geneticAlgorithm;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
 	/** {@inheritDoc} */
@@ -76,7 +76,7 @@ public class RandomMethodSeedingTestSuiteChromosomeFactory implements
 
 		//reduce seed probablility by number of tests to be generated
 		final double SEED_CHANCE = Properties.SEED_PROBABILITY / numTests;
-		
+
 		for (int i = 0; i < numTests; i++) {
 			if (geneticAlgorithm != null && Randomness.nextDouble() < SEED_CHANCE) {
 				int populationSize = geneticAlgorithm.getPopulation().size();

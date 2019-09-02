@@ -33,12 +33,12 @@ import com.examples.with.different.packagename.IntExample;
 public class IntOptimisationSystemTest extends SystemTestBase {
 
 	private double seedConstants = Properties.PRIMITIVE_POOL;
-	
+
 	@After
 	public void resetSeedConstants() {
 		Properties.PRIMITIVE_POOL = seedConstants;
 	}
-	
+
 	@Test
 	public void testIntSUT() {
 		EvoSuite evosuite = new EvoSuite();
@@ -48,14 +48,14 @@ public class IntOptimisationSystemTest extends SystemTestBase {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.PRIMITIVE_POOL = 0.0;
 		Properties.SEARCH_BUDGET = 100000; // TODO: Can we reduce the variation in results somehow?
-		
+
 		String[] command = new String[] { "-generateSuite", "-class", targetClass};
 
 		Object result = evosuite.parseCommandLine(command);
 
 		Assert.assertTrue(result != null);
 
-		GeneticAlgorithm<?> ga = getGAFromResult(result);
+		GeneticAlgorithm<?, ?> ga = getGAFromResult(result);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

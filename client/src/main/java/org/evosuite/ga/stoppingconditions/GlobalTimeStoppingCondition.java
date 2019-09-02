@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.ga.stoppingconditions;
 
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * GlobalTimeStoppingCondition class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
@@ -48,7 +48,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm<?> algorithm) {
+	public void searchStarted(GeneticAlgorithm<?, ?> algorithm) {
 		if (startTime == 0)
 			reset();
 	}
