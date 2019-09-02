@@ -19,20 +19,19 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.assertion.Assertion;
+import org.evosuite.contracts.ContractViolation;
+import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.environment.AccessedEnvironment;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.Listenable;
+
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.sun.istack.internal.NotNull;
-import org.evosuite.assertion.Assertion;
-import org.evosuite.contracts.ContractViolation;
-import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.testcase.statements.Statement;
-import org.evosuite.testcase.statements.environment.AccessedEnvironment;
-import org.evosuite.testcase.execution.Scope;
-import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.utils.Listenable;
 
 
 /**
@@ -93,7 +92,6 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 * @param statement the statement to append
 	 * @return VariableReference of the appended statement's return value, never {@code null}
 	 */
-	@NotNull
 	public VariableReference addStatement(Statement statement);
 
 	/**

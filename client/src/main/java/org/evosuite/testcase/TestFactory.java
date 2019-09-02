@@ -19,18 +19,8 @@
  */
 package org.evosuite.testcase;
 
-import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.sun.istack.internal.NotNull;
+import com.googlecode.gentyref.CaptureType;
+import com.googlecode.gentyref.GenericTypeReflector;
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -44,7 +34,9 @@ import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ObjectPoolManager;
-import org.evosuite.setup.*;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.jee.InjectionSupport;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
 import org.evosuite.testcase.jee.ServletSupport;
@@ -55,16 +47,15 @@ import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
 import org.evosuite.testcase.statements.reflection.PrivateMethodStatement;
 import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.generic.*;
-import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.googlecode.gentyref.CaptureType;
-import com.googlecode.gentyref.GenericTypeReflector;
-
 import javax.servlet.http.HttpServlet;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  * A note about terminology: this class currently uses the term "object" or
@@ -240,7 +231,6 @@ public class TestFactory {
 	 * @return a reference to the result of the constructor call
 	 * @throws ConstructionFailedException if the maximum recursion depth has been reached
 	 */
-	@NotNull
 	public VariableReference addConstructor(TestCase test,
 	        GenericConstructor constructor, int position, int recursionDepth)
 	        throws ConstructionFailedException {
@@ -654,7 +644,6 @@ public class TestFactory {
 	 * @return a reference to the return value of the inserted method call
 	 * @throws ConstructionFailedException if the given position is invalid (see above)
 	 */
-	@NotNull
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
 	        GenericMethod method, int position) throws ConstructionFailedException {
 
