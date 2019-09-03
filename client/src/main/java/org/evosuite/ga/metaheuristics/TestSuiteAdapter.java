@@ -44,11 +44,15 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
      *
      * @param algorithm the algorithm (operating on {@code TestChromosome}s) to adapt (must not be
      *                  {@code null})
-     * @param factory factory for {@code TestSuiteChromosome}s
+     * @param factory   factory for {@code TestSuiteChromosome}s
      */
     TestSuiteAdapter(final T algorithm, final ChromosomeFactory<TestSuiteChromosome> factory) {
         super(factory);
         this.algorithm = Objects.requireNonNull(algorithm);
+    }
+
+    public TestSuiteAdapter(ChromosomeFactory<TestSuiteChromosome> factory) {
+        this(null, factory); // Forces NPE!
     }
 
     /**
@@ -69,13 +73,11 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     @Override
     protected void evolve() {
         throw new RuntimeException("not implemented");
-        // algorithm.evolve();
     }
 
     @Override
     public void initializePopulation() {
         throw new RuntimeException("not implemented");
-//        algorithm.initializePopulation();
     }
 
     @Override
@@ -91,22 +93,13 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     @Override
     protected void notifyMutation(TestSuiteChromosome chromosome) {
         throw new RuntimeException("not implemented");
-//        super.notifyMutation(chromosome);
     }
-
-//    protected void notifyMutation(TestChromosome chromosome) {
-//        algorithm.notifyEvaluation(chromosome);
-//    }
 
     @Override
     protected void notifyEvaluation(TestSuiteChromosome chromosome) {
         throw new RuntimeException("not implemented");
-//        super.notifyEvaluation(chromosome);
     }
 
-//    protected void notifyEvaluation(TestChromosome chromosome) {
-//        algorithm.notifyEvaluation(chromosome);
-//    }
 
     @Override
     protected boolean shouldApplyLocalSearch() {
@@ -189,8 +182,44 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
+    public void setSelectionFunction(SelectionFunction<TestSuiteChromosome> function) { // (2)
+        final SelectionFunction<TestChromosome> adapteeFunction;
+        if (function instanceof FitnessProportionateSelection) {
+            adapteeFunction = new FitnessProportionateSelection<>();
+        } else if (function instanceof TournamentSelection) {
+            adapteeFunction = new TournamentSelection<>();
+        } else if (function instanceof BinaryTournamentSelectionCrowdedComparison) {
+            adapteeFunction = new BinaryTournamentSelectionCrowdedComparison<>();
+        } else if (function instanceof TournamentSelectionRankAndCrowdingDistanceComparator) {
+            adapteeFunction = new BinaryTournamentSelectionCrowdedComparison<>();
+        } else if (function instanceof BestKSelection) {
+            adapteeFunction = new BestKSelection<>();
+        } else if (function instanceof RandomKSelection) {
+            adapteeFunction = new RandomKSelection<>();
+        } else if (function instanceof RankSelection) {
+            adapteeFunction = new RandomKSelection<>();
+        } else {
+            throw new IllegalArgumentException("cannot adapt selection function " + function);
+        }
+        algorithm.setSelectionFunction(adapteeFunction);
+    }
+
+    @Override
     public RankingFunction<TestSuiteChromosome> getRankingFunction() {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public void setRankingFunction(RankingFunction<TestSuiteChromosome> function) { // (3)
+        final RankingFunction<TestChromosome> adapteeFunction;
+        if (function instanceof FastNonDominatedSorting) {
+            adapteeFunction = new FastNonDominatedSorting<>();
+        } else if (function instanceof RankBasedPreferenceSorting) {
+            adapteeFunction = new RankBasedPreferenceSorting<>();
+        } else {
+            throw new IllegalArgumentException("cannot adapt ranking function " + function);
+        }
+        algorithm.setRankingFunction(adapteeFunction);
     }
 
     @Override
@@ -266,7 +295,6 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
                 algorithm.addListener((SearchListener) listener);
                 return;
             } else if (listener instanceof RelativeSuiteLengthBloatControl) {
-                super.addListener(listener);
                 adapteeListener = new RelativeSuiteLengthBloatControl<>();
             } else if (listener instanceof ResourceController) {
                 adapteeListener = new ResourceController<>();
@@ -400,42 +428,6 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     @Override
     protected double progress() {
         throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void setSelectionFunction(SelectionFunction<TestSuiteChromosome> function) { // (2)
-        final SelectionFunction<TestChromosome> adapteeFunction;
-        if (function instanceof FitnessProportionateSelection) {
-            adapteeFunction = new FitnessProportionateSelection<>();
-        } else if (function instanceof TournamentSelection) {
-            adapteeFunction = new TournamentSelection<>();
-        } else if (function instanceof BinaryTournamentSelectionCrowdedComparison) {
-            adapteeFunction = new BinaryTournamentSelectionCrowdedComparison<>();
-        } else if (function instanceof TournamentSelectionRankAndCrowdingDistanceComparator) {
-            adapteeFunction = new BinaryTournamentSelectionCrowdedComparison<>();
-        } else if (function instanceof BestKSelection) {
-            adapteeFunction = new BestKSelection<>();
-        } else if (function instanceof RandomKSelection) {
-            adapteeFunction = new RandomKSelection<>();
-        } else if (function instanceof RankSelection) {
-            adapteeFunction = new RandomKSelection<>();
-        } else {
-            throw new IllegalArgumentException("cannot adapt selection function " + function);
-        }
-        algorithm.setSelectionFunction(adapteeFunction);
-    }
-
-    @Override
-    public void setRankingFunction(RankingFunction<TestSuiteChromosome> function) { // (3)
-        final RankingFunction<TestChromosome> adapteeFunction;
-        if (function instanceof FastNonDominatedSorting) {
-            adapteeFunction = new FastNonDominatedSorting<>();
-        } else if (function instanceof RankBasedPreferenceSorting) {
-            adapteeFunction = new RankBasedPreferenceSorting<>();
-        } else {
-            throw new IllegalArgumentException("cannot adapt ranking function " + function);
-        }
-        algorithm.setRankingFunction(adapteeFunction);
     }
 
     @Override // (12)
