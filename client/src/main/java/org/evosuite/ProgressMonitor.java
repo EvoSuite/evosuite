@@ -40,7 +40,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  *
  * @author gordon
  */
-public class ProgressMonitor<T extends Chromosome> implements SearchListener<T>, Serializable {
+public class ProgressMonitor<T extends TestSuiteChromosome> implements SearchListener<T>, Serializable {
 
 	private static final long serialVersionUID = -8518559681906649686L;
 

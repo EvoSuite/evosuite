@@ -1,7 +1,8 @@
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.ga.metaheuristics.mosa;
 
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.metaheuristics.TestSuiteAdapter;
 import org.evosuite.ga.metaheuristics.mosa.AbstractMOSA;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -17,9 +18,9 @@ import java.util.Map;
  */
 public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
 
-    public MOSATestSuiteAdapter(final AbstractMOSA algorithm,
-                                final ChromosomeFactory<TestSuiteChromosome> factory) {
-        super(algorithm, factory);
+    public MOSATestSuiteAdapter(final AbstractMOSA algorithm) {
+        super(algorithm);
+        algorithm.setAdapter(this);
     }
 
     /*
@@ -39,7 +40,7 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
         // get final test suite (i.e., non dominated solutions in Archive)
         TestSuiteChromosome bestTestCases = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
         if (bestTestCases.getTestChromosomes().isEmpty()) {
-//            for (TestChromosome test : algorithm.getNonDominatedSolutions(algorithm.population)) {
+//            for (TestChromosome test : getAlgorithm().getNonDominatedSolutions(getAlgorithm().population)) {
             for (TestChromosome test : getAlgorithm().getBestIndividuals()) {
                 bestTestCases.addTest(test);
             }
@@ -68,7 +69,7 @@ public class MOSATestSuiteAdapter extends TestSuiteAdapter<AbstractMOSA> {
     public TestSuiteChromosome getBestIndividual() {
         TestSuiteChromosome best = getAlgorithm().generateSuite();
         if (best.getTestChromosomes().isEmpty()) {
-//            for (TestChromosome test : algorithm.getNonDominatedSolutions(algorithm.population)) {
+//            for (TestChromosome test : getAlgorithm().getNonDominatedSolutions(getAlgorithm().population)) {
             for (TestChromosome test : getAlgorithm().getBestIndividuals()) {
                 best.addTest(test);
             }

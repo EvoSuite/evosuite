@@ -35,6 +35,7 @@ import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
+import org.evosuite.ga.metaheuristics.mosa.MOSATestSuiteAdapter;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.MuPlusLambdaEA;
 import org.evosuite.ga.metaheuristics.mulambda.OnePlusLambdaLambdaGA;
@@ -191,22 +192,22 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 //				return new MOSA(factory);
 				if (factory instanceof TestSuiteChromosomeFactory) {
 					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
-					return new MOSATestSuiteAdapter(new MOSA(tscf.getTestChromosomeFactory()), tscf);
+					return new MOSATestSuiteAdapter(new MOSA(tscf.getTestChromosomeFactory()));
 				} else {
 					logger.info("No specific factory for test cases given...");
 					logger.info("Using a default factory that creates tests with variable length");
-					return new MOSATestSuiteAdapter(new MOSA(new RandomLengthTestFactory()), factory);
+					return new MOSATestSuiteAdapter(new MOSA(new RandomLengthTestFactory()));
 				}
 			case DYNAMOSA:
 				logger.info("Chosen search algorithm: DynaMOSA");
 //				return new DynaMOSA(factory);
 				if (factory instanceof TestSuiteChromosomeFactory) {
 					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
-					return new MOSATestSuiteAdapter(new DynaMOSA(tscf.getTestChromosomeFactory()), tscf);
+					return new MOSATestSuiteAdapter(new DynaMOSA(tscf.getTestChromosomeFactory()));
 				} else {
 					logger.info("No specific factory for test cases given...");
 					logger.info("Using a default factory that creates tests with variable length");
-					return new MOSATestSuiteAdapter(new DynaMOSA(new RandomLengthTestFactory()), factory);
+					return new MOSATestSuiteAdapter(new DynaMOSA(new RandomLengthTestFactory()));
 				}
 			case ONE_PLUS_LAMBDA_LAMBDA_GA:
 				logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");
@@ -216,11 +217,11 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 //				return new MIO(factory);
 				if (factory instanceof TestSuiteChromosomeFactory) {
 					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
-					return new MOSATestSuiteAdapter(new MIO(tscf.getTestChromosomeFactory()), tscf);
+					return new MOSATestSuiteAdapter(new MIO(tscf.getTestChromosomeFactory()));
 				} else {
 					logger.info("No specific factory for test cases given...");
 					logger.info("Using a default factory that creates tests with variable length");
-					return new MOSATestSuiteAdapter(new MIO(new RandomLengthTestFactory()), factory);
+					return new MOSATestSuiteAdapter(new MIO(new RandomLengthTestFactory()));
 				}
 			case STANDARD_CHEMICAL_REACTION:
 				logger.info("Chosen search algorithm: Standard Chemical Reaction Optimization");
@@ -230,11 +231,11 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
 //				return new LIPS(factory);
 				if (factory instanceof TestSuiteChromosomeFactory) {
 					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
-					return new LIPSTestSuiteAdapter(new LIPS(tscf.getTestChromosomeFactory()), tscf);
+					return new LIPSTestSuiteAdapter(new LIPS(tscf.getTestChromosomeFactory()));
 				} else {
 					logger.info("No specific factory for test cases given...");
 					logger.info("Using a default factory that creates tests with variable length");
-					return new LIPSTestSuiteAdapter(new LIPS(new RandomLengthTestFactory()), factory);
+					return new LIPSTestSuiteAdapter(new LIPS(new RandomLengthTestFactory()));
 				}
 			default:
 				logger.info("Chosen search algorithm: StandardGA");

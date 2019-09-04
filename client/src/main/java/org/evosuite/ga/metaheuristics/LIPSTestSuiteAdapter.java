@@ -14,8 +14,8 @@ import java.util.List;
  * {@code TestSuiteChromosome}s are expected instead of {@code TestChromosome}s.
  */
 public class LIPSTestSuiteAdapter extends TestSuiteAdapter<LIPS> {
-    public LIPSTestSuiteAdapter(LIPS algorithm, ChromosomeFactory<TestSuiteChromosome> factory) {
-        super(algorithm, factory);
+    public LIPSTestSuiteAdapter(LIPS algorithm) {
+        super(algorithm);
     }
 
     /**

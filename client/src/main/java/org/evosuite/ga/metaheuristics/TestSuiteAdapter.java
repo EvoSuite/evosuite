@@ -33,26 +33,54 @@ import java.util.Set;
  *
  * @param <T> the type of adaptee genetic algorithm
  */
-public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome, TestFitnessFunction>> extends GeneticAlgorithm<TestSuiteChromosome,
+public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome,
+        TestFitnessFunction>> extends GeneticAlgorithm<TestSuiteChromosome,
         FitnessFunction<TestSuiteChromosome>> {
 
     private final T algorithm;
 
     /**
-     * Constructs a new adapter with the given {@code algorithm} (evolving test chromosomes) as
-     * adaptee and the specified factory for test suite chromosomes.
+     * Constructs a new adapter with the given non-null {@code algorithm} (evolving
+     * {@code TestChromosomes}) as adaptee.
      *
-     * @param algorithm the algorithm (operating on {@code TestChromosome}s) to adapt (must not be
-     *                  {@code null})
-     * @param factory   factory for {@code TestSuiteChromosome}s
+     * @param algorithm the algorithm (operating on {@code TestChromosome}s) to adapt
      */
-    TestSuiteAdapter(final T algorithm, final ChromosomeFactory<TestSuiteChromosome> factory) {
-        super(factory);
+    protected TestSuiteAdapter(final T algorithm) {
+        super(null);
         this.algorithm = Objects.requireNonNull(algorithm);
+        clear();
     }
 
-    public TestSuiteAdapter(ChromosomeFactory<TestSuiteChromosome> factory) {
-        this(null, factory); // Forces NPE!
+    /**
+     * This method clears all fields of this wrapper class by setting them to {@code null}.
+     * <p>
+     * This class may seem harmless and unsuspecting, but it's really not! It can produce obscure,
+     * plain stupid and hard to chase down bugs. The intent of this method is to deliberately
+     * produce {@code NullPointerException}s should we have forgotten to properly forward some
+     * methods to the adaptee algorithm. If a method is invoked that tries to access some of the
+     * fields of this wrapper class (e.g., the non-existing population) the method will fail
+     * horribly during runtime, which hopefully makes the entire program crash (or at least
+     * produces some nasty output on the console). This way, we know that something must be wrong
+     * with the implementation of this wrapper class. This is a much better scenario than a
+     * non-crashing but at the same time incorrectly operating program that contains mentioned bugs.
+     */
+    private void clear() {
+        this.population = null;
+        this.fitnessFunctions = null;
+        this.selectionFunction = null;
+        this.crossoverFunction = null;
+        this.chromosomeFactory = null;
+        this.bloatControl = null;
+        this.localObjective = null;
+        this.populationLimit = null;
+        this.rankingFunction = null;
+        this.currentIteration = Integer.MIN_VALUE;
+        this.localSearchProbability = Double.NaN;
+        // The following fields are NOT cleared. They are actually useful because MOSA also uses
+        // some listeners that operate on test suite chromosomes. The adapter now manages those
+        // listeners for the wrapped algorithms.
+        // this.stoppingConditions = null;
+        // this.listeners = null;
     }
 
     /**
@@ -60,7 +88,7 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
      *
      * @return the wrapped genetic algorithm
      */
-    T getAlgorithm() {
+    protected T getAlgorithm() {
         return algorithm;
     }
 
@@ -71,13 +99,13 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     public abstract List<TestSuiteChromosome> getBestIndividuals();
 
     @Override
-    protected void evolve() {
-        throw new RuntimeException("not implemented");
+    final protected void evolve() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void initializePopulation() {
-        throw new RuntimeException("not implemented");
+    final public void initializePopulation() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -91,94 +119,93 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    protected void notifyMutation(TestSuiteChromosome chromosome) {
-        throw new RuntimeException("not implemented");
+    final protected void notifyMutation(TestSuiteChromosome chromosome) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void notifyEvaluation(TestSuiteChromosome chromosome) {
-        throw new RuntimeException("not implemented");
-    }
-
-
-    @Override
-    protected boolean shouldApplyLocalSearch() {
-        throw new RuntimeException("not implemented");
+    final protected void notifyEvaluation(TestSuiteChromosome chromosome) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void disableFirstSecondaryCriterion() {
-        throw new RuntimeException("not implemented");
+    final protected boolean shouldApplyLocalSearch() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void enableFirstSecondaryCriterion() {
-        throw new RuntimeException("not implemented");
+    final protected void disableFirstSecondaryCriterion() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void updateSecondaryCriterion(int starvationCounter) {
-        throw new RuntimeException("not implemented");
+    final protected void enableFirstSecondaryCriterion() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void applyLocalSearch() {
-        throw new RuntimeException("not implemented");
+    final protected void updateSecondaryCriterion(int starvationCounter) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void updateProbability(boolean improvement) {
-        throw new RuntimeException("not implemented");
+    final protected void applyLocalSearch() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void generateInitialPopulation(int populationSize) {
-        throw new RuntimeException("not implemented");
+    final protected void updateProbability(boolean improvement) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void starveToLimit(int limit) {
-        throw new RuntimeException("not implemented");
+    final protected void generateInitialPopulation(int populationSize) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void starveRandomly(int limit) {
-        throw new RuntimeException("not implemented");
+    final protected void starveToLimit(int limit) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void starveByFitness(int limit) {
-        throw new RuntimeException("not implemented");
+    final protected void starveRandomly(int limit) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void generateRandomPopulation(int populationSize) {
-        throw new RuntimeException("not implemented");
+    final protected void starveByFitness(int limit) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void clearPopulation() {
-        throw new RuntimeException("not implemented");
+    final protected void generateRandomPopulation(int populationSize) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void addFitnessFunction(FitnessFunction<TestSuiteChromosome> function) {
-        throw new RuntimeException("not implemented");
+    final public void clearPopulation() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public FitnessFunction<TestSuiteChromosome> getFitnessFunction() {
-        throw new RuntimeException("not implemented");
+    final public void addFitnessFunction(FitnessFunction<TestSuiteChromosome> function) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public int getNumberOfFitnessFunctions() {
-        throw new RuntimeException("not implemented");
+    final public FitnessFunction<TestSuiteChromosome> getFitnessFunction() {
+        return new TestSuiteFitnessFunctionWrapper(algorithm.getFitnessFunction());
     }
 
     @Override
-    public SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
-        throw new RuntimeException("not implemented");
+    final public int getNumberOfFitnessFunctions() {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    @Override
+    final public SelectionFunction<TestSuiteChromosome> getSelectionFunction() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -197,16 +224,17 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
         } else if (function instanceof RandomKSelection) {
             adapteeFunction = new RandomKSelection<>();
         } else if (function instanceof RankSelection) {
-            adapteeFunction = new RandomKSelection<>();
+            adapteeFunction = new RankSelection<>();
         } else {
             throw new IllegalArgumentException("cannot adapt selection function " + function);
         }
+        adapteeFunction.setMaximize(function.isMaximize());
         algorithm.setSelectionFunction(adapteeFunction);
     }
 
     @Override
-    public RankingFunction<TestSuiteChromosome> getRankingFunction() {
-        throw new RuntimeException("not implemented");
+    final public RankingFunction<TestSuiteChromosome> getRankingFunction() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -223,8 +251,8 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void setBloatControl(BloatControlFunction bcf) {
-        throw new RuntimeException("not implemented");
+    final public void setBloatControl(BloatControlFunction bcf) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -233,53 +261,53 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public boolean isTooLong(Chromosome chromosome) {
-        throw new RuntimeException("not implemented");
+    final public boolean isTooLong(Chromosome chromosome) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void calculateFitness() {
-        throw new RuntimeException("not implemented");
+    final protected void calculateFitness() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void calculateFitness(TestSuiteChromosome c) {
-        throw new RuntimeException("not implemented");
+    final protected void calculateFitness(TestSuiteChromosome c) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void calculateFitnessAndSortPopulation() {
-        throw new RuntimeException("not implemented");
+    final protected void calculateFitnessAndSortPopulation() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public int getPopulationSize() {
-        throw new RuntimeException("not implemented");
+    final public int getPopulationSize() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected List<TestSuiteChromosome> elitism() {
-        throw new RuntimeException("not implemented");
+    final protected List<TestSuiteChromosome> elitism() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected List<Chromosome> randomism() {
-        throw new RuntimeException("not implemented");
+    final protected List<Chromosome> randomism() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void updateFitnessFunctionsAndValues() {
-        throw new RuntimeException("not implemented");
+    final public void updateFitnessFunctionsAndValues() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void writeIndividuals(List<TestSuiteChromosome> individuals) {
-        throw new RuntimeException("not implemented");
+    final public void writeIndividuals(List<TestSuiteChromosome> individuals) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void setChromosomeFactory(ChromosomeFactory<TestSuiteChromosome> factory) {
-        throw new RuntimeException("not implemented");
+    final public void setChromosomeFactory(ChromosomeFactory<TestSuiteChromosome> factory) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -290,58 +318,59 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     @Override
     public void addListener(SearchListener<TestSuiteChromosome> listener) { // (1b)
         if (algorithm != null) {
-            final SearchListener<TestChromosome> adapteeListener;
             if (listener instanceof StatisticsListener) {
-                algorithm.addListener((SearchListener) listener);
-                return;
+                super.addListener(listener);
             } else if (listener instanceof RelativeSuiteLengthBloatControl) {
-                adapteeListener = new RelativeSuiteLengthBloatControl<>();
+                super.addListener(listener);
             } else if (listener instanceof ResourceController) {
-                adapteeListener = new ResourceController<>();
+                algorithm.addListener(new ResourceController<>());
             } else if (listener instanceof ProgressMonitor) {
-                adapteeListener = new ProgressMonitor<>();
+                super.addListener(listener);
+            } else if (listener instanceof ZeroFitnessStoppingCondition) {
+                super.addListener(listener);
             } else {
                 throw new IllegalArgumentException("cannot adapt listener " + listener);
             }
-            algorithm.addListener(adapteeListener);
         } else {
-            // We're currently in the constructor of GeneticAlgorithm, so do nothing
+            // When we hit this branch, this TestSuiteAdapter object is currently being
+            // constructed, and this method was invoked by the constructor of the super class
+            // (i.e., GeneticAlgorithm). We simply do nothing.
         }
     }
 
     @Override
-    public void removeListener(SearchListener listener) {
-        throw new RuntimeException("not implemented");
+    final public void removeListener(SearchListener listener) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void notifySearchStarted() {
-        throw new RuntimeException("not implemented");
+    final public void notifySearchStarted() {
+        super.notifySearchStarted();
     }
 
     @Override
-    protected void notifySearchFinished() {
-        throw new RuntimeException("not implemented");
+    final public void notifySearchFinished() {
+        super.notifySearchFinished();
     }
 
     @Override
-    protected void notifyIteration() {
-        throw new RuntimeException("not implemented");
+    final public void notifyIteration() {
+        super.notifyIteration();
     }
 
     @Override
-    protected void sortPopulation() {
-        throw new RuntimeException("not implemented");
+    final protected void sortPopulation() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public List<TestSuiteChromosome> getPopulation() {
-        throw new RuntimeException("not implemented");
+    final public List<TestSuiteChromosome> getPopulation() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public boolean isNextPopulationFull(List<TestSuiteChromosome> nextGeneration) {
-        throw new RuntimeException("not implemented");
+    final public boolean isNextPopulationFull(List<TestSuiteChromosome> nextGeneration) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -350,8 +379,8 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public boolean isFinished() {
-        throw new RuntimeException("not implemented");
+    final public boolean isFinished() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -359,7 +388,8 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
         if (algorithm != null) {
             final StoppingCondition<TestChromosome> adapteeCondition;
             if (condition instanceof ZeroFitnessStoppingCondition) {
-                adapteeCondition = new ZeroFitnessStoppingCondition<>();
+                super.addStoppingCondition(condition);
+                return;
             } else if (condition instanceof ShutdownTestWriter) {
                 adapteeCondition = new ShutdownTestWriter<>();
             } else if (condition instanceof RMIStoppingCondition) {
@@ -370,13 +400,15 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
             }
             algorithm.addStoppingCondition(adapteeCondition);
         } else {
-            // We're currently in the constructor of GeneticAlgorithm, so do nothing
+            // When we hit this branch, this TestSuiteAdapter object is currently being
+            // constructed, and this method was invoked by the constructor of the super class
+            // (i.e., GeneticAlgorithm). We simply do nothing.
         }
     }
 
     @Override
-    public Set<StoppingCondition> getStoppingConditions() {
-        throw new RuntimeException("not implemented");
+    final public Set<StoppingCondition> getStoppingConditions() {
+        return algorithm.getStoppingConditions();
     }
 
     @Override
@@ -391,8 +423,8 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void removeStoppingCondition(StoppingCondition condition) {
-        throw new RuntimeException("not implemented");
+    final public void removeStoppingCondition(StoppingCondition condition) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
@@ -401,33 +433,33 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    public void setStoppingConditionLimit(int value) {
-        throw new RuntimeException("not implemented");
+    final public void setStoppingConditionLimit(int value) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected void updateBestIndividualFromArchive() {
-        throw new RuntimeException("not implemented");
+    final protected void updateBestIndividualFromArchive() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
-        throw new RuntimeException("not implemented");
+    final protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public void printBudget() {
-        throw new RuntimeException("not implemented");
+    final public void printBudget() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public String getBudgetString() {
-        throw new RuntimeException("not implemented");
+    final public String getBudgetString() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    protected double progress() {
-        throw new RuntimeException("not implemented");
+    final protected double progress() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     @Override // (12)
@@ -449,5 +481,38 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
         List<TestFitnessFunction> fs = (List<TestFitnessFunction>) functions;
 
         algorithm.addFitnessFunctions(fs);
+    }
+
+    @Override
+    public String toString() {
+        return algorithm.toString(); // avoids NPE for debuggers automatically invoking toString()
+    }
+
+    /**
+     * A wrapper class for fitness functions of test chromosomes to make them (sort of) work
+     * in environments where fitness functions of test suite chromosomes are needed. This is mainly
+     * useful for StatisticsListener. In its searchStarted() method, it only checks if we have
+     * minimization or maximization functions. It does nothing else with those fitness functions.
+     * So, recording this information in a wrapper and returning it properly to StatisticsListener
+     * is fine.
+     */
+    private static class TestSuiteFitnessFunctionWrapper extends FitnessFunction<TestSuiteChromosome> {
+        private final boolean maximizationFunction;
+
+        TestSuiteFitnessFunctionWrapper(TestFitnessFunction fitnessFunction) {
+            super();
+            maximizationFunction = fitnessFunction.isMaximizationFunction();
+        }
+
+        @Override
+        public double getFitness(TestSuiteChromosome individual) {
+            throw new UnsupportedOperationException("cannot apply wrapped TestFitnessFunction to " +
+                    "TestSuiteChromosome");
+        }
+
+        @Override
+        public boolean isMaximizationFunction() {
+            return maximizationFunction;
+        }
     }
 }

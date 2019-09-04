@@ -68,7 +68,7 @@ public abstract class TestGenerationStrategy {
 	public abstract TestSuiteChromosome generateTests();
 	
 	/** There should only be one */
-	protected final ProgressMonitor progressMonitor = new ProgressMonitor();
+	protected final ProgressMonitor<TestSuiteChromosome> progressMonitor = new ProgressMonitor<>();
 
 	/** There should only be one */
 	protected ZeroFitnessStoppingCondition zeroFitness = new ZeroFitnessStoppingCondition();
