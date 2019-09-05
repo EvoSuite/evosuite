@@ -639,8 +639,8 @@ public abstract class AbstractInsertionStrategy implements InsertionStrategy {
      * @return a reference to the return value of the inserted method call
      * @throws ConstructionFailedException if the given position is invalid (see above)
      */
-    private VariableReference addMethodFor(TestCase test, VariableReference callee,
-                                           GenericMethod method, int position) throws ConstructionFailedException {
+    public VariableReference addMethodFor(TestCase test, VariableReference callee,
+                                          GenericMethod method, int position) throws ConstructionFailedException {
 
         logger.debug("Adding method {} for {} (Generating {})", method, callee, method.getGeneratedClass());
 

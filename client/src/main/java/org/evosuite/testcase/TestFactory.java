@@ -1480,11 +1480,15 @@ public class TestFactory {
 		return insertionStrategy.createObject(testCase, type, statement, i, o);
 	}
 
-	public final void addMethod(TestCase test, GenericMethod call, int size, int i) throws ConstructionFailedException {
-		insertionStrategy.addMethod(test, call, size, i);
+	public final VariableReference addMethod(TestCase test, GenericMethod call, int size, int i) throws ConstructionFailedException {
+		return insertionStrategy.addMethod(test, call, size, i);
 	}
 
-	public final void addConstructor(TestCase test, GenericConstructor call, int size, int i) throws ConstructionFailedException {
-		insertionStrategy.addConstructor(test, call, size, i);
+	public final VariableReference addConstructor(TestCase test, GenericConstructor call, int size, int i) throws ConstructionFailedException {
+		return insertionStrategy.addConstructor(test, call, size, i);
+	}
+
+	public void addMethodFor(TestCase tc, VariableReference genericClass, GenericMethod gm, int i) throws ConstructionFailedException {
+		insertionStrategy.addMethodFor(tc, genericClass, gm, i);
 	}
 }

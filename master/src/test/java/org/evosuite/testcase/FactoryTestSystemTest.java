@@ -143,7 +143,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		testFactory.addMethod(test, method, 0, 0);
-		testFactory.reset();
+		testFactory.resetContext();
 		testFactory.addMethod(test, method, 4, 0);
 		String code = test.toCode();
 		System.out.println(code);
@@ -165,7 +165,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		DefaultTestCase test = new DefaultTestCase();
 		testFactory.addMethod(test, method, 0, 0);
 		assertEquals(1, test.size());
-		testFactory.reset();
+		testFactory.resetContext();
 
 		testFactory.addMethod(test, method, 1, 0);
 		assertEquals(2, test.size());
@@ -190,10 +190,10 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
-		testFactory.reset();
+		testFactory.resetContext();
 		VariableReference var2 = testFactory.addConstructor(test, constructor, 1, 0);
 		testFactory.addMethodFor(test, var1, method, 2);
-		testFactory.reset();
+		testFactory.resetContext();
 		testFactory.addMethodFor(test, var2, method, 3);
 		String code = test.toCode();
 		System.out.println(code);
@@ -216,7 +216,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
-		testFactory.reset();
+		testFactory.resetContext();
 		testFactory.addMethodFor(test, var1, method, 0);
 	}
 
@@ -231,7 +231,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		testFactory.addConstructor(test, method, 0, 0);
-		testFactory.reset();
+		testFactory.resetContext();
 		assertEquals(1, test.size());
 		testFactory.addConstructor(test, method, 0, 0);
 		assertEquals(2, test.size());
@@ -273,7 +273,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 1.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 1.0;
-		testFactory.reset();
+		testFactory.resetContext();
 		testFactory.addField(test, field, 2, 0);
 		assertEquals(3, test.size());
 
@@ -296,7 +296,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		testFactory.addField(test, field, 0, 0);
 		assertEquals(2, test.size());
 
-		testFactory.reset();
+		testFactory.resetContext();
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		testFactory.addField(test, field, 2, 0);
@@ -323,10 +323,10 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
-		testFactory.reset();
+		testFactory.resetContext();
 		VariableReference var2 = testFactory.addConstructor(test, constructor, 1, 0);
 		testFactory.addFieldFor(test, var1, field, 2);
-		testFactory.reset();
+		testFactory.resetContext();
 		testFactory.addFieldFor(test, var2, field, 3);
 		String code = test.toCode();
 		System.out.println(code);
@@ -349,7 +349,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		VariableReference var1 = testFactory.addConstructor(test, constructor, 0, 0);
-		testFactory.reset();
+		testFactory.resetContext();
 		testFactory.addFieldFor(test, var1, field, 0);
 	}
 
@@ -384,7 +384,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 1.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 1.0;
-		testFactory.reset();
+		testFactory.resetContext();
 		testFactory.addFieldAssignment(test, field, 3, 0);
 		assertEquals(4, test.size());
 
@@ -407,7 +407,7 @@ public class FactoryTestSystemTest extends SystemTestBase {
 		testFactory.addFieldAssignment(test, field, 0, 0);
 		assertEquals(3, test.size());
 
-		testFactory.reset();
+		testFactory.resetContext();
 		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.0;
 		Properties.OBJECT_REUSE_PROBABILITY = 0.0;
 		testFactory.addFieldAssignment(test, field, 3, 0);
