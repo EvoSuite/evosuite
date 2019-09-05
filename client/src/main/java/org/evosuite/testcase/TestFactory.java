@@ -2359,7 +2359,7 @@ public class TestFactory {
 		return -1;
 	}
 
-	boolean insertCallFor(TestCase test, GenericAccessibleObject<?> o, int position) {
+	public boolean insertCallFor(TestCase test, GenericAccessibleObject<?> o, int position) {
 		int previousLength = test.size();
 		String name = "";
 		currentRecursion.clear();
@@ -2561,7 +2561,7 @@ public class TestFactory {
 	 * (see above)
 	 */
 	public int insertRandomStatement(TestCase test, int lastPosition) {
-		RandomInsertion rs = new RandomInsertion();
+		final RandomInsertion rs = RandomInsertion.getInstance();
 		return rs.insertStatement(test, lastPosition);
 	}
 
