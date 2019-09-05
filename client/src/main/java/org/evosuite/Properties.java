@@ -26,8 +26,8 @@ import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.FileIOUtils;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -326,6 +326,15 @@ public class Properties {
 		PREFERENCE_SORTING, 
 		FAST_NON_DOMINATED_SORTING
 	}
+
+	// Insertion strategies for DynaMOSA
+	public enum InsertionStrategy {
+		RANDOM_INSERTION,
+		GUIDED_INSERTION
+	}
+
+	@Parameter(key = "insertion_strategy", description = "insertion strategy to use when mutating chromosomes in DynaMOSA")
+	public static InsertionStrategy INSERTION_STRATEGY = InsertionStrategy.GUIDED_INSERTION;
 
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;

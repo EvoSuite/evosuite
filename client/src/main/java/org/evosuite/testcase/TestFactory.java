@@ -40,7 +40,8 @@ import org.evosuite.setup.TestUsageChecker;
 import org.evosuite.testcase.jee.InjectionSupport;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
 import org.evosuite.testcase.jee.ServletSupport;
-import org.evosuite.testcase.mutation.RandomInsertion;
+import org.evosuite.testcase.mutation.InsertionStrategy;
+import org.evosuite.testcase.mutation.InsertionStrategyFactory;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
 import org.evosuite.testcase.statements.reflection.PrivateFieldStatement;
@@ -89,6 +90,8 @@ public class TestFactory {
 	private static TestFactory instance = null;
 
     private ReflectionFactory reflectionFactory;
+
+    private InsertionStrategy insertionStrategy = InsertionStrategyFactory.getStrategy();
 
     private TestFactory(){
         reset();
@@ -2561,8 +2564,7 @@ public class TestFactory {
 	 * (see above)
 	 */
 	public int insertRandomStatement(TestCase test, int lastPosition) {
-		final RandomInsertion rs = RandomInsertion.getInstance();
-		return rs.insertStatement(test, lastPosition);
+		return insertionStrategy.insertStatement(test, lastPosition);
 	}
 
 	/**
