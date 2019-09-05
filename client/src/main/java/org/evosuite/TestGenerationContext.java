@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite;
 
@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
- * 
+ *
  */
 public class TestGenerationContext {
 
@@ -152,7 +152,7 @@ public class TestGenerationContext {
 
 	/**
 	 * @deprecated use {@code getInstance().getClassLoaderForSUT()}
-	 * 
+	 *
 	 * @return
 	 */
 	public static ClassLoader getClassLoader() {
@@ -197,7 +197,7 @@ public class TestGenerationContext {
 		CastClassManager.getInstance().clear();
 		ConcreteClassAnalyzer.getInstance().clear();
 		// This counts the current level of recursion during test generation
-		org.evosuite.testcase.TestFactory.getInstance().reset();
+		org.evosuite.testcase.TestFactory.getInstance().resetContext();
 
 		MaxStatementsStoppingCondition.setNumExecutedStatements(0);
 		GlobalTimeStoppingCondition.forceReset();
@@ -254,7 +254,7 @@ public class TestGenerationContext {
 		final List<String> initializedClasses = ClassReInitializer.getInstance().getInitializedClasses();
 		ClassReInitializer.resetSingleton();
 		ClassReInitializer.getInstance().addInitializedClasses(initializedClasses);
-		
+
 		InspectorManager.resetSingleton();
 		ModifiedTargetStaticFields.resetSingleton();
 	}

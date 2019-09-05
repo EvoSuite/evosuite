@@ -20,12 +20,10 @@
 package org.evosuite.testcase.mutation;
 
 import org.evosuite.Properties;
-import org.evosuite.TimeController;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.reflection.ReflectionFactory;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
@@ -36,7 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LegacyInsertion implements InsertionStrategy {
+public class LegacyInsertion extends AbstractInsertionStrategy {
 
 	private static final Logger logger = LoggerFactory.getLogger(LegacyInsertion.class);
 
@@ -89,7 +87,7 @@ public class LegacyInsertion implements InsertionStrategy {
 			return null;
 	}
 
-	private VariableReference selectRandomVariableForCall(TestCase test, int position) {
+	VariableReference selectRandomVariableForCall(TestCase test, int position) {
 		if (test.isEmpty() || position == 0)
 			return null;
 
@@ -129,13 +127,13 @@ public class LegacyInsertion implements InsertionStrategy {
 			logger.debug("Inserting call at position " + position + ", chosen var: "
 					+ var.getName() + ", distance: " + var.getDistance() + ", class: "
 					+ var.getClassName());
-			success = TestFactory.getInstance().insertRandomCallOnObjectAt(test, var, position);
+			success = insertRandomCallOnObjectAt(test, var, position);
 		}
 
 		if(!success) {
 			if(TestCluster.getInstance().getNumTestCalls() > 0) {
 				logger.debug("Adding new call on UUT because var was null");
-				success = TestFactory.getInstance().insertRandomCall(test, position);
+				success = insertRandomCall(test, position);
 			}
 		}
 		return success;
@@ -175,7 +173,7 @@ public class LegacyInsertion implements InsertionStrategy {
 		if (r <= Properties.INSERTION_UUT && TestCluster.getInstance().getNumTestCalls() > 0) {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
-			success = TestFactory.getInstance().insertRandomCall(test, position);
+			success = insertUUT(test, position);
 			if (test.size() - oldSize > 1) {
 				position += (test.size() - oldSize - 1);
 			}
@@ -193,6 +191,11 @@ public class LegacyInsertion implements InsertionStrategy {
 			return position;
 		else
 			return -1;
+	}
+
+	@Override
+	protected boolean insertUUT(TestCase test, int position) {
+		return insertRandomCall(test, position);
 	}
 
 }

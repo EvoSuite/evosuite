@@ -22,11 +22,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GuidedInsertion implements InsertionStrategy {
+public class GuidedInsertion extends AbstractInsertionStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(GuidedInsertion.class);
     private static final int parallelComputationThreshold = 50;
     private static final int binarySearchThreshold = 5;
+    private final RandomInsertion randomInsertion = RandomInsertion.getInstance();
     private Set<TestFitnessFunction> goals = Collections.emptySet();
 
     // singleton design pattern, use getInstance() instead
@@ -45,7 +46,8 @@ public class GuidedInsertion implements InsertionStrategy {
         this.goals = Objects.requireNonNull(goals);
     }
 
-    boolean insertUUT(final TestCase test, final int lastPosition) {
+    //    @Override
+    protected boolean insertUUT(final TestCase test, final int lastPosition) {
         Objects.requireNonNull(test, "mutation: test case to modify must not be null");
 
         if (!test.isEmpty() && lastPosition < 0) {
@@ -216,7 +218,7 @@ public class GuidedInsertion implements InsertionStrategy {
             return false;
         }
 
-        return TestFactory.getInstance().insertCallFor(test, executable, lastPos + 1);
+        return super.insertCallFor(test, executable, lastPos + 1);
 
         /*
          * In the given test case, tries to find an object which acts as callee for the goal's
