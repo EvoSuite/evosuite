@@ -180,13 +180,14 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome, Test
 		}
 		// Add new randomly generate tests
 		for (int i = 0; i < Properties.POPULATION * Properties.P_TEST_INSERTION; i++) {
-			TestChromosome tch = null;
+			final TestChromosome tch;
 			if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()) {
 				tch = this.chromosomeFactory.getChromosome();
 				tch.setChanged(true);
 			} else {
 				tch = (TestChromosome) Randomness.choice(this.getSolutions()).clone();
-				tch.mutate(); tch.mutate(); // TODO why is it mutated twice?
+				tch.mutate();
+//				tch.mutate(); // TODO why is it mutated twice?
 			}
 			if (tch.isChanged()) {
 				tch.updateGeneration(this.currentIteration);
