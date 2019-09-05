@@ -132,7 +132,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public static ExecutionResult runTest(TestCase test) {
 
-		ExecutionResult result = new ExecutionResult(test, null);
+		final ExecutionResult result;
 
 		try {
 			TestCaseExecutor executor = getInstance();
