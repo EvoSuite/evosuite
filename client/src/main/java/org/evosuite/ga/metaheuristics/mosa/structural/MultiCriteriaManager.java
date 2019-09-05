@@ -51,6 +51,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testcase.mutation.GuidedInsertion;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -462,6 +463,11 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 			if (branch == null)
 				continue;
 			updateCoveredGoals(branch, c);
+		}
+
+		// 3) Notifies the insertion strategy about the currently targeted goals.
+		if (Properties.INSERTION_STRATEGY == Properties.InsertionStrategy.GUIDED_INSERTION) {
+			GuidedInsertion.getInstance().setGoals(this.currentGoals);
 		}
 
 		// let's manage the exception coverage
