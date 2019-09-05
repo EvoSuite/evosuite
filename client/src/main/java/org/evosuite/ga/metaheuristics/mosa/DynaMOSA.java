@@ -24,12 +24,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
-import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.LoggingUtils;
@@ -53,7 +51,7 @@ public class DynaMOSA extends AbstractMOSA {
 	// protected List<T> population = new ArrayList<>();
 
 	/** Manager to determine the test goals to consider at each generation */
-	protected StructuralGoalManager goalsManager = null;
+	protected MultiCriteriaManager goalsManager = null;
 
 	protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
 
