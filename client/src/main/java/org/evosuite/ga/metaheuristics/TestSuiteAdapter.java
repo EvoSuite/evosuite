@@ -12,10 +12,7 @@ import org.evosuite.ga.operators.ranking.RankBasedPreferenceSorting;
 import org.evosuite.ga.operators.ranking.RankingFunction;
 import org.evosuite.ga.operators.selection.*;
 import org.evosuite.ga.populationlimit.PopulationLimit;
-import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
-import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
-import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
+import org.evosuite.ga.stoppingconditions.*;
 import org.evosuite.statistics.StatisticsListener;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -395,6 +392,8 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
             } else if (condition instanceof RMIStoppingCondition) {
                 algorithm.addStoppingCondition((RMIStoppingCondition) condition);
                 return;
+            } else if (condition instanceof GlobalTimeStoppingCondition) {
+                adapteeCondition = new GlobalTimeStoppingCondition<>();
             } else {
                 throw new IllegalArgumentException("cannot adapt stopping condition " + condition);
             }
@@ -416,6 +415,8 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
         final StoppingCondition<TestChromosome> adapteeCondition;
         if (condition instanceof MaxTimeStoppingCondition) {
             adapteeCondition = new MaxTimeStoppingCondition<>();
+        } else if (condition instanceof MaxGenerationStoppingCondition) {
+            adapteeCondition = new MaxGenerationStoppingCondition<>();
         } else {
             throw new IllegalArgumentException("cannot adapt stopping condition " + condition);
         }
