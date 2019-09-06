@@ -27,7 +27,6 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
     private static final Logger logger = LoggerFactory.getLogger(GuidedInsertion.class);
     private static final int parallelComputationThreshold = 50;
     private static final int binarySearchThreshold = 5;
-    private final RandomInsertion randomInsertion = RandomInsertion.getInstance();
     private Set<TestFitnessFunction> goals = Collections.emptySet();
 
     // singleton design pattern, use getInstance() instead
@@ -43,10 +42,10 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
      * @param goals the goals intended for covering
      */
     public void setGoals(final Set<TestFitnessFunction> goals) {
-        this.goals = Objects.requireNonNull(goals);
+        this.goals = Objects.requireNonNull(goals, "goals to cover must not be null");
     }
 
-    //    @Override
+    @Override
     protected boolean insertUUT(final TestCase test, final int lastPosition) {
         Objects.requireNonNull(test, "mutation: test case to modify must not be null");
 
@@ -55,12 +54,9 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
         }
 
         if (goals.isEmpty()) { // all goals have been covered
-            info("mutation: no more goals to cover, returning");
-            return false; // TODO return true or false?
-        }
-
-        if (!Properties.PURE_INSPECTORS) {
-            warn("Purity analysis is disabled, use the switch -Dpure_inspectors=true to enable");
+            info("mutation: no more goals to cover, doing nothing");
+            return true;
+            // return insertRandomCall(test, lastPosition);
         }
 
         /*
@@ -72,7 +68,13 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
          */
         final TestFitnessFunction currentGoal = rouletteWheelSelect(goals);
 
-        return insertCallFor(test, currentGoal, lastPosition); // TODO: lastPosition + 1???
+        return insertCallFor(test, currentGoal, lastPosition);
+    }
+
+    @Override
+    protected int insertParam(TestCase test, int lastPosition) {
+        // TODO: insert own implementation here!
+        return super.insertParam(test, lastPosition);
     }
 
     /**
@@ -218,7 +220,7 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
             return false;
         }
 
-        return super.insertCallFor(test, executable, lastPos + 1);
+        return super.insertCallFor(test, executable, lastPos);
 
         /*
          * In the given test case, tries to find an object which acts as callee for the goal's
@@ -446,12 +448,12 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
         }
     }
 
-    @Override
-    public int insertStatement(TestCase test, int lastPosition) {
-        throw new RuntimeException("not implemented");
-    }
-
     private static final class SingletonContainer {
+        static {
+            if (!Properties.PURE_INSPECTORS) {
+                warn("Purity analysis is disabled, use the switch -Dpure_inspectors=true to enable");
+            }
+        }
         private static final GuidedInsertion instance = new GuidedInsertion();
     }
 }
