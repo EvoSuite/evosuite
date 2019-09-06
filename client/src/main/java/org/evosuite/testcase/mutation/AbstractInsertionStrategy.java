@@ -129,7 +129,7 @@ public abstract class AbstractInsertionStrategy implements InsertionStrategy {
                 && r > Properties.INSERTION_UUT && r <= Properties.INSERTION_UUT + Properties.INSERTION_ENVIRONMENT
                 && testCluster.getNumOfEnvironmentCalls() > 0;
 
-        boolean success = false;
+        boolean success;
 
         if (insertUUT) {
             position = test.size();
@@ -145,50 +145,20 @@ public abstract class AbstractInsertionStrategy implements InsertionStrategy {
              * in the test case). The idea is to mutate the parameter so that new program states
              * can be reached in the function call.
              */
+            position = insertParam(test, lastPosition);
+            success = (position >= 0);
 
-            final VariableReference var = selectRandomVariableForCall(test, lastPosition);
+            if (!success)
+                position = 0;
 
-            if (var != null) {
-                // the last position where var is used in the test case
-                final int lastUsage = test.getVariablesDependingOn(var, true).stream()
-                        .mapToInt(VariableReference::getStPosition)
-                        .max().getAsInt(); // getAsInt() always succeeds as stream cannot be empty
-
-                final int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
-                if (boundPosition >= 0) {
-                    // if bounded variable, cannot add methods before its initialization
-                    position = boundPosition + 1;
-                } else {
-                    if (lastUsage > var.getStPosition() + 1) {
-                        // If there is more than 1 statement where it is used, we randomly choose a position
-                        position = Randomness.nextInt(var.getStPosition() + 1, // call has to be after the object is created
-                                lastUsage                // but before the last usage
-                        );
-                    } else if (lastUsage == var.getStPosition()) {
-                        // The variable isn't used
-                        position = lastUsage + 1;
-                    } else {
-                        // The variable is used at only one position, we insert at exactly that position
-                        position = lastUsage;
-                    }
+                if (testCluster.getNumTestCalls() > 0) {
+                    logger.debug("Adding new call on UUT because var was null");
+                    //Why was it different from UUT insertion? ie, in random position instead of last
+                    //position = Randomness.nextInt(max);
+                    position = test.size();
+//                    success = insertRandomCall(test, position);
+                    success = insertUUT(test, position);
                 }
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Inserting call at position " + position + ", chosen var: "
-                            + var.getName() + ", distance: " + var.getDistance() + ", class: "
-                            + var.getClassName());
-                }
-
-                success = insertRandomCallOnObjectAt(test, var, position);
-            }
-
-            if (!success && testCluster.getNumTestCalls() > 0) {
-                logger.debug("Adding new call on UUT because var was null");
-                //Why was it different from UUT insertion? ie, in random position instead of last
-                //position = Randomness.nextInt(max);
-                position = test.size();
-                success = insertRandomCall(test, position);
-            }
         }
 
         // This can happen if insertion had side effect of adding further previous statements in the
@@ -216,6 +186,47 @@ public abstract class AbstractInsertionStrategy implements InsertionStrategy {
      * @return {@code true} on success, {@code false} otherwise
      */
     protected abstract boolean insertUUT(TestCase test, int position);
+
+    protected int insertParam(TestCase test, int lastPosition) {
+        final VariableReference var = selectRandomVariableForCall(test, lastPosition);
+        final int position;
+
+        if (var != null) {
+            // the last position where var is used in the test case
+            final int lastUsage = test.getVariablesDependingOn(var, true).stream()
+                    .mapToInt(VariableReference::getStPosition)
+                    .max().getAsInt(); // getAsInt() always succeeds as stream cannot be empty
+
+            final int boundPosition = ConstraintHelper.getLastPositionOfBounded(var, test);
+            if (boundPosition >= 0) {
+                // if bounded variable, cannot add methods before its initialization
+                position = boundPosition + 1;
+            } else {
+                if (lastUsage > var.getStPosition() + 1) {
+                    // If there is more than 1 statement where it is used, we randomly choose a position
+                    position = Randomness.nextInt(var.getStPosition() + 1, // call has to be after the object is created
+                            lastUsage                // but before the last usage
+                    );
+                } else if (lastUsage == var.getStPosition()) {
+                    // The variable isn't used
+                    position = lastUsage + 1;
+                } else {
+                    // The variable is used at only one position, we insert at exactly that position
+                    position = lastUsage;
+                }
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Inserting call at position " + position + ", chosen var: "
+                        + var.getName() + ", distance: " + var.getDistance() + ", class: "
+                        + var.getClassName());
+            }
+
+            return insertRandomCallOnObjectAt(test, var, position) ? position : -1;
+        }
+
+        return -1;
+    }
 
     /**
      * Tries to insert a random call on the environment the UUT interacts with, e.g., the file
