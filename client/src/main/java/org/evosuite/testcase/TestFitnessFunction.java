@@ -269,9 +269,9 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 			final GraphPool gp = GraphPool.getInstance(cl);
 			final RawControlFlowGraph cfg = gp.getRawCFG(getTargetClass(), getTargetMethod());
 			cyclomaticComplexity = cfg.getCyclomaticComplexity();
-		}
 
-		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
+			assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
+		}
 
 		return cyclomaticComplexity;
 	}
@@ -324,7 +324,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
      *
      * @return the cyclomatic complexity
      */
-	private int getCyclomaticComplexityWithCallees() {
+	public int getCyclomaticComplexityInclCallees() {
 		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
 		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
 		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
@@ -364,10 +364,10 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 			// Using the formula explained in the JavaDoc.
 			cyclomaticComplexity = ownComplexity + totalCalleeComplexity - numberOfCallees;
-		}
 
-		// sanity check that field was properly initialized and no impossible value was computed
-		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
+			// sanity check that field was properly initialized and no impossible value was computed
+			assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
+		}
 
 		return cyclomaticComplexity;
 	}
