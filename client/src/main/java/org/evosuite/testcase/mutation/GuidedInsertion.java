@@ -96,8 +96,8 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
         }
 
         if (gs.length == 2) {
-            final int cc0 = gs[0].getCyclomaticComplexity();
-            final int cc1 = gs[1].getCyclomaticComplexity();
+            final int cc0 = gs[0].getCyclomaticComplexityInclCallees();
+            final int cc1 = gs[1].getCyclomaticComplexityInclCallees();
             final int pivot = Randomness.nextInt(cc0 + cc1);
             return pivot < cc0 ? gs[1] : gs[0];
         }
@@ -141,14 +141,14 @@ public class GuidedInsertion extends AbstractInsertionStrategy {
         final boolean parallelComputation = goals.length > parallelComputationThreshold;
         if (parallelComputation) {
             prefixSum = Arrays.stream(goals).parallel()
-                    .mapToDouble(g -> 1d / g.getCyclomaticComplexity())
+                    .mapToDouble(g -> 1d / g.getCyclomaticComplexityInclCallees())
                     .toArray();
             Arrays.parallelPrefix(prefixSum, Double::sum);
         } else {
             prefixSum = new double[goals.length];
-            prefixSum[0] = 1d / goals[0].getCyclomaticComplexity();
+            prefixSum[0] = 1d / goals[0].getCyclomaticComplexityInclCallees();
             for (int i = 1; i < goals.length; i++) {
-                prefixSum[i] = prefixSum[i - 1] + 1d / goals[i].getCyclomaticComplexity();
+                prefixSum[i] = prefixSum[i - 1] + 1d / goals[i].getCyclomaticComplexityInclCallees();
             }
         }
 
