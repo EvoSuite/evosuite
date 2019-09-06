@@ -199,6 +199,29 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return r;
 	}
 
+	public Set<V> getChildrenRecursively(V node) {
+		if (!containsVertex(node)) {
+			throw new IllegalArgumentException("node not contained in this graph");
+		}
+
+		final Queue<V> workQueue = new LinkedList<>();
+		final Set<V> children = new HashSet<>();
+
+		workQueue.add(node);
+		while (!workQueue.isEmpty()) {
+			final V current = workQueue.remove();
+			final Set<V> directChildren = getChildren(current);
+
+			// to avoid cycles, don't visit children more than once
+			directChildren.removeAll(children);
+			workQueue.addAll(directChildren);
+
+			children.addAll(directChildren);
+		}
+
+		return children;
+	}
+
 	/**
 	 * <p>getParents</p>
 	 *
@@ -232,9 +255,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return new LinkedHashSet<>(graph.vertexSet());
 		/*
 		 * Set<V> r = new HashSet<V>();
-		 * 
+		 *
 		 * for (V v : graph.vertexSet()) r.add(v);
-		 * 
+		 *
 		 * return r;
 		 */
 	}
@@ -250,9 +273,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 		/*
 		 * Set<E> r = new HashSet<E>();
-		 * 
+		 *
 		 * for (E e : graph.edgeSet()) r.add(e);
-		 * 
+		 *
 		 * return r;
 		 */
 	}
@@ -686,7 +709,6 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a boolean.
 	 */
 	public boolean isDirectSuccessor(V v1, V v2) {
-
 		return (containsEdge(v1, v2) && inDegreeOf(v2) == 1);
 	}
 
