@@ -30,6 +30,7 @@ import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.mutation.GuidedInsertion;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,5 +190,13 @@ public class DynaMOSA extends AbstractMOSA {
 	protected void calculateFitness(TestChromosome c) {
 		this.goalsManager.calculateFitness(c); // this also updates the archive and the targets
 		this.notifyEvaluation(c);
+	}
+
+	@Override
+	public void initializePopulation() {
+		if (Properties.INSERTION_STRATEGY == Properties.InsertionStrategy.GUIDED_INSERTION) {
+			GuidedInsertion.getInstance().setGoals(this.goalsManager.getCurrentGoals());
+		}
+		super.initializePopulation();
 	}
 }
