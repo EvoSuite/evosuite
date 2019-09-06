@@ -22,13 +22,18 @@ package org.evosuite.testcase;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.graphs.GraphPool;
+import org.evosuite.graphs.ccg.ClassCallGraph;
+import org.evosuite.graphs.ccg.ClassCallNode;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
+import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Abstract base class for fitness functions for test case chromosomes
@@ -267,6 +272,67 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
 
-    	return cyclomaticComplexity;
+		return cyclomaticComplexity;
+	}
+
+	private int getCyclomaticComplexityWithCallees() {
+		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
+		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
+		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
+
+		if (cyclomaticComplexity < 1) { // Lazy initialization of the cyclomaticComplexity field
+			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+			final GraphPool gp = GraphPool.getInstance(cl);
+
+			// Class name and method name that contain the target.
+			final String targetClass = getTargetClass();
+			final String targetMethod = getTargetMethod();
+
+			final RawControlFlowGraph cfg = gp.getRawCFG(targetClass, targetMethod);
+			final int ownComplexity = cfg.getCyclomaticComplexity();
+
+			// Constructs the class call graph for the target class.
+			final ClassCallGraph ccg = gp.getCCFG(targetClass).getCcg();
+
+			// Node in the class call graph representing the method containing the current target.
+			final ClassCallNode method = ccg.getNodeByMethodName(targetMethod);
+
+			// Entry nodes of the methods called by the current target method.
+			// Only considers methods that are declared in the same class as the target method.
+			ccg.outgoingEdgesOf(method);
+			final Set<ClassCallNode> callees = ccg.getChildren(method);
+//			final Set<ClassCallNode> callees = ccg.getChildrenRecursively(method);
+			callees.remove(method); // don't consider recursive invocations of the target method
+
+			// Computes the sum of the cyclomatic complexities of the callee methods, as well as
+			// the total number of callee methods.
+			final IntSummaryStatistics calleeComplexities = callees.stream()
+					.map(callee -> gp.getRawCFG(targetClass, callee.getMethod()))
+					.collect(Collectors.summarizingInt(RawControlFlowGraph::getCyclomaticComplexity));
+			final int totalCalleeComplexity = (int) calleeComplexities.getSum();
+			final int numberOfCallees = (int) calleeComplexities.getCount();
+
+			/*
+			 * Conceptually, if we want to compute the cyclomatic complexity of the target method
+			 * recursively, i.e., by also considering the cyclomatic complexities of the callee
+			 * methods, we have to embed the entire CFG of every callee method into the CFG of
+			 * the target method. This is done by replacing the vertex that calls another method
+			 * with the corresponding CFG of that method. The incoming edge of the vertex we just
+			 * replaced is now connected to the method entry node of the called method. In analogue,
+			 * the outgoing edge of the vertex we replaced is now connected to the method exit point
+			 * of the called method. The computation uses raw CFGs, i.e., it does not summarize
+			 * sequentially composed statements to basic blocks. Therefore, we can compute the
+			 * recursive cyclomatic complexity by computing the cyclomatic complexities of all
+			 * involved methods individually, then summing it all up, and finally subtracting the
+			 * number of individual callees to account for the fact that we replaced some nodes
+			 * with entire CFGs as explained earlier.
+			 */
+			cyclomaticComplexity = ownComplexity + totalCalleeComplexity - numberOfCallees;
+		}
+
+		// sanity check that field was properly initialized and no impossible value was computed
+		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
+
+		return cyclomaticComplexity;
 	}
 }
