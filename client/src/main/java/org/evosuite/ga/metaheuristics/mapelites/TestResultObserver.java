@@ -39,6 +39,10 @@ public class TestResultObserver extends ExecutionObserver implements Serializabl
   public int getPossibilityCount() {
     return FeatureVector.getPossibilityCount(this.inspectors);
   }
+  
+  public int getFeatureVectorLength() {
+	  return this.inspectors.length;
+  }
 
   @Override
   public void output(int position, String output) {

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.assertion.Inspector;
@@ -18,8 +20,11 @@ import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.ga.operators.crossover.CrossOverFunction;
+import org.evosuite.ga.operators.crossover.SinglePointCrossOver;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestCase;
@@ -62,11 +67,14 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   private final Set<FeatureVector> droppedFeatureVectors;
   
   private final int featureVectorPossibilityCount;
+  private final int featureCount;
   
   private final List<T> bestIndividuals;
   
   private static final List<FeatureVector> IGNORE_VECTORS = 
       Arrays.asList(new FeatureVector[] { new FeatureVector(new Inspector[0], null) });
+  
+  private CrossOverFunction crossoverFunction = new SinglePointCrossOver();
   
   public MAPElites(ChromosomeFactory<T> factory) {
     super(factory);
@@ -74,6 +82,7 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     this.droppedFeatureVectors = new LinkedHashSet<>();
     TestResultObserver observer = new TestResultObserver();
     this.featureVectorPossibilityCount = observer.getPossibilityCount();
+    this.featureCount = observer.getFeatureVectorLength();
     TestCaseExecutor.getInstance().addObserver(observer);
 
     this.populationMap = new LinkedHashMap<>();
@@ -163,39 +172,58 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     return toMutate;
   }
   
-  @Override
-  protected void evolve() {
-    Set<T> toMutate;
-    
-    switch(Properties.MAP_ELITES_CHOICE) {
+  private Set<T> getToMutate() {
+	  switch(Properties.MAP_ELITES_CHOICE) {
       case ALL:
-        toMutate = this.getToMutateAll();
-        break;
+        return this.getToMutateAll();
       case SINGLE:
-        toMutate = this.getToMutateRandom();
-        break;
+        return this.getToMutateRandom();
       default:
       case SINGLE_AVG:
-        toMutate = this.getToMutateWithChance();
-        break;
+        return this.getToMutateWithChance();
     }
-    
-    for(T chromosome : toMutate) {
-      Chromosome clone = chromosome.clone();
-      T mutation = (T)clone;
-      this.removeUnusedVariables(mutation);
+  }
+  
+  private void applyMutation(T chromosome, T parent) {
+      this.removeUnusedVariables(chromosome);
       
       if(Properties.MAP_ELITES_MOSA_MUTATIONS) {
-        this.mutate(mutation, chromosome);
+        this.mutate(chromosome, parent);
       } else {
-        notifyMutation(mutation);
-        mutation.mutate();
+        notifyMutation(chromosome);
+        chromosome.mutate();
       }
       
-      if(mutation.isChanged() && !isTooLong(mutation)) {
-        this.analyzeChromosome(mutation);
+      if(chromosome.isChanged() && !isTooLong(chromosome)) {
+        this.analyzeChromosome(chromosome);
       }
-    }
+  }
+  
+    @Override
+    protected void evolve() {
+        Set<T> parents1 = this.getToMutate();
+        Set<T> parents2 = this.getToMutate();
+
+        Set<T> toMutate = new LinkedHashSet<T>();
+
+        for (T parent1 : parents1) {
+            T offspring1 = (T) parent1.clone();
+
+            if (parents2.size() > 0 && Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+                T parent2 = Randomness.choice(parents2);
+                T offspring2 = (T) parent2.clone();
+
+                try {
+                    this.crossoverFunction.crossOver(offspring1, offspring2);
+                } catch (ConstructionFailedException e) {
+                    logger.debug("CrossOver failed.");
+                    continue;
+                }
+
+                applyMutation(offspring2, parent2);
+            } 
+            applyMutation(offspring1, parent1);
+        }
     
     if((toMutate.isEmpty() && Properties.MAP_ELITES_CHOICE != Properties.MapElitesChoice.SINGLE_AVG)
         || Randomness.nextDouble() <= Properties.MAP_ELITES_RANDOM) {
@@ -325,6 +353,12 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
     
     ClientServices.getInstance().getClientNode()
     .trackOutputVariable(RuntimeVariable.FeaturesFound, foundVectorCount);
+    
+    ClientServices.getInstance().getClientNode()
+    .trackOutputVariable(RuntimeVariable.FeaturePartitionCount, this.featureVectorPossibilityCount);
+    
+    ClientServices.getInstance().getClientNode()
+    .trackOutputVariable(RuntimeVariable.FeatureCount, this.featureCount);
   }
   
   private double getDensity(int foundVectorCount) {
@@ -425,9 +459,6 @@ public class MAPElites<T extends TestChromosome> extends GeneticAlgorithm<T> {
   @Override
   public void generateSolution() {
     initializePopulation();
-    
-    ClientServices.getInstance().getClientNode()
-    .trackOutputVariable(RuntimeVariable.FeatureSize, this.featureVectorPossibilityCount);
 
     this.sendFeatureData();
     

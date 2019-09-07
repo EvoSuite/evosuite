@@ -239,7 +239,8 @@ public enum RuntimeVariable {
      * Map Elites
      */
     DensityTimeline,
-    FeatureSize,
+    FeaturePartitionCount,
+    FeatureCount,
     FeaturesFound,
     
 	/* ----- number of unique permissions that were denied for each kind --- */
