@@ -155,13 +155,14 @@ public class MockRuntime implements StaticReplacementMock{
 	}
 
 
-	
 	public static InputStream getLocalizedInputStream(Runtime runtime, InputStream in) {
-		return runtime.getLocalizedInputStream(in);
+		// inlined runtime.getLocalizedInputStream for Java 11 compatibility.
+		return in;
 	}
 
 	public static OutputStream getLocalizedOutputStream(Runtime runtime, OutputStream out) {
-		return runtime.getLocalizedOutputStream(out);
+		// inlined runtime.getLocalizedOutputStream for Java 11 compatibility.
+		return out;
 	}
 
 	//-------------------------------------------------

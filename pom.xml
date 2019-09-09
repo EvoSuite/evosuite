@@ -250,6 +250,10 @@
                 <compiler.target>1.9</compiler.target>
                 <compiler.source>1.8</compiler.source>
             </properties>
+            <dependencyManagement>
+                <dependencies>
+                </dependencies>
+            </dependencyManagement>
         </profile>
         <profile>
             <id>Java-8</id>
@@ -270,7 +274,6 @@
             libraries: https://glassfish.java.net/public/CDDL+GPL_1_1.html For each library
             you want to add, add a comment regarding its used license. -->
         <dependencies>
-
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
