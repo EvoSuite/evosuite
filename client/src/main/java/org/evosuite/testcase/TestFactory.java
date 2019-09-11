@@ -1447,7 +1447,7 @@ public class TestFactory {
 
 
 	// -------------------------------------------------------------------
-	// DELEGATES for backwards compatibility
+	// FIXME DELEGATES for backwards compatibility
 	// The system tests have not been restructured yet.
 	// In order to prevent them from failing, the methods below this
 	// comment were added to the interface of TestFactory.
