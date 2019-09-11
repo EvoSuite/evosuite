@@ -461,11 +461,11 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return cyclomaticComplexity;
 	}
 
-	public boolean isPublicTargetMethod() {
+	public boolean isPublic() {
 		return publicTargetMethod;
 	}
 
-	public boolean isStaticTargetMethod() {
+	public boolean isStatic() {
 		return staticTargetMethod;
 	}
 
