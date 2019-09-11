@@ -336,6 +336,18 @@ public class Properties {
 	@Parameter(key = "insertion_strategy", description = "insertion strategy to use when mutating chromosomes in DynaMOSA")
 	public static InsertionStrategy INSERTION_STRATEGY = InsertionStrategy.GUIDED_INSERTION;
 
+	@Parameter(key = "enable_failure_penalties", description = "give up on infeasible goals after a certain number of failed attempts")
+	public static final boolean ENABLE_FAILURE_PENALTIES = true;
+
+	@Parameter(key = "failure_penalty", description = "max number of allowed failed attempts before giving up on a coverage target")
+	public static final int FAILURE_PENALTY = 15;
+
+	@Parameter(key = "enable_ttl", description = "whether each statement in a test case should have a time-to-live during the search")
+	public static final boolean ENABLE_TTL = true;
+
+	@Parameter(key = "initial_ttl", description = "min number of generations a statement must survive before it can be removed from a test case")
+	public static final int INITIAL_TTL = 3;
+
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
