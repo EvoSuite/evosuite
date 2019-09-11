@@ -341,7 +341,8 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 				LineCoverageTestFitness line = (LineCoverageTestFitness) ff;
 				ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 				BytecodeInstructionPool pool = BytecodeInstructionPool.getInstance(loader);
-				BytecodeInstruction instruction = pool.getFirstInstructionAtLineNumber(line.getClassName(), line.getMethod(), line.getLine());
+				BytecodeInstruction instruction = pool.getFirstInstructionAtLineNumber(line.getTargetClassName(),
+						line.getTargetMethodName(), line.getLine());
 				Set<ControlDependency> cds = instruction.getControlDependencies();
 				if(cds.size() == 0)
 					this.currentGoals.add(ff);

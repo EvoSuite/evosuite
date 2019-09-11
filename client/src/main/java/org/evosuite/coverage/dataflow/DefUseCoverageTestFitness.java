@@ -201,6 +201,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 *            object.
 	 */
 	public DefUseCoverageTestFitness(Definition def, Use use, DefUsePairType type) {
+		super(use.getClassName(), use.getMethodName());
+
 		Objects.requireNonNull(def, "null given for definition. type: " + type.toString());
 		Objects.requireNonNull(use, "null given for use. def was " + def.toString() + ". type: " + type.toString());
 
@@ -216,6 +218,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.coverage.dataflow.Use} object.
 	 */
 	public DefUseCoverageTestFitness(Use use) {
+		super(use.getClassName(), use.getMethodName());
 		if (!use.isParameterUse())
 			throw new IllegalArgumentException(
 			        "this constructor is only for Parameter-Uses");
@@ -668,22 +671,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 */
 	public void setCovered(boolean covered) {
 		this.covered = covered;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return goalUse.getClassName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return goalUse.getMethodName();
 	}
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,

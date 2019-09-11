@@ -26,53 +26,139 @@ import org.evosuite.graphs.ccg.ClassCallGraph;
 import org.evosuite.graphs.ccg.ClassCallNode;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.symbolic.instrument.ClassLoaderUtils;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericExecutable;
+import org.evosuite.utils.generic.GenericMethod;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Abstract base class for fitness functions for test case chromosomes
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome>
-        implements Comparable<TestFitnessFunction> {
+		implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
+	protected final String className;
+	protected final String methodName;
+	private final boolean publicTargetMethod;
+	private final boolean constructor;
+	private final boolean staticTargetMethod;
 	private int cyclomaticComplexity; // initialized when the getter is called
 
-	static boolean warnedAboutIsSimilarTo = false;
+	protected TestFitnessFunction(final String className,
+								  final String methodNameDesc) {
+		this.className = Objects.requireNonNull(className, "class name cannot be null");
+		this.methodName = Objects.requireNonNull(methodNameDesc, "method name + descriptor cannot be null");
+		final Class<?> clazz = Objects.requireNonNull(getTargetClass(className));
+		final GenericExecutable<?, ?> executable =
+				Objects.requireNonNull(getTargetExecutable(methodNameDesc, clazz));
+		this.publicTargetMethod = executable.isPublic();
+		this.staticTargetMethod = executable.isStatic();
+		this.constructor = executable.isConstructor();
+	}
+
+	private static Class<?> getTargetClass(final String className) {
+		try {
+			return TestCluster.getInstance().getClass(className);
+		} catch (ClassNotFoundException e) {
+			logger.error("Unable to reflect unknown class {}", className);
+			return null;
+		}
+	}
+
+	private static GenericExecutable<?, ?> getTargetExecutable(final String methodNameDesc,
+															   final Class<?> clazz) {
+		// methodNameDesc = name + descriptor, we have to split it into two parts to work with it
+		final int descriptorStartIndex = methodNameDesc.indexOf('(');
+		assert descriptorStartIndex > 0 : "malformed method name or descriptor";
+		final String name = methodNameDesc.substring(0, descriptorStartIndex);
+		final String descriptor = methodNameDesc.substring(descriptorStartIndex);
+
+		// Tries to reflect the argument types.
+		final Class<?>[] argumentTypes;
+		final ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+		try {
+			argumentTypes = ClassLoaderUtils.getArgumentClasses(classLoader, descriptor);
+		} catch (Throwable t) {
+			logger.error("Unable to reflect argument types of method {}", methodNameDesc);
+			logger.error("\tCause: {}", t.getMessage());
+			return null;
+		}
+
+		final boolean isConstructor = name.equals("<init>");
+		if (isConstructor) {
+			return new GenericConstructor(getConstructor(clazz, argumentTypes), clazz);
+		} else {
+			return new GenericMethod(getMethod(clazz, name, argumentTypes), clazz);
+		}
+	}
+
+	private static Constructor<?> getConstructor(final Class<?> clazz,
+												 final Class<?>[] argumentTypes) {
+		final Constructor<?> constructor;
+		try {
+			constructor = clazz.getConstructor(argumentTypes);
+		} catch (NoSuchMethodException e) {
+			logger.error("No constructor of {} with argument types {}", clazz.getName(),
+					argumentTypes);
+			return null;
+		}
+		return constructor;
+	}
+
+	private static Method getMethod(final Class<?> clazz,
+									final String name,
+									final Class<?>[] argumentTypes) {
+		final Method method;
+		try {
+			method = clazz.getMethod(name, argumentTypes);
+		} catch (NoSuchMethodException e) {
+			logger.error("No method with name {} and arguments {} in {}", name, argumentTypes,
+					clazz.getName());
+			return null;
+		}
+		return method;
+	}
 
 	/**
 	 * <p>
 	 * getFitness
 	 * </p>
-	 * 
-	 * @param individual
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @param result
-	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+	 *
+	 * @param individual a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param result     a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
 	 */
 	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public double getFitness(TestChromosome individual) {
 		logger.trace("Executing test case on original");
-		ExecutionResult origResult = individual.getLastExecutionResult();
-		if (origResult == null || individual.isChanged()) {
-			origResult = runTest(individual.test);
-			individual.setLastExecutionResult(origResult);
+		ExecutionResult lastResult = individual.getLastExecutionResult();
+		if (lastResult == null || individual.isChanged()) {
+			lastResult = runTest(individual.test);
+			individual.setLastExecutionResult(lastResult);
 			individual.setChanged(false);
 		}
 
-		double fitness = getFitness(individual, origResult);
+		double fitness = getFitness(individual, lastResult);
 		updateIndividual(individual, fitness);
 
 		return fitness;
@@ -80,32 +166,33 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 * <p>
 	 * Used to preorder goals by difficulty
 	 */
 	@Override
 	public abstract int compareTo(TestFitnessFunction other);
 
-	protected final int compareClassName(TestFitnessFunction other){
+	protected final int compareClassName(TestFitnessFunction other) {
 		return this.getClass().getName().compareTo(other.getClass().getName());
 	}
 
 	@Override
 	public abstract int hashCode();
-	
+
 	@Override
 	public abstract boolean equals(Object other);
 
-	/** {@inheritDoc} */
+	/**
+	 * {@inheritDoc}
+	 */
 	public ExecutionResult runTest(TestCase test) {
 		return TestCaseExecutor.runTest(test);
 	}
 
 	/**
 	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @param tests
-	 *            a {@link java.util.List} object.
+	 *
+	 * @param tests a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(List<TestCase> tests) {
@@ -114,9 +201,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	/**
 	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @param tests
-	 *            a {@link java.util.List} object.
+	 *
+	 * @param tests a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
 	public boolean isCoveredByResults(List<ExecutionResult> tests) {
@@ -126,7 +212,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	public boolean isCoveredBy(TestSuiteChromosome testSuite) {
 		int num = 1;
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
-			logger.debug("Checking goal against test "+num+"/"+testSuite.size());
+			logger.debug("Checking goal against test " + num + "/" + testSuite.size());
 			num++;
 			if (isCovered(test))
 				return true;
@@ -139,9 +225,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * <p>
 	 * isCovered
 	 * </p>
-	 * 
-	 * @param test
-	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestCase test) {
@@ -154,13 +239,12 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * <p>
 	 * isCovered
 	 * </p>
-	 * 
-	 * @param tc
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestChromosome tc) {
-		if(tc.getTestCase().isGoalCovered(this)){
+		if (tc.getTestCase().isGoalCovered(this)) {
 			return true;
 		}
 
@@ -178,11 +262,9 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * <p>
 	 * isCovered
 	 * </p>
-	 * 
-	 * @param individual
-	 *            a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @param result
-	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
+	 *
+	 * @param individual a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param result     a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
@@ -195,7 +277,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	/**
 	 * Helper function if this is used without a chromosome
-	 * 
+	 *
 	 * @param result
 	 * @return
 	 */
@@ -210,7 +292,10 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()
 	 */
-	/** {@inheritDoc} */
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isMaximizationFunction() {
 		return false;
@@ -224,7 +309,9 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 *
 	 * @return the fully qualified name of the target class
 	 */
-	public abstract String getTargetClass();
+	public final String getTargetClassName() {
+		return className;
+	}
 
 	/**
 	 * <p>
@@ -250,14 +337,16 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 *
 	 * @return the method name and descriptor of the target method
 	 */
-	public abstract String getTargetMethod();
+	public final String getTargetMethodName() {
+		return methodName;
+	}
 
 	/**
 	 * Returns the cyclomatic complexity of the target method (as given by
-	 * {@link TestFitnessFunction#getTargetMethod()}).
+	 * {@link TestFitnessFunction#getTargetMethodName()}).
 	 *
 	 * @return the cyclomatic complexity of the target method
-     * @see RawControlFlowGraph#getCyclomaticComplexity()
+	 * @see RawControlFlowGraph#getCyclomaticComplexity()
 	 */
 	public int getCyclomaticComplexity() {
 		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
@@ -267,7 +356,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		if (cyclomaticComplexity < 1) { // Lazy initialization of the cyclomaticComplexity field
 			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
 			final GraphPool gp = GraphPool.getInstance(cl);
-			final RawControlFlowGraph cfg = gp.getRawCFG(getTargetClass(), getTargetMethod());
+			final RawControlFlowGraph cfg = gp.getRawCFG(getTargetClassName(), getTargetMethodName());
 			cyclomaticComplexity = cfg.getCyclomaticComplexity();
 
 			assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
@@ -276,54 +365,54 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return cyclomaticComplexity;
 	}
 
-    /**
-     * Returns the cyclomatic complexity of the target method, including the cyclomatic complexities
-     * of all methods <i>directly</i> called by the target method.
-     * <p>
-     * The rationale is to handle pathetic cases where very complicated methods are called by very
-     * simple ones, such as this one:
-     * <pre><code>
-     * void foo() {
-     *     veryComplicatedMethod(); // cyclomatic complexity = 42
-     * }
-     * </code></pre>
-     * Using the traditional definition of the cyclomatic complexity as implemented in
-     * {@link TestFitnessFunction#getCyclomaticComplexity()}, <code>foo()</code> would have a
-     * cyclomatic complexity of just 1, despite the fact that it's calling a method
-     * with a much higher complexity. In the case of test generation, this would make covering
-     * <code>foo()</code> much more appealing, when in fact it's just as appealing as covering the
-     * <code>veryComplicatedMethod()</code>. For this reason, this method treats <code>foo</code>
-     * and <code>veryComplicatedMethod()</code> the same way by assigning them the same cyclomatic
-     * complexity.
-     * <p>
-     * Conceptually, if we want to compute the cyclomatic complexity of a method while also
-     * considering the cyclomatic complexities of its callee methods, we have to embed the entire
-     * CFG of every callee method into the CFG of the target method. This is done by replacing the
-     * vertex that calls another method with the corresponding CFG of that method. The incoming
-     * edge of the vertex we just replaced is now connected to the method entry node of the called
-     * method. In analogue, the outgoing edge of the vertex we replaced is now connected to the
-     * method exit point of the called method.
-     * <p>
-     * This notion only works if the callee method is called only once. Otherwise, the exit node
-     * of the embedded CFG would have an out-degree of more than 1, despite not being a decision
-     * node. It also means that the results computed by this method will be slightly flawed in
-     * case the callee gets called more than once. However, this method is not meant to produce
-     * exact results, it's rather only intended to serve the purpose of returning a rough estimate
-     * of the complexity of a method.
-     * <p>
-     * The computation uses raw CFGs, i.e., it does not summarize sequentially composed statements
-     * to basic blocks. Therefore, we can compute the "recursive" cyclomatic complexity by
-     * computing the cyclomatic complexities of all involved methods individually, then summing
-     * it all up, and finally subtracting the number of individual callees to account for the
-     * fact that we replaced some nodes with entire CFGs as explained earlier. Note that the
-     * cyclomatic complexities of the callee methods are not computed recursively using this same
-     * method. That is, callees of callees are not accounted for. Instead, for the sake of
-     * efficiency and simplicity, the cyclomatic complexity of calles is computed using the
-     * "traditional way" as implemented in {@code getCyclomaticComplexity()} and
-     * {@link RawControlFlowGraph#getCyclomaticComplexity()}.
-     *
-     * @return the cyclomatic complexity
-     */
+	/**
+	 * Returns the cyclomatic complexity of the target method, including the cyclomatic complexities
+	 * of all methods <i>directly</i> called by the target method.
+	 * <p>
+	 * The rationale is to handle pathetic cases where very complicated methods are called by very
+	 * simple ones, such as this one:
+	 * <pre><code>
+	 * void foo() {
+	 *     veryComplicatedMethod(); // cyclomatic complexity = 42
+	 * }
+	 * </code></pre>
+	 * Using the traditional definition of the cyclomatic complexity as implemented in
+	 * {@link TestFitnessFunction#getCyclomaticComplexity()}, <code>foo()</code> would have a
+	 * cyclomatic complexity of just 1, despite the fact that it's calling a method
+	 * with a much higher complexity. In the case of test generation, this would make covering
+	 * <code>foo()</code> much more appealing, when in fact it's just as appealing as covering the
+	 * <code>veryComplicatedMethod()</code>. For this reason, this method treats <code>foo</code>
+	 * and <code>veryComplicatedMethod()</code> the same way by assigning them the same cyclomatic
+	 * complexity.
+	 * <p>
+	 * Conceptually, if we want to compute the cyclomatic complexity of a method while also
+	 * considering the cyclomatic complexities of its callee methods, we have to embed the entire
+	 * CFG of every callee method into the CFG of the target method. This is done by replacing the
+	 * vertex that calls another method with the corresponding CFG of that method. The incoming
+	 * edge of the vertex we just replaced is now connected to the method entry node of the called
+	 * method. In analogue, the outgoing edge of the vertex we replaced is now connected to the
+	 * method exit point of the called method.
+	 * <p>
+	 * This notion only works if the callee method is called only once. Otherwise, the exit node
+	 * of the embedded CFG would have an out-degree of more than 1, despite not being a decision
+	 * node. It also means that the results computed by this method will be slightly flawed in
+	 * case the callee gets called more than once. However, this method is not meant to produce
+	 * exact results, it's rather only intended to serve the purpose of returning a rough estimate
+	 * of the complexity of a method.
+	 * <p>
+	 * The computation uses raw CFGs, i.e., it does not summarize sequentially composed statements
+	 * to basic blocks. Therefore, we can compute the "recursive" cyclomatic complexity by
+	 * computing the cyclomatic complexities of all involved methods individually, then summing
+	 * it all up, and finally subtracting the number of individual callees to account for the
+	 * fact that we replaced some nodes with entire CFGs as explained earlier. Note that the
+	 * cyclomatic complexities of the callee methods are not computed recursively using this same
+	 * method. That is, callees of callees are not accounted for. Instead, for the sake of
+	 * efficiency and simplicity, the cyclomatic complexity of calles is computed using the
+	 * "traditional way" as implemented in {@code getCyclomaticComplexity()} and
+	 * {@link RawControlFlowGraph#getCyclomaticComplexity()}.
+	 *
+	 * @return the cyclomatic complexity
+	 */
 	public int getCyclomaticComplexityInclCallees() {
 		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
 		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
@@ -334,8 +423,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 			final GraphPool gp = GraphPool.getInstance(cl);
 
 			// Class name and method name that contain the target.
-			final String targetClass = getTargetClass();
-			final String targetMethod = getTargetMethod();
+			final String targetClass = getTargetClassName();
+			final String targetMethod = getTargetMethodName();
 
 			final RawControlFlowGraph cfg = gp.getRawCFG(targetClass, targetMethod);
 			final int ownComplexity = cfg.getCyclomaticComplexity();
@@ -370,5 +459,17 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		}
 
 		return cyclomaticComplexity;
+	}
+
+	public boolean isPublicTargetMethod() {
+		return publicTargetMethod;
+	}
+
+	public boolean isStaticTargetMethod() {
+		return staticTargetMethod;
+	}
+
+	public boolean isConstructor() {
+		return constructor;
 	}
 }

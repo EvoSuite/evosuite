@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.coverage.mutation;
 
@@ -44,7 +44,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
  * <p>
  * Abstract MutationTestFitness class.
  * </p>
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class MutationTestFitness extends TestFitnessFunction {
@@ -52,7 +52,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 596930765039928708L;
 
 	protected transient Mutation mutation;
-	
+
 	protected int mutantId;
 
 	protected final Set<BranchCoverageGoal> controlDependencies = new HashSet<BranchCoverageGoal>();
@@ -63,11 +63,11 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * Constructor for MutationTestFitness.
 	 * </p>
-	 * 
-	 * @param mutation
-	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 *  @param mutation
+	 *            a {@link Mutation} object.
 	 */
 	public MutationTestFitness(Mutation mutation) {
+		super(mutation.getClassName(), mutation.getMethodName());
 		this.mutation = mutation;
 		this.mutantId = mutation.getId();
 		controlDependencies.addAll(mutation.getControlDependencies());
@@ -80,7 +80,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * Getter for the field <code>mutation</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public Mutation getMutation() {
@@ -97,7 +97,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * runTest
 	 * </p>
-	 * 
+	 *
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param mutant
@@ -140,7 +140,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * getExecutionDistance
 	 * </p>
-	 * 
+	 *
 	 * @param result
 	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @return a double.
@@ -208,8 +208,8 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		}
 		return compareClassName(other);
 	}
-	
-	
+
+
 
 	@Override
 	public int hashCode() {
@@ -241,22 +241,6 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 			return false;
 		}
 		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return mutation.getClassName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return mutation.getMethodName();
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

@@ -26,7 +26,6 @@ import org.evosuite.coverage.io.IOCoverageConstants;
 import org.evosuite.coverage.io.output.OutputCoverageGoal;
 import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
 import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.junit.naming.methods.GoalComparator;
 import org.evosuite.runtime.mock.java.lang.MockArithmeticException;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.junit.Test;

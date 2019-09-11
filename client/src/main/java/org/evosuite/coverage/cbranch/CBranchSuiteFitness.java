@@ -103,7 +103,7 @@ public class CBranchSuiteFitness extends TestSuiteFitnessFunction {
 					tempInSet.add(goal);
 				}
 			} else {
-				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
+				String methodName = goal.getTargetClassName() + "." + goal.getTargetMethodName();
 				// if private method do not consider context
 				if (goal.getContext().isEmpty()) {
 					privateMethodsMethodsMap.put(methodName, goal);

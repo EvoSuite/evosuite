@@ -229,7 +229,7 @@ public class LineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		// In case we target more than one class (context, or inner classes) 
 		Set<String> targetClasses = new LinkedHashSet<>();
 		for(TestFitnessFunction ff : lineGoals.values()) {
-			targetClasses.add(ff.getTargetClass());
+			targetClasses.add(ff.getTargetClassName());
 		}
 		for(String className : targetClasses) {
 			List<BytecodeInstruction> instructions = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getInstructionsIn(className);

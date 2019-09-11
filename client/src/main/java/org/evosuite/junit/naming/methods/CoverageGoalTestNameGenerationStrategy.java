@@ -373,11 +373,11 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
     private void initializeMethodCoverageCount(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
         for(Set<TestFitnessFunction> goals : testToGoals.values()) {
             for(TestFitnessFunction goal : goals) {
-                String methodName = getMethodNameWithoutDescriptor(goal.getTargetMethod());
+                String methodName = getMethodNameWithoutDescriptor(goal.getTargetMethodName());
                 if(!methodCount.containsKey(methodName)) {
                     methodCount.put(methodName, new LinkedHashSet<>());
                 }
-                methodCount.get(methodName).add(goal.getTargetMethod());
+                methodCount.get(methodName).add(goal.getTargetMethodName());
             }
         }
     }
@@ -579,8 +579,8 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         TestFitnessFunction chosenGoal = goals.iterator().next(); //Randomness.choice(goals);
         int chosenPosition = -1;
         for(TestFitnessFunction goal : goals) {
-            if(methodToPosition.containsKey(goal.getTargetMethod())) {
-                int position = methodToPosition.get(goal.getTargetMethod());
+            if(methodToPosition.containsKey(goal.getTargetMethodName())) {
+                int position = methodToPosition.get(goal.getTargetMethodName());
                 if(position >= chosenPosition) {
                     chosenPosition = position;
                     chosenGoal = goal;
@@ -610,7 +610,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
         } else if(goal instanceof OutputCoverageTestFitness) {
             return getGoalName((OutputCoverageTestFitness)goal);
         } else {
-            return formatMethodName(goal.getTargetClass(), goal.getTargetMethod());
+            return formatMethodName(goal.getTargetClassName(), goal.getTargetMethodName());
 //            throw new RuntimeException("Not implemented yet: "+goal.getClass());
         }
     }
@@ -645,10 +645,10 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             ex = ex.getSuperclass();
         }
 
-        if(goal.getTargetMethod().startsWith("<init>")) {
-            return STR_CREATE_EXCEPTION + capitalize(getUniqueConstructorName(goal.getTargetClass(), goal.getTargetMethod()))+ STR_THROWS + capitalize(ex.getSimpleName());
+        if(goal.getTargetMethodName().startsWith("<init>")) {
+            return STR_CREATE_EXCEPTION + capitalize(getUniqueConstructorName(goal.getTargetClassName(), goal.getTargetMethodName()))+ STR_THROWS + capitalize(ex.getSimpleName());
         }
-        return formatMethodName(goal.getTargetClass(), goal.getTargetMethod()) + STR_THROWS + capitalize(ex.getSimpleName());
+        return formatMethodName(goal.getTargetClassName(), goal.getTargetMethodName()) + STR_THROWS + capitalize(ex.getSimpleName());
     }
 
     /**
@@ -706,7 +706,7 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
             if(goal1 instanceof MethodCoverageTestFitness) {
                 return getGoalPairName((MethodCoverageTestFitness) goal1, (MethodCoverageTestFitness) goal2);
             }
-            if(goal1.getTargetClass().equals(goal2.getTargetClass()) && goal1.getTargetMethod().equals(goal2.getTargetMethod())) {
+            if(goal1.getTargetClassName().equals(goal2.getTargetClassName()) && goal1.getTargetMethodName().equals(goal2.getTargetMethodName())) {
                 if (goal1 instanceof InputCoverageTestFitness) {
                     return getGoalPairName((InputCoverageTestFitness) goal1, (InputCoverageTestFitness) goal2);
                 } else if (goal1 instanceof OutputCoverageTestFitness) {
@@ -724,8 +724,8 @@ public class CoverageGoalTestNameGenerationStrategy implements TestNameGeneratio
      * @return
      */
     private String getGoalPairName(MethodCoverageTestFitness goal1, MethodCoverageTestFitness goal2) {
-        boolean isConstructor1 = goal1.getTargetMethod().startsWith("<init>");
-        boolean isConstructor2 = goal2.getTargetMethod().startsWith("<init>");
+        boolean isConstructor1 = goal1.getTargetMethodName().startsWith("<init>");
+        boolean isConstructor2 = goal2.getTargetMethodName().startsWith("<init>");
 
         if(isConstructor1 != isConstructor2) {
             if(isConstructor1)

@@ -32,7 +32,7 @@ import java.util.Set;
 
 /**
  * RhoAux class.
- * 
+ *
  * @author José Campos
  */
 public class RhoAux {
@@ -49,7 +49,7 @@ public class RhoAux {
 
   /**
    * Returns the list of lines goals of the CUT
-   * 
+   *
    * @return
    */
   public static List<LineCoverageTestFitness> getLineGoals() {

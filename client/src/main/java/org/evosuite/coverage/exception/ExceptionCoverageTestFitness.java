@@ -46,8 +46,6 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         /** Thrown exception which is expected, because declared in signature with "throws"*/
         DECLARED};
 
-    protected final String className;
-
     /**
      * name+descriptor
      */
@@ -66,7 +64,7 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
      * @param exceptionClass the exception class
      */
     public ExceptionCoverageTestFitness(String className, String methodIdentifier, Class<?> exceptionClass, ExceptionType type) {
-        this.className = className;
+        super(className, methodIdentifier);
 
         Objects.requireNonNull(exceptionClass, "exception class cannot be null");
         this.exceptionClass = new GenericClass(exceptionClass);
@@ -202,27 +200,4 @@ public class ExceptionCoverageTestFitness extends TestFitnessFunction {
         }
         return compareClassName(other);
     }
-
-
-    /* (non-Javadoc)
-     * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-     */
-    @Override
-    public String getTargetClass() {
-        return className;
-    }
-
-    /* (non-Javadoc)
-     * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-     */
-    @Override
-    public String getTargetMethod() {
-        return methodIdentifier;
-//        int pos = methodIdentifier.indexOf('(');
-//        if(pos < 0)
-//            return methodIdentifier;
-//        else
-//            return methodIdentifier.substring(0, pos);
-    }
-
 }

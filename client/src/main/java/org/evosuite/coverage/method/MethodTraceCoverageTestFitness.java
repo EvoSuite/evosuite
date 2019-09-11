@@ -36,18 +36,13 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 
     private static final long serialVersionUID = -8880071948317243336L;
 
-    /** Target method */
-	protected final String className;
-	protected final String methodName;
-
 	/**
 	 * Constructor - fitness is specific to a method
-	 * @param className the class name
-	 * @param methodName the method name
+	 * @param className the target class name
+	 * @param methodName the target method name
 	 */
 	public MethodTraceCoverageTestFitness(String className, String methodName) throws IllegalArgumentException{
-		this.className = Objects.requireNonNull(className, "className cannot be null");
-		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+		super(className, methodName);
 	}
 
 	/**
@@ -149,21 +144,5 @@ public class MethodTraceCoverageTestFitness extends TestFitnessFunction {
 				return className.compareTo(otherMethodFitness.getClassName());
 		}
         return compareClassName(other);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return getClassName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return getMethod();
 	}
 }

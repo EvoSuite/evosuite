@@ -29,9 +29,9 @@ import org.evosuite.testcase.execution.ExecutionResult;
 /**
  * Evaluate fitness of a single test case with respect to one Definition-Use
  * pair
- * 
+ *
  * For more information look at the comment from method getDistance()
- * 
+ *
  * @author Andre Mis
  */
 public class AllDefsCoverageTestFitness extends TestFitnessFunction {
@@ -48,7 +48,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	 * <p>
 	 * Constructor for AllDefsCoverageTestFitness.
 	 * </p>
-	 * 
+	 *
 	 * @param def
 	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @param uses
@@ -56,6 +56,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	 */
 	public AllDefsCoverageTestFitness(Definition def,
 	        Map<Use, DefUseCoverageTestFitness> uses) {
+		super(def.getClassName(), def.getMethodName());
 		this.targetDef = def;
 		this.goalDefinitionFitness = new StatementCoverageTestFitness(def.getClassName(), def.getMethodName(), def.getInstructionId());
 		this.uses = uses;
@@ -137,21 +138,4 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	public String toString() {
 		return "AllDef-Goal " + targetDef.toString();
 	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return targetDef.getClassName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return targetDef.getMethodName();
-	}
-
 }

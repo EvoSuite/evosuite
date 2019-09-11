@@ -42,18 +42,13 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 3624503060256855484L;
 
-	/** Target method */
-	protected final String className;
-	protected final String methodName;
-
 	/**
 	 * Constructor - fitness is specific to a method
-	 * @param className the class name
-	 * @param methodName the method name
+	 * @param className the target class name
+	 * @param methodName the target method name
 	 */
 	public MethodNoExceptionCoverageTestFitness(String className, String methodName) {
-		this.className = Objects.requireNonNull(className, "className cannot be null");
-		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+		super(className, methodName);
 	}
 
 	/**
@@ -179,21 +174,4 @@ public class MethodNoExceptionCoverageTestFitness extends TestFitnessFunction {
 		}
 		return compareClassName(other);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return getClassName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return getMethod();
-	}
-
 }

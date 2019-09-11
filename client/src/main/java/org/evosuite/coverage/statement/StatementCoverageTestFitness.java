@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -40,8 +41,6 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 5222436175279169394L;
 
 	/** Target statement */
-	private final String className;
-	private final String methodName;
 	private final Integer instructionID;
 
 	protected final List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
@@ -57,12 +56,9 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public StatementCoverageTestFitness(BytecodeInstruction goalInstruction) {
-		Objects.requireNonNull(goalInstruction);
-
-		this.className = goalInstruction.getClassName();
-		this.methodName = goalInstruction.getMethodName();
+		super(Objects.requireNonNull(goalInstruction).getClassName(),
+				goalInstruction.getMethodName());
 		this.instructionID = goalInstruction.getInstructionId();
-
 		this.setupDependencies(goalInstruction);
 	}
 
@@ -76,8 +72,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	 * @param instructionID the instruction identifier
 	 */
 	public StatementCoverageTestFitness(String className, String methodName, Integer instructionID) {
-		this.className = Objects.requireNonNull(className, "className cannot be null");
-		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+		super(className, methodName);
 		this.instructionID = Objects.requireNonNull(instructionID, "instructionID cannot be null");
 
 		BytecodeInstruction goalInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().
@@ -185,10 +180,10 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 		if (other instanceof StatementCoverageTestFitness) {
 			StatementCoverageTestFitness otherStatementFitness = (StatementCoverageTestFitness) other;
-			if (this.getTargetClass().compareTo(otherStatementFitness.getTargetClass()) != 0) {
-				return this.getTargetClass().compareTo(otherStatementFitness.getTargetClass());
-			} else if (this.getTargetMethod().compareTo(otherStatementFitness.getTargetMethod()) != 0) {
-				return this.getTargetMethod().compareTo(otherStatementFitness.getTargetMethod());
+			if (this.getTargetClassName().compareTo(otherStatementFitness.getTargetClassName()) != 0) {
+				return this.getTargetClassName().compareTo(otherStatementFitness.getTargetClassName());
+			} else if (this.getTargetMethodName().compareTo(otherStatementFitness.getTargetMethodName()) != 0) {
+				return this.getTargetMethodName().compareTo(otherStatementFitness.getTargetMethodName());
 			} else if (this.instructionID.compareTo(otherStatementFitness.instructionID) != 0) {
 				return this.instructionID - otherStatementFitness.instructionID;
 			}
@@ -200,8 +195,8 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	@Override
 	public int hashCode() {
 		final int iConst = 13;
-		return 51 * iConst + this.getTargetClass().hashCode() * iConst +
-		    this.getTargetMethod().hashCode() * iConst + this.instructionID * iConst;
+		return 51 * iConst + this.getTargetClassName().hashCode() * iConst +
+		    this.getTargetMethodName().hashCode() * iConst + this.instructionID * iConst;
 	}
 
 	public List<BranchCoverageTestFitness> getBranchFitnesses() {
@@ -222,22 +217,6 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
         } else if (!this.methodName.equals(other.methodName)) {
           return false;
         } else return this.instructionID.intValue() == other.instructionID.intValue();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return this.className;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return this.methodName;
 	}
 
 	public BytecodeInstruction getGoalInstruction() {

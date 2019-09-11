@@ -51,7 +51,8 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	 *            object.
 	 */
 	public BranchCoverageTestFitness(BranchCoverageGoal goal) {
-		this.goal = Objects.requireNonNull(goal, "goal cannot be null");
+		super(Objects.requireNonNull(goal, "goal cannot be null").getClassName(), goal.getMethodName());
+		this.goal = goal;
 	}
 
 	/**
@@ -226,21 +227,4 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		}
 		return compareClassName(other);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return getClassName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return getMethod();
-	}
-
 }

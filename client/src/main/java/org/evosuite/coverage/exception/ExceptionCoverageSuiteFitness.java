@@ -47,7 +47,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public ExceptionCoverageSuiteFitness() {
 	}
-	
+
     public static int getMaxExceptionsCovered() {
         return maxExceptionsCovered;
     }
@@ -69,7 +69,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> results = runTestSuite(suite);
 
 		calculateExceptionInfo(results,implicitTypesOfExceptions,explicitTypesOfExceptions,declaredTypesOfExceptions, this);
-		
+
 		if(Properties.TEST_ARCHIVE) {
 			// If we are using the archive, then fitness is by definition 0
 			// as all assertions already covered are in the archive
@@ -78,7 +78,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			maxExceptionsCovered = ExceptionCoverageFactory.getGoals().size();
 			return 0.0;
 		}
-		
+
 		int nExc = getNumExceptions(implicitTypesOfExceptions) + getNumExceptions(explicitTypesOfExceptions) +
                 getNumExceptions(declaredTypesOfExceptions);
 
@@ -97,23 +97,23 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
         	suite.setCoverage(this, nExc / maxExceptionsCovered);
         else
         	suite.setCoverage(this, 1.0);
-        
+
         return exceptionFitness;
 	}
 
-	
-	
+
+
 	/**
 	 * Given the list of results, fill the 3 given (empty) maps with exception information.
 	 * Also, add exception coverage goals to mapping in {@link ExceptionCoverageFactory}
-	 * 
+	 *
 	 * @param results
 	 * @param implicitTypesOfExceptions
 	 * @param explicitTypesOfExceptions
      * @param declaredTypesOfExceptions
 	 * @throws IllegalArgumentException
 	 */
-	public static void calculateExceptionInfo(List<ExecutionResult> results, 
+	public static void calculateExceptionInfo(List<ExecutionResult> results,
 			Map<String, Set<Class<?>>> implicitTypesOfExceptions, Map<String, Set<Class<?>>> explicitTypesOfExceptions,
             Map<String, Set<Class<?>>> declaredTypesOfExceptions, ExceptionCoverageSuiteFitness contextFitness)
 		throws IllegalArgumentException{
@@ -213,7 +213,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 		}
 	}
-	
+
 	public static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
 		int total = 0;
 		for (Set<Class<?>> exceptionSet : exceptions.values()) {

@@ -63,9 +63,14 @@ public class OnlyMutationTestFitness extends MutationTestFitness {
 	}
 
 
+//	@Override
+//	public String getTargetMethodName() {
+//		return "Weak " + mutation.toString();
+//	}
+
+
 	@Override
-	public String getTargetMethod() {
+	public String toString() {
 		return "Weak " + mutation.toString();
 	}
-
 }

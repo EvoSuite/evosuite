@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract superclass for all Definitions and Uses
- * 
+ *
  * @author Andre Mis
  */
 public class DefUse extends BytecodeInstruction {
@@ -35,7 +35,7 @@ public class DefUse extends BytecodeInstruction {
 
 	private final static Logger logger = LoggerFactory.getLogger(DefUse.class);
 
-	protected int defuseId;
+    protected int defuseId;
 	protected int defId;
 	protected int useId;
 	protected boolean isParameterUse;
@@ -47,6 +47,8 @@ public class DefUse extends BytecodeInstruction {
 	// the CFG, which would make the DefUse node dependent on the current state
 	// of EvoSuite
 	protected boolean isInStaticMethod;
+	protected boolean isInPublicMethod;
+
 
 	protected String varName;
 
@@ -54,7 +56,7 @@ public class DefUse extends BytecodeInstruction {
 	 * <p>
 	 * Constructor for DefUse.
 	 * </p>
-	 * 
+	 *
 	 * @param wrap
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param defuseId
@@ -94,6 +96,7 @@ public class DefUse extends BytecodeInstruction {
 		}
 
 		this.isInStaticMethod = getRawCFG().isStaticMethod();
+		this.isInPublicMethod = getRawCFG().isPublicMethod();
 		this.varName = super.getVariableName();
 		if (this.varName == null)
 			throw new IllegalStateException(
@@ -114,14 +117,14 @@ public class DefUse extends BytecodeInstruction {
 	/**
 	 * Determines whether the given BytecodeInstruction constitutes a Definition
 	 * that can potentially become an active Definition for this DefUse
-	 * 
+	 *
 	 * in the sense that if control flow passes through the instruction of the
 	 * given Definition that Definition becomes active for this DefUse's
 	 * variable
-	 * 
+	 *
 	 * This is the case if the given Definition defines the same variable as
 	 * this DefUse So a Definition canBecomeActive for itself
-	 * 
+	 *
 	 * @param instruction
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
@@ -137,7 +140,7 @@ public class DefUse extends BytecodeInstruction {
 	/**
 	 * Determines whether the given DefUse reads or writes the same variable as
 	 * this DefUse
-	 * 
+	 *
 	 * @param du
 	 *            a {@link org.evosuite.coverage.dataflow.DefUse} object.
 	 * @return a boolean.
@@ -150,7 +153,7 @@ public class DefUse extends BytecodeInstruction {
 	 * <p>
 	 * sharesVariableWith
 	 * </p>
-	 * 
+	 *
 	 * @param instruction
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
@@ -166,7 +169,7 @@ public class DefUse extends BytecodeInstruction {
 	 * <p>
 	 * getDUVariableType
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getDUVariableType() {
@@ -196,7 +199,7 @@ public class DefUse extends BytecodeInstruction {
 	 * <p>
 	 * getDefUseId
 	 * </p>
-	 * 
+	 *
 	 * @return a int.
 	 */
 	public int getDefUseId() {
@@ -207,7 +210,7 @@ public class DefUse extends BytecodeInstruction {
 	 * <p>
 	 * Getter for the field <code>useId</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a int.
 	 */
 	public int getUseId() {
@@ -218,7 +221,7 @@ public class DefUse extends BytecodeInstruction {
 	 * <p>
 	 * Getter for the field <code>defId</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a int.
 	 */
 	public int getDefId() {
@@ -229,7 +232,7 @@ public class DefUse extends BytecodeInstruction {
 	 * <p>
 	 * isParameterUse
 	 * </p>
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	public boolean isParameterUse() {
@@ -264,11 +267,11 @@ public class DefUse extends BytecodeInstruction {
 	/**
 	 * Determines whether this is the special ALOAD that pushes 'this' onto the
 	 * stack
-	 * 
+	 *
 	 * In non static methods the variable slot 0 holds the reference to "this".
 	 * Loading this reference is not seen as a Use for defuse purposes. This
 	 * method checks if this is the case
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	@Override

@@ -55,7 +55,8 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
      * @param goal the coverage goal
      */
     public InputCoverageTestFitness(InputCoverageGoal goal) {
-        this.goal = Objects.requireNonNull(goal, "goal cannot be null");
+        super(Objects.requireNonNull(goal, "goal cannot be null").getClassName(), goal.getMethodName());
+        this.goal = goal;
         // add the observer to TestCaseExecutor if it is not included yet
         boolean hasObserver = false;
         TestCaseExecutor executor = TestCaseExecutor.getInstance();
@@ -292,21 +293,4 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
         }
         return compareClassName(other);
     }
-
-    /* (non-Javadoc)
-     * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-     */
-    @Override
-    public String getTargetClass() {
-        return getClassName();
-    }
-
-    /* (non-Javadoc)
-     * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-     */
-    @Override
-    public String getTargetMethod() {
-        return getMethod();
-    }
-
 }

@@ -41,9 +41,9 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * We don't remember what the I of IBranch stands for. Anyway, this fitness
  * function targets all the branches (of all classes) that is possible to reach
  * from the class under test.
- * 
+ *
  * @author Gordon Fraser, mattia
- * 
+ *
  */
 public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 
@@ -83,7 +83,7 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 						innermap.computeIfAbsent(goal.getContext(), k -> new LinkedHashSet<>());
 				tempInSet.add(goal);
 			} else {
-				String methodName = goal.getTargetClass() + "." + goal.getTargetMethod();
+				String methodName = goal.getTargetClassName() + "." + goal.getTargetMethod();
 				Map<CallContext, IBranchTestFitness> innermap =
 						methodsMap.computeIfAbsent(methodName, k -> new LinkedHashMap<>());
 				innermap.put(goal.getContext(), goal);
@@ -257,11 +257,11 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 			updateIndividual(suite, fitness);
 		}
 		return fitness;
-	}	
-	
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
@@ -279,8 +279,8 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		for (IBranchTestFitness method : toRemoveRootBranches) {
 			boolean removed = branchGoals.remove(method);
 
-			Map<CallContext, IBranchTestFitness> map = methodsMap.get(method.getTargetClass() + "."
-					+ method.getTargetMethod());
+			Map<CallContext, IBranchTestFitness> map = methodsMap.get(method.getTargetClassName() + "."
+					+ method.getTargetMethodName());
 
 			IBranchTestFitness f = map.remove(method.getContext());
 

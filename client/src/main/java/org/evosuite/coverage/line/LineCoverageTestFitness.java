@@ -52,8 +52,6 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 3624503060256855484L;
 
 	/** Target line */
-	private final String className;
-	private final String methodName;
 	private final Integer line;
 
 	protected transient BytecodeInstruction goalInstruction;
@@ -66,32 +64,9 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 	 * @throws IllegalArgumentException
 	 */
 	public LineCoverageTestFitness(String className, String methodName, Integer line) {
-		this.className = Objects.requireNonNull(className, "className cannot be null");
-		this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+		super(className, methodName);
 		this.line = Objects.requireNonNull(line, "line number cannot be null");
 		setupDependencies();
-	}
-
-	/**
-	 * <p>
-	 * getClassName
-	 * </p>
-	 *
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getClassName() {
-		return className;
-	}
-
-	/**
-	 * <p>
-	 * getMethod
-	 * </p>
-	 *
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getMethod() {
-		return methodName;
 	}
 
 	/**
@@ -239,31 +214,15 @@ public class LineCoverageTestFitness extends TestFitnessFunction {
 		if (other == null) return 1;
 		if (other instanceof LineCoverageTestFitness) {
 			LineCoverageTestFitness otherLineFitness = (LineCoverageTestFitness) other;
-			if (className.compareTo(otherLineFitness.getClassName()) != 0)
-				return className.compareTo(otherLineFitness.getClassName());
+			if (className.compareTo(otherLineFitness.getTargetClassName()) != 0)
+				return className.compareTo(otherLineFitness.getTargetMethodName());
 			else
-				if (methodName.compareTo(otherLineFitness.getMethod()) != 0)
-					return methodName.compareTo(otherLineFitness.getMethod());
+				if (methodName.compareTo(otherLineFitness.methodName) != 0)
+					return methodName.compareTo(otherLineFitness.methodName);
 				else
 					return line.compareTo(otherLineFitness.getLine());
 		}
 		return compareClassName(other);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return getClassName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
-	 */
-	@Override
-	public String getTargetMethod() {
-		return getMethod();
 	}
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
