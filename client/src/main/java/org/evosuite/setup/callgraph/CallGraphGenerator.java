@@ -18,7 +18,7 @@
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ *
  */
 package org.evosuite.setup.callgraph;
 
@@ -42,12 +42,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Generate the call graph, the class is a modification of the CallTreeGenerator
  * class.
- * 
+ *
  * @author mattia, Gordon Fraser
- * 
+ *
  */
 public class CallGraphGenerator {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(CallGraphGenerator.class);
 
 	public static CallGraph analyze(String className) {
@@ -67,7 +67,7 @@ public class CallGraphGenerator {
 		if (targetClass != null)
 			handle(callgraph, targetClass, 0);
 		return callgraph;
-	} 
+	}
 
 	private static boolean isOverridden(String methodName) {
 		return true;
@@ -76,11 +76,10 @@ public class CallGraphGenerator {
 	/**
 	 * If we want to have the calltree also for the superclasses, we need to
 	 * determine which methods are callable
-	 * 
+	 *
 	 * @param callGraph
 	 * @param targetClass
 	 */
-	@SuppressWarnings("unchecked")
 	private static void handleSuperClasses(CallGraph callGraph, ClassNode targetClass) {
 		String superClassName = targetClass.superName;
 		if (superClassName == null || superClassName.isEmpty())
@@ -115,7 +114,6 @@ public class CallGraphGenerator {
 		handleSuperClasses(callGraph, superClass);
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void handle(CallGraph callGraph, ClassNode targetClass, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
@@ -124,7 +122,6 @@ public class CallGraphGenerator {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void handle(CallGraph callGraph, ClassNode targetClass, String methodName,
 			int depth) {
 		List<MethodNode> methods = targetClass.methods;
@@ -144,11 +141,10 @@ public class CallGraphGenerator {
 
 	/**
 	 * Add all possible calls for a given method
-	 * 
+	 *
 	 * @param callGraph
 	 * @param mn
 	 */
-	@SuppressWarnings("unchecked")
 	private static void handleMethodNode(CallGraph callGraph, ClassNode cn, MethodNode mn, int depth) {
 		handlePublicMethodNode(callGraph, cn, mn);
 
@@ -172,7 +168,7 @@ public class CallGraphGenerator {
 
 	/**
 	 * Descend into a call
-	 * 
+	 *
 	 * @param callGraph
 	 * @param mn
 	 * @param methodCall
