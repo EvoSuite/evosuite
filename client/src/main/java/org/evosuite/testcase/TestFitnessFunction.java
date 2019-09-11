@@ -57,13 +57,14 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	private final boolean publicTargetMethod;
 	private final boolean constructor;
 	private final boolean staticTargetMethod;
+	private final Class<?> clazz;
 	private int cyclomaticComplexity; // initialized when the getter is called
 
 	protected TestFitnessFunction(final String className,
 								  final String methodNameDesc) {
 		this.className = Objects.requireNonNull(className, "class name cannot be null");
 		this.methodName = Objects.requireNonNull(methodNameDesc, "method name + descriptor cannot be null");
-		final Class<?> clazz = Objects.requireNonNull(getTargetClass(className));
+		this.clazz = Objects.requireNonNull(getTargetClass(className));
 		final GenericExecutable<?, ?> executable =
 				Objects.requireNonNull(getTargetExecutable(methodNameDesc, clazz));
 		this.publicTargetMethod = executable.isPublic();
@@ -471,5 +472,9 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	public boolean isConstructor() {
 		return constructor;
+	}
+
+	public Class<?> getClazz() {
+		return clazz;
 	}
 }
