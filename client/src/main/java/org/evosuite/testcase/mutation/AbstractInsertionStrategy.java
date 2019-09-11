@@ -703,8 +703,8 @@ public abstract class AbstractInsertionStrategy implements InsertionStrategy {
      * @return a reference to the inserted field
      * @throws ConstructionFailedException if the maximum recursion depth has been reached
      */
-    private VariableReference addField(TestCase test, GenericField field, int position,
-                                       int recursionDepth) throws ConstructionFailedException {
+    public VariableReference addField(TestCase test, GenericField field, int position,
+                                      int recursionDepth) throws ConstructionFailedException {
 
         logger.debug("Adding field {}", field);
         if (recursionDepth > Properties.MAX_RECURSION) {
@@ -752,7 +752,7 @@ public abstract class AbstractInsertionStrategy implements InsertionStrategy {
      * @return
      * @throws ConstructionFailedException
      */
-    private VariableReference addFieldFor(TestCase test, VariableReference callee,
+    public VariableReference addFieldFor(TestCase test, VariableReference callee,
                                           GenericField field, int position) throws ConstructionFailedException {
         logger.debug("Adding field " + field + " for variable " + callee);
         if (position <= callee.getStPosition())
@@ -787,8 +787,8 @@ public abstract class AbstractInsertionStrategy implements InsertionStrategy {
      * @return
      * @throws ConstructionFailedException
      */
-    private VariableReference addFieldAssignment(TestCase test, GenericField field,
-                                                 int position, int recursionDepth) throws ConstructionFailedException {
+    public VariableReference addFieldAssignment(TestCase test, GenericField field,
+                                                int position, int recursionDepth) throws ConstructionFailedException {
         logger.debug("Recursion depth: " + recursionDepth);
         if (recursionDepth > Properties.MAX_RECURSION) {
             logger.debug("Max recursion depth reached");

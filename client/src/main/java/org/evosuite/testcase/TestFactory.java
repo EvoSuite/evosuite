@@ -1491,4 +1491,19 @@ public class TestFactory {
 	public void addMethodFor(TestCase tc, VariableReference genericClass, GenericMethod gm, int i) throws ConstructionFailedException {
 		insertionStrategy.addMethodFor(tc, genericClass, gm, i);
 	}
+
+	public VariableReference addField(TestCase test, GenericField field, int position,
+									   int recursionDepth) throws ConstructionFailedException {
+		return insertionStrategy.addField(test, field, position, recursionDepth);
+	}
+
+	public VariableReference addFieldFor(TestCase test, VariableReference callee,
+										 GenericField field, int position) throws ConstructionFailedException {
+		return insertionStrategy.addFieldFor(test, callee, field, position);
+	}
+
+	public VariableReference addFieldAssignment(TestCase test, GenericField field,
+												 int position, int recursionDepth) throws ConstructionFailedException {
+		return insertionStrategy.addFieldAssignment(test, field, position, recursionDepth);
+	}
 }
