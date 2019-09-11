@@ -96,4 +96,10 @@ public abstract class Graph<E> {
 			return 0;
 		return this.edges.get(vertex).size();
 	}
+
+	public synchronized int getReverseNeighborsSize(V vertex) {
+		if (this.reverseEdges.get(vertex) == null)
+			return 0;
+		return this.reverseEdges.get(vertex).size();
+	}
 }
