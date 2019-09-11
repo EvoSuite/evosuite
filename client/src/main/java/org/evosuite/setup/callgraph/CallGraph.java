@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * jgrapht graph classes on purpose because I had problems with the DFS
  * algorithms implemented for them. On the bright hand, this implementation
  * should be more efficient.
- * 
+ *
  * @author mattia
  *
  */
@@ -71,13 +71,13 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	private final Set<String> notToTestClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
 
-	
+
 	private final Set<CallContext> publicMethods = Collections.synchronizedSet(new LinkedHashSet<CallContext>());
 
 	public CallGraph(String className) {
 		this.className = className;
 	}
-	
+
 	public ReverseCallGraph getGraph() {
 		return graph;
 	}
@@ -87,7 +87,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 			graph.removeVertex(vertex);
 		}
 	}
-	
+
 	public void removeClass(CallGraphEntry vertex){
 		graph.removeVertex(vertex);
 	}
@@ -103,13 +103,13 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	/**
 	 * add call to the call graph
-	 * 
+	 *
 	 * @param sourceClass
 	 * @param sourceMethod
 	 * @param targetClass
 	 * @param targetMethod
 	 */
-	
+
 	public boolean addCall(String sourceClass, String sourceMethod,
 			String targetClass, String targetMethod) {
 		CallGraphEntry from = new CallGraphEntry(targetClass, targetMethod);
@@ -168,10 +168,10 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 			return new HashSet<>();
 		}
 	}
-	
+
 	/**
 	 * computes and returns the call contexts of the specific method
-	 * 
+	 *
 	 * @param className
 	 * @param methodName
 	 * @return
@@ -182,17 +182,17 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		cont.add(new Call(className, methodName));
 		CallContext context = new CallContext(cont);
 		if(publicMethods.contains(context)){
-			contexts.add(context);	
+			contexts.add(context);
 		}else{
 			contexts.add(new CallContext());
-		}	
+		}
 		return contexts;
 	}
 
 	/**
 	 * computes and returns the call contexts that starts from the target class
 	 * and end in the specific method
-	 * 
+	 *
 	 * @param className
 	 * @param methodName
 	 * @return
@@ -205,14 +205,14 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 			addPublicClassMethod(className, methodName, contexts);
 		return contexts;
 	}
-	
+
 	private void addPublicClassMethod(String className, String methodName, Set<CallContext> contexts){
 		List<Call> calls = new ArrayList<>();
 		Call call = new Call(className, methodName);
 		calls.add(call);
 		CallContext context = new CallContext(calls);
 		if(publicMethods.contains(context)&&className.equals(this.className))
-			contexts.add(context);	
+			contexts.add(context);
 	}
 
 	private Set<CallContext> convertIntoCallContext(
@@ -223,7 +223,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		for (List<CallGraphEntry> list : paths) {
 			boolean insert = false;
 			List<Call> cont = new ArrayList<>();
-			
+
 			for (int i = list.size() - 1; i >= 0; i--) {
 				if (!insert && list.get(i).getClassName().equals(className)) {
 					insert = true;
@@ -246,7 +246,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 
 	/**
-	 * 
+	 *
 	 * @return classes reachable from the class under test
 	 */
  	public Set<String>  getClassesUnderTest() {
@@ -257,8 +257,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	/**
 	 * Determine if className can be reached from the class under test
-	 * 
-	 * 
+	 *
+	 *
 	 * @param className
 	 * @return
 	 */
@@ -268,11 +268,11 @@ public class CallGraph implements Iterable<CallGraphEntry> {
  		if(toTestClasses.contains(className)) return true;
  		return false;
  	}
- 	
+
  	public boolean isCalledClassOld(String className) {
  		if(toTestClasses.contains(className)) return true;
  		if(notToTestClasses.contains(className)) return false;
- 		
+
 		for (CallGraphEntry e : graph.getEdges().keySet()) {
 			if (e.getClassName().equals(className)) {
 				if(checkClassInPaths(this.className, graph, e))
@@ -281,7 +281,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		}
 		return false;
 	}
- 	
+
 	private boolean computeInterestingClasses(Graph<CallGraphEntry> g) {
 		Set<CallGraphEntry> startingVertices = new HashSet<>();
 		for (CallGraphEntry e : graph.getVertexSet()) {
@@ -304,7 +304,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		toTestClasses.addAll(classes);
 		return true;
 	}
- 	
+
 	private boolean checkClassInPaths(String targetClass, Graph<CallGraphEntry> g, CallGraphEntry startingVertex) {
 		if(!g.containsVertex(startingVertex)){
 			return false;
@@ -325,8 +325,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	/**
 	 * Determine if methodName of className can be called through the target
-	 * class 
-	 * 
+	 * class
+	 *
 	 * @param className
 	 * @param methodName
 	 * @return
@@ -341,8 +341,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	}
 
 	public boolean isCalledMethodOld(String className, String methodName) {
- 	
- 		
+
+
 		CallGraphEntry tmp = new CallGraphEntry(className, methodName);
 		for (CallGraphEntry e : graph.getEdges().keySet()) {
 			if (e.equals(tmp)) {
@@ -359,7 +359,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
@@ -381,4 +381,14 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		return callGraphClasses;
 	}
 
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		for (CallGraphEntry caller : graph.getVertexSet()) {
+			for (CallGraphEntry callee : graph.getReverseNeighbors(caller)) {
+				sb.append(caller).append(" -> ").append(callee).append("\n");
+			}
+		}
+		return sb.toString();
+	}
 }
