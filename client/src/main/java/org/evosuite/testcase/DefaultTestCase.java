@@ -1161,6 +1161,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 		return target;
 	}
 
+	@Override
+	public void decreaseStatementTTL() {
+		statements.forEach(Statement::decreaseTTL);
+	}
+
+	@Override
+	public void resetTTL() {
+		statements.forEach(Statement::resetTTL);
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

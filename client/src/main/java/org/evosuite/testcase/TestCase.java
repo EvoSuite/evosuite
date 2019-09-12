@@ -545,4 +545,8 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
     void setTarget(TestFitnessFunction chosenGoal);
 
 	TestFitnessFunction getTarget();
+
+	void decreaseStatementTTL();
+
+	void resetTTL();
 }
