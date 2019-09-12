@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.graphs.GraphPool;
@@ -54,22 +55,25 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	private static final long serialVersionUID = 5602125855207061901L;
 	protected final String className;
 	protected final String methodName;
-	private final boolean publicTargetMethod;
+	private final boolean publicExecutable;
 	private final boolean constructor;
-	private final boolean staticTargetMethod;
+	private final boolean staticExecutable;
 	private final Class<?> clazz;
-	private int cyclomaticComplexity; // initialized when the getter is called
+	private final GenericExecutable<?, ?> executable;
+	private final int cyclomaticComplexity;
+	private int failurePenalty;
 
 	protected TestFitnessFunction(final String className,
 								  final String methodNameDesc) {
 		this.className = Objects.requireNonNull(className, "class name cannot be null");
 		this.methodName = Objects.requireNonNull(methodNameDesc, "method name + descriptor cannot be null");
 		this.clazz = Objects.requireNonNull(getTargetClass(className));
-		final GenericExecutable<?, ?> executable =
-				Objects.requireNonNull(getTargetExecutable(methodNameDesc, clazz));
-		this.publicTargetMethod = executable.isPublic();
-		this.staticTargetMethod = executable.isStatic();
+		this.executable = Objects.requireNonNull(getTargetExecutable(methodNameDesc, clazz));
+		this.publicExecutable = executable.isPublic();
+		this.staticExecutable = executable.isStatic();
 		this.constructor = executable.isConstructor();
+		this.cyclomaticComplexity = computeCyclomaticComplexity(className, methodName);
+		this.failurePenalty = -cyclomaticComplexity;
 	}
 
 	private static Class<?> getTargetClass(final String className) {
@@ -81,6 +85,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		}
 	}
 
+	// TODO: should we put this into ReflectionFactory?
 	private static GenericExecutable<?, ?> getTargetExecutable(final String methodNameDesc,
 															   final Class<?> clazz) {
 		// methodNameDesc = name + descriptor, we have to split it into two parts to work with it
@@ -126,7 +131,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 									final Class<?>[] argumentTypes) {
 		final Method method;
 		try {
-			method = clazz.getMethod(name, argumentTypes);
+			method = clazz.getDeclaredMethod(name, argumentTypes);
 		} catch (NoSuchMethodException e) {
 			logger.error("No method with name {} and arguments {} in {}", name, argumentTypes,
 					clazz.getName());
@@ -342,29 +347,74 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return methodName;
 	}
 
-	/**
-	 * Returns the cyclomatic complexity of the target method (as given by
-	 * {@link TestFitnessFunction#getTargetMethodName()}).
-	 *
-	 * @return the cyclomatic complexity of the target method
-	 * @see RawControlFlowGraph#getCyclomaticComplexity()
-	 */
-	public int getCyclomaticComplexity() {
-		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
-		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
-		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
+	private static int computeCyclomaticComplexity(final String className, final String methodName) {
+		final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+		final GraphPool gp = GraphPool.getInstance(cl);
+		final RawControlFlowGraph cfg = gp.getRawCFG(className, methodName);
+		final int cyclomaticComplexity = cfg.getCyclomaticComplexity();
 
-		if (cyclomaticComplexity < 1) { // Lazy initialization of the cyclomaticComplexity field
-			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
-			final GraphPool gp = GraphPool.getInstance(cl);
-			final RawControlFlowGraph cfg = gp.getRawCFG(getTargetClassName(), getTargetMethodName());
-			cyclomaticComplexity = cfg.getCyclomaticComplexity();
-
-			assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
-		}
+		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
 
 		return cyclomaticComplexity;
 	}
+
+	private static int computeCyclomaticComplexityInclCallees(final String className,
+															  final String methodName) {
+		final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
+		final GraphPool gp = GraphPool.getInstance(cl);
+
+		final RawControlFlowGraph cfg = gp.getRawCFG(className, methodName);
+		final int ownComplexity = cfg.getCyclomaticComplexity();
+
+		// Constructs the class call graph for the target class.
+		final ClassCallGraph ccg = gp.getCCFG(className).getCcg();
+
+		// Node in the class call graph representing the method containing the current target.
+		final ClassCallNode method = ccg.getNodeByMethodName(methodName);
+
+		// Entry nodes of the methods called by the current target method.
+		// Only considers methods that are declared in the same class as the target method.
+		ccg.outgoingEdgesOf(method);
+		final Set<ClassCallNode> callees = ccg.getChildren(method);
+//			final Set<ClassCallNode> callees = ccg.getChildrenRecursively(method);
+		callees.remove(method); // don't consider recursive invocations of the target method
+
+		// Computes the sum of the cyclomatic complexities of the callee methods, as well as
+		// the total number of callee methods. A method, even if being called multiple times,
+		// is accounted for only once.
+		final IntSummaryStatistics calleeComplexities = callees.stream()
+				.map(callee -> gp.getRawCFG(methodName, callee.getMethod()))
+				.collect(Collectors.summarizingInt(RawControlFlowGraph::getCyclomaticComplexity));
+		final int totalCalleeComplexity = (int) calleeComplexities.getSum();
+		final int numberOfCallees = (int) calleeComplexities.getCount(); // Individual callees!
+
+		// Using the formula explained in the JavaDoc.
+		final int cyclomaticComplexity = ownComplexity + totalCalleeComplexity - numberOfCallees;
+
+		// sanity check that field was properly initialized and no impossible value was computed
+		assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
+
+		return cyclomaticComplexity;
+	}
+
+//	/**
+//	 * Returns the cyclomatic complexity of the target method (as given by
+//	 * {@link TestFitnessFunction#getTargetMethodName()}).
+//	 *
+//	 * @return the cyclomatic complexity of the target method
+//	 * @see RawControlFlowGraph#getCyclomaticComplexity()
+//	 */
+//	public int getCyclomaticComplexity() {
+//		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
+//		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
+//		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
+//
+//		if (cyclomaticComplexity < 1) { // Lazy initialization of the cyclomaticComplexity field
+//			cyclomaticComplexity = computeCyclomaticComplexity(className, methodName);
+//		}
+//
+//		return cyclomaticComplexity;
+//	}
 
 	/**
 	 * Returns the cyclomatic complexity of the target method, including the cyclomatic complexities
@@ -414,60 +464,24 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 *
 	 * @return the cyclomatic complexity
 	 */
-	public int getCyclomaticComplexityInclCallees() {
-		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
-		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
-		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
-
-		if (cyclomaticComplexity < 1) { // Lazy initialization of the cyclomaticComplexity field
-			final InstrumentingClassLoader cl = TestGenerationContext.getInstance().getClassLoaderForSUT();
-			final GraphPool gp = GraphPool.getInstance(cl);
-
-			// Class name and method name that contain the target.
-			final String targetClass = getTargetClassName();
-			final String targetMethod = getTargetMethodName();
-
-			final RawControlFlowGraph cfg = gp.getRawCFG(targetClass, targetMethod);
-			final int ownComplexity = cfg.getCyclomaticComplexity();
-
-			// Constructs the class call graph for the target class.
-			final ClassCallGraph ccg = gp.getCCFG(targetClass).getCcg();
-
-			// Node in the class call graph representing the method containing the current target.
-			final ClassCallNode method = ccg.getNodeByMethodName(targetMethod);
-
-			// Entry nodes of the methods called by the current target method.
-			// Only considers methods that are declared in the same class as the target method.
-			ccg.outgoingEdgesOf(method);
-			final Set<ClassCallNode> callees = ccg.getChildren(method);
-//			final Set<ClassCallNode> callees = ccg.getChildrenRecursively(method);
-			callees.remove(method); // don't consider recursive invocations of the target method
-
-			// Computes the sum of the cyclomatic complexities of the callee methods, as well as
-			// the total number of callee methods. A method, even if being called multiple times,
-			// is accounted for only once.
-			final IntSummaryStatistics calleeComplexities = callees.stream()
-					.map(callee -> gp.getRawCFG(targetClass, callee.getMethod()))
-					.collect(Collectors.summarizingInt(RawControlFlowGraph::getCyclomaticComplexity));
-			final int totalCalleeComplexity = (int) calleeComplexities.getSum();
-			final int numberOfCallees = (int) calleeComplexities.getCount(); // Individual callees!
-
-			// Using the formula explained in the JavaDoc.
-			cyclomaticComplexity = ownComplexity + totalCalleeComplexity - numberOfCallees;
-
-			// sanity check that field was properly initialized and no impossible value was computed
-			assert cyclomaticComplexity > 0 : "cyclomatic complexity must be positive number";
-		}
-
-		return cyclomaticComplexity;
-	}
+//	public int getCyclomaticComplexityInclCallees() {
+//		// This method is thread-safe: the cyclomaticComplexity field is effectively final as long
+//		// as no setter exists. Then, race conditions cannot occur. The worst thing that can happen
+//		// is that two threads initialize cyclomaticComplexity to the same value at the same time.
+//
+//		if (cyclomaticComplexity < 1) { // Lazy initialization of the cyclomaticComplexity field
+//			computeCyclomaticComplexityInclCallees(className, methodName);
+//		}
+//
+//		return cyclomaticComplexity;
+//	}
 
 	public boolean isPublic() {
-		return publicTargetMethod;
+		return publicExecutable;
 	}
 
 	public boolean isStatic() {
-		return staticTargetMethod;
+		return staticExecutable;
 	}
 
 	public boolean isConstructor() {
@@ -476,5 +490,29 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 
 	public Class<?> getClazz() {
 		return clazz;
+	}
+
+	public GenericExecutable<?, ?> getExecutable() {
+		return executable;
+	}
+
+	public void increaseFailurePenalty() {
+		failurePenalty++;
+	}
+
+	public void resetFailurePenalty() {
+		failurePenalty = -cyclomaticComplexity;
+	}
+
+	public int getFailurePenalty() {
+		return failurePenalty;
+	}
+
+	public boolean isFailurePenaltyReached() {
+		return failurePenalty > Properties.FAILURE_PENALTY;
+	}
+
+	public int getCyclomaticComplexity() {
+		return cyclomaticComplexity;
 	}
 }
