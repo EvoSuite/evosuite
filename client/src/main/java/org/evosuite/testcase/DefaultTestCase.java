@@ -79,6 +79,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private int id;
 
+	private TestFitnessFunction target;
+
 	/**
 	 * Constructs an empty test case, i.e., initially containing no statements.
 	 */
@@ -1147,6 +1149,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 		visitor.setExceptions(exceptions);
 		accept(visitor);
 		return visitor.getCode();
+	}
+
+	@Override
+	public void setTarget(TestFitnessFunction target) {
+		this.target = target;
+	}
+
+	@Override
+	public TestFitnessFunction getTarget() {
+		return target;
 	}
 
 	/* (non-Javadoc)

@@ -542,4 +542,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 */
 	public String toCode(Map<Integer, Throwable> exceptions);
 
+    void setTarget(TestFitnessFunction chosenGoal);
+
+	TestFitnessFunction getTarget();
 }
