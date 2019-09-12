@@ -45,7 +45,7 @@ public class ExceptionMapGenerator {
         Set<Type> exceptionTypes = new LinkedHashSet<>();
         if(mn.exceptions != null) {
             for (String exceptionName : mn.exceptions) {
-                exceptionTypes.add(Type.getType(exceptionName));
+                exceptionTypes.add(Type.getObjectType(exceptionName));
                 logger.debug("Method {} throws {}", mn.name, exceptionName);
             }
         }
