@@ -549,4 +549,6 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	void decreaseStatementTTL();
 
 	void resetTTL();
+
+	boolean callsMethod(String className, String methodNameDesc);
 }

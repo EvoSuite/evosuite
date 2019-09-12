@@ -1179,4 +1179,19 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public String toString() {
 		return toCode();
 	}
+
+	@Override
+	public boolean callsMethod(String className, String methodNameDesc) {
+		for (Statement statement : statements) {
+			if (statement instanceof EntityWithParametersStatement) {
+				EntityWithParametersStatement stmt = (EntityWithParametersStatement) statement;
+				if (stmt.getDeclaringClassName().equals(className)
+						&& (stmt.getMethodName() + stmt.getDescriptor()).equals(methodNameDesc)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 }
