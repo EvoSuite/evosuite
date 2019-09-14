@@ -169,6 +169,29 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		}
 	}
 
+	public Set<CallGraphEntry> getPublicCallersOf(String className, String methodName) {
+		return getPublicCallersOf(new CallGraphEntry(className, methodName));
+	}
+
+	public Set<CallGraphEntry> getPublicCallersOf(CallGraphEntry callee) {
+		final boolean isPublic = publicMethods.stream().anyMatch(cc ->
+				callee.getClassName().equals(cc.getRootClassName())
+						&& callee.getMethodName().equals(cc.getRootMethodName()));
+
+		if (isPublic) {
+			return Collections.singleton(callee);
+		} else {
+			final Iterable<CallGraphEntry> callers = graph.getNeighbors(callee);
+			final Set<CallGraphEntry> result = new HashSet<>();
+			for (CallGraphEntry caller : callers) {
+				if (!caller.equals(callee)) { // filter out recursive methods
+					result.addAll(getPublicCallersOf(caller));
+				}
+			}
+			return result;
+		}
+	}
+
 	/**
 	 * computes and returns the call contexts of the specific method
 	 *
