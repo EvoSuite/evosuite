@@ -27,7 +27,6 @@ import org.evosuite.graphs.ccg.ClassCallGraph;
 import org.evosuite.graphs.ccg.ClassCallNode;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.instrument.ClassLoaderUtils;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
@@ -36,12 +35,7 @@ import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericExecutable;
 import org.evosuite.utils.generic.GenericMethod;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +47,9 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
+	private static final Map<String, Class<?>> classCache = new HashMap<>();
+	private static final Map<String, GenericExecutable<?, ?>> executableCache = new HashMap<>();
+
 	protected final String className;
 	protected final String methodName;
 	private final boolean publicExecutable;
@@ -77,67 +74,61 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	}
 
 	private static Class<?> getTargetClass(final String className) {
-		try {
-			return TestCluster.getInstance().getClass(className);
-		} catch (ClassNotFoundException e) {
-			logger.error("Unable to reflect unknown class {}", className);
-			return null;
+		if (classCache.containsKey(className)) {
+			return classCache.get(className);
+		} else {
+			final ClassLoader classLoaderForSUT =
+					TestGenerationContext.getInstance().getClassLoaderForSUT();
+			final Class<?> clazz;
+			try {
+				clazz = Class.forName(className, false, classLoaderForSUT);
+			} catch (ClassNotFoundException e) {
+				logger.error("Unable to reflect unknown class {}", className);
+				return null;
+			}
+			classCache.put(className, clazz);
+			return clazz;
 		}
 	}
 
 	// TODO: should we put this into ReflectionFactory?
 	private static GenericExecutable<?, ?> getTargetExecutable(final String methodNameDesc,
 															   final Class<?> clazz) {
-		// methodNameDesc = name + descriptor, we have to split it into two parts to work with it
-		final int descriptorStartIndex = methodNameDesc.indexOf('(');
-		assert descriptorStartIndex > 0 : "malformed method name or descriptor";
-		final String name = methodNameDesc.substring(0, descriptorStartIndex);
-		final String descriptor = methodNameDesc.substring(descriptorStartIndex);
-
-		// Tries to reflect the argument types.
-		final Class<?>[] argumentTypes;
-		final ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
-		try {
-			argumentTypes = ClassLoaderUtils.getArgumentClasses(classLoader, descriptor);
-		} catch (Throwable t) {
-			logger.error("Unable to reflect argument types of method {}", methodNameDesc);
-			logger.error("\tCause: {}", t.getMessage());
-			return null;
-		}
-
-		final boolean isConstructor = name.equals("<init>");
-		if (isConstructor) {
-			return new GenericConstructor(getConstructor(clazz, argumentTypes), clazz);
+		if (executableCache.containsKey(methodNameDesc)) {
+			return executableCache.get(methodNameDesc);
 		} else {
-			return new GenericMethod(getMethod(clazz, name, argumentTypes), clazz);
-		}
-	}
+			// methodNameDesc = name + descriptor, we have to split it into two parts to work with it
+			final int descriptorStartIndex = methodNameDesc.indexOf('(');
+			assert descriptorStartIndex > 0 : "malformed method name or descriptor";
+			final String name = methodNameDesc.substring(0, descriptorStartIndex);
+			final String descriptor = methodNameDesc.substring(descriptorStartIndex);
 
-	private static Constructor<?> getConstructor(final Class<?> clazz,
-												 final Class<?>[] argumentTypes) {
-		final Constructor<?> constructor;
-		try {
-			constructor = clazz.getConstructor(argumentTypes);
-		} catch (NoSuchMethodException e) {
-			logger.error("No constructor of {} with argument types {}", clazz.getName(),
-					argumentTypes);
-			return null;
-		}
-		return constructor;
-	}
+			// Tries to reflect the argument types.
+			final Class<?>[] argumentTypes;
+			final ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
+			try {
+				argumentTypes = ClassLoaderUtils.getArgumentClasses(classLoader, descriptor);
+			} catch (Throwable t) {
+				logger.error("Unable to reflect argument types of method {}", methodNameDesc);
+				logger.error("\tCause: {}", t.getMessage());
+				return null;
+			}
 
-	private static Method getMethod(final Class<?> clazz,
-									final String name,
-									final Class<?>[] argumentTypes) {
-		final Method method;
-		try {
-			method = clazz.getDeclaredMethod(name, argumentTypes);
-		} catch (NoSuchMethodException e) {
-			logger.error("No method with name {} and arguments {} in {}", name, argumentTypes,
-					clazz.getName());
-			return null;
+			// Tries to reflect the executable (must be a method or constructor).
+			final boolean isConstructor = name.equals("<init>");
+			final GenericExecutable<?, ?> executable;
+			try {
+				executable = isConstructor ?
+						new GenericConstructor(clazz.getConstructor(argumentTypes), clazz)
+						: new GenericMethod(clazz.getDeclaredMethod(name, argumentTypes), clazz);
+			} catch (NoSuchMethodException e) {
+				logger.error("No executable with name {} and arguments {} in {}", name,
+						argumentTypes, clazz.getName());
+				return null;
+			}
+			executableCache.put(methodNameDesc, executable);
+			return executable;
 		}
-		return method;
 	}
 
 	/**
@@ -475,7 +466,6 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 //
 //		return cyclomaticComplexity;
 //	}
-
 	public boolean isPublic() {
 		return publicExecutable;
 	}
