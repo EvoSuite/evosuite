@@ -77,11 +77,11 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		if (classCache.containsKey(className)) {
 			return classCache.get(className);
 		} else {
-			final ClassLoader classLoaderForSUT =
+			final ClassLoader classLoader =
 					TestGenerationContext.getInstance().getClassLoaderForSUT();
 			final Class<?> clazz;
 			try {
-				clazz = Class.forName(className, false, classLoaderForSUT);
+				clazz = Class.forName(className, false, classLoader);
 			} catch (ClassNotFoundException e) {
 				logger.error("Unable to reflect unknown class {}", className);
 				return null;
@@ -104,8 +104,9 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 			final String descriptor = methodNameDesc.substring(descriptorStartIndex);
 
 			// Tries to reflect the argument types.
+			final ClassLoader classLoader =
+					TestGenerationContext.getInstance().getClassLoaderForSUT();
 			final Class<?>[] argumentTypes;
-			final ClassLoader classLoader = TestGenerationContext.getInstance().getClassLoaderForSUT();
 			try {
 				argumentTypes = ClassLoaderUtils.getArgumentClasses(classLoader, descriptor);
 			} catch (Throwable t) {
@@ -123,7 +124,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 						: new GenericMethod(clazz.getDeclaredMethod(name, argumentTypes), clazz);
 			} catch (NoSuchMethodException e) {
 				logger.error("No executable with name {} and arguments {} in {}", name,
-						argumentTypes, clazz.getName());
+						argumentTypes, clazz);
 				return null;
 			}
 			executableCache.put(methodNameDesc, executable);
