@@ -31,9 +31,7 @@ import org.evosuite.symbolic.instrument.ClassLoaderUtils;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.generic.GenericConstructor;
 import org.evosuite.utils.generic.GenericExecutable;
-import org.evosuite.utils.generic.GenericMethod;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,10 +45,6 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
-
-	// TODO: should/must they be synchronized?
-	private static final Map<String, Class<?>> classCache = new HashMap<>();
-	private static final Map<String, GenericExecutable<?, ?>> executableCache = new HashMap<>();
 
 	protected final String className;
 	protected final String methodName;
@@ -66,110 +60,13 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 								  final String methodNameDesc) {
 		this.className = Objects.requireNonNull(className, "class name cannot be null");
 		this.methodName = Objects.requireNonNull(methodNameDesc, "method name + descriptor cannot be null");
-		this.clazz = Objects.requireNonNull(getClazz(className));
-		this.executable = Objects.requireNonNull(getExecutable(methodNameDesc, clazz));
+		this.clazz = Objects.requireNonNull(ClassLoaderUtils.getClazz(className));
+		this.executable = Objects.requireNonNull(ClassLoaderUtils.getExecutable(methodNameDesc, clazz));
 		this.publicExecutable = executable.isPublic();
 		this.staticExecutable = executable.isStatic();
 		this.constructor = executable.isConstructor();
 		this.cyclomaticComplexity = computeCyclomaticComplexity(className, methodName);
 		this.failurePenalty = -cyclomaticComplexity;
-	}
-
-	// TODO: should we put this into ReflectionFactory?
-	/**
-	 * Returns the {@code Class} instance for the class with the specified fully qualified name.
-	 * If no matching {@code Class} definition can be found for the given name {@code null} is
-	 * returned.
-	 *
-	 * @param className the name of the class to reflect
-	 * @return the corresponding {@code Class} instance for the given name or {@code null} if no
-	 * definition is found
-	 */
-	public static Class<?> getClazz(final String className) {
-		if (classCache.containsKey(className)) {
-			return classCache.get(className);
-		} else {
-			final ClassLoader classLoader =
-					TestGenerationContext.getInstance().getClassLoaderForSUT();
-			final Class<?> clazz;
-			try {
-				clazz = Class.forName(className, false, classLoader);
-			} catch (ClassNotFoundException e) {
-				logger.error("Unable to reflect unknown class {}", className);
-				return null;
-			}
-			classCache.put(className, clazz);
-			return clazz;
-		}
-	}
-
-	// TODO: should we put this into ReflectionFactory?
-	/**
-	 * Tries to reflect the method or constructor specified by the given owner class and method
-	 * name + descriptor, and creates a corresponding {@code GenericMethod} or
-	 * {@code GenericConstructor} object as appropriate. Callers may safely downcast the returned
-	 * {@code GenericExecutableMember} to a {@code GenericMethod} or {@code GenericConstructor} by
-	 * checking the concrete subtype via the methods {@link GenericExecutable#isMethod() isMethod()}
-	 * and {@link GenericExecutable#isConstructor() isConstructor()}. The method returns
-	 * {@code null} if no matching executable could be found. Throws an {@code
-     * IllegalArgumentException} if the method name + descriptor is malformed.
-     *
-     * @param methodNameDesc method name and descriptor of the executable to reflect. Must not be
-     *                       {@code null}
-     * @param clazz          the {@code Class} instance representing the owner class of the
-     *                       executable. Must not be {@code null}.
-     * @return the {@code GenericExecutableMember} object that represents the reflected method
-     * or constructor, or {@code null} if no such method or constructor can be found
-	 */
-	public static GenericExecutable<?, ?> getExecutable(final String methodNameDesc,
-														final Class<?> clazz) {
-		Objects.requireNonNull(methodNameDesc);
-		Objects.requireNonNull(clazz);
-
-		if (executableCache.containsKey(methodNameDesc)) {
-			return executableCache.get(methodNameDesc);
-		} else {
-			// methodNameDesc = name + descriptor
-			// We have to split it into two parts to work with it. The opening parenthesis
-			// indicates the start of the method descriptor. Every legal method name in
-			// Java must be at least one character long. Every legal descriptor starts
-			// with the opening parenthesis.
-			final int descriptorStartIndex = methodNameDesc.indexOf('(');
-			if (descriptorStartIndex < 1) {
-				throw new IllegalArgumentException("malformed method name or descriptor");
-			}
-
-			final String name = methodNameDesc.substring(0, descriptorStartIndex);
-			final String descriptor = methodNameDesc.substring(descriptorStartIndex);
-
-			final ClassLoader classLoader =
-					TestGenerationContext.getInstance().getClassLoaderForSUT();
-
-			// Tries to reflect the argument types.
-			final Class<?>[] argumentTypes;
-			try {
-				argumentTypes = ClassLoaderUtils.getArgumentClasses(classLoader, descriptor);
-			} catch (Throwable t) {
-				logger.error("Unable to reflect argument types of method {}", methodNameDesc);
-				logger.error("\tCause: {}", t.getMessage());
-				return null;
-			}
-
-			// Tries to reflect the executable (must be a method or constructor).
-			final boolean isConstructor = name.equals("<init>");
-			final GenericExecutable<?, ?> executable;
-			try {
-				executable = isConstructor ?
-						new GenericConstructor(clazz.getConstructor(argumentTypes), clazz)
-						: new GenericMethod(clazz.getDeclaredMethod(name, argumentTypes), clazz);
-			} catch (NoSuchMethodException e) {
-				logger.error("No executable with name {} and arguments {} in {}", name,
-						argumentTypes, clazz);
-				return null;
-			}
-			executableCache.put(methodNameDesc, executable);
-			return executable;
-		}
 	}
 
 	/**
