@@ -66,8 +66,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 								  final String methodNameDesc) {
 		this.className = Objects.requireNonNull(className, "class name cannot be null");
 		this.methodName = Objects.requireNonNull(methodNameDesc, "method name + descriptor cannot be null");
-		this.clazz = Objects.requireNonNull(getTargetClass(className));
-		this.executable = Objects.requireNonNull(getTargetExecutable(methodNameDesc, clazz));
+		this.clazz = Objects.requireNonNull(getClazz(className));
+		this.executable = Objects.requireNonNull(getExecutable(methodNameDesc, clazz));
 		this.publicExecutable = executable.isPublic();
 		this.staticExecutable = executable.isStatic();
 		this.constructor = executable.isConstructor();
@@ -85,7 +85,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @return the corresponding {@code Class} instance for the given name or {@code null} if no
 	 * definition is found
 	 */
-	public static Class<?> getTargetClass(final String className) {
+	public static Class<?> getClazz(final String className) {
 		if (classCache.containsKey(className)) {
 			return classCache.get(className);
 		} else {
@@ -121,8 +121,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
      * @return the {@code GenericExecutableMember} object that represents the reflected method
      * or constructor, or {@code null} if no such method or constructor can be found
 	 */
-	public static GenericExecutable<?, ?> getTargetExecutable(final String methodNameDesc,
-															  final Class<?> clazz) {
+	public static GenericExecutable<?, ?> getExecutable(final String methodNameDesc,
+														final Class<?> clazz) {
 		Objects.requireNonNull(methodNameDesc);
 		Objects.requireNonNull(clazz);
 
