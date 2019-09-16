@@ -514,7 +514,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @see Properties#FAILURE_PENALTY
 	 */
 	public boolean isFailurePenaltyReached() {
-		return failurePenalty > maxFailures;
+		return !(failurePenalty < maxFailures);
 	}
 
 	/**
