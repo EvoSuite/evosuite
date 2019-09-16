@@ -19,65 +19,32 @@
  */
 package org.evosuite.instrumentation;
 
-import java.util.HashMap;
-
 import org.evosuite.assertion.CheapPurityAnalyzer;
+import org.evosuite.graphs.ddg.MethodEntry;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.util.HashMap;
+
 /**
  * It launches a <code>PurityAnalysisMethodVisitor</code> on each method.
  * This class only reads the existing bytecode.
- * 
+ *
  * @author Juan Galeotti
  */
 public class PurityAnalysisClassVisitor extends ClassVisitor {
 
 	private final CheapPurityAnalyzer purityAnalyzer;
 
-	public static class MethodEntry {
-		private final String className;
-		private final String methodName;
-		private final String descriptor;
-
-		public MethodEntry(String className, String methodName,
-				String descriptor) {
-			this.className = className;
-			this.methodName = methodName;
-			this.descriptor = descriptor;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o == null)
-				return false;
-
-			if (!o.getClass().equals(MethodEntry.class))
-				return false;
-
-			MethodEntry that = (MethodEntry) o;
-
-			return this.className.equals(that.className)
-					&& this.methodName.equals(that.methodName)
-					&& this.descriptor.equals(that.descriptor);
-		}
-
-		@Override
-		public int hashCode() {
-			return this.className.hashCode() + this.methodName.hashCode()
-					+ this.descriptor.hashCode();
-		}
-	}
-
 	private final String className;
-	private final HashMap<MethodEntry, PurityAnalysisMethodVisitor> method_adapters = new HashMap<MethodEntry, PurityAnalysisMethodVisitor>();
+	private final HashMap<MethodEntry, PurityAnalysisMethodVisitor> methodAdapters = new HashMap<>();
 
 	/**
 	 * <p>
 	 * Constructor for StaticInitializationClassAdapter.
 	 * </p>
-	 * 
+	 *
 	 * @param visitor
 	 *            a {@link org.objectweb.asm.ClassVisitor} object.
 	 * @param className
@@ -96,7 +63,7 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 			String descriptor, String signature, String[] exceptions) {
 
 
-		if (visitingInterface == true) {
+		if (visitingInterface) {
 			purityAnalyzer.addInterfaceMethod(className.replace('/', '.'),
 					name, descriptor);
 		} else {
@@ -106,7 +73,7 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 				purityAnalyzer.addMethodWithBody(className.replace('/', '.'), name,
 					descriptor);
 			} else {
-				// The declaration of this method is abstract. So 
+				// The declaration of this method is abstract. So
 				// there is no method body for this method in this class
 			}
 		}
@@ -116,17 +83,16 @@ public class PurityAnalysisClassVisitor extends ClassVisitor {
 		PurityAnalysisMethodVisitor purityAnalysisMethodVisitor = new PurityAnalysisMethodVisitor(
 				className, name, descriptor, mv, purityAnalyzer);
 		MethodEntry methodEntry = new MethodEntry(className, name, descriptor);
-		this.method_adapters.put(methodEntry, purityAnalysisMethodVisitor);
+		this.methodAdapters.put(methodEntry, purityAnalysisMethodVisitor);
 		return purityAnalysisMethodVisitor;
 	}
 
 	@Override
 	public void visitEnd() {
-		for (MethodEntry method_entry : this.method_adapters.keySet()) {
-
-			if (this.method_adapters.get(method_entry).updatesField()) {
-				purityAnalyzer.addUpdatesFieldMethod(method_entry.className,
-						method_entry.methodName, method_entry.descriptor);
+		for (MethodEntry methodEntry : this.methodAdapters.keySet()) {
+			if (this.methodAdapters.get(methodEntry).updatesField()) {
+				purityAnalyzer.addUpdatesFieldMethod(methodEntry.getClassName(),
+						methodEntry.getMethodName(), methodEntry.getDescriptor());
 			}
 		}
 	}

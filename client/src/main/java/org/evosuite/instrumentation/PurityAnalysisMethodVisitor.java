@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.instrumentation;
 
 import org.evosuite.assertion.CheapPurityAnalyzer;
@@ -27,7 +24,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * It collects bytecode instructions for further purity analysis in the 
+ * It collects bytecode instructions for further purity analysis in the
  * <code>CheapPurityAnalyzer</code> class:
  * <ul>
  * 	<li>PUTSTATIC</li>
@@ -38,7 +35,7 @@ import org.objectweb.asm.Opcodes;
  * 	<li>INVOKEVIRTUAL</li>
  * </ul>
  * This class only reads the existing bytecode.
- * 
+ *
  * @author Juan Galeotti
  */
 public class PurityAnalysisMethodVisitor extends MethodVisitor {
@@ -74,8 +71,7 @@ public class PurityAnalysisMethodVisitor extends MethodVisitor {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void visitFieldInsn(int opcode, String owner, String name,
-			String desc) {
+	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
 			updatesField = true;
 		}

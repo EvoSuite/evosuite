@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,6 +19,7 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.runtime.classhandling.ClassResetter;
 import org.evosuite.runtime.mock.MockList;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class performs a very cheap purity analysis by under-approximating the set of
@@ -46,7 +48,7 @@ import java.util.*;
  *  <li>All special invocations (INVOKESPECIAL) are also made to <i>cheap-pure</i> methods</li>
  *  <li>All interface invocations (INVOKEINTERFACE) are also made to <i>cheap-pure</i> methods</li>
  * </ul>
- * 
+ *
  * @author galeotti
  *
  */
@@ -55,9 +57,9 @@ public class CheapPurityAnalyzer {
 	private static Logger logger = LoggerFactory
 			.getLogger(CheapPurityAnalyzer.class);
 
-	private final HashSet<MethodEntry> updateFieldMethodList = new HashSet<MethodEntry>();
-	private final HashMap<MethodEntry, Boolean> purityCache = new HashMap<MethodEntry, Boolean>();
-	private final HashSet<MethodEntry> methodEntries = new HashSet<MethodEntry>();
+	private final HashSet<MethodEntry> updateFieldMethodList = new HashSet<>();
+	private final HashMap<MethodEntry, Boolean> purityCache = new HashMap<>();
+	private final HashSet<MethodEntry> methodEntries = new HashSet<>();
 
 	/**
 	 * We return this value when we can't conclude if a given method is pure or not.
@@ -70,19 +72,22 @@ public class CheapPurityAnalyzer {
 		return instance;
 	}
 
+	private CheapPurityAnalyzer() {
+		// private constructor due to singleton pattern, use getInstance() instead
+	}
+
 	public List<String> getPureMethods(String className) {
-		ArrayList<String> list = new ArrayList<>();
-		for (MethodEntry m : methodEntries) {
-			if (m.className.equals(className) && isPure(m) && m.methodName != ClassResetter.STATIC_RESET) {
-				list.add(m.methodName + m.descriptor);
-			}
-		}
-		return list;
+		return methodEntries.stream()
+				.filter(m -> m.getClassName().equals(className)
+						&& isPure(m)
+						&& !m.getMethodName().equals(ClassResetter.STATIC_RESET))
+				.map(m -> m.getMethodName() + m.getDescriptor())
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	/**
 	 * Returns if the method is cheap-pure.
-	 * 
+	 *
 	 * @param className The declaring class name
 	 * @param methodName The method name
 	 * @param descriptor The method descriptor
@@ -94,7 +99,7 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isPure(MethodEntry entry) {
-		Stack<MethodEntry> emptyStack = new Stack<MethodEntry>();
+		Stack<MethodEntry> emptyStack = new Stack<>();
 		return isPure(entry, emptyStack);
 	}
 
@@ -106,25 +111,25 @@ public class CheapPurityAnalyzer {
 		return this.purityCache.get(entry);
 	}
 
-	private void addCacheValue(MethodEntry entry, boolean new_value) {
+	private void addCacheValue(MethodEntry entry, boolean newValue) {
 		if (isCached(entry)) {
-			boolean old_value = this.purityCache.get(entry);
-			if (old_value == false && new_value == true) {
-				String fullyQuantifiedMethodName = entry.className + "."
-						+ entry.methodName + entry.descriptor;
+			boolean oldValue = this.purityCache.get(entry);
+			if (!oldValue && newValue) {
+				String fullyQuantifiedMethodName = entry.getClassName() + "."
+						+ entry.getMethodName() + entry.getDescriptor();
 
 				logger.warn("Purity value in cache cannot evolve from NOT_PURE to PURE for method "
 						+ fullyQuantifiedMethodName);
 			}
 		}
-		this.purityCache.put(entry, new_value);
+		this.purityCache.put(entry, newValue);
 	}
 
 	private boolean isPure0(MethodEntry entry, Stack<MethodEntry> callStack) {
 		if (isRandomCall(entry)) {
 			return false;
 		}
-		
+
 		if(isArrayCall(entry)) {
 			return true;
 		}
@@ -133,13 +138,13 @@ public class CheapPurityAnalyzer {
 			return true;
 		}
 
-		if (!BytecodeInstrumentation.checkIfCanInstrument(entry.className)) {
+		if (!BytecodeInstrumentation.checkIfCanInstrument(entry.getClassName())) {
 			return false;
 		}
 
 		if (this.updateFieldMethodList.contains(entry)) {
 			// If the method has an implementation that
-			// modifies any field, we conclude the method is 
+			// modifies any field, we conclude the method is
 			// NOT PURE
 			return false;
 		}
@@ -148,7 +153,7 @@ public class CheapPurityAnalyzer {
 			Set<MethodEntry> calls = staticCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
 				// If the method has an implementation that
-				// invokes at least one *static method*  that is not 
+				// invokes at least one *static method*  that is not
 				// pure, we conclude the method is NOT PURE
 				return false;
 			}
@@ -158,7 +163,7 @@ public class CheapPurityAnalyzer {
 			Set<MethodEntry> calls = specialCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
 				// If the method has an implementation that
-				// has at least one *special call* that is not 
+				// has at least one *special call* that is not
 				// pure, we conclude the method is NOT PURE
 				return false;
 			}
@@ -168,7 +173,7 @@ public class CheapPurityAnalyzer {
 			Set<MethodEntry> calls = virtualCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
 				// If the method has an implementation that
-				// invokes at least one *virtual method* that is not 
+				// invokes at least one *virtual method* that is not
 				// pure, we conclude the method is NOT PURE
 				return false;
 			}
@@ -178,7 +183,7 @@ public class CheapPurityAnalyzer {
 			Set<MethodEntry> calls = interfaceCalls.get(entry);
 			if (checkAnyCallImpure(calls, entry, callStack)) {
 				// If the method has an implementation that
-				// has at least one *interface call* that is not 
+				// has at least one *interface call* that is not
 				// pure, we conclude the method is NOT PURE
 				return false;
 			}
@@ -186,7 +191,7 @@ public class CheapPurityAnalyzer {
 
 		// check overriding methods
 		if (checkAnyOverridingMethodImpure(entry, callStack)) {
-			// If there is any descendant of this class that 
+			// If there is any descendant of this class that
 			// has a declaration for this method that is not pure,
 			// we conclude the method is NOT PURE
 			return false;
@@ -194,15 +199,15 @@ public class CheapPurityAnalyzer {
 
 		if (this.interfaceMethodEntries.contains(entry)) {
 			// IF this is an interface method returns true
-			// since we could not find any implementor of 
+			// since we could not find any implementor of
 			// this method interface that is impure
 			return true;
 		}
 
 		if (this.methodsWithBodies.contains(entry)) {
 			// This means a method body for Foo.m() declared in Foo
-			// and there are no reasons to think Foo.m() 
-			// (namely no calls to impure methods, no field updates, 
+			// and there are no reasons to think Foo.m()
+			// (namely no calls to impure methods, no field updates,
 			// no descendant that has an impure implementation),
 			// we conclude the method is *PURE*
 			return true;
@@ -222,15 +227,15 @@ public class CheapPurityAnalyzer {
 	private boolean isPureSuperclass(MethodEntry entry, Stack<MethodEntry> callStack) {
 		InheritanceTree inheritanceTree = TestCluster.getInheritanceTree();
 		for (String superClassName : inheritanceTree
-				.getOrderedSuperclasses(entry.className)) {
-			if (superClassName.equals(entry.className))
+				.getOrderedSuperclasses(entry.getClassName())) {
+			if (superClassName.equals(entry.getClassName()))
 				continue;
 			MethodEntry superEntry = new MethodEntry(superClassName,
-					entry.methodName, entry.descriptor);
+					entry.getMethodName(), entry.getDescriptor());
 			if (!callStack.contains(superEntry) && methodsWithBodies.contains(superEntry)) {
 				// We can conclude the purity of this method because
 				// we found an implementation in a super class for it
-				Stack<MethodEntry> newStack = new Stack<MethodEntry>();
+				Stack<MethodEntry> newStack = new Stack<>();
 				newStack.addAll(callStack);
 				newStack.add(superEntry);
 				boolean purityValueForSuperClass = isPure(superEntry, newStack);
@@ -239,25 +244,28 @@ public class CheapPurityAnalyzer {
 		}
 
 		// We cannot conclusive decide if the
-		// method is pure or not, so we fail 
+		// method is pure or not, so we fail
 		// to default purity value
 		return DEFAULT_PURITY_VALUE;
 	}
 
 	private boolean isRandomCall(MethodEntry entry) {
-		if (entry.className.equals("java.util.Random"))
+		final String className = entry.getClassName();
+		if (className.equals("java.util.Random"))
 			return true;
-		else if (entry.className.equals("java.security.SecureRandom"))
+		else if (className.equals("java.security.SecureRandom"))
 			return true;
-		else if (entry.className.equals(org.evosuite.runtime.Random.class.getName()))
+		else if (className.equals(org.evosuite.runtime.Random.class.getName()))
 			return true;
-		else if (entry.className.equals("java.lang.Math")
-				&& entry.methodName.equals("random"))
+		else if (className.equals("java.lang.Math") && entry.getMethodName().equals("random"))
 			return true;
-		else
+		else if (className.equals("java.util.concurrent.ThreadLocalRandom")) {
+			return true;
+		} else {
 			return false;
+		}
 	}
-	
+
 	/**
 	 * clone, equals, getClass, hashCode, toString seem pure
 	 * TODO: finalize, notify, notifyAll, wait?
@@ -265,10 +273,7 @@ public class CheapPurityAnalyzer {
 	 * @return
 	 */
 	private boolean isArrayCall(MethodEntry entry) {
-		if(entry.className.startsWith("[")) {
-			return true;
-		}
-		return false;
+		return entry.getClassName().startsWith("[");
 	}
 
 	private boolean isPure(MethodEntry entry, Stack<MethodEntry> callStack) {
@@ -286,7 +291,7 @@ public class CheapPurityAnalyzer {
 		InheritanceTree inheritanceTree = DependencyAnalysis
 				.getInheritanceTree();
 
-		String className = "" + entry.className;
+		String className = "" + entry.getClassName();
 //		while (className.contains("[L")) {
 //			className = className.substring(2, className.length() - 1);
 //		}
@@ -299,15 +304,15 @@ public class CheapPurityAnalyzer {
 
 		Set<String> subclasses = inheritanceTree.getSubclasses(className);
 		for (String subclassName : subclasses) {
-			if (!entry.className.equals(subclassName)) {
+			if (!entry.getClassName().equals(subclassName)) {
 
 				MethodEntry subclassEntry = new MethodEntry(subclassName,
-						entry.methodName, entry.descriptor);
+						entry.getMethodName(), entry.getDescriptor());
 
 				if (!callStack.contains(subclassEntry)
 						&& methodEntries.contains(subclassEntry)) {
 
-					Stack<MethodEntry> newStack = new Stack<MethodEntry>();
+					Stack<MethodEntry> newStack = new Stack<>();
 					newStack.addAll(callStack);
 					newStack.add(subclassEntry);
 					if (!isPure(subclassEntry, newStack)) {
@@ -320,16 +325,16 @@ public class CheapPurityAnalyzer {
 	}
 
 	private boolean isJdkPureMethod(MethodEntry entry) {
-		String paraz = entry.descriptor;
+		String paraz = entry.getDescriptor();
 		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
 		String newParams = "";
 		if (parameters.length != 0) {
 			for (Type i : parameters) {
 				newParams = newParams + "," + i.getClassName();
 			}
-			newParams = newParams.substring(1, newParams.length());
+			newParams = newParams.substring(1);
 		}
-		String qualifiedName = entry.className + "." + entry.methodName + "("
+		String qualifiedName = entry.getClassName() + "." + entry.getMethodName() + "("
 				+ newParams + ")";
 
 		return (JdkPureMethodsList.instance.checkPurity(qualifiedName));
@@ -339,7 +344,7 @@ public class CheapPurityAnalyzer {
 			MethodEntry entry, Stack<MethodEntry> callStack) {
 		for (MethodEntry callMethodEntry : calls) {
 			if (!callStack.contains(callMethodEntry)) {
-				Stack<MethodEntry> copyOfStack = new Stack<MethodEntry>();
+				Stack<MethodEntry> copyOfStack = new Stack<>();
 				copyOfStack.addAll(callStack);
 				copyOfStack.add(entry);
 				if (!isPure(callMethodEntry, copyOfStack)) {
@@ -367,52 +372,7 @@ public class CheapPurityAnalyzer {
 		String descriptor = Type.getMethodDescriptor(method);
 
 		MethodEntry entry = new MethodEntry(className, methodName, descriptor);
-		boolean isPureValue = isPure(entry);
-		return isPureValue;
-	}
-
-	private static class MethodEntry {
-		private final String className;
-		private final String methodName;
-		private final String descriptor;
-
-		public MethodEntry(String className, String methodName,
-				String descriptor) {
-			this.className = className;
-			this.methodName = methodName;
-			this.descriptor = descriptor;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + className.hashCode();
-			result = prime * result + descriptor.hashCode();
-			result = prime * result + methodName.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			MethodEntry other = (MethodEntry) obj;
-			return (className.equals(other.className) && methodName
-					.equals(other.methodName))
-					&& descriptor.equals(other.descriptor);
-		}
-
-		@Override
-		public String toString() {
-			return "MethodEntry [className=" + className + ", methodName="
-					+ methodName + ", descriptor=" + String.valueOf(descriptor)
-					+ "]";
-		}
+		return isPure(entry);
 	}
 
 	public void addMethod(String className, String methodName,
@@ -430,10 +390,10 @@ public class CheapPurityAnalyzer {
 		updateFieldMethodList.add(entry);
 	}
 
-	private final HashMap<MethodEntry, Set<MethodEntry>> staticCalls = new HashMap<MethodEntry, Set<MethodEntry>>();
-	private final HashMap<MethodEntry, Set<MethodEntry>> virtualCalls = new HashMap<MethodEntry, Set<MethodEntry>>();
-	private final HashMap<MethodEntry, Set<MethodEntry>> specialCalls = new HashMap<MethodEntry, Set<MethodEntry>>();
-	private final HashMap<MethodEntry, Set<MethodEntry>> interfaceCalls = new HashMap<MethodEntry, Set<MethodEntry>>();
+	private final HashMap<MethodEntry, Set<MethodEntry>> staticCalls = new HashMap<>();
+	private final HashMap<MethodEntry, Set<MethodEntry>> virtualCalls = new HashMap<>();
+	private final HashMap<MethodEntry, Set<MethodEntry>> specialCalls = new HashMap<>();
+	private final HashMap<MethodEntry, Set<MethodEntry>> interfaceCalls = new HashMap<>();
 
 	public void addStaticCall(String sourceClassName, String sourceMethodName,
 			String sourceDescriptor, String targetClassName,
@@ -476,7 +436,7 @@ public class CheapPurityAnalyzer {
 		MethodEntry targetEntry = new MethodEntry(targetClassName,
 				targetMethodName, targetDescriptor);
 		if (!calls.containsKey(sourceEntry)) {
-			calls.put(sourceEntry, new HashSet<MethodEntry>());
+			calls.put(sourceEntry, new HashSet<>());
 		}
 		calls.get(sourceEntry).add(targetEntry);
 	}
@@ -490,9 +450,9 @@ public class CheapPurityAnalyzer {
 				targetDescriptor);
 	}
 
-	private final HashSet<MethodEntry> interfaceMethodEntries = new HashSet<MethodEntry>();
+	private final HashSet<MethodEntry> interfaceMethodEntries = new HashSet<>();
 
-	private final HashSet<MethodEntry> methodsWithBodies = new HashSet<MethodEntry>();
+	private final HashSet<MethodEntry> methodsWithBodies = new HashSet<>();
 
 	public void addInterfaceMethod(String className, String methodName,
 			String methodDescriptor) {
@@ -507,5 +467,4 @@ public class CheapPurityAnalyzer {
 				methodDescriptor);
 		methodsWithBodies.add(entry);
 	}
-
 }
