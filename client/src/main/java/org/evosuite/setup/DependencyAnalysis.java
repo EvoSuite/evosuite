@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,9 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package org.evosuite.setup;
 
 import org.evosuite.PackageInfo;
@@ -31,11 +28,14 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
+import org.evosuite.graphs.ddg.DataDependenceGraph;
+import org.evosuite.graphs.ddg.TrueDataDependenceGraph;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.setup.callgraph.CallGraphGenerator;
+import org.evosuite.setup.dependencies.DataDependenceGraphGenerator;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.utils.ArrayUtil;
 import org.objectweb.asm.ClassReader;
@@ -48,10 +48,10 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * This class performs static analysis before everything else initializes
- * 
+ * This class performs static analysis on the client-side before everything else initializes.
+ *
  * @author Gordon Fraser
- * 
+ *
  */
 public class DependencyAnalysis {
 
@@ -63,6 +63,9 @@ public class DependencyAnalysis {
 
 	private static InheritanceTree inheritanceTree = null;
 
+	private static DataDependenceGraph methodDependenceGraph = null;
+	private static TrueDataDependenceGraph trueDataDependenceGraph = null;
+
 	private static Set<String> targetClasses = null;
 
 	/**
@@ -72,12 +75,26 @@ public class DependencyAnalysis {
 		return inheritanceTree;
 	}
 
+	public static DataDependenceGraph getMethodDependenceGraph() {
+		return methodDependenceGraph;
+	}
+
+	public static TrueDataDependenceGraph getWriteReadPairs() {
+		return trueDataDependenceGraph;
+	}
+
 	private static void initInheritanceTree(List<String> classPath) {
 		logger.debug("Calculate inheritance hierarchy");
 		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
 		TestClusterGenerator clusterGenerator = new TestClusterGenerator(inheritanceTree);
 		TestGenerationContext.getInstance().setTestClusterGenerator(clusterGenerator);
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
+	}
+
+	private static void initDataDependenceGraph(List<String> classPath) {
+		logger.debug("Loading method dependence graph");
+		methodDependenceGraph = DataDependenceGraphGenerator.createFromClassPath(classPath);
+		trueDataDependenceGraph = methodDependenceGraph.computeWriteReadPairs();
 	}
 
 	private static void analyze(String className, List<String> classPath) throws RuntimeException,
@@ -123,25 +140,27 @@ public class DependencyAnalysis {
 
 	/**
 	 * Start analysis from target class
-	 * 
+	 *
 	 * @param className
 	 */
 	public static void analyzeClass(String className, List<String> classPath) throws RuntimeException,
 			ClassNotFoundException {
 
 		initInheritanceTree(classPath);
+		initDataDependenceGraph(classPath);
 		analyze(className, classPath);
 	}
 
 	/**
 	 * Start analysis from target
-	 * 
+	 *
 	 * @param target (e.g., directory, or jar file)
 	 */
 	public static Set<String> analyzeTarget(String target, List<String> classPath) throws RuntimeException,
 			ClassNotFoundException {
 
 		initInheritanceTree(classPath);
+		initDataDependenceGraph(classPath);
 
 		targetClasses = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getAllClasses(target, false);
 		for (String className : targetClasses) {
@@ -166,7 +185,7 @@ public class DependencyAnalysis {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param className
 	 * @return the CallGraph of className
 	 */
@@ -175,7 +194,7 @@ public class DependencyAnalysis {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the CallGraph of Properties.TARGET_CLASS
 	 */
 	public static CallGraph getCallGraph() {
@@ -184,7 +203,7 @@ public class DependencyAnalysis {
 
 	/**
 	 * Determine if the given class is the target class
-	 * 
+	 *
 	 * @param className
 	 * @return
 	 */
@@ -228,7 +247,7 @@ public class DependencyAnalysis {
 				&& !className.startsWith("org.omg.")
 				&& !className.startsWith("sunw.")
 				&& !className.startsWith("org.jcp.")
-				&& !className.startsWith("org.ietf.") 
+				&& !className.startsWith("org.ietf.")
 				&& !className.startsWith("daikon.");
 	}
 
@@ -255,10 +274,10 @@ public class DependencyAnalysis {
 //
 //		return result;
 //	}
-	
+
 	/**
 	 * Determine if the given class should be analyzed or instrumented
-	 * 
+	 *
 	 * @param className
 	 * @return
 	 */
@@ -291,7 +310,7 @@ public class DependencyAnalysis {
 
 	/**
 	 * Determine if the given method should be instrumented
-	 * 
+	 *
 	 * @param className
 	 * @param methodName
 	 * @return
@@ -310,7 +329,7 @@ public class DependencyAnalysis {
 		// Also analyze if it is in the calltree and we are considering the
 		// context
 		if (Properties.INSTRUMENT_CONTEXT) {
-			
+
 			CallGraph callGraph = callGraphs.get(Properties.TARGET_CLASS);
 			if (callGraph != null && callGraph.isCalledMethod(className, methodName)){
 				if(Properties.INSTRUMENT_LIBRARIES || DependencyAnalysis.isTargetProject(className))
@@ -339,7 +358,7 @@ public class DependencyAnalysis {
 	}
 
 	private static ClassNode loadClassNode(String className) throws IOException {
-		
+
 		InputStream classStream = ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(className);
 		if(classStream == null) {
 			// This used to throw an IOException that leads to null being
