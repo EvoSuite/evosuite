@@ -22,12 +22,9 @@ package org.evosuite.ga.metaheuristics.mosa.structural;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.graphs.cfg.BasicBlock;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.slf4j.Logger;
@@ -141,17 +138,15 @@ public class BranchFitnessGraph implements Serializable {
 		return this.rootBranches;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Set<FitnessFunction<T>> getStructuralChildren(FitnessFunction<T> parent){
+	public Set<TestFitnessFunction> getStructuralChildren(TestFitnessFunction parent) {
 		return this.graph.outgoingEdgesOf(parent).stream()
-				.map(edge -> (FitnessFunction<T>) edge.getTarget())
-				.collect(toSet());
+				.map(DependencyEdge::getTarget)
+				.collect(Collectors.toSet());
 	}
 
-	@SuppressWarnings("unchecked")
-	public Set<FitnessFunction<T>> getStructuralParents(FitnessFunction<T> parent){
+	public Set<TestFitnessFunction> getStructuralParents(TestFitnessFunction parent){
 		return this.graph.incomingEdgesOf(parent).stream()
-				.map(edge -> (FitnessFunction<T>) edge.getSource())
-				.collect(toSet());
+				.map(DependencyEdge::getSource)
+				.collect(Collectors.toSet());
 	}
 }
