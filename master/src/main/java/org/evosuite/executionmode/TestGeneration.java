@@ -174,6 +174,10 @@ public class TestGeneration {
 				String inheritanceFile = EvoSuite.generateInheritanceTree(cp);
 				args.add("-Dinheritance_file=" + inheritanceFile);
 			}
+            if (Properties.INSTRUMENT_CONTEXT||Properties.DEPENDENCY_FILE.isEmpty()) {
+                String dependenceFile = EvoSuite.generateMethodDependenceGraph(cp);
+                args.add("-Ddependence_file=" + dependenceFile);
+            }
 		} catch (IOException e) {
 			LoggingUtils.getEvoLogger().info("* Error while traversing classpath: " + e);
 			return results;
@@ -620,6 +624,10 @@ public class TestGeneration {
 				String inheritanceFile = EvoSuite.generateInheritanceTree(cp);
 				args.add("-Dinheritance_file=" + inheritanceFile);
 			}
+            if (Properties.INSTRUMENT_CONTEXT||Properties.DEPENDENCY_FILE.isEmpty()) {
+                String dependenceFile = EvoSuite.generateMethodDependenceGraph(cp);
+                args.add("-Ddependence_file=" + dependenceFile);
+            }
 		} catch (IOException e) {
 			LoggingUtils.getEvoLogger().info("* Error while traversing classpath: " + e);
 			return results;

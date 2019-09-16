@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -17,44 +17,31 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- *
- */
 package org.evosuite;
+
+import org.apache.commons.cli.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.evosuite.classpath.ClassPathHacker;
+import org.evosuite.executionmode.*;
+import org.evosuite.graphs.ddg.DataDependenceGraph;
+import org.evosuite.junit.writer.TestSuiteWriterUtils;
+import org.evosuite.runtime.sandbox.MSecurityManager;
+import org.evosuite.runtime.util.JavaExecCmdUtil;
+import org.evosuite.setup.InheritanceTree;
+import org.evosuite.setup.InheritanceTreeGenerator;
+import org.evosuite.setup.dependencies.DataDependenceGraphGenerator;
+import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Randomness;
+import org.evosuite.utils.SpawnProcessKeepAliveChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.evosuite.classpath.ClassPathHacker;
-import org.evosuite.executionmode.Continuous;
-import org.evosuite.executionmode.Help;
-import org.evosuite.executionmode.ListClasses;
-import org.evosuite.executionmode.WriteDependencies;
-import org.evosuite.executionmode.ListParameters;
-import org.evosuite.executionmode.MeasureCoverage;
-import org.evosuite.executionmode.PrintStats;
-import org.evosuite.executionmode.Setup;
-import org.evosuite.executionmode.TestGeneration;
-import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.runtime.sandbox.MSecurityManager;
-import org.evosuite.runtime.util.JavaExecCmdUtil;
-import org.evosuite.setup.InheritanceTree;
-import org.evosuite.setup.InheritanceTreeGenerator;
-import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
-import org.evosuite.utils.SpawnProcessKeepAliveChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -92,6 +79,20 @@ public class EvoSuite {
         File outputFile = File.createTempFile("ES_inheritancetree", ".xml.gz");
         outputFile.deleteOnExit();
         InheritanceTreeGenerator.writeInheritanceTree(tree, outputFile);
+        return outputFile.getAbsolutePath();
+    }
+
+    // This code has been copied and pasted from generateInheritanceTree(String)
+    public static String generateMethodDependenceGraph(String cp) throws IOException {
+        LoggingUtils.getEvoLogger().info("* Analyzing classpath (generating method dependence " +
+                "graph)");
+        List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
+        // Clear current dependence file to make sure a new one is generated
+        Properties.DEPENDENCY_FILE = "";
+        DataDependenceGraph graph = DataDependenceGraphGenerator.createFromClassPath(cpList);
+        File outputFile = File.createTempFile("ES_methodDependenceGraph", ".xml.gz");
+        outputFile.deleteOnExit();
+        DataDependenceGraphGenerator.writeDependenceGraph(graph, outputFile);
         return outputFile.getAbsolutePath();
     }
 
@@ -134,7 +135,7 @@ public class EvoSuite {
             if (!line.hasOption(Setup.NAME)) {
                 /*
 				 * -setup is treated specially because it uses the extra input arguments
-				 * 
+				 *
 				 * TODO: Setup should be refactored/fixed
 				 */
                 String[] unrecognized = line.getArgs();

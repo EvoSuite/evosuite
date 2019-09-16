@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -34,14 +34,15 @@ import org.evosuite.utils.LoggingUtils;
 public class Setup {
 
 	public static final String NAME = "setup";
-	
+
 	public static Option getOption(){
 		return new Option(NAME,true,"Create evosuite-files with property file");
 	}
 
 	public static Object execute(List<String> javaOpts, CommandLine line) {
 		boolean inheritanceTree = line.hasOption("inheritanceTree");
-		setup(line.getOptionValue("setup"), line.getArgs(), javaOpts, inheritanceTree);
+		boolean methodDependenceGraph = line.hasOption("methodDependenceGraph");
+		setup(line.getOptionValue("setup"), line.getArgs(), javaOpts, inheritanceTree, methodDependenceGraph);
 		return null;
 	}
 
@@ -53,7 +54,7 @@ public class Setup {
 	}
 
 	private static void setup(String target, String[] args, List<String> javaArgs,
-	        boolean doInheritance) {
+							  boolean doInheritance, boolean methodDependenceGraph) {
 
 		Properties.CP = "";
 
@@ -97,16 +98,34 @@ public class Setup {
 				String fileName = EvoSuite.generateInheritanceTree(Properties.CP);
 				FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR
 				        + File.separator + "inheritance.xml.gz"));
-				
-				 /* 
+
+				 /*
 				  * we need to use '/' instead of File.separator because this value will be written on a text file.
-				  * As the relative path will be given to a File object, this will work also on a Windows machine 
+				  * As the relative path will be given to a File object, this will work also on a Windows machine
 				  */
 				Properties.getInstance().setValue("inheritance_file",
 				                                  Properties.OUTPUT_DIR + "/"
 				                                          + "inheritance.xml.gz");
 			} catch (IOException | IllegalArgumentException | NoSuchParameterException | IllegalAccessException e) {
 				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: " + e.getMessage());
+			}
+		}
+
+		if (methodDependenceGraph) {
+			try {
+				String fileName = EvoSuite.generateMethodDependenceGraph(Properties.CP);
+				FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR
+						+ File.separator + "inheritance.xml.gz"));
+
+				/*
+				 * we need to use '/' instead of File.separator because this value will be written on a text file.
+				 * As the relative path will be given to a File object, this will work also on a Windows machine
+				 */
+				Properties.getInstance().setValue("dependence_file",
+						Properties.OUTPUT_DIR + "/"
+								+ "dependence.xml.gz");
+			} catch (IOException | IllegalArgumentException | NoSuchParameterException | IllegalAccessException e) {
+				LoggingUtils.getEvoLogger().error("* Error while creating method dependence graph: " + e.getMessage());
 			}
 		}
 
@@ -119,6 +138,6 @@ public class Setup {
 		                                                    + File.separator
 		                                                    + "evosuite.properties");
 	}
-	
+
 
 }
