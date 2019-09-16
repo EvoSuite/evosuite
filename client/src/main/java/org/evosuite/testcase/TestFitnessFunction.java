@@ -56,6 +56,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	private final int cyclomaticComplexity;
 	private int failurePenalty;
 
+	private int maxFailures;
+
 	protected TestFitnessFunction(final String className,
 								  final String methodNameDesc) {
 		this.className = Objects.requireNonNull(className, "class name cannot be null");
@@ -66,7 +68,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		this.staticExecutable = executable.isStatic();
 		this.constructor = executable.isConstructor();
 		this.cyclomaticComplexity = computeCyclomaticComplexity(className, methodName);
-		this.failurePenalty = -cyclomaticComplexity;
+		this.failurePenalty = 0;
+		this.maxFailures = Properties.FAILURE_PENALTY + cyclomaticComplexity;
 	}
 
 	/**
@@ -487,7 +490,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 */
 	public void resetFailurePenalty() {
 		if (Properties.ENABLE_FAILURE_PENALTIES) {
-			failurePenalty = -cyclomaticComplexity;
+			failurePenalty = 0;
 		}
 	}
 
@@ -500,6 +503,10 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return failurePenalty;
 	}
 
+	public int getMaxFailures() {
+		return maxFailures;
+	}
+
 	/**
 	 * Tells whether the failure penalty has been reached for the current target.
 	 *
@@ -507,7 +514,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	 * @see Properties#FAILURE_PENALTY
 	 */
 	public boolean isFailurePenaltyReached() {
-		return failurePenalty > Properties.FAILURE_PENALTY;
+		return failurePenalty > maxFailures;
 	}
 
 	/**
