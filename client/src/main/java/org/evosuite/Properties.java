@@ -1183,6 +1183,9 @@ public class Properties {
 	@Parameter(key = "inheritance_file", description = "Cached version of inheritance tree")
 	public static String INHERITANCE_FILE = "";
 
+	@Parameter(key = "dependence_file", description = "Precomputed method dependence relations")
+	public static String DEPENDENCY_FILE = "";
+
 	@Parameter(key = "branch_eval", description = "Jeremy's branch evaluation")
 	public static boolean BRANCH_EVAL = false;
 
