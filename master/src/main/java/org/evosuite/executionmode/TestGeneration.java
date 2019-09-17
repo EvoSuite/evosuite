@@ -134,7 +134,10 @@ public class TestGeneration {
 		} else if(javaOpts.contains("-Dstrategy="+Strategy.NOVELTY.name())) {
 			// TODO: Find a better way to integrate this
 			strategy = Strategy.NOVELTY;
-		} else if (line.hasOption("generateTests")) {
+		} else if(javaOpts.contains("-Dstrategy="+Strategy.MAP_ELITES.name())) {
+          // TODO: Find a better way to integrate this
+          strategy = Strategy.MAP_ELITES;
+        } else if (line.hasOption("generateTests")) {
 			strategy = Strategy.ONEBRANCH;
 		} else if (line.hasOption("generateSuite")) {
 			strategy = Strategy.EVOSUITE;
@@ -360,6 +363,9 @@ public class TestGeneration {
 		case NOVELTY:
 			cmdLine.add("-Dstrategy=Novelty");
 			break;
+		case MAP_ELITES:
+		  cmdLine.add("-Dstrategy=MAP_ELITES");
+          break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
 		}

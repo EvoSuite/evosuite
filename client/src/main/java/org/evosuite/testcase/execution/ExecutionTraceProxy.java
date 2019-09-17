@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.ga.metaheuristics.mapelites.FeatureVector;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
@@ -734,5 +735,4 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public List<String> getInitializedClasses() {
 		return trace.getInitializedClasses();
 	}
-
 }

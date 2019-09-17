@@ -25,6 +25,7 @@ package org.evosuite.testcase.execution;
 import java.util.*;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.ga.metaheuristics.mapelites.FeatureVector;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 

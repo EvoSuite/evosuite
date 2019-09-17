@@ -32,6 +32,7 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
+import org.evosuite.ga.metaheuristics.mapelites.MAPElites;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
@@ -221,6 +222,9 @@ public class PropertiesSuiteGAFactory extends PropertiesSearchAlgorithmFactory<T
               StandardChemicalReaction<TestSuiteChromosome> ga = new StandardChemicalReaction<TestSuiteChromosome>(factory);
               return ga;
             }
+        case MAP_ELITES:
+          logger.info("Chosen search algorithm: MAP-Elites");
+          throw new RuntimeException("MAPElites only works on TestChromosome, not on TestSuiteChromosome");
         case LIPS:
         	logger.info("Chosen search algorithm: LIPS");
             return new LIPS<TestSuiteChromosome>(factory);

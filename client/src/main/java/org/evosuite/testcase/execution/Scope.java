@@ -213,7 +213,7 @@ public class Scope {
 	public Collection<Object> getObjects(Type type) {
 		Set<Object> objects = new LinkedHashSet<Object>();
 		for (Object o : pool.values()) {
-			if (o.getClass().equals(type))
+			if (o != null && o.getClass().equals(type))
 				objects.add(o);
 		}
 		return objects;

@@ -7,7 +7,7 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.metaheuristics.NoveltySearch;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.novelty.BranchNoveltyFunction;
-import org.evosuite.novelty.NoveltyFitnessEvaluationListener;
+import org.evosuite.novelty.SuiteFitnessEvaluationListener;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -49,7 +49,7 @@ public class NoveltyStrategy extends TestGenerationStrategy {
         // What's the search target
         List<TestSuiteFitnessFunction> fitnessFunctions = getFitnessFunctions();
 
-        NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
+        SuiteFitnessEvaluationListener listener = new SuiteFitnessEvaluationListener(fitnessFunctions);
         algorithm.addListener(listener);
         algorithm.setNoveltyFunction(new BranchNoveltyFunction());
 

@@ -118,7 +118,7 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		sequenceOutputVariableFactories.put(RuntimeVariable.FitnessTimeline.name(), new FitnessSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.SizeTimeline.name(), new SizeSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.LengthTimeline.name(), new LengthSequenceOutputVariableFactory());
-        sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), new TotalExceptionsSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), DirectSequenceOutputVariableFactory.getInteger(RuntimeVariable.TotalExceptionsTimeline));
         sequenceOutputVariableFactories.put(RuntimeVariable.IBranchGoalsTimeline.name(), new IBranchGoalsSequenceOutputVariableFactory());
 
 		sequenceOutputVariableFactories.put(RuntimeVariable.BranchCoverageTimeline.name(), new BranchCoverageSequenceOutputVariableFactory());
@@ -145,7 +145,14 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.WeakMutationCoverageTimeline.name(), new WeakMutationCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationFitnessTimeline.name(), new OnlyMutationFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
-		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), new DiversitySequenceOutputVariableFactory());
+		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), 
+            DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DiversityTimeline));
+		
+		sequenceOutputVariableFactories.put(RuntimeVariable.DensityTimeline.name(), 
+		    DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DensityTimeline));
+		
+		sequenceOutputVariableFactories.put(RuntimeVariable.FeaturesFound.name(), 
+            DirectSequenceOutputVariableFactory.getInteger(RuntimeVariable.FeaturesFound));
 
         // sequenceOutputVariableFactories.put("Generation_History", new GenerationSequenceOutputVariableFactory());
 		if(MasterServices.getInstance().getMasterNode() != null)
@@ -215,14 +222,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
          * value so that it can be used to produce the next timeline variable.
          */
         if (sequenceOutputVariableFactories.containsKey(variable.getName())) {
-			if(variable.getValue() instanceof Integer) {
-				DirectSequenceOutputVariableFactory<Integer> v = (DirectSequenceOutputVariableFactory<Integer>) sequenceOutputVariableFactories.get(variable.getName());
-				v.setValue((Integer) variable.getValue());
-			} else if(variable.getValue() instanceof Double) {
-				DirectSequenceOutputVariableFactory<Double> v = (DirectSequenceOutputVariableFactory<Double>) sequenceOutputVariableFactories.get(variable.getName());
-				v.setValue((Double) variable.getValue());
-			}
-//            v.setValue((Integer)variable.getValue());
+          DirectSequenceOutputVariableFactory<?> v = (DirectSequenceOutputVariableFactory<?>) sequenceOutputVariableFactories.get(variable.getName());
+          v.setValue(variable.getValue());
         } else
             outputVariables.put(variable.getName(), variable);
     }
@@ -574,46 +575,6 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		@Override
 		public Integer getValue(TestSuiteChromosome individual) {
 			return individual.totalLengthOfTestCases();
-		}
-	}
-
-    /**
-     * Total number of exceptions
-     */
-    private static class TotalExceptionsSequenceOutputVariableFactory extends DirectSequenceOutputVariableFactory<Integer> {
-        public TotalExceptionsSequenceOutputVariableFactory() {
-            super(RuntimeVariable.TotalExceptionsTimeline);
-            this.value = 0;
-        }
-
-        @Override
-        public Integer getValue(TestSuiteChromosome individual) {
-            return (Integer) this.value;
-        }
-
-        @Override
-        public void setValue(Integer value) {
-            this.value = value;
-        }
-    }
-
-	/**
-	 * Total number of exceptions
-	 */
-	private static class DiversitySequenceOutputVariableFactory extends DirectSequenceOutputVariableFactory<Double> {
-		public DiversitySequenceOutputVariableFactory() {
-			super(RuntimeVariable.DiversityTimeline);
-			this.value = 0.0;
-		}
-
-		@Override
-		public Double getValue(TestSuiteChromosome individual) {
-			return (Double) this.value;
-		}
-
-		@Override
-		public void setValue(Double value) {
-			this.value = value;
 		}
 	}
 
