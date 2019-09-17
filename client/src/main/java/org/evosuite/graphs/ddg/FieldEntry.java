@@ -1,8 +1,8 @@
 package org.evosuite.graphs.ddg;
 
 /**
- * Java Bean that represents a field of a class. The Bean holds the field's name and the name of
- * its owner class.
+ * Java Bean that represents a field of a class. The Bean holds the field's name and the name of its
+ * owner class.
  */
 public class FieldEntry extends ClassMember {
     private final String className;
@@ -17,6 +17,14 @@ public class FieldEntry extends ClassMember {
     public FieldEntry(final String className, final String fieldName) {
         this.className = className;
         this.fieldName = fieldName;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public String getFieldName() {
+        return fieldName;
     }
 
     @Override
