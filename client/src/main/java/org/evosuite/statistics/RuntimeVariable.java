@@ -234,6 +234,15 @@ public enum RuntimeVariable {
 	Implicit_TypeExceptions,
     /** Total number of exceptions covered */
     TotalExceptionsTimeline,
+    
+    /**
+     * Map Elites
+     */
+    DensityTimeline,
+    FeaturePartitionCount,
+    FeatureCount,
+    FeaturesFound,
+    
 	/* ----- number of unique permissions that were denied for each kind --- */
 	AllPermission,
 	SecurityPermission,

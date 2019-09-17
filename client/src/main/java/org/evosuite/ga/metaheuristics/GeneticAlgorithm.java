@@ -284,7 +284,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome, F extends FitnessFu
 	 * 
 	 * @return
 	 */
-	private boolean isMaximizationFunction() {
+	protected final boolean isMaximizationFunction() {
 		return fitnessFunctions.get(0).isMaximizationFunction();
 	}
 
@@ -409,17 +409,26 @@ public abstract class GeneticAlgorithm<T extends Chromosome, F extends FitnessFu
 	 *            a int.
 	 */
 	protected void generateRandomPopulation(int population_size) {
-		logger.debug("Creating random population");
-		for (int i = 0; i < population_size; i++) {
-			T individual = chromosomeFactory.getChromosome();
+	    population.addAll(this.getRandomPopulation(population_size));
+	}
+
+	protected List<T> getRandomPopulation(int population_size) {
+      logger.debug("Creating random population");
+
+      List<T> newPopulation = new ArrayList<>(population_size);
+
+      for (int i = 0; i < population_size; i++) {
+          T individual = chromosomeFactory.getChromosome();
             fitnessFunctions.forEach(individual::addFitness);
 
-			population.add(individual);
-			if (isFinished())
-				break;
-		}
-		logger.debug("Created " + population.size() + " individuals");
-	}
+          newPopulation.add(individual);
+          if (isFinished())
+              break;
+      }
+      logger.debug("Created " + newPopulation.size() + " individuals");
+
+      return newPopulation;
+  }
 
 	/**
 	 * Delete all current individuals
