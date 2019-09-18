@@ -470,13 +470,17 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public final boolean mutate(TestCase test) {
-		final boolean success = mutationImpl(test);
-		if (success) {
-			// we must enforce that every implementing subclass resets the TTL after a successful
-			// mutation
-			resetTTL();
+		if (ttl == 0) { // only allow mutation if TTL is 0
+			final boolean success = mutationImpl(test);
+			if (success) {
+				// we must enforce that every implementing subclass resets the TTL after a
+				// successful mutation
+				resetTTL();
+			}
+			return success;
+		} else {
+			return false;
 		}
-		return success;
 	}
 
 	protected boolean mutationImpl(TestCase testCase) {
