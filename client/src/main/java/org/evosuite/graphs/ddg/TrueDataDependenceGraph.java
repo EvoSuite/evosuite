@@ -52,6 +52,18 @@ public class TrueDataDependenceGraph {
         }
     }
 
+    public Set<MethodEntry> getReadingMethodsFor(MethodEntry writing) {
+        if (!graph.containsVertex(writing)) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Method " + writing + " not registered during dependence analysis");
+            }
+
+            return Collections.emptySet();
+        } else {
+            return graph.getNeighbors(writing);
+        }
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
