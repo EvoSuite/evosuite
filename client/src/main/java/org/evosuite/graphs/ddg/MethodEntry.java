@@ -11,9 +11,21 @@ public class MethodEntry extends ClassMember {
 
     public MethodEntry(String className, String methodName,
                        String descriptor) {
-        this.className = className;
+        this.className = className.replaceAll("/", ".");
         this.methodName = methodName;
         this.descriptor = descriptor;
+    }
+
+    public MethodEntry(String className, String methodNameDesc) {
+        this.className = className.replaceAll("/", ".");
+        final int splitIndex = methodNameDesc.indexOf('(');
+
+        if (splitIndex < 1) {
+            throw new IllegalArgumentException("malformed method name + descriptor");
+        }
+
+        this.methodName = methodNameDesc.substring(0, splitIndex);
+        this.descriptor = methodNameDesc.substring(splitIndex);
     }
 
     public String getClassName() {
@@ -26,6 +38,10 @@ public class MethodEntry extends ClassMember {
 
     public String getDescriptor() {
         return descriptor;
+    }
+
+    public String getMethodNameDesc() {
+        return methodName + descriptor;
     }
 
     @Override
