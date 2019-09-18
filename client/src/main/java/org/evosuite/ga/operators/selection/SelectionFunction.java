@@ -21,6 +21,7 @@ package org.evosuite.ga.operators.selection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -50,7 +51,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 
 	/**
 	 * Return index of next offspring
-	 * 
+	 *
 	 * @param population
 	 *            a {@link java.util.List} object.
 	 * @return a int.
@@ -59,7 +60,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 
 	/**
 	 * Return two parents
-	 * 
+	 *
 	 * @param population
 	 *            a {@link java.util.List} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
@@ -70,7 +71,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 
 	/**
 	 * Return n parents
-	 * 
+	 *
 	 * @param population
 	 *            a {@link java.util.List} object.
 	 * @param number
@@ -78,15 +79,19 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<T> select(List<T> population, int number) {
-		return Stream.generate(() -> getIndex(population))
-				.limit(number)
-				.map(population::get)
+		if (population.isEmpty()) {
+			return Collections.emptyList();
+		} else {
+			return Stream.generate(() -> getIndex(population))
+					.limit(number)
+					.map(population::get)
 				.collect(toCollection(ArrayList::new));
+		}
 	}
 
 	/**
 	 * Are we maximizing or minimizing fitness?
-	 * 
+	 *
 	 * @param max
 	 *            a boolean.
 	 */
@@ -98,7 +103,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 	 * <p>
 	 * isMaximize
 	 * </p>
-	 * 
+	 *
 	 * @return true is we have to maximize
 	 */
 	public boolean isMaximize() {
