@@ -34,7 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LegacyInsertion extends AbstractInsertionStrategy {
+public class LegacyInsertion extends AbstractInsertion {
 
 	private static final Logger logger = LoggerFactory.getLogger(LegacyInsertion.class);
 

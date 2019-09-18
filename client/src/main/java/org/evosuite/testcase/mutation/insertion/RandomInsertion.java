@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An insertion strategy that allows for modification of test cases by inserting random statements.
  */
-public class RandomInsertion extends AbstractInsertionStrategy {
+public class RandomInsertion extends AbstractInsertion {
     private static final Logger logger = LoggerFactory.getLogger(RandomInsertion.class);
 
     private RandomInsertion() {

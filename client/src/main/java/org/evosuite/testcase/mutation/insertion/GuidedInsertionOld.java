@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @author Sebastian Schweikl
  */
-public abstract class GuidedInsertionOld extends AbstractInsertionStrategy {
+public abstract class GuidedInsertionOld extends AbstractInsertion {
 
     /**
      * Inserts statements in the given test after the given position. This method attempts

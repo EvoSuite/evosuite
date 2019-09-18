@@ -30,7 +30,7 @@ import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.mutation.GuidedInsertion;
+import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
