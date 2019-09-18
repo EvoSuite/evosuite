@@ -17,12 +17,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase.mutation;
+package org.evosuite.testcase.mutation.insertion;
 
 import org.evosuite.Properties;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.variable.NullReference;
 import org.evosuite.testcase.variable.VariableReference;
@@ -195,7 +194,12 @@ public class LegacyInsertion extends AbstractInsertion {
 
 	@Override
 	protected boolean insertUUT(TestCase test, int position) {
-		return insertRandomCall(test, position);
+//		return insertRandomCall(test, position);
+		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	protected int insertParam(TestCase test, int lastPosition) {
+		throw new UnsupportedOperationException();
+	}
 }
