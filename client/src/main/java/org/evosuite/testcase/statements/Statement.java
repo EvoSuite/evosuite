@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.generic.GenericAccessibleObject;
@@ -324,12 +323,10 @@ public interface Statement {
 	 * </p>
 	 * 
 	 * @param test
-	 *            a {@link org.evosuite.testcase.TestCase} object.
-	 * @param factory
-	 *            a {@link org.evosuite.testcase.TestFactory} object.
+	 *            a {@link TestCase} object.
 	 * @return a boolean.
 	 */
-	public boolean mutate(TestCase test, TestFactory factory);
+	public boolean mutate(TestCase test);
 
 	/**
 	 * Check if the statement makes use of var

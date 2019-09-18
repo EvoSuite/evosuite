@@ -29,7 +29,6 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.testcase.variable.ArrayReference;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -116,16 +115,15 @@ public class FieldStatement extends AbstractStatement {
 
 	/**
 	 * Try to replace source of field with all possible choices
-	 *
-	 * @param test
-	 * @param statement
+	 *  @param statement
 	 * @param objective
-	 */
+     * @param test
+     */
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.AbstractStatement#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.TestFactory)
 	 */
 	@Override
-	public boolean mutate(TestCase test, TestFactory factory) {
+	public boolean mutate(TestCase test) {
 
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;

@@ -20,7 +20,6 @@
 package org.evosuite.testcase.statements;
 
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
 
 public class ImmutableStringPrimitiveStatement extends StringPrimitiveStatement {
 
@@ -31,23 +30,23 @@ public class ImmutableStringPrimitiveStatement extends StringPrimitiveStatement 
 	}
 
 	@Override
-	public boolean mutate(TestCase test, TestFactory factory) {
+	public boolean mutate(TestCase test) {
 		return false;
 	}
-	
+
 	@Override
 	public void delta() {
 		return;
 	}
-	
+
 	@Override
 	public void increment() {
 	}
-	
+
 	@Override
 	public void negate() {
 	}
-	
+
 	@Override
 	public void randomize() {
 	}
@@ -56,6 +55,6 @@ public class ImmutableStringPrimitiveStatement extends StringPrimitiveStatement 
 	public void setValue(String val) {
 		// Is immutable - cannot be changed
 	}
-	
-	
+
+
 }

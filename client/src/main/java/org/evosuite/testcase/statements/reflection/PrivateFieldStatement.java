@@ -21,7 +21,6 @@ package org.evosuite.testcase.statements.reflection;
 
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.PrivateAccess;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
 import org.evosuite.testcase.statements.Statement;
@@ -129,7 +128,7 @@ public class PrivateFieldStatement extends MethodStatement {
     }
 
     @Override
-    public boolean mutate(TestCase test, TestFactory factory) {
+    public boolean mutate(TestCase test) {
         // just for simplicity
         return false;
         //return super.mutate(test,factory); //tricky, as should do some restrictions

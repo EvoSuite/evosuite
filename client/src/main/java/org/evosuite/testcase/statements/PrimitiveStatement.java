@@ -23,7 +23,6 @@ import com.googlecode.gentyref.GenericTypeReflector;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.statements.environment.EnvironmentStatements;
@@ -384,7 +383,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * {@inheritDoc}
      */
     @Override
-    public boolean mutate(TestCase test, TestFactory factory) {
+    public boolean mutate(TestCase test) {
         if (!hasMoreThanOneValue())
             return false;
 

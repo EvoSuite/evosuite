@@ -33,7 +33,6 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testcase.variable.VariableReferenceImpl;
 import org.evosuite.testcase.execution.CodeUnderTestException;
@@ -68,7 +67,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * <p>
 	 * Constructor for ConstructorStatement.
 	 * </p>
-	 * 
+	 *
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param constructor
@@ -88,7 +87,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 * 
+	 *
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param constructor
@@ -110,7 +109,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * <p>
 	 * Constructor for ConstructorStatement.
 	 * </p>
-	 * 
+	 *
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param constructor
@@ -134,7 +133,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * <p>
 	 * Getter for the field <code>constructor</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.lang.reflect.Constructor} object.
 	 */
 	public GenericConstructor getConstructor() {
@@ -145,7 +144,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * <p>
 	 * Setter for the field <code>constructor</code>.
 	 * </p>
-	 * 
+	 *
 	 * @param constructor
 	 *            a {@link java.lang.reflect.Constructor} object.
 	 */
@@ -158,7 +157,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * <p>
 	 * getReturnType
 	 * </p>
-	 * 
+	 *
 	 * @param clazz
 	 *            a {@link java.lang.Class} object.
 	 * @return a {@link java.lang.String} object.
@@ -290,7 +289,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	 * <p>
 	 * getParameterReferences
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<VariableReference> getParameterReferences() {
@@ -346,7 +345,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.evosuite.testcase.Statement#getDeclaredExceptions()
 	 */
 	/** {@inheritDoc} */
@@ -361,15 +360,14 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 
 	/**
 	 * Go through parameters of constructor call and apply local search
-	 * 
-	 * @param test
-	 * @param factory
+	 *  @param test
+	 *
 	 */
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.AbstractStatement#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.TestFactory)
 	 */
 	@Override
-	public boolean mutate(TestCase test, TestFactory factory) {
+	public boolean mutate(TestCase test) {
 
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;
@@ -398,10 +396,10 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 	public boolean isAccessible() {
 		if(!constructor.isAccessible())
 			return false;
-		
+
 		return super.isAccessible();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */
