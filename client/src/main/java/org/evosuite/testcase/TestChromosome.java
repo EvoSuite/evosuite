@@ -308,7 +308,7 @@ public class TestChromosome extends ExecutableChromosome {
 		mutationHistory.clear();
 
 		if (Properties.ENABLE_FAILURE_PENALTIES
-				&& Properties.INSERTION_STRATEGY == Properties.InsertionStrategy.GUIDED_INSERTION) {
+				&& Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
 			test.decreaseStatementTTL();
 		}
 

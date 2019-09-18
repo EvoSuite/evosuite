@@ -194,8 +194,8 @@ public class DynaMOSA extends AbstractMOSA {
 
 	@Override
 	public void initializePopulation() {
-		if (Properties.INSERTION_STRATEGY == Properties.InsertionStrategy.GUIDED_INSERTION) {
-			GuidedInsertion.getInstance().setGoals(this.goalsManager.getCurrentGoals());
+		if (Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
+			GuidedInsertion.getInstance().setGoalsManager(goalsManager);
 		}
 		super.initializePopulation();
 	}

@@ -112,7 +112,7 @@ public class DependencyAnalysis {
 		// include all the project classes in the inheritance tree and in the callgraph.
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.IBRANCH)
 				|| Properties.INSTRUMENT_CONTEXT
-				|| Properties.INSERTION_STRATEGY == Properties.InsertionStrategy.GUIDED_INSERTION) {
+				|| Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
 
 			for (String classn : inheritanceTree.getAllClasses()) {
 				if (isTargetProject(classn)) {

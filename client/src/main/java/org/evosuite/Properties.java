@@ -327,14 +327,14 @@ public class Properties {
 		FAST_NON_DOMINATED_SORTING
 	}
 
-	// Insertion strategies for DynaMOSA
-	public enum InsertionStrategy {
-		RANDOM_INSERTION,
-		GUIDED_INSERTION
+	// Mutation strategies for DynaMOSA
+	public enum MutationStrategy {
+		RANDOM,
+		GUIDED
 	}
 
-	@Parameter(key = "insertion_strategy", description = "insertion strategy to use when mutating chromosomes in DynaMOSA")
-	public static InsertionStrategy INSERTION_STRATEGY = InsertionStrategy.GUIDED_INSERTION;
+	@Parameter(key = "mutation_strategy", description = "mutation strategy for chromosomes in DynaMOSA")
+	public static MutationStrategy MUTATION_STRATEGY = MutationStrategy.GUIDED;
 
 	@Parameter(key = "enable_failure_penalties", description = "give up on infeasible goals after a certain number of failed attempts")
 	public static final boolean ENABLE_FAILURE_PENALTIES = true;
