@@ -469,7 +469,17 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test) {
+	public final boolean mutate(TestCase test) {
+		final boolean success = mutationImpl(test);
+		if (success) {
+			// we must enforce that every implementing subclass resets the TTL after a successful
+			// mutation
+			resetTTL();
+		}
+		return success;
+	}
+
+	protected boolean mutationImpl(TestCase testCase) {
 		return false;
 	}
 
@@ -482,7 +492,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 		Statement result = copy(newTestCase, 0);
 		result.getReturnValue().setOriginalCode(retval.getOriginalCode());
 		result.addComment(getComment());
-		result.resetTTL(); // TODO: is this required? I don't know
+//		result.resetTTL(); // TODO: is this required? I don't know
 		return result;
 	}
 

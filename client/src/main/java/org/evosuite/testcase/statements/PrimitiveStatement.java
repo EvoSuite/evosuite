@@ -383,7 +383,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * {@inheritDoc}
      */
     @Override
-    public boolean mutate(TestCase test) {
+    protected boolean mutationImpl(TestCase test) {
         if (!hasMoreThanOneValue())
             return false;
 

@@ -123,7 +123,7 @@ public class FieldStatement extends AbstractStatement {
 	 * @see org.evosuite.testcase.AbstractStatement#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.TestFactory)
 	 */
 	@Override
-	public boolean mutate(TestCase test) {
+	protected boolean mutationImpl(TestCase test) {
 
 		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
 			return false;

@@ -301,7 +301,7 @@ public class ArrayStatement extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test) {
+	protected boolean mutationImpl(TestCase test) {
 		int maxAssignment = 0;
 		for (Statement statement : test) {
 			for (VariableReference var : statement.getVariableReferences()) {

@@ -83,7 +83,7 @@ public class PrivateMethodStatement extends MethodStatement {
     }
 
     @Override
-    public boolean mutate(TestCase test) {
+    protected boolean mutationImpl(TestCase test) {
         // just for simplicity
         return false;
         //return super.mutate(test,factory); //tricky, as should do some restrictions

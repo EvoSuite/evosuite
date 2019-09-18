@@ -30,7 +30,7 @@ public class ImmutableStringPrimitiveStatement extends StringPrimitiveStatement 
 	}
 
 	@Override
-	public boolean mutate(TestCase test) {
+	protected boolean mutationImpl(TestCase test) {
 		return false;
 	}
 
