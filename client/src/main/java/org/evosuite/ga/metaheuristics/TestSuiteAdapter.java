@@ -341,17 +341,17 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
     }
 
     @Override
-    final public void notifySearchStarted() {
+    final public void notifySearchStarted() { // called by the adaptee
         super.notifySearchStarted();
     }
 
     @Override
-    final public void notifySearchFinished() {
+    final public void notifySearchFinished() { // called by the adaptee
         super.notifySearchFinished();
     }
 
     @Override
-    final public void notifyIteration() {
+    final public void notifyIteration() { // called by the adaptee
         super.notifyIteration();
     }
 
@@ -486,6 +486,10 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
 
     @Override
     public String toString() {
+        if (algorithm == null) {
+            return "TestSuiteAdapter";
+        }
+
         return algorithm.toString(); // avoids NPE for debuggers automatically invoking toString()
     }
 
