@@ -492,8 +492,18 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationChange() {
 		boolean changed = false;
-		int lastMutatableStatement = getLastMutatableStatement();
-		double pl = 1d / (lastMutatableStatement + 1);
+
+		final int lastMutatableStatement = getLastMutatableStatement();
+		final int[] indexes;
+		if (Properties.ENABLE_TTL) {
+			indexes = IntStream.rangeClosed(0, lastMutatableStatement)
+					.filter(i -> test.getStatement(i).isTTLExpired())
+					.toArray();
+		} else {
+			indexes = IntStream.rangeClosed(0, lastMutatableStatement).toArray();
+		}
+
+		final double pl = 1d / indexes.length;
 		TestFactory testFactory = TestFactory.getInstance();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
@@ -506,11 +516,11 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 
 		if (!changed) {
-			for (int position = 0; position <= lastMutatableStatement; position++) {
+			for (int position : indexes) {
+				final Statement statement = test.getStatement(position);
+
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
-
-					Statement statement = test.getStatement(position);
 
 					if(statement.isReflectionStatement())
 						continue;
@@ -541,7 +551,10 @@ public class TestChromosome extends ExecutableChromosome {
 					}
 
 					statement.getReturnValue().setDistance(oldDistance);
-					position = statement.getPosition(); // Might have changed due to mutation
+
+					// TODO: can this really happen? And if so, wouldn't you have to recompute
+					//  lastMutatableStatement as well?
+					// position = statement.getPosition(); // Might have changed due to mutation
 				}
 			}
 		}
