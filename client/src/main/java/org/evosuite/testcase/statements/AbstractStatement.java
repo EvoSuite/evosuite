@@ -470,7 +470,7 @@ public abstract class AbstractStatement implements Statement, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public final boolean mutate(TestCase test) {
-		if (ttl == 0) { // only allow mutation if TTL is 0
+		if (isTTLExpired()) { // only allow mutation if TTL is expired
 			final boolean success = mutationImpl(test);
 			if (success) {
 				// we must enforce that every implementing subclass resets the TTL after a
@@ -523,17 +523,21 @@ public abstract class AbstractStatement implements Statement, Serializable {
 		return false;
 	}
 
-	public int getTTL() {
-		return ttl;
+	@Override
+	public final boolean isTTLExpired() {
+		return !Properties.ENABLE_TTL || ttl < 1;
 	}
 
 	@Override
-	public void decreaseTTL() {
-		ttl--;
+	public final void decreaseTTL() {
+		if (!isTTLExpired()) {
+			ttl--;
+		}
 	}
 
-	@Override
-	public void resetTTL() {
+	private void resetTTL() {
 		ttl = Properties.INITIAL_TTL;
 	}
+
+
 }

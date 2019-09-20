@@ -392,5 +392,5 @@ public interface Statement {
 
 	void decreaseTTL();
 
-	void resetTTL();
+	boolean isTTLExpired();
 }
