@@ -38,7 +38,6 @@ import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
 import org.evosuite.coverage.mutation.StrongMutationTestFitness;
 import org.evosuite.coverage.mutation.WeakMutationTestFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
@@ -48,10 +47,9 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.callgraph.CallGraph;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.ExecutionTrace;
 import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.mutation.GuidedInsertion;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -60,38 +58,40 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.*;
 
+import static org.evosuite.Properties.Criterion.EXCEPTION;
+
 /**
  * A class for managing multiple coverage targets simultaneously.
- *
- * @param <T>
  */
-public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalManager<T> implements Serializable {
+public class MultiCriteriaManager extends StructuralGoalManager implements Serializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MultiCriteriaManager.class);
 
 	private static final long serialVersionUID = 8161137239404885564L;
 
-	protected BranchFitnessGraph<T> graph;
+	protected BranchFitnessGraph graph;
 
-	protected Map<BranchCoverageTestFitness, Set<FitnessFunction<T>>> dependencies;
+	protected Map<BranchCoverageTestFitness, Set<TestFitnessFunction>> dependencies;
+
+	private Set<TestFitnessFunction> infeasibleGoals = new HashSet<>();
 
 	/**
 	 * Maps branch IDs to the corresponding fitness function, only considering branches we want to
 	 * take.
 	 */
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageTrueMap = new LinkedHashMap<>();
+	protected final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new LinkedHashMap<>();
 
 	/**
 	 * Maps branch IDs to the corresponding fitness function, only considering the branches we do
 	 * <em>not</em> want to take.
 	 */
-	protected final Map<Integer, FitnessFunction<T>> branchCoverageFalseMap = new LinkedHashMap<>();
+	protected final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new LinkedHashMap<>();
 
 	/**
 	 * Maps branch IDs to the corresponding fitness function, only considering root branches of
 	 * methods (i.e. the goal is to just invoke the method).
 	 */
-	private final Map<String, FitnessFunction<T>> branchlessMethodCoverageMap = new LinkedHashMap<>();
+	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new LinkedHashMap<>();
 
 	/**
 	 * Creates a new {@code MultiCriteriaManager} with the given list of targets. The targets are
@@ -99,7 +99,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 *
 	 * @param targets The targets to cover encoded as minimization functions
 	 */
-	public MultiCriteriaManager(List<FitnessFunction<T>> targets) {
+	public MultiCriteriaManager(List<TestFitnessFunction> targets) {
 		super(targets);
 
 		// initialize the dependency graph among branches
@@ -110,7 +110,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 		for (Criterion criterion : Properties.CRITERION){
 			switch (criterion){
 				case BRANCH:
-					break; // branches have been handled by getControlDepencies4Branches
+					break; // branches have been handled by getControlDependencies4Branches
 				case EXCEPTION:
 					break; // exception coverage is handled by calculateFitness
 				case LINE:
@@ -148,24 +148,24 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 			}
 		}
 
-		// initialize current goals
+		// Initialize current goals. At this point, only root branches of methods are free of
+		// control dependencies.
 		this.currentGoals.addAll(graph.getRootBranches());
 	}
 
-	@SuppressWarnings("unchecked")
 	private void addDependencies4TryCatch() {
 		logger.debug("Added dependencies for Try-Catch");
-		for (FitnessFunction<T> ff : this.getUncoveredGoals()){
+		for (FitnessFunction<TestChromosome> ff : this.getUncoveredGoals()){
 			if (ff instanceof TryCatchCoverageTestFitness){
 				TryCatchCoverageTestFitness stmt = (TryCatchCoverageTestFitness) ff;
 				BranchCoverageTestFitness branch = new BranchCoverageTestFitness(stmt.getBranchGoal());
-				this.dependencies.get(branch).add((FitnessFunction<T>) stmt);
+				this.dependencies.get(branch).add(stmt);
 			}
 		}
 	}
 
-	private void initializeMaps(Set<FitnessFunction<T>> set){
-		for (FitnessFunction<T> ff : set) {
+	private void initializeMaps(Set<TestFitnessFunction> set){
+		for (TestFitnessFunction ff : set) {
 			BranchCoverageTestFitness goal = (BranchCoverageTestFitness) ff;
 
 			// Skip instrumented branches - we only want real branches
@@ -185,7 +185,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 
 	private void addDependencies4Output() {
 		logger.debug("Added dependencies for Output");
-		for (FitnessFunction<T> ff : this.getUncoveredGoals()){
+		for (TestFitnessFunction ff : this.getUncoveredGoals()){
 			if (ff instanceof OutputCoverageTestFitness){
 				OutputCoverageTestFitness output = (OutputCoverageTestFitness) ff;
 				ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
@@ -212,12 +212,12 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between {@link InputCoverageTestFitness} and branches. 
+	 * This methods derive the dependencies between {@link InputCoverageTestFitness} and branches.
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4Input() {
 		logger.debug("Added dependencies for Input");
-		for (FitnessFunction<T> ff : this.getUncoveredGoals()){
+		for (TestFitnessFunction ff : this.getUncoveredGoals()){
 			if (ff instanceof InputCoverageTestFitness){
 				InputCoverageTestFitness input = (InputCoverageTestFitness) ff;
 				ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
@@ -244,15 +244,14 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between {@link MethodCoverageTestFitness} and branches. 
+	 * This methods derive the dependencies between {@link MethodCoverageTestFitness} and branches.
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
-	@SuppressWarnings("unchecked")
 	private void addDependencies4Methods() {
 		logger.debug("Added dependencies for Methods");
 		for (BranchCoverageTestFitness branch : this.dependencies.keySet()){
 			MethodCoverageTestFitness method = new MethodCoverageTestFitness(branch.getClassName(), branch.getMethod());
-			this.dependencies.get(branch).add((FitnessFunction<T>) method);
+			this.dependencies.get(branch).add(method);
 		}
 	}
 
@@ -260,12 +259,11 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 * This methods derive the dependencies between {@link MethodNoExceptionCoverageTestFitness} and branches.
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
-	@SuppressWarnings("unchecked")
 	private void addDependencies4MethodsNoException() {
 		logger.debug("Added dependencies for MethodsNoException");
 		for (BranchCoverageTestFitness branch : this.dependencies.keySet()){
 			MethodNoExceptionCoverageTestFitness method = new MethodNoExceptionCoverageTestFitness(branch.getClassName(), branch.getMethod());
-			this.dependencies.get(branch).add((FitnessFunction<T>) method);
+			this.dependencies.get(branch).add(method);
 		}
 	}
 
@@ -273,26 +271,25 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 * This methods derive the dependencies between {@link CBranchTestFitness} and branches.
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
-	@SuppressWarnings("unchecked")
 	private void addDependencies4CBranch() {
 		logger.debug("Added dependencies for CBranch");
 		CallGraph callGraph = DependencyAnalysis.getCallGraph();
 		for (BranchCoverageTestFitness branch : this.dependencies.keySet()) {
 			for (CallContext context : callGraph.getMethodEntryPoint(branch.getClassName(), branch.getMethod())) {
 				CBranchTestFitness cBranch = new CBranchTestFitness(branch.getBranchGoal(), context);
-				this.dependencies.get(branch).add((FitnessFunction<T>) cBranch);
+				this.dependencies.get(branch).add(cBranch);
 				logger.debug("Added context branch: " + cBranch.toString());
 			}
 		}
 	}
 
 	/**
-	 * This methods derive the dependencies between {@link WeakMutationTestFitness} and branches. 
+	 * This methods derive the dependencies between {@link WeakMutationTestFitness} and branches.
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4WeakMutation() {
 		logger.debug("Added dependencies for Weak-Mutation");
-		for (FitnessFunction<T> ff : this.getUncoveredGoals()){
+		for (TestFitnessFunction ff : this.getUncoveredGoals()){
 			if (ff instanceof WeakMutationTestFitness){
 				WeakMutationTestFitness mutation = (WeakMutationTestFitness) ff;
 				Set<BranchCoverageGoal> goals = mutation.getMutation().getControlDependencies();
@@ -314,7 +311,7 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 */
 	private void addDependencies4StrongMutation() {
 		logger.debug("Added dependencies for Strong-Mutation");
-		for (FitnessFunction<T> ff : this.getUncoveredGoals()){
+		for (TestFitnessFunction ff : this.getUncoveredGoals()){
 			if (ff instanceof StrongMutationTestFitness){
 				StrongMutationTestFitness mutation = (StrongMutationTestFitness) ff;
 				Set<BranchCoverageGoal> goals = mutation.getMutation().getControlDependencies();
@@ -331,12 +328,12 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between  {@link LineCoverageTestFitness} and branches. 
+	 * This methods derive the dependencies between  {@link LineCoverageTestFitness} and branches.
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
 	private void addDependencies4Line() {
 		logger.debug("Added dependencies for Lines");
-		for (FitnessFunction<T> ff : this.getUncoveredGoals()){
+		for (TestFitnessFunction ff : this.getUncoveredGoals()){
 			if (ff instanceof LineCoverageTestFitness){
 				LineCoverageTestFitness line = (LineCoverageTestFitness) ff;
 				ClassLoader loader = TestGenerationContext.getInstance().getClassLoaderForSUT();
@@ -357,20 +354,19 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	}
 
 	/**
-	 * This methods derive the dependencies between  {@link StatementCoverageTestFitness} and branches. 
+	 * This methods derive the dependencies between  {@link StatementCoverageTestFitness} and branches.
 	 * Therefore, it is used to update 'this.dependencies'
 	 */
-	@SuppressWarnings("unchecked")
 	private void addDependencies4Statement() {
 		logger.debug("Added dependencies for Statements");
-		for (FitnessFunction<T> ff : this.getUncoveredGoals()){
+		for (TestFitnessFunction ff : this.getUncoveredGoals()){
 			if (ff instanceof StatementCoverageTestFitness){
 				StatementCoverageTestFitness stmt = (StatementCoverageTestFitness) ff;
 				if (stmt.getBranchFitnesses().size() == 0)
 					this.currentGoals.add(ff);
 				else {
 					for (BranchCoverageTestFitness branch : stmt.getBranchFitnesses()) {
-						this.dependencies.get(branch).add((FitnessFunction<T>) stmt);
+						this.dependencies.get(branch).add(stmt);
 					}
 				}
 			}
@@ -387,99 +383,151 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 *
 	 * @param c the chromosome whose fitness to calculate (must be a {@link TestChromosome})
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public void calculateFitness(T c) {
+	public void calculateFitness(TestChromosome c) {
 		// Run the test and record the execution result.
-		TestCase test = ((TestChromosome) c).getTestCase();
+		TestCase test = c.getTestCase();
 		ExecutionResult result = TestCaseExecutor.runTest(test);
-		((TestChromosome) c).setLastExecutionResult(result);
+		c.setLastExecutionResult(result);
 		c.setChanged(false);
 
 		// If the test failed to execute properly, it means none of the current gaols could be
 		// reached.
 		if (result.hasTimeout() || result.hasTestException()) {
-			currentGoals.forEach(f -> c.setFitness(f, Double.MAX_VALUE)); // assume minimization
+			currentGoals.forEach(g -> c.setFitness(g, Double.MAX_VALUE)); // assume minimization
+			if (test.getTarget() != null) {
+				increaseFailurePenalty(test.getTarget());
+			}
 			return;
 		}
 
-		Set<FitnessFunction<T>> visitedTargets = new LinkedHashSet<>(getUncoveredGoals().size() * 2);
-		LinkedList<FitnessFunction<T>> targets = new LinkedList<>(this.currentGoals);
+		Set<TestFitnessFunction> visitedTargets = new LinkedHashSet<>(getUncoveredGoals().size() * 2);
 
-		// 1) We update the set of current goals.
-		while (targets.size() > 0) {
-			FitnessFunction<T> target = targets.poll();
+		/*
+		 * The processing list of current targets. If it turns out that any such target has been
+		 * reached, we also enqueue its structural and control-dependent children. This is to
+		 * determine which of those children are already reached by control flow. Only the missed
+		 * children will be part of the currentGoals for the next generation (together with the
+		 * missed goals of the currentGoals of the current generation).
+		 */
+		LinkedList<TestFitnessFunction> targets = new LinkedList<>(this.currentGoals);
+
+		// 1) We update the set of current targets.
+		while (!targets.isEmpty()) {
+			// We evaluate the given test case against all current targets.
+			// (There might have been serendipitous coverage of other targets, though.)
+			TestFitnessFunction target = targets.poll();
 
 			int pastSize = visitedTargets.size();
 			visitedTargets.add(target);
 			if (pastSize == visitedTargets.size())
 				continue;
 
-			double fitness = target.getFitness(c);
-
 			/*
 			 * Checks if the current test target has been reached and, in accordance, marks it as
 			 * covered or uncovered.
 			 */
-			if (fitness == 0.0) { // assume minimization function
+			final boolean targetCovered = target.getFitness(c) == 0.0; // assuming minimization
+			if (targetCovered) {
 				updateCoveredGoals(target, c); // marks the current goal as covered
 
 				/*
 				 * If the coverage criterion is branch coverage, we also add structural children
-				 * and control dependencies of the current target to the processing queue. This is
-				 * to see which ones of those goals are already reached by control flow.
+				 * and control dependent targets of the current target to the processing queue.
+				 * This is to see which ones of those targets are already reached by control flow.
 				 */
 				if (target instanceof BranchCoverageTestFitness){
-					for (FitnessFunction<T> child : graph.getStructuralChildren(target)){
+					final Set<TestFitnessFunction> structuralChildren = graph.getStructuralChildren(target);
+					for (TestFitnessFunction child : structuralChildren){
 						targets.addLast(child);
 					}
-					for (FitnessFunction<T> dependentTarget : dependencies.get(target)){
+					final Set<TestFitnessFunction> testFitnessFunctions = dependencies.get(target);
+					for (TestFitnessFunction dependentTarget : testFitnessFunctions){
 						targets.addLast(dependentTarget);
 					}
 				}
 			} else {
-				currentGoals.add(target); // marks the goal as uncovered
+				if (target.equals(test.getTarget())) {
+					// The test case failed to cover the intended target, thus we increase the
+					// failure penalty of that target.
+					increaseFailurePenalty(target);
+				}
+
+				// Marks the target as being still uncovered.
+				currentGoals.add(target);
 			}
 		}
 
+		// TODO: Basically copied from above, but not working yet
+		// While we're not trying to actively reach infeasible goals anymore, we might in fact
+		// have managed to reach them by the pure virtue of luck, i.e., as collateral coverage of a
+		// test case that targeted some other goal. In such cases, it would make sense to reinsert
+		// the formerly infeasible goal into the set of current goals again.
+		/*
+		LinkedList<TestFitnessFunction> infeasibleGoalsList = new LinkedList<>(this.infeasibleGoals);
+		while (!infeasibleGoalsList.isEmpty()) {
+			final TestFitnessFunction infeasibleGoal = infeasibleGoalsList.poll();
+			final boolean goalCovered = infeasibleGoal.getFitness(c) == 0;
+
+			if (goalCovered) {
+				this.infeasibleGoals.remove(infeasibleGoal);
+				updateCoveredGoals(infeasibleGoal, c);
+				// Resetting the failure penalty for the goal is not necessary. Also, the failure
+				// penalty for control dependent gaols and structural children is still 0
+				// because they haven't been targeted before.
+
+				if (infeasibleGoal instanceof BranchCoverageTestFitness){
+					for (TestFitnessFunction child : graph.getStructuralChildren(infeasibleGoal)) {
+						infeasibleGoalsList.addLast(child);
+					}
+					for (TestFitnessFunction dependentTarget : dependencies.get(infeasibleGoal)) {
+						infeasibleGoalsList.addLast(dependentTarget);
+					}
+				}
+			}
+		}
+		*/
+
 		// Removes all newly covered goals from the list of currently uncovered goals.
-		currentGoals.removeAll(this.getCoveredGoals());
+		// Don't remove the goal from currentGoals yet (even if it has been successfully covered)!
+		// Remember that this function computes the coverage only for the current test chromosome,
+		// one of potentially many individuals in the current population. The next test chromosome
+		// to be evaluated might cover the same target, but it might be shorter! Shorter tests
+		// covering the same target are better. Removing the covered goal already now will cause
+		// that the next chromosome is no longer evaluated against that goal. And thus, we're
+		// potentially missing out on some test cases that are even better than the one we just
+		// found.
+//		currentGoals.removeAll(this.getCoveredGoals());
 
 		// 2) We update the archive.
-		final ExecutionTrace trace = result.getTrace();
-		for (int branchid : trace.getCoveredFalseBranches()){
-			FitnessFunction<T> branch = this.branchCoverageFalseMap.get(branchid);
+		for (Integer branchid : result.getTrace().getCoveredFalseBranches()){
+			TestFitnessFunction branch = this.branchCoverageFalseMap.get(branchid);
 			if (branch == null)
 				continue;
 			updateCoveredGoals(branch, c);
 		}
-		for (int branchid : trace.getCoveredTrueBranches()){
-			FitnessFunction<T> branch = this.branchCoverageTrueMap.get(branchid);
+		for (Integer branchid : result.getTrace().getCoveredTrueBranches()){
+			TestFitnessFunction branch = this.branchCoverageTrueMap.get(branchid);
 			if (branch == null)
 				continue;
 			updateCoveredGoals(branch, c);
 		}
-		for (String method : trace.getCoveredBranchlessMethods()){
-			FitnessFunction<T> branch = this.branchlessMethodCoverageMap.get(method);
+		for (String method : result.getTrace().getCoveredBranchlessMethods()){
+			TestFitnessFunction branch = this.branchlessMethodCoverageMap.get(method);
 			if (branch == null)
 				continue;
 			updateCoveredGoals(branch, c);
-		}
-
-		// 3) Notifies the insertion strategy about the currently targeted goals.
-		if (Properties.INSERTION_STRATEGY == Properties.InsertionStrategy.GUIDED_INSERTION) {
-			GuidedInsertion.getInstance().setGoals(this.currentGoals);
 		}
 
 		// let's manage the exception coverage
-		if (ArrayUtil.contains(Properties.CRITERION, Criterion.EXCEPTION)){
+		if (ArrayUtil.contains(Properties.CRITERION, EXCEPTION)){
 			// if one of the coverage criterion is Criterion.EXCEPTION,
 			// then we have to analyze the results of the execution do look
 			// for generated exceptions
 			Set<ExceptionCoverageTestFitness> set = deriveCoveredExceptions(c);
 			for (ExceptionCoverageTestFitness exp : set){
 				// let's update the list of fitness functions
-				updateCoveredGoals((FitnessFunction<T>) exp, c);
+				updateCoveredGoals(exp, c);
 				// new covered exceptions (goals) have to be added to the archive
 				if (!ExceptionCoverageFactory.getGoals().containsKey(exp.getKey())){
 					// let's update the newly discovered exceptions to ExceptionCoverageFactory
@@ -496,9 +544,9 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 	 * @param t TestChromosome to analyze
 	 * @return list of exception goals being covered by t
 	 */
-	public Set<ExceptionCoverageTestFitness> deriveCoveredExceptions(T t){
+	public Set<ExceptionCoverageTestFitness> deriveCoveredExceptions(TestChromosome t){
 		Set<ExceptionCoverageTestFitness> covered_exceptions = new LinkedHashSet<>();
-		ExecutionResult result = ((TestChromosome) t).getLastExecutionResult();
+		ExecutionResult result = t.getLastExecutionResult();
 
 		if(result.calledReflection())
 			return covered_exceptions;
@@ -531,19 +579,74 @@ public class MultiCriteriaManager<T extends Chromosome> extends StructuralGoalMa
 		return covered_exceptions;
 	}
 
-	public BranchFitnessGraph getControlDependencies4Branches(List<FitnessFunction<T>> fitnessFunctions){
-		Set<FitnessFunction<T>> setOfBranches = new LinkedHashSet<>();
+	public BranchFitnessGraph getControlDependencies4Branches(List<TestFitnessFunction> fitnessFunctions){
+		Set<TestFitnessFunction> setOfBranches = new LinkedHashSet<>();
 		this.dependencies = new LinkedHashMap<>();
 
 		List<BranchCoverageTestFitness> branches = new BranchCoverageFactory().getCoverageGoals();
 		for (BranchCoverageTestFitness branch : branches){
-			setOfBranches.add((FitnessFunction<T>) branch);
+			setOfBranches.add(branch);
 			this.dependencies.put(branch, new LinkedHashSet<>());
 		}
 
 		// initialize the maps
 		this.initializeMaps(setOfBranches);
 
-		return new BranchFitnessGraph<>(setOfBranches);
+		return new BranchFitnessGraph(setOfBranches);
+	}
+
+	/**
+	 * Removes all infeasible goals (i.e., their failure penalty has become too high) from
+	 * the set of current goals, such that no more search budget is wasted on trying to
+	 * cover them. This method should be invoked after computing the fitness values for the
+	 * current generation. This method is a NO-OP if the failure penalties are disabled and any
+	 * insertion strategy other than Guided Insertion is used.
+	 *
+	 * @see Properties#ENABLE_FAILURE_PENALTIES
+	 * @see Properties.MutationStrategy#GUIDED
+	 */
+	private void enforceFailurePenalty() {
+		for (TestFitnessFunction goal : currentGoals) {
+			if (goal.isFailurePenaltyReached()) {
+				// INFO: All goals that have the current goal as their only control dependency
+				// must now be considered infeasible as well. We will no longer try to actively
+				// reach them. By construction, they will not be inserted into the set of current
+				// goals because their only control dependency (the current goal) will no longer
+				// be inserted. However, while we're not trying to actively reach those infeasible
+				// goals anymore, we might still reach them by chance, i.e., as collateral coverage
+				// of a test case that targeted some other goal. In such cases, it would make sense
+				// to reinsert the formerly infeasible goal into the set of current goals.
+				infeasibleGoals.add(goal);
+				logger.debug("Giving up on infeasible goal {}", goal);
+			}
+		}
+
+		currentGoals.removeAll(infeasibleGoals);
+	}
+
+	public void updateGoalsForNextGen() {
+		currentGoals.removeAll(this.getCoveredGoals());
+
+		if (Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED
+				&& Properties.ENABLE_FAILURE_PENALTIES) {
+			enforceFailurePenalty();
+		}
+	}
+
+	private void increaseFailurePenalty(TestFitnessFunction goal) {
+		if (currentGoals.contains(goal)) {
+			goal.increaseFailurePenalty();
+			logger.debug("Increasing failure penalty for goal {}", goal);
+		} else {
+			logger.debug("Goal not found: {}", goal);
+		}
+	}
+
+	public Set<TestFitnessFunction> getInfeasibleGoals() {
+		return infeasibleGoals;
+	}
+
+	public Set<TestFitnessFunction> getStructuralParents(TestFitnessFunction goal) {
+		return graph.getStructuralParents(goal);
 	}
 }

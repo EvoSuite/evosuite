@@ -135,6 +135,7 @@ public class DynaMOSA extends AbstractMOSA {
 		logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
 		logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
 		logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
+		logger.debug("Infeasible goals = {}", goalsManager.getInfeasibleGoals().size());
 	}
 
 	/**
@@ -160,7 +161,7 @@ public class DynaMOSA extends AbstractMOSA {
 
 		// Compute the fitness for each population member, update the coverage information and the
 		// set of goals to cover. Finally, update the archive.
-		this.calculateFitness();
+		// this.calculateFitness(); // Not required, already done by this.initializePopulation();
 
 		// Calculate dominance ranks and crowding distance. This is required to decide which
 		// individuals should be used for mutation and crossover in the first iteration of the main
@@ -178,6 +179,18 @@ public class DynaMOSA extends AbstractMOSA {
 		}
 
 		this.notifySearchFinished();
+	}
+
+	/**
+	 * Calculates the fitness for the entire population. This is done by
+	 * invoking {@link DynaMOSA#calculateFitness(TestChromosome)} for every single member of the
+	 * population. In addition, it instructs the {@code MultiCriteriaManager} to give up on all
+	 * infeasible goals.
+	 */
+	@Override
+	protected void calculateFitness() {
+		super.calculateFitness();
+		this.goalsManager.updateGoalsForNextGen();
 	}
 
 	/**
