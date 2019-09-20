@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,7 +24,9 @@ public class ClassLoaderUtils {
 
     // TODO: should/must they be synchronized?
     private static final Map<String, Class<?>> classCache = new HashMap<>();
-    private static final Map<String, GenericExecutable<?, ?>> executableCache = new HashMap<>();
+    private static final Map<Class<?>, Map<String, GenericExecutable<?, ?>>> executableCache =
+            new HashMap<>();
+    private static final Map<Class<?>, Map<String, Field>> fieldCache = new HashMap<>();
 
     /**
      * Asm method descriptor --> Method parameters as Java Reflection classes.
@@ -130,29 +134,33 @@ public class ClassLoaderUtils {
     }
 
     /**
-     * Tries to reflect the method or constructor specified by the given owner class and method
-     * name + descriptor, and creates a corresponding {@code GenericMethod} or
-     * {@code GenericConstructor} object as appropriate. Callers may safely downcast the returned
-     * {@code GenericExecutableMember} to a {@code GenericMethod} or {@code GenericConstructor} by
-     * checking the concrete subtype via the methods {@link GenericExecutable#isMethod() isMethod()}
-     * and {@link GenericExecutable#isConstructor() isConstructor()}. The method returns
-     * {@code null} if no matching executable could be found. Throws an {@code
-* IllegalArgumentException} if the method name + descriptor is malformed.
-*
-* @param methodNameDesc method name and descriptor of the executable to reflect. Must not be
-*                       {@code null}
-* @param clazz          the {@code Class} instance representing the owner class of the
-*                       executable. Must not be {@code null}.
-* @return the {@code GenericExecutableMember} object that represents the reflected method
-* or constructor, or {@code null} if no such method or constructor can be found
+     * Tries to reflect the method or constructor specified by the given owner class and method name
+     * + descriptor, and creates a corresponding {@code GenericMethod} or {@code GenericConstructor}
+     * object as appropriate. Callers may safely downcast the returned {@code
+     * GenericExecutableMember} to a {@code GenericMethod} or {@code GenericConstructor} by checking
+     * the concrete subtype via the methods {@link GenericExecutable#isMethod() isMethod()} and
+     * {@link GenericExecutable#isConstructor() isConstructor()}. The method returns {@code null} if
+     * no matching executable could be found. Throws an {@code IllegalArgumentException} if the
+     * method name + descriptor is malformed.
+     *
+     * @param methodNameDesc method name and descriptor of the executable to reflect. Must not be
+     *                       {@code null}
+     * @param clazz          the {@code Class} instance representing the owner class of the
+     *                       executable. Must not be {@code null}.
+     * @return the {@code GenericExecutableMember} object that represents the reflected method or
+     * constructor, or {@code null} if no such method or constructor can be found
      */
     public static GenericExecutable<?, ?> getExecutable(final String methodNameDesc,
                                                         final Class<?> clazz) {
         Objects.requireNonNull(methodNameDesc);
         Objects.requireNonNull(clazz);
 
-        if (executableCache.containsKey(methodNameDesc)) {
-            return executableCache.get(methodNameDesc);
+        if (!executableCache.containsKey(clazz)) {
+            executableCache.put(clazz, new LinkedHashMap<>());
+        }
+
+        if (executableCache.get(clazz).containsKey(methodNameDesc)) {
+            return executableCache.get(clazz).get(methodNameDesc);
         } else {
             // methodNameDesc = name + descriptor
             // We have to split it into two parts to work with it. The opening parenthesis
@@ -161,7 +169,7 @@ public class ClassLoaderUtils {
             // with the opening parenthesis.
             final int descriptorStartIndex = methodNameDesc.indexOf('(');
             if (descriptorStartIndex < 1) {
-                throw new IllegalArgumentException("malformed method name or descriptor");
+                throw new IllegalArgumentException("malformed method name or descriptor: " + methodNameDesc);
             }
 
             final String name = methodNameDesc.substring(0, descriptorStartIndex);
@@ -184,16 +192,38 @@ public class ClassLoaderUtils {
             final boolean isConstructor = name.equals("<init>");
             final GenericExecutable<?, ?> executable;
             try {
-                executable = isConstructor ?
-                        new GenericConstructor(clazz.getConstructor(argumentTypes), clazz)
+                executable = isConstructor
+                        ? new GenericConstructor(clazz.getConstructor(argumentTypes), clazz)
                         : new GenericMethod(clazz.getDeclaredMethod(name, argumentTypes), clazz);
             } catch (NoSuchMethodException e) {
                 logger.error("No executable with name {} and arguments {} in {}", name,
                         argumentTypes, clazz);
                 return null;
             }
-            executableCache.put(methodNameDesc, executable);
+            executableCache.get(clazz).put(methodNameDesc, executable);
             return executable;
+        }
+    }
+
+    public static Field getField(final String fieldName, final Class<?> clazz) {
+        Objects.requireNonNull(fieldName);
+        Objects.requireNonNull(clazz);
+
+        if (!fieldCache.containsKey(clazz)) {
+            fieldCache.put(clazz, new LinkedHashMap<>());
+        }
+
+        if (fieldCache.get(clazz).containsKey(fieldName)) {
+            return fieldCache.get(clazz).get(fieldName);
+        } else {
+            final Field field;
+            try {
+                field = clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                return null;
+            }
+            fieldCache.get(clazz).put(fieldName, field);
+            return field;
         }
     }
 }
