@@ -11,6 +11,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.instrument.ClassLoaderUtils;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.mutation.MutationUtils;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
@@ -25,9 +26,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.evosuite.testcase.mutation.MutationUtils.*;
 
 /**
  * This class implements a guided insertion strategy. That is, it uses static and dynamic
@@ -39,8 +41,6 @@ import java.util.stream.Stream;
 public class GuidedInsertion extends AbstractInsertion {
 
     private static final Logger logger = LoggerFactory.getLogger(GuidedInsertion.class);
-    private static final int parallelComputationThreshold = 50; // just arbitrarily picked
-    private static final int binarySearchThreshold = 10;        // just arbitrarily picked
 
     private MultiCriteriaManager goalsManager = null;
 
@@ -59,8 +59,8 @@ public class GuidedInsertion extends AbstractInsertion {
 
     /**
      * Sets the {@code MultiCriteriaManager} to be used for managing goals. {@code GuidedInsertion}
-     * uses this to obtain information about the currently targeted goals, among other things.
-     * Note that the {@code MultiCriteriaManager} can only be set once during the lifetime of this
+     * uses this to obtain information about the currently targeted goals, among other things. Note
+     * that the {@code MultiCriteriaManager} can only be set once during the lifetime of this
      * object. Attempts to set it more than once will result in an {@code IllegalStateException}.
      *
      * @param goalsManager the goals manager to be used
@@ -79,15 +79,15 @@ public class GuidedInsertion extends AbstractInsertion {
      *
      * @return the current set of goals
      */
-    private Set<TestFitnessFunction> goals() {
+    public Set<TestFitnessFunction> goals() {
         return goalsManager.getCurrentGoals();
     }
 
     /**
      * Inserts a call to the UUT into the given test case as the specified position. The insertion
      * is guided, that is, it queries the goals manager for the set of current goals and tries to
-     * insert a method that reaches one of those goals. The decision about which particular goal
-     * to cover is made probabilistically.
+     * insert a method that reaches one of those goals. The decision about which particular goal to
+     * cover is made probabilistically.
      *
      * @param test     the test case in which to insert
      * @param position the position at which to insert
@@ -123,7 +123,7 @@ public class GuidedInsertion extends AbstractInsertion {
          */
         final boolean retry = !previousGoalCovered
                 && (nextRandomInt(previousGoal.getMaxFailures()) > previousGoal.getFailurePenalty()
-                    || goals().size() == 1);
+                || goals().size() == 1);
 
         // The goal intended to cover this time. Might be the same goal as before (if we failed
         // to cover it last time and we decided to try it again), or a new goal.
@@ -133,16 +133,15 @@ public class GuidedInsertion extends AbstractInsertion {
     }
 
     /**
-     * Decides which goal should be tried to cover for the given test case. Takes into
-     * consideration the current goals as given by the multi-criteria manager, as well as the
-     * goals that are already reached in the test case. Prefers the goals that can be "reached
-     * directly" (see {@link GuidedInsertion#isPromising}).
+     * Decides which goal should be tried to cover for the given test case. Takes into consideration
+     * the current goals as given by the multi-criteria manager, as well as the goals that are
+     * already reached in the test case. Prefers the goals that can be "reached directly".
      *
      * @param test the test case for which to decided which goal to cover next
      * @return the chosen goal
      */
     private TestFitnessFunction chooseNewGoalFor(final TestCase test) {
-        debug("Choosing new goal for {}",  test);
+        debug("Choosing new goal for {}", test);
 
         // We exclude the goal the given test case intended to target last time.
         final TestFitnessFunction previousGoal = test.getTarget(); // might be null
@@ -228,97 +227,9 @@ public class GuidedInsertion extends AbstractInsertion {
     }
 
     /**
-     * Performs a roulette wheel selection on the given collection of gaols. The probability of a
-     * goal being selected is inversely proportional to the cyclomatic complexity of the target
-     * executable (i.e., method or constructor) of that goal. This means that two executables with
-     * the same cyclomatic complexity have the same probability of being selected, while an
-     * executable that is twice as complex as another executable only has half the probability of
-     * being selected.
-     *
-     * @param goals the goals on which to perform the selection
-     * @return a goal chosen via biased-random selection
-     */
-    private TestFitnessFunction rouletteWheelSelect(final Collection<TestFitnessFunction> goals) {
-        /*
-         * The collection of goals could be unordered (e.g., when it's a set). Still, the inner
-         * workings of the roulette wheel selection require some arbitrary but fixed order. We
-         * impose this order by converting the collection of goals to an array (arrays also offer
-         * good performance and random access, which the algorithm also benefits from). The imposed
-         * order, even though being arbitrary, has no impact on the outcome of the selection,
-         * since it's fixed during the course of the selection.
-         */
-        final TestFitnessFunction[] gs = goals.toArray(new TestFitnessFunction[0]);
-
-        // by construction, gs cannot be empty here, so no need to check for gs.length == 0
-
-        if (gs.length == 1) {
-            return gs[0];
-        }
-
-        if (gs.length == 2) {
-            final int cc0 = gs[0].getCyclomaticComplexity();
-            final int cc1 = gs[1].getCyclomaticComplexity();
-            final int pivot = nextRandomInt(cc0 + cc1);
-            return pivot < cc0 ? gs[1] : gs[0];
-        }
-
-        /*
-         * The reciprocal of the cyclomatic complexity of a target method is directly proportional
-         * to the probability of the corresponding goal being selected. The prefix sum of these
-         * reciprocal values is used to determine the index of the selected goal later on.
-         */
-        final double[] prefixSums = reciprocalPrefixSum(gs);
-
-        // We spin the roulette wheel and obtain a pivot point. This is the point on the wheel
-        // where the roulette ball falls onto after having lost all of its momentum.
-        final double sum = prefixSums[gs.length - 1];
-        final double pivot = nextRandomDouble(sum);
-
-        // Finds the pocket on the wheel where the pivot point is located in and converts it to an
-        // array  index. This index corresponds to the selected goal.
-        final int index = findIndex(prefixSums, pivot);
-
-        return gs[index];
-    }
-
-    /**
-     * Returns the prefix sums of the reciprocal cyclomatic complexities for the target methods
-     * of the given goals. By construction, the resulting array is sorted.
-     *
-     * @param goals the goals whose target methods to consider
-     * @return the prefix sums of the reciprocal cyclomatic complexities
-     */
-    private double[] reciprocalPrefixSum(final TestFitnessFunction[] goals) {
-        final double[] prefixSum;
-
-        /*
-         * For our applications a naive implementation such as the following one using floating-
-         * point operations is sufficiently accurate and numerical stability is not an issue at all.
-         * It turns out that the computation offsets don't accumulate enough to produce a
-         * fundamentally flawed result, even when millions of coverage goals are considered.
-         */
-
-        final boolean parallelComputation = goals.length > parallelComputationThreshold;
-        if (parallelComputation) {
-            prefixSum = Arrays.stream(goals).parallel()
-                    .mapToDouble(g -> 1d / g.getCyclomaticComplexity())
-                    .toArray();
-            Arrays.parallelPrefix(prefixSum, Double::sum);
-        } else {
-            prefixSum = new double[goals.length];
-            prefixSum[0] = 1d / goals[0].getCyclomaticComplexity();
-            for (int i = 1; i < goals.length; i++) {
-                prefixSum[i] = prefixSum[i - 1] + 1d / goals[i].getCyclomaticComplexity();
-            }
-        }
-
-        return prefixSum;
-    }
-
-    /**
-     * Tells whether the given goal is promising to be reached w.r.t. the given test case. A
-     * target is considered promising if it is contained within a public executable that
-     * satisfies one of the following criteria: the executable is...
+     * Tells whether the given goal is promising to be reached w.r.t. the given test case. A target
+     * is considered promising if it is contained within a public executable that satisfies one of
+     * the following criteria: the executable is...
      * <ul>
      *     <li>static, or</li>
      *     <li>a constructor, or</li>
@@ -338,23 +249,30 @@ public class GuidedInsertion extends AbstractInsertion {
     private boolean isPromising(final TestFitnessFunction goal, final TestCase test) {
         return goal.isPublic()
                 && (goal.isStatic()
-                    || goal.isConstructor()
-                    || test.hasObject(goal.getClazz(), test.size())
-                    || coversDirectControlDependency(goal, test)
-                    || test.callsMethod(goal)
-                    || hasParametersResolved(goal, test));
+                || goal.isConstructor()
+                || test.hasObject(goal.getClazz(), test.size())
+                || coversDirectControlDependency(goal, test)
+                || test.callsMethod(goal)
+                || hasParametersResolved(goal, test));
+    }
+
+    private boolean hasParametersResolved(final TestFitnessFunction goal, final TestCase test) {
+        final GenericExecutable<?, ?> target = goal.getExecutable();
+        final Type[] parameterTypes = target.getParameterTypes();
+        return Arrays.stream(parameterTypes).allMatch(test::hasAssignableObject);
     }
 
     /**
-     * Tells whether the given test case already covers a control dependency of the given goal.
-     * This implies that the method containing the goal is already called by the test case.
+     * Tells whether the given test case already covers a control dependency of the given goal. This
+     * implies that the method containing the goal is already called by the test case.
      *
      * @param goal the goal to cover
      * @param test the test case to cover the goal
      * @return {@code true} if the test case contains a direct control dependency to the goal,
      * {@code false otherwise}
      */
-    private boolean coversDirectControlDependency(final TestFitnessFunction goal, final TestCase test) {
+    private boolean coversDirectControlDependency(final TestFitnessFunction goal,
+                                                  final TestCase test) {
         if (goal instanceof BranchCoverageTestFitness) {
             final Set<TestFitnessFunction> parents = goalsManager.getStructuralParents(goal);
             for (TestFitnessFunction coveredGoal : test.getCoveredGoals()) {
@@ -367,76 +285,17 @@ public class GuidedInsertion extends AbstractInsertion {
         return false;
     }
 
-    private boolean hasParametersResolved(final TestFitnessFunction goal, final TestCase test) {
-        final GenericExecutable<?, ?> target = goal.getExecutable();
-        final Type[] parameterTypes = target.getParameterTypes();
-        return Arrays.stream(parameterTypes).allMatch(test::hasAssignableObject);
-    }
-
-    /**
-     * Returns a pseudorandom double value between 0.0 (inclusive) and the specified bound
-     * (exclusive), using a random number generator that is isolated to the current thread. Using
-     * such isolated generators in concurrent applications (such as this one) as opposed to
-     * accessing the same shared instance of {@code java.util.Random} usually entails much less
-     * overhead and contention.
-     *
-     * @param bound the upper bound (exclusive)
-     * @return a pseudorandom double value between zero (inclusive) and the bound (exclusive)
-     */
-    private double nextRandomDouble(final double bound) {
-        return ThreadLocalRandom.current().nextDouble(bound);
-    }
-
-    /**
-     * Returns a pseudorandom integer value between 0 (inclusive) and the specified bound
-     * (exclusive), using a random number generator that is isolated to the current thread. Using
-     * such isolated generators in concurrent applications (such as this one) as opposed to
-     * accessing the same shared instance of {@code java.util.Random} usually entails much less
-     * overhead and contention.
-     *
-     * @param bound the upper bound (exclusive)
-     * @return a pseudorandom integer value between zero (inclusive) and the bound (exclusive)
-     */
-    private int nextRandomInt(final int bound) {
-        return ThreadLocalRandom.current().nextInt(bound);
-    }
-
-    /**
-     * Searches the given strictly sorted array for the specified key and returns the appropriate
-     * index where the key is found. If the array does not contain the key, the insertion point
-     * of the key (i.e. the index where it would be inserted) is returned instead.
-     *
-     * @param sortedArray the array to be searched (must be sorted and not contain duplicates)
-     * @param key         the value to search for in the array
-     * @return the index of the key or its insertion point if the key is not found
-     */
-    private int findIndex(final double[] sortedArray, final double key) {
-        final boolean binarySearch = sortedArray.length > binarySearchThreshold;
-        if (binarySearch) {
-            final int index = Arrays.binarySearch(sortedArray, key);
-            return index < 0 ? ~index : index;
-        } else { // linear search
-            final int lastIndex = sortedArray.length - 1;
-            for (int i = 0; i < lastIndex; i++) {
-                if (key < sortedArray[i]) { // the array is sorted and free of duplicates
-                    return i;
-                }
-            }
-            return lastIndex;
-        }
-    }
-
     /**
      * Tries to append a statement calling the target method or target constructor of the given
      * coverage goal to the end of specified test case. If everything succeeds, a {@code
-     * VariableReference} to the return value of aforementioned statement is returned. Otherwise,
-     * if there is an error, {@code null} is returned.
+     * VariableReference} to the return value of aforementioned statement is returned. Otherwise, if
+     * there is an error, {@code null} is returned.
      *
-     * @param test the test case to which the call of the target method should be appended
-     * @param goal the coverage goal (target class and method) that should be attempted to reach
+     * @param test    the test case to which the call of the target method should be appended
+     * @param goal    the coverage goal (target class and method) that should be attempted to reach
      * @param lastPos the position of the last valid statement of {@code test}
-     * @return a reference to the return value of the statement calling the target method, or
-     * {@code null} if unsuccessful
+     * @return a reference to the return value of the statement calling the target method, or {@code
+     * null} if unsuccessful
      */
     private boolean insertCallFor(final TestCase test, final TestFitnessFunction goal,
                                   final int lastPos) {
@@ -482,13 +341,13 @@ public class GuidedInsertion extends AbstractInsertion {
 
     private Set<FieldEntry> getWrittenFields(final TestCase test) {
         return test.getCalledMethods().stream()
-                .map(this::toMethodEntry)
+                .map(MutationUtils::toMethodEntry)
                 .flatMap(m -> DependencyAnalysis.getWrittenFieldsMerged(m).stream())
                 .collect(Collectors.toSet());
     }
 
-    private GenericExecutable<?,?> findPublicCallerFor(final String calleeClassName,
-                                                       final String calleeMethodName) {
+    private GenericExecutable<?, ?> findPublicCallerFor(final String calleeClassName,
+                                                        final String calleeMethodName) {
         final Set<MethodEntry> publicCallers = DependencyAnalysis.getCallGraph()
                 .getPublicCallersOf(calleeClassName, calleeMethodName);
 
@@ -742,19 +601,6 @@ public class GuidedInsertion extends AbstractInsertion {
         return DependencyAnalysis.getWritingMethodsMerged(entry);
     }
 
-    private MethodEntry toMethodEntry(final TestFitnessFunction f) {
-        final String clazz = f.getTargetClassName();
-        final String nameDesc = f.getTargetMethodName();
-        return new MethodEntry(clazz, nameDesc);
-    }
-
-    private MethodEntry toMethodEntry(final EntityWithParametersStatement stmt) {
-        final String className = stmt.getDeclaringClassName();
-        final String methodName = stmt.getMethodName();
-        final String descriptor = stmt. getDescriptor();
-        return new MethodEntry(className, methodName, descriptor);
-    }
-
     /**
      * Logs a message at the debug level if the logger is enabled at the debug level.
      *
@@ -770,7 +616,7 @@ public class GuidedInsertion extends AbstractInsertion {
      * Logs a message at the debug level if the logger is enabled at the debug level.
      *
      * @param format the format string message to log
-     * @param args the arguments for the format string
+     * @param args   the arguments for the format string
      */
     private static void debug(final String format, final Object... args) {
         if (logger.isDebugEnabled()) {
@@ -793,7 +639,7 @@ public class GuidedInsertion extends AbstractInsertion {
      * Logs a message at the info level if the logger is enabled at the info level.
      *
      * @param format the format string message to log
-     * @param args the arguments for the format string
+     * @param args   the arguments for the format string
      */
     private static void info(final String format, final Object... args) {
         if (logger.isInfoEnabled()) {
@@ -816,7 +662,7 @@ public class GuidedInsertion extends AbstractInsertion {
      * Logs a message at the warn level if the logger is enabled at the warn level.
      *
      * @param format the format string message to log
-     * @param args the arguments for the format string
+     * @param args   the arguments for the format string
      */
     private static void warn(final String format, final Object... args) {
         if (logger.isWarnEnabled()) {
@@ -839,7 +685,7 @@ public class GuidedInsertion extends AbstractInsertion {
      * Logs a message at the error level if the logger is enabled at the error level.
      *
      * @param format the format string message to log
-     * @param args the arguments for the format string
+     * @param args   the arguments for the format string
      */
     private static void error(final String format, final Object... args) {
         if (logger.isErrorEnabled()) {
@@ -852,11 +698,12 @@ public class GuidedInsertion extends AbstractInsertion {
      * initialization-on-demand holder idiom.
      */
     private static final class SingletonContainer {
+        private static final GuidedInsertion instance = new GuidedInsertion();
+
         static {
             if (!Properties.PURE_INSPECTORS) {
                 warn("Purity analysis is disabled, use the switch -Dpure_inspectors=true to enable");
             }
         }
-        private static final GuidedInsertion instance = new GuidedInsertion();
     }
 }
