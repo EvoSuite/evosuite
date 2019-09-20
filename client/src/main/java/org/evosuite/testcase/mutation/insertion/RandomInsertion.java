@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.testcase.mutation;
+package org.evosuite.testcase.mutation.insertion;
 
 import java.util.*;
 
@@ -46,6 +46,11 @@ public class RandomInsertion extends AbstractInsertion {
     @Override
     protected boolean insertUUT(TestCase test, int position) {
         return insertRandomCall(test, position);
+    }
+
+    @Override
+    protected int insertParam(TestCase test, int lastPosition) {
+        return insertRandomParam(test, lastPosition);
     }
 
     // https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom
