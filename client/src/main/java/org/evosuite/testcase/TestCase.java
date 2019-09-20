@@ -23,6 +23,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.contracts.ContractViolation;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.environment.AccessedEnvironment;
 import org.evosuite.testcase.variable.VariableReference;
@@ -549,4 +550,32 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	void decreaseStatementTTL();
 
 	boolean callsMethod(String className, String methodNameDesc);
+
+	/**
+	 * Tells whether the executable containing the given coverage goal is already called by this
+	 * test case.
+	 *
+	 * @param goal the coverage goal whose target executable to check
+	 * @return {@code true} if the target executable of {@code goal} is already invoked by this
+	 * test, {@code false otherwise}
+	 */
+	boolean callsMethod(TestFitnessFunction goal);
+
+	List<EntityWithParametersStatement> getCalledMethods();
+
+	List<EntityWithParametersStatement> getCalledMethods(int index);
+
+	/**
+	 * Tells whether the test case contains an object of a type that is assignable to the given
+	 * type {@code t}.
+	 *
+	 * @param t the type to compare against
+	 * @return {@code true} if the test contains objects of a type compatible with {@code t},
+	 * {@code false otherwise}
+	 */
+	boolean hasAssignableObject(Type t);
+
+	int lastIndexOfCallTo(String targetClassName, String targetMethodName);
+
+	List<Statement> getStatements();
 }

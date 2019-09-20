@@ -628,6 +628,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
 	 */
+
 	/** {@inheritDoc} */
 	@Override
 	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
@@ -798,6 +799,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public boolean hasCastableObject(Type t) {
 		return statements.stream().anyMatch(s -> s.getReturnValue().isAssignableFrom(t));
+	}
+
+	@Override
+	public boolean hasAssignableObject(Type t) {
+		return statements.stream().anyMatch(s -> s.getReturnValue().isAssignableTo(t));
 	}
 
 	/**
@@ -1153,6 +1159,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	@Override
 	public void setTarget(TestFitnessFunction target) {
+		logger.debug("Setting new target: {}", target);
 		this.target = target;
 	}
 
@@ -1188,5 +1195,38 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean callsMethod(TestFitnessFunction goal) {
+		return callsMethod(goal.getTargetClassName(), goal.getTargetMethodName());
+	}
+
+	@Override
+	public List<EntityWithParametersStatement> getCalledMethods() {
+		return getCalledMethods(size());
+	}
+
+	@Override
+	public List<EntityWithParametersStatement> getCalledMethods(int index) {
+		final CalledMethodsTestVisitor visitor = new CalledMethodsTestVisitor(index);
+		this.accept(visitor);
+		return visitor.getCalledMethods();
+	}
+
+	@Override
+	public int lastIndexOfCallTo(String targetClassName, String targetMethodName) {
+		final Optional<EntityWithParametersStatement> max = statements.stream()
+				.filter(stmt -> stmt instanceof EntityWithParametersStatement)
+				.map(stmt -> (EntityWithParametersStatement) stmt)
+				.filter(stmt -> stmt.getDeclaringClassName().equals(targetClassName)
+						&& (stmt.getMethodName() + stmt.getDescriptor()).equals(targetMethodName))
+				.max(Comparator.comparingInt(AbstractStatement::getPosition));
+		return max.map(AbstractStatement::getPosition).orElse(-1);
+	}
+
+	@Override
+	public List<Statement> getStatements() {
+		return statements;
 	}
 }
