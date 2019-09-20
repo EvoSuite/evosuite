@@ -27,14 +27,18 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.ga.localsearch.LocalSearchObjective;
 import org.evosuite.ga.operators.mutation.MutationHistory;
+import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.util.AtMostOnceLogger;
+import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
+import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
+import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.testcase.statements.FunctionalMockStatement;
 import org.evosuite.testcase.statements.PrimitiveStatement;
 import org.evosuite.testcase.statements.Statement;
@@ -49,7 +53,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static org.evosuite.testcase.mutation.MutationUtils.rouletteWheelSelect;
+import static org.evosuite.testcase.mutation.MutationUtils.toMethodEntry;
 
 import static java.util.stream.Collectors.*;
 
@@ -275,9 +285,6 @@ public class TestChromosome extends ExecutableChromosome {
 
 				// Couldn't find statement, may have been deleted in other mutation?
 				assert (newPosition >= 0);
-				if (newPosition < 0) {
-					continue;
-				}
 
 				return true;
 			}
@@ -321,25 +328,73 @@ public class TestChromosome extends ExecutableChromosome {
 			test.chop(lastPosition + 1);
 		}
 
-		// Delete
-		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
-			logger.debug("Mutation: delete");
-			if(mutationDelete())
-				changed = true;
-		}
+		if (Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
+			/*
+			 * The guided mutation strategy uses execution traces and coverage information
+			 * of the given test case from the previous generation. Performing one of
+			 * mutationInsert(), mutationChange() and mutationDelete() invalidates this
+			 * information for the other two, which means they have to fall back to uninformed
+			 * random operations. Since mutationInsert() can make the most of execution
+			 * traces and coverage information, it makes sense to always execute it before
+			 * mutationChange() and mutationDelete(). This way, mutationInsert() can always
+			 * rely on valid information.
+			 */
 
-		// Change
-		if (Randomness.nextDouble() <= Properties.P_TEST_CHANGE) {
-			logger.debug("Mutation: change");
-			if (mutationChange())
-				changed = true;
-		}
+			// Insert
+			if (Randomness.nextDouble() <= Properties.P_TEST_INSERT) {
+				logger.debug("Mutation: insert");
+				if (mutationInsert())
+					changed = true;
+			}
 
-		// Insert
-		if (Randomness.nextDouble() <= Properties.P_TEST_INSERT) {
-			logger.debug("Mutation: insert");
-			if (mutationInsert())
-				changed = true;
+			// Change
+			if (Randomness.nextDouble() <= Properties.P_TEST_CHANGE) {
+				if (changed) { // coverage information etc. is invalid
+                    logger.debug("Mutation: random change");
+                    mutationChange();
+				} else {
+                    logger.debug("Mutation: guided change");
+				    // TODO: should make random changes as well (with a small probability)?
+					if (guidedChange()) {
+						changed = true;
+					}
+				}
+			}
+
+			// Delete
+			if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
+				if (changed) {
+                    logger.debug("Mutation: random delete");
+                    mutationDelete();
+                } else {
+                    // TODO: should make random deletions as well (with a small probability)?
+                    logger.debug("Mutation: guided delete");
+                    if (guidedDelete()) {
+						changed = true;
+					}
+				}
+			}
+		} else {
+			// Delete
+			if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
+				logger.debug("Mutation: delete");
+				if (mutationDelete())
+					changed = true;
+			}
+
+			// Change
+			if (Randomness.nextDouble() <= Properties.P_TEST_CHANGE) {
+				logger.debug("Mutation: change");
+				if (mutationChange())
+					changed = true;
+			}
+
+			// Insert
+			if (Randomness.nextDouble() <= Properties.P_TEST_INSERT) {
+				logger.debug("Mutation: insert");
+				if (mutationInsert())
+					changed = true;
+			}
 		}
 
 		if (changed) {
@@ -356,6 +411,229 @@ public class TestChromosome extends ExecutableChromosome {
 		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
 	}
 
+	private boolean guidedChange() {
+	    if (test.isEmpty()) { // there are no statements that could possibly be changed...
+	        logger.debug("test case is empty, nothing to mutate...");
+            return false;
+        }
+
+        // Retrieving the current goals like that... I don't find this so pretty, by hey...
+		final Set<TestFitnessFunction> goals = GuidedInsertion.getInstance().goals();
+
+        // Check if the previous goal has been reached.
+		final TestFitnessFunction previousGoal = test.getTarget();
+		final boolean previousGoalReached = !goals.contains(previousGoal);
+
+		if (previousGoalReached) {
+		    logger.debug("previous intended goal reached");
+
+		    // Try to find a new intended goal for the test case. Public goals are preferred
+            // because they're supposedly easier to cover. (We can call public methods directly,
+            // whereas non-public methods are completely hidden and can only be reached indirectly.)
+		    final Map<Boolean, List<TestFitnessFunction>> newGoals = goals.stream()
+                            .collect(Collectors.partitioningBy(TestFitnessFunction::isPublic));
+
+		    // We check if there's a public goal for which the target method is already invoked.
+            // If so, it means that control flow already enters the right method, but still misses
+            // the target. We try to fuzz the input parameters of the method in an attempt to
+            // direct control flow towards the target.
+            final Set<TestFitnessFunction> publicGoals = newGoals.get(true).stream()
+                    .filter(test::callsMethod)
+                    .collect(Collectors.toSet());
+            if (!publicGoals.isEmpty()) {
+                logger.debug("choosing new goal for test case");
+                final TestFitnessFunction newGoal = rouletteWheelSelect(publicGoals);
+                test.setTarget(newGoal);
+                final EntityWithParametersStatement call = getStatementFor(newGoal);
+                return call != null && changeParametersOf(call);
+            }
+
+            // There are no public goals. We cannot reach them directly. Instead, we must call
+            // some public method which eventually calls the non-public target method for us.
+            // We check if such a public method is already invoked by the test case.
+            final List<TestFitnessFunction> nonPublicGoals = newGoals.get(false);
+            final Set<MethodEntry> publicCallers = nonPublicGoals.stream()
+                    .flatMap(goal -> getPublicCallersOf(goal).stream())
+                    .filter(call -> test.callsMethod(call.getClassName(), call.getMethodNameDesc()))
+                    .collect(Collectors.toSet());
+
+            if (publicCallers.isEmpty()) {
+                logger.debug("No public callers for current targets");
+
+                // Just change something randomly. This is our last-ditch effort if guided change
+                // is not possible.
+                return mutationChange();
+            }
+
+            // Select a random amount of such public callers (but always at least 1), try to fuzz
+            // their input parameters and hope that control flow now reaches the target.
+            final Set<EntityWithParametersStatement> calls = getStatementsFor(publicCallers);
+            final int numberCalls = 1 + Randomness.nextInt(calls.size());
+            final Set<EntityWithParametersStatement> chosenCalls = calls.stream()
+                    .limit(numberCalls)
+                    .collect(Collectors.toSet());
+            return !chosenCalls.isEmpty() && changeParametersOf(chosenCalls);
+		} else { // The intended goal has not been reached yet but the test already contains
+		         // method calls that try to reach it.
+            final String className = previousGoal.getTargetClassName();
+            final String methodName = previousGoal.getTargetMethodName();
+
+            // Fuzz the input parameters of the public target or, if the goals is non-public,
+            // one of its public callers.
+            if (previousGoal.isPublic()) {
+                logger.debug("Trying to fuzz input parameters for current goal");
+
+                final EntityWithParametersStatement call = getStatementFor(previousGoal);
+                return call != null && changeParametersOf(call);
+            } else {
+                logger.debug("Trying to fuzz input parameters of public callers for current goal");
+
+                final Set<MethodEntry> publicCallers = DependencyAnalysis.getCallGraph()
+                        .getPublicCallersOf(className, methodName);
+                final Set<EntityWithParametersStatement> calls = getStatementsFor(publicCallers);
+                final int numberCalls = 1 + Randomness.nextInt(calls.size());
+                final Set<EntityWithParametersStatement> chosenCalls = calls.stream()
+                        .limit(numberCalls)
+                        .collect(Collectors.toSet());
+                return !chosenCalls.isEmpty() && changeParametersOf(chosenCalls);
+            }
+		}
+    }
+
+    private Set<MethodEntry> getPublicCallersOf(TestFitnessFunction target) {
+        return DependencyAnalysis.getCallGraph().getPublicCallersOf(toMethodEntry(target));
+    }
+
+    private EntityWithParametersStatement getStatementFor(TestFitnessFunction goal) {
+        final String className = goal.getTargetClassName();
+        final String methodName = goal.getTargetMethodName();
+        int index = test.lastIndexOfCallTo(className, methodName);
+
+        if (index < 0) {
+            logger.warn("Could not locate statement for given goal (index was {})", index);
+            return null;
+        }
+
+        final Statement stmt = test.getStatement(index);
+
+        if (!(stmt instanceof EntityWithParametersStatement)) {
+            logger.error("Statement is neither a method nor constructor call");
+            return null; // shouldn't really happen, but better safe than sorry...
+        }
+
+        return (EntityWithParametersStatement) stmt;
+    }
+
+    private Set<EntityWithParametersStatement> getStatementsFor(Set<MethodEntry> goals) {
+        final IntStream indexes = goals.stream()
+                .mapToInt(call -> test.lastIndexOfCallTo(call.getClassName(), call.getMethodNameDesc()))
+                .filter(idx -> 0 <= idx && idx <= getLastMutatableStatement());
+        final Stream<EntityWithParametersStatement> statements = indexes
+                .mapToObj(test::getStatement)
+                .filter(stmt -> stmt instanceof EntityWithParametersStatement)
+                .map(stmt -> ((EntityWithParametersStatement) stmt));
+        return statements.collect(Collectors.toSet());
+    }
+
+    private boolean changeParametersOf(EntityWithParametersStatement call) {
+        final List<VariableReference> parameters = call.getParameterReferences();
+
+        if (parameters.isEmpty()) {
+            logger.debug("Given call has no parameters");
+            return false;
+        }
+
+        Randomness.shuffle(parameters);
+
+        final int num = 1 + Randomness.nextInt(parameters.size());
+        boolean success = true;
+        for (int i = 0; i < num && success; i++) {
+            final VariableReference var = parameters.get(i);
+            success = changeVariable(var);
+        }
+
+        logger.debug("Fuzzing parameters for goal: {}", success ? "Success!" : "Failure");
+
+        return success;
+    }
+
+    private boolean changeParametersOf(Set<EntityWithParametersStatement> calls) {
+        if (!calls.isEmpty()) {
+            boolean success = false;
+
+            for (EntityWithParametersStatement call : calls) {
+                success |= changeParametersOf(call);
+            }
+
+            return success;
+        }
+
+        return false;
+	}
+
+    private boolean changeVariable(VariableReference var) {
+	    logger.debug("Trying to mutate variable {}", var);
+
+        final Statement stmt = test.getStatement(var.getStPosition());
+        final int oldDistance = stmt.getReturnValue().getDistance();
+
+        final boolean changed = stmt.mutate(test);
+        if (changed) {
+            mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
+                    TestMutationHistoryEntry.TestMutation.CHANGE, stmt));
+            assert test.isValid();
+            assert ConstraintVerifier.verifyTest(test);
+        }
+        stmt.getReturnValue().setDistance(oldDistance);
+
+        logger.debug("Mutation: {}", changed ? "Success!" : "Failure");
+
+        return changed;
+    }
+
+    /**
+     * Changes a random variable of the given type, but only considers statements up to the given
+     * index.
+     *
+     * @param type the type of the variable to change
+     * @param index the index up to which statements can be changed
+     * @return {@code true} if successful, {@code false} otherwise
+     */
+	private boolean changeVariableOfType(Class<?> type, int index) {
+	    // The set of statements that declare a variable of the given type.
+        final Set<Statement> statements = test.getObjects(type, index).stream()
+                // every variable must be declared before it is used, so the resulting
+                // statements still have indexes <= the given index
+                .map(v -> test.getStatement(v.getStPosition()))
+                .filter(s -> !s.isReflectionStatement())
+                .collect(Collectors.toSet());
+
+        assert statements.stream().map(Statement::getPosition).allMatch(p -> p <= index);
+
+        if (statements.isEmpty()) {
+            return mutationChange();
+        }
+
+        final Statement stmt = Randomness.choice(statements);
+        final int oldDistance = stmt.getReturnValue().getDistance();
+
+        final boolean changed = stmt.mutate(test);
+
+        if (changed) {
+            mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
+                    TestMutationHistoryEntry.TestMutation.CHANGE, stmt));
+            assert test.isValid();
+            assert ConstraintVerifier.verifyTest(test);
+        }
+
+        stmt.getReturnValue().setDistance(oldDistance);
+
+        return changed;
+    }
+
+	private boolean guidedDelete() {
+		throw new UnsupportedOperationException("undefined");
+	}
 
 	private boolean mockChange()  {
 
