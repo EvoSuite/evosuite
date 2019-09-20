@@ -29,6 +29,8 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.graphs.ddg.DataDependenceGraph;
+import org.evosuite.graphs.ddg.FieldEntry;
+import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.graphs.ddg.TrueDataDependenceGraph;
 import org.evosuite.instrumentation.LinePool;
 import org.evosuite.junit.CoverageAnalysis;
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class performs static analysis on the client-side before everything else initializes.
@@ -57,9 +60,9 @@ public class DependencyAnalysis {
 
 	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
 
-	private static Map<String, ClassNode> classCache = new LinkedHashMap<String, ClassNode>();
+	private static Map<String, ClassNode> classCache = new LinkedHashMap<>();
 
-	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<String, CallGraph>();
+	private static Map<String, CallGraph> callGraphs = new LinkedHashMap<>();
 
 	private static InheritanceTree inheritanceTree = null;
 
@@ -79,8 +82,60 @@ public class DependencyAnalysis {
 		return methodDependenceGraph;
 	}
 
-	public static TrueDataDependenceGraph getWriteReadPairs() {
-		return trueDataDependenceGraph;
+	public static Set<MethodEntry> getWritingMethods(MethodEntry entry) {
+		return trueDataDependenceGraph.getWritingMethodsFor(entry);
+	}
+
+	public static Set<MethodEntry> getWritingMethodsMerged(MethodEntry method) {
+		final Set<MethodEntry> wm1 = getWritingMethods(method);
+		final Set<MethodEntry> wm2 = getCallGraph().getCallsFromMethod(method).stream()
+				.flatMap(callee -> getWritingMethods(callee).stream())
+				.collect(Collectors.toSet());
+		final Set<MethodEntry> union =
+				new HashSet<MethodEntry>(wm1.size() + wm2.size()) {{ addAll(wm1); addAll(wm2); }};
+		return union;
+	}
+
+	public static Set<MethodEntry> getReadingMethods(MethodEntry method) {
+		return trueDataDependenceGraph.getReadingMethodsFor(method);
+	}
+
+	public static Set<MethodEntry> getReadingMethodsMerged(MethodEntry method) {
+		final Set<MethodEntry> rm1 = getReadingMethods(method);
+		final Set<MethodEntry> rm2 = getCallGraph().getCallsFromMethod(method).stream()
+				.flatMap(callee -> getReadingMethods(callee).stream())
+				.collect(Collectors.toSet());
+		final Set<MethodEntry> union =
+				new HashSet<MethodEntry>(rm1.size() + rm2.size()) {{ addAll(rm1); addAll(rm2); }};
+		return union;
+	}
+
+	public static Set<FieldEntry> getReadFields(MethodEntry method) {
+		return methodDependenceGraph.getReadFields(method);
+	}
+
+	public static Set<FieldEntry> getReadFieldsMerged(MethodEntry method) {
+		final Set<FieldEntry> rf1 = getReadFields(method);
+		final Set<FieldEntry> rf2 = getCallGraph().getCallsFromMethod(method).stream()
+				.flatMap(callee -> getReadFields(callee).stream())
+				.collect(Collectors.toSet());
+		final Set<FieldEntry> union =
+				new HashSet<FieldEntry>(rf1.size() + rf2.size()) {{ addAll(rf1); addAll(rf2); }};
+		return union;
+	}
+
+	public static Set<FieldEntry> getWrittenFields(MethodEntry method) {
+		return methodDependenceGraph.getWrittenFields(method);
+	}
+
+	public static Set<FieldEntry> getWrittenFieldsMerged(MethodEntry method) {
+		final Set<FieldEntry> wf1 = getWrittenFields(method);
+		final Set<FieldEntry> wf2 = getCallGraph().getCallsFromMethod(method).stream()
+				.flatMap(callee -> getWrittenFields(callee).stream())
+				.collect(Collectors.toSet());
+		final Set<FieldEntry> union =
+				new HashSet<FieldEntry>(wf1.size() + wf2.size()) {{ addAll(wf1); addAll(wf2); }};
+		return union;
 	}
 
 	private static void initInheritanceTree(List<String> classPath) {
@@ -114,7 +169,8 @@ public class DependencyAnalysis {
 				|| Properties.INSTRUMENT_CONTEXT
 				|| Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
 
-			for (String classn : inheritanceTree.getAllClasses()) {
+			final Set<String> allClasses = inheritanceTree.getAllClasses();
+			for (String classn : allClasses) {
 				if (isTargetProject(classn)) {
 					CallGraphGenerator.analyzeOtherClasses(callGraph, classn);
 				}
