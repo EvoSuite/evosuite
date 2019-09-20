@@ -47,7 +47,7 @@ public class FunctionalMockForAbstractClassStatement extends FunctionalMockState
     }
 
     @Override
-    public Statement copy(TestCase newTestCase, int offset) {
+    public AbstractStatement copy(TestCase newTestCase, int offset) {
 
 
         FunctionalMockForAbstractClassStatement copy = new FunctionalMockForAbstractClassStatement(

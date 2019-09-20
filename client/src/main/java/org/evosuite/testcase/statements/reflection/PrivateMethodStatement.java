@@ -23,6 +23,7 @@ import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.AbstractStatement;
 import org.evosuite.testcase.statements.MethodStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
@@ -90,7 +91,7 @@ public class PrivateMethodStatement extends MethodStatement {
     }
 
     @Override
-    public Statement copy(TestCase newTestCase, int offset) {
+    public AbstractStatement copy(TestCase newTestCase, int offset) {
         PrivateMethodStatement pm;
         List<VariableReference> newParams = new ArrayList<>();
         for(int i = 3; i < parameters.size(); i = i + 2) {

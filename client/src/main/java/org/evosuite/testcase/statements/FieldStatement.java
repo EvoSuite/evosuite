@@ -187,7 +187,7 @@ public class FieldStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public Statement copy(TestCase newTestCase, int offset) {
+	public AbstractStatement copy(TestCase newTestCase, int offset) {
 		if (field.isStatic()) {
 			FieldStatement s = new FieldStatement(newTestCase, field.copy(), null);
 			s.getReturnValue().setType(retval.getType()); // Actual type may have changed, e.g. subtype

@@ -225,7 +225,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
      * {@inheritDoc}
      */
     @Override
-    public Statement copy(TestCase newTestCase, int offset) {
+    public AbstractStatement copy(TestCase newTestCase, int offset) {
         @SuppressWarnings("unchecked")
         PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
                 retval.getGenericClass());

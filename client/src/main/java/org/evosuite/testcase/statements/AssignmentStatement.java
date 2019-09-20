@@ -94,7 +94,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public Statement copy(TestCase newTestCase, int offset) {
+	public AbstractStatement copy(TestCase newTestCase, int offset) {
 		try {
 			VariableReference newParam = value.copy(newTestCase, offset);
 			VariableReference newTarget;

@@ -114,7 +114,7 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public Statement copy(TestCase newTestCase, int offset) {
+	public AbstractStatement copy(TestCase newTestCase, int offset) {
 		VariableReference newRetVal = new VariableReferenceImpl(newTestCase,
 		        retval.getType());
 		VariableReference newLeftOperand = newTestCase.getStatement(leftOperand.getStPosition()).getReturnValue();

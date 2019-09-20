@@ -271,7 +271,7 @@ public class ConstructorStatement extends EntityWithParametersStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public Statement copy(TestCase newTestCase, int offset) {
+	public AbstractStatement copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
 			new_params.add(r.copy(newTestCase, offset));

@@ -317,7 +317,7 @@ public class MethodStatement extends EntityWithParametersStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public Statement copy(TestCase newTestCase, int offset) {
+	public AbstractStatement copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> newParams = new ArrayList<VariableReference>();
 		for (VariableReference r : parameters) {
 			newParams.add(r.copy(newTestCase, offset));

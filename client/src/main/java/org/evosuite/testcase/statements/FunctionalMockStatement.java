@@ -546,7 +546,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
 
     @Override
-    public Statement copy(TestCase newTestCase, int offset) {
+    public AbstractStatement copy(TestCase newTestCase, int offset) {
 
 
         FunctionalMockStatement copy = new FunctionalMockStatement(

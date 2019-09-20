@@ -23,6 +23,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.PrivateAccess;
 import org.evosuite.testcase.execution.CodeUnderTestException;
 import org.evosuite.testcase.execution.Scope;
+import org.evosuite.testcase.statements.AbstractStatement;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.TestCase;
@@ -113,7 +114,7 @@ public class PrivateFieldStatement extends MethodStatement {
     }
 
     @Override
-    public Statement copy(TestCase newTestCase, int offset) {
+    public AbstractStatement copy(TestCase newTestCase, int offset) {
         try {
             PrivateFieldStatement pf;
             VariableReference owner = parameters.get(1).copy(newTestCase, offset);

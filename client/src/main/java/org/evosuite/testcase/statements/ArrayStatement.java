@@ -170,7 +170,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public Statement copy(TestCase newTestCase, int offset) {
+	public AbstractStatement copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), lengths);
 		// copy.assertions = copyAssertions(newTestCase, offset);
 		return copy;

@@ -487,16 +487,27 @@ public abstract class AbstractStatement implements Statement, Serializable {
 		return false;
 	}
 
+	// Overrides Statement::copy but with a more specific return type (namely AbstractStatement
+	// instead of Statement). This is needed for the implementation of clone() so that we can
+	// invoke the private method resetTTL() on the cloned AbstractStatement instance. This would
+	// not be possible if it were to be a Statement instance. We would have to define a method
+	// resetTTL() in the Statement interface for this, which would then have to be public. But
+	// such an escalation of visibility from private all the way to public must be avoided.
+	// Nobody except AbstractStatements themselves should be able to tamper with
+	// AbstractStatements by calling resetTTL().
+	@Override
+	public abstract AbstractStatement copy(TestCase newTestCase, int offset);
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#clone(org.evosuite.testcase.TestCase)
 	 */
 	/** {@inheritDoc} */
 	@Override
 	public Statement clone(TestCase newTestCase) {
-		Statement result = copy(newTestCase, 0);
+		AbstractStatement result = copy(newTestCase, 0);
 		result.getReturnValue().setOriginalCode(retval.getOriginalCode());
 		result.addComment(getComment());
-//		result.resetTTL(); // TODO: is this required? I don't know
+		result.resetTTL(); // Cloning a statement does reset its TTL!
 		return result;
 	}
 
