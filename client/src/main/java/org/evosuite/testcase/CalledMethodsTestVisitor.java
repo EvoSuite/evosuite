@@ -1,7 +1,5 @@
 package org.evosuite.testcase;
 
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestVisitor;
 import org.evosuite.testcase.statements.*;
 
 import java.util.LinkedList;
@@ -9,9 +7,14 @@ import java.util.List;
 
 public class CalledMethodsTestVisitor extends TestVisitor {
     private final List<EntityWithParametersStatement> calledMethods = new LinkedList<>();
+    private final int index;
 
     public List<EntityWithParametersStatement> getCalledMethods() {
         return calledMethods;
+    }
+
+    public CalledMethodsTestVisitor(int index) {
+        this.index = index;
     }
 
     @Override
@@ -31,12 +34,16 @@ public class CalledMethodsTestVisitor extends TestVisitor {
 
     @Override
     public void visitMethodStatement(MethodStatement statement) {
-        calledMethods.add(statement);
+        if (statement.getPosition() < index) {
+            calledMethods.add(statement);
+        }
     }
 
     @Override
     public void visitConstructorStatement(ConstructorStatement statement) {
-        calledMethods.add(statement);
+        if (statement.getPosition() < index) {
+            calledMethods.add(statement);
+        }
     }
 
     @Override
