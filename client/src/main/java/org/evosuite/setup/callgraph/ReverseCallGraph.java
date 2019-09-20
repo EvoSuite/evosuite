@@ -20,13 +20,15 @@
 package org.evosuite.setup.callgraph;
 
 
+import org.evosuite.graphs.ddg.MethodEntry;
+
 /**
- * 
+ *
  * @author mattia
  *
  */
 
-public class ReverseCallGraph extends Graph<CallGraphEntry> {
-   
-	
+public class ReverseCallGraph extends Graph<MethodEntry> {
+
+
 }

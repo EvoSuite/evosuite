@@ -23,6 +23,7 @@ import java.util.*;
 
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
+import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class CallGraph implements Iterable<CallGraphEntry> {
+public class CallGraph implements Iterable<MethodEntry> {
 
 	/**
 	 * The CallGraphImpl class is a wrap of the Graph class. Internally the
@@ -55,17 +56,17 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	private final String className;
 
-	private final Set<CallGraphEntry> cutNodes = Collections.synchronizedSet(new LinkedHashSet<CallGraphEntry>());
+	private final Set<MethodEntry> cutNodes = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<String> callGraphClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> callGraphClasses = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<String> toTestClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
-	private final Set<String> toTestMethods = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> toTestClasses = Collections.synchronizedSet(new LinkedHashSet<>());
+	private final Set<String> toTestMethods = Collections.synchronizedSet(new LinkedHashSet<>());
 
-	private final Set<String> notToTestClasses = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private final Set<String> notToTestClasses = Collections.synchronizedSet(new LinkedHashSet<>());
 
 
-	private final Set<CallContext> publicMethods = Collections.synchronizedSet(new LinkedHashSet<CallContext>());
+	private final Set<CallContext> publicMethods = Collections.synchronizedSet(new LinkedHashSet<>());
 
 	public CallGraph(String className) {
 		this.className = className;
@@ -75,13 +76,13 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		return graph;
 	}
 
-	public void removeClasses(Collection<CallGraphEntry> vertexes){
-		for (CallGraphEntry vertex : vertexes) {
+	public void removeClasses(Collection<MethodEntry> vertexes){
+		for (MethodEntry vertex : vertexes) {
 			graph.removeVertex(vertex);
 		}
 	}
 
-	public void removeClass(CallGraphEntry vertex){
+	public void removeClass(MethodEntry vertex){
 		graph.removeVertex(vertex);
 	}
 	/**
@@ -105,8 +106,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 	public boolean addCall(String sourceClass, String sourceMethod,
 			String targetClass, String targetMethod) {
-		CallGraphEntry from = new CallGraphEntry(targetClass, targetMethod);
-		CallGraphEntry to = new CallGraphEntry(sourceClass, sourceMethod);
+		MethodEntry from = new MethodEntry(targetClass, targetMethod);
+		MethodEntry to = new MethodEntry(sourceClass, sourceMethod);
 
 //		logger.info("Adding new call from: " + to + " -> " + from);
 
@@ -125,7 +126,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @return true if the method is in the callgraph.
 	 */
 	public boolean hasMethod(String classname, String methodName) {
-		return graph.containsVertex(new CallGraphEntry(classname, methodName));
+		return graph.containsVertex(new MethodEntry(classname, methodName));
 	}
 
 	/**
@@ -134,8 +135,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	public boolean hasCall(String owner, String methodName, String targetClass,
 			String targetMethod) {
 
-		CallGraphEntry from = new CallGraphEntry(targetClass, targetMethod);
-		CallGraphEntry to = new CallGraphEntry(owner, methodName);
+		MethodEntry from = new MethodEntry(targetClass, targetMethod);
+		MethodEntry to = new MethodEntry(owner, methodName);
 
 		return graph.getEdges().containsKey(to)
 				&& graph.getEdges().get(to).contains(from);
@@ -145,8 +146,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @return calls exiting from the method, empty set if the call is not in
 	 *         the graph.
 	 */
-	public Set<CallGraphEntry> getCallsFrom(String owner, String methodName) {
-		CallGraphEntry call = new CallGraphEntry(owner, methodName);
+	public Set<MethodEntry> getCallsFrom(String owner, String methodName) {
+		MethodEntry call = new MethodEntry(owner, methodName);
 		return getCallsFromMethod(call);
 	}
 
@@ -154,7 +155,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @return calls exiting from the method, empty set if the call is not in
 	 *         the graph
 	 */
-	public Set<CallGraphEntry> getCallsFromMethod(CallGraphEntry call) {
+	public Set<MethodEntry> getCallsFromMethod(MethodEntry call) {
 		if (graph.getEdges().containsKey(call))
 			return graph.getEdges().get(call);
 		else {
@@ -171,22 +172,22 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @param methodName the method name + descriptor of the callee for which to find callers
 	 * @return the set of public callers of the method
 	 */
-	public Set<CallGraphEntry> getPublicCallersOf(String className, String methodName) {
-		Objects.requireNonNull(className);
-		Objects.requireNonNull(methodName);
-		return getPublicCallersOf(new CallGraphEntry(className, methodName));
+	public Set<MethodEntry> getPublicCallersOf(String className, String methodName) {
+		return getPublicCallersOf(new MethodEntry(className, methodName));
 	}
 
-	private Set<CallGraphEntry> getPublicCallersOf(CallGraphEntry callee) {
+	public Set<MethodEntry> getPublicCallersOf(MethodEntry callee) {
+		Objects.requireNonNull(callee);
+
 		final boolean isPublicCallee = publicMethods.stream().anyMatch(cc ->
 				Objects.equals(callee.getClassName(), cc.getRootClassName())
-						&& Objects.equals(callee.getMethodName(), cc.getRootMethodName()));
+						&& Objects.equals(callee.getMethodNameDesc(), cc.getRootMethodName()));
 
 		if (isPublicCallee) {
 			return Collections.singleton(callee);
 		} else {
 			// The call graph is reversed, i.e., the edges point from callee to caller.
-			final Iterable<CallGraphEntry> callers = graph.getNeighbors(callee);
+			final Iterable<MethodEntry> callers = graph.getNeighbors(callee);
 
 			if (callers == null) { // may happen if callee node is not present in the call graph
 				return Collections.emptySet();
@@ -194,8 +195,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 
 			// Recursively traverse the graph until a public caller is found and include every
 			// such caller in the result set.
-			final Set<CallGraphEntry> result = new HashSet<>();
-			for (CallGraphEntry caller : callers) {
+			final Set<MethodEntry> result = new HashSet<>();
+			for (MethodEntry caller : callers) {
 				if (!caller.equals(callee)) { // filter out recursive calls
 					result.addAll(getPublicCallersOf(caller));
 				}
@@ -234,8 +235,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @return
 	 */
 	public Set<CallContext> getAllContextsFromTargetClass(String className, String methodName) {
-		CallGraphEntry root = new CallGraphEntry(className, methodName);
-		Set<List<CallGraphEntry>> paths = PathFinder.getPahts(graph, root);
+		MethodEntry root = new MethodEntry(className, methodName);
+		Set<List<MethodEntry>> paths = PathFinder.getPahts(graph, root);
 		Set<CallContext> contexts = convertIntoCallContext(paths);
 		if(!Properties.EXCLUDE_IBRANCHES_CUT)
 			addPublicClassMethod(className, methodName, contexts);
@@ -252,11 +253,11 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	}
 
 	private Set<CallContext> convertIntoCallContext(
-			Set<List<CallGraphEntry>> paths) {
+			Set<List<MethodEntry>> paths) {
 		Set<CallContext> contexts = new HashSet<>();
 
 		// return only context that starts from the class under test
-		for (List<CallGraphEntry> list : paths) {
+		for (List<MethodEntry> list : paths) {
 			boolean insert = false;
 			List<Call> cont = new ArrayList<>();
 
@@ -266,7 +267,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 				}
 				if (insert)
 					cont.add(new Call(list.get(i).getClassName(), list.get(i)
-							.getMethodName()));
+							.getMethodNameDesc()));
 			}
 			contexts.add(new CallContext(cont));
 		}
@@ -309,7 +310,7 @@ public class CallGraph implements Iterable<CallGraphEntry> {
  		if(toTestClasses.contains(className)) return true;
  		if(notToTestClasses.contains(className)) return false;
 
-		for (CallGraphEntry e : graph.getEdges().keySet()) {
+		for (MethodEntry e : graph.getEdges().keySet()) {
 			if (e.getClassName().equals(className)) {
 				if(checkClassInPaths(this.className, graph, e))
 					return true;
@@ -318,22 +319,22 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		return false;
 	}
 
-	private boolean computeInterestingClasses(Graph<CallGraphEntry> g) {
-		Set<CallGraphEntry> startingVertices = new HashSet<>();
-		for (CallGraphEntry e : graph.getVertexSet()) {
+	private boolean computeInterestingClasses(Graph<MethodEntry> g) {
+		Set<MethodEntry> startingVertices = new HashSet<>();
+		for (MethodEntry e : graph.getVertexSet()) {
 			if (e.getClassName().equals(className)) {
 				startingVertices.add(e);
 			}
 		}
 		Set<String> classes = new HashSet<>();
 		Set<String> methodclasses = new HashSet<>();
-		for (CallGraphEntry startingVertex : startingVertices) {
-			PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(
+		for (MethodEntry startingVertex : startingVertices) {
+			PathFinderDFSIterator<MethodEntry> dfs = new PathFinderDFSIterator<>(
 					g, startingVertex, true);
 			while (dfs.hasNext()) {
-				CallGraphEntry e = dfs.next();
+				MethodEntry e = dfs.next();
 				classes.add(e.getClassName());
-				methodclasses.add(e.getClassName()+e.getMethodName());
+				methodclasses.add(e.getClassName()+e.getMethodNameDesc());
 			}
 		}
 		toTestMethods.addAll(methodclasses);
@@ -341,14 +342,14 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 		return true;
 	}
 
-	private boolean checkClassInPaths(String targetClass, Graph<CallGraphEntry> g, CallGraphEntry startingVertex) {
+	private boolean checkClassInPaths(String targetClass, Graph<MethodEntry> g, MethodEntry startingVertex) {
 		if(!g.containsVertex(startingVertex)){
 			return false;
 		}
 		Set<String> classes = new HashSet<>();
-		PathFinderDFSIterator<CallGraphEntry> dfs = new PathFinderDFSIterator<CallGraphEntry>(g, startingVertex);
+		PathFinderDFSIterator<MethodEntry> dfs = new PathFinderDFSIterator<>(g, startingVertex);
 		while (dfs.hasNext()) {
-			CallGraphEntry e = dfs.next();
+			MethodEntry e = dfs.next();
 			classes.add(e.getClassName());
 			if(e.getClassName().equals(targetClass)){
 				toTestClasses.addAll(classes);
@@ -379,11 +380,11 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	public boolean isCalledMethodOld(String className, String methodName) {
 
 
-		CallGraphEntry tmp = new CallGraphEntry(className, methodName);
-		for (CallGraphEntry e : graph.getEdges().keySet()) {
+		MethodEntry tmp = new MethodEntry(className, methodName);
+		for (MethodEntry e : graph.getEdges().keySet()) {
 			if (e.equals(tmp)) {
-				for (List<CallGraphEntry> c : PathFinder.getPahts(graph, e)) {
-					for (CallGraphEntry entry : c) {
+				for (List<MethodEntry> c : PathFinder.getPahts(graph, e)) {
+					for (MethodEntry entry : c) {
 						if (entry.getClassName().equals(this.className))
 							return true;
 					}
@@ -399,15 +400,15 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
-	public Iterator<CallGraphEntry> iterator() {
+	public Iterator<MethodEntry> iterator() {
 		return graph.getVertexSet().iterator();
 	}
 
 	/**
 	 * @return a copy of the current vertexset
 	 */
-	public Set<CallGraphEntry> getViewOfCurrentMethods() {
-		return new LinkedHashSet<CallGraphEntry>(graph.getVertexSet());
+	public Set<MethodEntry> getViewOfCurrentMethods() {
+		return new LinkedHashSet<MethodEntry>(graph.getVertexSet());
 	}
 
 	/**
@@ -420,8 +421,8 @@ public class CallGraph implements Iterable<CallGraphEntry> {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		for (CallGraphEntry caller : graph.getVertexSet()) {
-			for (CallGraphEntry callee : graph.getReverseNeighbors(caller)) {
+		for (MethodEntry caller : graph.getVertexSet()) {
+			for (MethodEntry callee : graph.getReverseNeighbors(caller)) {
 				sb.append(caller).append(" -> ").append(callee).append("\n");
 			}
 		}

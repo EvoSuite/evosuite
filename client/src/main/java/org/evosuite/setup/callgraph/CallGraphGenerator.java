@@ -25,6 +25,7 @@ package org.evosuite.setup.callgraph;
 import java.util.*;
 
 import org.evosuite.Properties;
+import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.instrumentation.ExceptionTransformationClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
@@ -195,10 +196,10 @@ public class CallGraphGenerator {
 	public static void update(CallGraph callGraph, InheritanceTree inheritanceTree) {
 		logger.info("Updating call tree ");
 
-		for (CallGraphEntry call : callGraph.getViewOfCurrentMethods()) {
+		for (MethodEntry call : callGraph.getViewOfCurrentMethods()) {
 
 			String targetClass = call.getClassName();
-			String targetMethod = call.getMethodName();
+			String targetMethod = call.getMethodNameDesc();
 
 			// Ignore constructors
 			if (targetMethod.startsWith("<init>"))
@@ -212,10 +213,10 @@ public class CallGraphGenerator {
 			}
 
 			// update graph
-			for (CallGraphEntry c : callGraph.getCallsFromMethod(call)) {
+			for (MethodEntry c : callGraph.getCallsFromMethod(call)) {
 				for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
 					if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
-						callGraph.addCall(c.getClassName(), c.getMethodName(), subclass,
+						callGraph.addCall(c.getClassName(), c.getMethodNameDesc(), subclass,
 								targetMethod);
 					}
 				}
