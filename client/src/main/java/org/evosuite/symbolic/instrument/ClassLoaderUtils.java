@@ -193,7 +193,7 @@ public class ClassLoaderUtils {
             final GenericExecutable<?, ?> executable;
             try {
                 executable = isConstructor
-                        ? new GenericConstructor(clazz.getConstructor(argumentTypes), clazz)
+                        ? new GenericConstructor(clazz.getDeclaredConstructor(argumentTypes), clazz)
                         : new GenericMethod(clazz.getDeclaredMethod(name, argumentTypes), clazz);
             } catch (NoSuchMethodException e) {
                 logger.error("No executable with name {} and arguments {} in {}", name,
