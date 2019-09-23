@@ -314,8 +314,7 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		mutationHistory.clear();
 
-		if (Properties.ENABLE_FAILURE_PENALTIES
-				&& Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
+		if (Properties.ENABLE_TTL) {
 			test.decreaseStatementTTL();
 		}
 
