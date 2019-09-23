@@ -934,15 +934,24 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#remove(int)
 	 */
-	/** {@inheritDoc} */
+	/** {@inheritDoc}
+	 * @return*/
 	@Override
-	public void remove(int position) {
-		logger.debug("Removing statement {}", position);
+	public boolean remove(int position) {
 		if (position >= size()) {
-			return;
+			return false;
 		}
-		statements.remove(position);
-		assert (isValid());
+
+		if (statements.get(position).isTTLExpired()) {
+			logger.debug("Removing statement {}", position);
+			statements.remove(position);
+			assert (isValid());
+			return true;
+		} else {
+			logger.debug("not removing statement {} because TTL not yet expired", position);
+			return false;
+		}
+
 		// for(Statement s : statements) {
 		// for(Asss.assertions)
 		// }

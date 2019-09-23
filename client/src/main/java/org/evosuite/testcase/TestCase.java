@@ -470,8 +470,9 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 	 * Remove statement at position and fix variable references
 	 *
 	 * @param position a int.
+	 * @return
 	 */
-	public void remove(int position);
+	public boolean remove(int position);
 
 	/**
 	 * Remove assertion from test case
