@@ -577,5 +577,7 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
 
 	int lastIndexOfCallTo(String targetClassName, String targetMethodName);
 
+	int lastIndexOfCallTo(TestFitnessFunction goal);
+
 	List<Statement> getStatements();
 }
