@@ -171,7 +171,8 @@ public class GuidedInsertion extends AbstractInsertion {
             candidates = preferredGoals;
 
             while (Randomness.nextBoolean() && !fallbackGoals.isEmpty()) {
-                final TestFitnessFunction luckyLoser = rouletteWheelSelect(fallbackGoals);
+                final Optional<TestFitnessFunction> g = rouletteWheelSelect(fallbackGoals);
+                final TestFitnessFunction luckyLoser = g.orElseThrow(IllegalStateException::new);
                 fallbackGoals.remove(luckyLoser);
                 candidates.add(luckyLoser);
             }
@@ -211,8 +212,9 @@ public class GuidedInsertion extends AbstractInsertion {
          * coverage fast by covering easy targets first, and reduces the number of cases where
          * we spend too much search budget on goals that are infeasible to cover.
          */
-        final TestFitnessFunction chosenGoal =
+        final Optional<TestFitnessFunction> g =
                 rouletteWheelSelect(readingGoals.isEmpty() ? candidates : readingGoals);
+        final TestFitnessFunction chosenGoal = g.orElseThrow(IllegalStateException::new);
 
         /*
          * Encode the intended coverage goal in the test case. This is required since fitness
