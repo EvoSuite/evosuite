@@ -1,11 +1,16 @@
 package org.evosuite.testcase.mutation;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MutationUtils {
@@ -51,7 +56,7 @@ public class MutationUtils {
      * @param goals the goals on which to perform the selection
      * @return a goal chosen via biased-random selection
      */
-    public static TestFitnessFunction rouletteWheelSelect(final Collection<TestFitnessFunction> goals) {
+    public static Optional<TestFitnessFunction> rouletteWheelSelect(final Collection<TestFitnessFunction> goals) {
         /*
          * The collection of goals could be unordered (e.g., when it's a set). Still, the inner
          * workings of the roulette wheel selection require some arbitrary but fixed order. We
@@ -62,17 +67,16 @@ public class MutationUtils {
          */
         final TestFitnessFunction[] gs = goals.toArray(new TestFitnessFunction[0]);
 
-        // by construction, gs cannot be empty here, so no need to check for gs.length == 0
-
         if (gs.length == 1) {
-            return gs[0];
+            return Optional.of(gs[0]);
         }
 
         if (gs.length == 2) {
             final int cc0 = gs[0].getCyclomaticComplexity();
             final int cc1 = gs[1].getCyclomaticComplexity();
             final int pivot = nextRandomInt(cc0 + cc1);
-            return pivot < cc0 ? gs[1] : gs[0];
+            final TestFitnessFunction goal = pivot < cc0 ? gs[1] : gs[0];
+            return Optional.of(goal);
         }
 
         /*
@@ -91,7 +95,7 @@ public class MutationUtils {
         // array  index. This index corresponds to the selected goal.
         final int index = findIndex(prefixSums, pivot);
 
-        return gs[index];
+        return Optional.of(gs[index]);
     }
 
     /**
@@ -164,5 +168,15 @@ public class MutationUtils {
         final String methodName = stmt.getMethodName();
         final String descriptor = stmt.getDescriptor();
         return new MethodEntry(className, methodName, descriptor);
+    }
+
+    public static void registerGoalsManager(MultiCriteriaManager mgr) {
+        Objects.requireNonNull(mgr);
+
+        if (Properties.ALGORITHM == Properties.Algorithm.DYNAMOSA
+                && Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
+            GuidedInsertion insertion = GuidedInsertion.getInstance();
+            insertion.setGoalsManager(mgr);
+        }
     }
 }
