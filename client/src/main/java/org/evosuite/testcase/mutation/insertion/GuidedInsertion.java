@@ -122,7 +122,7 @@ public class GuidedInsertion extends AbstractInsertion {
          * is the only goal left, we always retry to cover it.
          */
         final boolean retry = !previousGoalCovered
-                && (nextRandomInt(previousGoal.getMaxFailures()) > previousGoal.getFailurePenalty()
+                && (Randomness.nextDouble() < (double) previousGoal.getFailurePenalty() / previousGoal.getMaxFailures()
                 || goals().size() == 1);
 
         // The goal intended to cover this time. Might be the same goal as before (if we failed
