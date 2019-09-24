@@ -411,13 +411,19 @@ public class TestChromosome extends ExecutableChromosome {
 		assert ! ConstraintVerifier.hasAnyOnlyForAssertionMethod(test);
 	}
 
+	// TODO: Reorder already existing statements? E.g. top() after push()?
+	//	Stack<Object> stack0 = Stack.factory();
+	//	stack0.top();
+	//	stack0.top();
+	//	stack0.push(stack0);
+	//	stack0.push(string0);
 	private boolean guidedChange() {
 	    if (test.isEmpty()) { // there are no statements that could possibly be changed...
 	        logger.debug("test case is empty, nothing to mutate...");
             return false;
         }
 
-        // Retrieving the current goals like that... I don't find this so pretty, by hey...
+        // FIXME Retrieving the current goals like that... I don't find this so pretty, but hey...
 		final Set<TestFitnessFunction> goals = GuidedInsertion.getInstance().goals();
 
         // Check if the previous goal has been reached.
@@ -442,7 +448,8 @@ public class TestChromosome extends ExecutableChromosome {
                     .collect(Collectors.toSet());
             if (!publicGoals.isEmpty()) {
                 logger.debug("choosing new goal for test case");
-                final TestFitnessFunction newGoal = rouletteWheelSelect(publicGoals);
+				final Optional<TestFitnessFunction> g = rouletteWheelSelect(publicGoals);
+				final TestFitnessFunction newGoal = g.orElseThrow(IllegalStateException::new);
                 test.setTarget(newGoal);
                 final EntityWithParametersStatement call = getStatementFor(newGoal);
                 return call != null && changeParametersOf(call);
