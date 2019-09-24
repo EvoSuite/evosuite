@@ -486,11 +486,11 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
 
     @Override
     public String toString() {
-        if (algorithm == null) {
-            return "TestSuiteAdapter";
+        if (algorithm == null) { // avoids NPE for debuggers automatically invoking toString()
+            return "TestSuiteAdapter under construction";
         }
 
-        return algorithm.toString(); // avoids NPE for debuggers automatically invoking toString()
+        return algorithm.toString();
     }
 
     /**
@@ -519,5 +519,10 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
         public boolean isMaximizationFunction() {
             return maximizationFunction;
         }
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
     }
 }
