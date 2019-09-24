@@ -507,7 +507,9 @@ public abstract class AbstractStatement implements Statement, Serializable {
 		AbstractStatement result = copy(newTestCase, 0);
 		result.getReturnValue().setOriginalCode(retval.getOriginalCode());
 		result.addComment(getComment());
-		result.resetTTL(); // Cloning a statement does reset its TTL!
+//		if (getTestCase() != newTestCase) {
+//			result.resetTTL();
+//		}
 		return result;
 	}
 
