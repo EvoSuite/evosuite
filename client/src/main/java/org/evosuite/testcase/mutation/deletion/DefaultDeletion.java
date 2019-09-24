@@ -30,7 +30,8 @@ public class DefaultDeletion implements DeletionStrategy {
 
     @Override
     public boolean deleteStatement(TestCase test, int position) throws ConstructionFailedException {
-        if (!ConstraintVerifier.canDelete(test, position)) {
+        if (!ConstraintVerifier.canDelete(test, position)
+                || !test.getStatement(position).isTTLExpired()) {
             return false;
         }
 
@@ -52,6 +53,10 @@ public class DefaultDeletion implements DeletionStrategy {
 
     @Override
     public boolean deleteStatementGracefully(TestCase test, int position) throws ConstructionFailedException {
+        if (!test.getStatement(position).isTTLExpired()) {
+            return false;
+        }
+
         VariableReference var = test.getReturnValue(position);
 
         if (var instanceof ArrayIndex) {
