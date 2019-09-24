@@ -69,7 +69,7 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		this.constructor = executable.isConstructor();
 		this.cyclomaticComplexity = computeCyclomaticComplexity(className, methodName);
 		this.failurePenalty = 0;
-		this.maxFailures = Properties.FAILURE_PENALTY + cyclomaticComplexity;
+		this.maxFailures = cyclomaticComplexity * Properties.FAILURE_PENALTY;
 	}
 
 	/**
