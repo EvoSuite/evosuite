@@ -355,7 +355,6 @@ public class TestChromosome extends ExecutableChromosome {
                     mutationChange();
 				} else {
                     logger.debug("Mutation: guided change");
-				    // TODO: should make random changes as well (with a small probability)?
 					if (guidedChange()) {
 						changed = true;
 					}
@@ -364,15 +363,15 @@ public class TestChromosome extends ExecutableChromosome {
 
 			// Delete
 			if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
-				if (changed) {
-                    logger.debug("Mutation: random delete");
-                    mutationDelete();
-                } else {
-                    // TODO: should make random deletions as well (with a small probability)?
+				// TODO: should make random deletions as well (with a small probability)?
+//				if (changed) {
+//                    logger.debug("Mutation: random delete");
+//                    mutationDelete();
+//                } else {
                     logger.debug("Mutation: guided delete");
-                    if (guidedDelete()) {
-						changed = true;
-					}
+						if (guidedDeletion()) {
+							changed = true;
+//					}
 				}
 			}
 		} else {
