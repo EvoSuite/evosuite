@@ -354,7 +354,7 @@ public class Properties {
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
+	public static Algorithm ALGORITHM = Algorithm.DYNAMOSA;
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -1444,7 +1444,9 @@ public class Properties {
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
     public static Criterion[] CRITERION = new Criterion[] {
             //these are basic criteria that should be always on by default
-            Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
+            Criterion.LINE, Criterion.BRANCH };
+			//Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD,
+	// Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
 
     /** Cache target class */
@@ -1555,7 +1557,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
-	public static Strategy STRATEGY = Strategy.EVOSUITE;
+	public static Strategy STRATEGY = Strategy.MOSUITE;
 
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
 	public static int PROCESS_COMMUNICATION_PORT = -1;
