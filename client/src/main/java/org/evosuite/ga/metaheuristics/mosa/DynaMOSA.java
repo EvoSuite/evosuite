@@ -30,7 +30,7 @@ import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
+import org.evosuite.testcase.mutation.MutationUtils;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +135,9 @@ public class DynaMOSA extends AbstractMOSA {
 		logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
 		logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
 		logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
+		goalsManager.getUncoveredGoals().forEach(g -> logger.debug("{}", g));
 		logger.debug("Infeasible goals = {}", goalsManager.getInfeasibleGoals().size());
+		goalsManager.getInfeasibleGoals().forEach(g -> logger.debug("{}", g));
 	}
 
 	/**
@@ -207,9 +209,7 @@ public class DynaMOSA extends AbstractMOSA {
 
 	@Override
 	public void initializePopulation() {
-		if (Properties.MUTATION_STRATEGY == Properties.MutationStrategy.GUIDED) {
-			GuidedInsertion.getInstance().setGoalsManager(goalsManager);
-		}
+		MutationUtils.registerGoalsManager(goalsManager);
 		super.initializePopulation();
 	}
 }
