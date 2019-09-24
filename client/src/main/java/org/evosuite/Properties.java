@@ -340,13 +340,15 @@ public class Properties {
 	public static final boolean ENABLE_FAILURE_PENALTIES = true;
 
 	@Parameter(key = "failure_penalty", description = "max number of allowed failed attempts before giving up on a coverage target")
-	public static final int FAILURE_PENALTY = 15;
+	@IntValue(min = 1)
+	public static final int FAILURE_PENALTY = 6;
 
 	@Parameter(key = "enable_ttl", description = "whether each statement in a test case should have a time-to-live during the search")
 	public static final boolean ENABLE_TTL = true;
 
 	@Parameter(key = "initial_ttl", description = "min number of generations a statement must survive before it can be removed from a test case")
-	public static final int INITIAL_TTL = 3;
+	@IntValue(min = 1)
+	public static final int INITIAL_TTL = 1;
 
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
