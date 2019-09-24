@@ -19,7 +19,9 @@
  */
 package org.evosuite.testcase;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
+import org.evosuite.assertion.CheapPurityAnalyzer;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationExecutionResult;
 import org.evosuite.ga.Chromosome;
@@ -38,10 +40,7 @@ import org.evosuite.symbolic.ConcolicMutation;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.localsearch.TestCaseLocalSearch;
 import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
-import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.testcase.statements.FunctionalMockStatement;
-import org.evosuite.testcase.statements.PrimitiveStatement;
-import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
@@ -49,6 +48,8 @@ import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -638,9 +639,259 @@ public class TestChromosome extends ExecutableChromosome {
         return changed;
     }
 
-	private boolean guidedDelete() {
-		throw new UnsupportedOperationException("undefined");
+	private boolean guidedDeletion() {
+		if (test.isEmpty()) {
+			return false;
+		}
+
+		boolean changed;
+		final Class<?> cut = Properties.getTargetClassAndDontInitialise();
+
+		// List of unique variable references that define a new instance of the CUT, ordered by the
+		// positions they occur in the test case.
+		final List<VariableReference> objects = test.getObjects(cut, getLastMutatableStatement());
+
+		// Partition the CUT references depending on whether they are used after their definition.
+		final Map<Boolean, List<VariableReference>> usedMap =
+				objects.stream().collect(Collectors.partitioningBy(test::hasReferences));
+
+		// References to CUT instances that are never used are useless and must be deleted.
+		final List<VariableReference> unusedObjects = usedMap.get(false);
+		changed = hardDelete(unusedObjects);
+
+		if (changed) {
+			assert ConstraintVerifier.verifyTest(test);
+		}
+
+		final List<VariableReference> usedObjects = usedMap.get(true);
+		changed |= mergeRedundantObjects(usedObjects);
+
+		if (changed) {
+			assert ConstraintVerifier.verifyTest(test);
+		}
+
+		return changed;
 	}
+
+	private boolean mergeRedundantObjects(List<VariableReference> objectsToMerge) {
+		boolean changed = false;
+
+		// Groups all the given objects by their type. This must be done because the CUT could be
+		// generic. For example, a Box<Integer> is a different type than Box<String>. And besides
+		// that, a Box<String> cannot be assigned to a Box<Object> due to the invariance of generic
+		// types in Java,
+		final Map<Type, List<VariableReference>> typeMap = objectsToMerge.stream()
+				.collect(Collectors.groupingBy(VariableReference::getType));
+
+		// For every object type, try to merge redundant instances of the CUT.
+		for (Map.Entry<Type, List<VariableReference>> entry : typeMap.entrySet()) {
+			final List<VariableReference> list = entry.getValue();
+			final Type type = entry.getKey();
+
+			if (list.size() < 2) { // merge is only possible if there are at least two objects
+				logger.debug("Merging: not of enough objects of type {}", type);
+				continue;
+			}
+
+			/*
+			 * Merging is done by skipping the first occurrence of the object and "gracefully"
+			 * deleting all following occurrences. When an object is deleted gracefully, a
+			 * replacement for the deleted object will be searched (instead of simply deleting
+			 * all other statements that reference the deleted object). By construction, there
+			 * is only one such possible replacement object, namely the first occurrence of the
+			 * object that we skipped.
+			 */
+
+			final Iterator<VariableReference> iter = list.iterator();
+			iter.next();
+
+			// Sometimes, it might be desirable to have at least two objects of the same type
+			// in the test, e.g., when invoking methods such as equals() or a copy constructor.
+			final boolean allowDuplicates = test.getCalledMethods().stream().anyMatch(
+					m -> m.getParameterReferences().stream().anyMatch(
+							p -> p.isAssignableFrom(type)
+					)
+			);
+
+			if (allowDuplicates) {
+				iter.next();
+			}
+
+			while (iter.hasNext()) {
+				final VariableReference var = iter.next();
+				final Statement statement = test.getStatement(var.getStPosition());
+
+				if (!statement.isTTLExpired()) {
+					logger.debug("Not merging object {} because TTL is not expired", var);
+					continue;
+				}
+
+				// Collect the parameters for the current statement. If the current statement is
+				// deleted, its parameters might have to be deleted as well.
+				Set<VariableReference> parameters = new HashSet<>();
+				if (statement instanceof MethodStatement) {
+					MethodStatement method = (MethodStatement) statement;
+					final VariableReference callee = method.getCallee(); // null for static methods
+					if (callee != null) {
+						parameters.add(callee);
+					}
+					parameters.addAll(method.getParameterReferences());
+				} else if (statement instanceof ConstructorStatement) {
+					ConstructorStatement ctor = (ConstructorStatement) statement;
+					parameters.addAll(ctor.getParameterReferences());
+				}
+
+				// We will perform the deletion on a defensive copy, so that changes are reversible.
+				final TestCase copy = test.clone();
+
+				boolean success;
+				mutationHistory.addMutationEntry(new TestMutationHistoryEntry(
+						TestMutationHistoryEntry.TestMutation.DELETION));
+
+				// Try to delete the current statement gracefully.
+				try {
+					success = TestFactory.getInstance()
+							.deleteStatementGracefully(copy, var.getStPosition());
+				} catch (ConstructionFailedException e) {
+					logger.warn("Deletion of object {} failed", var);
+					return false;
+				}
+
+				test = copy;
+
+				if (!success) {
+					logger.warn("Could not merge object {}", var);
+					continue;
+				}
+
+				assert ConstraintVerifier.verifyTest(test);
+
+				// Try to delete all references to objects which have now become obsolete.
+				success = deleteIfUnused(parameters);
+				if (!success) {
+					logger.warn("Some unused variables could not be deleted");
+				}
+
+				changed = true;
+
+				assert ConstraintVerifier.verifyTest(test);
+			}
+		}
+
+		return changed;
+	}
+
+	/**
+	 * For every given variable reference, tries to delete the statement that defines that
+	 * reference from the test case. The deletion is recursive, that is, if the deleted statement
+	 * was a method or constructor, its parameters and callee will also be deleted. Deletion of
+	 * a statement is only performed if the variable reference defined by the statement is never
+	 * referenced anywhere else in the test case.
+	 *
+	 * @param vars the variables to delete
+	 */
+	private boolean deleteIfUnused(Set<VariableReference> vars) {
+		final Set<VariableReference> params = new HashSet<>();
+		boolean success = false;
+
+		for (VariableReference var : vars) {
+
+			// If the variable is still referenced somewhere else in the test case, we cannot
+			// delete it, as this would yield illegal Java code.
+			if (test.hasReferences(var)) {
+				continue;
+			}
+
+			final int position = var.getStPosition();
+			final Statement stmt = test.getStatement(position);
+
+			if (!stmt.isTTLExpired()) {
+				logger.debug("Not deleting statement {} because TTL is not expired", position);
+				continue;
+			}
+
+			/*
+			 * If the statement is a method or constructor, its input parameters and/or the callee
+			 * object might become unused as well when we delete the current statement. Hence, we
+			 * have to recursively check them, too.
+			 */
+			if (stmt instanceof MethodStatement) {
+				MethodStatement method = (MethodStatement) stmt;
+				final VariableReference callee = method.getCallee();
+				if (callee != null) {
+					params.add(callee);
+				}
+				params.addAll(method.getParameterReferences());
+			} else if (stmt instanceof ConstructorStatement) {
+				ConstructorStatement ctor = (ConstructorStatement) stmt;
+				params.addAll(ctor.getParameterReferences());
+			}
+
+			// We will perform the deletion on a defensive copy, so that changes are reversible.
+			final TestCase copy = test.clone();
+
+			boolean localSuccess;
+			try {
+				localSuccess = TestFactory.getInstance().deleteStatement(copy, position);
+			} catch (ConstructionFailedException e) {
+				return false;
+			}
+
+			test = copy;
+
+			if (localSuccess) {
+				success |= deleteIfUnused(params);
+			} else {
+				logger.warn("Could not delete statement {}", stmt);
+			}
+		}
+
+		return success;
+	}
+
+	/**
+	 * Deletes the objects represented by the given variable references from the test case, without
+	 * performing any further checks prior to deletion. It is the responsibility of the caller to
+	 * ensure that the test case is in an appropriate state before calling this method. This means
+	 * that all given objects must never be referenced anywhere else in the test case.
+	 *
+	 * @param unusedObjects the unreferenced objects to delete
+	 * @return {@code true} if at least one object was deleted, {@code false} otherwise
+	 */
+	private boolean hardDelete(List<VariableReference> unusedObjects) {
+		boolean changed = false;
+
+		for (VariableReference var : unusedObjects) {
+			final int position = var.getStPosition();
+			final Statement stmt = test.getStatement(position);
+
+			// We cannot delete the statement if its TTL is not expired.
+			if (!stmt.isTTLExpired()) {
+				logger.debug("Not deleting statement, TTL is not expired");
+				continue;
+			}
+
+			// If the statement invokes non-static method that is not cheap-pure, the method is
+			// probably executed because it performs some sort of side-effect. Even if its return
+			// value is never used in the test case, we still want to keep such methods.
+			if (stmt instanceof MethodStatement) {
+				Method method = ((MethodStatement) stmt).getMethod().getMethod();
+				if (!Modifier.isStatic(method.getModifiers())
+						&& !CheapPurityAnalyzer.getInstance().isPure(method)) {
+					continue;
+				}
+			}
+
+			final boolean success = test.remove(position);
+			if (success) {
+				changed = true;
+				assert ConstraintVerifier.verifyTest(test);
+			}
+		}
+
+		return changed;
+	}
+
 
 	private boolean mockChange()  {
 
@@ -721,7 +972,6 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @return
 	 */
 	private boolean mutationDelete() {
-
 		if(test.isEmpty()){
 			return false; //nothing to delete
 		}
@@ -791,7 +1041,6 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationChange() {
 		boolean changed = false;
-
 		final int lastMutatableStatement = getLastMutatableStatement();
 
 		// Indexes of the statements that are eligible for modification.
