@@ -7,15 +7,16 @@ import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.graphs.ddg.FieldEntry;
 import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.instrument.ClassLoaderUtils;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.mutation.MutationUtils;
+import org.evosuite.testcase.statements.ConstructorStatement;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
+import org.evosuite.testcase.statements.MethodStatement;
+import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.evosuite.utils.generic.GenericExecutable;
 import org.evosuite.utils.generic.GenericField;
@@ -29,7 +30,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.evosuite.testcase.mutation.MutationUtils.*;
+import static org.evosuite.testcase.mutation.MutationUtils.rouletteWheelSelect;
+import static org.evosuite.testcase.mutation.MutationUtils.toMethodEntry;
 
 /**
  * This class implements a guided insertion strategy. That is, it uses static and dynamic
@@ -129,7 +131,7 @@ public class GuidedInsertion extends AbstractInsertion {
         // to cover it last time and we decided to try it again), or a new goal.
         final TestFitnessFunction chosenGoal = retry ? previousGoal : chooseNewGoalFor(test);
 
-        return insertCallFor(test, chosenGoal, position);
+        return insertCallFor(test, chosenGoal, retry, position);
     }
 
     /**
@@ -295,12 +297,13 @@ public class GuidedInsertion extends AbstractInsertion {
      *
      * @param test    the test case to which the call of the target method should be appended
      * @param goal    the coverage goal (target class and method) that should be attempted to reach
+     * @param retry   whether the given goal was already tried to be covered before
      * @param lastPos the position of the last valid statement of {@code test}
      * @return a reference to the return value of the statement calling the target method, or {@code
      * null} if unsuccessful
      */
     private boolean insertCallFor(final TestCase test, final TestFitnessFunction goal,
-                                  final int lastPos) {
+                                  boolean retry, final int lastPos) {
         debug("Trying to insert call that covers {}", goal);
 
         /*
@@ -311,14 +314,82 @@ public class GuidedInsertion extends AbstractInsertion {
          * assignment of input parameter values, the object's current state, etc.
          */
         if (!goal.isPublic()) {
-            debug("Goal is not public, trying to find a public caller");
-            final String calleeClassName = goal.getTargetClassName();
-            final String calleeMethodName = goal.getTargetMethodName();
-            return insertCallFor(test, calleeClassName, calleeMethodName, lastPos);
+            if (retry) {
+                // When we already tried to call the non-public method before, but we didn't reach
+                // the target, we could try to insert yet another call to a public "proxy" method.
+                // Or, alternatively, we could try to fuzz the parameters to the proxy method, or even
+                // fuzz the state of the callee object.
+                try {
+                    final VariableReference object = test.getLastObject(goal.getClazz(), lastPos);
+                    return super.insertRandomCallOnObjectAt(test, object, lastPos);
+                } catch (ConstructionFailedException e) {
+                    // Last-ditch effort.
+                    return super.insertRandomCall(test, lastPos);
+                }
+            } else {
+                debug("Goal is not public, trying to find a public caller");
+                final String calleeClassName = goal.getTargetClassName();
+                final String calleeMethodName = goal.getTargetMethodName();
+                return insertCallFor(test, calleeClassName, calleeMethodName, lastPos);
+            }
         } else {
-            final GenericExecutable<?, ?> executable = goal.getExecutable();
-            return super.insertCallFor(test, executable, lastPos);
+            final boolean containsCall = test.callsMethod(goal);
+            if (retry && containsCall) {
+                // The test case already calls the right method but still misses the target.
+                // If the method has complex input parameters, we might want to fuzz the state of
+                // some of them.
+                final int index = test.lastIndexOfCallTo(goal);
+                final Statement stmt = test.getStatement(index);
+
+                // We are only interested in method or constructor statements, no functional mocks.
+                if (stmt instanceof ConstructorStatement) {
+                    ConstructorStatement call = (ConstructorStatement) stmt;
+                    return fuzzComplexParameters(test, call, null, index);
+                } else if (stmt instanceof MethodStatement) {
+                    MethodStatement call = (MethodStatement) stmt;
+                    return fuzzComplexParameters(test, call, call.getCallee(), index);
+                } else {
+                    error("can only handle method or constructor statements");
+                    return false;
+                }
+            } else {
+                // Try to call the target method directly.
+                final GenericExecutable<?, ?> executable = goal.getExecutable();
+                return super.insertCallFor(test, executable, lastPos);
+            }
         }
+    }
+
+    private boolean fuzzComplexParameters(TestCase test, EntityWithParametersStatement call,
+                                          VariableReference callee, int pos) {
+        // TODO: Currently, we only handle objects and arrays. But FieldReferences and
+        //  ArrayIndexes might point to complex objects and other arrays, too. It would be
+        //  nice if we would try to resolve them recursively.
+        final Set<VariableReference> complexParameters = call.getParameterReferences().stream()
+                .filter(v -> !(v.isPrimitive()
+                        || v.isString()
+                        || v.isEnum()
+                        || v.isVoid()
+                        || v.isFieldReference()
+                        || v.isArrayIndex()))
+                .collect(Collectors.toSet());
+
+        if (callee != null) {
+            complexParameters.add(callee);
+        }
+
+        if (complexParameters.isEmpty()) {
+            return false;
+        }
+
+        boolean success = false;
+        final double fuzzingProbability = 1d / complexParameters.size();
+        for (VariableReference parameter : complexParameters) {
+            if (Randomness.nextDouble() < fuzzingProbability) {
+                success |= fuzzObjectState(test, parameter, pos);
+            }
+        }
+        return success;
     }
 
     private boolean insertCallFor(final TestCase test, final MethodEntry entry,
@@ -563,20 +634,17 @@ public class GuidedInsertion extends AbstractInsertion {
                 && insertCallFor(test, Randomness.choice(writingMethods), lastPos);
     }
 
-    public boolean fuzzObjectState(final TestCase test, final VariableReference var,
-                                   final int lastPos) {
+    private boolean fuzzObjectState(final TestCase test, final VariableReference var,
+                                    final int pos) {
         final GenericClass clazz = var.getGenericClass();
-        final Set<GenericAccessibleObject<?>> modifiers;
-        try {
-            modifiers = TestCluster.getInstance().getCallsFor(clazz);
-        } catch (ConstructionFailedException e) {
+        final Set<MethodEntry> stateModifiers =
+                DependencyAnalysis.getDataDependenceGraph().getStateModifiers(clazz);
+        if (stateModifiers.isEmpty()) {
             return false;
         }
-        if (modifiers.isEmpty()) {
-            return false;
-        } else {
-            return super.insertCallFor(test, Randomness.choice(modifiers), lastPos);
-        }
+
+        // TODO: find public fields that we can write to directly
+        return insertCallFor(test, Randomness.choice(stateModifiers), var.getStPosition() + 1);
     }
 
     private boolean callsMethod(final TestCase test, final MethodEntry methodEntry) {
