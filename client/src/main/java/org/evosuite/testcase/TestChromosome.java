@@ -193,7 +193,9 @@ public class TestChromosome extends ExecutableChromosome {
 		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
-			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
+			final Statement clone = test.getStatement(i).clone(offspring.test);
+//			clone.resetTTL();
+			offspring.test.addStatement(clone);
 		}
 
 		for (int i = position2; i < other.size(); i++) {
