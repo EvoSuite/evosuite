@@ -728,10 +728,24 @@ public class TestChromosome extends ExecutableChromosome {
 
 		boolean changed = false;
 		int lastMutableStatement = getLastMutatableStatement();
-		double pl = 1d / (lastMutableStatement + 1);
+
+		final int[] indexes;
+		if (Properties.ENABLE_TTL) {
+			// Only consider statements whose TTL is already expired.
+			indexes = IntStream.rangeClosed(0, lastMutableStatement)
+					.filter(i -> test.getStatement(i).isTTLExpired())
+					.toArray();
+		} else {
+			indexes = IntStream.rangeClosed(0, lastMutableStatement).toArray();
+		}
+
+		// We will iterate over the statements in reverse order.
+		ArrayUtils.reverse(indexes);
+
+		double pl = 1d / indexes.length;
 		TestFactory testFactory = TestFactory.getInstance();
 
-		for (int num = lastMutableStatement; num >= 0; num--) {
+		for (int num : indexes) {
 
 			if(num >= test.size()){
 				continue; //in case the delete remove more than one statement
@@ -779,8 +793,11 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 
 		final int lastMutatableStatement = getLastMutatableStatement();
+
+		// Indexes of the statements that are eligible for modification.
 		final int[] indexes;
 		if (Properties.ENABLE_TTL) {
+			// Only consider statements whose TTL is already expired.
 			indexes = IntStream.rangeClosed(0, lastMutatableStatement)
 					.filter(i -> test.getStatement(i).isTTLExpired())
 					.toArray();
@@ -788,6 +805,8 @@ public class TestChromosome extends ExecutableChromosome {
 			indexes = IntStream.rangeClosed(0, lastMutatableStatement).toArray();
 		}
 
+		// Every expired statement will be modified with the same probability of
+		// pl = 1 / #(expired statements).
 		final double pl = 1d / indexes.length;
 		TestFactory testFactory = TestFactory.getInstance();
 
