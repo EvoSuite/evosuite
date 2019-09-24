@@ -257,7 +257,7 @@ public class GuidedInsertion extends AbstractInsertion {
                 || test.hasObject(goal.getClazz(), test.size())
                 || coversDirectControlDependency(goal, test)
                 || test.callsMethod(goal)
-                || hasParametersResolved(goal, test));
+                || (hasParametersResolved(goal, test) && (goal.isStatic() || test.hasObject(goal.getClazz(), test.size()))));
     }
 
     private boolean hasParametersResolved(final TestFitnessFunction goal, final TestCase test) {
