@@ -1,10 +1,12 @@
 package org.evosuite.graphs.ddg;
 
 import org.evosuite.setup.callgraph.Graph;
+import org.evosuite.utils.generic.GenericClass;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Captures potential data dependencies between methods that stem from writing to and subsequently
@@ -121,6 +123,16 @@ public class DataDependenceGraph {
     public Set<FieldEntry> getReadFields(MethodEntry method) {
         return graph.getReverseNeighbors(method).stream()
                 .map(m -> (FieldEntry) m)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<MethodEntry> getStateModifiers(GenericClass clazz) {
+        final String className = clazz.getClassName();
+        final Stream<ClassMember> fieldsOfClazz = graph.getVertexSet().stream()
+                .filter(m -> m instanceof FieldEntry
+                        && ((FieldEntry) m).getClassName().equals(className));
+        return fieldsOfClazz.flatMap(f -> graph.getReverseNeighbors(f).stream())
+                .map(m -> (MethodEntry) m)
                 .collect(Collectors.toSet());
     }
 
