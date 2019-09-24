@@ -66,7 +66,7 @@ public class DependencyAnalysis {
 
 	private static InheritanceTree inheritanceTree = null;
 
-	private static DataDependenceGraph methodDependenceGraph = null;
+	private static DataDependenceGraph dataDependenceGraph = null;
 	private static TrueDataDependenceGraph trueDataDependenceGraph = null;
 
 	private static Set<String> targetClasses = null;
@@ -78,8 +78,8 @@ public class DependencyAnalysis {
 		return inheritanceTree;
 	}
 
-	public static DataDependenceGraph getMethodDependenceGraph() {
-		return methodDependenceGraph;
+	public static DataDependenceGraph getDataDependenceGraph() {
+		return dataDependenceGraph;
 	}
 
 	public static Set<MethodEntry> getWritingMethods(MethodEntry entry) {
@@ -111,7 +111,7 @@ public class DependencyAnalysis {
 	}
 
 	public static Set<FieldEntry> getReadFields(MethodEntry method) {
-		return methodDependenceGraph.getReadFields(method);
+		return dataDependenceGraph.getReadFields(method);
 	}
 
 	public static Set<FieldEntry> getReadFieldsMerged(MethodEntry method) {
@@ -125,7 +125,7 @@ public class DependencyAnalysis {
 	}
 
 	public static Set<FieldEntry> getWrittenFields(MethodEntry method) {
-		return methodDependenceGraph.getWrittenFields(method);
+		return dataDependenceGraph.getWrittenFields(method);
 	}
 
 	public static Set<FieldEntry> getWrittenFieldsMerged(MethodEntry method) {
@@ -148,8 +148,8 @@ public class DependencyAnalysis {
 
 	private static void initDataDependenceGraph(List<String> classPath) {
 		logger.debug("Loading method dependence graph");
-		methodDependenceGraph = DataDependenceGraphGenerator.createFromClassPath(classPath);
-		trueDataDependenceGraph = methodDependenceGraph.computeWriteReadPairs();
+		dataDependenceGraph = DataDependenceGraphGenerator.createFromClassPath(classPath);
+		trueDataDependenceGraph = dataDependenceGraph.computeWriteReadPairs();
 	}
 
 	private static void analyze(String className, List<String> classPath) throws RuntimeException,
