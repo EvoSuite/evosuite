@@ -1,17 +1,24 @@
 package org.evosuite.testcase.mutation;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
+import org.evosuite.utils.Randomness;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.DoubleFunction;
+import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.IntStream;
 
 public class MutationUtils {
     private static final int parallelComputationThreshold = 50; // just arbitrarily picked
@@ -45,6 +52,51 @@ public class MutationUtils {
         return ThreadLocalRandom.current().nextInt(bound);
     }
 
+    public static <T> Optional<T> rouletteWheelSelect(
+            final Collection<T> choices, ToDoubleFunction<T> mapper) {
+        if (choices.isEmpty()) {
+            return Optional.empty();
+        }
+
+        @SuppressWarnings("unchecked")
+        final T[] cs = choices.toArray((T[]) new Object[0]);
+        ArrayUtils.shuffle(cs); // just to be sure
+
+        if (cs.length == 1) {
+            return Optional.of(cs[0]);
+        }
+
+        if (cs.length == 2) {
+            final double cc0 = mapper.applyAsDouble(cs[0]);
+            final double cc1 = mapper.applyAsDouble(cs[1]);
+
+            // The mapper must produce non-negative values.
+            assert !(cc0 < 0 || cc1 < 0);
+
+            final double sum = cc0 + cc1;
+            if (!Double.isFinite(sum)) {
+                return Optional.empty();
+            }
+
+            final double pivot = nextRandomDouble(sum);
+            final T c = cc0 < pivot ? cs[0] : cs[1];
+            return Optional.of(c);
+        }
+
+        final double[] prefixSum = prefixSum(cs, mapper);
+
+        final double sum = prefixSum[prefixSum.length - 1];
+        if (!Double.isFinite(sum)) {
+            return Optional.empty();
+        }
+
+        final double pivot = nextRandomDouble(sum);
+
+        final int index = findIndex(prefixSum, pivot);
+
+        return Optional.of(cs[index]);
+    }
+
     /**
      * Performs a roulette wheel selection on the given collection of gaols. The probability of a
      * goal being selected is inversely proportional to the cyclomatic complexity of the target
@@ -57,45 +109,76 @@ public class MutationUtils {
      * @return a goal chosen via biased-random selection
      */
     public static Optional<TestFitnessFunction> rouletteWheelSelect(final Collection<TestFitnessFunction> goals) {
-        /*
-         * The collection of goals could be unordered (e.g., when it's a set). Still, the inner
-         * workings of the roulette wheel selection require some arbitrary but fixed order. We
-         * impose this order by converting the collection of goals to an array (arrays also offer
-         * good performance and random access, which the algorithm also benefits from). The imposed
-         * order, even though being arbitrary, has no impact on the outcome of the selection,
-         * since it's fixed during the course of the selection.
-         */
-        final TestFitnessFunction[] gs = goals.toArray(new TestFitnessFunction[0]);
+        return rouletteWheelSelect(goals, g -> 1d / g.getCyclomaticComplexity());
+    }
+//        if (goals.isEmpty()) {
+//            return Optional.empty();
+//        }
+//
+//        /*
+//         * The collection of goals could be unordered (e.g., when it's a set). Still, the inner
+//         * workings of the roulette wheel selection require some arbitrary but fixed order. We
+//         * impose this order by converting the collection of goals to an array (arrays also offer
+//         * good performance and random access, which the algorithm also benefits from). The imposed
+//         * order, even though being arbitrary, has no impact on the outcome of the selection,
+//         * since it's fixed during the course of the selection.
+//         */
+//        final TestFitnessFunction[] gs = goals.toArray(new TestFitnessFunction[0]);
+//
+//        if (gs.length == 1) {
+//            return Optional.of(gs[0]);
+//        }
+//
+//        if (gs.length == 2) {
+//            final int cc0 = gs[0].getCyclomaticComplexity();
+//            final int cc1 = gs[1].getCyclomaticComplexity();
+//            final int pivot = nextRandomInt(cc0 + cc1);
+//            final TestFitnessFunction goal = pivot < cc0 ? gs[1] : gs[0];
+//            return Optional.of(goal);
+//        }
+//
+//        /*
+//         * The reciprocal of the cyclomatic complexity of a target method is directly proportional
+//         * to the probability of the corresponding goal being selected. The prefix sum of these
+//         * reciprocal values is used to determine the index of the selected goal later on.
+//         */
+//        final double[] prefixSums = reciprocalPrefixSum(gs);
+//
+//        // We spin the roulette wheel and obtain a pivot point. This is the point on the wheel
+//        // where the roulette ball falls onto after having lost all of its momentum.
+//        final double sum = prefixSums[gs.length - 1];
+//        final double pivot = nextRandomDouble(sum);
+//
+//        // Finds the pocket on the wheel where the pivot point is located in and converts it to an
+//        // array  index. This index corresponds to the selected goal.
+//        final int index = findIndex(prefixSums, pivot);
+//
+//        return Optional.of(gs[index]);
+//    }
 
-        if (gs.length == 1) {
-            return Optional.of(gs[0]);
+    private static <T> double[] prefixSum(final T[] elements, ToDoubleFunction<T> mapper) {
+        final double[] prefixSum;
+
+        final boolean parallelComputation = elements.length > parallelComputationThreshold;
+        if (parallelComputation) {
+            prefixSum = Arrays.stream(elements).parallel()
+                    .mapToDouble(mapper)
+                    .toArray();
+            Arrays.parallelPrefix(prefixSum, Double::sum);
+        } else {
+            prefixSum = new double[elements.length];
+            prefixSum[0] = mapper.applyAsDouble(elements[0]);
+            for (int i = 1; i < elements.length; i++) {
+                prefixSum[i] = prefixSum[i - 1] + mapper.applyAsDouble(elements[i]);
+            }
         }
 
-        if (gs.length == 2) {
-            final int cc0 = gs[0].getCyclomaticComplexity();
-            final int cc1 = gs[1].getCyclomaticComplexity();
-            final int pivot = nextRandomInt(cc0 + cc1);
-            final TestFitnessFunction goal = pivot < cc0 ? gs[1] : gs[0];
-            return Optional.of(goal);
-        }
+        // The mapper must produce non-negative values only. If this is satisfied, the array must
+        // be sorted by construction.
+        assert IntStream.range(0, prefixSum.length - 1)
+                .noneMatch(i -> prefixSum[i] > prefixSum[i + 1]);
 
-        /*
-         * The reciprocal of the cyclomatic complexity of a target method is directly proportional
-         * to the probability of the corresponding goal being selected. The prefix sum of these
-         * reciprocal values is used to determine the index of the selected goal later on.
-         */
-        final double[] prefixSums = reciprocalPrefixSum(gs);
-
-        // We spin the roulette wheel and obtain a pivot point. This is the point on the wheel
-        // where the roulette ball falls onto after having lost all of its momentum.
-        final double sum = prefixSums[gs.length - 1];
-        final double pivot = nextRandomDouble(sum);
-
-        // Finds the pocket on the wheel where the pivot point is located in and converts it to an
-        // array  index. This index corresponds to the selected goal.
-        final int index = findIndex(prefixSums, pivot);
-
-        return Optional.of(gs[index]);
+        return prefixSum;
     }
 
     /**
@@ -105,32 +188,32 @@ public class MutationUtils {
      * @param goals the goals whose target methods to consider
      * @return the prefix sums of the reciprocal cyclomatic complexities
      */
-    private static double[] reciprocalPrefixSum(final TestFitnessFunction[] goals) {
-        final double[] prefixSum;
-
-        /*
-         * For our applications a naive implementation such as the following one using floating-
-         * point operations is sufficiently accurate and numerical stability is not an issue at all.
-         * It turns out that the computation offsets don't accumulate enough to produce a
-         * fundamentally flawed result, even when millions of coverage goals are considered.
-         */
-
-        final boolean parallelComputation = goals.length > parallelComputationThreshold;
-        if (parallelComputation) {
-            prefixSum = Arrays.stream(goals).parallel()
-                    .mapToDouble(g -> 1d / g.getCyclomaticComplexity())
-                    .toArray();
-            Arrays.parallelPrefix(prefixSum, Double::sum);
-        } else {
-            prefixSum = new double[goals.length];
-            prefixSum[0] = 1d / goals[0].getCyclomaticComplexity();
-            for (int i = 1; i < goals.length; i++) {
-                prefixSum[i] = prefixSum[i - 1] + 1d / goals[i].getCyclomaticComplexity();
-            }
-        }
-
-        return prefixSum;
-    }
+//    private static double[] reciprocalPrefixSum(final TestFitnessFunction[] goals) {
+//        final double[] prefixSum;
+//
+//        /*
+//         * For our applications a naive implementation such as the following one using floating-
+//         * point operations is sufficiently accurate and numerical stability is not an issue at all.
+//         * It turns out that the computation offsets don't accumulate enough to produce a
+//         * fundamentally flawed result, even when millions of coverage goals are considered.
+//         */
+//
+//        final boolean parallelComputation = goals.length > parallelComputationThreshold;
+//        if (parallelComputation) {
+//            prefixSum = Arrays.stream(goals).parallel()
+//                    .mapToDouble(g -> 1d / g.getCyclomaticComplexity())
+//                    .toArray();
+//            Arrays.parallelPrefix(prefixSum, Double::sum);
+//        } else {
+//            prefixSum = new double[goals.length];
+//            prefixSum[0] = 1d / goals[0].getCyclomaticComplexity();
+//            for (int i = 1; i < goals.length; i++) {
+//                prefixSum[i] = prefixSum[i - 1] + 1d / goals[i].getCyclomaticComplexity();
+//            }
+//        }
+//
+//        return prefixSum;
+//    }
 
     /**
      * Searches the given strictly sorted array for the specified key and returns the appropriate
