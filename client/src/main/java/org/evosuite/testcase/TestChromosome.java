@@ -353,7 +353,7 @@ public class TestChromosome extends ExecutableChromosome {
 			if (Randomness.nextDouble() <= Properties.P_TEST_CHANGE) {
 				if (changed) { // coverage information etc. is invalid
                     logger.debug("Mutation: random change");
-                    mutationChange();
+                    changed = mutationChange();
 				} else {
                     logger.debug("Mutation: guided change");
 					if (guidedChange()) {
@@ -364,15 +364,14 @@ public class TestChromosome extends ExecutableChromosome {
 
 			// Delete
 			if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
-				// TODO: should make random deletions as well (with a small probability)?
-//				if (changed) {
-//                    logger.debug("Mutation: random delete");
-//                    mutationDelete();
-//                } else {
+				if (Randomness.nextDouble() < 0.25) {
+                    logger.debug("Mutation: random delete");
+                    mutationDelete();
+                } else {
                     logger.debug("Mutation: guided delete");
 						if (guidedDeletion()) {
 							changed = true;
-//					}
+					}
 				}
 			}
 		} else {
@@ -713,7 +712,7 @@ public class TestChromosome extends ExecutableChromosome {
 					)
 			);
 
-			if (allowDuplicates) {
+			if (allowDuplicates && Randomness.nextDouble() < 0.25) {
 				iter.next();
 			}
 
