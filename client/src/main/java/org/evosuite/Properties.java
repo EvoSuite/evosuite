@@ -226,7 +226,7 @@ public class Properties {
 	public static int MAX_RECURSION = 10;
 
     @Parameter(key = "economical_generators", group = "Test Creation", description = "Favor cheaper object creation sequences")
-    public static boolean ECONOMICAL_GENERATORS = true;
+    public static boolean ECONOMICAL_GENERATORS = false;
 
 	@Parameter(key = "max_length", group = "Test Creation", description = "Maximum length of test suites (0 = no check)")
 	public static int MAX_LENGTH = 0;
@@ -337,21 +337,21 @@ public class Properties {
 	}
 
 	@Parameter(key = "mutation_strategy", description = "mutation strategy for chromosomes in DynaMOSA")
-	public static MutationStrategy MUTATION_STRATEGY = MutationStrategy.GUIDED;
+	public static MutationStrategy MUTATION_STRATEGY = MutationStrategy.RANDOM;
 
 	@Parameter(key = "enable_failure_penalties", description = "give up on infeasible goals after a certain number of failed attempts")
-	public static final boolean ENABLE_FAILURE_PENALTIES = true;
+	public static boolean ENABLE_FAILURE_PENALTIES = false;
 
 	@Parameter(key = "failure_penalty", description = "max number of allowed failed attempts before giving up on a coverage target")
 	@IntValue(min = 1)
-	public static final int FAILURE_PENALTY = 6;
+	public static int FAILURE_PENALTY = 6;
 
 	@Parameter(key = "enable_ttl", description = "whether each statement in a test case should have a time-to-live during the search")
-	public static final boolean ENABLE_TTL = true;
+	public static boolean ENABLE_TTL = false;
 
 	@Parameter(key = "initial_ttl", description = "min number of generations a statement must survive before it can be removed from a test case")
 	@IntValue(min = 1)
-	public static final int INITIAL_TTL = 1;
+	public static int INITIAL_TTL = 1;
 
 	@Parameter(key = "ranking_type", group = "Runtime", description = "type of ranking to use in MOSA")
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
@@ -1560,7 +1560,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
-	public static Strategy STRATEGY = Strategy.MOSUITE;
+	public static Strategy STRATEGY = Strategy.EVOSUITE;
 
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
 	public static int PROCESS_COMMUNICATION_PORT = -1;
