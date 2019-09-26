@@ -225,6 +225,9 @@ public class Properties {
 	@Parameter(key = "max_recursion", group = "Test Creation", description = "Recursion depth when trying to create objects")
 	public static int MAX_RECURSION = 10;
 
+    @Parameter(key = "economical_generators", group = "Test Creation", description = "Favor cheaper object creation sequences")
+    public static boolean ECONOMICAL_GENERATORS = true;
+
 	@Parameter(key = "max_length", group = "Test Creation", description = "Maximum length of test suites (0 = no check)")
 	public static int MAX_LENGTH = 0;
 
