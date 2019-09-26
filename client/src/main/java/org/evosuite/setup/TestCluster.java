@@ -19,12 +19,6 @@
  */
 package org.evosuite.setup;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
@@ -37,17 +31,21 @@ import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
+import org.evosuite.testcase.mutation.MutationUtils;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ListUtil;
-import org.evosuite.utils.generic.GenericAccessibleObject;
-import org.evosuite.utils.generic.GenericClass;
-import org.evosuite.utils.generic.GenericConstructor;
-import org.evosuite.utils.generic.GenericMethod;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.generic.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.toCollection;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * For a given system under test (SUT), the test cluster defines the set of available classes,
@@ -87,6 +85,11 @@ public class TestCluster {
 	private static InheritanceTree inheritanceTree = null;
 
     private EnvironmentTestClusterAugmenter environmentAugmenter;
+
+	private final Map<GenericAccessibleObject<?>, Double> gaoConstructionComplexity = new HashMap<>();
+    private final Map<GenericClass, Double> instantiationComplexities = new HashMap<>();
+    private final Set<GenericAccessibleObject<?>> infeasibleGenerators = new HashSet<>();
+	private static final double FAILURE_VALUE = Double.POSITIVE_INFINITY;
 
     //-------------------------------------------------------------------
 
@@ -627,7 +630,6 @@ public class TestCluster {
 	 * Return all calls that have a parameter with given type
 	 *
 	 * @param clazz
-	 * @param resolve
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
@@ -1039,7 +1041,14 @@ public class TestCluster {
 
 		// Collection, Map, Number
 		if (isSpecialCase(clazz)) {
-			generator = Randomness.choice(getGeneratorsForSpecialCase(clazz));
+			final Set<GenericAccessibleObject<?>> candidates = getGeneratorsForSpecialCase(clazz);
+			if (Properties.ECONOMICAL_GENERATORS) {
+				final Optional<GenericAccessibleObject<?>> choice =
+						rouletteWheelSelect(filterGenerators(clazz, candidates));
+				generator = choice.isPresent() ? choice.get() : Randomness.choice(candidates);
+			} else {
+				generator = Randomness.choice(candidates);
+			}
 			if (generator == null) {
 				logger.warn("No generator for special case class: " + clazz);
 				throw new ConstructionFailedException("Have no generators for special case: " + clazz);
@@ -1092,7 +1101,14 @@ public class TestCluster {
 				}
 			}
 
-			generator = Randomness.choice(candidates);
+			if (Properties.ECONOMICAL_GENERATORS) {
+				final Optional<GenericAccessibleObject<?>> choice =
+						rouletteWheelSelect(filterGenerators(clazz, candidates));
+				generator = choice.isPresent() ? choice.get() : Randomness.choice(candidates);
+			} else {
+				generator = Randomness.choice(candidates);
+			}
+
 			logger.debug("Chosen generator: " + generator);
 		}
 
@@ -1111,6 +1127,190 @@ public class TestCluster {
 
 		return generator;
 
+	}
+
+	/**
+	 * Removes all generators that would require a recursive instantiation of the class to be
+	 * generated. That is, we only want to retain static fields, non-static fields that are not
+	 * part of the class to instantiate, constructors that don't require an object of the class
+	 * to instantiate as input argument (this eliminates copy constructors, among others), and
+	 * methods that are either static or not part of the class to instantiate, and at the same
+	 * time don't require an object of the class to instantiate as argument. The method operates
+	 * on a copy of the given set.
+	 *
+	 * @param toGenerate the class to instantiate
+	 * @param generators the given class' generators to filter
+	 * @return the filtered generators
+	 */
+	private Set<GenericAccessibleObject<?>> filterGenerators(final GenericClass toGenerate,
+								  final Set<GenericAccessibleObject<?>> generators) {
+		final Set<GenericAccessibleObject<?>> result = new HashSet<>(generators);
+
+		for (final Iterator<GenericAccessibleObject<?>> iterator = result.iterator(); iterator.hasNext(); ) {
+			final GenericAccessibleObject<?> generator = iterator.next();
+
+			if (generator.isField() && !generator.isStatic()) {
+				if (generator.getOwnerClass().isAssignableTo(toGenerate)) {
+					iterator.remove();
+				}
+			} else if (generator.isConstructor()) {
+				final GenericConstructor constructor = (GenericConstructor) generator;
+				final Type[] parameters = constructor.getParameterTypes();
+				for (final Type parameter : parameters) {
+					final GenericClass param = new GenericClass(parameter);
+					if (param.isAssignableTo(toGenerate)) {
+						iterator.remove();
+						break;
+					}
+				}
+			} else if (generator.isMethod()) {
+				final GenericMethod method = (GenericMethod) generator;
+
+				if (!method.isStatic()) {
+					if (method.getOwnerClass().isAssignableTo(toGenerate)) {
+						iterator.remove();
+						continue;
+					}
+				}
+
+				final Type[] parameters = method.getParameterTypes();
+				for (final Type parameter : parameters) {
+					final GenericClass param = new GenericClass(parameter);
+					if (param.isAssignableTo(toGenerate)) {
+						iterator.remove();
+						break;
+					}
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private Optional<GenericAccessibleObject<?>> rouletteWheelSelect(final Collection<GenericAccessibleObject<?>> choices) {
+		return MutationUtils.rouletteWheelSelect(choices, g ->
+				1d / getGeneratorComplexity(g));
+	}
+
+	private double getInstantiationComplexity(final GenericClass clazz,
+											  final int currentRecursion) {
+		if (clazz.isPrimitive() || clazz.isEnum() || clazz.isString() || clazz.isArray() || clazz.isClass()) {
+			return 1;
+		}
+
+		if (instantiationComplexities.containsKey(clazz)) {
+			return instantiationComplexities.get(clazz);
+		}
+
+		final Set<GenericAccessibleObject<?>> generators;
+		try {
+			generators = getGenerators(clazz);
+		} catch (ConstructionFailedException e) {
+			logger.error(e.getMessage());
+			instantiationComplexities.put(clazz, FAILURE_VALUE);
+			return FAILURE_VALUE;
+		}
+
+		generators.removeAll(infeasibleGenerators);
+
+		double max = -1;
+		for (final GenericAccessibleObject<?> generator : generators) {
+			final double complexity =
+					getGeneratorComplexity(generator, currentRecursion - 1);
+			if (complexity < FAILURE_VALUE) {
+				if (max < complexity) {
+					max = complexity;
+				}
+			} else {
+				infeasibleGenerators.add(generator);
+			}
+		}
+
+		if (max < 0) {
+			max = FAILURE_VALUE;
+		}
+
+		instantiationComplexities.put(clazz, max);
+
+		return max;
+	}
+
+	private double getInstantiationComplexity(final Type type,
+											  final int currentRecursion) {
+		return getInstantiationComplexity(new GenericClass(type), currentRecursion);
+	}
+
+	private double getGeneratorComplexity(final GenericAccessibleObject gao) {
+		return getGeneratorComplexity(gao, Properties.MAX_RECURSION);
+	}
+
+	private double getGeneratorComplexity(final GenericAccessibleObject gao,
+										  final int currentRecursion) {
+		if (gaoConstructionComplexity.containsKey(gao)) {
+			return gaoConstructionComplexity.get(gao);
+		}
+
+		if (currentRecursion < 1) {
+			gaoConstructionComplexity.putIfAbsent(gao, FAILURE_VALUE);
+			return FAILURE_VALUE;
+		}
+
+		final double complexity;
+		if (gao.isField()) {
+			complexity = getFieldComplexity((GenericField) gao, currentRecursion);
+		} else {
+			complexity = getExecutableComplexity((GenericExecutable) gao, currentRecursion);
+		}
+
+		if (complexity < FAILURE_VALUE) {
+			gaoConstructionComplexity.putIfAbsent(gao, complexity);
+		} else {
+			infeasibleGenerators.add(gao);
+		}
+
+		return complexity;
+	}
+
+	private double getFieldComplexity(final GenericField field,
+									  final int currentRecursion) {
+		// We assume that the field is either static or, if it is non-static, the test case already
+		// contains an appropriate non-null object.
+		if (field.isStatic()) {
+			return 1;
+		} else {
+			final GenericClass owner = field.getOwnerClass();
+			return 1 + getInstantiationComplexity(owner, currentRecursion - 1);
+		}
+	}
+
+	private double getExecutableComplexity(final GenericExecutable executable,
+										   final int currentRecursion) {
+		final Type[] parameters = executable.getParameterTypes();
+		final double paramComplexity;
+
+		if (parameters.length == 0) {
+			paramComplexity = 0;
+		} else {
+			double sum = 0.0;
+			for (final Type parameter : parameters) {
+				final double complexity = getInstantiationComplexity(parameter, currentRecursion - 1);
+				if (complexity < FAILURE_VALUE) {
+					sum += complexity;
+				} else {
+					return FAILURE_VALUE;
+				}
+			}
+			paramComplexity = sum;
+		}
+
+		if (executable.isMethod() && !executable.isStatic()) {
+			final GenericClass owner = executable.getOwnerClass();
+			final double calleeComplexity =
+					getInstantiationComplexity(owner, currentRecursion - 1);
+			return 1 + calleeComplexity + paramComplexity;
+		}
+
+		return 1 + paramComplexity;
 	}
 
 	/**
