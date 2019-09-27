@@ -7,20 +7,20 @@ import org.evosuite.graphs.ddg.MethodEntry;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
-import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.DoubleFunction;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.IntStream;
 
 public class MutationUtils {
+    private static final Logger logger = LoggerFactory.getLogger(MutationUtils.class);
+
     private static final int parallelComputationThreshold = 50; // just arbitrarily picked
     private static final int binarySearchThreshold = 10;        // just arbitrarily picked
 
@@ -74,7 +74,8 @@ public class MutationUtils {
             assert !(cc0 < 0 || cc1 < 0);
 
             final double sum = cc0 + cc1;
-            if (!Double.isFinite(sum)) {
+            if (!Double.isFinite(sum) && !(sum > 0)) {
+                logger.error("computed invalid interval length {}", sum);
                 return Optional.empty();
             }
 
@@ -86,7 +87,8 @@ public class MutationUtils {
         final double[] prefixSum = prefixSum(cs, mapper);
 
         final double sum = prefixSum[prefixSum.length - 1];
-        if (!Double.isFinite(sum)) {
+        if (!Double.isFinite(sum) && !(sum > 0)) {
+            logger.error("computed invalid interval length {}", sum);
             return Optional.empty();
         }
 
