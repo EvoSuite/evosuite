@@ -67,27 +67,27 @@ public class MutationUtils {
         }
 
         if (cs.length == 2) {
-            final double cc0 = mapper.applyAsDouble(cs[0]);
-            final double cc1 = mapper.applyAsDouble(cs[1]);
+            final double cs0 = mapper.applyAsDouble(cs[0]);
+            final double cs1 = mapper.applyAsDouble(cs[1]);
 
             // The mapper must produce non-negative values.
-            assert !(cc0 < 0 || cc1 < 0);
+            assert !(cs0 < 0 || cs1 < 0);
 
-            final double sum = cc0 + cc1;
-            if (!Double.isFinite(sum) && !(sum > 0)) {
+            final double sum = cs0 + cs1;
+            if (!Double.isFinite(sum) || !(sum > 0)) {
                 logger.error("computed invalid interval length {}", sum);
                 return Optional.empty();
             }
 
             final double pivot = nextRandomDouble(sum);
-            final T c = cc0 < pivot ? cs[0] : cs[1];
+            final T c = cs0 < pivot ? cs[0] : cs[1];
             return Optional.of(c);
         }
 
         final double[] prefixSum = prefixSum(cs, mapper);
 
         final double sum = prefixSum[prefixSum.length - 1];
-        if (!Double.isFinite(sum) && !(sum > 0)) {
+        if (!Double.isFinite(sum) || !(sum > 0)) {
             logger.error("computed invalid interval length {}", sum);
             return Optional.empty();
         }
