@@ -475,6 +475,11 @@ public class TestChromosome extends ExecutableChromosome {
             // Select a random amount of such public callers (but always at least 1), try to fuzz
             // their input parameters and hope that control flow now reaches the target.
             final Set<EntityWithParametersStatement> calls = getStatementsFor(publicCallers);
+
+			if (calls.isEmpty()) {
+				return false;
+			}
+
             final int numberCalls = 1 + Randomness.nextInt(calls.size());
             final Set<EntityWithParametersStatement> chosenCalls = calls.stream()
                     .limit(numberCalls)
