@@ -999,6 +999,12 @@ public abstract class AbstractInsertion implements InsertionStrategy {
                 clazz = clazz.getGenericInstantiation(exclude.getGenericClass().getTypeVariableMap());
             else
                 clazz = clazz.getGenericInstantiation();
+
+            if (clazz == null) {
+                logger.warn("Cannot create new variable of type {}", parameterType);
+                return null;
+            }
+
             parameterType = clazz.getType();
         }
 
