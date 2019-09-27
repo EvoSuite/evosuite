@@ -1258,7 +1258,11 @@ public abstract class AbstractInsertion implements InsertionStrategy {
             throw new ConstructionFailedException("Cannot use class " + type);
         }
         if (genericType.hasWildcardOrTypeVariables()) {
-            type = genericType.getGenericInstantiation().getType();
+            final GenericClass genericInstantiation = genericType.getGenericInstantiation();
+            if (genericInstantiation == null) {
+                throw new ConstructionFailedException("Unable to instantiate generic type " + genericType);
+            }
+            type = genericInstantiation.getType();
         }
         Statement st = new NullStatement(test, type);
         test.addStatement(st, position);
