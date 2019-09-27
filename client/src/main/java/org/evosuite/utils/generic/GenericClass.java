@@ -561,7 +561,7 @@ public class GenericClass implements Serializable {
 	private GenericClass getGenericInstantiation(Map<TypeVariable<?>, Type> typeMap,
 	        int recursionLevel) throws ConstructionFailedException {
 
-		logger.debug("Instantiation " + toString() + " with type map " + typeMap);
+		logger.debug("Instantiation {} with type map {}", toString(), typeMap);
 		// If there are no type variables, create copy
 		if (isRawClass() || !hasWildcardOrTypeVariables() || recursionLevel > Properties.MAX_GENERIC_DEPTH) {
 			logger.debug("Nothing to replace: " + toString() + ", " + isRawClass() + ", "
@@ -582,6 +582,8 @@ public class GenericClass implements Serializable {
 			return getGenericParameterizedTypeInstantiation(typeMap, recursionLevel);
 		}
 		// TODO
+
+		logger.warn("Unable to instantiate {} with type map {}", toString(), typeMap);
 
 		return null;
 	}
