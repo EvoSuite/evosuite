@@ -85,7 +85,7 @@ public abstract class SelectionFunction<T extends Chromosome> implements Seriali
 			return Stream.generate(() -> getIndex(population))
 					.limit(number)
 					.map(population::get)
-				.collect(toCollection(ArrayList::new));
+					.collect(toCollection(ArrayList::new));
 		}
 	}
 
