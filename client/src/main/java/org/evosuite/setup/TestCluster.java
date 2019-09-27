@@ -1206,7 +1206,7 @@ public class TestCluster {
 		try {
 			generators = getGenerators(clazz);
 		} catch (ConstructionFailedException e) {
-			logger.error(e.getMessage());
+			logger.warn("cannot estimate instantiation complexity: {}", e.getMessage());
 			instantiationComplexities.put(clazz, FAILURE_VALUE);
 			return FAILURE_VALUE;
 		}
