@@ -542,20 +542,30 @@ public class TestChromosome extends ExecutableChromosome {
         return statements.collect(Collectors.toSet());
     }
 
-    private boolean changeParametersOf(EntityWithParametersStatement call) {
+	/**
+	 * Tries to fuzz one or more randomly chosen input parameters of the given call.
+	 *
+	 * @param call the call whose parameters to fuzz
+	 * @return {@code true} if successful, {@code false} otherwise
+	 */
+	private boolean changeParametersOf(EntityWithParametersStatement call) {
         final List<VariableReference> parameters = call.getParameterReferences();
 
         if (parameters.isEmpty()) {
-            logger.debug("Given call has no parameters");
+            logger.debug("Given call {} has no parameters", call);
             return false;
         }
 
-        Randomness.shuffle(parameters);
+        // How many parameters to fuzz.
+		final int num = 1 + Randomness.nextInt(parameters.size());
 
-        final int num = 1 + Randomness.nextInt(parameters.size());
-        boolean success = true;
+        // Which parameters to fuzz.
+		final int[] indexes = IntStream.range(0, parameters.size()).toArray();
+		ArrayUtils.shuffle(indexes);
+
+		boolean success = true;
         for (int i = 0; i < num && success; i++) {
-            final VariableReference var = parameters.get(i);
+            final VariableReference var = parameters.get(indexes[i]);
             success = changeVariable(var);
         }
 
