@@ -74,7 +74,7 @@ public class MutationUtils {
             assert !(cs0 < 0 || cs1 < 0);
 
             final double sum = cs0 + cs1;
-            if (!Double.isFinite(sum) || !(sum > 0)) {
+            if (!(Double.isFinite(sum) && sum > 0)) {
                 logger.error("computed invalid interval length {}", sum);
                 return Optional.empty();
             }
@@ -87,7 +87,7 @@ public class MutationUtils {
         final double[] prefixSum = prefixSum(cs, mapper);
 
         final double sum = prefixSum[prefixSum.length - 1];
-        if (!Double.isFinite(sum) || !(sum > 0)) {
+        if (!(Double.isFinite(sum) && sum > 0)) {
             logger.error("computed invalid interval length {}", sum);
             return Optional.empty();
         }
