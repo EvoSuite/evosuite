@@ -498,11 +498,16 @@ public class TestChromosome extends ExecutableChromosome {
                 final Set<MethodEntry> publicCallers = DependencyAnalysis.getCallGraph()
                         .getPublicCallersOf(className, methodName);
                 final Set<EntityWithParametersStatement> calls = getStatementsFor(publicCallers);
+
+				if (calls.isEmpty()) {
+					return false;
+				}
+
                 final int numberCalls = 1 + Randomness.nextInt(calls.size());
                 final Set<EntityWithParametersStatement> chosenCalls = calls.stream()
                         .limit(numberCalls)
                         .collect(Collectors.toSet());
-                return !chosenCalls.isEmpty() && changeParametersOf(chosenCalls);
+                return changeParametersOf(chosenCalls);
             }
 		}
     }
