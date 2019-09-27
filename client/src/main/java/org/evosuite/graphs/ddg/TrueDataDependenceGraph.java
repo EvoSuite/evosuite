@@ -42,8 +42,8 @@ public class TrueDataDependenceGraph {
      */
     public Set<MethodEntry> getWritingMethodsFor(MethodEntry reading) {
         if (!graph.containsVertex(reading)) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Method " + reading + " not registered during dependence analysis");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Method " + reading + " not registered during dependence analysis");
             }
 
             return Collections.emptySet();
@@ -54,8 +54,8 @@ public class TrueDataDependenceGraph {
 
     public Set<MethodEntry> getReadingMethodsFor(MethodEntry writing) {
         if (!graph.containsVertex(writing)) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Method " + writing + " not registered during dependence analysis");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Method " + writing + " not registered during dependence analysis");
             }
 
             return Collections.emptySet();
