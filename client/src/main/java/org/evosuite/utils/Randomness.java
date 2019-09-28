@@ -344,7 +344,7 @@ public class Randomness implements Serializable {
 		Objects.requireNonNull(mapper);
 
 		if (choices.isEmpty()) {
-			logger.warn("Nothing to choose from");
+			logger.debug("Nothing to choose from");
 			return Optional.empty();
 		}
 
