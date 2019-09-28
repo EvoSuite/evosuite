@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,6 +179,10 @@ public class Randomness implements Serializable {
 		return random.nextDouble();
 	}
 
+	public static double nextDouble(final double upper) {
+		return nextDouble(0, upper);
+	}
+
 	/**
 	 * <p>
 	 * nextDouble
@@ -296,6 +301,10 @@ public class Randomness implements Serializable {
 	 */
 	public static void shuffle(List<?> list) {
 		Collections.shuffle(list, random);
+	}
+
+	public static void shuffle(Object[] array) {
+		ArrayUtils.shuffle(array);
 	}
 
 	/**
