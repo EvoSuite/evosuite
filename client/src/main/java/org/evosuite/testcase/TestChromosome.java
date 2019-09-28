@@ -527,7 +527,7 @@ public class TestChromosome extends ExecutableChromosome {
         int index = test.lastIndexOfCallTo(className, methodName);
 
         if (index < 0) {
-            logger.warn("Could not locate statement for given goal (index was {})", index);
+            logger.warn("Test has no call to {}.{}", className, methodName);
             return null;
         }
 
@@ -772,14 +772,14 @@ public class TestChromosome extends ExecutableChromosome {
 					success = TestFactory.getInstance()
 							.deleteStatementGracefully(copy, var.getStPosition());
 				} catch (ConstructionFailedException e) {
-					logger.warn("Deletion of object {} failed", var);
+					logger.warn("Merging failed: {}", var);
 					return false;
 				}
 
 				test = copy;
 
 				if (!success) {
-					logger.warn("Could not merge object {}", var);
+					logger.debug("Could not merge object {}", var);
 					continue;
 				}
 
@@ -788,7 +788,7 @@ public class TestChromosome extends ExecutableChromosome {
 				// Try to delete all references to objects which have now become obsolete.
 				success = deleteIfUnused(parameters);
 				if (!success) {
-					logger.warn("Some unused variables could not be deleted");
+					logger.debug("Some unused variables could not be deleted");
 				}
 
 				changed = true;
