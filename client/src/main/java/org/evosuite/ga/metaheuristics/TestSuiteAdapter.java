@@ -215,7 +215,7 @@ public abstract class TestSuiteAdapter<T extends GeneticAlgorithm<TestChromosome
         } else if (function instanceof BinaryTournamentSelectionCrowdedComparison) {
             adapteeFunction = new BinaryTournamentSelectionCrowdedComparison<>();
         } else if (function instanceof TournamentSelectionRankAndCrowdingDistanceComparator) {
-            adapteeFunction = new BinaryTournamentSelectionCrowdedComparison<>();
+            adapteeFunction = new TournamentSelectionRankAndCrowdingDistanceComparator<>();
         } else if (function instanceof BestKSelection) {
             adapteeFunction = new BestKSelection<>();
         } else if (function instanceof RandomKSelection) {
