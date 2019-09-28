@@ -20,24 +20,23 @@
 package org.evosuite.testcase;
 
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.runtime.util.Inputs;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.mutation.change.ModificationStrategy;
 import org.evosuite.testcase.mutation.change.RandomModification;
-import org.evosuite.testcase.mutation.insertion.AbstractInsertion;
 import org.evosuite.testcase.mutation.deletion.DefaultDeletion;
 import org.evosuite.testcase.mutation.deletion.DeletionStrategy;
+import org.evosuite.testcase.mutation.insertion.AbstractInsertion;
 import org.evosuite.testcase.mutation.insertion.InsertionStrategyFactory;
-import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.variable.*;
-import org.evosuite.utils.Randomness;
-import org.evosuite.utils.generic.*;
+import org.evosuite.testcase.statements.Statement;
+import org.evosuite.testcase.variable.VariableReference;
+import org.evosuite.utils.generic.GenericConstructor;
+import org.evosuite.utils.generic.GenericField;
+import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author Gordon Fraser
