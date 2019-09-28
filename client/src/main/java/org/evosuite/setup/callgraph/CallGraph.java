@@ -19,8 +19,6 @@
  */
 package org.evosuite.setup.callgraph;
 
-import java.util.*;
-
 import org.evosuite.Properties;
 import org.evosuite.classpath.ResourceList;
 import org.evosuite.graphs.ddg.MethodEntry;
@@ -28,6 +26,10 @@ import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+import static org.evosuite.setup.callgraph.CallGraph.MethodDepthPair.p;
 
 /**
  * CallGraph implementation. Based on the previous implementation in the
@@ -67,6 +69,9 @@ public class CallGraph implements Iterable<MethodEntry> {
 
 
 	private final Set<CallContext> publicMethods = Collections.synchronizedSet(new LinkedHashSet<>());
+
+	// TODO: not sure if it really must be synchronized
+	private final Map<MethodEntry, Set<MethodEntry>> callerCache = Collections.synchronizedMap(new LinkedHashMap<>());
 
 	public CallGraph(String className) {
 		this.className = className;
@@ -166,44 +171,67 @@ public class CallGraph implements Iterable<MethodEntry> {
 	/**
 	 * Returns the set of public callers for the non-public executable specified by the given
 	 * non-null class name and method name. Returns an empty set if no public caller could be found.
-	 * If the specified callee is public, returns a singleton set consisting of just the callee.
+	 * If the specified callee is already public, returns a singleton set consisting of just that
+	 * callee.
 	 *
 	 * @param className the fully-qualified class name in which the method (callee) is located
 	 * @param methodName the method name + descriptor of the callee for which to find callers
 	 * @return the set of public callers of the method
 	 */
-	public Set<MethodEntry> getPublicCallersOf(String className, String methodName) {
+	public Set<MethodEntry> getPublicCallersOf(final String className, final String methodName) {
+		Objects.requireNonNull(className);
+		Objects.requireNonNull(methodName);
 		return getPublicCallersOf(new MethodEntry(className, methodName));
 	}
 
-	public Set<MethodEntry> getPublicCallersOf(MethodEntry callee) {
+	public Set<MethodEntry> getPublicCallersOf(final MethodEntry callee) {
 		Objects.requireNonNull(callee);
+		return callerCache.computeIfAbsent(callee, this::computePublicCallers);
+	}
 
-		final boolean isPublicCallee = publicMethods.stream().anyMatch(cc ->
-				Objects.equals(callee.getClassName(), cc.getRootClassName())
-						&& Objects.equals(callee.getMethodNameDesc(), cc.getRootMethodName()));
+	private Set<MethodEntry> computePublicCallers(final MethodEntry callee) {
+		final Set<MethodEntry> result = new HashSet<>();
+		final List<MethodEntry> visited = new LinkedList<>();
+		final List<MethodDepthPair> queue =
+				new LinkedList<MethodDepthPair>() {{ add(p(callee, 0)); }};
 
-		if (isPublicCallee) {
-			return Collections.singleton(callee);
-		} else {
-			// The call graph is reversed, i.e., the edges point from callee to caller.
-			final Iterable<MethodEntry> callers = graph.getNeighbors(callee);
+		// Using a BFS approach, determine the public callers of the given callee. We do not
+		// perform an exhaustive search, but rather only explore paths up to a certain maximum
+		// length, as given by Properties.MAX_RECURSION.
+		while (!queue.isEmpty()) {
+			final MethodDepthPair p = queue.remove(0);
+			final MethodEntry current = p.method;
+			final int depth = p.depth;
 
-			if (callers == null) { // may happen if callee node is not present in the call graph
-				return Collections.emptySet();
-			}
+			visited.add(current);
 
-			// Recursively traverse the graph until a public caller is found and include every
-			// such caller in the result set.
-			final Set<MethodEntry> result = new HashSet<>();
-			for (MethodEntry caller : callers) {
-				if (!caller.equals(callee)) { // filter out recursive calls
-					result.addAll(getPublicCallersOf(caller));
+			final boolean isPublic = publicMethods.stream().anyMatch(cc ->
+					current.getClassName().equals(cc.getRootClassName())
+							&& current.getMethodNameDesc().equals(cc.getRootMethodName()));
+
+			if (isPublic) {
+				result.add(current);
+			} else if (depth < Properties.MAX_RECURSION) {
+				// The call graph is reversed, the edges already point from callee to caller.
+				final Set<MethodEntry> neighbors = graph.getNeighbors(current);
+				for (final MethodEntry neighbor : neighbors) {
+					if (!(contains(queue, neighbor) || visited.contains(neighbor))) { // avoid cycles
+						queue.add(p(neighbor, depth + 1));
+					}
 				}
 			}
-
-			return result;
 		}
+
+		return result;
+	}
+
+	private static boolean contains(final List<MethodDepthPair> queue, final MethodEntry entry) {
+		for (final MethodDepthPair p : queue) {
+			if (p.method.equals(entry)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -427,5 +455,19 @@ public class CallGraph implements Iterable<MethodEntry> {
 			}
 		}
 		return sb.toString();
+	}
+
+	static final class MethodDepthPair {
+		private final MethodEntry method;
+		private final int depth;
+
+		MethodDepthPair(final MethodEntry method, final int depth) {
+			this.method = method;
+			this.depth = depth;
+		}
+
+		static MethodDepthPair p(final MethodEntry method, final int depth) {
+			return new MethodDepthPair(method, depth);
+		}
 	}
 }
