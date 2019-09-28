@@ -88,7 +88,6 @@ public class TestCluster {
 
 	private final Map<GenericAccessibleObject<?>, Double> gaoConstructionComplexity = new HashMap<>();
     private final Map<GenericClass, Double> instantiationComplexities = new HashMap<>();
-    private final Set<GenericAccessibleObject<?>> infeasibleGenerators = new HashSet<>();
 	private static final double FAILURE_VALUE = Double.POSITIVE_INFINITY;
 
     //-------------------------------------------------------------------
@@ -1125,7 +1124,7 @@ public class TestCluster {
 			if (choice.isPresent()) {
 				return choice.get();
 			} else {
-				logger.warn("Could not compute cheapest generator, choosing a random one");
+				logger.warn("Could not compute cheapest generator for {}", clazz);
 			}
 		}
 
@@ -1146,7 +1145,7 @@ public class TestCluster {
 	 * @return the filtered generators
 	 */
 	private Set<GenericAccessibleObject<?>> filterGenerators(final GenericClass toGenerate,
-								  final Set<GenericAccessibleObject<?>> generators) {
+															 final Set<GenericAccessibleObject<?>> generators) {
 		final Set<GenericAccessibleObject<?>> result = new HashSet<>(generators);
 
 		for (final Iterator<GenericAccessibleObject<?>> iterator = result.iterator(); iterator.hasNext(); ) {
@@ -1188,136 +1187,219 @@ public class TestCluster {
 		}
 
 		if (result.isEmpty()) {
-			logger.warn("Only got recursive generators");
+			logger.warn("Only got recursive generators for {}", toGenerate);
 		}
 
 		return result;
 	}
 
-	private Optional<GenericAccessibleObject<?>> rouletteWheelSelect(final Collection<GenericAccessibleObject<?>> choices) {
-		return MutationUtils.rouletteWheelSelect(choices, g ->
-				1d / getGeneratorComplexity(g));
-	}
-
-	private double getInstantiationComplexity(final GenericClass clazz,
-											  final int currentRecursion) {
-		if (clazz.isPrimitive() || clazz.isEnum() || clazz.isString() || clazz.isArray() || clazz.isClass()) {
-			return 1;
-		}
-
-		if (instantiationComplexities.containsKey(clazz)) {
-			return instantiationComplexities.get(clazz);
-		}
-
-		final Set<GenericAccessibleObject<?>> generators;
-		try {
-			generators = getGenerators(clazz);
-		} catch (ConstructionFailedException e) {
-			logger.warn("cannot estimate instantiation complexity: {}", e.getMessage());
-			instantiationComplexities.put(clazz, FAILURE_VALUE);
-			return FAILURE_VALUE;
-		}
-
-		generators.removeAll(infeasibleGenerators);
-
-		double max = -1;
-		for (final GenericAccessibleObject<?> generator : generators) {
-			final double complexity =
-					getGeneratorComplexity(generator, currentRecursion - 1);
-			if (complexity < FAILURE_VALUE) {
-				if (max < complexity) {
-					max = complexity;
+	private Optional<GenericAccessibleObject<?>> rouletteWheelSelect(
+			final Collection<GenericAccessibleObject<?>> choices) {
+		final double epsilon = 1E-6; // just some arbitrarily picked, very small value
+		return MutationUtils.rouletteWheelSelect(choices, g -> {
+					final double c = getGeneratorComplexity(g);
+					return c == FAILURE_VALUE ? epsilon : (1d / (1d + c));
 				}
-			} else {
-				infeasibleGenerators.add(generator);
+		);
+	}
+
+	private double getGeneratorComplexity(final GenericAccessibleObject<?> gao) {
+		final List<GenericAccessibleObject<?>> generatorsWIP = new LinkedList<>();
+		final List<GenericClass> classesWIP = new LinkedList<>();
+		return getGeneratorComplexity(gao, generatorsWIP, classesWIP);
+	}
+
+	private double getGeneratorComplexity(final GenericAccessibleObject<?> gao,
+										  final List<GenericAccessibleObject<?>> generatorsWIP,
+										  final List<GenericClass> classesWIP) {
+		return gaoConstructionComplexity.computeIfAbsent(gao, g ->
+				computeGeneratorComplexity(g, generatorsWIP, classesWIP));
+	}
+
+	private double computeGeneratorComplexity(final GenericAccessibleObject<?> gao,
+											  final List<GenericAccessibleObject<?>> generatorsWIP,
+											  final List<GenericClass> classesWIP) {
+		// TODO: complexity might be smaller if test case already has some needed objects resolved
+		if (gao.isField()) {
+			return computeFieldComplexity((GenericField) gao, generatorsWIP, classesWIP);
+		} else {
+			return computeExecutableComplexity((GenericExecutable) gao, generatorsWIP, classesWIP);
+		}
+	}
+
+	private double computeFieldComplexity(final GenericField field,
+										  final List<GenericAccessibleObject<?>> generatorsWIP,
+										  final List<GenericClass> classesWIP) {
+		final double accessCosts = 0.0; // the estimated costs for accessing a field
+
+		if (field.isStatic()) {
+			return accessCosts; // can simply access the field
+		} else {
+			if (generatorsWIP.contains(field)) {
+				logger.debug("cycle detected for {}", field);
+				return FAILURE_VALUE;
 			}
+
+			generatorsWIP.add(field);
+
+			// must instantiate the owner class first
+			final double costs = accessCosts + getInstantiationComplexity(field.getOwnerClass(),
+					generatorsWIP, classesWIP);
+
+			generatorsWIP.remove(field);
+
+			return costs;
 		}
-
-		if (max < 0) {
-			max = FAILURE_VALUE;
-		}
-
-		instantiationComplexities.put(clazz, max);
-
-		return max;
 	}
 
-	private double getInstantiationComplexity(final Type type,
-											  final int currentRecursion) {
-		return getInstantiationComplexity(new GenericClass(type), currentRecursion);
-	}
+	// To invoke a method or constructor, we must first generate their parameters. In addition,
+	// we must instantiate the owner class of a non-static method. The costs for invoking the
+	// generator are the sum of the costs for resolving all those dependencies.
+	private double computeExecutableComplexity(final GenericExecutable executable,
+											   final List<GenericAccessibleObject<?>> generatorsWIP,
+											   final List<GenericClass> classesWIP) {
 
-	private double getGeneratorComplexity(final GenericAccessibleObject gao) {
-		return getGeneratorComplexity(gao, Properties.MAX_RECURSION);
-	}
-
-	private double getGeneratorComplexity(final GenericAccessibleObject gao,
-										  final int currentRecursion) {
-		if (gaoConstructionComplexity.containsKey(gao)) {
-			return gaoConstructionComplexity.get(gao);
-		}
-
-		if (currentRecursion < 1) {
-			gaoConstructionComplexity.putIfAbsent(gao, FAILURE_VALUE);
+		if (generatorsWIP.contains(executable)) {
+			logger.debug("Cycle detected for {}", executable);
 			return FAILURE_VALUE;
 		}
 
-		final double complexity;
-		if (gao.isField()) {
-			complexity = getFieldComplexity((GenericField) gao, currentRecursion);
-		} else {
-			complexity = getExecutableComplexity((GenericExecutable) gao, currentRecursion);
-		}
+		generatorsWIP.add(executable);
 
-		if (complexity < FAILURE_VALUE) {
-			gaoConstructionComplexity.putIfAbsent(gao, complexity);
-		} else {
-			infeasibleGenerators.add(gao);
-		}
-
-		return complexity;
-	}
-
-	private double getFieldComplexity(final GenericField field,
-									  final int currentRecursion) {
-		// We assume that the field is either static or, if it is non-static, the test case already
-		// contains an appropriate non-null object.
-		if (field.isStatic()) {
-			return 1;
-		} else {
-			final GenericClass owner = field.getOwnerClass();
-			return 1 + getInstantiationComplexity(owner, currentRecursion - 1);
-		}
-	}
-
-	private double getExecutableComplexity(final GenericExecutable executable,
-										   final int currentRecursion) {
-		final Type[] parameters = executable.getParameterTypes();
+		// Costs for resolving parameters.
 		final double paramComplexity;
-
+		final Type[] parameters = executable.getParameterTypes();
 		if (parameters.length == 0) {
-			paramComplexity = 0;
+			paramComplexity = 0.0;
 		} else {
 			double sum = 0.0;
 			for (final Type parameter : parameters) {
-				final double complexity = getInstantiationComplexity(parameter, currentRecursion - 1);
-				if (complexity < FAILURE_VALUE) {
-					sum += complexity;
-				} else {
+				final GenericClass clazz = new GenericClass(parameter);
+
+				if (classesWIP.contains(clazz)) {
+					logger.debug("cycle detected for {}", clazz);
 					return FAILURE_VALUE;
+				} else {
+					classesWIP.add(clazz);
 				}
+
+				final double complexity =
+						getInstantiationComplexity(clazz, generatorsWIP, classesWIP);
+				if (complexity == FAILURE_VALUE) {
+					// If we fail to generate just one parameter, the entire method becomes
+					// infeasible to invoke.
+					return FAILURE_VALUE;
+				} else {
+					sum += complexity;
+				}
+
+				classesWIP.remove(clazz);
 			}
 			paramComplexity = sum;
 		}
 
+		// Costs for instantiating the callee.
+		final double calleeComplexity;
 		if (executable.isMethod() && !executable.isStatic()) {
 			final GenericClass owner = executable.getOwnerClass();
-			final double calleeComplexity =
-					getInstantiationComplexity(owner, currentRecursion - 1);
-			return 1 + calleeComplexity + paramComplexity;
+
+			if (classesWIP.contains(owner)) {
+				logger.debug("Cycle detected for {}", owner);
+				return FAILURE_VALUE;
+			}
+
+			classesWIP.add(owner);
+
+			calleeComplexity = getInstantiationComplexity(owner, generatorsWIP, classesWIP);
+
+			classesWIP.remove(owner);
+
+			if (calleeComplexity == FAILURE_VALUE) {
+				// If we cannot create a callee object, we cannot execute the method.
+				return FAILURE_VALUE;
+			}
+		} else {
+			calleeComplexity = 0.0;
 		}
 
-		return 1 + paramComplexity;
+		generatorsWIP.remove(executable);
+
+		// The costs for invoking a method, which are estimated to be higher than the costs of
+		// simply accessing a field. This achieves that a static method without parameters
+		// (i.e., the cheapest executable generator) is slightly more expensive than a static
+		// method (i.e., the cheapest non-executable generator).
+		final double invocationCosts = 1.0;
+
+		return invocationCosts + calleeComplexity + paramComplexity;
+	}
+
+	private double getInstantiationComplexity(final GenericClass clazz,
+											  final List<GenericAccessibleObject<?>> generatorsWIP,
+											  final List<GenericClass> classesWIP) {
+		return instantiationComplexities.computeIfAbsent(clazz,
+				c -> computeInstantiationComplexity(c, generatorsWIP, classesWIP));
+	}
+
+	private double computeInstantiationComplexity(final GenericClass clazz,
+												  final List<GenericAccessibleObject<?>> generatorsWIP,
+												  final List<GenericClass> classesWIP) {
+		// The following (primitive) data types can be instantiated directly:
+		if (clazz.isPrimitive()
+				|| clazz.isEnum()
+				|| clazz.isString()
+				|| clazz.isArray()
+				|| clazz.isClass()) {
+			return 1;
+		}
+
+		if (classesWIP.contains(clazz)) {
+			logger.debug("Cycle detected for {}", clazz);
+			return FAILURE_VALUE;
+		}
+
+		// All other types must be instantiated via a generator.
+		final Set<GenericAccessibleObject<?>> generators;
+		try {
+			generators = getGenerators(clazz);
+		} catch (ConstructionFailedException e) {
+			logger.warn("{}", e.getMessage());
+			return FAILURE_VALUE;
+		}
+
+		generators.removeAll(generatorsWIP);
+
+		if (generators.isEmpty()) {
+			logger.warn("no feasible generators for {}", clazz);
+			return FAILURE_VALUE;
+		}
+
+		classesWIP.add(clazz);
+
+		// We consider the costs for instantiating the given class as being equal to the costs
+		// of invoking the "most expensive" generator.
+		final double UNINITIALIZED = -1;
+		double max = UNINITIALIZED;
+
+		for (final GenericAccessibleObject<?> generator : generators) {
+			final double complexity = getGeneratorComplexity(generator, generatorsWIP, classesWIP);
+
+			if (complexity == FAILURE_VALUE) {
+				continue;
+			}
+
+			if (max < complexity) {
+				max = complexity;
+			}
+		}
+
+		if (max == UNINITIALIZED) {
+			logger.warn("All generators for {} are infeasible", clazz);
+			return FAILURE_VALUE;
+		}
+
+		classesWIP.remove(clazz);
+
+		return max;
 	}
 
 	/**
