@@ -219,6 +219,8 @@ public class CallGraph implements Iterable<MethodEntry> {
 						queue.add(p(neighbor, depth + 1));
 					}
 				}
+			} else {
+				logger.warn("Max recursion depth reached, terminating");
 			}
 		}
 
