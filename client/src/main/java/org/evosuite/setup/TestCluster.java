@@ -31,7 +31,6 @@ import org.evosuite.testcase.ConstraintHelper;
 import org.evosuite.testcase.ConstraintVerifier;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.jee.InstanceOnlyOnce;
-import org.evosuite.testcase.mutation.MutationUtils;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.ListUtil;
 import org.evosuite.utils.Randomness;
@@ -1196,7 +1195,7 @@ public class TestCluster {
 	private Optional<GenericAccessibleObject<?>> rouletteWheelSelect(
 			final Collection<GenericAccessibleObject<?>> choices) {
 		final double epsilon = 1E-6; // just some arbitrarily picked, very small value
-		return MutationUtils.rouletteWheelSelect(choices, g -> {
+		return Randomness.rouletteWheelSelect(choices, g -> {
 					final double c = getGeneratorComplexity(g);
 					return c == FAILURE_VALUE ? epsilon : (1d / (1d + c));
 				}

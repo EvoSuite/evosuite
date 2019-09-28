@@ -19,16 +19,15 @@
  */
 package org.evosuite.utils;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.IntStream;
 
 /**
  * Unique random number accessor
@@ -40,6 +39,8 @@ public class Randomness implements Serializable {
 	private static final long serialVersionUID = -5934455398558935937L;
 
 	private static final Logger logger = LoggerFactory.getLogger(Randomness.class);
+	private static final int parallelComputationThreshold = 50; // just arbitrarily picked
+	private static final int binarySearchThreshold = 10;        // just arbitrarily picked
 
 	private static long seed = 0;
 
@@ -321,5 +322,154 @@ public class Randomness implements Serializable {
 		for (int i = 0; i < length; i++)
 			characters[i] = nextChar();
 		return new String(characters);
+	}
+
+	/**
+	 * Performs a roulette wheel selection on the given collection of choices. The probability of
+	 * an element being selected is given by the supplied mapper function and directly proportional
+	 * to the double value it produces. Mappers must produce values in the interval
+	 * (0, Double.MAX_VALUE). (Note that the bounds are exclusive.) Higher values correspond to a
+	 * higher probability of being selected. Returns an optional result, which is empty if the
+	 * given collection was empty or an error occurred, and contains the chosen element otherwise.
+	 *
+	 * @param choices elements to choose from
+	 * @param mapper function that computes the probability of an element being selected
+	 * @param <T> the type of the elements to choose from
+	 * @return an optional result, which is empty if there are no elements to choose from or an
+	 * error occurred, and contains the chosen element otherwise
+	 */
+	public static <T> Optional<T> rouletteWheelSelect(final Collection<T> choices,
+													  ToDoubleFunction<T> mapper) {
+		Objects.requireNonNull(choices);
+		Objects.requireNonNull(mapper);
+
+		if (choices.isEmpty()) {
+			logger.warn("Nothing to choose from");
+			return Optional.empty();
+		}
+
+		/*
+		 * The collection of choices could be unordered (e.g., when it's a set). Still, the inner
+		 * workings of the roulette wheel selection require some arbitrary but fixed order. We
+		 * impose this order by converting the collection to an array (arrays also offer
+		 * good performance and random access, which the algorithm also benefits from). The imposed
+		 * order, even though being arbitrary, has no impact on the outcome of the selection,
+		 * since it's fixed during the course of the selection.
+		 */
+		@SuppressWarnings("unchecked")
+		final T[] cs = choices.toArray((T[]) new Object[0]);
+		shuffle(cs); // just to be sure
+
+		if (cs.length == 1) {
+			return Optional.of(cs[0]);
+		}
+
+		if (cs.length == 2) {
+			final double cs0 = mapper.applyAsDouble(cs[0]);
+			final double cs1 = mapper.applyAsDouble(cs[1]);
+
+			// The mapper must produce non-negative values.
+			if (cs0 < 0 || cs1 < 0) {
+				logger.error("Mapper produced some negative results: {} {}", cs0, cs1);
+				return Optional.empty();
+			}
+
+			final double sum = cs0 + cs1;
+			if (!(Double.isFinite(sum) && sum > 0)) {
+				logger.error("invalid interval length {}", sum);
+				return Optional.empty();
+			}
+
+			final double pivot = nextDouble(sum);
+			final T c = cs0 < pivot ? cs[0] : cs[1];
+			return Optional.of(c);
+		}
+
+		// The prefix sum of the mapped values is used to determine the index of the chosen
+		// element later on.
+		final double[] prefixSum = prefixSum(cs, mapper);
+
+		if (prefixSum == null) {
+			logger.error("Error during computation of prefix sum");
+			return Optional.empty();
+		}
+
+		final double sum = prefixSum[prefixSum.length - 1];
+		if (!(Double.isFinite(sum) && sum > 0)) {
+			logger.error("invalid interval length {}", sum);
+			return Optional.empty();
+		}
+
+		// We spin the roulette wheel and obtain a pivot point. This is the point on the wheel
+		// where the roulette ball falls onto after having lost all of its momentum.
+		final double pivot = nextDouble(sum);
+
+		// Finds the pocket on the wheel where the pivot point is located in and converts it to an
+		// array  index. This index corresponds to the selected goal.
+		final int index = findIndex(prefixSum, pivot);
+
+		return Optional.of(cs[index]);
+	}
+
+	private static <T> double[] prefixSum(final T[] elements, ToDoubleFunction<T> mapper) {
+		final double[] prefixSum;
+
+		final boolean parallelComputation = elements.length > parallelComputationThreshold;
+		if (parallelComputation) {
+			prefixSum = Arrays.stream(elements).parallel()
+					.mapToDouble(mapper)
+					.toArray();
+			Arrays.parallelPrefix(prefixSum, Double::sum);
+		} else {
+			prefixSum = new double[elements.length];
+			prefixSum[0] = mapper.applyAsDouble(elements[0]);
+			for (int i = 1; i < elements.length; i++) {
+				prefixSum[i] = prefixSum[i - 1] + mapper.applyAsDouble(elements[i]);
+			}
+		}
+
+		// The mapper must produce non-negative values only. If this is satisfied, the array must
+		// be sorted by construction.
+		final boolean strictlySorted;
+		if (parallelComputation) {
+			strictlySorted = IntStream.range(0, prefixSum.length - 1)
+					.parallel()
+					.allMatch(i -> prefixSum[i] < prefixSum[i + 1]);
+		} else {
+			strictlySorted = IntStream.range(0, prefixSum.length - 1)
+					.allMatch(i -> prefixSum[i] < prefixSum[i + 1]);
+		}
+
+		if (!strictlySorted) {
+			logger.error("prefix sums array is not strictly sorted");
+			return null;
+		}
+
+		return prefixSum;
+	}
+
+	/**
+	 * Searches the given strictly sorted array for the specified key and returns the appropriate
+	 * index where the key is found. If the array does not contain the key, the insertion point of
+	 * the key (i.e. the index where it would be inserted) is returned instead.
+	 *
+	 * @param sortedArray the array to be searched (must be sorted and not contain duplicates)
+	 * @param key         the value to search for in the array
+	 * @return the index of the key or its insertion point if the key is not found
+	 */
+	private static int findIndex(final double[] sortedArray, final double key) {
+		final boolean binarySearch = sortedArray.length > binarySearchThreshold;
+		if (binarySearch) {
+			final int index = Arrays.binarySearch(sortedArray, key);
+			return index < 0 ? ~index : index;
+		} else { // linear search
+			final int lastIndex = sortedArray.length - 1;
+			for (int i = 0; i < lastIndex; i++) {
+				if (key < sortedArray[i]) { // the array is sorted and free of duplicates
+					return i;
+				}
+			}
+			return lastIndex;
+		}
 	}
 }
