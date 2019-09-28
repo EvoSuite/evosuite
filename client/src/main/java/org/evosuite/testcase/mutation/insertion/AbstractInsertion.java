@@ -1177,10 +1177,14 @@ public abstract class AbstractInsertion implements InsertionStrategy {
                 if (ret == null) {
                     logger.debug("No mock solution found: {}, {}, {}, {}", canUseFunctionalMocks, Properties.MOCK_IF_NO_GENERATOR, FunctionalMockStatement.canBeFunctionalMocked(type), FunctionalMockStatement.canBeFunctionalMockedIncludingSUT(type));
 
-                    if (!testCluster.hasGenerator(type)) {
+                    // TODO: das Problem mit der MockList ist nicht weggegangen weil Du in AbstractInsertion Zeile 1180 nicht ueberpruefst ob die Property gesetzt ist
+//                    if (!testCluster.hasGenerator(type)) {
+                    if (!testCluster.hasGenerator(type) && Properties.MOCK_IF_NO_GENERATOR) {
                         logger.debug("No generators found for {}, attempting to resolve dependencies", type);
                         TestClusterGenerator clusterGenerator = TestGenerationContext.getInstance().getTestClusterGenerator();
-                        Class<?> mock = MockList.getMockClass(clazz.getRawClass().getCanonicalName());
+                        // TODO: vielleicht reicht da aber auch einfach clazz.getName()?
+//                        Class<?> mock = MockList.getMockClass(clazz.getRawClass().getCanonicalName());
+                        Class<?> mock = MockList.getMockClass(clazz.getRawClass().getName());
                         if (mock != null) {
                             clusterGenerator.addNewDependencies(Collections.singletonList(mock));
                         } else {
