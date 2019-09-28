@@ -1187,6 +1187,10 @@ public class TestCluster {
 			}
 		}
 
+		if (result.isEmpty()) {
+			logger.warn("Only got recursive generators");
+		}
+
 		return result;
 	}
 
