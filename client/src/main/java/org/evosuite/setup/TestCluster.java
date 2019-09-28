@@ -1160,6 +1160,11 @@ public class TestCluster {
 				final Type[] parameters = constructor.getParameterTypes();
 				for (final Type parameter : parameters) {
 					final GenericClass param = new GenericClass(parameter);
+
+					if (canGenerateDirectly(param)) {
+						continue;
+					}
+
 					if (param.isAssignableTo(toGenerate)) {
 						iterator.remove();
 						break;
@@ -1178,6 +1183,11 @@ public class TestCluster {
 				final Type[] parameters = method.getParameterTypes();
 				for (final Type parameter : parameters) {
 					final GenericClass param = new GenericClass(parameter);
+
+					if (canGenerateDirectly(param)) {
+						continue;
+					}
+
 					if (param.isAssignableTo(toGenerate)) {
 						iterator.remove();
 						break;
@@ -1191,6 +1201,14 @@ public class TestCluster {
 		}
 
 		return result;
+	}
+
+	private static boolean canGenerateDirectly(final GenericClass clazz) {
+		return clazz.isPrimitive()
+				|| clazz.isEnum()
+				|| clazz.isString()
+				|| clazz.isArray()
+				|| clazz.isClass();
 	}
 
 	private Optional<GenericAccessibleObject<?>> rouletteWheelSelect(
@@ -1344,11 +1362,7 @@ public class TestCluster {
 												  final List<GenericAccessibleObject<?>> generatorsWIP,
 												  final List<GenericClass> classesWIP) {
 		// The following (primitive) data types can be instantiated directly:
-		if (clazz.isPrimitive()
-				|| clazz.isEnum()
-				|| clazz.isString()
-				|| clazz.isArray()
-				|| clazz.isClass()) {
+		if (canGenerateDirectly(clazz)) {
 			return 1;
 		}
 
