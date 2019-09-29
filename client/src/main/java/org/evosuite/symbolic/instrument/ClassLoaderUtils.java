@@ -152,8 +152,8 @@ public class ClassLoaderUtils {
      */
     public static GenericExecutable<?, ?> getExecutable(final String methodNameDesc,
                                                         final Class<?> clazz) {
-        Objects.requireNonNull(methodNameDesc);
-        Objects.requireNonNull(clazz);
+        Objects.requireNonNull(methodNameDesc, "method name + descriptor must not be null");
+        Objects.requireNonNull(clazz, "class must not be null");
 
         if (!executableCache.containsKey(clazz)) {
             executableCache.put(clazz, new LinkedHashMap<>());
