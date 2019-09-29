@@ -311,6 +311,17 @@ public class Properties {
 	@Parameter(key = "migrants_communication_rate", group = "Test Creation", description = "Determines amount of migrants per communication step")
 	public static int MIGRANTS_COMMUNICATION_RATE = 3;
 
+	@Parameter(key = "merge_redundant_objects", description = "Whether redundant objects in test cases should be merged")
+	public static boolean MERGE_REDUNDANT_OBJECTS = false;
+
+	@Parameter(key = "p_keep_duplicate_objects", description = "probability with which a duplicate object is kept, even if redundant objects are to be merged (useful for testing copy constructors, equals(), etc.)" )
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double P_KEEP_DUPLICATE_OBJECTS = 0.25;
+
+	@Parameter(key = "p_random_deletion", description = "Probability with which random deletions should occur")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double P_RANDOM_DELETION = 0.25;
+
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {

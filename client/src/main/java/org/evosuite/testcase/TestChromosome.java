@@ -363,7 +363,8 @@ public class TestChromosome extends ExecutableChromosome {
 
 			// Delete
 			if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
-				if (Randomness.nextDouble() < 0.25) {
+				if (Randomness.nextDouble() < Properties.P_RANDOM_DELETION
+						|| !Properties.MERGE_REDUNDANT_OBJECTS) {
                     logger.debug("Mutation: random delete");
                     mutationDelete();
                 } else {
@@ -731,7 +732,7 @@ public class TestChromosome extends ExecutableChromosome {
 					)
 			);
 
-			if (allowDuplicates && Randomness.nextDouble() < 0.25) {
+			if (allowDuplicates && Randomness.nextDouble() < Properties.P_KEEP_DUPLICATE_OBJECTS) {
 				iter.next();
 			}
 
