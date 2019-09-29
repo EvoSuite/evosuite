@@ -30,8 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.evosuite.testcase.mutation.MutationUtils.rouletteWheelSelect;
-import static org.evosuite.testcase.mutation.MutationUtils.toMethodEntry;
+import static org.evosuite.testcase.mutation.MutationUtils.*;
 
 /**
  * This class implements a guided insertion strategy. That is, it uses static and dynamic
@@ -173,7 +172,7 @@ public class GuidedInsertion extends AbstractInsertion {
             candidates = preferredGoals;
 
             while (Randomness.nextBoolean() && !fallbackGoals.isEmpty()) {
-                final Optional<TestFitnessFunction> g = rouletteWheelSelect(fallbackGoals);
+                final Optional<TestFitnessFunction> g = chooseGoal(fallbackGoals);
                 final TestFitnessFunction luckyLoser = g.orElseThrow(IllegalStateException::new);
                 fallbackGoals.remove(luckyLoser);
                 candidates.add(luckyLoser);
@@ -215,7 +214,7 @@ public class GuidedInsertion extends AbstractInsertion {
          * we spend too much search budget on goals that are infeasible to cover.
          */
         final Optional<TestFitnessFunction> g =
-                rouletteWheelSelect(readingGoals.isEmpty() ? candidates : readingGoals);
+                chooseGoal(readingGoals.isEmpty() ? candidates : readingGoals);
         final TestFitnessFunction chosenGoal = g.orElseThrow(IllegalStateException::new);
 
         /*

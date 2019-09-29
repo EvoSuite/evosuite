@@ -7,15 +7,10 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.mutation.insertion.GuidedInsertion;
 import org.evosuite.testcase.statements.EntityWithParametersStatement;
 import org.evosuite.utils.Randomness;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.IntStream;
 
 public class MutationUtils {
 
@@ -58,5 +53,13 @@ public class MutationUtils {
                 // The probability of a goal being selected is inversely proportional to its
                 // complexity.
                 g -> 1d / g.getCyclomaticComplexity());
+    }
+
+    public static Optional<TestFitnessFunction> chooseGoal(final Collection<TestFitnessFunction> goals) {
+        if (Properties.FAVOR_SIMPLE_METHODS) {
+            return rouletteWheelSelect(goals);
+        } else {
+            return Optional.ofNullable(Randomness.choice(goals));
+        }
     }
 }

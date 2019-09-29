@@ -59,8 +59,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.evosuite.testcase.mutation.MutationUtils.rouletteWheelSelect;
-import static org.evosuite.testcase.mutation.MutationUtils.toMethodEntry;
+import static org.evosuite.testcase.mutation.MutationUtils.*;
 
 import static java.util.stream.Collectors.*;
 
@@ -448,7 +447,7 @@ public class TestChromosome extends ExecutableChromosome {
                     .collect(Collectors.toSet());
             if (!publicGoals.isEmpty()) {
                 logger.debug("choosing new goal for test case");
-				final Optional<TestFitnessFunction> g = rouletteWheelSelect(publicGoals);
+				final Optional<TestFitnessFunction> g = chooseGoal(publicGoals);
 				final TestFitnessFunction newGoal = g.orElseThrow(IllegalStateException::new);
                 test.setTarget(newGoal);
                 final EntityWithParametersStatement call = getStatementFor(newGoal);
