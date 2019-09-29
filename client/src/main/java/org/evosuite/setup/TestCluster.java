@@ -1205,6 +1205,7 @@ public class TestCluster {
 
 	private static boolean canGenerateDirectly(final GenericClass clazz) {
 		return clazz.isPrimitive()
+				|| clazz.isWrapperType()
 				|| clazz.isEnum()
 				|| clazz.isString()
 				|| clazz.isArray()
