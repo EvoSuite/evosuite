@@ -471,7 +471,7 @@ public class GuidedInsertion extends AbstractInsertion {
         final boolean previousGoalCovered = !goals().contains(previousGoal)
                 || (previousGoal == null && test.isEmpty());
 
-        if (previousGoalCovered) {
+        if (previousGoalCovered || !Properties.METHOD_DEPENDENCE_ANALYSIS) {
             debug("intended goal already covered, inserting random statements");
             return insertRandomParam(test, position);
         } else {

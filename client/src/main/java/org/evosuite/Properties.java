@@ -1311,6 +1311,9 @@ public class Properties {
 	@Parameter(key = "tt_scope", description = "Testability transformation")
 	public static TransformationScope TT_SCOPE = TransformationScope.ALL;
 
+	@Parameter(key = "method_dependence_analysis", description = "analyze data dependencies between methods and test such methods together")
+	public static boolean METHOD_DEPENDENCE_ANALYSIS = false;
+
 	// ---------------------------------------------------------------
 	// Contracts / Asserts:
 	@Parameter(key = "check_contracts", description = "Check contracts during test execution")
