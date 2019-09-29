@@ -406,6 +406,7 @@ public class GuidedInsertion extends AbstractInsertion {
         final GenericExecutable<?, ?> publicCaller =
                 findPublicCallerFor(calleeClassName, calleeMethodName);
         if (publicCaller == null) {
+            warn("no public caller found for {} in {}", calleeMethodName, calleeClassName);
             return false;
         } else {
             return super.insertCallFor(test, publicCaller, lastPos);
@@ -421,30 +422,37 @@ public class GuidedInsertion extends AbstractInsertion {
 
     private GenericExecutable<?, ?> findPublicCallerFor(final String calleeClassName,
                                                         final String calleeMethodName) {
-        final Set<MethodEntry> publicCallers = DependencyAnalysis.getCallGraph()
-                .getPublicCallersOf(calleeClassName, calleeMethodName);
+        final MethodEntry[] publicCallers = DependencyAnalysis.getCallGraph()
+                .getPublicCallersOf(calleeClassName, calleeMethodName)
+                .toArray(new MethodEntry[0]);
 
-        if (publicCallers.isEmpty()) {
-            debug("Could not find public caller for {} in class {}", calleeMethodName, calleeClassName);
-            // If we don't find a public caller, we have no choice but to give up... :(
+        if (publicCallers.length == 0) {
+            // If we don't find a public caller, we can't do anything :(
+            warn("No public caller for {} in {}", calleeMethodName, calleeClassName);
             return null;
         }
 
-        final MethodEntry chosenCaller;
-        if (publicCallers.size() == 1) {
-            chosenCaller = publicCallers.iterator().next();
-        } else {
-            // Just choose a caller randomly. In the future, we could try to make a random
-            // biased selection based on how difficult it is to generate the input parameters
-            // for the caller or the cyclomatic complexity of the caller.
-            chosenCaller = Randomness.choice(publicCallers);
+        // We randomly choose the first caller that works. In the future, we could try to make a
+        // random biased selection based on how difficult it is to generate the input parameters
+        // for the caller or the cyclomatic complexity of the caller.
+        Randomness.shuffle(publicCallers);
+        for (final MethodEntry caller : publicCallers) {
+            final String callerMethodNameDesc = caller.getMethodNameDesc();
+            final String callerClassName = caller.getClassName();
+
+            final Class<?> clazz = ClassLoaderUtils.getClazz(callerClassName);
+
+            if (clazz == null) {
+                warn("Unable to reflect {}", callerClassName);
+                continue; // try the next caller
+            }
+
+            // Return the first one that works out.
+            return ClassLoaderUtils.getExecutable(callerMethodNameDesc, clazz);
         }
 
-        final String callerMethodNameDesc = chosenCaller.getMethodNameDesc();
-        final String callerClassName = chosenCaller.getClassName();
-
-        final Class<?> clazz = ClassLoaderUtils.getClazz(callerClassName);
-        return ClassLoaderUtils.getExecutable(callerMethodNameDesc, clazz);
+        warn("No public caller for {} in {} could be reflected!", calleeMethodName, calleeClassName);
+        return null;
     }
 
     @Override
