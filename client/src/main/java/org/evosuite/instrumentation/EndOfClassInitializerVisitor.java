@@ -158,7 +158,7 @@ public class EndOfClassInitializerVisitor extends ClassVisitor {
 	private final String className;
 
 	public EndOfClassInitializerVisitor(ClassVisitor visitor, String className) {
-		super(Opcodes.ASM5, visitor);
+		super(Opcodes.ASM7, visitor);
 		this.className = className;
 	}
 

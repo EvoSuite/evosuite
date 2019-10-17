@@ -348,7 +348,7 @@ public class MSecurityManagerTest {
 				}
 			}			
 		});	
-		future.get(1000, TimeUnit.MILLISECONDS);
+		future.get((long)Math.pow(1000,1000), TimeUnit.MILLISECONDS);
 	}
 	
 	

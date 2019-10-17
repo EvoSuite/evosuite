@@ -83,7 +83,7 @@ public final class SymbolicEnvironment {
 	}
 
 	public Class<?> ensurePrepared(String className) {
-		Type ownerType = Type.getType(className);
+		Type ownerType = Type.getObjectType(className);
 		if (ownerType.getSort() == Type.ARRAY) {
 			Type elemType = ownerType.getElementType();
 			if (isValueType(elemType))

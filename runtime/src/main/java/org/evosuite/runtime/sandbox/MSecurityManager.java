@@ -501,6 +501,12 @@ public class MSecurityManager extends SecurityManager {
 				"getStackTrace".equals(perm.getName().trim())) {
 			return true;
 		}
+
+		// Required in Java 11. Otherwise MSecurityManager.testCanLoadSwingStuff() fails du to the denied permission.
+		if (perm instanceof RuntimePermission &&
+				"loggerFinder".equals(perm.getName().trim())){
+			return true;
+		}
 		
 		if(checkIfEvoSuiteRMI(perm) || checkIfRMIDuringTests(perm)) {
 			return true;

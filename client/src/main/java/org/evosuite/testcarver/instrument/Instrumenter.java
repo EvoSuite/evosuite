@@ -934,7 +934,7 @@ public final class Instrumenter
 				}
 			} else if(insn.getOpcode() == Opcodes.NEW || insn.getOpcode() == Opcodes.CHECKCAST) {
 				TypeInsnNode typeInsnNode = (TypeInsnNode)insn;
-				Type generatedType = Type.getType(typeInsnNode.desc);
+				Type generatedType = Type.getObjectType(typeInsnNode.desc);
 				String name = generatedType.getInternalName().replace('/', '.');
 				logger.debug("Checking for replacement of "+name);
 				for(Class<?> wrapperClass : wrapperClasses) {

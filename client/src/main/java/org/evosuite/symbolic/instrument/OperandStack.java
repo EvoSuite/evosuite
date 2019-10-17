@@ -270,7 +270,7 @@ final class OperandStack {
 		pushInt(paramNr);
 		pushInt(calleeLocalsIndex);
 		String signature = desc(VOID_TYPE, type, INT_TYPE, INT_TYPE);
-		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, CALLER_STACK_PARAM, signature);
+		mv.visitMethodInsn(INVOKESTATIC, VM_FQ, CALLER_STACK_PARAM, signature, false);
 	}
 
 	/**
