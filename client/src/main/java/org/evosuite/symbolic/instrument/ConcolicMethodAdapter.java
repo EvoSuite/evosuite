@@ -61,16 +61,11 @@ import static org.objectweb.asm.Opcodes.*;
 
 import java.util.*;
 
-import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.tree.LabelNode;
 
 /*
     This class is taken and adapted from the DSC tool developed by Christoph Csallner.
@@ -620,14 +615,7 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 				|| (opcode == INVOKESPECIAL && !INIT.equals(name))) {
 
 			// pop arguments
-			List<Integer> to = new ArrayList<>(argTypes.length);
-			for (Type t : argTypes){
-				int loc = newLocal(t);
-				storeLocal(loc);
-				to.add(loc);
-			}
-			Collections.reverse(to);
-
+			Map<Integer, Integer> to = popArguments(argTypes);
 
 			// duplicate receiver
 			dup();// callee
@@ -715,8 +703,17 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		//this.visitMethodInsn(opcode, owner, name, desc, opcode == INVOKEINTERFACE);
-		throw new IllegalStateException("Illegal use of depprecated method");
+		this.visitMethodInsn(opcode, owner, name, desc, opcode == INVOKEINTERFACE);
+	}
+
+	private Map<Integer, Integer> popArguments(Type[] argTypes){
+		Map<Integer, Integer> to = new HashMap<>();
+		for (int i = argTypes.length - 1; i >= 0; i--) {
+			int loc = newLocal(argTypes[i]);
+			storeLocal(loc);
+			to.put(i, loc);
+		}
+		return to;
 	}
 
 	private void passCallerStackParams(Type[] argTypes, boolean needThis) {
@@ -724,18 +721,11 @@ public final class ConcolicMethodAdapter extends GeneratorAdapter {
 		if (argTypes == null || argTypes.length == 0)
 			return;
 
-		// pop arguments and store them as locals
-		Map<Integer, Integer> to = new HashMap<>();
-		for (int i = argTypes.length - 1; i >= 0; i--) {
-			int loc = newLocal(argTypes[i]);
-			storeLocal(loc);
-			to.put(i, loc);
-		}
+		Map<Integer, Integer> to = popArguments(argTypes);
 
 		// restore all arguments for user invocation
-		for (int i = 0; i < argTypes.length; i++) {
+		for(int i = 0; i < to.size(); i++)
 			loadLocal(to.get(i));
-		}
 
 		// push arguments copy and paramNr and calleLocalsIndex
 		int calleeLocalsIndex = calculateCalleeLocalsIndex(argTypes, needThis);
