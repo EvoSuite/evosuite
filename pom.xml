@@ -425,7 +425,7 @@
                 <!-- BSD -->
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.10</version>
+                <version>1.4.10-java7</version>
             </dependency>
             <dependency>
                 <!-- Apache 2 -->
