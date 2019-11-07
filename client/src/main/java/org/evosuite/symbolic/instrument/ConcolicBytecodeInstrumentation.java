@@ -28,11 +28,6 @@ import org.evosuite.runtime.instrumentation.MethodCallReplacementClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
 // import org.slf4j.Logger;
 // import org.slf4j.LoggerFactory;
 
@@ -71,11 +66,16 @@ public class ConcolicBytecodeInstrumentation {
         if (Properties.RESET_STATIC_FIELDS) {
             // Create a __STATIC_RESET() cloning the original <clinit> method or create one by default
             final CreateClassResetClassAdapter resetClassAdapter ;
-            resetClassAdapter= new CreateClassResetClassAdapter(cv, className,Properties.RESET_STATIC_FINAL_FIELDS);
+            if (Properties.RESET_STATIC_FINAL_FIELDS) {
+                resetClassAdapter= new CreateClassResetClassAdapter(cv, className,true);
+            } else {
+                resetClassAdapter= new CreateClassResetClassAdapter(cv, className,false);
+            }
             cv = resetClassAdapter;
             // Add a callback before leaving the <clinit> method
 
-            cv = new EndOfClassInitializerVisitor(cv, className);
+            EndOfClassInitializerVisitor exitClassInitAdapter = new EndOfClassInitializerVisitor(cv, className);
+            cv = exitClassInitAdapter;
         }
 		
         // Mock instrumentation (eg File and TCP).
